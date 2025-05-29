@@ -1,0 +1,11 @@
+*.o
+*.out
+*.exe
+compiler
+*.h2
+*.log
+*.dSYM
+*.DS_Store
+build/
+.vscode/
+

@@ -1,0 +1,101 @@
+file_definitions = {
+    "parser_main": [
+        "ASTNode* parse(Parser* parser);",
+        "ASTNode* parseProgram(Parser* parser);",
+        "ASTNode* parseBlock(Parser* parser);",
+        "ASTNode* parseStatement(Parser* parser);"
+    ],
+    "parser_expr": [
+        "ASTNode* parseExpression(Parser* parser);",
+        "ASTNode* parseAssignmentExpression(Parser* parser);",
+        "ASTNode* parseTernaryExpression(Parser* parser);",
+        "ASTNode* parseBooleanExpression(Parser* parser);",
+        "ASTNode* parseComparisonExpression(Parser* parser);",
+        "ASTNode* parseBitwiseOr(Parser* parser);",
+        "ASTNode* parseBitwiseXor(Parser* parser);",
+        "ASTNode* parseBitwiseAnd(Parser* parser);",
+        "ASTNode* parseBitwiseShift(Parser* parser);",
+        "ASTNode* parseAdditionSubtraction(Parser* parser);",
+        "ASTNode* parseMultiplication(Parser* parser);",
+        "ASTNode* parseUnaryOrCast(Parser* parser);",
+        "ASTNode* parseFactor(Parser* parser);",
+        "ASTNode* parseCastExpression(Parser* parser);",
+        "ASTNode* parsePostfixExpression(Parser* parser);",
+        "ASTNode* parsePrimary(Parser* parser);",
+        "ASTNode* parseSizeofExpression(Parser* parser);",
+        "ASTNode* handleExpressionOrAssignment(Parser* parser);"
+    ],
+    "parser_stmt": [
+        "ASTNode* handleControlStatements(Parser* parser);",
+        "ASTNode* parseIfStatement(Parser* parser);",
+        "ASTNode* parseWhileLoop(Parser* parser);",
+        "ASTNode* parseDoWhileLoop(Parser* parser);",
+        "ASTNode* parseForLoop(Parser* parser);",
+        "ASTNode* parseForLoopInitializer(Parser* parser);",
+        "ASTNode* parseForLoopCondition(Parser* parser);",
+        "ASTNode* parseForLoopIncrement(Parser* parser);",
+        "ASTNode* parseReturnStatement(Parser* parser);",
+        "ASTNode* parseBreakStatement(Parser* parser);",
+        "ASTNode* parseContinueStatement(Parser* parser);",
+        "ASTNode* parseGotoStatement(Parser* parser);",
+        "ASTNode* parseLabel(Parser* parser);"
+    ],
+    "parser_decl": [
+        "ASTNode* handleTypeOrFunctionDeclaration(Parser* parser);",
+        "ASTNode* parseDeclaration(Parser* parser, ParsedType declaredType, size_t* varCount);",
+        "ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_t* outVarCount);",
+        "ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type);",
+        "ASTNode* parseDeclarationForLoop(Parser* parser);",
+        "ASTNode* parseStructDefinition(Parser* parser);",
+        "ASTNode* parseUnionDefinition(Parser* parser);",
+        "ASTNode* parseEnumDefinition(Parser* parser);",
+        "ASTNode* parseTypedef(Parser* parser);",
+        "ParsedType parseType(Parser* parser);",
+        "ASTNode* handleStructStatements(Parser* parser);"
+    ],
+    "parser_func": [
+        "ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType);",
+        "ASTNode** parseParameterList(Parser* parser, size_t* paramCount);",
+        "ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee);",
+        "ASTNode* parseFunctionPointerDeclaration(Parser* parser);"
+    ],
+    "parser_preproc": [
+        "ASTNode* handlePreprocessorDirectives(Parser* parser);",
+        "ASTNode* parseIncludeDirective(Parser* parser);",
+        "ASTNode* parseDefineDirective(Parser* parser);",
+        "ASTNode* parseConditionalDirective(Parser* parser);",
+        "ASTNode* parseEndifDirective(Parser* parser);"
+    ],
+    "parser_array": [
+        "DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* outCount);",
+        "ASTNode* parseArraySize(Parser* parser);",
+        "DesignatedInit** parseArrayInitializer(Parser* parser, ParsedType parentType, size_t* valueCount);",
+        "DesignatedInit** parseStructInitializer(Parser* parser, ParsedType parentType, size_t* outCount);",
+        "ASTNode* parseArrayAccess(Parser* parser, ASTNode* array);"
+    ],
+    "parser_switch": [
+        "ASTNode* parseSwitchStatement(Parser* parser);",
+        "void linkStatements(ASTNode* caseBody, ASTNode* stmt);"
+    ],
+    "parser_helpers": [
+        "void initParser(Parser* parser, Lexer* lexer);",
+        "void advance(Parser* parser);",
+        "void advanceParserWithLexer(Parser* parser, Lexer* tempLexer);",
+        "Lexer* cloneLexer(const Lexer* original);",
+        "void printParseError(const char* expected, Parser* parser);",
+        "Token peekNextToken(Parser* parser);",
+        "Token peekTwoTokensAhead(Parser* parser);",
+        "Token peekThreeTokensAhead(Parser* parser);",
+        "const char* getOperatorString(TokenType type);",
+        "bool isAssignmentOperator(TokenType type);",
+        "bool isPreprocessorToken(TokenType type);",
+        "bool isPrimitiveTypeToken(TokenType type);",
+        "bool isModifierToken(TokenType type);",
+        "bool isStorageSpecifier(TokenType type);"
+    ],
+    "parser_lookahead": [
+        "bool looksLikeTypeDeclaration(Parser* parser);",
+        "bool looksLikeCastType(Parser* parser);",
+        "bool looksLikeFunctionPointerDeclaration(Parser* parser);"
+    ]
+}

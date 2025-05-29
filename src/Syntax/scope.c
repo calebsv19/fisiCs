@@ -1,0 +1,34 @@
+#include "scope.h"
+#include <stdio.h>
+
+Scope* createScope(Scope* parent) {
+    Scope* scope = malloc(sizeof(Scope));
+    if (!scope) {
+        fprintf(stderr, "Error: Failed to allocate memory for Scope.\n");
+        return NULL;
+    }
+    initSymbolTable(&scope->table);
+    scope->parent = parent;
+    scope->depth = parent ? parent->depth + 1 : 0;
+    return scope;
+}
+
+void destroyScope(Scope* scope) {
+    if (!scope) return;
+    freeSymbolTable(&scope->table);
+    free(scope);
+}
+
+bool addToScope(Scope* scope, Symbol* sym) {
+    return insertSymbol(&scope->table, sym);
+}
+
+Symbol* resolveInScopeChain(Scope* scope, const char* name) {
+    while (scope) {
+        Symbol* found = lookupSymbol(&scope->table, name);
+        if (found) return found;
+        scope = scope->parent;
+    }
+    return NULL;
+}
+

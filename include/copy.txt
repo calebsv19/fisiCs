@@ -1,0 +1,87 @@
+DesignatedInit** parseDesignatedOrCompoundInitializer(Parser* parser, size_t* outCount) {
+    if (parser->currentToken.type != TOKEN_LBRACE) {
+        printParseError("Expected '{' to begin initializer list", parser);
+        return NULL;
+    }
+                
+    advance(parser);  // Consume '{'
+                
+    size_t capacity = 4;
+    size_t count = 0;
+    DesignatedInit** list = malloc(capacity * sizeof(DesignatedInit*));
+    if (!list) {
+        printf("Error: Memory allocation failed for initializer list.\n");
+        return NULL;
+    }
+            
+    while (parser->currentToken.type != TOKEN_RBRACE &&
+           parser->currentToken.type != TOKEN_EOF) {
+             
+        DesignatedInit* entry = NULL;
+        
+        // Handle designated initializer: `.field = value`
+        if (parser->currentToken.type == TOKEN_DOT &&
+            peekNextToken(parser).type == TOKEN_IDENTIFIER) {
+        
+            advance(parser);  // consume '.'  
+            char* field = parser->currentToken.value;
+            advance(parser);  // consume identifier
+            
+            if (parser->currentToken.type != TOKEN_ASSIGN) {
+                printParseError("Expected '=' after designated field", parser);
+                free(list);
+                return NULL;
+            }
+        
+            advance(parser);  // consume '='
+            ASTNode* expr = parseExpression(parser);
+            if (!expr) {
+                printf("Error: Invalid expression in designated initializer\n");
+                free(list);
+                return NULL;
+            }   
+ 
+            entry = createDesignatedInit(field, expr);
+        } else {
+            // Regular compound literal: just parse expression
+            ASTNode* expr = parseExpression(parser);
+            if (!expr) {
+                printf("Error: Invalid initializer value\n");
+                free(list);
+                return NULL;   
+            }
+            entry = createDesignatedInit(NULL, expr);  // No label
+        }
+            
+        if (count >= capacity) {
+            capacity *= 2;
+            list = realloc(list, capacity * sizeof(DesignatedInit*));
+            if (!list) {
+                printf("Error: Memory reallocation failed for initializer list.\n");
+                return NULL;
+            }
+        }
+        
+        list[count++] = entry;
+    
+        // Handle ',' or early end
+        if (parser->currentToken.type == TOKEN_COMMA) {
+            advance(parser);  // Consume comma
+        } else if (parser->currentToken.type != TOKEN_RBRACE) {
+            printParseError("Expected ',' or '}' in initializer list", parser);
+            free(list);
+return NULL;
+        }
+    }
+     
+    if (parser->currentToken.type != TOKEN_RBRACE) {
+        printParseError("Expected '}' at end of initializer list", parser);
+        free(list);
+        return NULL;
+    }
+     
+    advance(parser);  // Consume '}'
+    *outCount = count;
+    return list;
+}
+
