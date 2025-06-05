@@ -89,46 +89,42 @@ ASTNode* parseBlock(Parser* parser) {
 ASTNode* parseStatement(Parser* parser) {
     printf("DEBUG: Current Token: %s at line %d\n", parser->currentToken.value,
            parser->currentToken.line);
-           
-    // Handle block {...}
+
+    // --- Block Statement ---
     if (parser->currentToken.type == TOKEN_LBRACE) {
         return parseBlock(parser);
     }
-     
-    // Handle preprocessor directives
+
+    // --- Preprocessor Directive ---
     if (isPreprocessorToken(parser->currentToken.type)) {
         return handlePreprocessorDirectives(parser);
     }
-     
-    // Handle control flow statements (if, while, for, return, break, continue, etc.)
+
+    // --- Control Flow (if, for, while, return, etc.) ---
     ASTNode* controlStmt = handleControlStatements(parser);
     if (controlStmt) return controlStmt;
-    
-    // Handle label: syntax
-    if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-        Token next = peekNextToken(parser);
-        if (next.type == TOKEN_COLON) {
-            ASTNode* labelNode = parseLabel(parser);
-            if (labelNode) return labelNode;
-        }
+
+    // --- Label ---
+    if (parser->currentToken.type == TOKEN_IDENTIFIER &&
+        peekNextToken(parser).type == TOKEN_COLON) {
+        return parseLabel(parser);
     }
 
-
-     
+    // --- Function Pointer Declaration ---
     if (looksLikeFunctionPointerDeclaration(parser)) {
-        printf("checking function pointer declaration passed\n");
+        printf("DEBUG: Detected function pointer declaration\n");
         return parseFunctionPointerDeclaration(parser);
     }
 
-     
-     
-    // Check for variable/function declarations
-    if (looksLikeTypeDeclaration(parser)) {
-        printf("checking looks like type celcaration passed\n");
-        ASTNode* typeOrFunction = handleTypeOrFunctionDeclaration(parser);
-        if (typeOrFunction) return typeOrFunction;
+    // --- Type-based Declaration (function/variable) ---
+    if (parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
+        looksLikeTypeDeclaration(parser)) {
+        printf("DEBUG: Detected type-based declaration\n");
+        ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
+        if (decl) return decl;
     }
-     
-    // Fallback: treat as a regular expression or assignment
+
+    // --- Expression or Assignment ---
     return handleExpressionOrAssignment(parser);
 }
+

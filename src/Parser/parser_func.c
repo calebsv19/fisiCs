@@ -189,72 +189,76 @@ ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee) {
 
 
 ASTNode* parseFunctionPointerDeclaration(Parser* parser) {
-    printf("DEBUG: Entering parseFunctionPointerDeclarator() at line %d\n", 
-			parser->currentToken.line);
-     
-    // Parse the return type first (modifiers + primitive/user-defined type + pointer depth)
+    printf("DEBUG: Entering parseFunctionPointerDeclaration() at line %d\n",
+           parser->currentToken.line);
+
+    // 1. Parse return type
     ParsedType returnType = parseType(parser);
     if (returnType.kind == TYPE_INVALID) {
-        printParseError("Invalid return type in function pointer declarator", parser);
+        printParseError("Invalid return type in function pointer declaration", parser);
         return NULL;
     }
-        
-    // Expect '('
+
+    // 2. Expect '('
     if (parser->currentToken.type != TOKEN_LPAREN) {
-        printParseError("Expected '(' to start function pointer declarator", parser);
+        printParseError("Expected '(' after return type", parser);
         return NULL;
     }
     advance(parser);  // consume '('
-        
-    // Expect '*'
+
+    // 3. Expect '*'
     if (parser->currentToken.type != TOKEN_ASTERISK) {
         printParseError("Expected '*' in function pointer declarator", parser);
         return NULL;
     }
     advance(parser);  // consume '*'
-     
-    // Expect identifier (name of function pointer)
+
+    // 4. Expect identifier
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-        printParseError("Expected function pointer name", parser);
+        printParseError("Expected identifier for function pointer name", parser);
         return NULL;
     }
     ASTNode* name = createIdentifierNode(parser->currentToken.value);
     advance(parser);  // consume name
-                 
-    // Expect ')'
+
+    // 5. Expect ')'
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' after function pointer name", parser);
         return NULL;
-    }       
+    }
     advance(parser);  // consume ')'
 
-    // Expect '(' to start parameter list
+    // 6. Expect '(' to start parameter list
     if (parser->currentToken.type != TOKEN_LPAREN) {
-        printParseError("Expected '(' to start parameter list in function pointer declarator", 
-				parser);
+        printParseError("Expected '(' to start parameter list", parser);
         return NULL;
     }
     advance(parser);  // consume '('
-     
-    // Parse parameters
+
+    // 7. Parse parameters
     ASTNode** paramList = NULL;
     size_t paramCount = 0;
     if (parser->currentToken.type != TOKEN_RPAREN) {
         paramList = parseParameterList(parser, &paramCount);
         if (!paramList) {
-            printf("Error: Invalid parameters in function pointer declaration at line %d\n",
-                   parser->currentToken.line);
+            printParseError("Invalid parameters in function pointer declaration", parser);
             return NULL;
         }
     }
-        
-    if (parser->currentToken.type == TOKEN_RPAREN) {
-            advance(parser);  // consume ')'
-    }
 
-    if (parser->currentToken.type == TOKEN_SEMICOLON) {
-            advance(parser);  // consume ';'
+    if (parser->currentToken.type != TOKEN_RPAREN) {
+        printParseError("Expected ')' to close parameter list", parser);
+        return NULL;
     }
-    // Create the AST node
+    advance(parser);  // consume ')'
+
+    // 8. Expect semicolon
+    if (parser->currentToken.type != TOKEN_SEMICOLON) {
+        printParseError("Expected ';' after function pointer declaration", parser);
+        return NULL;
+    }
+    advance(parser);  // consume ';'
+
     return createFunctionPointerDeclarationNode(returnType, name, paramList, paramCount);
 }
+

@@ -21,6 +21,7 @@ ASTNode* parseDeclarationForLoop(Parser* parser);
 // Struct, union, enum, typedef
 ASTNode* parseStructDefinition(Parser* parser);
 ASTNode* parseUnionDefinition(Parser* parser);
+ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount);
 ASTNode* parseEnumDefinition(Parser* parser);
 ASTNode* parseTypedef(Parser* parser);
 

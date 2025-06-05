@@ -301,21 +301,25 @@ ASTNode* parseMultiplication(Parser* parser) {
     return left;
 }
  
+
 ASTNode* parseUnaryOrCast(Parser* parser) {
-    // Look ahead: is this a cast?
-        printf("DEBUG: Entering parseUorcast() with token '%s' (Type: %d) at line %d\n",
+    printf("DEBUG: Entering parseUnaryOrCast() with token '%s' (Type: %d) at line %d\n",
            parser->currentToken.value, parser->currentToken.type, parser->currentToken.line);
+
     if (parser->currentToken.type == TOKEN_LPAREN) {
+        Token backupToken = parser->currentToken;
         if (looksLikeCastType(parser)) {
+            printf("DEBUG: Looks like cast — calling parseCastExpression()\n");
             return parseCastExpression(parser);
         } else {
-                printf("        failed cast entry\n");
+            printf("DEBUG: Not a cast — restoring '(' and continuing\n");
+            parser->currentToken = backupToken;  // Reset state to treat as expression
         }
     }
-     
-    // If not a cast, fallback to existing factor logic
+
     return parseFactor(parser);
 }
+
 
 ASTNode* parseFactor(Parser* parser) {
     printf("DEBUG: Entering parseFactor() with token '%s' (Type: %d) at line %d\n",
@@ -395,38 +399,40 @@ ASTNode* parseFactor(Parser* parser) {
 ASTNode* parseCastExpression(Parser* parser) {
     printf("DEBUG: Entering parseCastExpression() with token '%s' (line %d)\n",
            parser->currentToken.value, parser->currentToken.line);
-           
-    // Step 1: Consume '('
+
+    // Ensure we’re starting with a cast
     if (parser->currentToken.type != TOKEN_LPAREN) {
         printParseError("Expected '(' at start of cast", parser);
         return NULL;
     }
-    advance(parser);
-    
-    // Step 2: Parse the type inside parentheses
+    advance(parser); // consume '('
+
+    // Parse the cast type inside the parentheses
     ParsedType castType = parseType(parser);
     if (castType.kind == TYPE_INVALID) {
-        printf("Error: Invalid type in cast expression at line %d\n", parser->currentToken.line);
+        printParseError("Invalid type in cast expression", parser);
         return NULL;
     }
-     
-    // Step 3: Expect and consume ')'
+
+    // Match the closing ')'
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' after cast type", parser);
         return NULL;
     }
-    advance(parser);
-    
-    // Step 4: Parse the target expression (must be a factor-level expression)
-    ASTNode* target = parseFactor(parser);
-    if (!target) {
-        printf("Error: Invalid expression after cast at line %d\n", parser->currentToken.line);
+    advance(parser); // consume ')'
+
+    // Parse the expression being casted
+    ASTNode* targetExpr = parseUnaryOrCast(parser);
+    if (!targetExpr) {
+        printParseError("Invalid expression after cast", parser);
         return NULL;
     }
-     
-    // Step 5: Create and return the cast node
-    return createCastExpressionNode(castType, target);
+
+    return createCastExpressionNode(castType, targetExpr);
 }
+
+
+
 
 ASTNode* parsePostfixExpression(Parser* parser) {
     ASTNode* expr;

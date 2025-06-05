@@ -1,5 +1,6 @@
 #include "parser_decl.h"
 #include "parser_helpers.h"
+#include "parser_lookahead.h"
 #include "parser_func.h"
 #include "parser_array.h"
 #include "parser_expr.h"
@@ -7,6 +8,13 @@
 ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
     printf("DEBUG: Entered handleTypeOrFunctionDeclaration()\n");
 
+    // --- Case 0: Function Pointer Declaration (before parseType) ---
+    if (looksLikeFunctionPointerDeclaration(parser)) {
+        printf("DEBUG: Detected function pointer declaration via lookahead\n");
+        return parseFunctionPointerDeclaration(parser);
+    }
+
+    // Normal type-based parsing follows
     ParsedType parsedType = parseType(parser);
     if (parsedType.kind == TYPE_INVALID) {
         printParseError("Invalid type in declaration", parser);
@@ -237,196 +245,124 @@ ASTNode* parseUnionDefinition(Parser* parser) {
         printParseError("Expected 'union'", parser);
         return NULL;
     }
-     
-    advance(parser); // consume 'union'
-    
-    if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-        printParseError("Expected union name", parser); 
-        return NULL;
+    advance(parser);  // consume 'union'
+
+    char* unionName = NULL;
+    if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        unionName = strdup(parser->currentToken.value);
+        advance(parser);
     }
-     
-    char* unionName = parser->currentToken.value;
-    advance(parser); // consume name
-    
+
     if (parser->currentToken.type != TOKEN_LBRACE) {
         printParseError("Expected '{' after union name", parser);
         return NULL;
     }
-     
-    advance(parser); // consume '{'
-    
-    // Parse fields (same as struct parsing)
-    ASTNode** fields = NULL;
-    size_t fieldCount = 0;  
-    size_t capacity = 4;    
-    fields = malloc(capacity * sizeof(ASTNode*));
-    
-    while (parser->currentToken.type != TOKEN_RBRACE && parser->currentToken.type != TOKEN_EOF) {
-        ParsedType fieldType = parseType(parser);
-        
-        size_t varCount = 0;
-        ASTNode* decl = parseVariableDeclaration(parser, fieldType, &varCount);
-        if (!decl) break;
-        
-        fields[fieldCount++] = decl;
-        
-        if (fieldCount >= capacity) {
-            capacity *= 2;
-            fields = realloc(fields, capacity * sizeof(ASTNode*));
-        }
-    }
-     
+    advance(parser);  // consume '{'
+
+    size_t fieldCount = 0;
+    ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount);
+
     if (parser->currentToken.type != TOKEN_RBRACE) {
         printParseError("Expected '}' at end of union definition", parser);
         return NULL;
     }
-     
-    advance(parser); // consume '}'
-    
-    if (parser->currentToken.type == TOKEN_SEMICOLON) {
-        advance(parser); // consume trailing semicolon after struct
-    } else {
-        printParseError("Expected ';' after struct definition", parser);
+    advance(parser);  // consume '}'
+
+    if (parser->currentToken.type != TOKEN_SEMICOLON) {
+        printParseError("Expected ';' after union definition", parser);
         return NULL;
     }
-     
+    advance(parser);  // consume ';'
+
     return createStructOrUnionDefinitionNode(AST_UNION_DEFINITION, unionName, fields, fieldCount);
 }
 
 
 ASTNode* parseStructDefinition(Parser* parser) {
     printf("    entering struct parsing\n");
-    advance(parser);  // Consume 'struct'   
-    
+    advance(parser);  // consume 'struct'
+
     char* structName = NULL;
-    
-    // Optional label before block
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         structName = strdup(parser->currentToken.value);
-        advance(parser);  // Consume struct name
+        advance(parser);  // consume name
     }
-     
+
     if (parser->currentToken.type != TOKEN_LBRACE) {
         printParseError("Expected '{' after struct name", parser);
         return NULL;
     }
-    advance(parser);  // Consume '{'
-    
-    ASTNode** fields = NULL;
-    size_t fieldCount = 0;  
-    size_t capacity = 4;    
-    fields = malloc(capacity * sizeof(ASTNode*));
-    
-    while (parser->currentToken.type != TOKEN_RBRACE && parser->currentToken.type != TOKEN_EOF) {
+    advance(parser);  // consume '{'
+
+    size_t fieldCount = 0;
+    ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount);
+
+    if (parser->currentToken.type != TOKEN_RBRACE) {
+        printParseError("Expected '}' to close struct body", parser);
+        return NULL;
+    }
+    advance(parser);  // consume '}'
+
+    // Optional trailing name
+    if (!structName && parser->currentToken.type == TOKEN_IDENTIFIER) {
+        structName = strdup(parser->currentToken.value);
+        advance(parser);
+    }
+
+    if (parser->currentToken.type != TOKEN_SEMICOLON) {
+        printParseError("Expected ';' after struct definition", parser);
+        return NULL;
+    }
+    advance(parser);  // consume ';'
+
+    return createStructOrUnionDefinitionNode(AST_STRUCT_DEFINITION, structName, fields, fieldCount);
+}
+
+
+ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
+    ASTNode** fields = malloc(sizeof(ASTNode*) * 4);
+    size_t count = 0;
+    size_t capacity = 4;
+
+    while (parser->currentToken.type != TOKEN_RBRACE &&
+           parser->currentToken.type != TOKEN_EOF) {
+
         ParsedType type = parseType(parser);
-        
-        // === FUNCTION POINTER FIELD CASE ===
-        // Lookahead for function pointer field: int (*fn)();
-        if (parser->currentToken.type == TOKEN_LPAREN &&
-            peekNextToken(parser).type == TOKEN_ASTERISK &&
-            peekTwoTokensAhead(parser).type == TOKEN_IDENTIFIER) {
-            
-            advance(parser); // (
-            advance(parser); // *
-            
-            // Parse function pointer name
-            if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-                printParseError("Expected function pointer name", parser);
-                return NULL;
-            }
-             
-            char* fname = parser->currentToken.value;
-            ASTNode* fieldName = createIdentifierNode(fname);
-            advance(parser); // consume name
-            
-            // Expect ')'
-            if (parser->currentToken.type != TOKEN_RPAREN) {
-                printParseError("Expected ')' after function pointer name", parser);
-                return NULL;
-            }
-            advance(parser); // consume ')'
-            
-            // Expect '(' to begin parameter list (we ignore param parsing for now)
-            if (parser->currentToken.type != TOKEN_LPAREN) {
-                printParseError("Expected '(' for function pointer parameter list", parser);
-                return NULL;
-            }
-             
-            // Skip until closing ')'
-            advance(parser); // consume '('
-            while (parser->currentToken.type != TOKEN_RPAREN &&
-                   parser->currentToken.type != TOKEN_EOF) {   
-                advance(parser);
-            }
-             
-            if (parser->currentToken.type != TOKEN_RPAREN) {
-                printParseError("Expected ')' to close function pointer parameters", parser);
-                return NULL;
-            }
-            advance(parser); // consume ')'
-            
-            if (parser->currentToken.type != TOKEN_SEMICOLON) {
-                printParseError("Expected ';' after function pointer field", parser);
-                return NULL;
-            }
-            advance(parser); // consume ';'
-            
-            // Create a variable declaration node for the function pointer
-            ASTNode** names = malloc(sizeof(ASTNode*));
-           DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
-            names[0] = fieldName;
-            initializers[0] = NULL;
-            
-            ASTNode* fieldDecl = createVariableDeclarationNode(type, names, initializers, 1);
-            if (fieldCount >= capacity) {
-                capacity *= 2;
-                fields = realloc(fields, capacity * sizeof(ASTNode*));
-            }
-            fields[fieldCount++] = fieldDecl;
-            continue;  // Skip the rest of the loop — already handled this field
+        if (type.kind == TYPE_INVALID) {
+            printParseError("Invalid type in field declaration", parser);
+            break;
         }
-         
-        // === NORMAL FIELD CASE ===
+
         if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-            printParseError("Expected field name in struct", parser);
-            return NULL;
+            printParseError("Expected field name in struct/union", parser);
+            break;
         }
-         
-         
+
         ASTNode* fieldName = createIdentifierNode(parser->currentToken.value);
-        advance(parser);  // consume field name
-        
-        // Parse one or more dimensions: [2][3][4]
+        advance(parser); // consume field name
+
+        // Parse array sizes if present
         ASTNode* arraySize = NULL;
         while (parser->currentToken.type == TOKEN_LBRACKET) {
-            ASTNode* newSize = parseArraySize(parser);
-            if (!newSize) {
-                printParseError("Invalid array size in multidimensional field", parser);
-                return NULL;
-            }
-             
-            arraySize = chainArraySizes(arraySize, newSize);
+            ASTNode* size = parseArraySize(parser);
+            if (!size) break;
+            arraySize = chainArraySizes(arraySize, size);
         }
-         
-         
+
+        // Optional bitfield width
         ASTNode* bitFieldWidth = NULL;
         if (parser->currentToken.type == TOKEN_COLON) {
-            advance(parser);  // consume ':'
+            advance(parser);
             bitFieldWidth = parseAssignmentExpression(parser);
-            if (!bitFieldWidth) {
-                printParseError("Invalid bit field width expression", parser);
-                return NULL;
-            }
         }
-         
+
         if (parser->currentToken.type != TOKEN_SEMICOLON) {
-            printParseError("Expected ';' after struct field", parser);
-            return NULL;
+            printParseError("Expected ';' after struct/union field", parser);
+            break;
         }
-        advance(parser);  // consume ';'
-        
+        advance(parser); // consume ';'
+
         ASTNode* fieldDecl = NULL;
-        
         if (arraySize) {
             fieldDecl = createArrayDeclarationNode(type, fieldName, arraySize, NULL, 0);
         } else {
@@ -436,37 +372,18 @@ ASTNode* parseStructDefinition(Parser* parser) {
             initializers[0] = NULL;
             fieldDecl = createVariableDeclarationNode(type, names, initializers, 1);
         }
-         
-        // Attach bit field info if present
+
         fieldDecl->varDecl.bitFieldWidth = bitFieldWidth;
-        
-        if (fieldCount >= capacity) {
+
+        if (count >= capacity) {
             capacity *= 2;
-            fields = realloc(fields, capacity * sizeof(ASTNode*));
+            fields = realloc(fields, sizeof(ASTNode*) * capacity);
         }
-        fields[fieldCount++] = fieldDecl;
+        fields[count++] = fieldDecl;
     }
-     
-    if (parser->currentToken.type != TOKEN_RBRACE) {
-        printParseError("Expected '}' to close struct body", parser);
-        return NULL;
-    }
-    advance(parser);  // consume '}'
-    
-    // Optional label *after* block
-    if (!structName && parser->currentToken.type == TOKEN_IDENTIFIER) {
-        structName = strdup(parser->currentToken.value);
-        advance(parser);
-    }
-     
-    if (parser->currentToken.type == TOKEN_SEMICOLON) {
-        advance(parser);  // consume ';'
-    } else {
-        printParseError("Expected ';' after struct definition", parser);
-        return NULL;
-    }
-     
-    return createStructOrUnionDefinitionNode(AST_STRUCT_DEFINITION, structName, fields, fieldCount);
+
+    *outCount = count;
+    return fields;
 }
 
 
