@@ -2,7 +2,7 @@
 #define SYMBOL_TABLE_H
 
 #include "../Parser/parsed_type.h"
-#include "../ast_node.h"
+#include "AST/ast_node.h"
 #include <stdbool.h>
 
 typedef enum {

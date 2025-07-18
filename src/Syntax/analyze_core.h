@@ -1,7 +1,7 @@
 #ifndef ANALYZE_CORE_H
 #define ANALYZE_CORE_H
 
-#include "../ast_node.h"
+#include "AST/ast_node.h"
 #include "scope.h"
 
 // Central dispatch
