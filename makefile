@@ -14,15 +14,25 @@ SRC_DIR := src
 BUILD_DIR := build
 BIN := compiler
 
+# === Step 1: Generate keyword_lookup.c from keywords.gperf ===
+src/Lexer/keyword_lookup.c: src/Lexer/keywords.gperf
+	@echo "Generating keyword_lookup.c from keywords.gperf..."
+	gperf src/Lexer/keywords.gperf > src/Lexer/keyword_lookup.c
 
-# === Find all .c files recursively ===
+# === Step 2: Ensure all objects depend on keyword_lookup.c ===
+# This makes sure it's generated before any compilation happens
+$(BUILD_DIR)/%.o: src/Lexer/keyword_lookup.c
+
+# === Step 3: Find all .c files and create .o list ===
 SRCS := $(shell find $(SRC_DIR) -name '*.c')
+SRCS += src/Lexer/keyword_lookup.c
+
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
 
 # === Default Target ===
 all: $(BIN)
 
-# === Link all object files into the final binary ===
+# === Link object files into final binary ===
 $(BIN): $(OBJS)
 	@echo "Linking $@..."
 	$(CC) $^ -o $@ $(LDFLAGS)
@@ -37,9 +47,10 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 clean:
 	@echo "Cleaning..."
 	rm -rf $(BUILD_DIR) $(BIN)
+	rm -f src/Lexer/keyword_lookup.c
 
 # === Run the compiled binary ===
-run: $(BIN)
+run: src/Lexer/keyword_lookup.c $(BIN)
 	@./$(BIN)
 
 # === Phony Targets ===

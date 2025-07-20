@@ -33,7 +33,7 @@ int main(void) {
 
     // === Parsing Phase ===
     Parser parser;
-    initParser(&parser, &lexer);
+    initParser(&parser, &lexer, PARSER_MODE_PRATT);
     ASTNode *root = parse(&parser);
 
 

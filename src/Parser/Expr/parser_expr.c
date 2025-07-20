@@ -1,15 +1,28 @@
 #include "parser_expr.h"
-#include "parser_helpers.h"
-#include "parser_array.h"
-#include "parser_lookahead.h"
-#include "parser_func.h"
-#include "parser_decl.h"
+#include "Parser/parser_helpers.h"
+#include "Parser/parser_array.h"
+#include "Parser/parser_lookahead.h"
+#include "Parser/parser_func.h"
+#include "Parser/parser_decl.h"
+
+#include "Parser/Expr/parser_expr_pratt.h"
 
 ASTNode* parseExpression(Parser* parser) {
-    return parseCommaExpression(parser);  //  Ternary is the topmost operator in precedence
+    if (parser->mode == PARSER_MODE_PRATT) {
+        return parseExpressionPratt(parser, 0);
+    }
+    return parseCommaExpression(parser);  // fallback to recursive
 }
 
 ASTNode* parseCommaExpression(Parser* parser) {
+    if (parser->mode == PARSER_MODE_PRATT) {
+        return parseExpressionPratt(parser, 0);  // Pratt handles comma internally
+    }
+    return parseCommaExpressionRecursive(parser);  // fallback to your original
+}
+
+
+ASTNode* parseCommaExpressionRecursive(Parser* parser) {
     ASTNode** exprList = malloc(sizeof(ASTNode*) * 4);
     size_t capacity = 4;
     size_t count = 0;   

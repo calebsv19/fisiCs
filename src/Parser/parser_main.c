@@ -111,14 +111,16 @@ ASTNode* parseStatement(Parser* parser) {
     }
 
     // --- Function Pointer Declaration ---
-    if (looksLikeFunctionPointerDeclaration(parser)) {
+    if (parser->currentToken.type != TOKEN_LPAREN &&
+	    looksLikeFunctionPointerDeclaration(parser)) {
         printf("DEBUG: Detected function pointer declaration\n");
         return parseFunctionPointerDeclaration(parser);
     }
 
     // --- Type-based Declaration (function/variable) ---
-    if (parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
-        looksLikeTypeDeclaration(parser)) {
+    if (parser->mode == PARSER_MODE_RECURSIVE &&
+		parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
+        	looksLikeTypeDeclaration(parser)) {
         printf("DEBUG: Detected type-based declaration\n");
         ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
         if (decl) return decl;

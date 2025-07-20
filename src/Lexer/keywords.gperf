@@ -1,0 +1,53 @@
+%{
+#include <stddef.h>
+#include <string.h>
+#include "tokens.h"
+%}
+%language=C
+%define slot-name name
+%define hash-function-name keyword_hash
+%define lookup-function-name in_keyword_set
+%readonly-tables
+%define word-array-name wordlist
+
+%%
+int
+char
+float
+double
+long
+short
+signed
+unsigned
+bool
+enum
+union
+struct
+typedef
+void
+if
+else
+for
+while
+do
+switch
+case
+default
+return
+goto
+break
+continue
+extern
+static
+auto
+register
+const
+volatile
+restrict
+inline
+sizeof
+asm
+pragma
+once
+%%
+

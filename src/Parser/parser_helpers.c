@@ -1,10 +1,12 @@
 #include "parser_helpers.h"
 #include "parser_lookahead.h"
+#include "parser_config.h"
 
 
 // Initialize parser with a fresh token window
-void initParser(Parser* parser, Lexer* lexer) {
+void initParser(Parser* parser, Lexer* lexer, ParserMode mode) {
     parser->lexer = lexer;
+    parser->mode = mode;
     parser->currentToken = getNextToken(lexer);
     parser->nextToken = getNextToken(lexer);
     parser->nextNextToken = getNextToken(lexer);
@@ -179,4 +181,33 @@ bool isModifierToken(TokenType type) {
  
 bool isStorageSpecifier(TokenType type) {
     return type == TOKEN_STATIC || type == TOKEN_EXTERN || type == TOKEN_AUTO || type == TOKEN_REGISTER;  
+}
+
+
+bool isKnownType(const char* name) {
+    return strcmp(name, "int") == 0 ||
+           strcmp(name, "float") == 0 ||
+           strcmp(name, "char") == 0 ||
+           strcmp(name, "double") == 0 ||
+           strcmp(name, "bool") == 0 ||
+           strcmp(name, "void") == 0;
+}
+
+
+bool isValidExpressionStart(TokenType type) {
+    return
+        type == TOKEN_IDENTIFIER ||
+        type == TOKEN_LPAREN ||
+        type == TOKEN_NUMBER ||
+        type == TOKEN_FLOAT_LITERAL ||
+        type == TOKEN_STRING ||
+        type == TOKEN_CHAR_LITERAL ||
+        type == TOKEN_MINUS ||
+        type == TOKEN_PLUS ||
+        type == TOKEN_LOGICAL_NOT ||
+        type == TOKEN_BITWISE_NOT ||
+        type == TOKEN_INCREMENT ||
+        type == TOKEN_DECREMENT ||
+        type == TOKEN_ASTERISK ||     // for pointer dereference
+        type == TOKEN_SIZEOF;
 }

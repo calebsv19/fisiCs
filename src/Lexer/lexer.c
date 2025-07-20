@@ -4,27 +4,11 @@
 #include <string.h>
 #include "lexer.h"
 
+#include "Lexer/keyword_lookup.h"
+
 #define _POSIX_C_SOURCE 200809L
 #include <unistd.h>
 
-// Lookup table for C keywords
-static const struct {
-    const char* word;
-    TokenType type;
-} keywordTable[] = {
-    {"int", TOKEN_INT}, {"char", TOKEN_CHAR}, {"float", TOKEN_FLOAT}, {"double", TOKEN_DOUBLE},
-    {"long", TOKEN_LONG}, {"short", TOKEN_SHORT}, {"signed", TOKEN_SIGNED}, {"unsigned", TOKEN_UNSIGNED},
-    {"bool", TOKEN_BOOL}, {"enum", TOKEN_ENUM}, {"union", TOKEN_UNION}, {"struct", TOKEN_STRUCT},
-    {"typedef", TOKEN_TYPEDEF}, {"void", TOKEN_VOID}, {"if", TOKEN_IF}, {"else", TOKEN_ELSE},
-    {"for", TOKEN_FOR}, {"while", TOKEN_WHILE}, {"do", TOKEN_DO}, {"switch", TOKEN_SWITCH},
-    {"case", TOKEN_CASE}, {"default", TOKEN_DEFAULT}, {"return", TOKEN_RETURN}, {"goto", TOKEN_GOTO},
-    {"break", TOKEN_BREAK}, {"continue", TOKEN_CONTINUE}, {"extern", TOKEN_EXTERN}, {"static", TOKEN_STATIC},
-    {"auto", TOKEN_AUTO}, {"register", TOKEN_REGISTER}, {"const", TOKEN_CONST}, {"volatile", TOKEN_VOLATILE},
-    {"restrict", TOKEN_RESTRICT}, {"inline", TOKEN_INLINE}, 
-    {"sizeof", TOKEN_SIZEOF}, {"asm", TOKEN_ASM}, 
-    {NULL, TOKEN_IDENTIFIER}
-};
-           
 
 void initLexer(Lexer* lexer, const char* source){
 	lexer->source = source;
@@ -95,6 +79,10 @@ int isEOF(Lexer* lexer) {
     return lexer->source[lexer->position] == '\0';
 }
 
+const struct keyword *lookupKeyword(const char *str, size_t len) {
+    return in_keyword_set(str, len);
+}
+
 Token handleIdentifierOrKeyword(Lexer* lexer) {
     int start = lexer->position;
 
@@ -104,15 +92,14 @@ Token handleIdentifierOrKeyword(Lexer* lexer) {
     }
 
     char* text = strndup(lexer->source + start, lexer->position - start);
-
     printf("DEBUG: Identified potential identifier or keyword: %s\n", text);
 
-    // Check if the text matches a keyword
-    for (int i = 0; keywordTable[i].word != NULL; i++) {
-        if (strcmp(text, keywordTable[i].word) == 0) {
-            printf("DEBUG: Matched keyword: %s\n", text);
-            return (Token){keywordTable[i].type, text, lexer->line};
-        }
+    // Use gperf string-based lookup
+    const char* matchedKeyword = in_keyword_set(text, strlen(text));
+    if (matchedKeyword) {
+        TokenType tokenType = keywordToTokenType(matchedKeyword);
+        printf("DEBUG: Matched keyword: %s → TokenType: %d\n", text, tokenType);
+        return (Token){tokenType, text, lexer->line};
     }
 
     printf("DEBUG: Classified as identifier: %s\n", text);
@@ -452,5 +439,49 @@ Token handleUnknownToken(Lexer* lexer) {
     char current = lexer->source[lexer->position];
     lexer->position++; // Move past the current character
     return (Token){TOKEN_UNKNOWN, "ERROR", lexer->line};
+}
+
+
+
+TokenType keywordToTokenType(const char* word) {
+    if (strcmp(word, "int") == 0) return TOKEN_INT;
+    if (strcmp(word, "char") == 0) return TOKEN_CHAR;
+    if (strcmp(word, "float") == 0) return TOKEN_FLOAT;
+    if (strcmp(word, "double") == 0) return TOKEN_DOUBLE;
+    if (strcmp(word, "long") == 0) return TOKEN_LONG;
+    if (strcmp(word, "short") == 0) return TOKEN_SHORT;
+    if (strcmp(word, "signed") == 0) return TOKEN_SIGNED;
+    if (strcmp(word, "unsigned") == 0) return TOKEN_UNSIGNED;
+    if (strcmp(word, "bool") == 0) return TOKEN_BOOL;
+    if (strcmp(word, "enum") == 0) return TOKEN_ENUM;
+    if (strcmp(word, "union") == 0) return TOKEN_UNION;
+    if (strcmp(word, "struct") == 0) return TOKEN_STRUCT;
+    if (strcmp(word, "typedef") == 0) return TOKEN_TYPEDEF;
+    if (strcmp(word, "void") == 0) return TOKEN_VOID;
+    if (strcmp(word, "if") == 0) return TOKEN_IF;
+    if (strcmp(word, "else") == 0) return TOKEN_ELSE;
+    if (strcmp(word, "for") == 0) return TOKEN_FOR;
+    if (strcmp(word, "while") == 0) return TOKEN_WHILE;
+    if (strcmp(word, "do") == 0) return TOKEN_DO;
+    if (strcmp(word, "switch") == 0) return TOKEN_SWITCH;
+    if (strcmp(word, "case") == 0) return TOKEN_CASE;
+    if (strcmp(word, "default") == 0) return TOKEN_DEFAULT;
+    if (strcmp(word, "return") == 0) return TOKEN_RETURN;
+    if (strcmp(word, "goto") == 0) return TOKEN_GOTO;
+    if (strcmp(word, "break") == 0) return TOKEN_BREAK;
+    if (strcmp(word, "continue") == 0) return TOKEN_CONTINUE;
+    if (strcmp(word, "extern") == 0) return TOKEN_EXTERN;
+    if (strcmp(word, "static") == 0) return TOKEN_STATIC;
+    if (strcmp(word, "auto") == 0) return TOKEN_AUTO;
+    if (strcmp(word, "register") == 0) return TOKEN_REGISTER;
+    if (strcmp(word, "const") == 0) return TOKEN_CONST;
+    if (strcmp(word, "volatile") == 0) return TOKEN_VOLATILE;
+    if (strcmp(word, "restrict") == 0) return TOKEN_RESTRICT;
+    if (strcmp(word, "inline") == 0) return TOKEN_INLINE;
+    if (strcmp(word, "sizeof") == 0) return TOKEN_SIZEOF;
+    if (strcmp(word, "asm") == 0) return TOKEN_ASM;
+    if (strcmp(word, "pragma") == 0) return TOKEN_PRAGMA;
+    if (strcmp(word, "once") == 0) return TOKEN_ONCE;
+    return TOKEN_IDENTIFIER;
 }
 

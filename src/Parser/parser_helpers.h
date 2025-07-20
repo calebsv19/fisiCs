@@ -10,7 +10,7 @@
 #include "Lexer/lexer.h"
 
 // Token management
-void initParser(Parser* parser, Lexer* lexer);
+void initParser(Parser* parser, Lexer* lexer, ParserMode mode);
 void advance(Parser* parser);
 
 // Lexer cloning
@@ -33,6 +33,9 @@ bool isPreprocessorToken(TokenType type);
 bool isPrimitiveTypeToken(TokenType type);
 bool isModifierToken(TokenType type);
 bool isStorageSpecifier(TokenType type);
+bool isKnownType(const char* name);
+bool isValidExpressionStart(TokenType type);
+
 
 #endif // _PARSER_HELPERS_H
 

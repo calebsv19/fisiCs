@@ -15,6 +15,8 @@ void initLexer(Lexer* lexer, const char* source);
 Token getNextToken(Lexer* lexer);
 void skipWhitespace(Lexer* lexer);
 int isEOF(Lexer* lexer);
+
+const struct keyword *lookupKeyword(const char *str, size_t len);
 Token handleIdentifierOrKeyword(Lexer* lexer);
 Token handleNumber(Lexer* lexer);
 Token handleStringLiteral(Lexer* lexer);
@@ -25,6 +27,8 @@ Token handleOperator(Lexer* lexer);
 Token handleSingleCharOperator(Lexer* lexer);
 Token handlePunctuation(Lexer* lexer);
 Token handleUnknownToken(Lexer* lexer);
+
+TokenType keywordToTokenType(const char* word);
 
 #endif
 
