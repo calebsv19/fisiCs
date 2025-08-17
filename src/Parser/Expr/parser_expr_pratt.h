@@ -19,6 +19,7 @@ int getTokenRightBindingPower(TokenType type);
 // parse methods
 ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee);
 ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen);
+ASTNode* parseSizeofExpressionPratt(Parser* parser);
 
 #endif // _PARSER_EXPR_PRATT_H
 

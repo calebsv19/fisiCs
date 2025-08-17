@@ -1,1 +1,4 @@
-ptr = (MyType*)somePointer;
+arr[2] = 7;
+
+
+arr[a] = 7;

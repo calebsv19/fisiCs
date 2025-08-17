@@ -1,6 +1,8 @@
 #include "parser_array.h"
 #include "parser_helpers.h"
-#include "parser_expr.h"
+#include "Parser/Expr/parser_expr.h"
+#include "Parser/Expr/parser_expr_pratt.h" 
+
 
 DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* outCount) {
     if (type.kind == TYPE_USER_DEFINED) {
@@ -43,31 +45,35 @@ ASTNode* parseArraySize(Parser* parser) {
 }
 
 ASTNode* parseArrayAccess(Parser* parser, ASTNode* baseArray) {
+    // Only proceed if the next token starts an index
     if (parser->currentToken.type != TOKEN_LBRACKET) {
-        return baseArray;  // Not an array access, return the original identifier
+        return baseArray;
     }
-     
-    while (parser->currentToken.type == TOKEN_LBRACKET) {  //  Supports `arr[x][y]`
-        advance(parser); // Consume `[`
-        
-        ASTNode* index = parseExpression(parser);
+
+    do {
+        advance(parser); // consume '['
+
+        // Use Pratt for the index expression (full precedence, commas handled upstream)
+        ASTNode* index = parseExpressionPratt(parser, 0);
         if (!index) {
-            printf("Error: Invalid array index expression at line %d\n", parser->currentToken.line);
+            printParseError("Invalid array index expression", parser);
             return NULL;
         }
-         
+
         if (parser->currentToken.type != TOKEN_RBRACKET) {
-            printf("Error: Expected ']' after array index at line %d\n", parser->currentToken.line);
+            printParseError("Expected ']' after array index", parser);
             return NULL;
         }
-        advance(parser); //  Consume `]`
-        
-        // Handle multi-dimensional array accesses (`arr[x][y]`)
+        advance(parser); // consume ']'
+
+        // Support chained/multi-dimensional access: arr[i][j]...
         baseArray = createArrayAccessNode(baseArray, index);
-    }
-     
+
+    } while (parser->currentToken.type == TOKEN_LBRACKET);
+
     return baseArray;
 }
+
 
 DesignatedInit** parseArrayInitializer(Parser* parser, ParsedType parentType, size_t* valueCount) {
     if (parser->currentToken.type != TOKEN_LBRACE) return NULL;

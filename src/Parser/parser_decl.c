@@ -3,7 +3,9 @@
 #include "parser_lookahead.h"
 #include "parser_func.h"
 #include "parser_array.h"
-#include "parser_expr.h"
+#include "parsed_type.h"
+#include "Parser/Expr/parser_expr.h"
+#include "Parser/Expr/parser_expr_pratt.h"
 
 ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
     printf("DEBUG: Entered handleTypeOrFunctionDeclaration()\n");
@@ -164,6 +166,8 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
     *outVarCount = varCount;
     return createVariableDeclarationNode(declaredType, varNames, initializers, varCount);
 }
+
+
 
 
 ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type) {
@@ -554,139 +558,118 @@ ASTNode* handleStructStatements(Parser* parser) {
 ParsedType parseType(Parser* parser) {
     ParsedType type = {
         .kind = TYPE_INVALID,
+        .tag  = TAG_NONE,
+
+        .isFunctionPointer = false,
+        .fpParamCount = 0,
+        .fpParams = NULL,
+
         .primitiveType = TOKEN_VOID,
-        .userTypeName = NULL,
-            
-        .isConst = false,
-        .isSigned = false,
+        .userTypeName  = NULL,
+
+        .isConst    = false,
+        .isSigned   = false,
         .isUnsigned = false,
-        .isShort = false,
-        .isLong = false,
+        .isShort    = false,
+        .isLong     = false,
         .isVolatile = false,
         .isRestrict = false,
-        .isInline = false,
-        
-        .isStatic = false,
-        .isExtern = false,
+        .isInline   = false,
+
+        .isStatic   = false,
+        .isExtern   = false,
         .isRegister = false,
-        .isAuto = false,
-    
+        .isAuto     = false,
+
         .pointerDepth = 0
     };
-        
+
     // Handle storage class specifiers first
     while (true) {
         switch (parser->currentToken.type) {
-            case TOKEN_STATIC:
-                type.isStatic = true; 
-                advance(parser);
-                break;
-            case TOKEN_EXTERN:
-                type.isExtern = true;
-                advance(parser);
-                break;
-            case TOKEN_REGISTER:
-                type.isRegister = true;
-                advance(parser);
-                break;  
-            case TOKEN_AUTO:
-                type.isAuto = true;
-                advance(parser);
-                break;
-            default:
-                goto modifiers;
+            case TOKEN_STATIC:   type.isStatic   = true; advance(parser); break;
+            case TOKEN_EXTERN:   type.isExtern   = true; advance(parser); break;
+            case TOKEN_REGISTER: type.isRegister = true; advance(parser); break;
+            case TOKEN_AUTO:     type.isAuto     = true; advance(parser); break;
+            default: goto modifiers;
         }
     }
-        
+
 modifiers:
     // Now parse other modifiers and qualifiers
     while (true) {
         switch (parser->currentToken.type) {
-            case TOKEN_CONST:
-                type.isConst = true;
-                advance(parser);
-                break;
-            case TOKEN_SIGNED:
-                type.isSigned = true;
-                advance(parser);
-                break;
-            case TOKEN_UNSIGNED:
-                type.isUnsigned = true;
-                advance(parser);
-                break;
-            case TOKEN_SHORT:
-                type.isShort = true;
-                advance(parser);
-                break;
-            case TOKEN_LONG:
-                type.isLong = true;
-                advance(parser);   
-                break;
-            case TOKEN_VOLATILE:
-                type.isVolatile = true;
-                advance(parser);
-                break;
-            case TOKEN_RESTRICT:
-                type.isRestrict = true;
-                advance(parser);
-                break;
-            case TOKEN_INLINE:
-                type.isInline = true;
-                advance(parser);
-                break;
-            default:  
-                goto type_name;
+            case TOKEN_CONST:    type.isConst    = true; advance(parser); break;
+            case TOKEN_SIGNED:   type.isSigned   = true; advance(parser); break;
+            case TOKEN_UNSIGNED: type.isUnsigned = true; advance(parser); break;
+            case TOKEN_SHORT:    type.isShort    = true; advance(parser); break;
+            case TOKEN_LONG:     type.isLong     = true; advance(parser); break;
+            case TOKEN_VOLATILE: type.isVolatile = true; advance(parser); break;
+            case TOKEN_RESTRICT: type.isRestrict = true; advance(parser); break;
+            case TOKEN_INLINE:   type.isInline   = true; advance(parser); break;
+            default: goto type_name;
         }
     }
 
 type_name:
-
-    // === Handle primitive types or modifiers ===
+    // === Handle primitive types ===
     if (isPrimitiveTypeToken(parser->currentToken.type)) {
         type.kind = TYPE_PRIMITIVE;
         type.primitiveType = parser->currentToken.type;
         advance(parser);
     }
-     
-    // === Handle struct types ===
-    else if (parser->currentToken.type == TOKEN_STRUCT) {
-        advance(parser); // consume 'struct'
+
+    // === Handle struct/union types ===
+    else if (parser->currentToken.type == TOKEN_STRUCT ||
+             parser->currentToken.type == TOKEN_UNION) {
+        TokenType tagTok = parser->currentToken.type;
+        advance(parser); // consume 'struct'/'union'
+
         if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-            printParseError("Expected identifier after 'struct'", parser);
+            printParseError("Expected identifier after 'struct'/'union'", parser);
             type.kind = TYPE_INVALID;
             return type;
         }
         type.kind = TYPE_USER_DEFINED;
+        type.tag  = (tagTok == TOKEN_STRUCT) ? TAG_STRUCT : TAG_UNION;
         type.userTypeName = strdup(parser->currentToken.value);
-        type.tag = TAG_STRUCT;
         advance(parser);
     }
-     
-    // === Handle user-defined types (typedefs or unknown types) ===
+
+    // === Handle user-defined types (typedef names) ===
     else if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-        type.kind = TYPE_USER_DEFINED;
-        type.userTypeName = strdup(parser->currentToken.value);
-        advance(parser);
+        if (isKnownType(parser->currentToken.value)) {
+            type.kind = TYPE_USER_DEFINED;
+            type.tag  = TAG_NONE;
+            type.userTypeName = strdup(parser->currentToken.value);
+            advance(parser);
+        } else {
+            // Not a known typedef: leave TYPE_INVALID so callers (e.g., cast lookahead)
+            // can bail out and treat '(' ... ')' as a grouped expression instead.
+            return type;
+        }
     }
-     
+
     // === No explicit base type, but modifiers imply "int" ===
     else if (type.isUnsigned || type.isSigned || type.isShort || type.isLong) {
         type.kind = TYPE_PRIMITIVE;
         type.primitiveType = TOKEN_INT;
         // Do not advance — no base type token present
     }
-     
+
     // === Error case ===
     else {
         printParseError("Expected type name (after modifiers)", parser);
         return type;
     }
-     
-    // === Parse pointer depth ===
+
+    // === Parse pointer depth (belongs to declarator part) ===
     while (parser->currentToken.type == TOKEN_ASTERISK) {
         type.pointerDepth += 1;
         advance(parser);
+        // Optional: consume qualifiers after each '*'
+        // while (isTypeQualifier(parser->currentToken.type)) advance(parser);
     }
-     
+
     return type;
 }

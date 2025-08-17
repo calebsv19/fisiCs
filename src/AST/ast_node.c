@@ -616,15 +616,21 @@ ASTNode *createFunctionCallNode(ASTNode *callee, ASTNode **arguments, size_t arg
     return node;
 }
 
-ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType, ASTNode* name, ASTNode** params, size_t 
-paramCount) {
+ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType,
+                                              ASTNode* name,
+                                              ASTNode** params,
+                                              size_t paramCount,
+                                              ASTNode* initializer) {
     ASTNode* node = malloc(sizeof(ASTNode));
     node->type = AST_FUNCTION_POINTER;
     node->nextStmt = NULL;
-    node->functionPointer.returnType = returnType;
+
+    node->functionPointer.returnType = returnType;   // includes isFunctionPointer, fpParams
     node->functionPointer.name = name;
     node->functionPointer.parameters = params;
     node->functionPointer.paramCount = paramCount;
+    node->functionPointer.initializer = initializer; // NEW
+
     return node;
 }
 

@@ -1,6 +1,6 @@
 #include "parser_switch.h"
 #include "parser_helpers.h"
-#include "parser_expr.h"
+#include "Parser/Expr/parser_expr.h"
 #include "parser_main.h"
 
 ASTNode* parseSwitchStatement(Parser* parser) {  

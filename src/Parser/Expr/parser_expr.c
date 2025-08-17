@@ -9,7 +9,7 @@
 
 ASTNode* parseExpression(Parser* parser) {
     if (parser->mode == PARSER_MODE_PRATT) {
-        return parseExpressionPratt(parser, 0);
+        return parseExpressionPratt(parser, -1);
     }
     return parseCommaExpression(parser);  // fallback to recursive
 }

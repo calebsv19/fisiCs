@@ -220,11 +220,12 @@ struct ASTNode {
 	    size_t argumentCount;
         } functionCall;
 
-	struct {
+        struct {
             ParsedType returnType;
             ASTNode* name;                // function pointer name (identifier)
-            ASTNode** parameters;         // parameter list
+            ASTNode** parameters;         // parameter list (if you keep it)
             size_t paramCount;
+            ASTNode* initializer;         // NEW: optional "= <expr>" initializer
         } functionPointer;
 
 
@@ -399,8 +400,13 @@ ASTNode* createFunctionDeclarationNode(ParsedType returnType, const char* name);
 ASTNode* createFunctionDefinitionNode(ParsedType returnType, ASTNode* funcName, ASTNode** paramList, 
 					ASTNode* body, size_t paramCount);
 ASTNode *createFunctionCallNode(ASTNode *callee, ASTNode **arguments, size_t argumentCount);
-ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType, ASTNode* name, 
-						ASTNode** params, size_t paramCount);
+ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType,
+                                              ASTNode* name,
+                                              ASTNode** params,
+                                              size_t paramCount,
+                                              ASTNode* initializer);
+
+
 
 // Switch/Case
 ASTNode *createCaseNode(ASTNode *caseValue, ASTNode **caseBody);

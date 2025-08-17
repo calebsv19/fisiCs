@@ -1,6 +1,8 @@
 #ifndef PARSED_TYPE_H
 #define PARSED_TYPE_H
 
+#include <stdlib.h>
+
 #include "../Lexer/tokens.h"  // Required for TokenType
 #include <stdbool.h>
 
@@ -16,9 +18,13 @@ typedef enum {
 typedef enum { TAG_NONE, TAG_STRUCT, TAG_UNION } TagKind;
 
 // Struct representing a parsed type
-typedef struct {
+typedef struct ParsedType {
     TypeKind kind;
     TagKind tag;
+
+    bool isFunctionPointer;
+    size_t fpParamCount;
+    struct ParsedType* fpParams;  // array of parameter types (own it)
 
     // If primitive (e.g. int, float), use this
     TokenType primitiveType;
@@ -50,7 +56,21 @@ typedef struct {
 
 // Utility to convert TokenType to string
 const char* getTokenTypeName(TokenType type);
+void parsedTypeAddPointerDepth(ParsedType* t, int depth);
 
+// Optional tiny helpers
+void parsedTypeSetFunctionPointer(ParsedType* t, size_t nParams, const ParsedType* params);
+void parsedTypeFree(ParsedType* t);  // free fpParams if set (call in your global cleanup)
+
+/* Default initializer for ParsedType 
+static inline ParsedType parsedTypeDefault(void) {
+    ParsedType t;
+    memset(&t, 0, sizeof(ParsedType));
+    t.kind = TYPE_INVALID;
+    t.tag  = TAG_NONE;
+    return t;
+}
+*/
 
 #endif // PARSED_TYPE_H
 

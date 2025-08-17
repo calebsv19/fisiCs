@@ -190,7 +190,8 @@ bool isKnownType(const char* name) {
            strcmp(name, "char") == 0 ||
            strcmp(name, "double") == 0 ||
            strcmp(name, "bool") == 0 ||
-           strcmp(name, "void") == 0;
+           strcmp(name, "void") == 0 ||
+           strcmp(name, "MyType") == 0; // TEMP for your test
 }
 
 

@@ -2,14 +2,23 @@
 #include "Parser/designated_init.h"
 #include <stdio.h>
 
+static void printParsedType_inner(const ParsedType* pt);
+
 void printParsedType(const ParsedType* pt) {
-    // Print storage class specifiers
+    printParsedType_inner(pt);
+    printf("\n");
+}
+
+static void printParsedType_inner(const ParsedType* pt) {
+    if (!pt) { printf("<null-type>"); return; }
+
+    /* Storage class */
     if (pt->isStatic)   printf("static ");
     if (pt->isExtern)   printf("extern ");
     if (pt->isRegister) printf("register ");
     if (pt->isAuto)     printf("auto ");
 
-    // Print type qualifiers
+    /* Qualifiers / modifiers */
     if (pt->isConst)    printf("const ");
     if (pt->isSigned)   printf("signed ");
     if (pt->isUnsigned) printf("unsigned ");
@@ -19,18 +28,35 @@ void printParsedType(const ParsedType* pt) {
     if (pt->isRestrict) printf("restrict ");
     if (pt->isInline)   printf("inline ");
 
+    /* Base name: primitive or user-defined (struct/union/name) */
     if (pt->kind == TYPE_PRIMITIVE) {
         printf("%s", getTokenTypeName(pt->primitiveType));
     } else {
         if (pt->tag == TAG_STRUCT) printf("struct ");
         if (pt->tag == TAG_UNION)  printf("union ");
-        printf("%s", pt->userTypeName);
+        printf("%s", pt->userTypeName ? pt->userTypeName : "<anon>");
     }
 
-    for (int i = 0; i < pt->pointerDepth; i++) {
-        printf("*");
+    /* Declarator part */
+if (pt->isFunctionPointer) {
+        /* Render as: <base> ( <stars> )(param, ...) */
+        printf(" (");
+        if (pt->pointerDepth > 0) {
+            for (int i = 0; i < pt->pointerDepth; i++) printf("*");
+        } else {
+            /* function pointers should always have at least one star,
+               but guard just in case: */
+            printf("*");
+        }
+        printf(")(");
+        for (size_t i = 0; i < pt->fpParamCount; i++) {
+            if (i) printf(", ");
+            printParsedType_inner(&pt->fpParams[i]);
+        }
+        printf(")");
+    } else {
+        for (int i = 0; i < pt->pointerDepth; i++) printf("*");
     }
-    printf("\n");
 }
 
 
