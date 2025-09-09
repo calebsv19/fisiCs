@@ -169,40 +169,72 @@ Token handleStringLiteral(Lexer* lexer) {
 
 Token handleCharLiteral(Lexer* lexer) {
     printf("DEBUG: Entering handleCharLiteral() at line %d\n", lexer->line);
-    lexer->position++; // Skip opening single quote
-    char current = lexer->source[lexer->position];
+    lexer->position++; // skip opening '
 
-    // Handle escape sequences
-    if (current == '\\') {
-        lexer->position++;
-        switch (lexer->source[lexer->position]) {
-            case 'n': current = '\n'; break;
-            case 't': current = '\t'; break;
-            case 'r': current = '\r'; break;
-            case 'b': current = '\b'; break;
-            case 'f': current = '\f'; break;
-            case 'a': current = '\a'; break;
-            case 'v': current = '\v'; break;
-            case '\\': current = '\\'; break;
-            case '\'': current = '\''; break;
-            case '\"': current = '\"'; break;
-            default: return (Token){TOKEN_UNKNOWN, "Invalid escape sequence", lexer->line};
+    int val = 0;
+    char ch = lexer->source[lexer->position++];
+
+    if (ch == '\\') {
+        char e = lexer->source[lexer->position++];
+        switch (e) {
+            case 'n':  val = '\n'; break;
+            case 't':  val = '\t'; break;
+            case 'r':  val = '\r'; break;
+            case 'b':  val = '\b'; break;
+            case 'f':  val = '\f'; break;
+            case 'a':  val = '\a'; break;
+            case 'v':  val = '\v'; break;
+            case '\\': val = '\\'; break;
+            case '\'': val = '\''; break;
+            case '\"': val = '\"'; break;
+
+            // \xHH… (1+ hex digits)
+            case 'x': {
+                int hex = 0, any = 0;
+                while (isxdigit((unsigned char)lexer->source[lexer->position])) {
+                    char h = lexer->source[lexer->position++];
+                    hex *= 16;
+                    if (h >= '0' && h <= '9') hex += (h - '0');
+                    else if (h >= 'a' && h <= 'f') hex += (h - 'a' + 10);
+                    else hex += (h - 'A' + 10);
+                    any = 1;
+                }
+                if (!any) return (Token){TOKEN_UNKNOWN, "Invalid \\x escape", lexer->line};
+                val = hex & 0xFF;
+                break;
+            }
+
+            // Octal \nnn (up to 3 octal digits; first already in e)
+            default:
+                if (e >= '0' && e <= '7') {
+                    int oct = (e - '0');
+                    for (int k = 0; k < 2; ++k) {
+                        char d = lexer->source[lexer->position];
+                        if (d < '0' || d > '7') break;
+                        lexer->position++;
+                        oct = (oct << 3) + (d - '0');
+                    }
+                    val = oct & 0xFF;
+                } else {
+                    // unknown escape, take literally
+                    val = (unsigned char)e;
+                }
+                break;
         }
+    } else {
+        val = (unsigned char)ch;
     }
 
-    lexer->position++;
-
-    // Ensure valid single-character literal
-    if (lexer->source[lexer->position] != '\'') {
+    if (lexer->source[lexer->position] != '\'')
         return (Token){TOKEN_UNKNOWN, "Invalid character literal", lexer->line};
-    }
-    lexer->position++; // Consume closing single quote
 
-    char text[4] = {'\'', current, '\'', '\0'};  // Store full character literal with quotes
+    lexer->position++; // consume closing '
 
-    printf("DEBUG: Created TOKEN_CHAR_LITERAL with value %s at line %d\n", text, lexer->line);
-    
-    return (Token){TOKEN_CHAR_LITERAL, strdup(text), lexer->line};
+    // store numeric value as text, keeps your existing print style simple
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%d", val);
+    printf("DEBUG: Created TOKEN_CHAR_LITERAL with value %s at line %d\n", buf, lexer->line);
+    return (Token){TOKEN_CHAR_LITERAL, strdup(buf), lexer->line};
 }
 
 // Processes specific preprocessor directives (#define, #include, etc.)
@@ -343,27 +375,35 @@ Token handleOperator(Lexer* lexer) {
             }
             return (Token){TOKEN_MODULO, "%", lexer->line};
 
-        case '<':
-            if (lexer->source[lexer->position] == '<') {
-                lexer->position++;
-                return (Token){TOKEN_LEFT_SHIFT, "<<", lexer->line};
-            }
-            if (lexer->source[lexer->position] == '=') {
-                lexer->position++;
-                return (Token){TOKEN_LESS_EQUAL, "<=", lexer->line};
-            }
-            return (Token){TOKEN_LESS, "<", lexer->line};
-
-        case '>':
-            if (lexer->source[lexer->position] == '>') {
-                lexer->position++;
-                return (Token){TOKEN_RIGHT_SHIFT, ">>", lexer->line};
-            }
-            if (lexer->source[lexer->position] == '=') {
-                lexer->position++;
-                return (Token){TOKEN_GREATER_EQUAL, ">=", lexer->line};
-            }
-            return (Token){TOKEN_GREATER, ">", lexer->line};
+	case '<':
+	    if (lexer->source[lexer->position] == '<') {                  // << or <<=
+	        lexer->position++;
+	        if (lexer->source[lexer->position] == '=') {              // NEW: <<=
+	            lexer->position++;
+	            return (Token){TOKEN_LEFT_SHIFT_ASSIGN, "<<=", lexer->line};
+	        }
+	        return (Token){TOKEN_LEFT_SHIFT, "<<", lexer->line};
+	    }
+	    if (lexer->source[lexer->position] == '=') {
+	        lexer->position++;
+	        return (Token){TOKEN_LESS_EQUAL, "<=", lexer->line};
+	    }
+	    return (Token){TOKEN_LESS, "<", lexer->line};
+	
+	case '>':
+	    if (lexer->source[lexer->position] == '>') {                  // >> or >>=
+	        lexer->position++;
+	        if (lexer->source[lexer->position] == '=') {              // NEW: >>=
+	            lexer->position++;
+	            return (Token){TOKEN_RIGHT_SHIFT_ASSIGN, ">>=", lexer->line};
+	        }
+	        return (Token){TOKEN_RIGHT_SHIFT, ">>", lexer->line};
+	    }
+	    if (lexer->source[lexer->position] == '=') {
+	        lexer->position++;
+	        return (Token){TOKEN_GREATER_EQUAL, ">=", lexer->line};
+	    }
+	    return (Token){TOKEN_GREATER, ">", lexer->line};
 
         case '!':
             if (lexer->source[lexer->position] == '=') {
@@ -372,19 +412,27 @@ Token handleOperator(Lexer* lexer) {
             }
             return (Token){TOKEN_LOGICAL_NOT, "!", lexer->line};
 
-        case '&':
-            if (lexer->source[lexer->position] == '&') {
-                lexer->position++;
-                return (Token){TOKEN_LOGICAL_AND, "&&", lexer->line};
-            }
-            return (Token){TOKEN_BITWISE_AND, "&", lexer->line};
-
-        case '|':
-            if (lexer->source[lexer->position] == '|') {
-                lexer->position++;
-                return (Token){TOKEN_LOGICAL_OR, "||", lexer->line};
-            }
-            return (Token){TOKEN_BITWISE_OR, "|", lexer->line};
+	case '&':
+	    if (lexer->source[lexer->position] == '&') {
+	        lexer->position++;
+	        return (Token){TOKEN_LOGICAL_AND, "&&", lexer->line};
+	    }
+	    if (lexer->source[lexer->position] == '=') {                 // NEW: &=
+	        lexer->position++;
+	        return (Token){TOKEN_BITWISE_AND_ASSIGN, "&=", lexer->line};
+	    }
+	    return (Token){TOKEN_BITWISE_AND, "&", lexer->line};
+	
+	case '|':
+	    if (lexer->source[lexer->position] == '|') {
+	        lexer->position++;
+	        return (Token){TOKEN_LOGICAL_OR, "||", lexer->line};
+	    }
+	    if (lexer->source[lexer->position] == '=') {                  // NEW: |=
+	        lexer->position++;
+	        return (Token){TOKEN_BITWISE_OR_ASSIGN, "|=", lexer->line};
+	    }
+	    return (Token){TOKEN_BITWISE_OR, "|", lexer->line};
 
 	case '^':
 	    if (lexer->source[lexer->position] == '=') {

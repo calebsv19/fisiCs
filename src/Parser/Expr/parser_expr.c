@@ -597,23 +597,31 @@ ASTNode* parseSizeofExpression(Parser* parser) {
 
 
 ASTNode* handleExpressionOrAssignment(Parser* parser) {
-    // Always parse full expression (w/ identifiers, dot/arrow access, literals, function calls, etc$
-    ASTNode* expr = parseExpression(parser);
-         
+    ASTNode* expr = NULL;
+
+    if (parser->mode == PARSER_MODE_PRATT) {
+        // Loosest floor so postfix/access can chain and '=' can bind afterward
+        expr = parseExpressionPratt(parser, -1);
+        printf("DEBUG: Parsed expression (PRATT, rbp=-1)\n");
+    } else {
+        // Legacy recursive descent path
+        expr = parseExpression(parser);
+        printf("DEBUG: Parsed expression (RECURSIVE)\n");
+    }
+
     if (!expr) {
         printf("Error: Failed to parse expression at line %d\n", parser->currentToken.line);
         return NULL;
     }
-    
+
     // Ensure expression ends in a semicolon
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
         printf("Error: expected ';' after expression at line %d\n", parser->currentToken.line);
         return NULL;
     }
-     
     advance(parser); // Consume ';'
-    
-    //  Wrap comma expression as block-style sequence (multiple expressions at top level)
+
+    // Wrap top-level comma expressions as a block of statements (unchanged)
     if (expr->type == AST_COMMA_EXPRESSION) {
         ASTNode* blockNode = malloc(sizeof(ASTNode));
         blockNode->type = AST_BLOCK;
@@ -622,6 +630,7 @@ ASTNode* handleExpressionOrAssignment(Parser* parser) {
         blockNode->nextStmt = NULL;
         return blockNode;
     }
-            
+
     return expr;
-} 
+}
+

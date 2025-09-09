@@ -17,6 +17,10 @@ int getTokenRightBindingPower(TokenType type);
 
 
 // parse methods
+bool consumeBalancedParens(Parser* p);
+void consumeAbstractDeclarator(Parser* p);
+bool looksLikeParenTypeName(Parser* parser);
+ASTNode* ledFunctionCall(Parser* parser, ASTNode* callee);
 ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee);
 ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen);
 ASTNode* parseSizeofExpressionPratt(Parser* parser);

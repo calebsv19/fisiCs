@@ -1,9 +1,11 @@
 #include "parser_helpers.h"
 #include "parser_stmt.h"
-#include "Parser/Expr/parser_expr.h"
 #include "parser_main.h"
 #include "parser_decl.h"
 #include "parser_switch.h"
+#include "Parser/Expr/parser_expr.h"
+#include "Parser/Expr/parser_expr_pratt.h"
+
 
 ASTNode* handleControlStatements(Parser* parser) {
     // === Type Definitions & Declarations === 
@@ -373,25 +375,32 @@ ASTNode* parseReturnStatement(Parser* parser) {
         return NULL;
     }
     advance(parser); // Consume 'return'
-     
+
     ASTNode* expr = NULL;
-        
-    // If not a semicolon, assume it's an expression   
+
+    // If not a semicolon, parse a return expression
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
-        expr = parseExpression(parser);
+        if (parser->mode == PARSER_MODE_PRATT) {
+            expr = parseExpressionPratt(parser, -1);  // Loosest floor at statement scope
+            printf("DEBUG: Parsed return expr (PRATT, rbp=-1)\n");
+        } else {
+            expr = parseExpression(parser);
+            printf("DEBUG: Parsed return expr (RECURSIVE)\n");
+        }
+
         if (!expr) {
             printf("Error: Invalid return expression at line %d\n", parser->currentToken.line);
             return NULL;
         }
-    }           
+    }
 
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
         printf("Error: expected ';' after return statement at line %d\n", parser->currentToken.line);
         return NULL;
     }
     advance(parser); // Consume ';'
-    
-    //  If it's a comma expression, turn it into multiple return nodes in a block
+
+    // If it's a comma expression, emit multiple returns as a block (unchanged)
     if (expr && expr->type == AST_COMMA_EXPRESSION) {
         ASTNode* block = malloc(sizeof(ASTNode));
         block->type = AST_BLOCK;
@@ -402,12 +411,12 @@ ASTNode* parseReturnStatement(Parser* parser) {
         for (size_t i = 0; i < expr->commaExpr.exprCount; i++) {
             block->block.statements[i] = createReturnNode(expr->commaExpr.expressions[i]);
         }
-        
         return block;
     }
-    
+
     return createReturnNode(expr);
 }
+
 
 ASTNode* parseBreakStatement(Parser* parser) {
     if (parser->currentToken.type != TOKEN_BREAK) {
