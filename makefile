@@ -6,8 +6,8 @@ LLVM_CFLAGS := $(shell $(LLVM_CONFIG) --cflags)
 LLVM_LDFLAGS := $(shell $(LLVM_CONFIG) --ldflags)
 LLVM_LIBS := $(shell $(LLVM_CONFIG) --libs core)
 
-CFLAGS := -Wall -Wextra -Wpedantic -g -O0 $(LLVM_CFLAGS)
-LDFLAGS := $(LLVM_LDFLAGS) $(LLVM_LIBS)
+CFLAGS := -Wall -Wextra -Wpedantic -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined $(LLVM_CFLAGS)
+LDFLAGS := -fsanitize=address,undefined $(LLVM_LDFLAGS) $(LLVM_LIBS)
 
 INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser
 SRC_DIR := src

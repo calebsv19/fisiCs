@@ -1,34 +1,49 @@
 #include "ast_node.h"
 #include "Parser/parser.h"
-#include "Parser/parser_helpers.h"
+#include "Parser/Helpers/parser_helpers.h"
+
+
+
+
+// Safer strdup (portable even if strdup isn't declared)
+static char* xstrdup(const char* s) {
+    if (!s) return NULL;
+    size_t n = strlen(s) + 1;
+    char* p = (char*)malloc(n);
+    if (!p) return NULL;
+    memcpy(p, s, n);
+    return p;
+}
+
+// ast_node.c
+static ASTNode* new_node(ASTNodeType tag) {
+    ASTNode* n = (ASTNode*)calloc(1, sizeof(ASTNode));  // zero everything
+    if (!n) { fprintf(stderr, "OOM ASTNode\n"); return NULL; }
+    n->type = tag;
+    return n;
+}
+
+
 
 // Creates a Program node (global declarations)
 ASTNode *createProgramNode(ASTNode **declarations, size_t declCount) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for ProgramNode\n");
-        return NULL;
-    }
-
-    node->type = AST_PROGRAM;
+    ASTNode *node = new_node(AST_PROGRAM);
+    if (!node) return NULL;
     node->block.statementCount = declCount;
-    node->block.statements = declarations ? declarations : NULL; // Ensure safe handling
-    return node;   
+    node->block.statements = declarations;   // may be NULL if count==0
+    return node;
 }
+
 
 // Creates a Block (Compound Statement) node
 ASTNode *createBlockNode(ASTNode **statements, size_t statementCount) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for BlockNode\n");
-        return NULL;
-    }
-
-    node->type = AST_BLOCK;
+    ASTNode *node = new_node(AST_BLOCK);
+    if (!node) return NULL;
     node->block.statementCount = statementCount;
-    node->block.statements = statements ? statements : NULL; // Ensure safe handling
+    node->block.statements = statements;
     return node;
 }
+
 
 // 		MAIN BLOCKS
 // -----------------------------------------------------------------
@@ -36,64 +51,62 @@ ASTNode *createBlockNode(ASTNode **statements, size_t statementCount) {
 
 
 ASTNode* createIncludeDirectiveNode(const char* filePath, bool isSystem) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for IncludeDirectiveNode\n");
+    ASTNode* node = new_node(AST_INCLUDE_DIRECTIVE);
+    if (!node) return NULL;
+
+    node->includeDirective.filePath = xstrdup(filePath);
+    if (filePath && !node->includeDirective.filePath) {
+        free(node);
+        fprintf(stderr, "OOM: include filePath\n");
         return NULL;
     }
-
-    node->type = AST_INCLUDE_DIRECTIVE;
-    node->includeDirective.filePath = strdup(filePath);
     node->includeDirective.isSystem = isSystem;
-    node->nextStmt = NULL;
-
     return node;
 }
+
 
 ASTNode* createDefineDirectiveNode(const char* macroName, const char* macroValue) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for DefineDirectiveNode\n");
+    ASTNode* node = new_node(AST_DEFINE_DIRECTIVE);
+    if (!node) return NULL;
+
+    node->defineDirective.macroName  = xstrdup(macroName);
+    node->defineDirective.macroValue = macroValue ? xstrdup(macroValue) : NULL;
+
+    if ((macroName && !node->defineDirective.macroName) ||
+        (macroValue && !node->defineDirective.macroValue)) {
+        // best-effort cleanup
+        free(node->defineDirective.macroName);
+        free(node->defineDirective.macroValue);
+        free(node);
+        fprintf(stderr, "OOM: define macro strings\n");
         return NULL;
     }
-
-    node->type = AST_DEFINE_DIRECTIVE;
-    node->defineDirective.macroName = strdup(macroName);
-    node->defineDirective.macroValue = macroValue ? strdup(macroValue) : NULL;
-    node->nextStmt = NULL;
-
     return node;
 }
+
 
 ASTNode* createConditionalDirectiveNode(const char* symbol, bool isNegated) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for ConditionalDirectiveNode\n");
+    ASTNode* node = new_node(AST_CONDITIONAL_DIRECTIVE);
+    if (!node) return NULL;
+
+    node->conditionalDirective.symbol    = xstrdup(symbol);
+    node->conditionalDirective.isNegated = isNegated;
+
+    if (symbol && !node->conditionalDirective.symbol) {
+        free(node);
+        fprintf(stderr, "OOM: conditional symbol\n");
         return NULL;
     }
-
-    node->type = AST_CONDITIONAL_DIRECTIVE;
-    node->conditionalDirective.symbol = strdup(symbol);
-    node->conditionalDirective.isNegated = isNegated;
-    node->nextStmt = NULL;
-
     return node;
 }
+
 
 ASTNode* createEndifDirectiveNode(void) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for EndifDirectiveNode\n");
-        return NULL;
-    }
-
-    node->type = AST_ENDIF_DIRECTIVE;
-    node->nextStmt = NULL;
-    // No additional data needed
-
+    ASTNode* node = new_node(AST_ENDIF_DIRECTIVE);
+    if (!node) return NULL;
+    // no payload
     return node;
 }
-
 
 
 
@@ -107,71 +120,78 @@ ASTNode* createEndifDirectiveNode(void) {
 
 
 // Creates a Unary Expression node
-ASTNode *createUnaryExprNode(const char *op, ASTNode *operand, bool isPostfix) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_UNARY_EXPRESSION; 
-    node->expr.op = strdup(op);  
-    node->expr.left = operand;  // Operand is stored in 'left'
-    node->expr.right = NULL;    // NULL indicates a unary operation
+ASTNode* createUnaryExprNode(const char* op, ASTNode* operand, bool isPostfix) {
+    ASTNode* node = new_node(AST_UNARY_EXPRESSION);
+    if (!node) return NULL;
+
+    node->expr.op = op ? xstrdup(op) : NULL;
+    if (op && !node->expr.op) { free(node); return NULL; }
+
+    node->expr.left     = operand;   // operand goes in 'left'
+    node->expr.right    = NULL;      // unary => right is NULL
     node->expr.isPostfix = isPostfix;
     return node;
 }
 
 // Creates a Binary Expression node (operator, left operand, right operand)
-ASTNode *createBinaryExprNode(const char *op, ASTNode *left, ASTNode *right) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_BINARY_EXPRESSION;
-    node->expr.op = strdup(op);  // Duplicate operator string for safety
-    node->expr.left = left;
+ASTNode* createBinaryExprNode(const char* op, ASTNode* left, ASTNode* right) {
+    ASTNode* node = new_node(AST_BINARY_EXPRESSION);
+    if (!node) return NULL;
+
+    node->expr.op = op ? xstrdup(op) : NULL;
+    if (op && !node->expr.op) { free(node); return NULL; }
+
+    node->expr.left  = left;
     node->expr.right = right;
     return node;
 }
 
-// Creates a Ternary Expression node (condition ? trueExpr : falseExpr)
-ASTNode *createTernaryExprNode(ASTNode *condition, ASTNode *trueExpr, ASTNode *falseExpr) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for TernaryExprNode\n");
-        return NULL;
-    }
 
-    node->type = AST_TERNARY_EXPRESSION;
+// Creates a Ternary Expression node (condition ? trueExpr : falseExpr)
+ASTNode* createTernaryExprNode(ASTNode* condition, ASTNode* trueExpr, ASTNode* falseExpr) {
+    ASTNode* node = new_node(AST_TERNARY_EXPRESSION);
+    if (!node) return NULL;
+
     node->ternaryExpr.condition = condition;
-    node->ternaryExpr.trueExpr = trueExpr;
+    node->ternaryExpr.trueExpr  = trueExpr;
     node->ternaryExpr.falseExpr = falseExpr;
-    
     return node;
 }
+
 
 // Creates a Comma Expression node from a flat list of expressions
 ASTNode* createCommaExprNode(ASTNode** expressions, size_t count) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for CommaExprNode\n");
-        return NULL;
-    }
+    ASTNode* node = new_node(AST_COMMA_EXPRESSION);
+    if (!node) return NULL;
 
-    node->type = AST_COMMA_EXPRESSION;
-    node->commaExpr.expressions = expressions;
-    node->commaExpr.exprCount = count;
-    node->nextStmt = NULL;
-
+    node->commaExpr.expressions = expressions; // ownership assumed by AST
+    node->commaExpr.exprCount   = count;
     return node;
 }
 
-ASTNode* createCastExpressionNode(ParsedType castType, ASTNode* expr) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for cast expression node.\n");
-        return NULL;
-    }
 
-    memset(node, 0, sizeof(ASTNode));
-    node->type = AST_CAST_EXPRESSION;
-    node->castExpr.castType = castType;
+ASTNode* createCastExpressionNode(ParsedType castType, ASTNode* expr) {
+    ASTNode* node = new_node(AST_CAST_EXPRESSION);
+    if (!node) return NULL;
+
+    node->castExpr.castType   = castType;  // POD copy-by-value
     node->castExpr.expression = expr;
     return node;
 }
+
+
+ASTNode* createCompoundLiteralNode(ParsedType literalType,
+                                   struct DesignatedInit** entries,
+                                   size_t entryCount) {
+    ASTNode* node = new_node(AST_COMPOUND_LITERAL);
+    if (!node) return NULL;
+
+    node->compoundLiteral.literalType = literalType; // POD copy
+    node->compoundLiteral.entries     = entries;     // may be NULL for "{}"
+    node->compoundLiteral.entryCount  = entryCount;  // 0 for "{}"
+    return node;
+}
+
 
 
 
@@ -186,75 +206,101 @@ ASTNode* createCastExpressionNode(ParsedType castType, ASTNode* expr) {
 
 
 // Creates a Basic Type node (e.g., "int", "float", etc.)
-ASTNode *createBasicTypeNode(const char *name) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for BasicTypeNode\n");
-        return NULL;
-    }
-    
-    node->type = AST_BASIC_TYPE;
-    node->valueNode.value = strdup(name); // Store type name safely
+ASTNode* createBasicTypeNode(const char* name) {
+    ASTNode* node = new_node(AST_BASIC_TYPE);
+    if (!node) return NULL;
 
-    if (!node->valueNode.value) {
-        printf("Error: Memory allocation failed for BasicTypeNode name\n");
+    node->valueNode.value = name ? xstrdup(name) : NULL;
+    if (name && !node->valueNode.value) {
         free(node);
+        fprintf(stderr, "OOM: BasicType name\n");
         return NULL;
     }
-
-    return node;
-}
-
-ASTNode* createAsmNode(char* asmText) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = AST_ASM;
-    node->nextStmt = NULL;
-    node->asmStmt.asmText = asmText;
     return node;
 }
 
 
-// Literal Nodes
+// Inline asm node (own the text; safer than borrowing)
+ASTNode* createAsmNode(const char* asmText) {
+    ASTNode* node = new_node(AST_ASM);
+    if (!node) return NULL;
+
+    node->asmStmt.asmText = asmText ? xstrdup(asmText) : NULL;
+    if (asmText && !node->asmStmt.asmText) {
+        free(node);
+        fprintf(stderr, "OOM: asm text\n");
+        return NULL;
+    }
+    return node;
+}
+
+
+// sizeof(expr or type) node — you currently hang it off expr.left
 ASTNode* createSizeofNode(ASTNode* target) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for sizeof node.\n");
+    ASTNode* node = new_node(AST_SIZEOF);
+    if (!node) return NULL;
+
+    node->expr.left  = target;  // keep your existing convention
+    node->expr.right = NULL;
+    return node;
+}
+
+// Number literal
+ASTNode* createNumberLiteralNode(const char* value) {
+    ASTNode* node = new_node(AST_NUMBER_LITERAL);
+    if (!node) return NULL;
+
+    node->valueNode.value = value ? xstrdup(value) : NULL;
+    if (value && !node->valueNode.value) {
+        free(node);
+        fprintf(stderr, "OOM: number literal\n");
         return NULL;
     }
-    node->type = AST_SIZEOF;
-    node->expr.left = target;  // `target` can be a type or variable
     return node;
 }
 
-// Creates a Number Literal node
-ASTNode *createNumberLiteralNode(const char *value) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_NUMBER_LITERAL;
-    node->valueNode.value = strdup(value);
+
+// Character literal
+ASTNode* createCharLiteralNode(const char* value) {
+    ASTNode* node = new_node(AST_CHAR_LITERAL);
+    if (!node) return NULL;
+
+    node->valueNode.value = value ? xstrdup(value) : NULL;
+    if (value && !node->valueNode.value) {
+        free(node);
+        fprintf(stderr, "OOM: char literal\n");
+        return NULL;
+    }
     return node;
 }
 
-// Creates a Character Literal node
-ASTNode *createCharLiteralNode(const char *value) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_CHAR_LITERAL;
-    node->valueNode.value = strdup(value);
+
+// String literal
+ASTNode* createStringLiteralNode(const char* value) {
+    ASTNode* node = new_node(AST_STRING_LITERAL);
+    if (!node) return NULL;
+
+    node->valueNode.value = value ? xstrdup(value) : NULL;
+    if (value && !node->valueNode.value) {
+        free(node);
+        fprintf(stderr, "OOM: string literal\n");
+        return NULL;
+    }
     return node;
 }
 
-// Creates a String Literal node
-ASTNode *createStringLiteralNode(const char *value) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_STRING_LITERAL;
-    node->valueNode.value = strdup(value);
-    return node;
-}
 
-// Creates an Identifier node
-ASTNode *createIdentifierNode(const char *name) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_IDENTIFIER;
-    node->valueNode.value = strdup(name);
+// Identifier
+ASTNode* createIdentifierNode(const char* name) {
+    ASTNode* node = new_node(AST_IDENTIFIER);
+    if (!node) return NULL;
+
+    node->valueNode.value = name ? xstrdup(name) : NULL;
+    if (name && !node->valueNode.value) {
+        free(node);
+        fprintf(stderr, "OOM: identifier\n");
+        return NULL;
+    }
     return node;
 }
 
@@ -268,216 +314,188 @@ ASTNode *createIdentifierNode(const char *name) {
 
 
 // Assignment & Variable Declaration Nodes
-// Creates an Assignment node (identifier, value, and operator)
-ASTNode *createAssignmentNode(ASTNode *identifier, ASTNode *value, TokenType op) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_ASSIGNMENT;
 
-    // Store the full operator string
-    node->assignment.op = strdup(getOperatorString(op));
+ASTNode* createAssignmentNode(ASTNode* identifier, ASTNode* value, TokenType op) {
+    ASTNode* node = new_node(AST_ASSIGNMENT);
+    if (!node) return NULL;
 
-    if (!node->assignment.op) {
-        printf("Error: Failed to assign operator string\n");
+    const char* op_str = getOperatorString(op);  // assumed provided elsewhere
+    node->assignment.op = op_str ? xstrdup(op_str) : NULL;
+    if (op_str && !node->assignment.op) {
         free(node);
+        fprintf(stderr, "OOM: assignment operator string\n");
         return NULL;
     }
 
     node->assignment.target = identifier;
-    node->assignment.value = value;
+    node->assignment.value  = value;
     return node;
 }
 
-ASTNode *createVariableDeclarationNode(ParsedType declaredType,
-                                       ASTNode **identifiers,
-                                       struct DesignatedInit **initializers,
+
+ASTNode* createVariableDeclarationNode(ParsedType declaredType,
+                                       ASTNode** identifiers,
+                                       struct DesignatedInit** initializers,
                                        size_t varCount) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for VariableDeclarationNode\n");
-        return NULL;
-    }
+    ASTNode* node = new_node(AST_VARIABLE_DECLARATION);
+    if (!node) return NULL;
 
-    node->type = AST_VARIABLE_DECLARATION;
-    node->varDecl.declaredType = declaredType;
-    node->varDecl.varNames = identifiers;
-    node->varDecl.initializers = initializers;
-    node->varDecl.varCount = varCount;
-
+    node->varDecl.declaredType = declaredType;   // POD copy-by-value
+    node->varDecl.varNames     = identifiers;    // arrays owned by AST builder
+    node->varDecl.initializers = initializers;   // may be NULL entries
+    node->varDecl.varCount     = varCount;
     return node;
 }
+
 
 ASTNode* createTypedefNode(ParsedType baseType, ASTNode* alias) {
-    ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
-    node->type = AST_TYPEDEF;
-    node->nextStmt = NULL;
+    ASTNode* node = new_node(AST_TYPEDEF);
+    if (!node) return NULL;
 
-    node->typedefStmt.baseType = baseType;
-    node->typedefStmt.alias = alias;
-
+    node->typedefStmt.baseType = baseType;  // POD copy
+    node->typedefStmt.alias    = alias;     // identifier node (already duped)
     return node;
 }
 
-ASTNode* createEnumDefinitionNode(const char* name, ASTNode** members, ASTNode** values, size_t count) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for enum definition.\n");
-        return NULL;
-    }
 
-    memset(node, 0, sizeof(ASTNode));
-    node->type = AST_ENUM_DEFINITION;
-    node->nextStmt = NULL;
+ASTNode* createEnumDefinitionNode(const char* name,
+                                  ASTNode** members,
+                                  ASTNode** values,
+                                  size_t count) {
+    ASTNode* node = new_node(AST_ENUM_DEFINITION);
+    if (!node) return NULL;
 
-    node->enumDef.enumName = createIdentifierNode(name);
-    node->enumDef.members = members;
-    node->enumDef.values = values;
+    node->enumDef.enumName    = createIdentifierNode(name);  // owns its own string
+    node->enumDef.members     = members;  // parallel arrays, same length
+    node->enumDef.values      = values;   // may contain NULLs for implicit values
     node->enumDef.memberCount = count;
-
     return node;
 }
 
 
+ASTNode* createStructOrUnionDefinitionNode(ASTNodeType type,
+                                           const char* name,
+                                           ASTNode** fields,
+                                           size_t fieldCount) {
+    ASTNode* node = new_node(type); // type must be AST_STRUCT_DEFINITION or AST_UNION_DEFINITION
+    if (!node) return NULL;
 
-ASTNode* createStructOrUnionDefinitionNode(ASTNodeType type, const char* name, 
-						ASTNode** fields, size_t fieldCount) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for %s definition.\n", type == AST_STRUCT_DEFINITION ? 
-			"struct" : "union");
-        return NULL;
-    }
-
-    memset(node, 0, sizeof(ASTNode));
-    node->type = type;
-
-    node->structDef.structName = createIdentifierNode(name);
-    node->structDef.fields = fields;
+    node->structDef.structName = createIdentifierNode(name); // owns name
+    node->structDef.fields     = fields;     // array of field decl nodes
     node->structDef.fieldCount = fieldCount;
-
     return node;
 }
 
 
 
 
-ASTNode *createArrayDeclarationNode(ParsedType declaredType,
-                                    ASTNode *name, ASTNode *size,
-                                    struct DesignatedInit **initValues, size_t valueCount) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for array declaration.\n");
-        return NULL;
-    }
+// Array declaration:  T name[size] = { ... }
+ASTNode* createArrayDeclarationNode(ParsedType declaredType,
+                                    ASTNode* name, ASTNode* size,
+                                    struct DesignatedInit** initValues,
+                                    size_t valueCount) {
+    ASTNode* node = new_node(AST_ARRAY_DECLARATION);
+    if (!node) return NULL;
 
-    node->type = AST_ARRAY_DECLARATION;
-    node->arrayDecl.declaredType = declaredType;
-    node->arrayDecl.varName = name;
-    node->arrayDecl.arraySize = size;
-    node->arrayDecl.initializers = initValues;
-    node->arrayDecl.valueCount = valueCount;
-
+    node->arrayDecl.declaredType = declaredType;   // POD copy
+    node->arrayDecl.varName      = name;
+    node->arrayDecl.arraySize    = size;           // may be NULL for unsized
+    node->arrayDecl.initializers = initValues;     // may be NULL
+    node->arrayDecl.valueCount   = valueCount;     // 0 ok
     return node;
 }
 
 
-
+ // Link a chain of array sizes (e.g., [][][]), stored via nextStmt
 ASTNode* chainArraySizes(ASTNode* outer, ASTNode* inner) {
     if (!outer) return inner;
-    ASTNode* current = outer;
-    while (current->nextStmt) {
-        current = current->nextStmt;
-    }
-    current->nextStmt = inner;
+    ASTNode* cur = outer;
+    while (cur->nextStmt) cur = cur->nextStmt;
+    cur->nextStmt = inner;   // inner can itself be a chain; last's nextStmt stays NULL
     return outer;
 }
 
 
-
-
+// Array access: arr[index]
 ASTNode* createArrayAccessNode(ASTNode* array, ASTNode* index) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for array access.\n");
-        return NULL;
-    }
+    ASTNode* node = new_node(AST_ARRAY_ACCESS);
+    if (!node) return NULL;
 
-    node->type = AST_ARRAY_ACCESS;
     node->arrayAccess.array = array;
     node->arrayAccess.index = index;
-    
     return node;
 }
 
 
-
+// Member access: base.field  OR  base->field
 ASTNode* createMemberAccessNode(TokenType op, ASTNode* base, const char* fieldName) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = (op == TOKEN_ARROW) ? AST_POINTER_ACCESS : AST_DOT_ACCESS;
-    node->memberAccess.base = base;
-    node->memberAccess.field = strdup(fieldName);
-    return node;
-}
+    ASTNode* node = new_node((op == TOKEN_ARROW) ? AST_POINTER_ACCESS : AST_DOT_ACCESS);
+    if (!node) return NULL;
 
-
-ASTNode* createPointerDereferenceNode(ASTNode* operand) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for pointer dereference.\n");
-        return NULL;
+    node->memberAccess.base  = base;
+    node->memberAccess.field = fieldName ? xstrdup(fieldName) : NULL;
+    if (fieldName && !node->memberAccess.field) {
+        free(node); fprintf(stderr, "OOM: member field\n"); return NULL;
     }
+    return node;
+}
 
-    node->type = AST_POINTER_DEREFERENCE;
+
+// *operand
+ASTNode* createPointerDereferenceNode(ASTNode* operand) {
+    ASTNode* node = new_node(AST_POINTER_DEREFERENCE);
+    if (!node) return NULL;
+
     node->pointerDeref.pointer = operand;
-    
     return node;
 }
 
 
+// if (cond) thenBody;
+ASTNode* createIfStatementNode(ASTNode* condition, ASTNode* thenBody) {
+    ASTNode* node = new_node(AST_IF_STATEMENT);
+    if (!node) return NULL;
 
-// Conditional & Sequence Nodes
-// Creates an If Statement node (condition and then-body)
-ASTNode *createIfStatementNode(ASTNode *condition, ASTNode *thenBody) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_IF_STATEMENT;
-    node->ifStmt.condition = condition;
+    node->ifStmt.condition  = condition;
     node->ifStmt.thenBranch = thenBody;
-    node->ifStmt.elseBranch = NULL; // No else branch
+    node->ifStmt.elseBranch = NULL;
     return node;
 }
 
 
+// if (cond) thenBody; else elseBody;
+ASTNode* createIfElseStatementNode(ASTNode* condition, ASTNode* thenBody, ASTNode* elseBody) {
+    ASTNode* node = new_node(AST_IF_STATEMENT);
+    if (!node) return NULL;
 
-// Creates an If-Else Statement node (condition, then-body, and else-body)
-ASTNode *createIfElseStatementNode(ASTNode *condition, ASTNode *thenBody, ASTNode *elseBody) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_IF_STATEMENT;
-    node->ifStmt.condition = condition;
+    node->ifStmt.condition  = condition;
     node->ifStmt.thenBranch = thenBody;
-    node->ifStmt.elseBranch = elseBody; // Directly store else branch
+    node->ifStmt.elseBranch = elseBody;
     return node;
 }
 
 
+// while (cond) body;   or   do { body } while (cond);
+ASTNode* createWhileLoopNode(ASTNode* condition, ASTNode* body, int isDoWhile) {
+    ASTNode* node = new_node(AST_WHILE_LOOP);
+    if (!node) return NULL;
 
-// Loop Nodes
-// Creates a While Loop node (condition and body)
-ASTNode *createWhileLoopNode(ASTNode *condition, ASTNode *body, int isDoWhile) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_WHILE_LOOP;
     node->whileLoop.condition = condition;
-    node->whileLoop.body = body;
-    node->whileLoop.isDoWhile = isDoWhile; // 0 = while, 1 = do-while
+    node->whileLoop.body      = body;
+    node->whileLoop.isDoWhile = isDoWhile;  // 0 = while, 1 = do-while
     return node;
 }
 
-// Creates a For Loop node (initializer, condition, increment, and body)
-ASTNode *createForLoopNode(ASTNode *init, ASTNode *condition, ASTNode *increment, ASTNode *body) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_FOR_LOOP;
-    node->forLoop.initializer = init;
-    node->forLoop.condition = condition;
-    node->forLoop.increment = increment;
-    node->forLoop.body = body;
+
+// for (init; cond; inc) body;
+ASTNode* createForLoopNode(ASTNode* init, ASTNode* condition, ASTNode* increment, ASTNode* body) {
+    ASTNode* node = new_node(AST_FOR_LOOP);
+    if (!node) return NULL;
+
+    node->forLoop.initializer = init;       // may be decl or expr (or NULL)
+    node->forLoop.condition   = condition;  // may be NULL
+    node->forLoop.increment   = increment;  // may be NULL
+    node->forLoop.body        = body;       // must be a stmt/block node
     return node;
 }
 
@@ -492,59 +510,56 @@ ASTNode *createForLoopNode(ASTNode *init, ASTNode *condition, ASTNode *increment
 
 
 // Flow Control Nodes
-// Creates a Return node with an optional return value
-ASTNode *createReturnNode(ASTNode *expr) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_RETURN;
-    node->returnStmt.returnValue = expr;  // NULL if void return
+
+ASTNode* createReturnNode(ASTNode* expr) {
+    ASTNode* node = new_node(AST_RETURN);
+    if (!node) return NULL;
+    node->returnStmt.returnValue = expr;  // NULL for 'return;'
     return node;
 }
 
-// Creates a Break node
-ASTNode *createBreakNode(void) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_BREAK;
-    node->loopControl.isBreak = 1;  // 1 = Break
-    node->loopControl.loopTarget = NULL; // May be set later for nested loops
+ASTNode* createBreakNode(void) {
+    ASTNode* node = new_node(AST_BREAK);
+    if (!node) return NULL;
+    node->loopControl.isBreak    = 1;     // 1 = break
+    node->loopControl.loopTarget = NULL;  // filled later if you thread targets
     return node;
 }
 
-// Creates a Continue node
-ASTNode *createContinueNode(void) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_CONTINUE;
-    node->loopControl.isBreak = 0;  // 0 = Continue
-    node->loopControl.loopTarget = NULL; // May be set later for nested loops
+ASTNode* createContinueNode(void) {
+    ASTNode* node = new_node(AST_CONTINUE);
+    if (!node) return NULL;
+    node->loopControl.isBreak    = 0;     // 0 = continue
+    node->loopControl.loopTarget = NULL;
     return node;
 }
 
 ASTNode* createGotoStatementNode(const char* label) {
-    ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
-    node->type = AST_GOTO_STATEMENT;
-    node->nextStmt = NULL;
+    ASTNode* node = new_node(AST_GOTO_STATEMENT);
+    if (!node) return NULL;
 
-    node->gotoStmt.label = strdup(label); // Duplicate string to store safely
-
+    node->gotoStmt.label = label ? xstrdup(label) : NULL;
+    if (label && !node->gotoStmt.label) {
+        free(node);
+        fprintf(stderr, "OOM: goto label\n");
+        return NULL;
+    }
     return node;
 }
 
 ASTNode* createLabelDeclarationNode(const char* labelName, ASTNode* statement) {
-    ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for label declaration node.\n");
+    ASTNode* node = new_node(AST_LABEL_DECLARATION);
+    if (!node) return NULL;
+
+    node->label.labelName = labelName ? xstrdup(labelName) : NULL;
+    if (labelName && !node->label.labelName) {
+        free(node);
+        fprintf(stderr, "OOM: label name\n");
         return NULL;
     }
-
-    memset(node, 0, sizeof(ASTNode));
-    node->type = AST_LABEL_DECLARATION;
-    node->nextStmt = NULL;
-
-    node->label.labelName = strdup(labelName);
-    node->label.statement = statement;
-
+    node->label.statement = statement;  // the labeled statement node
     return node;
 }
-
 
 
 
@@ -557,82 +572,67 @@ ASTNode* createLabelDeclarationNode(const char* labelName, ASTNode* statement) {
 
 
 ASTNode* createFunctionDeclarationNode(ParsedType returnType, const char* name) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for function declaration.\n");
-        return NULL;
-    }
+    ASTNode* node = new_node(AST_FUNCTION_DECLARATION);
+    if (!node) return NULL;
 
-    node->type = AST_FUNCTION_DECLARATION;
-    node->functionDecl.returnType = returnType;
-
-    // Store name as an identifier node (for consistency with func defs)
-    ASTNode* nameNode = malloc(sizeof(ASTNode));
-    if (!nameNode) {
-        printf("Error: Memory allocation failed for function name node.\n");
+    node->functionDecl.returnType = returnType;               // POD copy
+    node->functionDecl.funcName   = createIdentifierNode(name);
+    if (name && !node->functionDecl.funcName) {
         free(node);
+        fprintf(stderr, "OOM: function decl name\n");
         return NULL;
     }
-
-    nameNode->type = AST_IDENTIFIER;
-    nameNode->valueNode.value = strdup(name);
-    node->functionDecl.funcName = nameNode;
-
     node->functionDecl.parameters = NULL;
     node->functionDecl.paramCount = 0;
-
     return node;
 }
 
 
+ASTNode* createFunctionDefinitionNode(ParsedType returnType,
+                                      ASTNode* funcName,
+                                      ASTNode** paramList,
+                                      ASTNode* body,
+                                      size_t paramCount) {
+    ASTNode* node = new_node(AST_FUNCTION_DEFINITION);
+    if (!node) return NULL;
 
-// Function Nodes
-ASTNode* createFunctionDefinitionNode(ParsedType returnType, ASTNode* funcName,
-                                      ASTNode** paramList, ASTNode* body, size_t paramCount) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for function definition.\n");
-        return NULL;
-    }
-
-    node->type = AST_FUNCTION_DEFINITION;
-    node->functionDef.returnType = returnType;
-    node->functionDef.funcName = funcName;
-    node->functionDef.parameters = paramList;
+    node->functionDef.returnType = returnType;   // POD copy
+    node->functionDef.funcName   = funcName;     // should be an AST_IDENTIFIER node
+    node->functionDef.parameters = paramList;    // array of param decl nodes (can be NULL if 0)
     node->functionDef.paramCount = paramCount;
-    node->functionDef.body = body;
-
+    node->functionDef.body       = body;         // block or single statement node
     return node;
 }
 
 
-// Creates a Function Call node (callee and arguments)
-ASTNode *createFunctionCallNode(ASTNode *callee, ASTNode **arguments, size_t argumentCount) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_FUNCTION_CALL;
-    node->functionCall.callee = callee;
-    node->functionCall.arguments = arguments; // Argument list (linked list)
+ASTNode* createFunctionCallNode(ASTNode* callee, ASTNode** arguments, size_t argumentCount) {
+    ASTNode* node = new_node(AST_FUNCTION_CALL);
+    if (!node) return NULL;
+
+    node->functionCall.callee        = callee;       // identifier / member / pointer call node
+    node->functionCall.arguments     = arguments;    // array (not list) is fine
     node->functionCall.argumentCount = argumentCount;
     return node;
 }
+
 
 ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType,
                                               ASTNode* name,
                                               ASTNode** params,
                                               size_t paramCount,
                                               ASTNode* initializer) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    node->type = AST_FUNCTION_POINTER;
-    node->nextStmt = NULL;
+    ASTNode* node = new_node(AST_FUNCTION_POINTER);
+    if (!node) return NULL;
 
-    node->functionPointer.returnType = returnType;   // includes isFunctionPointer, fpParams
-    node->functionPointer.name = name;
-    node->functionPointer.parameters = params;
-    node->functionPointer.paramCount = paramCount;
-    node->functionPointer.initializer = initializer; // NEW
-
+    node->functionPointer.returnType  = returnType;   // your ParsedType should already encode fp-ness
+    node->functionPointer.name        = name;         // identifier node
+    node->functionPointer.parameters  = params;       // array of param decl nodes
+    node->functionPointer.paramCount  = paramCount;
+    node->functionPointer.initializer = initializer;  // optional initializer (e.g., &foo)
     return node;
 }
+
+
 
 
 
@@ -647,36 +647,36 @@ ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType,
 
 
 // Creates a Case node (case value and its associated block)
-ASTNode *createCaseNode(ASTNode *caseValue, ASTNode **caseBody) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_CASE;
-    node->caseStmt.caseValue = caseValue; // NULL for default case
-    node->caseStmt.caseBody = caseBody;   // Block of statements inside the case
-    node->caseStmt.nextCase = NULL;       // Initialized to NULL, linked later
+// NOTE: caseBody is an array (or pointer to first stmt) per your current design.
+ASTNode* createCaseNode(ASTNode* caseValue, ASTNode** caseBody) {
+    ASTNode* node = new_node(AST_CASE);
+    if (!node) return NULL;
+
+    node->caseStmt.caseValue = caseValue; // NULL means 'default'
+    node->caseStmt.caseBody  = caseBody;  // may be NULL / empty
+    node->caseStmt.nextCase  = NULL;      // explicit, though calloc already zeros
     return node;
 }
 
 // Creates a Switch node (switch expression and case list)
-ASTNode *createSwitchNode(ASTNode *condition, ASTNode **caseList) {
-    ASTNode *node = malloc(sizeof(ASTNode));
-    node->type = AST_SWITCH;
-    node->switchStmt.condition = condition; // Expression inside switch
-    node->switchStmt.caseList = caseList;   // Array (linked list) of case nodes
+ASTNode* createSwitchNode(ASTNode* condition, ASTNode** caseList) {
+    ASTNode* node = new_node(AST_SWITCH);
+    if (!node) return NULL;
+
+    node->switchStmt.condition = condition; // expression inside 'switch (...)'
+    node->switchStmt.caseList  = caseList;  // array (or head) of case nodes
     return node;
 }
 
 
+// A node that wraps an already-parsed type (NOT just a basic-type name).
 ASTNode* createParsedTypeNode(ParsedType type) {
-    ASTNode* node = malloc(sizeof(ASTNode));
-    if (!node) {
-        printf("Error: Memory allocation failed for parsed type node.\n");
-        return NULL;
-    }
+    ASTNode* node = new_node(AST_PARSED_TYPE);  
+    if (!node) return NULL;
 
-    memset(node, 0, sizeof(ASTNode));
-    node->type = AST_BASIC_TYPE;
-    node->parsedTypeNode.parsed = type;
-    
+    node->parsedTypeNode.parsed = type; // POD copy-by-value
     return node;
 }
+
+
 

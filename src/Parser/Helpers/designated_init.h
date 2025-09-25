@@ -20,7 +20,7 @@ struct DesignatedInit{
 DesignatedInit* createDesignatedInit(const char* fieldName, struct ASTNode* expression);
 DesignatedInit* createSimpleInit(struct ASTNode* expr);
 DesignatedInit* createIndexedInit(struct ASTNode* indexExpr, struct ASTNode* valueExpr);
-struct ASTNode* createCompoundInit(DesignatedInit** entries, size_t count);
+struct ASTNode* createCompoundInit(struct DesignatedInit** entries, size_t count);
 
 
 // Free function if needed later

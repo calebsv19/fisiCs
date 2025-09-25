@@ -1,7 +1,7 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 
-#include "../Parser/parsed_type.h"
+#include "Parser/Helpers/parsed_type.h"
 #include "AST/ast_node.h"
 #include <stdbool.h>
 

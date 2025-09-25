@@ -2,8 +2,8 @@
 #define AST_PRINTER_H
 
 #include "AST/ast_node.h"
-#include "Parser/parsed_type.h"
-#include "Parser/designated_init.h"
+#include "Parser/Helpers/parsed_type.h"
+#include "Parser/Helpers/designated_init.h"
 #include <stdbool.h>
 
 void printAST(ASTNode* node, int depth);

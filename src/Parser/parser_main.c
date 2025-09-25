@@ -1,9 +1,9 @@
 #include "parser_main.h"
-#include "parser_helpers.h"
+#include "Parser/Helpers/parser_helpers.h"
 #include "parser_func.h"
 #include "parser_preproc.h"
 #include "parser_stmt.h"
-#include "parser_lookahead.h"
+#include "Parser/Helpers/parser_lookahead.h"
 #include "Parser/Expr/parser_expr.h"
 #include "parser_decl.h"
 
@@ -24,6 +24,14 @@ ASTNode* parseProgram(Parser* parser) {
     while (parser->currentToken.type != TOKEN_EOF) {
         printf("DEBUG: Starting new statement with token '%s' (line %d)\n",
                    parser->currentToken.value, parser->currentToken.line);
+
+
+	if (looksLikeTypeDeclaration(parser)) {
+        	ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
+        	if (!decl) return NULL;
+        	statements[count++] = decl;
+        	continue;
+	}
 
         ASTNode* stmt = parseStatement(parser);
         printf("DEBUG: Statement finished at token '%s' (line %d)\n",
@@ -120,8 +128,7 @@ ASTNode* parseStatement(Parser* parser) {
     }
 
     // --- Type-based Declaration (function/variable) ---
-    if (parser->mode == PARSER_MODE_RECURSIVE &&
-        parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
+    if (parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
         looksLikeTypeDeclaration(parser)) {
         printf("DEBUG: Detected type-based declaration\n");
         ASTNode* decl = handleTypeOrFunctionDeclaration(parser);

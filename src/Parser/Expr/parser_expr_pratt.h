@@ -2,7 +2,7 @@
 #define _PARSER_EXPR_PRATT_H
 
 #include "parser.h"
-#include "parsed_type.h"
+#include "Parser/Helpers/parsed_type.h"
 
 #include "AST/ast_node.h"
 #include "Lexer/tokens.h"
@@ -24,6 +24,8 @@ ASTNode* ledFunctionCall(Parser* parser, ASTNode* callee);
 ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee);
 ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen);
 ASTNode* parseSizeofExpressionPratt(Parser* parser);
+ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen);
+
 
 #endif // _PARSER_EXPR_PRATT_H
 

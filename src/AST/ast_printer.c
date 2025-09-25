@@ -1,5 +1,5 @@
 #include "ast_printer.h"
-#include "Parser/designated_init.h"
+#include "Parser/Helpers/designated_init.h"
 #include <stdio.h>
 
 static void printParsedType_inner(const ParsedType* pt);
@@ -503,6 +503,24 @@ void printAST(ASTNode* node, int depth) {
             break;
 
 
+	case AST_COMPOUND_LITERAL:
+	    printf("COMPOUND_LITERAL\n");
+	
+	    // Print its type
+	    for (int i = 0; i < depth + 1; i++) printf("  ");
+	    printf("TYPE: ");
+	    printParsedType(&node->compoundLiteral.literalType);
+	
+	    // Print entries
+	    for (size_t i = 0; i < node->compoundLiteral.entryCount; i++) {
+	        printDesignatedInit(node->compoundLiteral.entries[i], depth + 1);
+	    }
+	    break;
+
+
+
+
+
 
 
         case AST_RETURN:
@@ -654,6 +672,12 @@ void printAST(ASTNode* node, int depth) {
         case AST_BASIC_TYPE:
             printf("BASIC_TYPE %s\n", node->valueNode.value);
             break;
+
+        case AST_PARSED_TYPE: {
+	    printf("PARSED_TYPE ");
+	    printParsedType(&node->parsedTypeNode.parsed);
+	    break;
+	}
             
         default:
             printf("UNKNOWN NODE TYPE\n");

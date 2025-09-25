@@ -3,8 +3,8 @@
 
 
 
-#include "Parser/designated_init.h"
-#include "Parser/parsed_type.h"
+#include "Parser/Helpers/designated_init.h"
+#include "Parser/Helpers/parsed_type.h"
 #include "AST/ast_node.h"
 #include <llvm-c/Core.h>
 #include <llvm-c/Analysis.h>

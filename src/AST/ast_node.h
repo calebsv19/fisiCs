@@ -1,8 +1,8 @@
 #ifndef AST_NODE_H
 #define AST_NODE_H
 
-#include "Parser/designated_init.h"
-#include "Parser/parsed_type.h"
+#include "Parser/Helpers/designated_init.h"
+#include "Parser/Helpers/parsed_type.h"
 #include "Lexer/tokens.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,6 +42,7 @@ typedef enum {
     AST_CAST_EXPRESSION,
 
     AST_BASIC_TYPE,
+    AST_PARSED_TYPE,
     AST_NUMBER_LITERAL,
     AST_CHAR_LITERAL,
     AST_STRING_LITERAL,
@@ -137,7 +138,6 @@ struct ASTNode {
 	    ParsedType castType;
 	    ASTNode* expression;
 	} castExpr;
-
 
 
 	// PREPROCESSORS
@@ -284,6 +284,7 @@ struct ASTNode {
 
         //  **Identifiers, Types, and Literals** (Unified)
 	struct {
+	    ParsedType literalType;  
 	    struct DesignatedInit** entries;
 	    size_t entryCount;
 	} compoundLiteral;
@@ -338,11 +339,13 @@ struct ASTNode {
 ASTNode *createProgramNode(ASTNode **declarations, size_t declCount);
 ASTNode *createBlockNode(ASTNode **statements, size_t statementCount);
 
+
 // Preprocesses
 ASTNode* createIncludeDirectiveNode(const char* filePath, bool isSystem);
 ASTNode* createDefineDirectiveNode(const char* macroName, const char* macroValue);
 ASTNode* createConditionalDirectiveNode(const char* symbol, bool isNegated);
 ASTNode* createEndifDirectiveNode(void);
+
 
 // Expressions
 ASTNode *createTernaryExprNode(ASTNode *condition, ASTNode *trueExpr, ASTNode *falseExpr);
@@ -350,12 +353,15 @@ ASTNode *createBinaryExprNode(const char *op, ASTNode *left, ASTNode *right);
 ASTNode* createUnaryExprNode(const char* op, ASTNode* operand, bool isPostfix);
 ASTNode* createCommaExprNode(ASTNode** expressions, size_t count);
 ASTNode* createCastExpressionNode(ParsedType type, ASTNode* expr);
+ASTNode* createCompoundLiteralNode(ParsedType literalType,
+                                   struct DesignatedInit** entries,
+                                   size_t entryCount);
 
 
 // Singular types
 ASTNode *createBasicTypeNode(const char *name);
 ASTNode *createIdentifierNode(const char *name);
-ASTNode* createAsmNode(char* asmText);
+ASTNode* createAsmNode(const char* asmText);
 ASTNode *createSizeofNode(ASTNode* target);
 ASTNode *createNumberLiteralNode(const char *value);
 ASTNode *createCharLiteralNode(const char *value);

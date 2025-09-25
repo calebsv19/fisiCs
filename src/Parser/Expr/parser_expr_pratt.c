@@ -1,9 +1,9 @@
 #include "parser_expr_pratt.h"
-#include "parser_helpers.h"
+#include "Parser/Helpers/parser_helpers.h"
 #include "parser_decl.h"
 #include "parser_array.h"
 #include "parser_func.h"
-#include "parser_lookahead.h"
+#include "Parser/Helpers/parser_lookahead.h"
 #include "parser_expr.h" 
 #include "AST/ast_node.h"
 
@@ -19,72 +19,41 @@ typedef ASTNode* (*LedFn)(Parser* parser, ASTNode* left, Token token);
 static ASTNode* nud(Parser* parser, Token token);
 static ASTNode* led(Parser* parser, ASTNode* left, Token token);
 
-// Operator precedence lookup
-// Operator precedence lookup (higher number = tighter binding)
+// Base left-precedence values
 int getTokenPrecedence(TokenType type) {
     switch (type) {
-	
         case TOKEN_LOGICAL_OR: return 1;
         case TOKEN_LOGICAL_AND: return 2;
         case TOKEN_BITWISE_OR: return 3;
         case TOKEN_BITWISE_XOR: return 4;
         case TOKEN_BITWISE_AND: return 5;
-        
-	case TOKEN_EQUAL:
+
+        case TOKEN_EQUAL:
         case TOKEN_NOT_EQUAL: return 6;
-        
-	case TOKEN_LESS:
+
+        case TOKEN_LESS:
         case TOKEN_LESS_EQUAL:
         case TOKEN_GREATER:
         case TOKEN_GREATER_EQUAL: return 7;
-        
-	case TOKEN_LEFT_SHIFT:
+
+        case TOKEN_LEFT_SHIFT:
         case TOKEN_RIGHT_SHIFT: return 8;
-        
-	case TOKEN_PLUS:
+
+        case TOKEN_PLUS:
         case TOKEN_MINUS: return 9;
-        
-	case TOKEN_ASTERISK:
+
+        case TOKEN_ASTERISK:
         case TOKEN_DIVIDE:
         case TOKEN_MODULO: return 10;
-	
-	case TOKEN_LPAREN:
-	case TOKEN_LBRACKET:
-	case TOKEN_DOT:
-	case TOKEN_ARROW:  return 14; 
-	
-	case TOKEN_INCREMENT:
-	case TOKEN_DECREMENT: return 15; 
-        
-	case TOKEN_ASSIGN:
-        case TOKEN_PLUS_ASSIGN:
-        case TOKEN_MINUS_ASSIGN:
-        case TOKEN_MULT_ASSIGN:
-        case TOKEN_DIV_ASSIGN:
-        case TOKEN_MOD_ASSIGN:
-        case TOKEN_LEFT_SHIFT_ASSIGN:
-        case TOKEN_RIGHT_SHIFT_ASSIGN:
-        case TOKEN_BITWISE_AND_ASSIGN:
-        case TOKEN_BITWISE_OR_ASSIGN:
-        case TOKEN_BITWISE_XOR_ASSIGN:
-            return p - 1;
 
-        // If you route '?' here, make it right-assoc as well.
-        // (':' is handled inside your led for ternary.)
-        case TOKEN_QUESTION:
-            return p - 1;
+        case TOKEN_LPAREN:
+        case TOKEN_LBRACKET:
+        case TOKEN_DOT:
+        case TOKEN_ARROW:  return 14;
 
-        // Everything else is left-associative
-        // (includes comma, logical/bitwise, relational, shifts, +/-, */,%, etc.)
-        default:
-            return -1;
-    }
-}
+        case TOKEN_INCREMENT:
+        case TOKEN_DECREMENT: return 15;
 
-int getTokenRightBindingPower(TokenType type) {
-    int p = getTokenPrecedence(type);
-    switch (type) {
-        // Right-associative: parse RHS with one-lower floor
         case TOKEN_ASSIGN:
         case TOKEN_PLUS_ASSIGN:
         case TOKEN_MINUS_ASSIGN:
@@ -97,9 +66,30 @@ int getTokenRightBindingPower(TokenType type) {
         case TOKEN_BITWISE_OR_ASSIGN:
         case TOKEN_BITWISE_XOR_ASSIGN:
         case TOKEN_QUESTION:
-            return p - 1;
+            return 1;  // base precedence for right-assoc ops
 
-        // All others: left-associative (or postfix/unary where rbp is irrelevant)
+        default:
+            return -1;
+    }
+}
+
+// Right-binding power: tweak for right-assoc
+int getTokenRightBindingPower(TokenType type) {
+    int p = getTokenPrecedence(type);
+    switch (type) {
+        case TOKEN_ASSIGN:
+        case TOKEN_PLUS_ASSIGN:
+        case TOKEN_MINUS_ASSIGN:
+        case TOKEN_MULT_ASSIGN:
+        case TOKEN_DIV_ASSIGN:
+        case TOKEN_MOD_ASSIGN:
+        case TOKEN_LEFT_SHIFT_ASSIGN:
+        case TOKEN_RIGHT_SHIFT_ASSIGN:
+        case TOKEN_BITWISE_AND_ASSIGN:
+        case TOKEN_BITWISE_OR_ASSIGN:
+        case TOKEN_BITWISE_XOR_ASSIGN:
+        case TOKEN_QUESTION:
+            return p - 1;  // right-associative
         default:
             return p;
     }
@@ -182,6 +172,13 @@ static ASTNode* nud(Parser* parser, Token token) {
 
 	case TOKEN_LPAREN: {
 	    printf("  DEBUG: Entered nud() with TOKEN_LPAREN\n");
+
+    	// 1) Compound literal? (type) { ... }
+	    if (looksLikeCompoundLiteral(parser)) {
+	        return parseCompoundLiteralPratt(parser, /*alreadyConsumedLParen=*/true);
+	    }
+
+	// 2) Cast? (type) expr
 	    if (looksLikeCastType(parser)) {
 	        printf("  DEBUG: Detected cast — calling parseCastExpressionPratt()\n");
 	        return parseCastExpressionPratt(parser, /*alreadyConsumedLParen=*/true);
@@ -189,6 +186,7 @@ static ASTNode* nud(Parser* parser, Token token) {
 	        printf("  DEBUG: Not a cast — parsing grouped expression\n");
 	    }
 	
+	// 3) Grouped expression: ( expr )
 	    // NOTE: use -1 so ?:, assignments, comma bind inside (...)
 	    ASTNode* expr = parseExpressionPratt(parser, -1);
 	    if (parser->currentToken.type != TOKEN_RPAREN) {
@@ -568,6 +566,137 @@ ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen) {
 }
 
 
+
+ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
+    // '(' already consumed by nud(), unless explicitly told otherwise
+    if (!alreadyConsumedLParen) {
+        if (parser->currentToken.type != TOKEN_LPAREN) {
+            printParseError("Expected '(' to start compound literal type", parser);
+            return NULL;
+        }
+        advance(parser); // '('
+    }
+
+    // ( type [abstract-declarator] )
+    ParsedType literalType = parseType(parser);
+    if (literalType.kind == TYPE_INVALID) {
+        printParseError("Invalid type in compound literal", parser);
+        return NULL;
+    }
+
+    // allow things like int[], int(*)(void), etc.
+    consumeAbstractDeclarator(parser);
+
+    if (parser->currentToken.type != TOKEN_RPAREN) {
+        printParseError("Expected ')' after compound literal type", parser);
+        return NULL;
+    }
+    advance(parser); // ')'
+
+    // { initializer-list }
+    if (parser->currentToken.type != TOKEN_LBRACE) {
+        printParseError("Expected '{' to start compound literal initializer", parser);
+        return NULL;
+    }
+    advance(parser); // '{'
+
+    DesignatedInit** items = NULL;
+    size_t count = 0;
+
+    while (parser->currentToken.type != TOKEN_RBRACE &&
+           parser->currentToken.type != TOKEN_EOF) {
+
+        DesignatedInit* di = NULL;
+
+        if (parser->currentToken.type == TOKEN_DOT) {
+            // .field = expr
+            advance(parser); // '.'
+
+            if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+                printParseError("Expected field name after '.' in designated initializer", parser);
+                return NULL;
+            }
+            const char* fieldName = parser->currentToken.value; // token text from lexer
+            advance(parser); // identifier
+
+            if (parser->currentToken.type != TOKEN_ASSIGN) { // '='
+                printParseError("Expected '=' after field designator", parser);
+                return NULL;
+            }
+            advance(parser); // '='
+
+            ASTNode* value = parseExpressionPratt(parser, 0);
+            if (!value) return NULL;
+
+            di = createDesignatedInit(fieldName, value);
+            if (!di) return NULL;
+
+        } else if (parser->currentToken.type == TOKEN_LBRACKET) {
+            // [index] = expr
+            advance(parser); // '['
+
+            ASTNode* idx = parseExpressionPratt(parser, 0);
+            if (!idx) return NULL;
+
+            if (parser->currentToken.type != TOKEN_RBRACKET) {
+                printParseError("Expected ']' after index designator", parser);
+                return NULL;
+            }
+            advance(parser); // ']'
+
+            if (parser->currentToken.type != TOKEN_ASSIGN) { // '='
+                printParseError("Expected '=' after index designator", parser);
+                return NULL;
+            }
+            advance(parser); // '='
+
+            ASTNode* value = parseExpressionPratt(parser, 0);
+            if (!value) return NULL;
+
+            di = createSimpleInit(value);
+            if (!di) return NULL;
+            di->indexExpr = idx; // attach index designator
+
+        } else {
+            // positional initializer: just an expression
+            ASTNode* value = parseExpressionPratt(parser, 0);
+            if (!value) return NULL;
+
+            di = createSimpleInit(value);
+            if (!di) return NULL;
+        }
+
+        // append to items
+        DesignatedInit** newItems = realloc(items, (count + 1) * sizeof(*newItems));
+        if (!newItems) {
+            fprintf(stderr, "Error: OOM in compound literal items\n");
+            return NULL;
+        }
+        items = newItems;
+        items[count++] = di;
+
+        if (parser->currentToken.type == TOKEN_COMMA) {
+            advance(parser); // ','
+            // allow trailing comma before '}'
+            if (parser->currentToken.type == TOKEN_RBRACE) break;
+        }
+    }
+
+    if (parser->currentToken.type != TOKEN_RBRACE) {
+        printParseError("Expected '}' to close compound literal initializer", parser);
+        return NULL;
+    }
+    advance(parser); // '}'
+
+    return createCompoundLiteralNode(literalType, items, count);
+}
+
+
+
+
+
+
+
 // Pratt-aware sizeof handler
 // Precondition: 'sizeof' token was already consumed by parseExpressionPratt()
 // so parser->currentToken is the token *after* 'sizeof'.
@@ -612,4 +741,5 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
     }
     return createSizeofNode(operand);
 }
+
 

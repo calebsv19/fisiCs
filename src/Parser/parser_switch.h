@@ -2,7 +2,7 @@
 #define _PARSER_SWITCH_H
 
 #include "parser.h"
-#include "parsed_type.h"
+#include "Parser/Helpers/parsed_type.h"
 
 #include "AST/ast_node.h"
 

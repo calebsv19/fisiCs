@@ -3,7 +3,7 @@
 #define _PARSER_PREPROC_H
 
 #include "parser.h"
-#include "parsed_type.h"
+#include "Parser/Helpers/parsed_type.h"
 
 #include "AST/ast_node.h"
 

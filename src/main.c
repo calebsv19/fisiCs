@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include "Lexer/lexer.h"
 #include "Parser/parser.h"
-#include "Parser/designated_init.h"
-#include "Parser/parser_helpers.h"
+#include "Parser/Helpers/designated_init.h"
+#include "Parser/Helpers/parser_helpers.h"
 #include "Syntax/semantic_pass.h"
 #include "AST/ast_printer.h"
 #include "Utils/utils.h"

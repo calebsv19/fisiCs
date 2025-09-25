@@ -1,8 +1,7 @@
-#include "parser_lookahead.h"
-#include "parser_helpers.h"
+#include "Parser/Helpers/parser_lookahead.h"
+#include "Parser/Helpers/parser_helpers.h"
 #include "Parser/Expr/parser_expr_pratt.h"
-#include "parsed_decl.h"
-
+#include "parser_decl.h"
 
 void printParserState(const char* label, Parser* parser) {
     printf("\n=== PARSER STATE: %s ===\n", label);
@@ -76,27 +75,31 @@ bool looksLikeTypeDeclaration(Parser* parser) {
 }
 
 
+
+
+
 bool looksLikeCastType(Parser* parser) {
-    // Precondition: '(' was consumed by parseExpressionPratt before nud('(').
+    // Precondition: '(' was consumed by Pratt before nud('('),
+    // so parser->currentToken is *after* '('.
     Parser probe = cloneParserWithFreshLexer(parser);
 
-    // 1) Try to parse a base type with your existing type parser.
+    // Parse a base type (primitive/typedef/struct/etc.)
     ParsedType t = parseType(&probe);
     if (t.kind == TYPE_INVALID) {
         freeParserClone(&probe);
         return false;
     }
 
-    // 2) Swallow abstract declarators like (*)(...), ( ... ), [N], etc.
+    // Swallow abstract declarators: (*)(...), [N], (...)
     consumeAbstractDeclarator(&probe);
 
-    // 3) We expect to be sitting on the closing ')'
+    // We must be at the closing ')'
     if (probe.currentToken.type != TOKEN_RPAREN) {
         freeParserClone(&probe);
         return false;
     }
 
-    // (Optional but useful) 4) After ')', the next token should be able to start an expression.
+    // (Optional sanity) after ')', should be a valid expr start
     advance(&probe); // consume ')'
     bool ok = isValidExpressionStart(probe.currentToken.type);
 
@@ -105,76 +108,57 @@ bool looksLikeCastType(Parser* parser) {
 }
 
 
+
+
+bool looksLikeCompoundLiteral(Parser* parser) {
+    // Pre: '(' already consumed by nud('('), so parser->currentToken is after '('
+    Parser probe = cloneParserWithFreshLexer(parser);
+
+    ParsedType t = parseType(&probe);
+    if (t.kind == TYPE_INVALID) { freeParserClone(&probe); return false; }
+
+    // Allow pointers/params/arrays after base type
+    consumeAbstractDeclarator(&probe);
+
+    // Must see ')'
+    if (probe.currentToken.type != TOKEN_RPAREN) { freeParserClone(&probe); return false; }
+    advance(&probe); // consume ')'
+
+    // C99 compound literal: next token must be '{'
+    bool ok = (probe.currentToken.type == TOKEN_LBRACE);
+    freeParserClone(&probe);
+    return ok;
+}
+
+
+
+
+
 bool looksLikeFunctionPointerDeclaration(Parser* parser) {
     printf("in look like fucntion pointer declaration. \n");
     Parser temp = cloneParserWithFreshLexer(parser);
 
-    // Skip storage/modifier tokens
-    while (isStorageSpecifier(temp.currentToken.type) || isModifierToken(temp.currentToken.type)) {
-        temp.currentToken = getNextToken(temp.lexer);
-    }
-
-    // Must be a valid base type (primitive or typedef/struct name)
-    if (!(isPrimitiveTypeToken(temp.currentToken.type) || temp.currentToken.type == TOKEN_IDENTIFIER)) {
-        freeParserClone(&temp);
-        return false;
-    }
-
-    temp.currentToken = getNextToken(temp.lexer); // consume type
-
-    // Now expect '(', then '*', then identifier, then ')', then '('
-    if (temp.currentToken.type != TOKEN_LPAREN) {
-        printf("  -> Failed: expected '(' after cast type, got '%s' (type %d)\n",
-               temp.currentToken.value, temp.currentToken.type);
-        freeParserClone(&temp);
-        return false;
-    }
-    temp.currentToken = getNextToken(temp.lexer); // consume '('
-
-    if (temp.currentToken.type != TOKEN_ASTERISK) {
-	        printf("  -> Failed: expected '*' after '(' type, got '%s' (type %d)\n",
-               temp.currentToken.value, temp.currentToken.type);
-        freeParserClone(&temp);
-        return false;
-    }
-    temp.currentToken = getNextToken(temp.lexer); // consume '*'
-
-    if (temp.currentToken.type != TOKEN_IDENTIFIER) {
-        printf("  -> Failed: expected identifier after '*' type, got '%s' (type %d)\n",
-               temp.currentToken.value, temp.currentToken.type);
-        freeParserClone(&temp);
-        return false;
-    }
-    temp.currentToken = getNextToken(temp.lexer); // consume name
-
-    if (temp.currentToken.type != TOKEN_RPAREN) {
-        freeParserClone(&temp);
-        return false;
-    }
-    temp.currentToken = getNextToken(temp.lexer); // consume ')'
-
-    if (temp.currentToken.type != TOKEN_LPAREN) {
-        freeParserClone(&temp);
-        return false;
-    }
-
-    // You could also skip the parameter list by scanning till ')'
+    /* Skip a balanced param list quickly (we just need shape, not content) */
     int parens = 1;
-    temp.currentToken = getNextToken(temp.lexer); // consume '('
     while (parens > 0 && temp.currentToken.type != TOKEN_EOF) {
         if (temp.currentToken.type == TOKEN_LPAREN) parens++;
         else if (temp.currentToken.type == TOKEN_RPAREN) parens--;
-        temp.currentToken = getNextToken(temp.lexer);
+        advance(&temp);
+    }
+    if (parens != 0) { freeParserClone(&temp); return false; }
+
+    /* Optional initializer: "= ..." — we don’t need to parse it, only accept it */
+    if (temp.currentToken.type == TOKEN_ASSIGN) {
+        advance(&temp);
+        /* Accept a single expression-ish token sequence; as lookahead we can be loose.
+           Stop at ';' or EOF. */
+        while (temp.currentToken.type != TOKEN_SEMICOLON &&
+               temp.currentToken.type != TOKEN_EOF) {
+            advance(&temp);
+        }
     }
 
-    if (parens != 0) {
-        freeParserClone(&temp);
-        return false;
-    }
-
-    bool isValid = (temp.currentToken.type == TOKEN_SEMICOLON);
-    printf("MY booooool: %d\n", isValid);
+    bool ok = (temp.currentToken.type == TOKEN_SEMICOLON);
     freeParserClone(&temp);
-    return isValid;
+    return ok;
 }
-

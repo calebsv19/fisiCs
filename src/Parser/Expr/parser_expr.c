@@ -1,7 +1,7 @@
 #include "parser_expr.h"
-#include "Parser/parser_helpers.h"
+#include "Parser/Helpers/parser_helpers.h"
 #include "Parser/parser_array.h"
-#include "Parser/parser_lookahead.h"
+#include "Parser/Helpers/parser_lookahead.h"
 #include "Parser/parser_func.h"
 #include "Parser/parser_decl.h"
 

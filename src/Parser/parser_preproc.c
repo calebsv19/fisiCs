@@ -1,5 +1,5 @@
 #include "parser_preproc.h"
-#include "parser_helpers.h"
+#include "Parser/Helpers/parser_helpers.h"
 #include "parser_main.h"
 
 ASTNode* handlePreprocessorDirectives(Parser* parser) {   

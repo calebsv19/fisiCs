@@ -2,7 +2,7 @@
 #define _PARSER_EXPR_H
 
 #include "Parser/parser.h"
-#include "Parser/parsed_type.h"
+#include "Parser/Helpers/parsed_type.h"
 
 #include "AST/ast_node.h"
 

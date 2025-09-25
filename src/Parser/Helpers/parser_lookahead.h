@@ -2,7 +2,7 @@
 #define _PARSER_LOOKAHEAD_H
 
 #include "parser.h"
-#include "parsed_type.h"
+#include "Parser/Helpers/parsed_type.h"
 
 #include "AST/ast_node.h"
 
@@ -16,6 +16,8 @@ void printParserState(const char* label, Parser* parser);
 bool looksLikeTypeDeclaration(Parser* parser);
 bool looksLikeCastType(Parser* parser);
 bool looksLikeFunctionPointerDeclaration(Parser* parser);
+bool looksLikeCompoundLiteral(Parser* parser);
+
 
 #endif // _PARSER_LOOKAHEAD_H
 
