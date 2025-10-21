@@ -7,6 +7,23 @@
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 
+
+#include "Compiler/compiler_context.h" // make sure this is visible via include path
+
+static inline void record_typedef(Parser* p, const char* name) {
+    if (p && p->ctx && name && name[0]) { cc_add_typedef(p->ctx, name); }
+}
+
+static inline void record_tag(Parser* p, CCTagKind kind, const char* name) {
+    if (p && p->ctx && name && name[0]) { cc_add_tag(p->ctx, kind, name); }
+}
+
+
+
+
+
+
+
 ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
     printf("DEBUG: Entered handleTypeOrFunctionDeclaration()\n");
 
@@ -244,6 +261,60 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
 }
 
 
+ASTNode* parseStructDefinition(Parser* parser) {
+    printf("    entering struct parsing\n");
+    if (parser->currentToken.type != TOKEN_STRUCT) {
+        printParseError("Expected 'struct'", parser);
+        return NULL;
+    }
+    advance(parser);  // consume 'struct'
+
+    char* structName = NULL;
+    if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        const char* tagName = parser->currentToken.value;
+        structName = strdup(tagName);
+        // Phase 2 hook: record the tag name in the struct tag namespace
+        if (parser->ctx && tagName && tagName[0]) {
+            cc_add_tag(parser->ctx, CC_TAG_STRUCT, tagName);
+        }
+        advance(parser);  // consume tag name
+    }
+
+    if (parser->currentToken.type != TOKEN_LBRACE) {
+        printParseError("Expected '{' after struct name", parser);
+        return NULL;
+    }
+    advance(parser);  // consume '{'
+
+    size_t fieldCount = 0;
+    ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount);
+
+    if (parser->currentToken.type != TOKEN_RBRACE) {
+        printParseError("Expected '}' to close struct body", parser);
+        return NULL;
+    }
+    advance(parser);  // consume '}'
+
+    // NOTE: In standard C, an identifier *after* '}' would start a declarator
+    // (e.g., 'struct S { ... } var;'). Your function treats it as an "optional trailing name".
+    // That trailing identifier is *not* a tag; do NOT record it as a tag.
+    if (!structName && parser->currentToken.type == TOKEN_IDENTIFIER) {
+        structName = strdup(parser->currentToken.value);
+        advance(parser);
+    }
+
+    if (parser->currentToken.type != TOKEN_SEMICOLON) {
+        printParseError("Expected ';' after struct definition", parser);
+        return NULL;
+    }
+    advance(parser);  // consume ';'
+
+    return createStructOrUnionDefinitionNode(
+        AST_STRUCT_DEFINITION, structName, fields, fieldCount
+    );
+}
+
+
 ASTNode* parseUnionDefinition(Parser* parser) {
     if (parser->currentToken.type != TOKEN_UNION) {
         printParseError("Expected 'union'", parser);
@@ -253,8 +324,13 @@ ASTNode* parseUnionDefinition(Parser* parser) {
 
     char* unionName = NULL;
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-        unionName = strdup(parser->currentToken.value);
-        advance(parser);
+        const char* tagName = parser->currentToken.value;
+        unionName = strdup(tagName);
+        // Phase 2 hook: record union tag
+        if (parser->ctx && tagName && tagName[0]) {
+            cc_add_tag(parser->ctx, CC_TAG_UNION, tagName);
+        }
+        advance(parser); // consume tag identifier
     }
 
     if (parser->currentToken.type != TOKEN_LBRACE) {
@@ -278,49 +354,12 @@ ASTNode* parseUnionDefinition(Parser* parser) {
     }
     advance(parser);  // consume ';'
 
-    return createStructOrUnionDefinitionNode(AST_UNION_DEFINITION, unionName, fields, fieldCount);
+    return createStructOrUnionDefinitionNode(
+        AST_UNION_DEFINITION, unionName, fields, fieldCount
+    );
 }
 
 
-ASTNode* parseStructDefinition(Parser* parser) {
-    printf("    entering struct parsing\n");
-    advance(parser);  // consume 'struct'
-
-    char* structName = NULL;
-    if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-        structName = strdup(parser->currentToken.value);
-        advance(parser);  // consume name
-    }
-
-    if (parser->currentToken.type != TOKEN_LBRACE) {
-        printParseError("Expected '{' after struct name", parser);
-        return NULL;
-    }
-    advance(parser);  // consume '{'
-
-    size_t fieldCount = 0;
-    ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount);
-
-    if (parser->currentToken.type != TOKEN_RBRACE) {
-        printParseError("Expected '}' to close struct body", parser);
-        return NULL;
-    }
-    advance(parser);  // consume '}'
-
-    // Optional trailing name
-    if (!structName && parser->currentToken.type == TOKEN_IDENTIFIER) {
-        structName = strdup(parser->currentToken.value);
-        advance(parser);
-    }
-
-    if (parser->currentToken.type != TOKEN_SEMICOLON) {
-        printParseError("Expected ';' after struct definition", parser);
-        return NULL;
-    }
-    advance(parser);  // consume ';'
-
-    return createStructOrUnionDefinitionNode(AST_STRUCT_DEFINITION, structName, fields, fieldCount);
-}
 
 
 ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
@@ -391,68 +430,64 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
 }
 
 
-
-
-
 ASTNode* parseEnumDefinition(Parser* parser) {
     if (parser->currentToken.type != TOKEN_ENUM) {
         printParseError("Expected 'enum'", parser);
         return NULL;
     }
-     
+
     advance(parser); // consume 'enum'
-            
+
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         printParseError("Expected enum name after 'enum'", parser);
         return NULL;
     }
-        
-    char* enumName = parser->currentToken.value;
+
+    const char* enumName = parser->currentToken.value;
+    // Phase 2 hook: record enum tag
+    if (parser->ctx && enumName && enumName[0]) {
+        cc_add_tag(parser->ctx, CC_TAG_ENUM, enumName);
+    }
     advance(parser); // consume name
-        
-    if (parser->currentToken.type != TOKEN_LBRACE) {   
+
+    if (parser->currentToken.type != TOKEN_LBRACE) {
         printParseError("Expected '{' to begin enum body", parser);
         return NULL;
     }
-        
     advance(parser); // consume '{'
-            
+
     ASTNode** members = NULL;
-    ASTNode** values = NULL;
+    ASTNode** values  = NULL;
     size_t count = 0, capacity = 4;
-    members = malloc(capacity * sizeof(ASTNode*));  
-    values = malloc(capacity * sizeof(ASTNode*));
-        
-     
-    printf("entering while loop");
+    members = malloc(capacity * sizeof(ASTNode*));
+    values  = malloc(capacity * sizeof(ASTNode*));
+
     while (parser->currentToken.type == TOKEN_IDENTIFIER) {
         ASTNode* memberName = createIdentifierNode(parser->currentToken.value);
         advance(parser); // consume member name
-        
+
         ASTNode* valueExpr = NULL;
         if (parser->currentToken.type == TOKEN_ASSIGN) {
             advance(parser); // consume '='
-     
-            //  Carefully parse expression and check result
             valueExpr = parseAssignmentExpression(parser);
             if (!valueExpr) {
                 printParseError("Invalid value expression in enum", parser);
                 return NULL;
             }
         }
-        
+
         if (count >= capacity) {
             capacity *= 2;
             members = realloc(members, capacity * sizeof(ASTNode*));
-            values = realloc(values, capacity * sizeof(ASTNode*));
+            values  = realloc(values,  capacity * sizeof(ASTNode*));
         }
-    
+
         members[count] = memberName;
-        values[count] = valueExpr;
+        values [count] = valueExpr;
         count++;
-     
+
         if (parser->currentToken.type == TOKEN_COMMA) {
-            advance(parser); // consume and continue
+            advance(parser); // continue
         } else if (parser->currentToken.type == TOKEN_RBRACE) {
             break; // end of enum
         } else {
@@ -460,20 +495,19 @@ ASTNode* parseEnumDefinition(Parser* parser) {
             return NULL;
         }
     }
-    
+
     if (parser->currentToken.type != TOKEN_RBRACE) {
         printParseError("Expected '}' to close enum body", parser);
         return NULL;
     }
-    
     advance(parser); // consume '}'
-    if (parser->currentToken.type == TOKEN_SEMICOLON) {
-        advance(parser); // consume trailing ';' after enum
-    } else {
+
+    if (parser->currentToken.type != TOKEN_SEMICOLON) {
         printParseError("Expected ';' after enum declaration", parser);
         return NULL;
     }
-     
+    advance(parser); // consume ';'
+
     return createEnumDefinitionNode(enumName, members, values, count);
 }
 
@@ -484,29 +518,41 @@ ASTNode* parseTypedef(Parser* parser) {
         printParseError("Expected 'typedef'", parser);
         return NULL;
     }
-     
+
     advance(parser); // consume 'typedef'
-    
+
+    // Parse the base type (handles 'struct/union/enum' as needed)
     ParsedType baseType = parseType(parser);
-    
+
+    // NOTE: Your current implementation supports exactly one alias.
+    // We'll keep that, but we also record the alias in the CompilerContext.
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         printParseError("Expected identifier name for typedef", parser);
         return NULL;
     }
-     
-    ASTNode* alias = createIdentifierNode(parser->currentToken.value);
+
+    // Capture the alias name *before* advance, for context recording
+    const char* aliasName = parser->currentToken.value;
+
+    ASTNode* alias = createIdentifierNode(aliasName);
     advance(parser); // consume identifier
-    
+
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
         printParseError("Expected ';' after typedef", parser);
         return NULL;
     }
-     
     advance(parser); // consume ';'
-    
-    // TODO: Add to symbol table later
+
+    // Phase 2 hook: remember typedef name for later disambiguation
+    if (parser->ctx && aliasName && aliasName[0]) {
+        cc_add_typedef(parser->ctx, aliasName);
+    }
+
     return createTypedefNode(baseType, alias);
 }
+
+
+
 
 ASTNode* handleStructStatements(Parser* parser) {
     Token next = peekNextToken(parser);

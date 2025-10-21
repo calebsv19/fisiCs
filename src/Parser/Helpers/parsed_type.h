@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "../Lexer/tokens.h"  // Required for TokenType
+#include "Lexer/tokens.h"  // Required for TokenType
 #include <stdbool.h>
 
 
@@ -11,8 +11,17 @@
 typedef enum {
     TYPE_INVALID,
     TYPE_PRIMITIVE,
-    TYPE_USER_DEFINED
+    TYPE_STRUCT,
+    TYPE_UNION,
+    TYPE_ENUM,
+    TYPE_NAMED,    
 } TypeKind;
+
+typedef enum {
+    TYPECTX_Strict,          // casts, sizeof(type), compound literals
+    TYPECTX_Declaration      // variable/parameter/field declarations
+} TypeContext;
+
 
 // Track if it's struct/union or just a typedef name
 typedef enum { TAG_NONE, TAG_STRUCT, TAG_UNION } TagKind;

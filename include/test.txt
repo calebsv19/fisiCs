@@ -1,9 +1,6 @@
-// struct_enum.c
-typedef struct { int r, g, b; } Color;
-enum Day { MON, TUE, WED };
-int main() {
-    Color c = { .r = 1, .g = 2, .b = 3 };
-    enum Day d = WED;
-    return c.g + d;
-}
+typedef int I;
+struct S { int x; };
+union U { int a; };
+enum E { A=1, B, C=5 };
+typedef struct S T;
 

@@ -10,47 +10,74 @@
 
 //              MAIN BLOCKS
 
+static bool append_stmt(ASTNode*** arr, size_t* count, size_t* cap, ASTNode* n) {
+    if (*count >= *cap) {
+        size_t new_cap = (*cap) ? (*cap * 2) : 4;
+        ASTNode** tmp = realloc(*arr, new_cap * sizeof(*tmp));
+        if (!tmp) return false;
+        *arr = tmp; *cap = new_cap;
+    }
+    (*arr)[(*count)++] = n;
+    return true;
+}
+
 
 // large blocks
 ASTNode* parseProgram(Parser* parser) {
     size_t capacity = 4, count = 0;
-    ASTNode** statements = malloc(capacity * sizeof(ASTNode*));
-
+    ASTNode** statements = malloc(capacity * sizeof(*statements));
     if (!statements) {
-        printf("Error: Memory allocation failed for program statements.\n");
+        fprintf(stderr, "Error: Memory allocation failed for program statements.\n");
         return NULL;
     }
 
     while (parser->currentToken.type != TOKEN_EOF) {
         printf("DEBUG: Starting new statement with token '%s' (line %d)\n",
-                   parser->currentToken.value, parser->currentToken.line);
+               parser->currentToken.value, parser->currentToken.line);
 
+        if (looksLikeTypeDeclaration(parser)) {
+            ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
+            if (!decl) { 
+                free(statements); 
+                return NULL; 
+            }
 
-	if (looksLikeTypeDeclaration(parser)) {
-        	ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
-        	if (!decl) return NULL;
-        	statements[count++] = decl;
-        	continue;
-	}
+            if (count >= capacity) {
+                size_t new_cap = capacity * 2;
+                ASTNode** tmp = realloc(statements, new_cap * sizeof(*tmp));
+                if (!tmp) { 
+                    fprintf(stderr, "Error: Memory reallocation failed (declaration path).\n");
+                    free(statements); 
+                    return NULL; 
+                }
+                statements = tmp;
+                capacity = new_cap;
+            }
+
+            statements[count++] = decl;
+            continue;
+        }
 
         ASTNode* stmt = parseStatement(parser);
         printf("DEBUG: Statement finished at token '%s' (line %d)\n",
-                       parser->currentToken.value, parser->currentToken.line);
+               parser->currentToken.value, parser->currentToken.line);
 
         if (!stmt) {
-            printf("Error: invalid statement at line %d\n", parser->currentToken.line);
+            fprintf(stderr, "Error: invalid statement at line %d\n", parser->currentToken.line);
             free(statements);
             return NULL;
         }
 
-        // Expand storage if needed
         if (count >= capacity) {
-            capacity *= 2;
-            statements = realloc(statements, capacity * sizeof(ASTNode*));
-            if (!statements) {
-                printf("Error: Memory reallocation failed while parsing program.\n");
+            size_t new_cap = capacity * 2;
+            ASTNode** tmp = realloc(statements, new_cap * sizeof(*tmp));
+            if (!tmp) {
+                fprintf(stderr, "Error: Memory reallocation failed while parsing program (statement path).\n");
+                free(statements);
                 return NULL;
             }
+            statements = tmp;
+            capacity = new_cap;
         }
 
         statements[count++] = stmt;

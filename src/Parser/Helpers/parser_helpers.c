@@ -1,69 +1,73 @@
 #include "Parser/Helpers/parser_helpers.h"
 #include "Parser/Helpers/parser_lookahead.h"
 #include "parser_config.h"
-
+#include <stdlib.h>   // malloc, free
+#include <string.h>   // memcpy
 
 // Initialize parser with a fresh token window
-void initParser(Parser* parser, Lexer* lexer, ParserMode mode) {
+void initParser(Parser* parser, Lexer* lexer, ParserMode mode, CompilerContext* ctx) {
     parser->lexer = lexer;
     parser->mode = mode;
-    parser->currentToken = getNextToken(lexer);
-    parser->nextToken = getNextToken(lexer);
-    parser->nextNextToken = getNextToken(lexer);
+    parser->currentToken      = getNextToken(lexer);
+    parser->nextToken         = getNextToken(lexer);
+    parser->nextNextToken     = getNextToken(lexer);
     parser->nextNextNextToken = getNextToken(lexer);
+    parser->ctx = ctx;
 }
 
 // Advance the 4-token lookahead window forward
 void advance(Parser* parser) {
-    parser->currentToken = parser->nextToken;
-    parser->nextToken = parser->nextNextToken;
-    parser->nextNextToken = parser->nextNextNextToken;
+    parser->currentToken      = parser->nextToken;
+    parser->nextToken         = parser->nextNextToken;
+    parser->nextNextToken     = parser->nextNextNextToken;
     parser->nextNextNextToken = getNextToken(parser->lexer);
 }
 
 void advanceClone(Parser* p) {
-    p->currentToken = p->nextToken;
-    p->nextToken = p->nextNextToken;
-    p->nextNextToken = p->nextNextNextToken;
+    p->currentToken      = p->nextToken;
+    p->nextToken         = p->nextNextToken;
+    p->nextNextToken     = p->nextNextNextToken;
     p->nextNextNextToken = getNextToken(p->lexer);
 }
 
+// ---------- SAFE CLONE HELPERS ----------
 
-
-// Clone a lexer safely for use in simulated lookahead
 Lexer* cloneLexer(const Lexer* original) {
-    Lexer* copy = malloc(sizeof(Lexer));
+    if (!original) return NULL;
+    Lexer* copy = (Lexer*)malloc(sizeof(Lexer));
     if (!copy) return NULL;
-    memcpy(copy, original, sizeof(Lexer));  // More future-proof
+    // shallow copy is fine if your lexer points at stable source buffers
+    memcpy(copy, original, sizeof(Lexer));
     return copy;
 }
 
-
 Parser cloneParserWithFreshLexer(Parser* original) {
+    // Struct assignment avoids any sizeof/ABI weirdness.
     Parser temp = *original;
 
-
-    // Clone the lexer, but reset to same position
+    // Heap-clone the lexer so speculative parsing is independent
     temp.lexer = cloneLexer(original->lexer);
 
-    // Copy token window manually instead of re-tokenizing
-    temp.currentToken = original->currentToken;
-    temp.nextToken = original->nextToken;
-    temp.nextNextToken = original->nextNextToken;
-    temp.nextNextNextToken = original->nextNextNextToken;
+    // IMPORTANT: re-prime the token window from the cloned lexer.
+    // Do NOT copy the original tokens; keep the clone self-consistent.
+    temp.currentToken      = getNextToken(temp.lexer);
+    temp.nextToken         = getNextToken(temp.lexer);
+    temp.nextNextToken     = getNextToken(temp.lexer);
+    temp.nextNextNextToken = getNextToken(temp.lexer);
 
+    // Context pointer can be shared
+    temp.ctx = original->ctx;
     return temp;
 }
 
-
-// Free the cloned lexer when done simulating lookahead
 void freeParserClone(Parser* parser) {
-    if (parser->lexer) {
+    if (parser && parser->lexer) {
+        // If your Lexer allocates any dynamic internals beyond the struct itself,
+        // free those here before freeing the struct.
         free(parser->lexer);
         parser->lexer = NULL;
     }
 }
-
 
 
 
@@ -191,7 +195,11 @@ bool isKnownType(const char* name) {
            strcmp(name, "double") == 0 ||
            strcmp(name, "bool") == 0 ||
            strcmp(name, "void") == 0 ||
+	   strcmp(name, "EngineRuntimeConfig") == 0 ||
+	   strcmp(name, "uint64_t") == 0 ||
+	   strcmp(name, "Engine") == 0 ||
            strcmp(name, "MyType") == 0; // TEMP for your test
+
 }
 
 

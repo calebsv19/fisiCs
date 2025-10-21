@@ -7,8 +7,6 @@
 // Central dispatch
 void analyze(ASTNode* node, Scope* scope);
 
-// Utility
-void analyzeChildren(ASTNode** list, size_t count, Scope* scope);
 
 #endif // ANALYZE_CORE_H
 

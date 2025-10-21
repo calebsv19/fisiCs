@@ -4,9 +4,15 @@
 #include "Parser/parser.h"
 #include "Parser/Helpers/designated_init.h"
 #include "Parser/Helpers/parser_helpers.h"
+
 #include "Syntax/semantic_pass.h"
+
 #include "AST/ast_printer.h"
+
 #include "Utils/utils.h"
+
+#include "Compiler/compiler_context.h"
+
 #include "code_gen.h"
 
 // === Feature Toggles ===
@@ -18,6 +24,11 @@
 int main(void) {
     const char *filename = "include/test.txt";
     char *sourceCode = readFile(filename);
+
+    CompilerContext* ctx = cc_create();
+    if (!ctx) { fprintf(stderr, "OOM: CompilerContext\n"); return 1; }
+    cc_seed_builtins(ctx);
+
 
     // === Lexing Phase ===
     Lexer lexer;
@@ -31,9 +42,13 @@ int main(void) {
     } while (token.type != TOKEN_EOF);
 #endif
 
+
+
+
     // === Parsing Phase ===
     Parser parser;
-    initParser(&parser, &lexer, PARSER_MODE_PRATT);
+    initParser(&parser, &lexer, PARSER_MODE_PRATT, ctx);
+
     ASTNode *root = parse(&parser);
 
 
@@ -56,6 +71,9 @@ int main(void) {
     LLVMDumpModule(TheModule);
 #endif
 
+
+    free(sourceCode);
+    cc_destroy(ctx);
     return 0;
 }
 

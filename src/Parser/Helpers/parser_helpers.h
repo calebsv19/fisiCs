@@ -9,8 +9,10 @@
 #include "Lexer/tokens.h"
 #include "Lexer/lexer.h"
 
+#include "Compiler/compiler_context.h"
+
 // Token management
-void initParser(Parser* parser, Lexer* lexer, ParserMode mode);
+void initParser(Parser* parser, Lexer* lexer, ParserMode mode, CompilerContext* ctx);
 void advance(Parser* parser);
 
 // Lexer cloning
