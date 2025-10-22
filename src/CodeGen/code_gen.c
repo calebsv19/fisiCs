@@ -13,9 +13,11 @@
 
 typedef struct NamedValue {
     char* name;
-    LLVMValueRef value;
-    LLVMTypeRef type;
+    LLVMValueRef value;       /* pointer/alloca/global reference */
+    LLVMTypeRef type;         /* canonical value/aggregate type */
+    LLVMTypeRef elementType;  /* element type when addressOnly (arrays) */
     bool isGlobal;
+    bool addressOnly;
 } NamedValue;
 
 typedef struct CGScope {
@@ -82,7 +84,13 @@ static CGScope* cg_scope_create(CGScope* parent);
 static void cg_scope_destroy(CGScope* scope);
 static CGScope* cg_scope_push(CodegenContext* ctx);
 static void cg_scope_pop(CodegenContext* ctx);
-static void cg_scope_insert(CGScope* scope, const char* name, LLVMValueRef value, LLVMTypeRef type, bool isGlobal);
+static void cg_scope_insert(CGScope* scope,
+                            const char* name,
+                            LLVMValueRef value,
+                            LLVMTypeRef type,
+                            bool isGlobal,
+                            bool addressOnly,
+                            LLVMTypeRef elementType);
 static NamedValue* cg_scope_lookup(CGScope* scope, const char* name);
 
 static void cg_loop_push(CodegenContext* ctx, LLVMBasicBlockRef breakBB, LLVMBasicBlockRef continueBB);
@@ -106,7 +114,12 @@ static LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
                                             const char* structName,
                                             const char* fieldName,
                                             LLVMTypeRef* outFieldType);
-static LLVMValueRef buildArrayElementPointer(CodegenContext* ctx, LLVMValueRef arrayPtr, LLVMValueRef index, LLVMTypeRef elementType);
+static LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
+                                             LLVMValueRef arrayPtr,
+                                             LLVMValueRef index,
+                                             LLVMTypeRef aggregateTypeHint,
+                                             LLVMTypeRef elementTypeHint,
+                                             LLVMTypeRef* outElementType);
 static LLVMTypeRef ensureStructLLVMTypeByName(CodegenContext* ctx, const char* name, bool isUnionHint);
 static void declareStructSymbol(CodegenContext* ctx, const Symbol* sym);
 
@@ -355,8 +368,13 @@ static LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
+    fprintf(stderr, "[CG] Identifier lookup %s\n", node->valueNode.value);
     NamedValue* entry = cg_scope_lookup(ctx->currentScope, node->valueNode.value);
     if (entry) {
+        if (entry->addressOnly) {
+            return entry->value;
+        }
+
         LLVMTypeRef loadType = entry->type;
         if (!loadType || LLVMGetTypeKind(loadType) == LLVMVoidTypeKind) {
             loadType = LLVMGetElementType(LLVMTypeOf(entry->value));
@@ -364,7 +382,8 @@ static LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
         if (!loadType || LLVMGetTypeKind(loadType) == LLVMVoidTypeKind) {
             loadType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
-        return LLVMBuildLoad2(ctx->builder, loadType, entry->value, node->valueNode.value);
+        LLVMValueRef loaded = LLVMBuildLoad2(ctx->builder, loadType, entry->value, node->valueNode.value);
+        return loaded;
     }
 
     LLVMValueRef global = LLVMGetNamedGlobal(ctx->module, node->valueNode.value);
@@ -381,7 +400,9 @@ static LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
                     node->valueNode.value,
                     global,
                     loadType,
-                    true);
+                    true,
+                    false,
+                    NULL);
     return LLVMBuildLoad2(ctx->builder, loadType, global, node->valueNode.value);
 }
 
@@ -619,7 +640,9 @@ static LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* nod
                         varNameNode->valueNode.value,
                         allocaInst,
                         varType,
-                        false);
+                        false,
+                        false,
+                        NULL);
 
         DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
         if (init && init->expression) {
@@ -748,7 +771,9 @@ static LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node
                             paramName->valueNode.value,
                             allocaInst,
                             paramType,
-                            false);
+                            false,
+                            false,
+                            NULL);
         }
     }
 
@@ -1110,8 +1135,10 @@ static LLVMValueRef codegenArrayDeclaration(CodegenContext* ctx, ASTNode* node) 
     cg_scope_insert(ctx->currentScope,
                     node->arrayDecl.varName->valueNode.value,
                     array,
-                    LLVMTypeOf(array),
-                    false);
+                    arrayType,
+                    false,
+                    true,
+                    elementType);
 
     for (size_t i = 0; i < node->arrayDecl.valueCount; i++) {
         LLVMValueRef index = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), i, 0);
@@ -1140,16 +1167,48 @@ static LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: Array access failed\n");
         return NULL;
     }
-    LLVMValueRef elementPtr = buildArrayElementPointer(ctx, arrayPtr, index, NULL);
+    char* arrTyStr = LLVMPrintTypeToString(LLVMTypeOf(arrayPtr));
+    fprintf(stderr, "[CG] Array access base type: %s\n", arrTyStr ? arrTyStr : "<null>");
+    if (arrTyStr) LLVMDisposeMessage(arrTyStr);
+    LLVMTypeRef aggregateHint = NULL;
+    LLVMTypeRef elementHint = NULL;
+    if (node->arrayAccess.array && node->arrayAccess.array->type == AST_IDENTIFIER) {
+        NamedValue* entry = cg_scope_lookup(ctx->currentScope, node->arrayAccess.array->valueNode.value);
+        if (entry) {
+            aggregateHint = entry->type;
+            char* hintStr = aggregateHint ? LLVMPrintTypeToString(aggregateHint) : NULL;
+            fprintf(stderr, "[CG] Array access aggregate hint=%s\n", hintStr ? hintStr : "<null>");
+            if (hintStr) LLVMDisposeMessage(hintStr);
+            elementHint = entry->elementType;
+        }
+    }
+    LLVMTypeRef derivedElementType = NULL;
+    LLVMValueRef elementPtr = buildArrayElementPointer(ctx, arrayPtr, index, aggregateHint, elementHint, &derivedElementType);
     if (!elementPtr) {
         fprintf(stderr, "Error: Failed to compute array element pointer\n");
         return NULL;
     }
-    LLVMTypeRef elementType = LLVMGetElementType(LLVMTypeOf(elementPtr));
-    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
-        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+    fprintf(stderr, "[CG] Array element pointer computed\n");
+    LLVMTypeRef ptrToElemType = LLVMTypeOf(elementPtr);
+    char* ptrElemStr = ptrToElemType ? LLVMPrintTypeToString(ptrToElemType) : NULL;
+    fprintf(stderr, "[CG] Array element pointer LLVM type=%s\n", ptrElemStr ? ptrElemStr : "<null>");
+    if (ptrElemStr) LLVMDisposeMessage(ptrElemStr);
+
+    LLVMTypeRef elementType = derivedElementType;
+    if (!elementType) {
+        elementType = LLVMGetElementType(ptrToElemType);
+        if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
+            elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
     }
-    return LLVMBuildLoad2(ctx->builder, elementType, elementPtr, "arrayLoad");
+    LLVMValueRef typedElementPtr = elementPtr;
+    LLVMTypeRef expectedPtrType = LLVMPointerType(elementType, 0);
+    if (LLVMTypeOf(elementPtr) != expectedPtrType) {
+        typedElementPtr = LLVMBuildBitCast(ctx->builder, elementPtr, expectedPtrType, "array.elem.cast");
+    }
+    LLVMValueRef loadVal = LLVMBuildLoad2(ctx->builder, elementType, typedElementPtr, "arrayLoad");
+    fprintf(stderr, "[CG] Array element load complete\n");
+    return loadVal;
 }
 
 static LLVMValueRef codegenDotAccess(CodegenContext* ctx, ASTNode* node) {
@@ -1485,7 +1544,13 @@ static void cg_scope_pop(CodegenContext* ctx) {
     ctx->currentScope = parent;
 }
 
-static void cg_scope_insert(CGScope* scope, const char* name, LLVMValueRef value, LLVMTypeRef type, bool isGlobal) {
+static void cg_scope_insert(CGScope* scope,
+                            const char* name,
+                            LLVMValueRef value,
+                            LLVMTypeRef type,
+                            bool isGlobal,
+                            bool addressOnly,
+                            LLVMTypeRef elementType) {
     if (!scope || !name) return;
 
     for (size_t i = 0; i < scope->count; i++) {
@@ -1493,6 +1558,8 @@ static void cg_scope_insert(CGScope* scope, const char* name, LLVMValueRef value
             scope->entries[i].value = value;
             scope->entries[i].type = type;
             scope->entries[i].isGlobal = isGlobal;
+            scope->entries[i].addressOnly = addressOnly;
+            scope->entries[i].elementType = elementType;
             return;
         }
     }
@@ -1509,6 +1576,8 @@ static void cg_scope_insert(CGScope* scope, const char* name, LLVMValueRef value
     scope->entries[scope->count].value = value;
     scope->entries[scope->count].type = type;
     scope->entries[scope->count].isGlobal = isGlobal;
+    scope->entries[scope->count].addressOnly = addressOnly;
+    scope->entries[scope->count].elementType = elementType;
     scope->count += 1;
 }
 
@@ -1635,7 +1704,7 @@ static void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) 
         LLVMSetInitializer(existing, LLVMConstNull(varType));
     }
 
-    cg_scope_insert(ctx->currentScope, sym->name, existing, varType, true);
+    cg_scope_insert(ctx->currentScope, sym->name, existing, varType, true, false, NULL);
 }
 
 static void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
@@ -1701,13 +1770,13 @@ static void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
             if (!existingType || LLVMGetTypeKind(existingType) == LLVMVoidTypeKind) {
                 existingType = varType;
             }
-            cg_scope_insert(ctx->currentScope, name, existing, existingType, true);
+            cg_scope_insert(ctx->currentScope, name, existing, existingType, true, false, NULL);
             continue;
         }
 
         LLVMValueRef global = LLVMAddGlobal(ctx->module, varType, name);
         LLVMSetInitializer(global, LLVMConstNull(varType));
-        cg_scope_insert(ctx->currentScope, name, global, varType, true);
+        cg_scope_insert(ctx->currentScope, name, global, varType, true, false, NULL);
     }
 }
 
@@ -1893,7 +1962,12 @@ static const StructInfo* lookupStructInfo(CodegenContext* ctx, const char* name,
     return NULL;
 }
 
-static LLVMValueRef buildArrayElementPointer(CodegenContext* ctx, LLVMValueRef arrayPtr, LLVMValueRef index, LLVMTypeRef elementOverride) {
+static LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
+                                             LLVMValueRef arrayPtr,
+                                             LLVMValueRef index,
+                                             LLVMTypeRef aggregateTypeHint,
+                                             LLVMTypeRef elementTypeHint,
+                                             LLVMTypeRef* outElementType) {
     if (!arrayPtr || !index) return NULL;
     LLVMTypeRef ptrType = LLVMTypeOf(arrayPtr);
     if (LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
@@ -1901,13 +1975,44 @@ static LLVMValueRef buildArrayElementPointer(CodegenContext* ctx, LLVMValueRef a
     }
 
     LLVMTypeRef baseType = LLVMGetElementType(ptrType);
-    if (LLVMGetTypeKind(baseType) == LLVMArrayTypeKind) {
+    char* baseTypeStr = baseType ? LLVMPrintTypeToString(baseType) : NULL;
+    fprintf(stderr, "[CG] array GEP baseType=%s\n", baseTypeStr ? baseTypeStr : "<null>");
+    if (baseTypeStr) LLVMDisposeMessage(baseTypeStr);
+
+    LLVMTypeRef aggregateType = baseType;
+    if (aggregateTypeHint && LLVMGetTypeKind(aggregateTypeHint) == LLVMArrayTypeKind) {
+        aggregateType = aggregateTypeHint;
+    }
+    {
+        char* aggDbg = aggregateType ? LLVMPrintTypeToString(aggregateType) : NULL;
+        fprintf(stderr, "[CG] array GEP aggregate=%s\n", aggDbg ? aggDbg : "<null>");
+        if (aggDbg) LLVMDisposeMessage(aggDbg);
+    }
+    if (aggregateType && LLVMGetTypeKind(aggregateType) == LLVMArrayTypeKind) {
         LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
         LLVMValueRef indices[2] = { zero, index };
-        return LLVMBuildGEP2(ctx->builder, baseType, arrayPtr, indices, 2, "arrayElemPtr");
+        if (outElementType) {
+            *outElementType = LLVMGetElementType(aggregateType);
+            if ((!*outElementType) || LLVMGetTypeKind(*outElementType) == LLVMVoidTypeKind) {
+                *outElementType = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+        }
+        return LLVMBuildGEP2(ctx->builder, aggregateType, arrayPtr, indices, 2, "arrayElemPtr");
     }
 
-    LLVMTypeRef elementType = elementOverride ? elementOverride : baseType;
+    LLVMTypeRef elementType = NULL;
+    if (elementTypeHint && LLVMGetTypeKind(elementTypeHint) != LLVMArrayTypeKind) {
+        elementType = elementTypeHint;
+    }
+    if (!elementType) {
+        elementType = baseType;
+    }
+    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
+        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+    if (outElementType) {
+        *outElementType = elementType;
+    }
     LLVMValueRef indices[1] = { index };
     return LLVMBuildGEP2(ctx->builder, elementType, arrayPtr, indices, 1, "arrayElemPtr");
 }
@@ -1936,6 +2041,15 @@ static LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
     if (!aggregateType) {
         aggregateType = LLVMGetElementType(ptrType);
     }
+    if ((!aggregateType || LLVMGetTypeKind(aggregateType) == LLVMVoidTypeKind) && LLVMIsAAllocaInst(basePtr)) {
+        LLVMTypeRef allocated = LLVMGetAllocatedType(basePtr);
+        if (allocated) {
+            aggregateType = allocated;
+        }
+    }
+    char* aggStr = aggregateType ? LLVMPrintTypeToString(aggregateType) : NULL;
+    fprintf(stderr, "[CG] buildStructFieldPointer aggregate type=%s\n", aggStr ? aggStr : "<null>");
+    if (aggStr) LLVMDisposeMessage(aggStr);
     if (LLVMGetTypeKind(aggregateType) != LLVMStructTypeKind) {
         return NULL;
     }
@@ -2024,6 +2138,10 @@ static bool codegenLValue(CodegenContext* ctx, ASTNode* target, LLVMValueRef* ou
                 return false;
             }
             *outPtr = entry->value;
+            if (entry->addressOnly) {
+                *outType = entry->type;
+                return true;
+            }
             *outType = entry->type ? entry->type : LLVMGetElementType(LLVMTypeOf(entry->value));
             return true;
         }
@@ -2032,10 +2150,17 @@ static bool codegenLValue(CodegenContext* ctx, ASTNode* target, LLVMValueRef* ou
             fprintf(stderr, "[CG] LValue array access\n");
             LLVMValueRef arrayPtr = codegenNode(ctx, target->arrayAccess.array);
             LLVMValueRef index = codegenNode(ctx, target->arrayAccess.index);
-            LLVMValueRef elementPtr = buildArrayElementPointer(ctx, arrayPtr, index, NULL);
+            LLVMTypeRef elementType = NULL;
+            LLVMValueRef elementPtr = buildArrayElementPointer(ctx, arrayPtr, index, NULL, NULL, &elementType);
             if (!elementPtr) return false;
             *outPtr = elementPtr;
-            *outType = LLVMGetElementType(LLVMTypeOf(elementPtr));
+            if (!elementType) {
+                elementType = LLVMGetElementType(LLVMTypeOf(elementPtr));
+                if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
+                    elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+            }
+            *outType = elementType;
             return true;
         }
 
