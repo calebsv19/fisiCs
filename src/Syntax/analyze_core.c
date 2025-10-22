@@ -7,6 +7,7 @@
 #include "symbol_table.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static void analyzeChildren(ASTNode** nodes, size_t n, Scope* scope) {
     if (!nodes) return;
@@ -57,12 +58,17 @@ void analyze(ASTNode* node, Scope* scope) {
                     }
 
                     // Create symbol
-                    Symbol* s = (Symbol*)calloc(1, sizeof(Symbol));
-                    if (!s) { fprintf(stderr, "OOM: Symbol param\n"); continue; }
-                    s->kind = SYMBOL_VARIABLE;
-                    s->name = nameNode->valueNode.value; // string owned by AST
-                    s->type = pt;                         // copy-by-value of ParsedType
-                    s->definition = p;
+            Symbol* s = (Symbol*)calloc(1, sizeof(Symbol));
+            if (!s) { fprintf(stderr, "OOM: Symbol param\n"); continue; }
+            s->kind = SYMBOL_VARIABLE;
+            s->name = strdup(nameNode->valueNode.value);
+            if (!s->name) {
+                fprintf(stderr, "OOM: Symbol param name\n");
+                free(s);
+                continue;
+            }
+            s->type = pt;                         // copy-by-value of ParsedType
+            s->definition = p;
 
                     addToScope(fscope, s);
                 }

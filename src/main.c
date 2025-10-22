@@ -6,6 +6,8 @@
 #include "Parser/Helpers/parser_helpers.h"
 
 #include "Syntax/semantic_pass.h"
+#include "Syntax/semantic_model.h"
+#include "Syntax/semantic_model_printer.h"
 
 #include "AST/ast_printer.h"
 
@@ -60,19 +62,42 @@ int main(int argc, char **argv) {
 
 #if ENABLE_SYNTAX_CHECK
     printf("\n Semantic Analysis:\n");
-    analyzeSemanticsWithContext(root, ctx);
+#endif
+    SemanticModel* semanticModel = analyzeSemanticsBuildModel(root, ctx, false);
+    if (!semanticModel) {
+        free(sourceCode);
+        cc_destroy(ctx);
+        return 1;
+    }
+
+    size_t semanticErrors = semanticModelGetErrorCount(semanticModel);
+
+#if ENABLE_SYNTAX_CHECK
+    printf("\n Semantic Model Dump:\n");
+    semanticModelDump(semanticModel);
 #endif
 
 
 #if ENABLE_CODEGEN
     printf("\n️ LLVM Code Generation:\n");
-    initializeLLVM();
-    LLVMValueRef result = codegen(root);
-    LLVMDumpModule(TheModule);
+    if (semanticErrors == 0) {
+        CodegenContext* codegenCtx = codegen_context_create("compiler_module", semanticModel);
+        if (!codegenCtx) {
+            fprintf(stderr, "Error: Failed to initialize LLVM code generation context\n");
+        } else {
+            LLVMValueRef result = codegen_generate(codegenCtx, root);
+            (void)result;
+            LLVMDumpModule(codegen_get_module(codegenCtx));
+            codegen_context_destroy(codegenCtx);
+        }
+    } else {
+        printf("Skipping LLVM code generation due to semantic errors.\n");
+    }
 #endif
 
 
     free(sourceCode);
+    semanticModelDestroy(semanticModel);
     cc_destroy(ctx);
     return 0;
 }

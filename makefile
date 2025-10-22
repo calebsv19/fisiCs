@@ -9,7 +9,7 @@ LLVM_LIBS := $(shell $(LLVM_CONFIG) --libs core)
 CFLAGS := -Wall -Wextra -Wpedantic -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined $(LLVM_CFLAGS)
 LDFLAGS := -fsanitize=address,undefined $(LLVM_LDFLAGS) $(LLVM_LIBS)
 
-INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser
+INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax
 SRC_DIR := src
 BUILD_DIR := build
 BIN := compiler
@@ -71,7 +71,7 @@ control-flow: $(BIN)
 cast-grouped: $(BIN)
 	@./tests/run_cast_grouped.sh ./$(BIN)
 
-for-typedef: $(BIN)
+for_typedef: $(BIN)
 	@./tests/run_for_typedef.sh ./$(BIN)
 
 function-pointer: $(BIN)

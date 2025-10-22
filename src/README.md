@@ -24,4 +24,4 @@ This tree implements a single-pass C front-end with optional LLVM IR emission. C
 ## Key entry points
 
 - `readFile()` (Utils) → `initLexer()` (Lexer) → `initParser()` (Parser/Helpers) → `parse()` (Parser) → `analyzeSemantics()` (Syntax).
-- Optional: `initializeLLVM()` + `codegen()` to produce an `LLVMModuleRef`, followed by `LLVMDumpModule()` for inspection.
+- Optional: build a `SemanticModel` via `analyzeSemanticsBuildModel()`, create a `CodegenContext` with `codegen_context_create("module", semanticModel)`, call `codegen_generate()` to populate the module, then `LLVMDumpModule(codegen_get_module(ctx))` for inspection. Clean up with `codegen_context_destroy()` and `semanticModelDestroy()`.
