@@ -9,7 +9,7 @@ bool typesAreEqual(const ParsedType* a, const ParsedType* b) {
     if (a->primitiveType != b->primitiveType) return false;
     if (a->pointerDepth != b->pointerDepth) return false;
 
-    if (a->kind == TYPE_USER_DEFINED) {
+    if (a->kind == TYPE_NAMED) {
         if (!a->userTypeName || !b->userTypeName) return false;
         if (strcmp(a->userTypeName, b->userTypeName) != 0) return false;
     }
@@ -31,4 +31,3 @@ bool canAssignTypes(const ParsedType* lhs, const ParsedType* rhs) {
     // Could allow numeric conversions later (e.g., int -> float)
     return false;
 }
-

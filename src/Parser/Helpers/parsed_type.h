@@ -6,6 +6,7 @@
 #include "Lexer/tokens.h"  // Required for TokenType
 #include <stdbool.h>
 
+struct Parser;
 
 // Enum for distinguishing between primitive and user-defined types
 typedef enum {
@@ -24,7 +25,7 @@ typedef enum {
 
 
 // Track if it's struct/union or just a typedef name
-typedef enum { TAG_NONE, TAG_STRUCT, TAG_UNION } TagKind;
+typedef enum { TAG_NONE, TAG_STRUCT, TAG_UNION, TAG_ENUM } TagKind;
 
 // Struct representing a parsed type
 typedef struct ParsedType {
@@ -71,6 +72,9 @@ void parsedTypeAddPointerDepth(ParsedType* t, int depth);
 void parsedTypeSetFunctionPointer(ParsedType* t, size_t nParams, const ParsedType* params);
 void parsedTypeFree(ParsedType* t);  // free fpParams if set (call in your global cleanup)
 
+ParsedType parseType(struct Parser* parser);
+ParsedType parseTypeCtx(struct Parser* parser, TypeContext ctx);
+
 /* Default initializer for ParsedType 
 static inline ParsedType parsedTypeDefault(void) {
     ParsedType t;
@@ -82,4 +86,3 @@ static inline ParsedType parsedTypeDefault(void) {
 */
 
 #endif // PARSED_TYPE_H
-

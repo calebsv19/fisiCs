@@ -48,13 +48,6 @@ Parser cloneParserWithFreshLexer(Parser* original) {
     // Heap-clone the lexer so speculative parsing is independent
     temp.lexer = cloneLexer(original->lexer);
 
-    // IMPORTANT: re-prime the token window from the cloned lexer.
-    // Do NOT copy the original tokens; keep the clone self-consistent.
-    temp.currentToken      = getNextToken(temp.lexer);
-    temp.nextToken         = getNextToken(temp.lexer);
-    temp.nextNextToken     = getNextToken(temp.lexer);
-    temp.nextNextNextToken = getNextToken(temp.lexer);
-
     // Context pointer can be shared
     temp.ctx = original->ctx;
     return temp;
@@ -185,21 +178,6 @@ bool isModifierToken(TokenType type) {
  
 bool isStorageSpecifier(TokenType type) {
     return type == TOKEN_STATIC || type == TOKEN_EXTERN || type == TOKEN_AUTO || type == TOKEN_REGISTER;  
-}
-
-
-bool isKnownType(const char* name) {
-    return strcmp(name, "int") == 0 ||
-           strcmp(name, "float") == 0 ||
-           strcmp(name, "char") == 0 ||
-           strcmp(name, "double") == 0 ||
-           strcmp(name, "bool") == 0 ||
-           strcmp(name, "void") == 0 ||
-	   strcmp(name, "EngineRuntimeConfig") == 0 ||
-	   strcmp(name, "uint64_t") == 0 ||
-	   strcmp(name, "Engine") == 0 ||
-           strcmp(name, "MyType") == 0; // TEMP for your test
-
 }
 
 

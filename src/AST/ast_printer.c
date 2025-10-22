@@ -314,8 +314,20 @@ void printAST(ASTNode* node, int depth) {
                     } else {
                         printf("= ");
                     }
-                    printBasicAST(init->expression, 0, true);
-                    printf("\n");
+                    bool simple =
+                        init->expression &&
+                        (init->expression->type == AST_NUMBER_LITERAL ||
+                         init->expression->type == AST_IDENTIFIER ||
+                         init->expression->type == AST_STRING_LITERAL ||
+                         init->expression->type == AST_CHAR_LITERAL);
+
+                    if (simple) {
+                        printBasicAST(init->expression, 0, true);
+                        printf("\n");
+                    } else {
+                        printf("\n");
+                        printAST(init->expression, depth + 3);
+                    }
                 }
             }
             break;

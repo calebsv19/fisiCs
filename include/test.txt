@@ -1,6 +1,49 @@
 typedef int I;
-struct S { int x; };
-union U { int a; };
-enum E { A=1, B, C=5 };
-typedef struct S T;
+typedef unsigned long ULong;
 
+struct Point {
+    int x;
+    int y;
+};
+
+union Data {
+    int i;
+    float f;
+};
+
+
+enum Color {
+    COLOR_RED = 1,
+    COLOR_GREEN,
+    COLOR_BLUE = 5
+};
+
+typedef struct Point Point;
+
+I addNumbers(I a, I b) {
+    return a + b;
+}
+
+I mainFunction(void) {
+    Point p = { .x = 1, .y = 2 };
+    union Data d;
+    d.i = addNumbers(p.x, p.y);
+
+    I value = (I)(p.x * d.i);
+    ULong scale = sizeof(Point) + sizeof(union Data);
+
+    if (value > 3) {
+        value = value + (I)scale;
+    } else {
+        value -= 1;
+    }
+
+    I i = 0;
+    while (i < 2) {
+        value += i;
+        ++i;
+    }
+
+
+    return value;
+}

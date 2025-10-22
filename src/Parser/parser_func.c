@@ -16,6 +16,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     }
 
     ASTNode* funcName = createIdentifierNode(parser->currentToken.value);
+    if (funcName) funcName->line = parser->currentToken.line;
     advance(parser);  // Consume function name
 
     // Expect opening parenthesis
@@ -43,7 +44,14 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     // Determine next step: declaration or definition
     if (parser->currentToken.type == TOKEN_SEMICOLON) {
         advance(parser);  // Consume ';'
-        return createFunctionDeclarationNode(returnType, funcName->valueNode.value);  // Declaration path
+        ASTNode* decl = createFunctionDeclarationNode(returnType, funcName->valueNode.value);  // Declaration path
+        if (decl) {
+            decl->line = funcName->line;
+            if (decl->functionDecl.funcName) {
+                decl->functionDecl.funcName->line = funcName->line;
+            }
+        }
+        return decl;
     }
 
     if (parser->currentToken.type == TOKEN_LBRACE) {
@@ -75,6 +83,7 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount) {
         ASTNode* paramName = NULL;
         if (parser->currentToken.type == TOKEN_IDENTIFIER) {
             paramName = createIdentifierNode(parser->currentToken.value);
+            if (paramName) paramName->line = parser->currentToken.line;
             advance(parser);  // consume identifier
         } else {
             // Create synthetic name for unnamed parameter
@@ -189,16 +198,9 @@ ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee) {
 
 
 
-ASTNode* parseFunctionPointerDeclaration(Parser* parser) {
+ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType) {
     printf("DEBUG: Entering parseFunctionPointerDeclaration() at line %d\n",
            parser->currentToken.line);
-
-    /* 1) Parse return type (specifiers + any leading '*' parsed by parseType) */
-    ParsedType returnType = parseType(parser);
-    if (returnType.kind == TYPE_INVALID) {
-        printParseError("Invalid return type in function pointer declaration", parser);
-        return NULL;
-    }
 
     /* 2) Expect '(' then one-or-more '*' then an identifier then ')' */
     if (parser->currentToken.type != TOKEN_LPAREN) {
@@ -224,6 +226,7 @@ ASTNode* parseFunctionPointerDeclaration(Parser* parser) {
         return NULL;
     }
     ASTNode* name = createIdentifierNode(parser->currentToken.value);
+    if (name) name->line = parser->currentToken.line;
     advance(parser); /* consume name */
 
     if (parser->currentToken.type != TOKEN_RPAREN) {

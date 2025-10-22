@@ -2,6 +2,9 @@
 #include <stddef.h>
 #include <string.h>
 #include "tokens.h"
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wdeprecated-non-prototype"
+#endif
 %}
 %language=C
 %define slot-name name
@@ -20,6 +23,8 @@ short
 signed
 unsigned
 bool
+true
+false
 enum
 union
 struct
@@ -50,4 +55,3 @@ asm
 pragma
 once
 %%
-

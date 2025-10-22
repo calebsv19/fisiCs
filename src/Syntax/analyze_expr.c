@@ -1,7 +1,18 @@
 #include "analyze_expr.h"
 #include "syntax_errors.h"
 #include "symbol_table.h"
+#include "Parser/Helpers/designated_init.h"
 #include <string.h>
+
+static void analyzeDesignatedInitializerExpr(DesignatedInit* init, Scope* scope) {
+    if (!init) return;
+    if (init->indexExpr) {
+        analyzeExpression(init->indexExpr, scope);
+    }
+    if (init->expression) {
+        analyzeExpression(init->expression, scope);
+    }
+}
 
 void analyzeExpression(ASTNode* node, Scope* scope) {
     if (!node) return;
@@ -10,8 +21,14 @@ void analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_IDENTIFIER: {
             Symbol* sym = resolveInScopeChain(scope, node->valueNode.value);
             if (!sym) {
-                addError(0, 0, "Undeclared identifier", node->valueNode.value);
+                addError(node->line, 0, "Undeclared identifier", node->valueNode.value);
             }
+            break;
+        }
+
+        case AST_ASSIGNMENT: {
+            analyzeExpression(node->assignment.target, scope);
+            analyzeExpression(node->assignment.value, scope);
             break;
         }
 
@@ -56,6 +73,12 @@ void analyzeExpression(ASTNode* node, Scope* scope) {
             analyzeExpression(node->arrayAccess.index, scope);
             break;
 
+        case AST_COMPOUND_LITERAL:
+            for (size_t i = 0; i < node->compoundLiteral.entryCount; ++i) {
+                analyzeDesignatedInitializerExpr(node->compoundLiteral.entries[i], scope);
+            }
+            break;
+
         case AST_TERNARY_EXPRESSION:
             analyzeExpression(node->ternaryExpr.condition, scope);
             analyzeExpression(node->ternaryExpr.trueExpr, scope);
@@ -70,8 +93,7 @@ void analyzeExpression(ASTNode* node, Scope* scope) {
             break;
 
         default:
-            addError(0, 0, "Unhandled expression node", "No analysis implemented for this expression");
+            printf("Semantic: unhandled expression node type %d\n", node->type);
             break;
     }
 }
-

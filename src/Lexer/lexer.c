@@ -9,6 +9,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include <unistd.h>
 
+int print_statements = 0;
 
 void initLexer(Lexer* lexer, const char* source){
 	lexer->source = source;
@@ -18,8 +19,11 @@ void initLexer(Lexer* lexer, const char* source){
 
 Token getNextToken(Lexer* lexer) {
     skipWhitespace(lexer);
-    printf("DEBUG: Current char in getNextToken(): '%c' (ASCII: %d) at line %d\n", 
-           lexer->source[lexer->position], lexer->source[lexer->position], lexer->line);
+
+    if (print_statements == 1){
+    	printf("DEBUG: Current char in getNextToken(): '%c' (ASCII: %d) at line %d\n", 
+    	 	      lexer->source[lexer->position], lexer->source[lexer->position], lexer->line);
+    }
 
     if (isEOF(lexer)) {
         return (Token){TOKEN_EOF, "EOF", lexer->line};
@@ -79,7 +83,7 @@ int isEOF(Lexer* lexer) {
     return lexer->source[lexer->position] == '\0';
 }
 
-const struct keyword *lookupKeyword(const char *str, size_t len) {
+const char *lookupKeyword(const char *str, size_t len) {
     return in_keyword_set(str, len);
 }
 
@@ -92,17 +96,25 @@ Token handleIdentifierOrKeyword(Lexer* lexer) {
     }
 
     char* text = strndup(lexer->source + start, lexer->position - start);
-    printf("DEBUG: Identified potential identifier or keyword: %s\n", text);
+    if (print_statements == 1){
+    	printf("DEBUG: Identified potential identifier or keyword: %s\n", text);
+    }
 
     // Use gperf string-based lookup
-    const char* matchedKeyword = in_keyword_set(text, strlen(text));
+    const char* matchedKeyword = lookupKeyword(text, strlen(text));
     if (matchedKeyword) {
         TokenType tokenType = keywordToTokenType(matchedKeyword);
-        printf("DEBUG: Matched keyword: %s → TokenType: %d\n", text, tokenType);
+        
+	if (print_statements == 1){        
+		printf("DEBUG: Matched keyword: %s → TokenType: %d\n", text, tokenType);
+        }
         return (Token){tokenType, text, lexer->line};
     }
 
-    printf("DEBUG: Classified as identifier: %s\n", text);
+    if (print_statements == 1){
+    	printf("DEBUG: Classified as identifier: %s\n", text);
+    }
+
     return (Token){TOKEN_IDENTIFIER, text, lexer->line};
 }
 
@@ -239,7 +251,6 @@ Token handleCharLiteral(Lexer* lexer) {
 
 // Processes specific preprocessor directives (#define, #include, etc.)
 Token handlePreprocessorDirective(Lexer* lexer) {
-    int start = lexer->position;
     lexer->position++; // Consume '#'
 
     // Skip whitespace after '#'
@@ -278,7 +289,6 @@ Token handlePreprocessorDirective(Lexer* lexer) {
 Token handleComment(Lexer* lexer) {
     printf("DEBUG: Entering handleComment() at line %d, current char '%c'\n",
            lexer->line, lexer->source[lexer->position]);
-    int start = lexer->position - 1; // Start from '/'
 
     lexer->position++;
     
@@ -484,7 +494,6 @@ Token handlePunctuation(Lexer* lexer) {
 
 // Handles unknown tokens (invalid characters, etc.)
 Token handleUnknownToken(Lexer* lexer) {
-    char current = lexer->source[lexer->position];
     lexer->position++; // Move past the current character
     return (Token){TOKEN_UNKNOWN, "ERROR", lexer->line};
 }
@@ -501,6 +510,8 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "signed") == 0) return TOKEN_SIGNED;
     if (strcmp(word, "unsigned") == 0) return TOKEN_UNSIGNED;
     if (strcmp(word, "bool") == 0) return TOKEN_BOOL;
+    if (strcmp(word, "true") == 0) return TOKEN_TRUE;
+    if (strcmp(word, "false") == 0) return TOKEN_FALSE;
     if (strcmp(word, "enum") == 0) return TOKEN_ENUM;
     if (strcmp(word, "union") == 0) return TOKEN_UNION;
     if (strcmp(word, "struct") == 0) return TOKEN_STRUCT;
@@ -532,4 +543,3 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "once") == 0) return TOKEN_ONCE;
     return TOKEN_IDENTIFIER;
 }
-

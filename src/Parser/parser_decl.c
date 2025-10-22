@@ -10,14 +10,6 @@
 
 #include "Compiler/compiler_context.h" // make sure this is visible via include path
 
-static inline void record_typedef(Parser* p, const char* name) {
-    if (p && p->ctx && name && name[0]) { cc_add_typedef(p->ctx, name); }
-}
-
-static inline void record_tag(Parser* p, CCTagKind kind, const char* name) {
-    if (p && p->ctx && name && name[0]) { cc_add_tag(p->ctx, kind, name); }
-}
-
 
 
 
@@ -27,17 +19,19 @@ static inline void record_tag(Parser* p, CCTagKind kind, const char* name) {
 ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
     printf("DEBUG: Entered handleTypeOrFunctionDeclaration()\n");
 
-    // --- Case 0: Function Pointer Declaration (before parseType) ---
-    if (looksLikeFunctionPointerDeclaration(parser)) {
-        printf("DEBUG: Detected function pointer declaration via lookahead\n");
-        return parseFunctionPointerDeclaration(parser);
-    }
-
-    // Normal type-based parsing follows
+    // Parse the leading type (handles storage/specifiers)
     ParsedType parsedType = parseType(parser);
     if (parsedType.kind == TYPE_INVALID) {
         printParseError("Invalid type in declaration", parser);
         return NULL;
+    }
+
+    // Function pointer: type followed by '(' '*'
+    if (parser->currentToken.type == TOKEN_LPAREN) {
+        Token afterParen = peekNextToken(parser);
+        if (afterParen.type == TOKEN_ASTERISK) {
+            return parseFunctionPointerDeclaration(parser, parsedType);
+        }
     }
 
     // After type, we expect an identifier
@@ -46,7 +40,6 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
         return NULL;
     }
 
-    Token identifier = parser->currentToken;
     Token next = peekNextToken(parser);
     Token after = peekTwoTokensAhead(parser);
 
@@ -116,6 +109,7 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
         }
          
         ASTNode* varName = createIdentifierNode(parser->currentToken.value);
+        if (varName) varName->line = parser->currentToken.line;
         advance(parser);  // Consume identifier
         
 //        ASTNode* arraySize = parseArraySize(parser);  // May be NULL
@@ -189,7 +183,8 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
 
 ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type) {
     // assume token is IDENTIFIER
-    ASTNode* name = createIdentifierNode(parser->currentToken.value);
+        ASTNode* name = createIdentifierNode(parser->currentToken.value);
+        if (name) name->line = parser->currentToken.line;
     advance(parser); // consume name
     
     ASTNode* sizeExpr = NULL;
@@ -235,6 +230,7 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
     }
 
     ASTNode* idNode = createIdentifierNode(parser->currentToken.value);
+    if (idNode) idNode->line = parser->currentToken.line;
     advance(parser); // Consume identifier
     
     ASTNode* initializer = NULL;
@@ -270,8 +266,10 @@ ASTNode* parseStructDefinition(Parser* parser) {
     advance(parser);  // consume 'struct'
 
     char* structName = NULL;
+    int structLine = 0;
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         const char* tagName = parser->currentToken.value;
+        structLine = parser->currentToken.line;
         structName = strdup(tagName);
         // Phase 2 hook: record the tag name in the struct tag namespace
         if (parser->ctx && tagName && tagName[0]) {
@@ -309,9 +307,14 @@ ASTNode* parseStructDefinition(Parser* parser) {
     }
     advance(parser);  // consume ';'
 
-    return createStructOrUnionDefinitionNode(
+    ASTNode* def = createStructOrUnionDefinitionNode(
         AST_STRUCT_DEFINITION, structName, fields, fieldCount
     );
+    if (def) {
+        def->line = structLine;
+        if (def->structDef.structName) def->structDef.structName->line = structLine;
+    }
+    return def;
 }
 
 
@@ -323,8 +326,10 @@ ASTNode* parseUnionDefinition(Parser* parser) {
     advance(parser);  // consume 'union'
 
     char* unionName = NULL;
+    int unionLine = 0;
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         const char* tagName = parser->currentToken.value;
+        unionLine = parser->currentToken.line;
         unionName = strdup(tagName);
         // Phase 2 hook: record union tag
         if (parser->ctx && tagName && tagName[0]) {
@@ -354,9 +359,14 @@ ASTNode* parseUnionDefinition(Parser* parser) {
     }
     advance(parser);  // consume ';'
 
-    return createStructOrUnionDefinitionNode(
+    ASTNode* def = createStructOrUnionDefinitionNode(
         AST_UNION_DEFINITION, unionName, fields, fieldCount
     );
+    if (def) {
+        def->line = unionLine;
+        if (def->structDef.structName) def->structDef.structName->line = unionLine;
+    }
+    return def;
 }
 
 
@@ -382,6 +392,7 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
         }
 
         ASTNode* fieldName = createIdentifierNode(parser->currentToken.value);
+        if (fieldName) fieldName->line = parser->currentToken.line;
         advance(parser); // consume field name
 
         // Parse array sizes if present
@@ -444,6 +455,7 @@ ASTNode* parseEnumDefinition(Parser* parser) {
     }
 
     const char* enumName = parser->currentToken.value;
+    int enumLine = parser->currentToken.line;
     // Phase 2 hook: record enum tag
     if (parser->ctx && enumName && enumName[0]) {
         cc_add_tag(parser->ctx, CC_TAG_ENUM, enumName);
@@ -464,6 +476,7 @@ ASTNode* parseEnumDefinition(Parser* parser) {
 
     while (parser->currentToken.type == TOKEN_IDENTIFIER) {
         ASTNode* memberName = createIdentifierNode(parser->currentToken.value);
+        if (memberName) memberName->line = parser->currentToken.line;
         advance(parser); // consume member name
 
         ASTNode* valueExpr = NULL;
@@ -508,7 +521,12 @@ ASTNode* parseEnumDefinition(Parser* parser) {
     }
     advance(parser); // consume ';'
 
-    return createEnumDefinitionNode(enumName, members, values, count);
+    ASTNode* node = createEnumDefinitionNode(enumName, members, values, count);
+    if (node) {
+        node->line = enumLine;
+        if (node->enumDef.enumName) node->enumDef.enumName->line = enumLine;
+    }
+    return node;
 }
 
 
@@ -535,6 +553,7 @@ ASTNode* parseTypedef(Parser* parser) {
     const char* aliasName = parser->currentToken.value;
 
     ASTNode* alias = createIdentifierNode(aliasName);
+    if (alias) alias->line = parser->currentToken.line;
     advance(parser); // consume identifier
 
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
@@ -582,7 +601,19 @@ ASTNode* handleStructStatements(Parser* parser) {
     // Case 4: struct Foo; — forward declaration (ignore for now)
     if (next.type == TOKEN_IDENTIFIER && after.type == TOKEN_SEMICOLON) {
         advance(parser); // struct
+        if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+            printParseError("Expected identifier after 'struct' in forward declaration", parser);
+            return NULL;
+	}
+        const char* tagName = parser->currentToken.value;
+        if (parser->ctx && tagName && tagName[0]) {
+            cc_add_tag(parser->ctx, CC_TAG_STRUCT, tagName);
+        }
         advance(parser); // Foo
+        if (parser->currentToken.type != TOKEN_SEMICOLON) {
+            printParseError("Expected ';' after struct forward declaration", parser);
+            return NULL;
+        }
         advance(parser); // ;
         return NULL;
     }
@@ -595,127 +626,4 @@ ASTNode* handleStructStatements(Parser* parser) {
     // Unrecognized pattern
     printParseError("Invalid use of 'struct'", parser);
     return NULL;
-}
-
-
-
-
-
-ParsedType parseType(Parser* parser) {
-    ParsedType type = {
-        .kind = TYPE_INVALID,
-        .tag  = TAG_NONE,
-
-        .isFunctionPointer = false,
-        .fpParamCount = 0,
-        .fpParams = NULL,
-
-        .primitiveType = TOKEN_VOID,
-        .userTypeName  = NULL,
-
-        .isConst    = false,
-        .isSigned   = false,
-        .isUnsigned = false,
-        .isShort    = false,
-        .isLong     = false,
-        .isVolatile = false,
-        .isRestrict = false,
-        .isInline   = false,
-
-        .isStatic   = false,
-        .isExtern   = false,
-        .isRegister = false,
-        .isAuto     = false,
-
-        .pointerDepth = 0
-    };
-
-    // Handle storage class specifiers first
-    while (true) {
-        switch (parser->currentToken.type) {
-            case TOKEN_STATIC:   type.isStatic   = true; advance(parser); break;
-            case TOKEN_EXTERN:   type.isExtern   = true; advance(parser); break;
-            case TOKEN_REGISTER: type.isRegister = true; advance(parser); break;
-            case TOKEN_AUTO:     type.isAuto     = true; advance(parser); break;
-            default: goto modifiers;
-        }
-    }
-
-modifiers:
-    // Now parse other modifiers and qualifiers
-    while (true) {
-        switch (parser->currentToken.type) {
-            case TOKEN_CONST:    type.isConst    = true; advance(parser); break;
-            case TOKEN_SIGNED:   type.isSigned   = true; advance(parser); break;
-            case TOKEN_UNSIGNED: type.isUnsigned = true; advance(parser); break;
-            case TOKEN_SHORT:    type.isShort    = true; advance(parser); break;
-            case TOKEN_LONG:     type.isLong     = true; advance(parser); break;
-            case TOKEN_VOLATILE: type.isVolatile = true; advance(parser); break;
-            case TOKEN_RESTRICT: type.isRestrict = true; advance(parser); break;
-            case TOKEN_INLINE:   type.isInline   = true; advance(parser); break;
-            default: goto type_name;
-        }
-    }
-
-type_name:
-    // === Handle primitive types ===
-    if (isPrimitiveTypeToken(parser->currentToken.type)) {
-        type.kind = TYPE_PRIMITIVE;
-        type.primitiveType = parser->currentToken.type;
-        advance(parser);
-    }
-
-    // === Handle struct/union types ===
-    else if (parser->currentToken.type == TOKEN_STRUCT ||
-             parser->currentToken.type == TOKEN_UNION) {
-        TokenType tagTok = parser->currentToken.type;
-        advance(parser); // consume 'struct'/'union'
-
-        if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-            printParseError("Expected identifier after 'struct'/'union'", parser);
-            type.kind = TYPE_INVALID;
-            return type;
-        }
-        type.kind = TYPE_USER_DEFINED;
-        type.tag  = (tagTok == TOKEN_STRUCT) ? TAG_STRUCT : TAG_UNION;
-        type.userTypeName = strdup(parser->currentToken.value);
-        advance(parser);
-    }
-
-    // === Handle user-defined types (typedef names) ===
-    else if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-        if (isKnownType(parser->currentToken.value)) {
-            type.kind = TYPE_USER_DEFINED;
-            type.tag  = TAG_NONE;
-            type.userTypeName = strdup(parser->currentToken.value);
-            advance(parser);
-        } else {
-            // Not a known typedef: leave TYPE_INVALID so callers (e.g., cast lookahead)
-            // can bail out and treat '(' ... ')' as a grouped expression instead.
-            return type;
-        }
-    }
-
-    // === No explicit base type, but modifiers imply "int" ===
-    else if (type.isUnsigned || type.isSigned || type.isShort || type.isLong) {
-        type.kind = TYPE_PRIMITIVE;
-        type.primitiveType = TOKEN_INT;
-        // Do not advance — no base type token present
-    }
-
-    // === Error case ===
-    else {
-        printParseError("Expected type name (after modifiers)", parser);
-        return type;
-    }
-
-    // === Parse pointer depth (belongs to declarator part) ===
-    while (parser->currentToken.type == TOKEN_ASTERISK) {
-        type.pointerDepth += 1;
-        advance(parser);
-        // Optional: consume qualifiers after each '*'
-        // while (isTypeQualifier(parser->currentToken.type)) advance(parser);
-    }
-
-    return type;
 }

@@ -40,6 +40,7 @@ typedef enum {
 
     TOKEN_NUMBER, TOKEN_FLOAT_LITERAL, // Numeric literals
     TOKEN_STRING, TOKEN_CHAR_LITERAL,  // Text literals
+    TOKEN_TRUE, TOKEN_FALSE,          // Boolean literals
 
     // ==============================
     //  Operators

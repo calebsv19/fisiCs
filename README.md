@@ -47,3 +47,27 @@ make
 If you're not using make, here's the manual build line:
 cc -o compiler src/*.c -Iinclude
 
+### Running Parser Smoke Tests
+
+The `tests/` folder holds focused parser fixtures (typedef chains, union declarations, designated initialisers, cast/sizeof initialisers).
+
+```bash
+# run them all
+make tests
+
+# or individually
+make union-decl
+make initializer-expr
+make typedef-chain
+make designated-init
+make control-flow
+make cast-grouped
+make for-typedef
+make function-pointer
+make semantic-typedef
+make semantic-initializer
+make semantic-undeclared
+make semantic-bool
+```
+
+Each script invokes `./compiler` against a minimal C snippet and asserts the expected AST fragments appear in the output. Extend these scripts whenever you add new syntactic features so regressions are caught early.

@@ -3,13 +3,7 @@
 
 #include <stddef.h>
 
-struct keyword {
-    const char *name;
-    int token;
-};
-
 // Provided by gperf
-const struct keyword *in_keyword_set(const char *str, size_t len);
+const char *in_keyword_set(const char *str, size_t len);
 
 #endif
-

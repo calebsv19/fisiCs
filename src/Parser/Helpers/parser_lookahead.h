@@ -15,9 +15,7 @@ void printParserState(const char* label, Parser* parser);
 // Predictive lookahead checks
 bool looksLikeTypeDeclaration(Parser* parser);
 bool looksLikeCastType(Parser* parser);
-bool looksLikeFunctionPointerDeclaration(Parser* parser);
 bool looksLikeCompoundLiteral(Parser* parser);
 
 
 #endif // _PARSER_LOOKAHEAD_H
-

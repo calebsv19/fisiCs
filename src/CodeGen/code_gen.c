@@ -253,11 +253,10 @@ LLVMValueRef codegenVariableDeclaration(ASTNode *node) {
     LLVMTypeRef varType = LLVMInt32Type();  // Assume int32 for now
     for (size_t i = 0; i < node->varDecl.varCount; i++) {
         ASTNode *varNameNode = node->varDecl.varNames[i];
-        struct DesignatedInit* initNode = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
 
         LLVMValueRef variable = LLVMBuildAlloca(Builder, varType, varNameNode->valueNode.value);
 
-	DesignatedInit* init = node->varDecl.initializers[i];
+	DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
         if (init && init->expression) {
             LLVMValueRef initValue = codegen(init->expression);
             LLVMBuildStore(Builder, initValue, variable);
@@ -799,6 +798,7 @@ LLVMValueRef codegenProgram(ASTNode *node) {
 
 // Helper methods
 int getFieldIndexFromStruct(LLVMValueRef structVal, const char* fieldName) {
+    (void)structVal;
     // This function should:
     // 1. Identify the struct type from `structVal`
     // 2. Look up the fieldName in the struct's field order
@@ -809,4 +809,3 @@ int getFieldIndexFromStruct(LLVMValueRef structVal, const char* fieldName) {
     if (strcmp(fieldName, "y") == 0) return 1;
     return -1;
 }
-

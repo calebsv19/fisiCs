@@ -28,8 +28,4 @@ ASTNode* parseTypedef(Parser* parser);
 // Struct helper routing
 ASTNode* handleStructStatements(Parser* parser);
 
-// Core type parsing
-ParsedType parseType(Parser* parser);
-
 #endif // _PARSER_DECL_H
-

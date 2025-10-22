@@ -82,6 +82,7 @@ typedef struct ASTNode ASTNode;
 
 struct ASTNode {
     ASTNodeType type;
+    int line;
     ASTNode *nextStmt;
 
     union {
@@ -420,4 +421,3 @@ ASTNode *createSwitchNode(ASTNode *condition, ASTNode **caseList);
 
 
 #endif // AST_NODE_H
-

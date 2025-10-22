@@ -1,4 +1,5 @@
 #include "Parser/Helpers/parser_helpers.h"
+#include "Parser/Helpers/parser_lookahead.h"
 #include "parser_stmt.h"
 #include "parser_main.h"
 #include "parser_decl.h"
@@ -12,8 +13,22 @@ ASTNode* handleControlStatements(Parser* parser) {
     if (parser->currentToken.type == TOKEN_STRUCT) {
         return handleStructStatements(parser);
     }
-    if (parser->currentToken.type == TOKEN_UNION)
-        return parseUnionDefinition(parser);
+    if (parser->currentToken.type == TOKEN_UNION) {
+        Token next = peekNextToken(parser);
+        Token after = peekTwoTokensAhead(parser);
+
+        if ((next.type == TOKEN_IDENTIFIER && after.type == TOKEN_LBRACE) ||
+            next.type == TOKEN_LBRACE) {
+            return parseUnionDefinition(parser);
+        }
+        if (next.type == TOKEN_IDENTIFIER && after.type == TOKEN_SEMICOLON) {
+            advance(parser); // consume 'union'
+            advance(parser); // consume identifier
+            advance(parser); // consume ';'
+            return NULL;
+        }
+        return handleTypeOrFunctionDeclaration(parser);
+    }
     if (parser->currentToken.type == TOKEN_ENUM)
         return parseEnumDefinition(parser);
     if (parser->currentToken.type == TOKEN_TYPEDEF)
@@ -59,6 +74,7 @@ ASTNode* parseAssignment(Parser* parser) {
     }
     
     ASTNode* idNode = createIdentifierNode(parser->currentToken.value);
+    if (idNode) idNode->line = parser->currentToken.line;
     advance(parser); // Consume identifier
     
     // Handle assignment operators: '=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>='
@@ -300,14 +316,10 @@ ASTNode* parseForLoopInitializer(Parser* parser) {
     ASTNode* init = NULL;
     
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
-        if (parser->currentToken.type == TOKEN_INT || parser->currentToken.type == TOKEN_FLOAT ||
-            parser->currentToken.type == TOKEN_DOUBLE || parser->currentToken.type == TOKEN_LONG ||
-            parser->currentToken.type == TOKEN_SHORT || parser->currentToken.type == TOKEN_BOOL || 
-            parser->currentToken.type == TOKEN_SIGNED || parser->currentToken.type == TOKEN_UNSIGNED ||
-            parser->currentToken.type == TOKEN_CONST) {
+        if (looksLikeTypeDeclaration(parser)) {
             init = parseDeclarationForLoop(parser);
         } else {
-            init = parseAssignmentExpression(parser);  //  Use assignment-only for single expression
+            init = parseAssignmentExpression(parser);  // Use assignment-only for single expression
         }
          
         if (!init) {

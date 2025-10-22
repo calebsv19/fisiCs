@@ -53,6 +53,43 @@ clean:
 run: src/Lexer/keyword_lookup.c $(BIN)
 	@./$(BIN)
 
-# === Phony Targets ===
-.PHONY: all clean run
+union-decl: $(BIN)
+	@./tests/run_union_decl.sh ./$(BIN)
 
+initializer-expr: $(BIN)
+	@./tests/run_initializer_expr.sh ./$(BIN)
+
+typedef-chain: $(BIN)
+	@./tests/run_typedef_chain.sh ./$(BIN)
+
+designated-init: $(BIN)
+	@./tests/run_designated_init.sh ./$(BIN)
+
+control-flow: $(BIN)
+	@./tests/run_control_flow.sh ./$(BIN)
+
+cast-grouped: $(BIN)
+	@./tests/run_cast_grouped.sh ./$(BIN)
+
+for-typedef: $(BIN)
+	@./tests/run_for_typedef.sh ./$(BIN)
+
+function-pointer: $(BIN)
+	@./tests/run_function_pointer.sh ./$(BIN)
+
+semantic-typedef: $(BIN)
+	@./tests/run_semantic_typedef.sh ./$(BIN)
+
+semantic-initializer: $(BIN)
+	@./tests/run_semantic_initializer.sh ./$(BIN)
+
+semantic-undeclared: $(BIN)
+	@./tests/run_semantic_undeclared.sh ./$(BIN)
+
+semantic-bool: $(BIN)
+	@./tests/run_semantic_bool.sh ./$(BIN)
+
+tests: union-decl initializer-expr typedef-chain designated-init control-flow cast-grouped for-typedef function-pointer semantic-typedef semantic-initializer semantic-undeclared semantic-bool
+
+# === Phony Targets ===
+.PHONY: all clean run union-decl initializer-expr typedef-chain designated-init control-flow cast-grouped for-typedef function-pointer semantic-typedef semantic-initializer semantic-undeclared semantic-bool tests

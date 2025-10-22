@@ -15,7 +15,6 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount);
 
 // Function calls and pointers
 ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee);
-ASTNode* parseFunctionPointerDeclaration(Parser* parser);
+ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType);
 
 #endif // _PARSER_FUNC_H
-

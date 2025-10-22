@@ -10,18 +10,6 @@
 
 //              MAIN BLOCKS
 
-static bool append_stmt(ASTNode*** arr, size_t* count, size_t* cap, ASTNode* n) {
-    if (*count >= *cap) {
-        size_t new_cap = (*cap) ? (*cap * 2) : 4;
-        ASTNode** tmp = realloc(*arr, new_cap * sizeof(*tmp));
-        if (!tmp) return false;
-        *arr = tmp; *cap = new_cap;
-    }
-    (*arr)[(*count)++] = n;
-    return true;
-}
-
-
 // large blocks
 ASTNode* parseProgram(Parser* parser) {
     size_t capacity = 4, count = 0;
@@ -145,15 +133,6 @@ ASTNode* parseStatement(Parser* parser) {
         return parseLabel(parser);
     }
 
-    // --- Function Pointer Declaration ---
-    // IMPORTANT: only probe FP declarations in recursive mode
-    if (parser->mode == PARSER_MODE_RECURSIVE &&
-        parser->currentToken.type != TOKEN_LPAREN &&
-        looksLikeFunctionPointerDeclaration(parser)) {
-        printf("DEBUG: Detected function pointer declaration\n");
-        return parseFunctionPointerDeclaration(parser);
-    }
-
     // --- Type-based Declaration (function/variable) ---
     if (parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
         looksLikeTypeDeclaration(parser)) {
@@ -165,4 +144,3 @@ ASTNode* parseStatement(Parser* parser) {
     // --- Expression or Assignment ---
     return handleExpressionOrAssignment(parser);
 }
-

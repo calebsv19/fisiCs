@@ -36,6 +36,10 @@ void reportErrors(void) {
     }
 }
 
+size_t getErrorCount(void) {
+    return errorList.count;
+}
+
 void freeErrorList(void) {
     for (size_t i = 0; i < errorList.count; i++) {
         free(errorList.errors[i].message);
@@ -46,4 +50,3 @@ void freeErrorList(void) {
     errorList.count = 0;
     errorList.capacity = 0;
 }
-

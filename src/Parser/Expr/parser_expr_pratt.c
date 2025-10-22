@@ -134,17 +134,27 @@ ASTNode* parseExpressionPratt(Parser* parser, int minPrecedence) {
 static ASTNode* nud(Parser* parser, Token token) {
     switch (token.type) {
         case TOKEN_NUMBER:
-        case TOKEN_FLOAT_LITERAL:
-            return createNumberLiteralNode(token.value);
+        case TOKEN_FLOAT_LITERAL: {
+            ASTNode* lit = createNumberLiteralNode(token.value);
+            if (lit) lit->line = token.line;
+            return lit;
+        }
 
-        case TOKEN_CHAR_LITERAL:
-            return createCharLiteralNode(token.value);
+        case TOKEN_CHAR_LITERAL: {
+            ASTNode* lit = createCharLiteralNode(token.value);
+            if (lit) lit->line = token.line;
+            return lit;
+        }
 
-        case TOKEN_STRING:
-            return createStringLiteralNode(token.value);
+        case TOKEN_STRING: {
+            ASTNode* lit = createStringLiteralNode(token.value);
+            if (lit) lit->line = token.line;
+            return lit;
+        }
 
         case TOKEN_IDENTIFIER: {
                 ASTNode* ident = createIdentifierNode(token.value);
+                if (ident) ident->line = token.line;
 
                 // Peek: if the next token is '(', treat as a function call
                 if (parser->currentToken.type == TOKEN_LPAREN) {
@@ -174,27 +184,32 @@ static ASTNode* nud(Parser* parser, Token token) {
 	    printf("  DEBUG: Entered nud() with TOKEN_LPAREN\n");
 
     	// 1) Compound literal? (type) { ... }
-	    if (looksLikeCompoundLiteral(parser)) {
-	        return parseCompoundLiteralPratt(parser, /*alreadyConsumedLParen=*/true);
-	    }
+    Parser probe = cloneParserWithFreshLexer(parser);
+    ParsedType looked = parseTypeCtx(&probe, TYPECTX_Strict);
+    bool treatAsCast = false;
+    if (looked.kind != TYPE_INVALID) {
+        consumeAbstractDeclarator(&probe);
+        if (probe.currentToken.type == TOKEN_RPAREN) {
+            treatAsCast = true;
+        }
+    }
+    freeParserClone(&probe);
 
-	// 2) Cast? (type) expr
-	    if (looksLikeCastType(parser)) {
-	        printf("  DEBUG: Detected cast — calling parseCastExpressionPratt()\n");
-	        return parseCastExpressionPratt(parser, /*alreadyConsumedLParen=*/true);
-	    } else {
-	        printf("  DEBUG: Not a cast — parsing grouped expression\n");
-	    }
-	
-	// 3) Grouped expression: ( expr )
-	    // NOTE: use -1 so ?:, assignments, comma bind inside (...)
-	    ASTNode* expr = parseExpressionPratt(parser, -1);
-	    if (parser->currentToken.type != TOKEN_RPAREN) {
-	        printParseError("Expected ')' in grouping", parser);
-	        return NULL;
-	    }
-	    advance(parser); // ')'
-	    return expr;
+    if (treatAsCast) {
+        return parseCastExpressionPratt(parser, /*alreadyConsumedLParen=*/true);
+    }
+
+    if (looksLikeCompoundLiteral(parser)) {
+        return parseCompoundLiteralPratt(parser, /*alreadyConsumedLParen=*/true);
+    }
+
+    ASTNode* expr = parseExpressionPratt(parser, -1);
+    if (parser->currentToken.type != TOKEN_RPAREN) {
+        printParseError("Expected ')' in grouping", parser);
+        return NULL;
+    }
+    advance(parser);
+    return expr;
 	}
         case TOKEN_SIZEOF: {
             // TODO: implement sizeof type vs expr
@@ -431,7 +446,7 @@ bool looksLikeParenTypeName(Parser* parser) {
     Parser probe = cloneParserWithFreshLexer(parser);
     advance(&probe); // consume '(' on probe
 
-    ParsedType t = parseType(&probe);
+    ParsedType t = parseTypeCtx(&probe, TYPECTX_Strict);
     bool ok = (t.kind != TYPE_INVALID) && (probe.currentToken.type == TOKEN_RPAREN);
     freeParserClone(&probe);
     return ok;
@@ -540,7 +555,7 @@ ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen) {
     }
 
     /* 1) Parse the type-specifier + pointer declarator (parseType handles stars now) */
-    ParsedType castType = parseType(parser);
+    ParsedType castType = parseTypeCtx(parser, TYPECTX_Strict);
     if (castType.kind == TYPE_INVALID) {
         printParseError("Invalid type in cast expression", parser);
         return NULL;
@@ -578,7 +593,7 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
     }
 
     // ( type [abstract-declarator] )
-    ParsedType literalType = parseType(parser);
+    ParsedType literalType = parseTypeCtx(parser, TYPECTX_Strict);
     if (literalType.kind == TYPE_INVALID) {
         printParseError("Invalid type in compound literal", parser);
         return NULL;
@@ -708,7 +723,7 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
         Parser temp = cloneParserWithFreshLexer(parser);
         advance(&temp); // '('
 
-        ParsedType probeType = parseType(&temp);
+        ParsedType probeType = parseTypeCtx(&temp, TYPECTX_Strict);
         bool looksLikeType = (probeType.kind != TYPE_INVALID);
         if (looksLikeType) {
             consumeAbstractDeclarator(&temp);
@@ -718,7 +733,7 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
 
         if (looksLikeType) {
             advance(parser);                      // '('
-            ParsedType realType = parseType(parser);
+            ParsedType realType = parseTypeCtx(parser, TYPECTX_Strict);
             if (realType.kind == TYPE_INVALID) {
                 printParseError("Invalid type in sizeof(type)", parser);
                 return NULL;
@@ -741,5 +756,3 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
     }
     return createSizeofNode(operand);
 }
-
-

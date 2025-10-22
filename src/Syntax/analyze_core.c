@@ -138,4 +138,3 @@ void analyze(ASTNode* node, Scope* scope) {
         break;
     }
 }
-

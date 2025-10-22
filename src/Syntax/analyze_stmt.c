@@ -1,5 +1,6 @@
 #include "analyze_stmt.h"
 #include "analyze_core.h"
+#include "analyze_expr.h"
 #include "syntax_errors.h"
 
 void analyzeStatement(ASTNode* node, Scope* scope) {
@@ -55,9 +56,17 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
             }
             break;
 
+        case AST_ASSIGNMENT:
+        case AST_BINARY_EXPRESSION:
+        case AST_UNARY_EXPRESSION:
+        case AST_FUNCTION_CALL:
+        case AST_COMPOUND_LITERAL:
+        case AST_CAST_EXPRESSION:
+            analyzeExpression(node, scope);
+            break;
+
         default:
-            addError(0, 0, "Unhandled statement node", "No analysis implemented for this statement type");
+            addError(node ? node->line : 0, 0, "Unhandled statement node", "No analysis implemented for this statement type");
             break;
     }
 }
-

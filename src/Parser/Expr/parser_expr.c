@@ -7,6 +7,8 @@
 
 #include "Parser/Expr/parser_expr_pratt.h"
 
+#include <stdio.h>
+
 ASTNode* parseExpression(Parser* parser) {
     if (parser->mode == PARSER_MODE_PRATT) {
         return parseExpressionPratt(parser, -1);
@@ -103,7 +105,9 @@ ASTNode* parseAssignmentExpression(Parser* parser) {
                 case TOKEN_RIGHT_SHIFT_ASSIGN: opStr = ">>"; break;
                 default: opStr = "="; break;
             }
-            right = createBinaryExprNode(opStr, createIdentifierNode(left->valueNode.value), right);
+            ASTNode* leftCopy = createIdentifierNode(left->valueNode.value);
+            if (leftCopy) leftCopy->line = left->line;
+            right = createBinaryExprNode(opStr, leftCopy, right);
         }
          
         return createAssignmentNode(left, right, assignOp);
@@ -378,9 +382,15 @@ ASTNode* parseFactor(Parser* parser) {
     if (parser->currentToken.type == TOKEN_MINUS) {   
         advance(parser);
         if (parser->currentToken.type == TOKEN_NUMBER) {
-            char* negativeValue = malloc(strlen(parser->currentToken.value) + 2);
-            sprintf(negativeValue, "-%s", parser->currentToken.value);
+            size_t len = strlen(parser->currentToken.value);
+            char* negativeValue = malloc(len + 2);
+            if (!negativeValue) {
+                printf("Error: OOM constructing negative literal at line %d\n", parser->currentToken.line);
+                return NULL;
+            }
+            snprintf(negativeValue, len + 2, "-%s", parser->currentToken.value);
             ASTNode* negativeLiteral = createNumberLiteralNode(negativeValue);
+            if (negativeLiteral) negativeLiteral->line = parser->currentToken.line;
             free(negativeValue);
             advance(parser);
             return negativeLiteral;
@@ -421,7 +431,7 @@ ASTNode* parseCastExpression(Parser* parser) {
     advance(parser); // consume '('
 
     // Parse the cast type inside the parentheses
-    ParsedType castType = parseType(parser);
+    ParsedType castType = parseTypeCtx(parser, TYPECTX_Strict);
     if (castType.kind == TYPE_INVALID) {
         printParseError("Invalid type in cast expression", parser);
         return NULL;
@@ -452,7 +462,9 @@ ASTNode* parsePostfixExpression(Parser* parser) {
     
     // First: parse an identifier or primary expression   
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        int identLine = parser->currentToken.line;
         expr = createIdentifierNode(parser->currentToken.value);
+        if (expr) expr->line = identLine;
         advance(parser); // consume identifier
     } else {
         expr = parsePrimary(parser);
@@ -508,6 +520,7 @@ ASTNode* parsePrimary(Parser* parser) {
     // Number & float literals
     if (parser->currentToken.type == TOKEN_FLOAT_LITERAL || parser->currentToken.type == TOKEN_NUMBER){
         ASTNode* node = createNumberLiteralNode(parser->currentToken.value);
+        if (node) node->line = parser->currentToken.line;
         advance(parser);
         return node;
     }
@@ -515,6 +528,7 @@ ASTNode* parsePrimary(Parser* parser) {
     // Char literal
     if (parser->currentToken.type == TOKEN_CHAR_LITERAL) {
         ASTNode* node = createCharLiteralNode(parser->currentToken.value);
+        if (node) node->line = parser->currentToken.line;
         advance(parser);
         return node;
     }
@@ -522,6 +536,14 @@ ASTNode* parsePrimary(Parser* parser) {
     // String literal
     if (parser->currentToken.type == TOKEN_STRING) {
         ASTNode* node = createStringLiteralNode(parser->currentToken.value);
+        if (node) node->line = parser->currentToken.line;
+        advance(parser);
+        return node;
+    }
+
+    if (parser->currentToken.type == TOKEN_TRUE || parser->currentToken.type == TOKEN_FALSE) {
+        ASTNode* node = createNumberLiteralNode(parser->currentToken.type == TOKEN_TRUE ? "1" : "0");
+        if (node) node->line = parser->currentToken.line;
         advance(parser);
         return node;
     }
@@ -532,6 +554,7 @@ ASTNode* parsePrimary(Parser* parser) {
      
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         ASTNode* node = createIdentifierNode(parser->currentToken.value);
+        if (node) node->line = parser->currentToken.line;
         // Do not consume the identifier here — postfix handler will do it
         return node;
     }
@@ -574,11 +597,12 @@ ASTNode* parseSizeofExpression(Parser* parser) {
     ASTNode* target = NULL;
          
     // Try parsing as a type  
-    ParsedType type = parseType(parser);
+    ParsedType type = parseTypeCtx(parser, TYPECTX_Strict);
     if (type.kind != TYPE_INVALID) {
         target = createParsedTypeNode(type);  // Type-based sizeof
     } else if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         target = createIdentifierNode(parser->currentToken.value);  // Variable-based sizeof
+        if (target) target->line = parser->currentToken.line;
         advance(parser);  
     } else {
         printParseError("Invalid operand for 'sizeof'", parser);
@@ -633,4 +657,3 @@ ASTNode* handleExpressionOrAssignment(Parser* parser) {
 
     return expr;
 }
-

@@ -20,7 +20,43 @@ static ASTNode* new_node(ASTNodeType tag) {
     ASTNode* n = (ASTNode*)calloc(1, sizeof(ASTNode));  // zero everything
     if (!n) { fprintf(stderr, "OOM ASTNode\n"); return NULL; }
     n->type = tag;
+    n->line = 0;
     return n;
+}
+
+static void inherit_line_from_node(ASTNode* target, ASTNode* source) {
+    if (!target || target->line) return;
+    if (source && source->line) {
+        target->line = source->line;
+    }
+}
+
+static void inherit_line_from_pair(ASTNode* target, ASTNode* first, ASTNode* second) {
+    inherit_line_from_node(target, first);
+    if (target && target->line) return;
+    inherit_line_from_node(target, second);
+}
+
+static void inherit_line_from_array(ASTNode* target, ASTNode** nodes, size_t count) {
+    if (!target || target->line || !nodes) return;
+    for (size_t i = 0; i < count; ++i) {
+        inherit_line_from_node(target, nodes[i]);
+        if (target->line) break;
+    }
+}
+
+static void inherit_line_from_designated_inits(ASTNode* target,
+                                               DesignatedInit** entries,
+                                               size_t count) {
+    if (!target || target->line || !entries) return;
+    for (size_t i = 0; i < count; ++i) {
+        DesignatedInit* entry = entries[i];
+        if (!entry) continue;
+        inherit_line_from_node(target, entry->expression);
+        if (target->line) break;
+        inherit_line_from_node(target, entry->indexExpr);
+        if (target->line) break;
+    }
 }
 
 
@@ -31,6 +67,7 @@ ASTNode *createProgramNode(ASTNode **declarations, size_t declCount) {
     if (!node) return NULL;
     node->block.statementCount = declCount;
     node->block.statements = declarations;   // may be NULL if count==0
+    inherit_line_from_array(node, declarations, declCount);
     return node;
 }
 
@@ -41,6 +78,7 @@ ASTNode *createBlockNode(ASTNode **statements, size_t statementCount) {
     if (!node) return NULL;
     node->block.statementCount = statementCount;
     node->block.statements = statements;
+    inherit_line_from_array(node, statements, statementCount);
     return node;
 }
 
@@ -130,6 +168,7 @@ ASTNode* createUnaryExprNode(const char* op, ASTNode* operand, bool isPostfix) {
     node->expr.left     = operand;   // operand goes in 'left'
     node->expr.right    = NULL;      // unary => right is NULL
     node->expr.isPostfix = isPostfix;
+    inherit_line_from_node(node, operand);
     return node;
 }
 
@@ -143,6 +182,7 @@ ASTNode* createBinaryExprNode(const char* op, ASTNode* left, ASTNode* right) {
 
     node->expr.left  = left;
     node->expr.right = right;
+    inherit_line_from_pair(node, left, right);
     return node;
 }
 
@@ -155,6 +195,9 @@ ASTNode* createTernaryExprNode(ASTNode* condition, ASTNode* trueExpr, ASTNode* f
     node->ternaryExpr.condition = condition;
     node->ternaryExpr.trueExpr  = trueExpr;
     node->ternaryExpr.falseExpr = falseExpr;
+    inherit_line_from_node(node, condition);
+    inherit_line_from_node(node, trueExpr);
+    inherit_line_from_node(node, falseExpr);
     return node;
 }
 
@@ -166,6 +209,7 @@ ASTNode* createCommaExprNode(ASTNode** expressions, size_t count) {
 
     node->commaExpr.expressions = expressions; // ownership assumed by AST
     node->commaExpr.exprCount   = count;
+    inherit_line_from_array(node, expressions, count);
     return node;
 }
 
@@ -176,6 +220,7 @@ ASTNode* createCastExpressionNode(ParsedType castType, ASTNode* expr) {
 
     node->castExpr.castType   = castType;  // POD copy-by-value
     node->castExpr.expression = expr;
+    inherit_line_from_node(node, expr);
     return node;
 }
 
@@ -189,6 +234,7 @@ ASTNode* createCompoundLiteralNode(ParsedType literalType,
     node->compoundLiteral.literalType = literalType; // POD copy
     node->compoundLiteral.entries     = entries;     // may be NULL for "{}"
     node->compoundLiteral.entryCount  = entryCount;  // 0 for "{}"
+    inherit_line_from_designated_inits(node, entries, entryCount);
     return node;
 }
 
@@ -242,6 +288,7 @@ ASTNode* createSizeofNode(ASTNode* target) {
 
     node->expr.left  = target;  // keep your existing convention
     node->expr.right = NULL;
+    inherit_line_from_node(node, target);
     return node;
 }
 
@@ -329,6 +376,10 @@ ASTNode* createAssignmentNode(ASTNode* identifier, ASTNode* value, TokenType op)
 
     node->assignment.target = identifier;
     node->assignment.value  = value;
+    if (identifier && identifier->line) {
+        node->line = identifier->line;
+    }
+    inherit_line_from_node(node, value);
     return node;
 }
 
@@ -344,6 +395,10 @@ ASTNode* createVariableDeclarationNode(ParsedType declaredType,
     node->varDecl.varNames     = identifiers;    // arrays owned by AST builder
     node->varDecl.initializers = initializers;   // may be NULL entries
     node->varDecl.varCount     = varCount;
+    if (varCount > 0 && identifiers && identifiers[0]) {
+        node->line = identifiers[0]->line;
+    }
+    inherit_line_from_designated_inits(node, initializers, varCount);
     return node;
 }
 
@@ -354,6 +409,7 @@ ASTNode* createTypedefNode(ParsedType baseType, ASTNode* alias) {
 
     node->typedefStmt.baseType = baseType;  // POD copy
     node->typedefStmt.alias    = alias;     // identifier node (already duped)
+    if (alias) node->line = alias->line;
     return node;
 }
 
@@ -402,6 +458,9 @@ ASTNode* createArrayDeclarationNode(ParsedType declaredType,
     node->arrayDecl.arraySize    = size;           // may be NULL for unsized
     node->arrayDecl.initializers = initValues;     // may be NULL
     node->arrayDecl.valueCount   = valueCount;     // 0 ok
+    inherit_line_from_node(node, name);
+    inherit_line_from_node(node, size);
+    inherit_line_from_designated_inits(node, initValues, valueCount);
     return node;
 }
 
@@ -423,6 +482,7 @@ ASTNode* createArrayAccessNode(ASTNode* array, ASTNode* index) {
 
     node->arrayAccess.array = array;
     node->arrayAccess.index = index;
+    inherit_line_from_pair(node, array, index);
     return node;
 }
 
@@ -437,6 +497,7 @@ ASTNode* createMemberAccessNode(TokenType op, ASTNode* base, const char* fieldNa
     if (fieldName && !node->memberAccess.field) {
         free(node); fprintf(stderr, "OOM: member field\n"); return NULL;
     }
+    inherit_line_from_node(node, base);
     return node;
 }
 
@@ -447,6 +508,7 @@ ASTNode* createPointerDereferenceNode(ASTNode* operand) {
     if (!node) return NULL;
 
     node->pointerDeref.pointer = operand;
+    inherit_line_from_node(node, operand);
     return node;
 }
 
@@ -459,6 +521,7 @@ ASTNode* createIfStatementNode(ASTNode* condition, ASTNode* thenBody) {
     node->ifStmt.condition  = condition;
     node->ifStmt.thenBranch = thenBody;
     node->ifStmt.elseBranch = NULL;
+    inherit_line_from_pair(node, condition, thenBody);
     return node;
 }
 
@@ -471,6 +534,9 @@ ASTNode* createIfElseStatementNode(ASTNode* condition, ASTNode* thenBody, ASTNod
     node->ifStmt.condition  = condition;
     node->ifStmt.thenBranch = thenBody;
     node->ifStmt.elseBranch = elseBody;
+    inherit_line_from_node(node, condition);
+    inherit_line_from_node(node, thenBody);
+    inherit_line_from_node(node, elseBody);
     return node;
 }
 
@@ -483,6 +549,7 @@ ASTNode* createWhileLoopNode(ASTNode* condition, ASTNode* body, int isDoWhile) {
     node->whileLoop.condition = condition;
     node->whileLoop.body      = body;
     node->whileLoop.isDoWhile = isDoWhile;  // 0 = while, 1 = do-while
+    inherit_line_from_pair(node, condition, body);
     return node;
 }
 
@@ -496,6 +563,10 @@ ASTNode* createForLoopNode(ASTNode* init, ASTNode* condition, ASTNode* increment
     node->forLoop.condition   = condition;  // may be NULL
     node->forLoop.increment   = increment;  // may be NULL
     node->forLoop.body        = body;       // must be a stmt/block node
+    inherit_line_from_node(node, init);
+    inherit_line_from_node(node, condition);
+    inherit_line_from_node(node, increment);
+    inherit_line_from_node(node, body);
     return node;
 }
 
@@ -515,6 +586,7 @@ ASTNode* createReturnNode(ASTNode* expr) {
     ASTNode* node = new_node(AST_RETURN);
     if (!node) return NULL;
     node->returnStmt.returnValue = expr;  // NULL for 'return;'
+    inherit_line_from_node(node, expr);
     return node;
 }
 
@@ -558,6 +630,7 @@ ASTNode* createLabelDeclarationNode(const char* labelName, ASTNode* statement) {
         return NULL;
     }
     node->label.statement = statement;  // the labeled statement node
+    inherit_line_from_node(node, statement);
     return node;
 }
 
@@ -584,6 +657,7 @@ ASTNode* createFunctionDeclarationNode(ParsedType returnType, const char* name) 
     }
     node->functionDecl.parameters = NULL;
     node->functionDecl.paramCount = 0;
+    inherit_line_from_node(node, node->functionDecl.funcName);
     return node;
 }
 
@@ -601,6 +675,9 @@ ASTNode* createFunctionDefinitionNode(ParsedType returnType,
     node->functionDef.parameters = paramList;    // array of param decl nodes (can be NULL if 0)
     node->functionDef.paramCount = paramCount;
     node->functionDef.body       = body;         // block or single statement node
+    inherit_line_from_node(node, funcName);
+    inherit_line_from_array(node, paramList, paramCount);
+    inherit_line_from_node(node, body);
     return node;
 }
 
@@ -612,6 +689,8 @@ ASTNode* createFunctionCallNode(ASTNode* callee, ASTNode** arguments, size_t arg
     node->functionCall.callee        = callee;       // identifier / member / pointer call node
     node->functionCall.arguments     = arguments;    // array (not list) is fine
     node->functionCall.argumentCount = argumentCount;
+    inherit_line_from_node(node, callee);
+    inherit_line_from_array(node, arguments, argumentCount);
     return node;
 }
 
@@ -629,6 +708,9 @@ ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType,
     node->functionPointer.parameters  = params;       // array of param decl nodes
     node->functionPointer.paramCount  = paramCount;
     node->functionPointer.initializer = initializer;  // optional initializer (e.g., &foo)
+    inherit_line_from_node(node, name);
+    inherit_line_from_array(node, params, paramCount);
+    inherit_line_from_node(node, initializer);
     return node;
 }
 
@@ -655,6 +737,10 @@ ASTNode* createCaseNode(ASTNode* caseValue, ASTNode** caseBody) {
     node->caseStmt.caseValue = caseValue; // NULL means 'default'
     node->caseStmt.caseBody  = caseBody;  // may be NULL / empty
     node->caseStmt.nextCase  = NULL;      // explicit, though calloc already zeros
+    inherit_line_from_node(node, caseValue);
+    if (!node->line && caseBody && caseBody[0]) {
+        inherit_line_from_node(node, caseBody[0]);
+    }
     return node;
 }
 
@@ -665,6 +751,10 @@ ASTNode* createSwitchNode(ASTNode* condition, ASTNode** caseList) {
 
     node->switchStmt.condition = condition; // expression inside 'switch (...)'
     node->switchStmt.caseList  = caseList;  // array (or head) of case nodes
+    inherit_line_from_node(node, condition);
+    if (!node->line && caseList && caseList[0]) {
+        inherit_line_from_node(node, caseList[0]);
+    }
     return node;
 }
 
@@ -677,6 +767,3 @@ ASTNode* createParsedTypeNode(ParsedType type) {
     node->parsedTypeNode.parsed = type; // POD copy-by-value
     return node;
 }
-
-
-

@@ -10,12 +10,14 @@ Scope* createScope(Scope* parent) {
     initSymbolTable(&scope->table);
     scope->parent = parent;
     scope->depth = parent ? parent->depth + 1 : 0;
+    scope->ctx = parent ? parent->ctx : NULL;
     return scope;
 }
 
 void destroyScope(Scope* scope) {
     if (!scope) return;
     freeSymbolTable(&scope->table);
+    scope->ctx = NULL;
     free(scope);
 }
 
@@ -31,4 +33,3 @@ Symbol* resolveInScopeChain(Scope* scope, const char* name) {
     }
     return NULL;
 }
-

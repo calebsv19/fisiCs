@@ -5,7 +5,7 @@
 
 
 DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* outCount) {
-    if (type.kind == TYPE_USER_DEFINED) {
+    if (type.kind == TYPE_NAMED) {
         // Struct initializer with known parent type
         return parseStructInitializer(parser, type, outCount);
     } else if (type.kind == TYPE_PRIMITIVE && type.pointerDepth == 0) {

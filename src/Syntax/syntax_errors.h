@@ -19,7 +19,7 @@ typedef struct {
 void initErrorList(void);
 void addError(int line, int column, const char* message, const char* hint);
 void reportErrors(void);
+size_t getErrorCount(void);
 void freeErrorList(void);
 
 #endif // SYNTAX_ERRORS_H
-

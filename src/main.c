@@ -13,16 +13,16 @@
 
 #include "Compiler/compiler_context.h"
 
-#include "code_gen.h"
+#include "CodeGen/code_gen.h"
 
 // === Feature Toggles ===
 #define ENABLE_LEXER_OUTPUT      0
 #define ENABLE_AST_PRINT         1
 #define ENABLE_SYNTAX_CHECK      1
-#define ENABLE_CODEGEN           0
+#define ENABLE_CODEGEN           1
 
-int main(void) {
-    const char *filename = "include/test.txt";
+int main(int argc, char **argv) {
+    const char *filename = (argc > 1) ? argv[1] : "include/test.txt";
     char *sourceCode = readFile(filename);
 
     CompilerContext* ctx = cc_create();
@@ -60,7 +60,7 @@ int main(void) {
 
 #if ENABLE_SYNTAX_CHECK
     printf("\n Semantic Analysis:\n");
-    analyzeSemantics(root);
+    analyzeSemanticsWithContext(root, ctx);
 #endif
 
 
@@ -76,7 +76,3 @@ int main(void) {
     cc_destroy(ctx);
     return 0;
 }
-
-
-
-
