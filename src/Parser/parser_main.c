@@ -20,7 +20,7 @@ ASTNode* parseProgram(Parser* parser) {
     }
 
     while (parser->currentToken.type != TOKEN_EOF) {
-        printf("DEBUG: Starting new statement with token '%s' (line %d)\n",
+        PARSER_DEBUG_PRINTF("DEBUG: Starting new statement with token '%s' (line %d)\n",
                parser->currentToken.value, parser->currentToken.line);
 
         if (looksLikeTypeDeclaration(parser)) {
@@ -47,7 +47,7 @@ ASTNode* parseProgram(Parser* parser) {
         }
 
         ASTNode* stmt = parseStatement(parser);
-        printf("DEBUG: Statement finished at token '%s' (line %d)\n",
+        PARSER_DEBUG_PRINTF("DEBUG: Statement finished at token '%s' (line %d)\n",
                parser->currentToken.value, parser->currentToken.line);
 
         if (!stmt) {
@@ -110,7 +110,7 @@ ASTNode* parseBlock(Parser* parser) {
 }
 
 ASTNode* parseStatement(Parser* parser) {
-    printf("DEBUG: Current Token: %s at line %d\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Current Token: %s at line %d\n",
            parser->currentToken.value, parser->currentToken.line);
 
     // --- Block Statement ---
@@ -136,7 +136,7 @@ ASTNode* parseStatement(Parser* parser) {
     // --- Type-based Declaration (function/variable) ---
     if (parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
         looksLikeTypeDeclaration(parser)) {
-        printf("DEBUG: Detected type-based declaration\n");
+        PARSER_DEBUG_PRINTF("DEBUG: Detected type-based declaration\n");
         ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
         if (decl) return decl;
     }

@@ -6,7 +6,24 @@ LLVM_CFLAGS := $(shell $(LLVM_CONFIG) --cflags)
 LLVM_LDFLAGS := $(shell $(LLVM_CONFIG) --ldflags)
 LLVM_LIBS := $(shell $(LLVM_CONFIG) --libs core)
 
-CFLAGS := -Wall -Wextra -Wpedantic -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined $(LLVM_CFLAGS)
+CODEGEN_DEBUG ?= 0
+CODEGEN_TRACE ?= 0
+PARSER_DEBUG ?= 0
+
+CODEGEN_DEFS :=
+ifeq ($(CODEGEN_DEBUG),1)
+CODEGEN_DEFS += -DCODEGEN_DEBUG
+endif
+ifeq ($(CODEGEN_TRACE),1)
+CODEGEN_DEFS += -DCODEGEN_TRACE
+endif
+
+PARSER_DEFS :=
+ifeq ($(PARSER_DEBUG),1)
+PARSER_DEFS += -DPARSER_DEBUG
+endif
+
+CFLAGS := -Wall -Wextra -Wpedantic -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS)
 LDFLAGS := -fsanitize=address,undefined $(LLVM_LDFLAGS) $(LLVM_LIBS)
 
 INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax

@@ -10,6 +10,13 @@
 #include "Lexer/tokens.h"
 #include "Lexer/lexer.h"
 #include "parser_config.h"
+#ifdef PARSER_DEBUG
+#include <stdio.h>
+#define PARSER_DEBUG_PRINTF(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define PARSER_DEBUG_PRINTF(...) ((void)0)
+#endif
+
 #include "AST/ast_node.h"
 
 typedef struct Parser {

@@ -105,12 +105,12 @@ ASTNode* parseExpressionPratt(Parser* parser, int minPrecedence) {
     ASTNode* left = nud(parser, token);
     if (!left) return NULL;
 
-    printf("DEBUG: Starting Pratt parse loop with token: '%s' (precedence %d), minPrecedence=%d\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Starting Pratt parse loop with token: '%s' (precedence %d), minPrecedence=%d\n",
            parser->currentToken.value, getTokenPrecedence(parser->currentToken.type), minPrecedence);
 
     for (;;) {
         int prec = getTokenPrecedence(parser->currentToken.type);
-        printf("DEBUG: At token '%s' — minPrecedence: %d, token precedence: %d\n",
+        PARSER_DEBUG_PRINTF("DEBUG: At token '%s' — minPrecedence: %d, token precedence: %d\n",
                parser->currentToken.value, minPrecedence, prec);
 
         // Canonical stop: only continue when token precedence is strictly greater
@@ -181,7 +181,7 @@ static ASTNode* nud(Parser* parser, Token token) {
         }
 
 	case TOKEN_LPAREN: {
-	    printf("  DEBUG: Entered nud() with TOKEN_LPAREN\n");
+	    PARSER_DEBUG_PRINTF("  DEBUG: Entered nud() with TOKEN_LPAREN\n");
 
     	// 1) Compound literal? (type) { ... }
     Parser probe = cloneParserWithFreshLexer(parser);
@@ -284,7 +284,7 @@ static ASTNode* led(Parser* parser, ASTNode* left, Token token) {
 	    }
 	    advance(parser); // consume ']'
 	    ASTNode* node = createArrayAccessNode(left, index);
-	    printf("DEBUG: After ARRAY_ACCESS, next token = '%s'\n", parser->currentToken.value);
+	    PARSER_DEBUG_PRINTF("DEBUG: After ARRAY_ACCESS, next token = '%s'\n", parser->currentToken.value);
 	    return node; // allow chaining
 	}
 
@@ -483,7 +483,7 @@ ASTNode* ledFunctionCall(Parser* parser, ASTNode* callee) {
 
 
 ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
-    printf("DEBUG: Entering parseFunctionCallWithOpeningParenAlreadyConsumed() at line %d\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseFunctionCallWithOpeningParenAlreadyConsumed() at line %d\n",
            parser->currentToken.line);
 
     if (parser->currentToken.type != TOKEN_LPAREN) {
@@ -537,13 +537,13 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
     }
 
     advance(parser); // consume ')'
-    printf("DEBUG: Function call parsed with %zu argument(s)\n", argCount);
+    PARSER_DEBUG_PRINTF("DEBUG: Function call parsed with %zu argument(s)\n", argCount);
     return createFunctionCallNode(callee, argList, argCount);
 }
 
 
 ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen) {
-    printf("DEBUG: [Pratt] Entering parseCastExpressionPratt() with token '%s' (line %d)\n",
+    PARSER_DEBUG_PRINTF("DEBUG: [Pratt] Entering parseCastExpressionPratt() with token '%s' (line %d)\n",
            parser->currentToken.value, parser->currentToken.line);
 
     if (!alreadyConsumedLParen) {
@@ -716,7 +716,7 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
 // Precondition: 'sizeof' token was already consumed by parseExpressionPratt()
 // so parser->currentToken is the token *after* 'sizeof'.
 ASTNode* parseSizeofExpressionPratt(Parser* parser) {
-    printf("DEBUG [Pratt]: entering parseSizeofExpressionPratt(), next token = '%s' (type %d)\n",
+    PARSER_DEBUG_PRINTF("DEBUG [Pratt]: entering parseSizeofExpressionPratt(), next token = '%s' (type %d)\n",
            parser->currentToken.value, parser->currentToken.type);
 
     if (parser->currentToken.type == TOKEN_LPAREN) {

@@ -17,7 +17,7 @@
 
 
 ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
-    printf("DEBUG: Entered handleTypeOrFunctionDeclaration()\n");
+    PARSER_DEBUG_PRINTF("DEBUG: Entered handleTypeOrFunctionDeclaration()\n");
 
     // Parse the leading type (handles storage/specifiers)
     ParsedType parsedType = parseType(parser);
@@ -45,20 +45,20 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
 
     // --- Case 1: Function (definition or declaration) ---
     if (next.type == TOKEN_LPAREN) {
-        printf("DEBUG: Detected function declaration or definition\n");
+        PARSER_DEBUG_PRINTF("DEBUG: Detected function declaration or definition\n");
         return parseFunctionDefinition(parser, parsedType);
     }
 
     // --- Case 2: Array Declaration ---
     if (next.type == TOKEN_LBRACKET &&
         (after.type == TOKEN_NUMBER || after.type == TOKEN_RBRACKET)) {
-        printf("DEBUG: Detected array declaration\n");
+        PARSER_DEBUG_PRINTF("DEBUG: Detected array declaration\n");
         return parseArrayDeclaration(parser, parsedType);
     }
 
     // --- Case 3: Variable Declaration (with optional init or commas) ---
     if (next.type == TOKEN_ASSIGN || next.type == TOKEN_SEMICOLON || next.type == TOKEN_COMMA) {
-        printf("DEBUG: Detected variable declaration\n");
+        PARSER_DEBUG_PRINTF("DEBUG: Detected variable declaration\n");
         size_t varCount = 0;
         return parseVariableDeclaration(parser, parsedType, &varCount);
     }
@@ -70,7 +70,7 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
 
 
 ASTNode* parseDeclaration(Parser* parser, ParsedType declaredType, size_t* varCount) {
-    printf("DEBUG: Entering parseDeclaration() at line %d with token '%s'\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseDeclaration() at line %d with token '%s'\n",
            parser->currentToken.line, parser->currentToken.value);
            
     // Expect at least one identifier after type
@@ -169,7 +169,7 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
         }
          
         advance(parser);  // Consume ';'
-        printf("DEBUG: Finished variable declaration, next token: '%s' (line %d)\n",
+        PARSER_DEBUG_PRINTF("DEBUG: Finished variable declaration, next token: '%s' (line %d)\n",
                parser->currentToken.value, parser->currentToken.line);
         break;
     }
@@ -213,7 +213,7 @@ ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type) {
 
 
 ASTNode* parseDeclarationForLoop(Parser* parser) {
-    printf("DEBUG: Entering parseDeclarationForLoop() at line %d\n", parser->currentToken.line);
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseDeclarationForLoop() at line %d\n", parser->currentToken.line);
  
     //  Use the proper ParsedType handler
     ParsedType parsedType = parseType(parser);
@@ -587,7 +587,7 @@ ASTNode* handleStructStatements(Parser* parser) {
     if (next.type == TOKEN_IDENTIFIER && after.type == TOKEN_IDENTIFIER) {
         // struct Foo varName;
         // struct Foo funcName(); ← handled inside declaration logic
-        printf("DEBUG: Routing struct return function declaration to handleTypeOrFunctionDeclaration");
+        PARSER_DEBUG_PRINTF("DEBUG: Routing struct return function declaration to handleTypeOrFunctionDeclaration");
         return handleTypeOrFunctionDeclaration(parser);
     }   
     

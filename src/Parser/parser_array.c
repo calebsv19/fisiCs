@@ -102,7 +102,7 @@ DesignatedInit** parseArrayInitializer(Parser* parser, ParsedType parentType, si
             }
         }
          
-        printf("        DEBUG: Parsing array initializer — token '%s' (Type: %d)\n",
+        PARSER_DEBUG_PRINTF("        DEBUG: Parsing array initializer — token '%s' (Type: %d)\n",
                parser->currentToken.value, parser->currentToken.type);
                
         DesignatedInit* init = NULL;

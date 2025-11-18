@@ -70,7 +70,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
 
 
 ASTNode** parseParameterList(Parser* parser, size_t* paramCount) {
-    printf("DEBUG: Entering parseParameterList() at line %d\n", parser->currentToken.line);
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseParameterList() at line %d\n", parser->currentToken.line);
             
     *paramCount = 0;
     size_t paramCapacity = 4;
@@ -125,12 +125,12 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount) {
     }
                     
     // advance(parser);  // consume ')'
-    printf("DEBUG: Successfully parsed %zu function parameters\n", *paramCount);
+    PARSER_DEBUG_PRINTF("DEBUG: Successfully parsed %zu function parameters\n", *paramCount);
     return paramList;
 }
 
 ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee) {
-    printf("DEBUG: Entering parseFunctionCall() at line %d\n", parser->currentToken.line);
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseFunctionCall() at line %d\n", parser->currentToken.line);
                 
     if (parser->currentToken.type != TOKEN_LPAREN) {
         printParseError("Expected '(' to start function call", parser);
@@ -192,14 +192,14 @@ ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee) {
     
     advance(parser); // Consume ')'
         
-    printf("DEBUG: Function call parsed with %zu argument(s)\n", argCount);
+    PARSER_DEBUG_PRINTF("DEBUG: Function call parsed with %zu argument(s)\n", argCount);
     return createFunctionCallNode(callee, argList, argCount);
 } 
 
 
 
 ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType) {
-    printf("DEBUG: Entering parseFunctionPointerDeclaration() at line %d\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseFunctionPointerDeclaration() at line %d\n",
            parser->currentToken.line);
 
     /* 2) Expect '(' then one-or-more '*' then an identifier then ')' */

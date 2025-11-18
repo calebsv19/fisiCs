@@ -7,6 +7,20 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef CODEGEN_DEBUG
+#define CG_DEBUG(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define CG_DEBUG(...) ((void)0)
+#endif
+
+#ifdef CODEGEN_TRACE
+#define CG_TRACE(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define CG_TRACE(...) ((void)0)
+#endif
+
+
+
 static LLVMTypeRef makeIntegerType(CodegenContext* ctx, unsigned bits) {
     LLVMContextRef llvmCtx = cg_context_get_llvm_context(ctx);
     switch (bits) {
@@ -167,29 +181,21 @@ static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* i
 }
 
 static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type) {
-    static int depth = 0;
-    ++depth;
-    const char* typeNameForLog = (type && type->userTypeName) ? type->userTypeName : "<anon>";
-    fprintf(stderr, "[TRACE] structOrUnionType depth=%d name=%s kind=%d\n",
-            depth, typeNameForLog, type ? type->kind : -1);
+    const char* typeName = (type && type->userTypeName) ? type->userTypeName : "<anon>";
+    CG_TRACE("[TRACE] structOrUnionType name=%s kind=%d\n", typeName, type ? type->kind : -1);
 
     if (!ctx || !type || !type->userTypeName) {
         LLVMTypeRef fallback = LLVMPointerType(LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx)), 0);
-        fprintf(stderr, "[TRACE] structOrUnionType depth=%d name=%s returning fallback=%p\n",
-                depth, typeNameForLog, (void*)fallback);
-        --depth;
+        CG_TRACE("[TRACE] structOrUnionType returning fallback=%p\n", (void*)fallback);
         return fallback;
     }
 
-    const char* typeName = type->userTypeName;
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
-
     if (cache) {
         CGStructLLVMInfo* info = cg_type_cache_get_struct_info(cache, typeName);
         if (info) {
             if (info->resolving) {
-                fprintf(stderr, "[TRACE] structOrUnionType depth=%d name=%s hit resolving true\n",
-                        depth, typeNameForLog);
+                CG_TRACE("[TRACE] structOrUnionType hit resolving true\n");
                 if (!info->llvmType) {
                     LLVMTypeRef existing = cg_context_lookup_named_type(ctx, typeName);
                     if (existing) {
@@ -203,8 +209,7 @@ static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type
             }
 
             if (!info->llvmType) {
-                fprintf(stderr, "[TRACE] structOrUnionType depth=%d name=%s populating llvmType\n",
-                        depth, typeNameForLog);
+                CG_TRACE("[TRACE] structOrUnionType populating llvmType\n");
                 LLVMTypeRef existing = cg_context_lookup_named_type(ctx, typeName);
                 if (existing) {
                     info->llvmType = existing;
@@ -215,9 +220,7 @@ static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type
             LLVMTypeRef resolved = ensureStructFromInfo(ctx, info);
             info->resolving = false;
             if (resolved) {
-                fprintf(stderr, "[TRACE] structOrUnionType depth=%d name=%s resolved=%p\n",
-                        depth, typeNameForLog, (void*)resolved);
-                --depth;
+                CG_TRACE("[TRACE] structOrUnionType resolved=%p\n", (void*)resolved);
                 return resolved;
             }
         }
@@ -225,75 +228,56 @@ static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type
 
     LLVMTypeRef cached = cg_context_lookup_named_type(ctx, typeName);
     if (cached) {
-        fprintf(stderr, "[TRACE] structOrUnionType depth=%d name=%s hit cached=%p\n",
-                depth, typeNameForLog, (void*)cached);
-        --depth;
+        CG_TRACE("[TRACE] structOrUnionType hit cached=%p\n", (void*)cached);
         return cached;
     }
 
     LLVMTypeRef created = LLVMStructCreateNamed(cg_context_get_llvm_context(ctx), typeName);
     cg_context_cache_named_type(ctx, typeName, created);
-    fprintf(stderr, "[TRACE] structOrUnionType depth=%d name=%s created=%p\n",
-            depth, typeNameForLog, (void*)created);
-    --depth;
+    CG_TRACE("[TRACE] structOrUnionType created=%p\n", (void*)created);
     return created;
 }
 
+
+
 static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type) {
-    static int depth = 0;
-    ++depth;
-    const char* aliasLog = (type && type->userTypeName) ? type->userTypeName : "<anon>";
-    fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s kind=%d\n",
-            depth, aliasLog, type ? type->kind : -1);
+    const char* aliasName = (type && type->userTypeName) ? type->userTypeName : "<anon>";
+    CG_TRACE("[TRACE] namedAliasType name=%s kind=%d\n", aliasName, type ? type->kind : -1);
 
     if (!ctx || !type || !type->userTypeName) {
         LLVMTypeRef fallback = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
-        fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s returning fallback=%p\n",
-                depth, aliasLog, (void*)fallback);
-        --depth;
+        CG_TRACE("[TRACE] namedAliasType returning fallback=%p\n", (void*)fallback);
         return fallback;
     }
 
-    const char* aliasName = type->userTypeName;
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
-
     if (cache) {
         CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, aliasName);
         if (info) {
             if (info->type && !info->resolving) {
-                fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s returning cached=%p\n",
-                        depth, aliasLog, (void*)info->type);
-                --depth;
+                CG_TRACE("[TRACE] namedAliasType returning cached=%p\n", (void*)info->type);
                 return info->type;
             }
 
             if (info->resolving) {
-                fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s hit resolving true\n",
-                        depth, aliasLog);
+                CG_TRACE("[TRACE] namedAliasType hit resolving true\n");
                 if (info->type) {
-                    fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s returning in-flight type=%p\n",
-                            depth, aliasLog, (void*)info->type);
-                    --depth;
+                    CG_TRACE("[TRACE] namedAliasType returning in-flight type=%p\n", (void*)info->type);
                     return info->type;
                 }
                 LLVMTypeRef forward = cg_context_lookup_named_type(ctx, aliasName);
                 if (forward) {
-                    fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s returning forward=%p\n",
-                            depth, aliasLog, (void*)forward);
-                    --depth;
+                    CG_TRACE("[TRACE] namedAliasType returning forward=%p\n", (void*)forward);
                     return forward;
                 }
                 LLVMTypeRef fallback = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
-                fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s returning fallback=%p\n",
-                        depth, aliasLog, (void*)fallback);
-                --depth;
+                CG_TRACE("[TRACE] namedAliasType returning fallback=%p\n", (void*)fallback);
                 return fallback;
             }
 
             info->resolving = true;
-
-            LLVMTypeRef resolved = NULL;
             const ParsedType* aliased = &info->parsedType;
+            LLVMTypeRef resolved = NULL;
             bool selfTagAlias =
                 aliased &&
                 aliased->kind == TYPE_NAMED &&
@@ -316,16 +300,13 @@ static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type) {
 
             info->type = resolved;
             info->resolving = false;
-            fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s resolved=%p\n",
-                    depth, aliasLog, (void*)resolved);
-            --depth;
+            CG_TRACE("[TRACE] namedAliasType resolved=%p\n", (void*)resolved);
             return resolved;
         }
     }
 
     LLVMTypeRef fallback = structOrUnionType(ctx, type);
-    fprintf(stderr, "[TRACE] namedAliasType depth=%d name=%s fallback struct=%p\n",
-            depth, aliasLog, (void*)fallback);
-    --depth;
+    CG_TRACE("[TRACE] namedAliasType fallback struct=%p\n", (void*)fallback);
     return fallback;
 }
+

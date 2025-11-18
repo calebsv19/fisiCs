@@ -74,21 +74,21 @@ void printParseError(const char* expected, Parser* parser) {
 
 
 Token peekNextToken(Parser* parser) {
-    printf("DEBUG: peekNextToken() returning %s (TokenType: %d)\n",
+    PARSER_DEBUG_PRINTF("DEBUG: peekNextToken() returning %s (TokenType: %d)\n",
            parser->nextToken.value, parser->nextToken.type);
            
     return parser->nextToken;
 }          
            
 Token peekTwoTokensAhead(Parser* parser) {
-        printf("DEBUG: peekTwoTokensAhead() returning %s (TokenType: %d)\n",
+        PARSER_DEBUG_PRINTF("DEBUG: peekTwoTokensAhead() returning %s (TokenType: %d)\n",
            parser->nextNextToken.value, parser->nextNextToken.type);
  
     return parser->nextNextToken;
 }
     
 Token peekThreeTokensAhead(Parser* parser) {
-        printf("DEBUG: peekThreeTokensAhead() returning %s (TokenType: %d)\n",
+        PARSER_DEBUG_PRINTF("DEBUG: peekThreeTokensAhead() returning %s (TokenType: %d)\n",
            parser->nextNextNextToken.value, parser->nextNextNextToken.type);
         
     return parser->nextNextNextToken;

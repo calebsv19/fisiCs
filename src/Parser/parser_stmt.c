@@ -266,7 +266,7 @@ ASTNode* parseDoWhileLoop(Parser* parser) {
 }
 
 ASTNode* parseForLoop(Parser* parser) {
-    printf("DEBUG: Entering parseForLoop() at line %d\n", parser->currentToken.line);
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseForLoop() at line %d\n", parser->currentToken.line);
  
     if (parser->currentToken.type != TOKEN_FOR) {
         printf("Error: expected 'for' at line %d\n", parser->currentToken.line);
@@ -312,7 +312,7 @@ ASTNode* parseForLoop(Parser* parser) {
 
 
 ASTNode* parseForLoopInitializer(Parser* parser) {
-    printf("DEBUG: Parsing for-loop initializer at line %d\n", parser->currentToken.line);
+    PARSER_DEBUG_PRINTF("DEBUG: Parsing for-loop initializer at line %d\n", parser->currentToken.line);
     ASTNode* init = NULL;
     
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
@@ -338,7 +338,7 @@ ASTNode* parseForLoopInitializer(Parser* parser) {
 }
 
 ASTNode* parseForLoopCondition(Parser* parser) {
-    printf("DEBUG: Parsing for-loop condition at line %d\n", parser->currentToken.line);
+    PARSER_DEBUG_PRINTF("DEBUG: Parsing for-loop condition at line %d\n", parser->currentToken.line);
     ASTNode* condition = NULL;
     
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
@@ -360,7 +360,7 @@ ASTNode* parseForLoopCondition(Parser* parser) {
  
  
 ASTNode* parseForLoopIncrement(Parser* parser) {
-    printf("DEBUG: Parsing for-loop increment at line %d\n", parser->currentToken.line);
+    PARSER_DEBUG_PRINTF("DEBUG: Parsing for-loop increment at line %d\n", parser->currentToken.line);
     
     ASTNode* increment = NULL;
     
@@ -394,10 +394,10 @@ ASTNode* parseReturnStatement(Parser* parser) {
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
         if (parser->mode == PARSER_MODE_PRATT) {
             expr = parseExpressionPratt(parser, -1);  // Loosest floor at statement scope
-            printf("DEBUG: Parsed return expr (PRATT, rbp=-1)\n");
+            PARSER_DEBUG_PRINTF("DEBUG: Parsed return expr (PRATT, rbp=-1)\n");
         } else {
             expr = parseExpression(parser);
-            printf("DEBUG: Parsed return expr (RECURSIVE)\n");
+            PARSER_DEBUG_PRINTF("DEBUG: Parsed return expr (RECURSIVE)\n");
         }
 
         if (!expr) {

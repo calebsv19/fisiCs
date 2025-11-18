@@ -64,7 +64,7 @@ ASTNode* parseAssignmentExpression(Parser* parser) {
         return NULL;
     }
             
-    printf("DEBUG: Parsed LHS of assignment has AST type: %d\n", left->type);
+    PARSER_DEBUG_PRINTF("DEBUG: Parsed LHS of assignment has AST type: %d\n", left->type);
          
     //  Only valid assignment targets
     bool isValidLHS = (
@@ -241,7 +241,7 @@ ASTNode* parseBitwiseOr(Parser* parser) {
     
     while (parser->currentToken.type == TOKEN_BITWISE_OR) {
         TokenType op = parser->currentToken.type;
-        printf("DEBUG: Processing bitwise OR '|'\n");
+        PARSER_DEBUG_PRINTF("DEBUG: Processing bitwise OR '|'\n");
         advance(parser);
         ASTNode* right = parseBitwiseXor(parser);
         left = createBinaryExprNode(getOperatorString(op), left, right);
@@ -303,7 +303,7 @@ ASTNode* parseAdditionSubtraction(Parser* parser) {
 }
  
 ASTNode* parseMultiplication(Parser* parser) {
-    printf("DEBUG: Entering parseMult() with token '%s' (Type: %d) at line %d\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseMult() with token '%s' (Type: %d) at line %d\n",
            parser->currentToken.value, parser->currentToken.type, parser->currentToken.line);
     // Handles multiplication, modulo, and division
     ASTNode* left = parseUnaryOrCast(parser);
@@ -320,16 +320,16 @@ ASTNode* parseMultiplication(Parser* parser) {
  
 
 ASTNode* parseUnaryOrCast(Parser* parser) {
-    printf("DEBUG: Entering parseUnaryOrCast() with token '%s' (Type: %d) at line %d\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseUnaryOrCast() with token '%s' (Type: %d) at line %d\n",
            parser->currentToken.value, parser->currentToken.type, parser->currentToken.line);
 
     if (parser->currentToken.type == TOKEN_LPAREN) {
         Token backupToken = parser->currentToken;
         if (looksLikeCastType(parser)) {
-            printf("DEBUG: Looks like cast — calling parseCastExpression()\n");
+            PARSER_DEBUG_PRINTF("DEBUG: Looks like cast — calling parseCastExpression()\n");
             return parseCastExpression(parser);
         } else {
-            printf("DEBUG: Not a cast — restoring '(' and continuing\n");
+            PARSER_DEBUG_PRINTF("DEBUG: Not a cast — restoring '(' and continuing\n");
             parser->currentToken = backupToken;  // Reset state to treat as expression
         }
     }
@@ -339,7 +339,7 @@ ASTNode* parseUnaryOrCast(Parser* parser) {
 
 
 ASTNode* parseFactor(Parser* parser) {
-    printf("DEBUG: Entering parseFactor() with token '%s' (Type: %d) at line %d\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseFactor() with token '%s' (Type: %d) at line %d\n",
            parser->currentToken.value, parser->currentToken.type, parser->currentToken.line);
            
     // Handle prefix increment and decrement (++x, --x)
@@ -420,7 +420,7 @@ ASTNode* parseFactor(Parser* parser) {
 
 
 ASTNode* parseCastExpression(Parser* parser) {
-    printf("DEBUG: Entering parseCastExpression() with token '%s' (line %d)\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseCastExpression() with token '%s' (line %d)\n",
            parser->currentToken.value, parser->currentToken.line);
 
     // Ensure we’re starting with a cast
@@ -514,7 +514,7 @@ ASTNode* parsePostfixExpression(Parser* parser) {
 
 
 ASTNode* parsePrimary(Parser* parser) {
-    printf("DEBUG: Entering parsePrimary() with token '%s' (Type: %d) at line %d\n",
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parsePrimary() with token '%s' (Type: %d) at line %d\n",
            parser->currentToken.value, parser->currentToken.type, parser->currentToken.line);
            
     // Number & float literals
@@ -579,7 +579,7 @@ ASTNode* parsePrimary(Parser* parser) {
 
 
 ASTNode* parseSizeofExpression(Parser* parser) {
-    printf("DEBUG: Entering parseSizeofExpression() at line %d\n", parser->currentToken.line);
+    PARSER_DEBUG_PRINTF("DEBUG: Entering parseSizeofExpression() at line %d\n", parser->currentToken.line);
         
     if (parser->currentToken.type != TOKEN_SIZEOF) {
         return NULL;
@@ -626,11 +626,11 @@ ASTNode* handleExpressionOrAssignment(Parser* parser) {
     if (parser->mode == PARSER_MODE_PRATT) {
         // Loosest floor so postfix/access can chain and '=' can bind afterward
         expr = parseExpressionPratt(parser, -1);
-        printf("DEBUG: Parsed expression (PRATT, rbp=-1)\n");
+        PARSER_DEBUG_PRINTF("DEBUG: Parsed expression (PRATT, rbp=-1)\n");
     } else {
         // Legacy recursive descent path
         expr = parseExpression(parser);
-        printf("DEBUG: Parsed expression (RECURSIVE)\n");
+        PARSER_DEBUG_PRINTF("DEBUG: Parsed expression (RECURSIVE)\n");
     }
 
     if (!expr) {

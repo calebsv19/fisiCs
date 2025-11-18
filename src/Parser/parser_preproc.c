@@ -65,24 +65,24 @@ ASTNode* parseDefineDirective(Parser* parser) {
      
     char* macroName = strdup(parser->currentToken.value);
     int macroLine = parser->currentToken.line;
-    printf("DEBUG: Found macro name '%s' at line %d\n", macroName, macroLine);
+    PARSER_DEBUG_PRINTF("DEBUG: Found macro name '%s' at line %d\n", macroName, macroLine);
     
     advance(parser);  // Move past macro name
     
     // Only collect value if we're still on the same line as the macro name
     if (parser->currentToken.line != macroLine) {
-        printf("DEBUG: No macro value found — macro is a flag only.\n");
+        PARSER_DEBUG_PRINTF("DEBUG: No macro value found — macro is a flag only.\n");
         return createDefineDirectiveNode(macroName, NULL);
     }
      
     // Otherwise, begin collecting value tokens
     char buffer[1024] = {0};
     size_t len = 0;
-    printf("DEBUG: Starting macro value collection on line %d\n", macroLine);
+    PARSER_DEBUG_PRINTF("DEBUG: Starting macro value collection on line %d\n", macroLine);
     
     while (parser->currentToken.type != TOKEN_EOF &&
            parser->currentToken.line == macroLine) {
-        printf("DEBUG: Adding token '%s' (Type: %d) at line %d to macro value\n",
+        PARSER_DEBUG_PRINTF("DEBUG: Adding token '%s' (Type: %d) at line %d to macro value\n",
                parser->currentToken.value,
                parser->currentToken.type, 
                parser->currentToken.line);
@@ -91,7 +91,7 @@ ASTNode* parseDefineDirective(Parser* parser) {
         advance(parser);
     }
      
-    printf("DEBUG: Final macro value = '%s'\n", buffer);
+    PARSER_DEBUG_PRINTF("DEBUG: Final macro value = '%s'\n", buffer);
     char* macroValue = strdup(buffer);
     
     return createDefineDirectiveNode(macroName, macroValue);
