@@ -1,7 +1,6 @@
 *.o
 *.out
 *.exe
-compiler
 *.h2
 *.log
 *.dSYM
