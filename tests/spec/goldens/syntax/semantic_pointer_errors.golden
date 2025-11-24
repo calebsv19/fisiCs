@@ -1,0 +1,71 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      ARRAY_DECLARATION
+        TYPE: int
+        IDENTIFIER values
+        DIMENSION[0]:
+          NUMBER_LITERAL 3
+          = NUMBER_LITERAL 1
+
+          = NUMBER_LITERAL 2
+
+          = NUMBER_LITERAL 3
+
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER f
+          = NUMBER_LITERAL 1.5f
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+          = IDENTIFIER values
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER q
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER values
+              NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER sum
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER p
+              IDENTIFIER q
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER diff
+          = 
+            BINARY EXPRESSION '-'
+              IDENTIFIER p
+              CAST_EXPRESSION
+                                CAST TYPE: int
+                IDENTIFIER f
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER cmp
+          = 
+            BINARY EXPRESSION '<'
+              IDENTIFIER p
+              IDENTIFIER f
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            IDENTIFIER sum
+            IDENTIFIER diff
+          IDENTIFIER cmp
+
+
+Diagnostics:
+Error at (7:0): Operator '+' requires pointer arithmetic (pointer +/- integer)
+Error at (9:0): Operator '<' requires comparable operands
+

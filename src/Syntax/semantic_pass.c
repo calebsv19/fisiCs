@@ -4,6 +4,7 @@
 #include "syntax_errors.h"
 #include "analyze_core.h"
 #include "builtins.h"
+#include "control_flow.h"
 
 #include <stdio.h>
 
@@ -29,6 +30,7 @@ static Scope* runSemanticAnalysis(ASTNode* root,
         addError(root ? root->line : 0, 0, "Root AST node is not a program", "Ensure parsing produced a valid program node");
     } else {
         analyze(root, globalScope);
+        analyzeControlFlow(root, globalScope);
     }
 
     reportErrors();

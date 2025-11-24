@@ -166,14 +166,23 @@ bool isPreprocessorToken(TokenType type) {
 }
  
 bool isPrimitiveTypeToken(TokenType type) {
-    return type == TOKEN_INT || type == TOKEN_FLOAT || type == TOKEN_DOUBLE ||
-                type == TOKEN_CHAR || type == TOKEN_BOOL || type == TOKEN_VOID;
+    return type == TOKEN_INT ||
+           type == TOKEN_FLOAT ||
+           type == TOKEN_DOUBLE ||
+           type == TOKEN_CHAR ||
+           type == TOKEN_BOOL ||
+           type == TOKEN_VOID ||
+           type == TOKEN_LONG ||
+           type == TOKEN_SHORT ||
+           type == TOKEN_SIGNED ||
+           type == TOKEN_UNSIGNED;
 }
  
 bool isModifierToken(TokenType type) {
-    return type == TOKEN_CONST || type == TOKEN_UNSIGNED ||
-           type == TOKEN_SIGNED || type == TOKEN_SHORT || type == TOKEN_LONG ||
-           type == TOKEN_VOLATILE || type == TOKEN_RESTRICT || type == TOKEN_INLINE;
+    return type == TOKEN_CONST ||
+           type == TOKEN_VOLATILE ||
+           type == TOKEN_RESTRICT ||
+           type == TOKEN_INLINE;
 }
  
 bool isStorageSpecifier(TokenType type) {

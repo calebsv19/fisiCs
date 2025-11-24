@@ -71,42 +71,103 @@ run: src/Lexer/keyword_lookup.c $(BIN)
 	@./$(BIN)
 
 union-decl: $(BIN)
-	@./tests/run_union_decl.sh ./$(BIN)
+	@./tests/parser/run_union_decl.sh ./$(BIN)
 
 initializer-expr: $(BIN)
-	@./tests/run_initializer_expr.sh ./$(BIN)
+	@./tests/parser/run_initializer_expr.sh ./$(BIN)
 
 typedef-chain: $(BIN)
-	@./tests/run_typedef_chain.sh ./$(BIN)
+	@./tests/parser/run_typedef_chain.sh ./$(BIN)
 
 designated-init: $(BIN)
-	@./tests/run_designated_init.sh ./$(BIN)
+	@./tests/parser/run_designated_init.sh ./$(BIN)
 
 control-flow: $(BIN)
-	@./tests/run_control_flow.sh ./$(BIN)
+	@./tests/parser/run_control_flow.sh ./$(BIN)
 
 cast-grouped: $(BIN)
-	@./tests/run_cast_grouped.sh ./$(BIN)
+	@./tests/parser/run_cast_grouped.sh ./$(BIN)
 
 for_typedef: $(BIN)
-	@./tests/run_for_typedef.sh ./$(BIN)
+	@./tests/parser/run_for_typedef.sh ./$(BIN)
 
 function-pointer: $(BIN)
-	@./tests/run_function_pointer.sh ./$(BIN)
+	@./tests/parser/run_function_pointer.sh ./$(BIN)
+
+switch-flow: $(BIN)
+	@./tests/parser/run_switch_flow.sh ./$(BIN)
+
+goto-flow: $(BIN)
+	@./tests/parser/run_goto_flow.sh ./$(BIN)
+
+pointer-arith: $(BIN)
+	@./tests/codegen/run_pointer_arith.sh ./$(BIN)
+
+codegen-pointer-deref: $(BIN)
+	@./tests/codegen/run_codegen_pointer_deref.sh ./$(BIN)
+
+codegen-pointer-diff: $(BIN)
+	@./tests/codegen/run_codegen_pointer_diff_long.sh ./$(BIN)
 
 semantic-typedef: $(BIN)
-	@./tests/run_semantic_typedef.sh ./$(BIN)
+	@./tests/syntax/run_semantic_typedef.sh ./$(BIN)
 
 semantic-initializer: $(BIN)
-	@./tests/run_semantic_initializer.sh ./$(BIN)
+	@./tests/syntax/run_semantic_initializer.sh ./$(BIN)
 
 semantic-undeclared: $(BIN)
-	@./tests/run_semantic_undeclared.sh ./$(BIN)
+	@./tests/syntax/run_semantic_undeclared.sh ./$(BIN)
 
 semantic-bool: $(BIN)
-	@./tests/run_semantic_bool.sh ./$(BIN)
+	@./tests/syntax/run_semantic_bool.sh ./$(BIN)
 
-tests: union-decl initializer-expr typedef-chain designated-init control-flow cast-grouped for-typedef function-pointer semantic-typedef semantic-initializer semantic-undeclared semantic-bool
+semantic-invalid-arith: $(BIN)
+	@./tests/syntax/run_semantic_invalid_arith.sh ./$(BIN)
+
+semantic-lvalue-errors: $(BIN)
+	@./tests/syntax/run_semantic_lvalue_errors.sh ./$(BIN)
+
+semantic-pointer-errors: $(BIN)
+	@./tests/syntax/run_semantic_pointer_errors.sh ./$(BIN)
+
+semantic-pointer-qualifier: $(BIN)
+	@./tests/syntax/run_semantic_pointer_qualifier.sh ./$(BIN)
+
+semantic-function-calls: $(BIN)
+	@./tests/syntax/run_semantic_function_calls.sh ./$(BIN)
+
+semantic-tag-conflicts: $(BIN)
+	@./tests/syntax/run_semantic_tag_conflicts.sh ./$(BIN)
+
+semantic-initializer-shapes: $(BIN)
+	@./tests/syntax/run_semantic_initializer_shapes.sh ./$(BIN)
+
+semantic-flow: $(BIN)
+	@./tests/syntax/run_semantic_flow.sh ./$(BIN)
+
+spec-tests: $(BIN)
+	@./tests/spec/run_ast_golden.sh ./$(BIN)
+
+parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \
+              cast-grouped for_typedef function-pointer switch-flow goto-flow
+
+syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic-bool \
+              semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
+              semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
+              semantic-initializer-shapes semantic-flow
+
+codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff
+
+test: spec-tests parser-tests syntax-tests codegen-tests
+
+tests: test
 
 # === Phony Targets ===
-.PHONY: all clean run union-decl initializer-expr typedef-chain designated-init control-flow cast-grouped for-typedef function-pointer semantic-typedef semantic-initializer semantic-undeclared semantic-bool tests
+.PHONY: all clean run \
+        union-decl initializer-expr typedef-chain designated-init control-flow \
+        cast-grouped for_typedef function-pointer pointer-arith switch-flow \
+        goto-flow semantic-typedef semantic-initializer semantic-undeclared \
+        semantic-bool semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
+        semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
+        semantic-initializer-shapes semantic-flow codegen-pointer-deref codegen-pointer-diff \
+        parser-tests syntax-tests codegen-tests spec-tests test tests

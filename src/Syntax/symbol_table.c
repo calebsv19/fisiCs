@@ -51,10 +51,10 @@ void freeSymbolTable(SymbolTable* table) {
         while (sym) {
             Symbol* next = sym->next;
             free(sym->name);
+            free(sym->signature.params);
             free(sym);
             sym = next;
         }
         table->buckets[i] = NULL;
     }
 }
-

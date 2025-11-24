@@ -1,0 +1,38 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Pair
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Pair
+        IDENTIFIER p
+            .x = NUMBER_LITERAL 10
+
+            .y = NUMBER_LITERAL 20
+
+      RETURN
+        BINARY EXPRESSION '+'
+          DOT_ACCESS '.'
+            IDENTIFIER p
+            FIELD x
+          DOT_ACCESS '.'
+            IDENTIFIER p
+            FIELD y
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

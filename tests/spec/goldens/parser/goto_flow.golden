@@ -1,0 +1,55 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER result
+          = NUMBER_LITERAL 0
+      LABEL: start
+        ASSIGNMENT (+=)
+          IDENTIFIER result
+          NUMBER_LITERAL 1
+      IF_STATEMENT
+        BINARY EXPRESSION '=='
+          IDENTIFIER result
+          NUMBER_LITERAL 1
+        BLOCK
+          GOTO
+            LABEL mid
+      LABEL: mid
+        ASSIGNMENT (+=)
+          IDENTIFIER result
+          NUMBER_LITERAL 2
+      IF_STATEMENT
+        BINARY EXPRESSION '<'
+          IDENTIFIER result
+          NUMBER_LITERAL 5
+        BLOCK
+          GOTO
+            LABEL end
+      ASSIGNMENT (+=)
+        IDENTIFIER result
+        NUMBER_LITERAL 4
+      GOTO
+        LABEL exit
+      LABEL: end
+        ASSIGNMENT (+=)
+          IDENTIFIER result
+          NUMBER_LITERAL 8
+      GOTO
+        LABEL exit
+      LABEL: exit
+        RETURN
+          IDENTIFIER result
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

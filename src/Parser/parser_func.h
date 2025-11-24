@@ -8,10 +8,11 @@
 
 #include "Lexer/tokens.h"
 #include "Lexer/lexer.h"
+#include <stdbool.h>
 
 // Function definitions and declarations
 ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType);
-ASTNode** parseParameterList(Parser* parser, size_t* paramCount);
+ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadic);
 
 // Function calls and pointers
 ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee);

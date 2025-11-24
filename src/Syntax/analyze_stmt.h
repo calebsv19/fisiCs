@@ -3,8 +3,6 @@
 
 #include "AST/ast_node.h"
 #include "scope.h"
-
 void analyzeStatement(ASTNode* node, Scope* scope);
 
 #endif // ANALYZE_STMT_H
-

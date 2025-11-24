@@ -1,0 +1,107 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER dispatch
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER seed
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER total
+          = NUMBER_LITERAL 0
+      FOR_LOOP
+        VAR_DECL
+          TYPE: int
+          IDENTIFIER i
+            = NUMBER_LITERAL 0
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          NUMBER_LITERAL 3
+        UNARY EXPRESSION '++' (prefix)
+          IDENTIFIER i
+        BLOCK
+          SWITCH
+            BINARY EXPRESSION '%'
+              BINARY EXPRESSION '+'
+                IDENTIFIER seed
+                IDENTIFIER i
+              NUMBER_LITERAL 4
+            CASE
+              NUMBER_LITERAL 0
+              ASSIGNMENT (+=)
+                IDENTIFIER total
+                NUMBER_LITERAL 1
+              BREAK
+            CASE
+              NUMBER_LITERAL 1
+              ASSIGNMENT (+=)
+                IDENTIFIER total
+                NUMBER_LITERAL 2
+              IF_STATEMENT
+                BINARY EXPRESSION '=='
+                  IDENTIFIER i
+                  NUMBER_LITERAL 1
+                BLOCK
+                  BREAK
+            CASE
+              NUMBER_LITERAL 3
+              ASSIGNMENT (+=)
+                IDENTIFIER total
+                NUMBER_LITERAL 5
+              BREAK
+            CASE
+              DEFAULT
+              ASSIGNMENT (+=)
+                IDENTIFIER total
+                NUMBER_LITERAL 7
+              IF_STATEMENT
+                BINARY EXPRESSION '>'
+                  IDENTIFIER total
+                  NUMBER_LITERAL 10
+                BLOCK
+                  CONTINUE
+              SWITCH
+                IDENTIFIER i
+                CASE
+                  NUMBER_LITERAL 0
+                  ASSIGNMENT (+=)
+                    IDENTIFIER total
+                    NUMBER_LITERAL 11
+                  BREAK
+                CASE
+                  DEFAULT
+                  ASSIGNMENT (+=)
+                    IDENTIFIER total
+                    NUMBER_LITERAL 13
+                  BREAK
+              BREAK
+          ASSIGNMENT (+=)
+            IDENTIFIER total
+            NUMBER_LITERAL 100
+      RETURN
+        IDENTIFIER total
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER dispatch
+          ARGUMENTS
+            NUMBER_LITERAL 2
+
+
+Diagnostics:
+Warning at (0:0): Unreachable statement
+Warning at (0:0): Unreachable statement
+Warning at (0:0): Unreachable statement
+Warning at (32:0): Unreachable statement
+Semantic analysis: no issues found.
+

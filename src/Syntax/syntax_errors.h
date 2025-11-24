@@ -2,22 +2,26 @@
 #define SYNTAX_ERRORS_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef struct {
     int line;
     int column;
     char* message;
     char* hint;
+    bool isWarning;
 } SyntaxError;
 
 typedef struct {
     SyntaxError* errors;
     size_t count;
     size_t capacity;
+    size_t errorCount;
 } ErrorList;
 
 void initErrorList(void);
 void addError(int line, int column, const char* message, const char* hint);
+void addWarning(int line, int column, const char* message, const char* hint);
 void reportErrors(void);
 size_t getErrorCount(void);
 void freeErrorList(void);

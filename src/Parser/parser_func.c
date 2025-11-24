@@ -29,9 +29,13 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     // Parse parameter list (optional)
     ASTNode** paramList = NULL;
     size_t paramCount = 0;
+    bool isVariadic = false;
 
     if (parser->currentToken.type != TOKEN_RPAREN) {
-        paramList = parseParameterList(parser, &paramCount);  // Can be stubbed
+        paramList = parseParameterList(parser, &paramCount, &isVariadic);
+        if (!paramList) {
+            return NULL;
+        }
     }
 
     // Confirm closing parenthesis
@@ -44,12 +48,9 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     // Determine next step: declaration or definition
     if (parser->currentToken.type == TOKEN_SEMICOLON) {
         advance(parser);  // Consume ';'
-        ASTNode* decl = createFunctionDeclarationNode(returnType, funcName->valueNode.value);  // Declaration path
-        if (decl) {
-            decl->line = funcName->line;
-            if (decl->functionDecl.funcName) {
-                decl->functionDecl.funcName->line = funcName->line;
-            }
+        ASTNode* decl = createFunctionDeclarationNode(returnType, funcName, paramList, paramCount, isVariadic);
+        if (decl && decl->functionDecl.funcName) {
+            decl->functionDecl.funcName->line = funcName->line;
         }
         return decl;
     }
@@ -60,7 +61,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
             printf("Error: Failed to parse function body at line %d\n", parser->currentToken.line);
             return NULL;
         }
-        return createFunctionDefinitionNode(returnType, funcName, paramList, body, paramCount);
+        return createFunctionDefinitionNode(returnType, funcName, paramList, body, paramCount, isVariadic);
     }
 
     // If neither, report error
@@ -69,15 +70,26 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
 }
 
 
-ASTNode** parseParameterList(Parser* parser, size_t* paramCount) {
+ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadic) {
     PARSER_DEBUG_PRINTF("DEBUG: Entering parseParameterList() at line %d\n", parser->currentToken.line);
             
     *paramCount = 0;
+    if (isVariadic) {
+        *isVariadic = false;
+    }
     size_t paramCapacity = 4;
     ASTNode** paramList = malloc(paramCapacity * sizeof(ASTNode*));
     size_t unnamedIndex = 0;
     
     while (parser->currentToken.type != TOKEN_RPAREN && parser->currentToken.type != TOKEN_EOF) {
+        if (parser->currentToken.type == TOKEN_ELLIPSIS) {
+            if (isVariadic) {
+                *isVariadic = true;
+            }
+            advance(parser);
+            break;
+        }
+
         ParsedType paramType = parseType(parser);
         
         ASTNode* paramName = NULL;
@@ -111,7 +123,7 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount) {
         // Handle ',' or error
         if (parser->currentToken.type == TOKEN_COMMA) {
             advance(parser);
-        } else if (parser->currentToken.type != TOKEN_RPAREN) {
+        } else if (parser->currentToken.type != TOKEN_RPAREN && parser->currentToken.type != TOKEN_ELLIPSIS) {
             printParseError("Expected ',' or ')' in parameter list", parser);
             free(paramList);  
             return NULL;
@@ -120,6 +132,11 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount) {
             
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' to close parameter list", parser);
+        free(paramList);
+        return NULL;
+    }
+    if (isVariadic && *isVariadic && *paramCount == 0) {
+        printParseError("Variadic parameter list requires at least one named parameter", parser);
         free(paramList);
         return NULL;
     }

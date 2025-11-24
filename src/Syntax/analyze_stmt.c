@@ -56,13 +56,23 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
             }
             break;
 
+        case AST_LABEL_DECLARATION:
+            if (node->label.statement) {
+                analyze(node->label.statement, scope);
+            }
+            break;
+
+        case AST_GOTO_STATEMENT:
+            // Goto/label validation not implemented yet
+            break;
+
         case AST_ASSIGNMENT:
         case AST_BINARY_EXPRESSION:
         case AST_UNARY_EXPRESSION:
         case AST_FUNCTION_CALL:
         case AST_COMPOUND_LITERAL:
         case AST_CAST_EXPRESSION:
-            analyzeExpression(node, scope);
+            (void)analyzeExpression(node, scope);
             break;
 
         default:

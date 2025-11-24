@@ -1,0 +1,47 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Pair
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER base
+          = NUMBER_LITERAL 3
+      VAR_DECL
+        TYPE: struct Pair
+        IDENTIFIER p
+            .x = IDENTIFIER base
+
+            .y = (Unrecognized for inline: type 19)      ARRAY_DECLARATION
+        TYPE: int
+        IDENTIFIER values
+        DIMENSION[0]:
+          NUMBER_LITERAL 2
+          = IDENTIFIER base
+
+          = (Unrecognized for inline: type 19)      RETURN
+        BINARY EXPRESSION '+'
+          DOT_ACCESS '.'
+            IDENTIFIER p
+            FIELD y
+          ARRAY_ACCESS
+            IDENTIFIER values
+            NUMBER_LITERAL 1
+
+
+Diagnostics:
+Error at (10:0): Operator '+' requires arithmetic operands
+

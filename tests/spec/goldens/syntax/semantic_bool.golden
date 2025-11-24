@@ -1,0 +1,7 @@
+AST:
+
+
+Diagnostics:
+Error at (0:0): Root AST node is not a program
+   Hint: Ensure parsing produced a valid program node
+

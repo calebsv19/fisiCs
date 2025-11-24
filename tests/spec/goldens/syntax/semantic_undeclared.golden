@@ -1,0 +1,22 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER value
+          = IDENTIFIER missingSymbol
+      RETURN
+        IDENTIFIER value
+
+
+Diagnostics:
+Error at (2:0): Undeclared identifier
+   Hint: missingSymbol
+

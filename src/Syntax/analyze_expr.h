@@ -3,8 +3,8 @@
 
 #include "AST/ast_node.h"
 #include "scope.h"
+#include "type_checker.h"
 
-void analyzeExpression(ASTNode* node, Scope* scope);
+TypeInfo analyzeExpression(ASTNode* node, Scope* scope);
 
 #endif // ANALYZE_EXPR_H
-

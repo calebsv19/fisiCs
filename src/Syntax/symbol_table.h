@@ -13,11 +13,18 @@ typedef enum {
     SYMBOL_ENUM
 } SymbolKind;
 
+typedef struct FunctionSignature {
+    ParsedType* params;
+    size_t paramCount;
+    bool isVariadic;
+} FunctionSignature;
+
 typedef struct Symbol {
     char* name;
     SymbolKind kind;
     ParsedType type;
     ASTNode* definition;
+    FunctionSignature signature;
     struct Symbol* next; // For linked list in hash buckets
 } Symbol;
 
@@ -34,4 +41,3 @@ Symbol* lookupSymbol(SymbolTable* table, const char* name);
 void freeSymbolTable(SymbolTable* table);
 
 #endif // SYMBOL_TABLE_H
-

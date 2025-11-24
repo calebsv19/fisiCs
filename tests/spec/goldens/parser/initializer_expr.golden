@@ -1,0 +1,37 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = 
+            CAST_EXPRESSION
+                            CAST TYPE: int
+              BINARY EXPRESSION '*'
+                NUMBER_LITERAL 3
+                NUMBER_LITERAL 4
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
+          = 
+            BINARY EXPRESSION '+'
+              SIZEOF
+                                PARSED_TYPE int
+              SIZEOF
+                                PARSED_TYPE int
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          IDENTIFIER y
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

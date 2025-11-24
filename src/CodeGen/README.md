@@ -5,21 +5,35 @@ Experimental LLVM IR emitter that lowers the semantic AST into executable IR.
 ## Files
 
 - `code_gen.h`
-  - Public surface now exposes a `CodegenContext` wrapper instead of global LLVM objects.
-  - `codegen_context_create()` creates the context (LLVM context, module, builder, loop stack, scope chain) and now accepts the optional `SemanticModel*` so semantic analysis results can be reused when lowering IR.
-  - `codegen_generate()` walks the AST and emits IR into the supplied context.
-  - `codegen_get_module()` lets callers inspect/dump the produced module; destroy everything with `codegen_context_destroy()`.
+  - Public surface for consumers: create/destroy the `CodegenContext`, drive `codegen_generate`, and fetch the final `LLVMModuleRef`.
 - `code_gen.c`
-  - Implements the context helpers (scope management, loop-target stack) plus all `codegen*` routines.
-  - Each node-specific emitter still relies on LLVM C bindings (arithmetic via `LLVMBuildAdd/Sub`, control flow via `LLVMBuildCondBr`, switches via `LLVMBuildSwitch`, etc.), but now threads the context explicitly instead of touching globals.
-  - A lightweight pre-pass registers global variables, function prototypes, and tagged struct/union types before the body emitters run so the main walk can assume symbols are already known.
-  - String/number/char literals become `LLVMConstInt`/`LLVMBuildGlobalStringPtr`; identifiers currently resolve through the scope table first, falling back to globals (`LLVMGetNamedGlobal`) until richer symbol data is wired in.
-  - Ternary expressions are implemented with explicit merge blocks and PHI nodes, illustrating the pattern other conditional emitters follow.
+  - Thin entry point that seeds a fresh scope, kicks off global predeclarations, and dispatches to the shared helpers.
+- `codegen_private.h`
+  - Internal umbrella header that exposes the `CodegenContext` layout, scope/loop/label helpers, and every emitter prototype so the split source files can talk to one another.
+- `codegen_context.c`
+  - Owns lifecycle concerns: LLVM context/module/builder creation, semantic-model wiring, scope stack, loop stack, named-type cache, label book-keeping, and public context accessors. Also implements the scope/loop/label helper functions used throughout the emitters.
+- `codegen_helpers.c`
+  - Houses the reusable expression utilities (value classification, truthiness coercion, pointer arithmetic, pointer difference, integer predicate selection, and general-purpose `cg_cast_value`). Also centralises AST type-resolution helpers.
+- `codegen_declarations.c`
+  - Handles global prepasses: collecting parameter LLVM types, ensuring functions/globals exist in the module, registering struct symbols, and walking the AST/SemanticModel to predeclare everything prior to body emission.
+- `codegen_initializers.c`
+  - Emits designated/compound initializer stores for arrays/structs/scalars, reusing the expression helpers to fill aggregates element-by-element.
+- `codegen_structs.c`
+  - Tracks struct metadata (`StructInfo` cache), bridges to the semantic/type-cache layer, builds struct field pointers/array element pointers, and implements struct/union definition lowering plus lvalue helpers.
+- `codegen_expr.c`
+  - Expression-level IR generators: arithmetic/logic, casts, literals, compound literals, member/array/pointer access, function calls, and heap allocation nodes. Relies heavily on `codegen_helpers.c` for conversions and pointer math.
+- `codegen_stmt.c`
+  - Statement/control-flow lowering: programs, blocks, declarations, conditionals, loops, switches, returns/break/continue, typedef/enum lowering, labels/gotos, and top-level function bodies.
+- `codegen_dispatch.c`
+  - Central `codegenNode` dispatcher that routes AST node kinds to the appropriate statement/expression emitter.
 - `codegen_types.c` / `codegen_types.h`
-  - Maps the parser's `ParsedType` (primitives, pointers, basic structs/unions/enums) to LLVM types using the shared `CodegenContext` cache helpers declared in `codegen_internal.h`.
-  - Currently handles primitive widths, pointer depth, and function pointers; opaque struct/union names are cached for later population.
+  - Maps `ParsedType` descriptions to LLVM types, defers to the shared `cg_context_*` helpers for named/opaque structs, and feeds the `codegen_structs.c` metadata.
+- `codegen_type_cache.c` / `codegen_type_cache.h`
+  - Caches semantic-model derived struct layouts so the LLVM lowering phase can ask for struct field shapes without reparsing the AST.
+- `codegen_model_adapter.[ch]`
+  - Bridges the semantic model to LLVM type info; used when the code generator needs additional details about analyzed symbols.
 - `codegen_internal.h`
-  - Private helper surface shared across codegen implementation files (accessors for the LLVM context/module/builder and a small named-type cache).
+  - Legacy accessors kept for compatibility with other submodules (wrapper around `codegen_private.h` providing context getters and named-type cache hooks).
 
 ## Usage
 
@@ -30,6 +44,10 @@ LLVMValueRef rootVal = codegen_generate(cg, astRoot);
 LLVMDumpModule(codegen_get_module(cg));
 codegen_context_destroy(cg);
 semanticModelDestroy(sem);
+
+# Verification
+
+Set `CODEGEN_VERIFY=1` in the environment when invoking `./compiler` (or `make run/tests`) to ask LLVM to run `LLVMVerifyFunction` after each function body is emitted. Any verification failures are printed to stderr so malformed IR is caught early while iterating on new control-flow paths.
 ```
 
 `main.c` controls whether this phase runs via `ENABLE_CODEGEN`. The current implementation still assumes integer-centric types and basic storage; extend the individual `codegen*` functions as the AST evolves.

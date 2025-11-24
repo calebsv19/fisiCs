@@ -9,7 +9,7 @@ DSL-style annotations, physics-aware types, and IDE integration.
 
 - **Lexer** – Robust tokenization for C99-style syntax (keywords, identifiers, literals, operators).  
 - **Parser** – Handles expressions, declarations, control-flow, designated initialisers, and function pointers (Pratt or legacy ladders).  
-- **Semantic Analysis** – Builds scope graphs, tracks typedef/tag namespaces, performs basic type compatibility, and emits aggregated diagnostics.  
+- **Semantic Analysis** – Tracks typedef/tag namespaces, enforces lvalue/decay rules, qualifier-safe assignments, pointer arithmetic semantics, now records function prototypes (including variadic signatures) and tag-layout fingerprints, validates initializer shapes, and performs flow-sensitive checks (unreachable statements, missing returns, switch fallthrough) so code reaches IR only when it matches C99 semantics.  
 - **LLVM IR Codegen** – Lowers analysed ASTs into LLVM IR (struct/union layouts, arrays, compound assignments, loops/conditionals, globals).  
 - **Preprocessor Support** – Parses `#include`, `#define`, `#ifdef`, etc., preserving directives in the AST pipeline.  
 - **H2 Generator** – Emits helper `.h2` metadata for IDE or tooling experiments.  
@@ -74,6 +74,9 @@ The `tests/` folder holds focused fixtures covering parser, semantic, and LLVM I
 # run them all
 make tests
 
+# run AST/diagnostic spec assertions (golden files)
+make spec-tests
+
 # or individually
 make union-decl
 make initializer-expr
@@ -83,10 +86,24 @@ make control-flow
 make cast-grouped
 make for-typedef
 make function-pointer
+make pointer-arith
+make switch-flow
+make goto-flow
 make semantic-typedef
 make semantic-initializer
 make semantic-undeclared
 make semantic-bool
+make semantic-invalid-arith
+make semantic-lvalue-errors
+make semantic-pointer-errors
+make semantic-pointer-qualifier
+make semantic-function-calls
+make semantic-tag-conflicts
+make semantic-initializer-shapes
+make semantic-flow
+
+# refresh goldens after intentional output changes
+UPDATE_GOLDENS=1 tests/spec/run_ast_golden.sh ./compiler
 ```
 
 Each script invokes `./compiler` against a minimal snippet and asserts on AST fragments, semantic diagnostics, or IR output. Extend the suite whenever you add new surface area so regressions are caught early.

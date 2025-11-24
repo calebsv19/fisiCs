@@ -1,0 +1,41 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER total
+          = NUMBER_LITERAL 0
+      IF_STATEMENT
+        BINARY EXPRESSION '=='
+          IDENTIFIER total
+          NUMBER_LITERAL 0
+        BLOCK
+          ASSIGNMENT (=)
+            IDENTIFIER total
+            NUMBER_LITERAL 1
+      ELSE_STATEMENT
+        BLOCK
+          ASSIGNMENT (=)
+            IDENTIFIER total
+            NUMBER_LITERAL 2
+      WHILE_LOOP
+        BINARY EXPRESSION '<'
+          IDENTIFIER total
+          NUMBER_LITERAL 5
+        BLOCK
+          UNARY EXPRESSION '++' (postfix)
+            IDENTIFIER total
+      RETURN
+        IDENTIFIER total
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

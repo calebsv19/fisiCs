@@ -1,0 +1,62 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Node
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+  STRUCT
+        Name:     IDENTIFIER Node
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER extra
+  UNION
+        Name:     IDENTIFIER Payload
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER i
+  UNION
+        Name:     IDENTIFIER Payload
+    VAR_DECL
+      TYPE: float
+      IDENTIFIER f
+  ENUM
+        Name:     IDENTIFIER Shade
+        Member:   IDENTIFIER SHADE_RED
+        Member:   IDENTIFIER SHADE_BLUE
+  ENUM
+        Name:     IDENTIFIER Shade
+        Member:   IDENTIFIER SHADE_RED
+            Value:  NUMBER_LITERAL 1
+        Member:   IDENTIFIER SHADE_BLUE
+        Member:   IDENTIFIER SHADE_GREEN
+  ENUM
+        Name:     IDENTIFIER Color
+        Member:   IDENTIFIER COLOR_RED
+        Member:   IDENTIFIER COLOR_GREEN
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER color_sum
+    PARAMETERS
+      VAR_DECL
+        TYPE: Color
+        IDENTIFIER c
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER c
+          IDENTIFIER COLOR_RED
+
+
+Diagnostics:
+Error at (5:0): Conflicting definition of struct 'Node'
+Error at (14:0): Conflicting definition of union 'Payload'
+Error at (23:0): Conflicting definition of enum 'Shade'
+Error at (24:0): Redefinition of enum constant
+   Hint: SHADE_RED
+Error at (25:0): Redefinition of enum constant
+   Hint: SHADE_BLUE
+

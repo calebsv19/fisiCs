@@ -1,0 +1,31 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER I
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      FUNCTION POINTER DECLARATION
+        RETURN TYPE: I (*)()
+        NAME: fn
+      ASSIGNMENT (=)
+        IDENTIFIER fn
+        CAST_EXPRESSION
+                    CAST TYPE: I
+          NUMBER_LITERAL 0
+      RETURN
+        NUMBER_LITERAL 0
+
+
+Diagnostics:
+Error at (5:0): Undeclared identifier
+   Hint: fn
+Error at (5:0): Left operand of '=' must be a modifiable lvalue
+Error at (5:0): Incompatible assignment operands
+

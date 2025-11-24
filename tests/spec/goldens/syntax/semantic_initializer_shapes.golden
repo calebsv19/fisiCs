@@ -1,0 +1,114 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Pair
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER scalar_ok
+          = NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER scalar_bad
+            = NUMBER_LITERAL 1
+
+            = NUMBER_LITERAL 2
+
+      VAR_DECL
+        TYPE: struct Pair
+        IDENTIFIER p_bad
+          = NUMBER_LITERAL 5
+      ARRAY_DECLARATION
+        TYPE: int
+        IDENTIFIER arr_too_many
+        DIMENSION[0]:
+          NUMBER_LITERAL 2
+          = NUMBER_LITERAL 1
+
+          = NUMBER_LITERAL 2
+
+          = NUMBER_LITERAL 3
+
+      ARRAY_DECLARATION
+        TYPE: int
+        IDENTIFIER arr_too_few
+        DIMENSION[0]:
+          NUMBER_LITERAL 3
+          = NUMBER_LITERAL 1
+
+      ARRAY_DECLARATION
+        TYPE: int
+        IDENTIFIER arr_designator
+        DIMENSION[0]:
+          NUMBER_LITERAL 2
+          [NUMBER_LITERAL 2] = NUMBER_LITERAL 5
+
+      ARRAY_DECLARATION
+        TYPE: int
+        IDENTIFIER nested
+        DIMENSION[0]:
+          NUMBER_LITERAL 1
+          = 
+            = NUMBER_LITERAL 1
+
+            = NUMBER_LITERAL 2
+
+      ARRAY_DECLARATION
+        TYPE: char
+        IDENTIFIER label
+        DIMENSION[0]:
+          NUMBER_LITERAL 3
+          = STRING_LITERAL "abcd"
+
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '+'
+              BINARY EXPRESSION '+'
+                BINARY EXPRESSION '+'
+                  BINARY EXPRESSION '+'
+                    IDENTIFIER scalar_ok
+                    ARRAY_ACCESS
+                      IDENTIFIER arr_too_many
+                      NUMBER_LITERAL 0
+                  DOT_ACCESS '.'
+                    IDENTIFIER p_bad
+                    FIELD x
+                ARRAY_ACCESS
+                  IDENTIFIER arr_too_few
+                  NUMBER_LITERAL 0
+              ARRAY_ACCESS
+                IDENTIFIER arr_designator
+                NUMBER_LITERAL 0
+            ARRAY_ACCESS
+              IDENTIFIER nested
+              NUMBER_LITERAL 0
+          ARRAY_ACCESS
+            IDENTIFIER label
+            NUMBER_LITERAL 0
+
+
+Diagnostics:
+Error at (8:0): Excess elements in scalar initializer for 'scalar_bad'
+Error at (10:0): Initializer for struct variable 'p_bad' must be brace-enclosed
+Error at (12:0): Too many initializers for array 'arr_too_many' (size 2)
+Error at (13:0): Not enough initializers for array 'arr_too_few' (have 1, expected 3)
+Error at (14:0): Array 'arr_designator' designator index 2 is out of bounds (size 2)
+Error at (16:0): Excess elements in scalar initializer for 'nested'
+Error at (18:0): String literal for array 'label' is too long (needs 5, size 3)
+Error at (20:0): Operator '+' requires arithmetic operands
+Error at (20:0): Operator '+' requires arithmetic operands
+

@@ -38,6 +38,58 @@ static bool cc_stringset_add(CCStringSet* s, const char* key) {
     return true;
 }
 
+// -------------------- Tag tables --------------------
+static void cc_tag_table_free(CCTagTable* table) {
+    if (!table) return;
+    for (size_t i = 0; i < table->count; ++i) {
+        free(table->records[i].name);
+    }
+    free(table->records);
+    table->records = NULL;
+    table->count = table->capacity = 0;
+}
+
+static CCTagRecord* cc_tag_lookup_mut(CCTagTable* table, const char* name) {
+    if (!table || !name) return NULL;
+    for (size_t i = 0; i < table->count; ++i) {
+        if (strcmp(table->records[i].name, name) == 0) {
+            return &table->records[i];
+        }
+    }
+    return NULL;
+}
+
+static const CCTagRecord* cc_tag_lookup_const(const CCTagTable* table, const char* name) {
+    if (!table || !name) return NULL;
+    for (size_t i = 0; i < table->count; ++i) {
+        if (strcmp(table->records[i].name, name) == 0) {
+            return &table->records[i];
+        }
+    }
+    return NULL;
+}
+
+static bool cc_tag_table_add(CCTagTable* table, const char* name) {
+    if (!table || !name) return false;
+    if (cc_tag_lookup_mut(table, name)) return true;
+    if (table->count == table->capacity) {
+        size_t new_cap = CC_GROW_CAP(table->capacity);
+        CCTagRecord* recs = realloc(table->records, new_cap * sizeof(CCTagRecord));
+        if (!recs) return false;
+        table->records = recs;
+        table->capacity = new_cap;
+    }
+    CCTagRecord* rec = &table->records[table->count++];
+    rec->name = strdup(name);
+    if (!rec->name) {
+        --table->count;
+        return false;
+    }
+    rec->isDefined = false;
+    rec->fingerprint = 0;
+    return true;
+}
+
 // -------------------- builtins --------------------
 static const char* CC_BUILTIN_LIST[] = {
     // C core
@@ -82,9 +134,9 @@ CompilerContext* cc_create(void) {
 void cc_destroy(CompilerContext* ctx) {
     if (!ctx) return;
     cc_stringset_free(&ctx->typedef_names);
-    cc_stringset_free(&ctx->tag_struct);
-    cc_stringset_free(&ctx->tag_union);
-    cc_stringset_free(&ctx->tag_enum);
+    cc_tag_table_free(&ctx->tag_struct);
+    cc_tag_table_free(&ctx->tag_union);
+    cc_tag_table_free(&ctx->tag_enum);
     // builtins are static literals; nothing to free.
     free(ctx);
 }
@@ -102,7 +154,7 @@ bool cc_add_typedef(CompilerContext* ctx, const char* name) {
     return cc_stringset_add(&ctx->typedef_names, name);
 }
 
-static CCStringSet* pick_tag_set(CompilerContext* ctx, CCTagKind k) {
+static CCTagTable* pick_tag_table(CompilerContext* ctx, CCTagKind k) {
     switch (k) {
         case CC_TAG_STRUCT: return &ctx->tag_struct;
         case CC_TAG_UNION:  return &ctx->tag_union;
@@ -110,7 +162,7 @@ static CCStringSet* pick_tag_set(CompilerContext* ctx, CCTagKind k) {
         default: return NULL;
     }
 }
-static const CCStringSet* pick_tag_set_const(const CompilerContext* ctx, CCTagKind k) {
+static const CCTagTable* pick_tag_table_const(const CompilerContext* ctx, CCTagKind k) {
     switch (k) {
         case CC_TAG_STRUCT: return &ctx->tag_struct;
         case CC_TAG_UNION:  return &ctx->tag_union;
@@ -120,16 +172,38 @@ static const CCStringSet* pick_tag_set_const(const CompilerContext* ctx, CCTagKi
 }
 
 bool cc_has_tag(const CompilerContext* ctx, CCTagKind kind, const char* name) {
-    const CCStringSet* s = pick_tag_set_const(ctx, kind);
-    return s ? cc_stringset_contains(s, name) : false;
+    const CCTagTable* table = pick_tag_table_const(ctx, kind);
+    return table ? (cc_tag_lookup_const(table, name) != NULL) : false;
 }
 bool cc_add_tag(CompilerContext* ctx, CCTagKind kind, const char* name) {
-    CCStringSet* s = pick_tag_set(ctx, kind);
-    return s ? cc_stringset_add(s, name) : false;
+    CCTagTable* table = pick_tag_table(ctx, kind);
+    return table ? cc_tag_table_add(table, name) : false;
+}
+
+CCTagDefineResult cc_define_tag(CompilerContext* ctx, CCTagKind kind, const char* name, uint64_t fingerprint) {
+    if (!ctx || !name) return CC_TAGDEF_CONFLICT;
+    if (!cc_add_tag(ctx, kind, name)) {
+        return CC_TAGDEF_CONFLICT;
+    }
+    CCTagTable* table = pick_tag_table(ctx, kind);
+    if (!table) return CC_TAGDEF_CONFLICT;
+    CCTagRecord* rec = cc_tag_lookup_mut(table, name);
+    if (!rec) return CC_TAGDEF_CONFLICT;
+    if (rec->isDefined) {
+        return (rec->fingerprint == fingerprint) ? CC_TAGDEF_MATCHING : CC_TAGDEF_CONFLICT;
+    }
+    rec->isDefined = true;
+    rec->fingerprint = fingerprint;
+    return CC_TAGDEF_ADDED;
+}
+
+bool cc_tag_is_defined(const CompilerContext* ctx, CCTagKind kind, const char* name) {
+    const CCTagTable* table = pick_tag_table_const(ctx, kind);
+    const CCTagRecord* rec = cc_tag_lookup_const(table, name);
+    return rec ? rec->isDefined : false;
 }
 
 bool cc_is_builtin_type(const CompilerContext* ctx, const char* name) {
     (void)ctx;
     return cc_builtins_has(&ctx->builtins, name);
 }
-

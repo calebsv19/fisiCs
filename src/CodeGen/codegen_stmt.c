@@ -1,0 +1,617 @@
+#include "codegen_private.h"
+
+#include "codegen_types.h"
+
+#include <stdio.h>
+#include <string.h>
+
+LLVMValueRef codegenProgram(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_PROGRAM) {
+        fprintf(stderr, "Error: Invalid node type for codegenProgram\n");
+        return NULL;
+    }
+
+    CG_DEBUG("[CG] Program statements=%zu\n", node->block.statementCount);
+    LLVMValueRef last = NULL;
+    for (size_t i = 0; i < node->block.statementCount; i++) {
+        last = codegenNode(ctx, node->block.statements[i]);
+    }
+    return last;
+}
+
+
+LLVMValueRef codegenBlock(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_BLOCK) {
+        fprintf(stderr, "Error: Invalid node type for codegenBlock\n");
+        return NULL;
+    }
+
+    CG_DEBUG("[CG] Block statements=%zu\n", node->block.statementCount);
+    cg_scope_push(ctx);
+    LLVMValueRef last = NULL;
+    for (size_t i = 0; i < node->block.statementCount; i++) {
+        last = codegenNode(ctx, node->block.statements[i]);
+    }
+    cg_scope_pop(ctx);
+    return last;
+}
+
+
+LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_VARIABLE_DECLARATION) {
+        fprintf(stderr, "Error: Invalid node type for codegenVariableDeclaration\n");
+        return NULL;
+    }
+
+    CG_DEBUG("[CG] Var decl count=%zu\n", node->varDecl.varCount);
+    if (!ctx->currentScope || ctx->currentScope->parent == NULL) {
+        return NULL;
+    }
+    LLVMTypeRef varType = cg_type_from_parsed(ctx, &node->varDecl.declaredType);
+    if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
+        varType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
+    }
+    for (size_t i = 0; i < node->varDecl.varCount; i++) {
+        ASTNode* varNameNode = node->varDecl.varNames[i];
+        LLVMValueRef allocaInst = LLVMBuildAlloca(ctx->builder, varType, varNameNode->valueNode.value);
+        cg_scope_insert(ctx->currentScope,
+                        varNameNode->valueNode.value,
+                        allocaInst,
+                        varType,
+                        false,
+                        false,
+                        NULL,
+                        &node->varDecl.declaredType);
+
+        DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
+        if (init && init->expression) {
+            if (init->expression->type == AST_COMPOUND_LITERAL) {
+                if (!cg_store_compound_literal_into_ptr(ctx,
+                                                        allocaInst,
+                                                        varType,
+                                                        &node->varDecl.declaredType,
+                                                        init->expression)) {
+                    fprintf(stderr, "Error: Failed to emit compound initializer for variable\n");
+                }
+            } else {
+                LLVMValueRef initValue = codegenNode(ctx, init->expression);
+                if (initValue) {
+                    LLVMValueRef casted = cg_cast_value(ctx,
+                                                        initValue,
+                                                        varType,
+                                                        NULL,
+                                                        &node->varDecl.declaredType,
+                                                        "init.store");
+                    LLVMBuildStore(ctx->builder, casted, allocaInst);
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
+
+LLVMValueRef codegenArrayDeclaration(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_ARRAY_DECLARATION) {
+        fprintf(stderr, "Error: Invalid node type for codegenArrayDeclaration\n");
+        return NULL;
+    }
+
+    LLVMTypeRef elementType = cg_type_from_parsed(ctx, &node->arrayDecl.declaredType);
+    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
+        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+
+    LLVMValueRef computedSize = node->arrayDecl.arraySize ? codegenNode(ctx, node->arrayDecl.arraySize) : NULL;
+    if (!computedSize && node->arrayDecl.valueCount == 0) {
+        fprintf(stderr, "Error: Array size not specified\n");
+        return NULL;
+    }
+
+    (void)computedSize;
+
+    LLVMTypeRef arrayType = LLVMArrayType(elementType, node->arrayDecl.valueCount ? (unsigned)node->arrayDecl.valueCount : 1);
+    LLVMValueRef array = LLVMBuildAlloca(ctx->builder, arrayType,
+                                         node->arrayDecl.varName->valueNode.value);
+    cg_scope_insert(ctx->currentScope,
+                    node->arrayDecl.varName->valueNode.value,
+                    array,
+                    arrayType,
+                    false,
+                    true,
+                    elementType,
+                    &node->arrayDecl.declaredType);
+
+    if (node->arrayDecl.initializers && node->arrayDecl.valueCount > 0) {
+        cg_store_designated_entries(ctx,
+                                    array,
+                                    arrayType,
+                                    &node->arrayDecl.declaredType,
+                                    node->arrayDecl.initializers,
+                                    node->arrayDecl.valueCount);
+    }
+
+    return array;
+}
+
+
+LLVMValueRef codegenIfStatement(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_IF_STATEMENT) {
+        fprintf(stderr, "Error: Invalid node type for codegenIfStatement\n");
+        return NULL;
+    }
+
+    LLVMValueRef cond = codegenNode(ctx, node->ifStmt.condition);
+    if (!cond) {
+        fprintf(stderr, "Error: Failed to generate condition for if statement\n");
+        return NULL;
+    }
+
+    cond = cg_build_truthy(ctx, cond, NULL, "ifcond");
+    if (!cond) {
+        fprintf(stderr, "Error: Failed to convert if condition to boolean\n");
+        return NULL;
+    }
+
+    LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
+    LLVMBasicBlockRef thenBB = LLVMAppendBasicBlock(func, "then");
+    LLVMBasicBlockRef elseBB = node->ifStmt.elseBranch ? LLVMAppendBasicBlock(func, "else") : NULL;
+    LLVMBasicBlockRef mergeBB = LLVMAppendBasicBlock(func, "ifcont");
+
+    LLVMBuildCondBr(ctx->builder, cond, thenBB, elseBB ? elseBB : mergeBB);
+
+    LLVMPositionBuilderAtEnd(ctx->builder, thenBB);
+    codegenNode(ctx, node->ifStmt.thenBranch);
+    if (!LLVMGetInsertBlock(ctx->builder) || !LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
+        LLVMBuildBr(ctx->builder, mergeBB);
+    }
+
+    if (elseBB) {
+        LLVMPositionBuilderAtEnd(ctx->builder, elseBB);
+        codegenNode(ctx, node->ifStmt.elseBranch);
+        if (!LLVMGetInsertBlock(ctx->builder) || !LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
+            LLVMBuildBr(ctx->builder, mergeBB);
+        }
+    }
+
+    LLVMPositionBuilderAtEnd(ctx->builder, mergeBB);
+    return NULL;
+}
+
+
+LLVMValueRef codegenWhileLoop(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_WHILE_LOOP) {
+        fprintf(stderr, "Error: Invalid node type for codegenWhileLoop\n");
+        return NULL;
+    }
+
+    LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
+    LLVMBasicBlockRef condBB = LLVMAppendBasicBlock(func, "loopcond");
+    LLVMBasicBlockRef bodyBB = LLVMAppendBasicBlock(func, "loopbody");
+    LLVMBasicBlockRef afterBB = LLVMAppendBasicBlock(func, "loopend");
+
+    if (!node->whileLoop.isDoWhile) {
+        LLVMBuildBr(ctx->builder, condBB);
+    }
+
+    LLVMPositionBuilderAtEnd(ctx->builder, condBB);
+    LLVMValueRef cond = codegenNode(ctx, node->whileLoop.condition);
+    cond = cg_build_truthy(ctx, cond, NULL, "loopcond");
+    if (!cond) {
+        fprintf(stderr, "Error: Failed to convert loop condition to boolean\n");
+        return NULL;
+    }
+    LLVMBuildCondBr(ctx->builder, cond, bodyBB, afterBB);
+
+    LLVMPositionBuilderAtEnd(ctx->builder, bodyBB);
+    cg_loop_push(ctx, afterBB, condBB);
+    codegenNode(ctx, node->whileLoop.body);
+    cg_loop_pop(ctx);
+    LLVMBuildBr(ctx->builder, condBB);
+
+    LLVMPositionBuilderAtEnd(ctx->builder, afterBB);
+    return NULL;
+}
+
+
+LLVMValueRef codegenForLoop(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_FOR_LOOP) {
+        fprintf(stderr, "Error: Invalid node type for codegenForLoop\n");
+        return NULL;
+    }
+
+    LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
+    LLVMBasicBlockRef condBB = LLVMAppendBasicBlock(func, "forcond");
+    LLVMBasicBlockRef bodyBB = LLVMAppendBasicBlock(func, "forbody");
+    LLVMBasicBlockRef incBB = LLVMAppendBasicBlock(func, "forinc");
+    LLVMBasicBlockRef afterBB = LLVMAppendBasicBlock(func, "forend");
+
+    if (node->forLoop.initializer) {
+        codegenNode(ctx, node->forLoop.initializer);
+    }
+
+    LLVMBuildBr(ctx->builder, condBB);
+
+    LLVMPositionBuilderAtEnd(ctx->builder, condBB);
+    LLVMValueRef cond = node->forLoop.condition ? codegenNode(ctx, node->forLoop.condition)
+                                                : LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 1, 0);
+    cond = cg_build_truthy(ctx, cond, NULL, "forcond");
+    if (!cond) {
+        fprintf(stderr, "Error: Failed to convert for condition to boolean\n");
+        return NULL;
+    }
+    LLVMBuildCondBr(ctx->builder, cond, bodyBB, afterBB);
+
+    LLVMPositionBuilderAtEnd(ctx->builder, bodyBB);
+    cg_loop_push(ctx, afterBB, incBB);
+    codegenNode(ctx, node->forLoop.body);
+    cg_loop_pop(ctx);
+    LLVMBuildBr(ctx->builder, incBB);
+
+    LLVMPositionBuilderAtEnd(ctx->builder, incBB);
+    if (node->forLoop.increment) {
+        codegenNode(ctx, node->forLoop.increment);
+    }
+    LLVMBuildBr(ctx->builder, condBB);
+
+    LLVMPositionBuilderAtEnd(ctx->builder, afterBB);
+    return NULL;
+}
+
+
+LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_FUNCTION_DEFINITION) {
+        fprintf(stderr, "Error: Invalid node type for codegenFunctionDefinition\n");
+        return NULL;
+    }
+
+    CG_DEBUG("[CG] Function definition paramCount=%zu\n", node->functionDef.paramCount);
+    LLVMTypeRef returnType = cg_type_from_parsed(ctx, &node->functionDef.returnType);
+    if (!returnType) {
+        returnType = LLVMVoidTypeInContext(ctx->llvmContext);
+    }
+
+    size_t paramCount = node->functionDef.paramCount;
+    LLVMTypeRef* paramTypes = NULL;
+    if (paramCount > 0) {
+        paramTypes = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * paramCount);
+        if (!paramTypes) return NULL;
+        for (size_t i = 0; i < paramCount; i++) {
+            LLVMTypeRef inferred = NULL;
+            ASTNode* paramDecl = node->functionDef.parameters[i];
+            if (paramDecl && paramDecl->type == AST_VARIABLE_DECLARATION) {
+                inferred = cg_type_from_parsed(ctx, &paramDecl->varDecl.declaredType);
+            }
+            if (!inferred || LLVMGetTypeKind(inferred) == LLVMVoidTypeKind) {
+                inferred = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+            paramTypes[i] = inferred;
+        }
+    }
+
+    LLVMTypeRef funcType = LLVMFunctionType(returnType, paramTypes, paramCount, 0);
+    LLVMValueRef function = LLVMAddFunction(ctx->module,
+                                            node->functionDef.funcName->valueNode.value,
+                                            funcType);
+
+    LLVMBasicBlockRef entry = LLVMAppendBasicBlock(function, "entry");
+    LLVMPositionBuilderAtEnd(ctx->builder, entry);
+
+    const ParsedType* previousReturnType = ctx->currentFunctionReturnType;
+    ctx->currentFunctionReturnType = &node->functionDef.returnType;
+
+    cg_scope_push(ctx);
+
+    for (size_t i = 0; i < paramCount; i++) {
+        ASTNode* paramDecl = node->functionDef.parameters[i];
+        if (!paramDecl || paramDecl->type != AST_VARIABLE_DECLARATION) continue;
+        for (size_t j = 0; j < paramDecl->varDecl.varCount; j++) {
+            ASTNode* paramName = paramDecl->varDecl.varNames[j];
+            LLVMTypeRef paramType = paramTypes ? paramTypes[i] : LLVMInt32TypeInContext(ctx->llvmContext);
+            LLVMValueRef allocaInst = LLVMBuildAlloca(ctx->builder,
+                                                      paramType,
+                                                      paramName->valueNode.value);
+            LLVMBuildStore(ctx->builder, LLVMGetParam(function, (unsigned)i), allocaInst);
+            cg_scope_insert(ctx->currentScope,
+                            paramName->valueNode.value,
+                            allocaInst,
+                            paramType,
+                            false,
+                            false,
+                            NULL,
+                            &paramDecl->varDecl.declaredType);
+        }
+    }
+
+    codegenNode(ctx, node->functionDef.body);
+
+    cg_scope_pop(ctx);
+    ctx->currentFunctionReturnType = previousReturnType;
+    free(paramTypes);
+    if (ctx->verifyFunctions && function) {
+        if (LLVMVerifyFunction(function, LLVMPrintMessageAction) != 0) {
+            fprintf(stderr, "Warning: LLVM verification failed for function %s\n",
+                    node->functionDef.funcName && node->functionDef.funcName->valueNode.value
+                        ? node->functionDef.funcName->valueNode.value
+                        : "<anonymous>");
+        }
+    }
+    return function;
+}
+
+
+LLVMValueRef codegenTypedef(CodegenContext* ctx, ASTNode* node) {
+    if (!ctx || !node || node->type != AST_TYPEDEF) {
+        fprintf(stderr, "Error: Invalid node type for codegenTypedef\n");
+        return NULL;
+    }
+
+    CG_DEBUG("[CG] Typedef encountered\n");
+    const char* aliasName = (node->typedefStmt.alias && node->typedefStmt.alias->type == AST_IDENTIFIER)
+        ? node->typedefStmt.alias->valueNode.value
+        : NULL;
+    if (!aliasName || aliasName[0] == '\0') {
+        return NULL;
+    }
+
+    if (cg_context_get_type_cache(ctx)) {
+        return NULL; /* semantic model already contributed this typedef */
+    }
+
+    LLVMTypeRef aliased = cg_type_from_parsed(ctx, &node->typedefStmt.baseType);
+    if (!aliased || LLVMGetTypeKind(aliased) == LLVMVoidTypeKind) {
+        aliased = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+    cg_context_cache_named_type(ctx, aliasName, aliased);
+    return NULL;
+}
+
+
+LLVMValueRef codegenEnumDefinition(CodegenContext* ctx, ASTNode* node) {
+    if (!ctx || !node || node->type != AST_ENUM_DEFINITION) {
+        fprintf(stderr, "Error: Invalid node type for codegenEnumDefinition\n");
+        return NULL;
+    }
+    (void)ctx;
+    /* Currently enums only contribute constants during semantics; IR emission is a no-op. */
+    return NULL;
+}
+
+
+LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_RETURN) {
+        fprintf(stderr, "Error: Invalid node type for codegenReturn\n");
+        return NULL;
+    }
+
+    CG_DEBUG("[CG] Return begin\n");
+    LLVMTypeRef declaredReturnLLVM = NULL;
+    if (ctx->currentFunctionReturnType) {
+        declaredReturnLLVM = cg_type_from_parsed(ctx, ctx->currentFunctionReturnType);
+        if (!declaredReturnLLVM) {
+            declaredReturnLLVM = LLVMVoidTypeInContext(ctx->llvmContext);
+        }
+    }
+
+    if (node->returnStmt.returnValue) {
+        LLVMValueRef value = codegenNode(ctx, node->returnStmt.returnValue);
+        if (!value) {
+            fprintf(stderr, "Error: Failed to generate return value\n");
+            return NULL;
+        }
+
+        if (declaredReturnLLVM && LLVMGetTypeKind(declaredReturnLLVM) != LLVMVoidTypeKind) {
+            value = cg_cast_value(ctx,
+                                  value,
+                                  declaredReturnLLVM,
+                                  NULL,
+                                  ctx->currentFunctionReturnType,
+                                  "return.cast");
+        }
+
+        CG_DEBUG("[CG] Return emitting with value\n");
+        return LLVMBuildRet(ctx->builder, value);
+    }
+
+    if (declaredReturnLLVM && LLVMGetTypeKind(declaredReturnLLVM) != LLVMVoidTypeKind) {
+        fprintf(stderr, "Error: Non-void function missing return value; defaulting to zero\n");
+        LLVMValueRef zero = LLVMConstNull(declaredReturnLLVM);
+        return LLVMBuildRet(ctx->builder, zero);
+    }
+
+    CG_DEBUG("[CG] Return emitting void\n");
+    return LLVMBuildRetVoid(ctx->builder);
+}
+
+
+LLVMValueRef codegenBreak(CodegenContext* ctx, ASTNode* node) {
+    (void)node;
+    LoopTarget target = cg_loop_peek(ctx);
+    if (!target.breakBB) {
+        fprintf(stderr, "Error: 'break' used outside of loop\n");
+        return NULL;
+    }
+    return LLVMBuildBr(ctx->builder, target.breakBB);
+}
+
+
+LLVMValueRef codegenContinue(CodegenContext* ctx, ASTNode* node) {
+    (void)node;
+    LoopTarget target = cg_loop_peek_for_continue(ctx);
+    if (!target.continueBB) {
+        fprintf(stderr, "Error: 'continue' used outside of loop\n");
+        return NULL;
+    }
+    return LLVMBuildBr(ctx->builder, target.continueBB);
+}
+
+
+LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_SWITCH) {
+        fprintf(stderr, "Error: Invalid node type for codegenSwitch\n");
+        return NULL;
+    }
+
+    LLVMValueRef condition = codegenNode(ctx, node->switchStmt.condition);
+    if (!condition) {
+        fprintf(stderr, "Error: Failed to generate switch condition\n");
+        return NULL;
+    }
+
+    LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
+    LLVMBasicBlockRef switchEnd = LLVMAppendBasicBlock(func, "switch.end");
+    LLVMBasicBlockRef defaultBB = LLVMAppendBasicBlock(func, "switch.default");
+
+    LLVMValueRef switchInst = LLVMBuildSwitch(ctx->builder,
+                                              condition,
+                                              defaultBB,
+                                              (unsigned)node->switchStmt.caseListSize);
+
+    cg_loop_push(ctx, switchEnd, NULL);
+
+    LLVMBasicBlockRef pendingFallthrough = NULL;
+    bool defaultHandled = false;
+    LLVMTypeRef conditionType = LLVMTypeOf(condition);
+
+    for (size_t i = 0; i < node->switchStmt.caseListSize; i++) {
+        ASTNode* caseNode = node->switchStmt.caseList[i];
+        if (!caseNode || caseNode->type != AST_CASE) {
+            continue;
+        }
+
+        bool isDefault = (caseNode->caseStmt.caseValue == NULL);
+        LLVMBasicBlockRef caseBB = NULL;
+        if (isDefault) {
+            caseBB = defaultBB;
+            defaultHandled = true;
+        } else {
+            caseBB = LLVMAppendBasicBlock(func, "switch.case");
+            LLVMValueRef caseValue = codegenNode(ctx, caseNode->caseStmt.caseValue);
+            if (!caseValue) {
+                fprintf(stderr, "Error: Failed to generate case value\n");
+                caseBB = NULL;
+            } else {
+                if (LLVMTypeOf(caseValue) != conditionType) {
+                    caseValue = cg_cast_value(ctx, caseValue, conditionType, NULL, NULL, "case.cast");
+                }
+                LLVMAddCase(switchInst, caseValue, caseBB);
+            }
+        }
+
+        if (!caseBB) {
+            continue;
+        }
+
+        if (pendingFallthrough) {
+            LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
+            LLVMBuildBr(ctx->builder, caseBB);
+            pendingFallthrough = NULL;
+        }
+
+        LLVMPositionBuilderAtEnd(ctx->builder, caseBB);
+        for (size_t stmtIdx = 0; stmtIdx < caseNode->caseStmt.caseBodySize; ++stmtIdx) {
+            codegenNode(ctx, caseNode->caseStmt.caseBody[stmtIdx]);
+        }
+
+        LLVMBasicBlockRef currentBB = LLVMGetInsertBlock(ctx->builder);
+        if (currentBB && !LLVMGetBasicBlockTerminator(currentBB)) {
+            pendingFallthrough = currentBB;
+        }
+    }
+
+    cg_loop_pop(ctx);
+
+    if (pendingFallthrough) {
+        LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
+        LLVMBuildBr(ctx->builder, switchEnd);
+        pendingFallthrough = NULL;
+    }
+
+    if (!defaultHandled) {
+        LLVMPositionBuilderAtEnd(ctx->builder, defaultBB);
+        if (!LLVMGetBasicBlockTerminator(defaultBB)) {
+            LLVMBuildBr(ctx->builder, switchEnd);
+        }
+    }
+
+    LLVMPositionBuilderAtEnd(ctx->builder, switchEnd);
+    return NULL;
+}
+
+
+LLVMValueRef codegenLabel(CodegenContext* ctx, ASTNode* node) {
+    if (!ctx || !node || node->type != AST_LABEL_DECLARATION) {
+        fprintf(stderr, "Error: Invalid node for label codegen\n");
+        return NULL;
+    }
+    const char* name = node->label.labelName;
+    if (!name) {
+        fprintf(stderr, "Error: label missing name\n");
+        return NULL;
+    }
+
+    LabelBinding* binding = cg_ensure_label(ctx, name);
+    if (!binding) {
+        fprintf(stderr, "Error: Failed to allocate label binding\n");
+        return NULL;
+    }
+
+    LLVMBasicBlockRef insertBlock = LLVMGetInsertBlock(ctx->builder);
+    LLVMValueRef func = insertBlock ? LLVMGetBasicBlockParent(insertBlock) : NULL;
+    LLVMBasicBlockRef block = cg_label_ensure_block(ctx, binding, func);
+    if (!block) {
+        fprintf(stderr, "Error: Failed to create label block\n");
+        return NULL;
+    }
+
+    if (binding->defined) {
+        fprintf(stderr, "Warning: label '%s' redefined\n", name);
+    }
+    binding->defined = true;
+
+    if (insertBlock && insertBlock != block && !LLVMGetBasicBlockTerminator(insertBlock)) {
+        LLVMBuildBr(ctx->builder, block);
+    }
+
+    LLVMPositionBuilderAtEnd(ctx->builder, block);
+    if (node->label.statement) {
+        codegenNode(ctx, node->label.statement);
+    }
+    return NULL;
+}
+
+
+LLVMValueRef codegenGoto(CodegenContext* ctx, ASTNode* node) {
+    if (!ctx || !node || node->type != AST_GOTO_STATEMENT) {
+        fprintf(stderr, "Error: Invalid node for goto codegen\n");
+        return NULL;
+    }
+    const char* name = node->gotoStmt.label;
+    if (!name) {
+        fprintf(stderr, "Error: goto missing label name\n");
+        return NULL;
+    }
+
+    LabelBinding* binding = cg_ensure_label(ctx, name);
+    if (!binding) {
+        fprintf(stderr, "Error: Failed to allocate goto label binding\n");
+        return NULL;
+    }
+
+    LLVMBasicBlockRef insertBlock = LLVMGetInsertBlock(ctx->builder);
+    LLVMValueRef func = insertBlock ? LLVMGetBasicBlockParent(insertBlock) : NULL;
+    LLVMBasicBlockRef target = cg_label_ensure_block(ctx, binding, func);
+    if (!target) {
+        fprintf(stderr, "Error: Failed to materialize goto target block\n");
+        return NULL;
+    }
+
+    LLVMBuildBr(ctx->builder, target);
+
+    if (func) {
+        LLVMBasicBlockRef sink = LLVMAppendBasicBlock(func, "goto.sink");
+        LLVMPositionBuilderAtEnd(ctx->builder, sink);
+    }
+    return NULL;
+}

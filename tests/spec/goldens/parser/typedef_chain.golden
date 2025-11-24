@@ -1,0 +1,48 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER I
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER ULong
+  FUNCTION DEFINITION
+    RETURN TYPE: I
+    IDENTIFIER add
+    PARAMETERS
+      VAR_DECL
+        TYPE: I
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: I
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER a
+          IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: ULong
+        IDENTIFIER v
+          = NUMBER_LITERAL 42
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER add
+          ARGUMENTS
+            CAST_EXPRESSION
+                            CAST TYPE: I
+              IDENTIFIER v
+            NUMBER_LITERAL 1
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

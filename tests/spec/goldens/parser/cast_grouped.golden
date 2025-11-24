@@ -1,0 +1,37 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER MyAlias
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: MyAlias
+        IDENTIFIER value
+          = NUMBER_LITERAL 7
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER casted
+          = 
+            CAST_EXPRESSION
+                            CAST TYPE: MyAlias
+              IDENTIFIER value
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER grouped
+          = IDENTIFIER value
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER casted
+          IDENTIFIER grouped
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

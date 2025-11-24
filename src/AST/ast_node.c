@@ -644,19 +644,19 @@ ASTNode* createLabelDeclarationNode(const char* labelName, ASTNode* statement) {
 
 
 
-ASTNode* createFunctionDeclarationNode(ParsedType returnType, const char* name) {
+ASTNode* createFunctionDeclarationNode(ParsedType returnType,
+                                       ASTNode* funcName,
+                                       ASTNode** paramList,
+                                       size_t paramCount,
+                                       bool isVariadic) {
     ASTNode* node = new_node(AST_FUNCTION_DECLARATION);
     if (!node) return NULL;
 
     node->functionDecl.returnType = returnType;               // POD copy
-    node->functionDecl.funcName   = createIdentifierNode(name);
-    if (name && !node->functionDecl.funcName) {
-        free(node);
-        fprintf(stderr, "OOM: function decl name\n");
-        return NULL;
-    }
-    node->functionDecl.parameters = NULL;
-    node->functionDecl.paramCount = 0;
+    node->functionDecl.funcName   = funcName;
+    node->functionDecl.parameters = paramList;
+    node->functionDecl.paramCount = paramCount;
+    node->functionDecl.isVariadic = isVariadic;
     inherit_line_from_node(node, node->functionDecl.funcName);
     return node;
 }
@@ -666,7 +666,8 @@ ASTNode* createFunctionDefinitionNode(ParsedType returnType,
                                       ASTNode* funcName,
                                       ASTNode** paramList,
                                       ASTNode* body,
-                                      size_t paramCount) {
+                                      size_t paramCount,
+                                      bool isVariadic) {
     ASTNode* node = new_node(AST_FUNCTION_DEFINITION);
     if (!node) return NULL;
 
@@ -675,6 +676,7 @@ ASTNode* createFunctionDefinitionNode(ParsedType returnType,
     node->functionDef.parameters = paramList;    // array of param decl nodes (can be NULL if 0)
     node->functionDef.paramCount = paramCount;
     node->functionDef.body       = body;         // block or single statement node
+    node->functionDef.isVariadic = isVariadic;
     inherit_line_from_node(node, funcName);
     inherit_line_from_array(node, paramList, paramCount);
     inherit_line_from_node(node, body);

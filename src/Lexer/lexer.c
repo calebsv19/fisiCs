@@ -477,7 +477,15 @@ Token handlePunctuation(Lexer* lexer) {
 	case '?': return (Token){TOKEN_QUESTION, "?", lexer->line};
         case ';': return (Token){TOKEN_SEMICOLON, ";", lexer->line};
         case ',': return (Token){TOKEN_COMMA, ",", lexer->line};
-        case '.': return (Token){TOKEN_DOT, ".", lexer->line};
+        case '.': {
+            // Detect ellipsis "..." used in variadic parameter lists
+            if (lexer->source[lexer->position] == '.' &&
+                lexer->source[lexer->position + 1] == '.') {
+                lexer->position += 2;
+                return (Token){TOKEN_ELLIPSIS, "...", lexer->line};
+            }
+            return (Token){TOKEN_DOT, ".", lexer->line};
+        }
         case '(': return (Token){TOKEN_LPAREN, "(", lexer->line};
         case ')': return (Token){TOKEN_RPAREN, ")", lexer->line};
         case '{': return (Token){TOKEN_LBRACE, "{", lexer->line};

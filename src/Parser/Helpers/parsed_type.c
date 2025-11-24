@@ -158,6 +158,14 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         type.primitiveType = parser->currentToken.type;
         advance(parser);
         sawBaseType = true;
+
+        /* Handle chains like 'long int' or 'unsigned long' by
+           consuming any additional primitive specifiers that follow.
+           We don't currently differentiate the combined form, but
+           skipping the extra tokens keeps the parser in sync. */
+        while (isPrimitiveTypeToken(parser->currentToken.type)) {
+            advance(parser);
+        }
     } else if (parser->currentToken.type == TOKEN_STRUCT ||
                parser->currentToken.type == TOKEN_UNION ||
                parser->currentToken.type == TOKEN_ENUM) {
@@ -177,9 +185,17 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             return parsedTypeDefault();
         }
 
-        type.kind = TYPE_NAMED;
         type.tag = tag;
         type.userTypeName = strdup(tagName);
+        switch (tag) {
+            case TAG_STRUCT: type.kind = TYPE_STRUCT; break;
+            case TAG_UNION:  type.kind = TYPE_UNION;  break;
+            case TAG_ENUM:   type.kind = TYPE_ENUM;   break;
+            case TAG_NONE:
+            default:
+                type.kind = TYPE_NAMED;
+                break;
+        }
         advance(parser);
         sawBaseType = true;
     } else if (!sawBaseType && parser->currentToken.type == TOKEN_IDENTIFIER) {

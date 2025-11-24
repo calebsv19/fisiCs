@@ -403,6 +403,10 @@ void printAST(ASTNode* node, int depth) {
                     printAST(node->functionDecl.parameters[i], depth + 2);  
                 }
             }
+            if (node->functionDecl.isVariadic) {
+                for (int i = 0; i < depth + 1; i++) printf("  ");
+                printf("VARIADIC: yes\n");
+            }
              
             break;
             
@@ -422,6 +426,10 @@ void printAST(ASTNode* node, int depth) {
                 for (size_t i = 0; i < node->functionDef.paramCount; i++) {
                     printAST(node->functionDef.parameters[i], depth + 2);  
                 }
+            }
+            if (node->functionDef.isVariadic) {
+                for (int i = 0; i < depth + 1; i++) printf("  ");
+                printf("VARIADIC: yes\n");
             }
              
             printAST(node->functionDef.body, depth + 1);

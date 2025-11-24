@@ -7,18 +7,23 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "Utils/logging.h"
+
+#ifndef CG_DEBUG
 #ifdef CODEGEN_DEBUG
-#define CG_DEBUG(...) fprintf(stderr, __VA_ARGS__)
+#define CG_DEBUG(...) LOG_DEBUG("codegen", __VA_ARGS__)
 #else
 #define CG_DEBUG(...) ((void)0)
 #endif
+#endif
 
+#ifndef CG_TRACE
 #ifdef CODEGEN_TRACE
-#define CG_TRACE(...) fprintf(stderr, __VA_ARGS__)
+#define CG_TRACE(...) LOG_TRACE("codegen", __VA_ARGS__)
 #else
 #define CG_TRACE(...) ((void)0)
 #endif
-
+#endif
 
 
 static LLVMTypeRef makeIntegerType(CodegenContext* ctx, unsigned bits) {
@@ -309,4 +314,3 @@ static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type) {
     CG_TRACE("[TRACE] namedAliasType fallback struct=%p\n", (void*)fallback);
     return fallback;
 }
-

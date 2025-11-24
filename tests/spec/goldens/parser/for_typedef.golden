@@ -1,0 +1,33 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER I
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      FOR_LOOP
+        VAR_DECL
+          TYPE: I
+          IDENTIFIER i
+            = NUMBER_LITERAL 0
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          NUMBER_LITERAL 3
+        UNARY EXPRESSION '++' (prefix)
+          IDENTIFIER i
+        BLOCK
+          UNARY EXPRESSION '++' (postfix)
+            IDENTIFIER i
+      RETURN
+        NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

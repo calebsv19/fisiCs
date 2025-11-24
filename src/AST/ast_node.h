@@ -204,6 +204,7 @@ struct ASTNode {
 	    ASTNode* funcName;
 	    ASTNode** parameters;
 	    size_t paramCount;
+            bool isVariadic;
 	} functionDecl;
 
 
@@ -213,6 +214,7 @@ struct ASTNode {
             ASTNode **parameters;
             ASTNode *body;
 	    size_t paramCount;
+            bool isVariadic;
         } functionDef;
 
         struct {
@@ -403,9 +405,17 @@ ASTNode* createLabelDeclarationNode(const char* labelName, ASTNode* statement);
 
 
 // Functions
-ASTNode* createFunctionDeclarationNode(ParsedType returnType, const char* name);
-ASTNode* createFunctionDefinitionNode(ParsedType returnType, ASTNode* funcName, ASTNode** paramList, 
-					ASTNode* body, size_t paramCount);
+ASTNode* createFunctionDeclarationNode(ParsedType returnType,
+                                       ASTNode* funcName,
+                                       ASTNode** paramList,
+                                       size_t paramCount,
+                                       bool isVariadic);
+ASTNode* createFunctionDefinitionNode(ParsedType returnType,
+                                      ASTNode* funcName,
+                                      ASTNode** paramList,
+				      ASTNode* body,
+                                      size_t paramCount,
+                                      bool isVariadic);
 ASTNode *createFunctionCallNode(ASTNode *callee, ASTNode **arguments, size_t argumentCount);
 ASTNode* createFunctionPointerDeclarationNode(ParsedType returnType,
                                               ASTNode* name,

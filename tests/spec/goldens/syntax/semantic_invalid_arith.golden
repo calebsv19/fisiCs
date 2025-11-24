@@ -1,0 +1,53 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Vector
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Vector
+        IDENTIFIER v
+            = NUMBER_LITERAL 1
+
+            = NUMBER_LITERAL 2
+
+      VAR_DECL
+        TYPE: _Bool
+        IDENTIFIER flag
+          = NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER value
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER v
+              NUMBER_LITERAL 3
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER mask
+          = 
+            BINARY EXPRESSION '&'
+              IDENTIFIER flag
+              NUMBER_LITERAL 1.0
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER value
+          IDENTIFIER mask
+
+
+Diagnostics:
+Error at (9:0): Operator '+' requires arithmetic operands
+Error at (10:0): Operator '&' requires integer operands
+

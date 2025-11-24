@@ -1,0 +1,129 @@
+AST:
+PROGRAM
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER takes_two
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER count
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER label
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER takes_two
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER count
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER label
+    BLOCK
+      RETURN
+        IDENTIFIER count
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER takes_mutable
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER value
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER takes_mutable
+    PARAMETERS
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER value
+    BLOCK
+      RETURN
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER value
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER variadic_example
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER first
+    VARIADIC: yes
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER variadic_example
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER first
+    VARIADIC: yes
+    BLOCK
+      RETURN
+        IDENTIFIER first
+  FUNCTION DEFINITION
+    RETURN TYPE: void
+    IDENTIFIER exercise
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER local
+          = 
+            FUNCTION CALL
+              IDENTIFIER takes_two
+              ARGUMENTS
+                NUMBER_LITERAL 1
+                STRING_LITERAL ok
+      FUNCTION CALL
+        IDENTIFIER takes_two
+        ARGUMENTS
+          NUMBER_LITERAL 1
+      FUNCTION CALL
+        IDENTIFIER takes_two
+        ARGUMENTS
+          NUMBER_LITERAL 1
+          STRING_LITERAL extra
+          NUMBER_LITERAL 3
+      FUNCTION CALL
+        IDENTIFIER takes_two
+        ARGUMENTS
+          STRING_LITERAL oops
+          STRING_LITERAL ok
+      VAR_DECL
+        TYPE: const int
+        IDENTIFIER c
+          = NUMBER_LITERAL 42
+      FUNCTION CALL
+        IDENTIFIER takes_mutable
+        ARGUMENTS
+          UNARY EXPRESSION '&' (prefix)
+            IDENTIFIER c
+      FUNCTION CALL
+        IDENTIFIER variadic_example
+        ARGUMENTS
+          NUMBER_LITERAL 1
+      FUNCTION CALL
+        IDENTIFIER variadic_example
+        ARGUMENTS
+          NUMBER_LITERAL 1
+          NUMBER_LITERAL 2.0f
+      CAST_EXPRESSION
+                CAST TYPE: void
+        IDENTIFIER local
+
+
+Diagnostics:
+Error at (2:0): Redefinition of function
+   Hint: takes_two
+Error at (7:0): Redefinition of function
+   Hint: takes_mutable
+Error at (12:0): Redefinition of function
+   Hint: variadic_example
+Error at (19:0): Too few arguments in call to 'takes_two' (expected 2, got 1)
+Error at (20:0): Too many arguments in call to 'takes_two' (expected 2, got 3)
+Error at (21:0): Argument 1 of 'takes_two' has incompatible type
+Error at (24:0): Argument 1 of 'takes_mutable' discards qualifiers from pointer target
+

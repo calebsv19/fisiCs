@@ -78,7 +78,7 @@ typedef enum {
     // ==============================
     //  Delimiters & Punctuation
     // ==============================
-    TOKEN_SEMICOLON, TOKEN_COLON, TOKEN_COMMA, TOKEN_DOT, // ; , .
+    TOKEN_SEMICOLON, TOKEN_COLON, TOKEN_COMMA, TOKEN_DOT, TOKEN_ELLIPSIS, // ; , . ...
     TOKEN_QUESTION,			     // ?
     TOKEN_LPAREN, TOKEN_RPAREN,              // ( )
     TOKEN_LBRACE, TOKEN_RBRACE,              // { }

@@ -10,14 +10,14 @@
 #include "Lexer/tokens.h"
 #include "Lexer/lexer.h"
 #include "parser_config.h"
+#include "AST/ast_node.h"
+#include "Utils/logging.h"
+
 #ifdef PARSER_DEBUG
-#include <stdio.h>
-#define PARSER_DEBUG_PRINTF(...) fprintf(stderr, __VA_ARGS__)
+#define PARSER_DEBUG_PRINTF(...) LOG_DEBUG("parser", __VA_ARGS__)
 #else
 #define PARSER_DEBUG_PRINTF(...) ((void)0)
 #endif
-
-#include "AST/ast_node.h"
 
 typedef struct Parser {
     Token currentToken;
@@ -42,4 +42,3 @@ static inline void parser_set_context(Parser* p, CompilerContext* ctx) {
 ASTNode* parse(Parser* parser);
 
 #endif
-

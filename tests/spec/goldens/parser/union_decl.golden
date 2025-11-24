@@ -1,0 +1,43 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER I
+  STRUCT
+        Name:     IDENTIFIER Container
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+  TYPEDEF
+        TYPE: struct Container
+        Alias:     IDENTIFIER Container
+  UNION
+        Name:     IDENTIFIER Data
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: union Data
+        IDENTIFIER d
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          IDENTIFIER d
+          FIELD value
+        NUMBER_LITERAL 42
+      RETURN
+        DOT_ACCESS '.'
+          IDENTIFIER d
+          FIELD value
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+
