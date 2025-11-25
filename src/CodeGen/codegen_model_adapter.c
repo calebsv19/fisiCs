@@ -43,7 +43,8 @@ static void fillStructFields(const ASTNode* node, CGStructField* buffer, size_t 
             buffer[count].name = (nameNode && nameNode->type == AST_IDENTIFIER)
                 ? nameNode->valueNode.value
                 : NULL;
-            buffer[count].type = fieldDecl->varDecl.declaredType;
+            const ParsedType* parsed = astVarDeclTypeAt(fieldDecl, v);
+            buffer[count].type = parsed ? *parsed : fieldDecl->varDecl.declaredType;
             ++count;
         }
     }

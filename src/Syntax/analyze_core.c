@@ -47,8 +47,7 @@ void analyze(ASTNode* node, Scope* scope) {
             if (!p) continue;
 
             if (p->type == AST_VARIABLE_DECLARATION) {
-                ParsedType pt = p->varDecl.declaredType;
-
+                ParsedType* perTypes = p->varDecl.declaredTypes;
                 for (size_t k = 0; k < p->varDecl.varCount; k++) {
                     ASTNode* nameNode = p->varDecl.varNames[k];
                     if (!nameNode || nameNode->type != AST_IDENTIFIER) {
@@ -56,6 +55,7 @@ void analyze(ASTNode* node, Scope* scope) {
                         fprintf(stderr, "Semantic: parameter[%zu] has non-identifier name\n", k);
                         continue;
                     }
+                    const ParsedType* typeForParam = perTypes ? &perTypes[k] : &p->varDecl.declaredType;
 
                     // Create symbol
             Symbol* s = (Symbol*)calloc(1, sizeof(Symbol));
@@ -67,7 +67,7 @@ void analyze(ASTNode* node, Scope* scope) {
                 free(s);
                 continue;
             }
-            s->type = pt;                         // copy-by-value of ParsedType
+            s->type = *typeForParam;              // copy-by-value of ParsedType
             s->definition = p;
 
                     addToScope(fscope, s);

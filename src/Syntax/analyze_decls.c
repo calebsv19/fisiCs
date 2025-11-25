@@ -298,9 +298,11 @@ static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramC
         if (!param || param->type != AST_VARIABLE_DECLARATION) {
             continue;
         }
+        ParsedType* perTypes = param->varDecl.declaredTypes;
         for (size_t k = 0; k < param->varDecl.varCount; ++k) {
             if (idx < (size_t)totalDecls) {
-                sym->signature.params[idx] = param->varDecl.declaredType;
+                const ParsedType* srcType = perTypes ? &perTypes[k] : &param->varDecl.declaredType;
+                sym->signature.params[idx] = *srcType;
                 idx++;
             }
         }
@@ -385,12 +387,15 @@ static void validateArrayInitializer(ASTNode* node, Scope* scope);
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
     switch (node->type) {
         case AST_VARIABLE_DECLARATION: {
+            ParsedType* declaredTypes = node->varDecl.declaredTypes;
             for (size_t i = 0; i < node->varDecl.varCount; i++) {
                 ASTNode* ident = node->varDecl.varNames[i];
+                const ParsedType* varType = declaredTypes ? &declaredTypes[i]
+                                                          : &node->varDecl.declaredType;
                 Symbol* sym = malloc(sizeof(Symbol));
                 sym->name = strdup(ident->valueNode.value);
                 sym->kind = SYMBOL_VARIABLE;
-                sym->type = node->varDecl.declaredType;
+                sym->type = *varType;
                 sym->definition = node;
                 sym->next = NULL;
                 resetFunctionSignature(sym);
@@ -402,7 +407,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 if (i < node->varDecl.varCount && node->varDecl.initializers) {
                     DesignatedInit* init = node->varDecl.initializers[i];
                     analyzeDesignatedInitializer(init, scope);
-                    validateVariableInitializer(&node->varDecl.declaredType, init, ident, scope);
+                    validateVariableInitializer(varType, init, ident, scope);
                 }
             }
             break;

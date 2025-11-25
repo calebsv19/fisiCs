@@ -392,6 +392,7 @@ ASTNode* createVariableDeclarationNode(ParsedType declaredType,
     if (!node) return NULL;
 
     node->varDecl.declaredType = declaredType;   // POD copy-by-value
+    node->varDecl.declaredTypes = NULL;
     node->varDecl.varNames     = identifiers;    // arrays owned by AST builder
     node->varDecl.initializers = initializers;   // may be NULL entries
     node->varDecl.varCount     = varCount;

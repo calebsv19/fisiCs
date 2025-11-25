@@ -238,6 +238,7 @@ struct ASTNode {
         //  **Variables & Assignments**
         struct {
             ParsedType declaredType;
+            ParsedType* declaredTypes;
             ASTNode** varNames;
 	    struct DesignatedInit** initializers;
 	    ASTNode* arraySize;
@@ -325,10 +326,20 @@ struct ASTNode {
 
 	struct {
 	    char* asmText;
-	} asmStmt;
+        } asmStmt;
 
     };
 };
+
+static inline const ParsedType* astVarDeclTypeAt(const ASTNode* node, size_t index) {
+    if (!node || node->type != AST_VARIABLE_DECLARATION) {
+        return NULL;
+    }
+    if (node->varDecl.declaredTypes && index < node->varDecl.varCount) {
+        return &node->varDecl.declaredTypes[index];
+    }
+    return &node->varDecl.declaredType;
+}
 
 
 

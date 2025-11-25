@@ -435,14 +435,6 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
             continue;
         }
 
-        LLVMTypeRef memberType = cg_type_from_parsed(ctx, &fieldNode->varDecl.declaredType);
-        if (!memberType || LLVMGetTypeKind(memberType) == LLVMVoidTypeKind) {
-            memberType = LLVMInt32TypeInContext(ctx->llvmContext);
-        }
-        char* memberTypeStr = LLVMPrintTypeToString(memberType);
-        CG_DEBUG("[CG] Struct member type=%s\n", memberTypeStr ? memberTypeStr : "<null>");
-        if (memberTypeStr) LLVMDisposeMessage(memberTypeStr);
-
         for (size_t v = 0; v < fieldNode->varDecl.varCount; ++v) {
             if (fieldIndex >= totalFields) break;
             ASTNode* nameNodeField = fieldNode->varDecl.varNames[v];
@@ -450,11 +442,20 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
                 ? nameNodeField->valueNode.value
                 : NULL;
 
+            const ParsedType* parsed = astVarDeclTypeAt(fieldNode, v);
+            LLVMTypeRef memberType = cg_type_from_parsed(ctx, parsed);
+            if (!memberType || LLVMGetTypeKind(memberType) == LLVMVoidTypeKind) {
+                memberType = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+            char* memberTypeStr = LLVMPrintTypeToString(memberType);
+            CG_DEBUG("[CG] Struct member type=%s\n", memberTypeStr ? memberTypeStr : "<null>");
+            if (memberTypeStr) LLVMDisposeMessage(memberTypeStr);
+
             fieldTypes[fieldIndex] = memberType;
             infos[fieldIndex].name = fname ? strdup(fname) : NULL;
             infos[fieldIndex].index = isUnion ? 0 : (unsigned)fieldIndex;
             infos[fieldIndex].type = memberType;
-            infos[fieldIndex].parsedType = fieldNode->varDecl.declaredType;
+            infos[fieldIndex].parsedType = parsed ? *parsed : fieldNode->varDecl.declaredType;
             fieldIndex++;
         }
     }

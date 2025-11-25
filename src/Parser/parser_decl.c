@@ -11,6 +11,54 @@
 #include "Compiler/compiler_context.h" // make sure this is visible via include path
 
 
+static void skipPointerQualifiers(Parser* parser) {
+    while (parser->currentToken.type == TOKEN_CONST ||
+           parser->currentToken.type == TOKEN_VOLATILE ||
+           parser->currentToken.type == TOKEN_RESTRICT) {
+        advance(parser);
+    }
+}
+
+int parsePointerChain(Parser* parser) {
+    int depth = 0;
+    while (parser->currentToken.type == TOKEN_ASTERISK) {
+        advance(parser);
+        skipPointerQualifiers(parser);
+        depth++;
+    }
+    return depth;
+}
+
+void applyPointerChainToType(ParsedType* type, int depth) {
+    if (!type || depth <= 0) {
+        return;
+    }
+    for (int i = 0; i < depth; ++i) {
+        parsedTypeAppendPointer(type);
+    }
+}
+
+static bool probeDeclaratorTokens(Parser* parser, Token* outIdent, Token* outNext, Token* outNextNext) {
+    Parser temp = cloneParserWithFreshLexer(parser);
+    parsePointerChain(&temp);
+    if (temp.currentToken.type != TOKEN_IDENTIFIER) {
+        freeParserClone(&temp);
+        return false;
+    }
+    if (outIdent) {
+        *outIdent = temp.currentToken;
+    }
+    advance(&temp);
+    if (outNext) {
+        *outNext = temp.currentToken;
+    }
+    advance(&temp);
+    if (outNextNext) {
+        *outNextNext = temp.currentToken;
+    }
+    freeParserClone(&temp);
+    return true;
+}
 
 
 
@@ -34,30 +82,30 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
         }
     }
 
-    // After type, we expect an identifier
-    if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+    Token identToken;
+    Token nextToken;
+    Token afterToken;
+    bool hasIdent = probeDeclaratorTokens(parser, &identToken, &nextToken, &afterToken);
+    if (!hasIdent) {
         printParseError("Expected identifier after type", parser);
         return NULL;
     }
 
-    Token next = peekNextToken(parser);
-    Token after = peekTwoTokensAhead(parser);
-
     // --- Case 1: Function (definition or declaration) ---
-    if (next.type == TOKEN_LPAREN) {
+    if (nextToken.type == TOKEN_LPAREN) {
         PARSER_DEBUG_PRINTF("DEBUG: Detected function declaration or definition\n");
         return parseFunctionDefinition(parser, parsedType);
     }
 
     // --- Case 2: Array Declaration ---
-    if (next.type == TOKEN_LBRACKET &&
-        (after.type == TOKEN_NUMBER || after.type == TOKEN_RBRACKET)) {
+    if (nextToken.type == TOKEN_LBRACKET &&
+        (afterToken.type == TOKEN_NUMBER || afterToken.type == TOKEN_RBRACKET)) {
         PARSER_DEBUG_PRINTF("DEBUG: Detected array declaration\n");
         return parseArrayDeclaration(parser, parsedType);
     }
 
     // --- Case 3: Variable Declaration (with optional init or commas) ---
-    if (next.type == TOKEN_ASSIGN || next.type == TOKEN_SEMICOLON || next.type == TOKEN_COMMA) {
+    if (nextToken.type == TOKEN_ASSIGN || nextToken.type == TOKEN_SEMICOLON || nextToken.type == TOKEN_COMMA) {
         PARSER_DEBUG_PRINTF("DEBUG: Detected variable declaration\n");
         size_t varCount = 0;
         return parseVariableDeclaration(parser, parsedType, &varCount);
@@ -93,18 +141,23 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
     
     ASTNode** varNames = malloc(varCapacity * sizeof(ASTNode*));
     struct DesignatedInit** initializers = malloc(varCapacity * sizeof(DesignatedInit*));
+    ParsedType* perTypes = malloc(varCapacity * sizeof(ParsedType));
     
-    if (!varNames || !initializers) {
+    if (!varNames || !initializers || !perTypes) {
         printf("Error: Memory allocation failed for variable declaration.\n");
         return NULL;
     }
      
     while (1) {
-        // Expect variable name
+        ParsedType varType = parsedTypeClone(&declaredType);
+        int pointerDepth = parsePointerChain(parser);
+        applyPointerChainToType(&varType, pointerDepth);
+
         if (parser->currentToken.type != TOKEN_IDENTIFIER) {
             printf("Error: expected variable name at line %d\n", parser->currentToken.line);
             free(varNames);
             free(initializers);
+            free(perTypes);
             return NULL;
         }
          
@@ -144,6 +197,7 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
          
         varNames[varCount] = varName;
         initializers[varCount] = init;
+        perTypes[varCount] = varType;
         varCount++;
         
         // Expand if needed
@@ -151,7 +205,8 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
             varCapacity *= 2;
             varNames = realloc(varNames, varCapacity * sizeof(ASTNode*));
             initializers = realloc(initializers, varCapacity * sizeof(DesignatedInit*));
-            if (!varNames || !initializers) {
+            perTypes = realloc(perTypes, varCapacity * sizeof(ParsedType));
+            if (!varNames || !initializers || !perTypes) {
                 printf("Error: Memory reallocation failed.\n");
                 return NULL;
             }
@@ -175,16 +230,26 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
     }
      
     *outVarCount = varCount;
-    return createVariableDeclarationNode(declaredType, varNames, initializers, varCount);
+    ASTNode* node = createVariableDeclarationNode(declaredType, varNames, initializers, varCount);
+    if (node) {
+        node->varDecl.declaredTypes = perTypes;
+    }
+    return node;
 }
 
 
 
 
 ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type) {
-    // assume token is IDENTIFIER
-        ASTNode* name = createIdentifierNode(parser->currentToken.value);
-        if (name) name->line = parser->currentToken.line;
+    ParsedType arrayType = parsedTypeClone(&type);
+    int pointerDepth = parsePointerChain(parser);
+    applyPointerChainToType(&arrayType, pointerDepth);
+    if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+        printParseError("Expected identifier in array declaration", parser);
+        return NULL;
+    }
+    ASTNode* name = createIdentifierNode(parser->currentToken.value);
+    if (name) name->line = parser->currentToken.line;
     advance(parser); // consume name
     
     ASTNode* sizeExpr = NULL;
@@ -208,7 +273,7 @@ ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type) {
     }
     advance(parser); // consume ';'
     
-    return createArrayDeclarationNode(type, name, sizeExpr, initValues, valueCount);
+    return createArrayDeclarationNode(arrayType, name, sizeExpr, initValues, valueCount);
 }
 
 
@@ -223,6 +288,10 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
         return NULL;
     }       
          
+    ParsedType varType = parsedTypeClone(&parsedType);
+    int pointerDepth = parsePointerChain(parser);
+    applyPointerChainToType(&varType, pointerDepth);
+
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         printf("Error: expected variable name in for-loop initializer at line %d\n",
                parser->currentToken.line);
@@ -246,14 +315,22 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
     // Allocate identifier and initializer arrays  
     size_t varCount = 1;
     ASTNode** varNames = malloc(sizeof(ASTNode*));
-    DesignatedInit** initializers = malloc(sizeof(ASTNode*));
+    DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
     
     varNames[0] = idNode;
     initializers[0] = createSimpleInit(initializer);
     
     
     //  Construct variable declaration using ParsedType
-    return createVariableDeclarationNode(parsedType, varNames, initializers, varCount);
+    ASTNode* node = createVariableDeclarationNode(parsedType, varNames, initializers, varCount);
+    if (node) {
+        ParsedType* perTypes = malloc(sizeof(ParsedType));
+        if (perTypes) {
+            perTypes[0] = varType;
+            node->varDecl.declaredTypes = perTypes;
+        }
+    }
+    return node;
 }
 
 
@@ -386,6 +463,10 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
             break;
         }
 
+        ParsedType fieldType = parsedTypeClone(&type);
+        int pointerDepth = parsePointerChain(parser);
+        applyPointerChainToType(&fieldType, pointerDepth);
+
         if (parser->currentToken.type != TOKEN_IDENTIFIER) {
             printParseError("Expected field name in struct/union", parser);
             break;
@@ -418,13 +499,20 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
 
         ASTNode* fieldDecl = NULL;
         if (arraySize) {
-            fieldDecl = createArrayDeclarationNode(type, fieldName, arraySize, NULL, 0);
+            fieldDecl = createArrayDeclarationNode(fieldType, fieldName, arraySize, NULL, 0);
         } else {
             ASTNode** names = malloc(sizeof(ASTNode*));
             DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
             names[0] = fieldName;
             initializers[0] = NULL;
-            fieldDecl = createVariableDeclarationNode(type, names, initializers, 1);
+            fieldDecl = createVariableDeclarationNode(fieldType, names, initializers, 1);
+            if (fieldDecl) {
+                ParsedType* per = malloc(sizeof(ParsedType));
+                if (per) {
+                    per[0] = fieldType;
+                    fieldDecl->varDecl.declaredTypes = per;
+                }
+            }
         }
 
         fieldDecl->varDecl.bitFieldWidth = bitFieldWidth;
@@ -541,6 +629,8 @@ ASTNode* parseTypedef(Parser* parser) {
 
     // Parse the base type (handles 'struct/union/enum' as needed)
     ParsedType baseType = parseType(parser);
+    int pointerDepth = parsePointerChain(parser);
+    applyPointerChainToType(&baseType, pointerDepth);
 
     // NOTE: Your current implementation supports exactly one alias.
     // We'll keep that, but we also record the alias in the CompilerContext.
@@ -623,7 +713,6 @@ ASTNode* handleStructStatements(Parser* parser) {
         return parseStructDefinition(parser);
     }
     
-    // Unrecognized pattern
-    printParseError("Invalid use of 'struct'", parser);
-    return NULL;
+    // Fallback: treat as a normal declaration
+    return handleTypeOrFunctionDeclaration(parser);
 }

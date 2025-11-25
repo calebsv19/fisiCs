@@ -7,6 +7,39 @@
 #include <stdbool.h>
 
 struct Parser;
+struct ASTNode;
+
+typedef enum {
+    TYPE_DERIVATION_POINTER,
+    TYPE_DERIVATION_ARRAY,
+    TYPE_DERIVATION_FUNCTION
+} TypeDerivationKind;
+
+typedef struct ParsedArrayInfo {
+    struct ASTNode* sizeExpr;
+    bool isVLA;
+} ParsedArrayInfo;
+
+struct ParsedType;
+
+typedef struct ParsedFunctionSignature {
+    bool isVariadic;
+    size_t paramCount;
+    struct ParsedType* params;
+} ParsedFunctionSignature;
+
+typedef struct TypeDerivation {
+    TypeDerivationKind kind;
+    union {
+        ParsedArrayInfo array;
+        ParsedFunctionSignature function;
+        struct {
+            bool isConst;
+            bool isVolatile;
+            bool isRestrict;
+        } pointer;
+    } as;
+} TypeDerivation;
 
 // Enum for distinguishing between primitive and user-defined types
 typedef enum {
@@ -61,6 +94,11 @@ typedef struct ParsedType {
     bool isAuto;
 
     int pointerDepth;
+    bool directlyDeclaresFunction;
+    bool isVariadicFunction;
+
+    TypeDerivation* derivations;
+    size_t derivationCount;
 } ParsedType;
 
 
@@ -71,6 +109,12 @@ void parsedTypeAddPointerDepth(ParsedType* t, int depth);
 // Optional tiny helpers
 void parsedTypeSetFunctionPointer(ParsedType* t, size_t nParams, const ParsedType* params);
 void parsedTypeFree(ParsedType* t);  // free fpParams if set (call in your global cleanup)
+
+bool parsedTypeAppendPointer(ParsedType* t);
+bool parsedTypeAppendArray(ParsedType* t, struct ASTNode* sizeExpr, bool isVLA);
+bool parsedTypeAppendFunction(ParsedType* t, const ParsedType* params, size_t paramCount, bool isVariadic);
+void parsedTypeResetDerivations(ParsedType* t);
+ParsedType parsedTypeClone(const ParsedType* src);
 
 ParsedType parseType(struct Parser* parser);
 ParsedType parseTypeCtx(struct Parser* parser, TypeContext ctx);

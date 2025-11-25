@@ -20,7 +20,7 @@ LLVMTypeRef* collectParamTypes(CodegenContext* ctx, size_t paramCount, ASTNode**
         ASTNode* param = params ? params[i] : NULL;
         const ParsedType* type = NULL;
         if (param && param->type == AST_VARIABLE_DECLARATION) {
-            type = &param->varDecl.declaredType;
+            type = astVarDeclTypeAt(param, 0);
         }
         if (!type) {
             paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
@@ -159,16 +159,16 @@ static void predeclareGlobalSymbolCallback(const Symbol* sym, void* userData) {
 void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_VARIABLE_DECLARATION) return;
 
-    LLVMTypeRef varType = cg_type_from_parsed(ctx, &node->varDecl.declaredType);
-    if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
-        varType = LLVMInt32TypeInContext(ctx->llvmContext);
-    }
-
     for (size_t i = 0; i < node->varDecl.varCount; ++i) {
         ASTNode* varNameNode = node->varDecl.varNames[i];
         if (!varNameNode || varNameNode->type != AST_IDENTIFIER) continue;
         const char* name = varNameNode->valueNode.value;
         if (!name) continue;
+        const ParsedType* parsedType = astVarDeclTypeAt(node, i);
+        LLVMTypeRef varType = cg_type_from_parsed(ctx, parsedType);
+        if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
+            varType = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
 
         LLVMValueRef existing = LLVMGetNamedGlobal(ctx->module, name);
         if (existing) {
@@ -183,7 +183,7 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
                             true,
                             false,
                             NULL,
-                            &node->varDecl.declaredType);
+                            parsedType ? parsedType : &node->varDecl.declaredType);
             continue;
         }
 
@@ -196,7 +196,7 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
                         true,
                         false,
                         NULL,
-                        &node->varDecl.declaredType);
+                        parsedType ? parsedType : &node->varDecl.declaredType);
     }
 }
 

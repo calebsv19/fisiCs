@@ -47,12 +47,13 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
     if (!ctx->currentScope || ctx->currentScope->parent == NULL) {
         return NULL;
     }
-    LLVMTypeRef varType = cg_type_from_parsed(ctx, &node->varDecl.declaredType);
-    if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
-        varType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
-    }
     for (size_t i = 0; i < node->varDecl.varCount; i++) {
         ASTNode* varNameNode = node->varDecl.varNames[i];
+        const ParsedType* varParsed = astVarDeclTypeAt(node, i);
+        LLVMTypeRef varType = cg_type_from_parsed(ctx, varParsed);
+        if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
+            varType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
+        }
         LLVMValueRef allocaInst = LLVMBuildAlloca(ctx->builder, varType, varNameNode->valueNode.value);
         cg_scope_insert(ctx->currentScope,
                         varNameNode->valueNode.value,
@@ -61,7 +62,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                         false,
                         false,
                         NULL,
-                        &node->varDecl.declaredType);
+                        varParsed ? varParsed : &node->varDecl.declaredType);
 
         DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
         if (init && init->expression) {
@@ -69,7 +70,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 if (!cg_store_compound_literal_into_ptr(ctx,
                                                         allocaInst,
                                                         varType,
-                                                        &node->varDecl.declaredType,
+                                                        varParsed ? varParsed : &node->varDecl.declaredType,
                                                         init->expression)) {
                     fprintf(stderr, "Error: Failed to emit compound initializer for variable\n");
                 }
@@ -80,7 +81,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                                                         initValue,
                                                         varType,
                                                         NULL,
-                                                        &node->varDecl.declaredType,
+                                                        varParsed ? varParsed : &node->varDecl.declaredType,
                                                         "init.store");
                     LLVMBuildStore(ctx->builder, casted, allocaInst);
                 }
@@ -281,7 +282,8 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
             LLVMTypeRef inferred = NULL;
             ASTNode* paramDecl = node->functionDef.parameters[i];
             if (paramDecl && paramDecl->type == AST_VARIABLE_DECLARATION) {
-                inferred = cg_type_from_parsed(ctx, &paramDecl->varDecl.declaredType);
+                const ParsedType* paramType = astVarDeclTypeAt(paramDecl, 0);
+                inferred = cg_type_from_parsed(ctx, paramType);
             }
             if (!inferred || LLVMGetTypeKind(inferred) == LLVMVoidTypeKind) {
                 inferred = LLVMInt32TypeInContext(ctx->llvmContext);
@@ -313,6 +315,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                                                       paramType,
                                                       paramName->valueNode.value);
             LLVMBuildStore(ctx->builder, LLVMGetParam(function, (unsigned)i), allocaInst);
+            const ParsedType* storedType = astVarDeclTypeAt(paramDecl, j);
             cg_scope_insert(ctx->currentScope,
                             paramName->valueNode.value,
                             allocaInst,
@@ -320,7 +323,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                             false,
                             false,
                             NULL,
-                            &paramDecl->varDecl.declaredType);
+                            storedType ? storedType : &paramDecl->varDecl.declaredType);
         }
     }
 

@@ -283,14 +283,15 @@ void printAST(ASTNode* node, int depth) {
             
         case AST_VARIABLE_DECLARATION:
             printf("VAR_DECL\n");
-            
-            for (int i = 0; i < depth + 1; i++) printf("  ");
-            printf("TYPE: ");
-            printParsedType(&node->varDecl.declaredType);
-            
+            ParsedType* perTypes = node->varDecl.declaredTypes;
             for (size_t i = 0; i < node->varDecl.varCount; i++) {
-                printAST(node->varDecl.varNames[i], depth + 1);  
-                
+                for (int indent = 0; indent < depth + 1; indent++) printf("  ");
+                printf("TYPE: ");
+                const ParsedType* pt = perTypes ? &perTypes[i] : &node->varDecl.declaredType;
+                printParsedType(pt);
+
+                printAST(node->varDecl.varNames[i], depth + 1);
+
                 DesignatedInit* init = node->varDecl.initializers[i];
                 if (!init) continue;
                 

@@ -28,4 +28,7 @@ ASTNode* parseTypedef(Parser* parser);
 // Struct helper routing
 ASTNode* handleStructStatements(Parser* parser);
 
+int parsePointerChain(Parser* parser);
+void applyPointerChainToType(ParsedType* type, int depth);
+
 #endif // _PARSER_DECL_H

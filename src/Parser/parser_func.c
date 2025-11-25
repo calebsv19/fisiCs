@@ -9,7 +9,10 @@
 
 
 ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
-    // Ensure function name is present
+    ParsedType funcReturnType = parsedTypeClone(&returnType);
+    int pointerDepth = parsePointerChain(parser);
+    applyPointerChainToType(&funcReturnType, pointerDepth);
+
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         printf("Error: expected function name at line %d\n", parser->currentToken.line);
         return NULL;
@@ -48,7 +51,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     // Determine next step: declaration or definition
     if (parser->currentToken.type == TOKEN_SEMICOLON) {
         advance(parser);  // Consume ';'
-        ASTNode* decl = createFunctionDeclarationNode(returnType, funcName, paramList, paramCount, isVariadic);
+        ASTNode* decl = createFunctionDeclarationNode(funcReturnType, funcName, paramList, paramCount, isVariadic);
         if (decl && decl->functionDecl.funcName) {
             decl->functionDecl.funcName->line = funcName->line;
         }
@@ -61,7 +64,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
             printf("Error: Failed to parse function body at line %d\n", parser->currentToken.line);
             return NULL;
         }
-        return createFunctionDefinitionNode(returnType, funcName, paramList, body, paramCount, isVariadic);
+        return createFunctionDefinitionNode(funcReturnType, funcName, paramList, body, paramCount, isVariadic);
     }
 
     // If neither, report error
@@ -91,6 +94,8 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
         }
 
         ParsedType paramType = parseType(parser);
+        int pointerDepth = parsePointerChain(parser);
+        applyPointerChainToType(&paramType, pointerDepth);
         
         ASTNode* paramName = NULL;
         if (parser->currentToken.type == TOKEN_IDENTIFIER) {
@@ -105,11 +110,18 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
         }
         
         ASTNode** paramNames = malloc(sizeof(ASTNode*));
-        DesignatedInit** initializers = malloc(sizeof(ASTNode*));
+        DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
         paramNames[0] = paramName;
         initializers[0] = NULL;
     
         ASTNode* paramDecl = createVariableDeclarationNode(paramType, paramNames, initializers, 1);
+        if (paramDecl) {
+            ParsedType* per = malloc(sizeof(ParsedType));
+            if (per) {
+                per[0] = paramType;
+                paramDecl->varDecl.declaredTypes = per;
+            }
+        }
     
         // Expand if needed
         if (*paramCount >= paramCapacity) {
@@ -277,7 +289,9 @@ ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType) 
                 if (onlyVoid) break;
             }
 
-            ParsedType p = parseType(parser); /* includes its own '*' */
+            ParsedType p = parseType(parser);
+            int paramPtrDepth = parsePointerChain(parser);
+            applyPointerChainToType(&p, paramPtrDepth);
             if (p.kind == TYPE_INVALID) {
                 printParseError("Invalid parameter type in function pointer declaration", parser);
                 if (fpParams) free(fpParams);
