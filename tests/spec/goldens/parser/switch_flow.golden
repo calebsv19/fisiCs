@@ -99,9 +99,9 @@ PROGRAM
 
 
 Diagnostics:
-Warning at (0:0): Unreachable statement
-Warning at (0:0): Unreachable statement
-Warning at (0:0): Unreachable statement
+Warning at (8:0): Unreachable statement
+Warning at (14:0): Unreachable statement
+Warning at (18:0): Unreachable statement
 Warning at (32:0): Unreachable statement
 Semantic analysis: no issues found.
 

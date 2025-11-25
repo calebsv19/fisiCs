@@ -4,7 +4,8 @@
 #include "parser_array.h"
 #include "parser_func.h"
 #include "Parser/Helpers/parser_lookahead.h"
-#include "parser_expr.h" 
+#include "parser_expr.h"
+#include "parser_main.h"
 #include "AST/ast_node.h"
 
 
@@ -18,6 +19,7 @@ typedef ASTNode* (*LedFn)(Parser* parser, ASTNode* left, Token token);
 // Forward declarations
 static ASTNode* nud(Parser* parser, Token token);
 static ASTNode* led(Parser* parser, ASTNode* left, Token token);
+static ASTNode* parseGNUStatementExpression(Parser* parser);
 
 // Base left-precedence values
 int getTokenPrecedence(TokenType type) {
@@ -97,6 +99,18 @@ int getTokenRightBindingPower(TokenType type) {
 
 
 
+static ASTNode* parseGNUStatementExpression(Parser* parser) {
+    if (parser->currentToken.type != TOKEN_LBRACE) {
+        printParseError("Expected '{' to start statement expression", parser);
+        return NULL;
+    }
+    ASTNode* block = parseBlock(parser);
+    if (!block) {
+        return NULL;
+    }
+    return createStatementExpressionNode(block);
+}
+
 // Main Pratt parser loop
 ASTNode* parseExpressionPratt(Parser* parser, int minPrecedence) {
     Token token = parser->currentToken;
@@ -142,6 +156,14 @@ static ASTNode* nud(Parser* parser, Token token) {
 
         case TOKEN_CHAR_LITERAL: {
             ASTNode* lit = createCharLiteralNode(token.value);
+            if (lit) lit->line = token.line;
+            return lit;
+        }
+
+        case TOKEN_TRUE:
+        case TOKEN_FALSE: {
+            const char* boolValue = (token.type == TOKEN_TRUE) ? "1" : "0";
+            ASTNode* lit = createNumberLiteralNode(boolValue);
             if (lit) lit->line = token.line;
             return lit;
         }
@@ -195,12 +217,29 @@ static ASTNode* nud(Parser* parser, Token token) {
     }
     freeParserClone(&probe);
 
+    if (looksLikeCompoundLiteral(parser)) {
+        return parseCompoundLiteralPratt(parser, /*alreadyConsumedLParen=*/true);
+    }
+
     if (treatAsCast) {
         return parseCastExpressionPratt(parser, /*alreadyConsumedLParen=*/true);
     }
 
-    if (looksLikeCompoundLiteral(parser)) {
-        return parseCompoundLiteralPratt(parser, /*alreadyConsumedLParen=*/true);
+    if (parser->currentToken.type == TOKEN_LBRACE) {
+        if (!parser->enableStatementExpressions) {
+            printParseError("GNU statement expressions are disabled (set ENABLE_GNU_STATEMENT_EXPRESSIONS=1)", parser);
+            return NULL;
+        }
+        ASTNode* stmtExpr = parseGNUStatementExpression(parser);
+        if (!stmtExpr) {
+            return NULL;
+        }
+        if (parser->currentToken.type != TOKEN_RPAREN) {
+            printParseError("Expected ')' after statement expression", parser);
+            return NULL;
+        }
+        advance(parser);
+        return stmtExpr;
     }
 
     ASTNode* expr = parseExpressionPratt(parser, -1);

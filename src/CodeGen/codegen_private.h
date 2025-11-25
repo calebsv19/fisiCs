@@ -250,6 +250,7 @@ LLVMValueRef codegenCharLiteral(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenStringLiteral(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node);
+LLVMValueRef codegenStatementExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node);
 LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node);

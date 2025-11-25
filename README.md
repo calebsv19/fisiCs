@@ -8,9 +8,9 @@ DSL-style annotations, physics-aware types, and IDE integration.
 ## Features (Current)
 
 - **Lexer** – Robust tokenization for C99-style syntax (keywords, identifiers, literals, operators).  
-- **Parser** – Handles expressions, declarations, control-flow, designated initialisers, and function pointers (Pratt or legacy ladders).  
-- **Semantic Analysis** – Tracks typedef/tag namespaces, enforces lvalue/decay rules, qualifier-safe assignments, pointer arithmetic semantics, now records function prototypes (including variadic signatures) and tag-layout fingerprints, validates initializer shapes, and performs flow-sensitive checks (unreachable statements, missing returns, switch fallthrough) so code reaches IR only when it matches C99 semantics.  
-- **LLVM IR Codegen** – Lowers analysed ASTs into LLVM IR (struct/union layouts, arrays, compound assignments, loops/conditionals, globals).  
+- **Parser** – Handles expressions, declarations, control-flow, designated initialisers, function pointers, and (optionally) GNU statement expressions when `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` is set in the environment.  
+- **Semantic Analysis** – Tracks typedef/tag namespaces, enforces lvalue/decay rules, qualifier-safe assignments, pointer arithmetic semantics, records function prototypes (including variadic signatures) and tag-layout fingerprints, validates initializer shapes, understands block-scope variable-length arrays, and treats compound literals as lvalues within their lifetime while flagging illegal static-storage uses.  
+- **LLVM IR Codegen** – Lowers analysed ASTs into LLVM IR (struct/union layouts, arrays including VLAs, compound assignments, loops/conditionals, globals).  
 - **Preprocessor Support** – Parses `#include`, `#define`, `#ifdef`, etc., preserving directives in the AST pipeline.  
 - **H2 Generator** – Emits helper `.h2` metadata for IDE or tooling experiments.  
 - **Debug Instrumentation** – Opt-in parser/codegen tracing toggled at build time via make variables.
@@ -66,6 +66,16 @@ Manual build shortcut:
 cc -o compiler src/*.c -Iinclude $(llvm-config --cflags --ldflags --libs core)
 ```
 
+### GNU Statement Expressions (optional)
+
+Parsing/semantic support for GNU `({ ... })` statement expressions is behind the `ENABLE_GNU_STATEMENT_EXPRESSIONS` environment flag. Set it to a non-empty value when running the compiler or spec harness to allow them:
+
+```bash
+ENABLE_GNU_STATEMENT_EXPRESSIONS=1 ./compiler tests/parser/gnu_statement_expr.c
+```
+
+Leave it unset (or `0`) to keep strict C99 behaviour—the parser will reject `({ ... })` constructs in that mode.
+
 ### Running Parser Smoke Tests
 
 The `tests/` folder holds focused fixtures covering parser, semantic, and LLVM IR behaviour (typedef chains, union declarations, designated initialisers, semantic diagnostics, etc.).
@@ -89,6 +99,8 @@ make function-pointer
 make pointer-arith
 make switch-flow
 make goto-flow
+make statement-expr-enabled
+make statement-expr-disabled
 make semantic-typedef
 make semantic-initializer
 make semantic-undeclared
@@ -101,6 +113,9 @@ make semantic-function-calls
 make semantic-tag-conflicts
 make semantic-initializer-shapes
 make semantic-flow
+make semantic-vla-errors
+make semantic-vla-block
+make compound-literal-lvalues
 
 # refresh goldens after intentional output changes
 UPDATE_GOLDENS=1 tests/spec/run_ast_golden.sh ./compiler

@@ -11,6 +11,13 @@ static TypeInfo makeBaseInvalid(void) {
     return info;
 }
 
+static void propagateVLAFlag(TypeInfo* info, const ParsedType* type) {
+    if (!info || !type) return;
+    if (type->isVLA) {
+        info->isVLA = true;
+    }
+}
+
 TypeInfo makeInvalidType(void) {
     return makeBaseInvalid();
 }
@@ -84,24 +91,30 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
         info.isSigned = false;
         info.originalType = type;
         applyQualifiers(&info, type);
+        propagateVLAFlag(&info, type);
         return info;
     }
 
     switch (type->kind) {
         case TYPE_PRIMITIVE: {
             switch (type->primitiveType) {
-                case TOKEN_BOOL:
-                    return makeBoolType();
+                case TOKEN_BOOL: {
+                    TypeInfo info = makeBoolType();
+                    propagateVLAFlag(&info, type);
+                    return info;
+                }
                 case TOKEN_CHAR: {
                     TypeInfo info = makeIntegerType(8, !type->isUnsigned, TOKEN_CHAR);
                     applyQualifiers(&info, type);
                     info.originalType = type;
+                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_SHORT: {
                     TypeInfo info = makeIntegerType(16, !type->isUnsigned, TOKEN_SHORT);
                     applyQualifiers(&info, type);
                     info.originalType = type;
+                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_INT:
@@ -111,24 +124,28 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
                     TypeInfo info = makeIntegerType(defaultIntBits(), isSigned, TOKEN_INT);
                     applyQualifiers(&info, type);
                     info.originalType = type;
+                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_LONG: {
                     TypeInfo info = makeIntegerType(longBits(), !type->isUnsigned, TOKEN_LONG);
                     applyQualifiers(&info, type);
                     info.originalType = type;
+                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_FLOAT: {
                     TypeInfo info = makeFloatTypeInfo(false);
                     applyQualifiers(&info, type);
                     info.originalType = type;
+                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_DOUBLE: {
                     TypeInfo info = makeFloatTypeInfo(true);
                     applyQualifiers(&info, type);
                     info.originalType = type;
+                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_VOID: {
@@ -137,6 +154,7 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
                     info.primitive = TOKEN_VOID;
                     applyQualifiers(&info, type);
                     info.originalType = type;
+                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 default:
@@ -151,6 +169,7 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
             info.tag = TAG_ENUM;
             info.userTypeName = type->userTypeName;
             info.originalType = type;
+            propagateVLAFlag(&info, type);
             return info;
         }
         case TYPE_STRUCT:
@@ -161,6 +180,7 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
             info.userTypeName = type->userTypeName;
             info.originalType = type;
             applyQualifiers(&info, type);
+            propagateVLAFlag(&info, type);
             return info;
         }
         case TYPE_NAMED: {
@@ -173,6 +193,7 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
             TypeInfo base = typeInfoFromParsedType(resolved, scope);
             applyQualifiers(&base, type);
             base.originalType = resolved;
+            propagateVLAFlag(&base, type);
             return base;
         }
         case TYPE_INVALID:

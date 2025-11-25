@@ -6,7 +6,7 @@
 #include "Parser/Helpers/parsed_type.h"
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
-
+#include "Parser/Helpers/parser_attributes.h"
 
 #include "Compiler/compiler_context.h" // make sure this is visible via include path
 
@@ -98,8 +98,7 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
     }
 
     // --- Case 2: Array Declaration ---
-    if (nextToken.type == TOKEN_LBRACKET &&
-        (afterToken.type == TOKEN_NUMBER || afterToken.type == TOKEN_RBRACKET)) {
+    if (nextToken.type == TOKEN_LBRACKET) {
         PARSER_DEBUG_PRINTF("DEBUG: Detected array declaration\n");
         return parseArrayDeclaration(parser, parsedType);
     }
@@ -142,6 +141,8 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
     ASTNode** varNames = malloc(varCapacity * sizeof(ASTNode*));
     struct DesignatedInit** initializers = malloc(varCapacity * sizeof(DesignatedInit*));
     ParsedType* perTypes = malloc(varCapacity * sizeof(ParsedType));
+    ASTAttribute** trailingAttrs = NULL;
+    size_t trailingAttrCount = 0;
     
     if (!varNames || !initializers || !perTypes) {
         printf("Error: Memory allocation failed for variable declaration.\n");
@@ -195,6 +196,10 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
             }
         }
          
+        size_t parsedAttrCount = 0;
+        ASTAttribute** parsedAttrs = parserParseAttributeSpecifiers(parser, &parsedAttrCount);
+        astAttributeListAppend(&trailingAttrs, &trailingAttrCount, parsedAttrs, parsedAttrCount);
+
         varNames[varCount] = varName;
         initializers[varCount] = init;
         perTypes[varCount] = varType;
@@ -233,6 +238,10 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
     ASTNode* node = createVariableDeclarationNode(declaredType, varNames, initializers, varCount);
     if (node) {
         node->varDecl.declaredTypes = perTypes;
+        astNodeCloneTypeAttributes(node, &declaredType);
+        astNodeAppendAttributes(node, trailingAttrs, trailingAttrCount);
+        trailingAttrs = NULL;
+        trailingAttrCount = 0;
     }
     return node;
 }
@@ -271,9 +280,21 @@ ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type) {
         printParseError("Expected ';' after array declaration", parser);
         return NULL;
     }
+
+    size_t attrCount = 0;
+    ASTAttribute** attrs = parserParseAttributeSpecifiers(parser, &attrCount);
+
     advance(parser); // consume ';'
     
-    return createArrayDeclarationNode(arrayType, name, sizeExpr, initValues, valueCount);
+    ASTNode* node = createArrayDeclarationNode(arrayType, name, sizeExpr, initValues, valueCount);
+    if (node) {
+        astNodeCloneTypeAttributes(node, &type);
+        astNodeAppendAttributes(node, attrs, attrCount);
+    } else {
+        astAttributeListDestroy(attrs, attrCount);
+        free(attrs);
+    }
+    return node;
 }
 
 
@@ -329,6 +350,7 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
             perTypes[0] = varType;
             node->varDecl.declaredTypes = perTypes;
         }
+        astNodeCloneTypeAttributes(node, &parsedType);
     }
     return node;
 }
@@ -341,6 +363,8 @@ ASTNode* parseStructDefinition(Parser* parser) {
         return NULL;
     }
     advance(parser);  // consume 'struct'
+    size_t structAttrCount = 0;
+    ASTAttribute** structAttrs = parserParseAttributeSpecifiers(parser, &structAttrCount);
 
     char* structName = NULL;
     int structLine = 0;
@@ -390,6 +414,12 @@ ASTNode* parseStructDefinition(Parser* parser) {
     if (def) {
         def->line = structLine;
         if (def->structDef.structName) def->structDef.structName->line = structLine;
+        astNodeAppendAttributes(def, structAttrs, structAttrCount);
+        structAttrs = NULL;
+        structAttrCount = 0;
+    } else {
+        astAttributeListDestroy(structAttrs, structAttrCount);
+        free(structAttrs);
     }
     return def;
 }
@@ -401,6 +431,8 @@ ASTNode* parseUnionDefinition(Parser* parser) {
         return NULL;
     }
     advance(parser);  // consume 'union'
+    size_t unionAttrCount = 0;
+    ASTAttribute** unionAttrs = parserParseAttributeSpecifiers(parser, &unionAttrCount);
 
     char* unionName = NULL;
     int unionLine = 0;
@@ -442,6 +474,12 @@ ASTNode* parseUnionDefinition(Parser* parser) {
     if (def) {
         def->line = unionLine;
         if (def->structDef.structName) def->structDef.structName->line = unionLine;
+        astNodeAppendAttributes(def, unionAttrs, unionAttrCount);
+        unionAttrs = NULL;
+        unionAttrCount = 0;
+    } else {
+        astAttributeListDestroy(unionAttrs, unionAttrCount);
+        free(unionAttrs);
     }
     return def;
 }
@@ -491,6 +529,9 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
             bitFieldWidth = parseAssignmentExpression(parser);
         }
 
+        size_t fieldAttrCount = 0;
+        ASTAttribute** fieldAttrs = parserParseAttributeSpecifiers(parser, &fieldAttrCount);
+
         if (parser->currentToken.type != TOKEN_SEMICOLON) {
             printParseError("Expected ';' after struct/union field", parser);
             break;
@@ -515,7 +556,18 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
             }
         }
 
-        fieldDecl->varDecl.bitFieldWidth = bitFieldWidth;
+        if (fieldDecl && fieldDecl->type == AST_VARIABLE_DECLARATION) {
+            fieldDecl->varDecl.bitFieldWidth = bitFieldWidth;
+        }
+        if (fieldDecl) {
+            astNodeCloneTypeAttributes(fieldDecl, &fieldType);
+            astNodeAppendAttributes(fieldDecl, fieldAttrs, fieldAttrCount);
+            fieldAttrs = NULL;
+            fieldAttrCount = 0;
+        } else {
+            astAttributeListDestroy(fieldAttrs, fieldAttrCount);
+            free(fieldAttrs);
+        }
 
         if (count >= capacity) {
             capacity *= 2;
@@ -536,6 +588,8 @@ ASTNode* parseEnumDefinition(Parser* parser) {
     }
 
     advance(parser); // consume 'enum'
+    size_t enumAttrCount = 0;
+    ASTAttribute** enumAttrs = parserParseAttributeSpecifiers(parser, &enumAttrCount);
 
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         printParseError("Expected enum name after 'enum'", parser);
@@ -613,6 +667,12 @@ ASTNode* parseEnumDefinition(Parser* parser) {
     if (node) {
         node->line = enumLine;
         if (node->enumDef.enumName) node->enumDef.enumName->line = enumLine;
+        astNodeAppendAttributes(node, enumAttrs, enumAttrCount);
+        enumAttrs = NULL;
+        enumAttrCount = 0;
+    } else {
+        astAttributeListDestroy(enumAttrs, enumAttrCount);
+        free(enumAttrs);
     }
     return node;
 }
@@ -646,6 +706,9 @@ ASTNode* parseTypedef(Parser* parser) {
     if (alias) alias->line = parser->currentToken.line;
     advance(parser); // consume identifier
 
+    size_t typedefAttrCount = 0;
+    ASTAttribute** typedefAttrs = parserParseAttributeSpecifiers(parser, &typedefAttrCount);
+
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
         printParseError("Expected ';' after typedef", parser);
         return NULL;
@@ -657,7 +720,17 @@ ASTNode* parseTypedef(Parser* parser) {
         cc_add_typedef(parser->ctx, aliasName);
     }
 
-    return createTypedefNode(baseType, alias);
+    ASTNode* node = createTypedefNode(baseType, alias);
+    if (node) {
+        astNodeCloneTypeAttributes(node, &baseType);
+        astNodeAppendAttributes(node, typedefAttrs, typedefAttrCount);
+        typedefAttrs = NULL;
+        typedefAttrCount = 0;
+    } else {
+        astAttributeListDestroy(typedefAttrs, typedefAttrCount);
+        free(typedefAttrs);
+    }
+    return node;
 }
 
 

@@ -414,15 +414,15 @@ ASTNode* parseReturnStatement(Parser* parser) {
 
     // If it's a comma expression, emit multiple returns as a block (unchanged)
     if (expr && expr->type == AST_COMMA_EXPRESSION) {
-        ASTNode* block = malloc(sizeof(ASTNode));
-        block->type = AST_BLOCK;
-        block->block.statementCount = expr->commaExpr.exprCount;
-        block->block.statements = malloc(sizeof(ASTNode*) * expr->commaExpr.exprCount);
-        block->nextStmt = NULL;
-
-        for (size_t i = 0; i < expr->commaExpr.exprCount; i++) {
-            block->block.statements[i] = createReturnNode(expr->commaExpr.expressions[i]);
+        size_t stmtCount = expr->commaExpr.exprCount;
+        ASTNode** stmtArray = malloc(sizeof(ASTNode*) * stmtCount);
+        if (!stmtArray) {
+            return NULL;
         }
+        for (size_t i = 0; i < stmtCount; i++) {
+            stmtArray[i] = createReturnNode(expr->commaExpr.expressions[i]);
+        }
+        ASTNode* block = createBlockNode(stmtArray, stmtCount);
         return block;
     }
 
@@ -520,4 +520,39 @@ ASTNode* parseAsmStatement(Parser* parser) {
     }
      
     return createAsmNode(asmText);
+}
+
+static bool currentTokenStartsDeclaration(Parser* parser) {
+    return looksLikeTypeDeclaration(parser);
+}
+
+void parserSyncToStatementEnd(Parser* parser) {
+    if (!parser) return;
+    while (parser->currentToken.type != TOKEN_EOF) {
+        if (parser->currentToken.type == TOKEN_SEMICOLON) {
+            advance(parser);
+            break;
+        }
+        if (parser->currentToken.type == TOKEN_RBRACE) {
+            break;
+        }
+        advance(parser);
+    }
+}
+
+void parserSyncToDeclarationStart(Parser* parser) {
+    if (!parser) return;
+    while (parser->currentToken.type != TOKEN_EOF) {
+        if (parser->currentToken.type == TOKEN_SEMICOLON) {
+            advance(parser);
+            break;
+        }
+        if (parser->currentToken.type == TOKEN_RBRACE) {
+            break;
+        }
+        if (currentTokenStartsDeclaration(parser)) {
+            break;
+        }
+        advance(parser);
+    }
 }

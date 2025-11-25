@@ -5,6 +5,7 @@
 #include "parser_decl.h"
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
+#include "Parser/Helpers/parser_attributes.h"
 
 
 
@@ -47,6 +48,8 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
         return NULL;
     }
     advance(parser);  // Consume ')'
+    size_t funcAttrCount = 0;
+    ASTAttribute** funcAttrs = parserParseAttributeSpecifiers(parser, &funcAttrCount);
 
     // Determine next step: declaration or definition
     if (parser->currentToken.type == TOKEN_SEMICOLON) {
@@ -54,6 +57,10 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
         ASTNode* decl = createFunctionDeclarationNode(funcReturnType, funcName, paramList, paramCount, isVariadic);
         if (decl && decl->functionDecl.funcName) {
             decl->functionDecl.funcName->line = funcName->line;
+            astNodeCloneTypeAttributes(decl, &funcReturnType);
+            astNodeAppendAttributes(decl, funcAttrs, funcAttrCount);
+            funcAttrs = NULL;
+            funcAttrCount = 0;
         }
         return decl;
     }
@@ -64,11 +71,20 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
             printf("Error: Failed to parse function body at line %d\n", parser->currentToken.line);
             return NULL;
         }
-        return createFunctionDefinitionNode(funcReturnType, funcName, paramList, body, paramCount, isVariadic);
+        ASTNode* def = createFunctionDefinitionNode(funcReturnType, funcName, paramList, body, paramCount, isVariadic);
+        if (def) {
+            astNodeCloneTypeAttributes(def, &funcReturnType);
+            astNodeAppendAttributes(def, funcAttrs, funcAttrCount);
+            funcAttrs = NULL;
+            funcAttrCount = 0;
+        }
+        return def;
     }
 
     // If neither, report error
     printParseError("Expected ';' or '{' after function declaration", parser);
+    astAttributeListDestroy(funcAttrs, funcAttrCount);
+    free(funcAttrs);
     return NULL;
 }
 
@@ -121,6 +137,7 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
                 per[0] = paramType;
                 paramDecl->varDecl.declaredTypes = per;
             }
+            astNodeCloneTypeAttributes(paramDecl, &paramType);
         }
     
         // Expand if needed
@@ -351,10 +368,14 @@ ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType) 
             return NULL;
         }
     }
+    size_t fpAttrCount = 0;
+    ASTAttribute** fpAttrs = parserParseAttributeSpecifiers(parser, &fpAttrCount);
 
     /* 6) End of declaration ;  (TODO: support comma-list of FP declarators if you want) */
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
         printParseError("Expected ';' after function pointer declaration", parser);
+        astAttributeListDestroy(fpAttrs, fpAttrCount);
+        free(fpAttrs);
         return NULL;
     }
     advance(parser); /* consume ';' */
@@ -363,5 +384,15 @@ ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType) 
        For now we’ve fully encoded the signature in 'returnType' (now a function-pointer type),
        and 'initializer' is the Pratt-parsed RHS if present.
     */
-    return createFunctionPointerDeclarationNode(returnType, name, /*paramList*/NULL, /*paramCount*/0, initializer);
+    ASTNode* node = createFunctionPointerDeclarationNode(returnType, name, /*paramList*/NULL, /*paramCount*/0, initializer);
+    if (node) {
+        astNodeCloneTypeAttributes(node, &returnType);
+        astNodeAppendAttributes(node, fpAttrs, fpAttrCount);
+        fpAttrs = NULL;
+        fpAttrCount = 0;
+    } else {
+        astAttributeListDestroy(fpAttrs, fpAttrCount);
+        free(fpAttrs);
+    }
+    return node;
 }

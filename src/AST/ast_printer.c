@@ -3,6 +3,31 @@
 #include <stdio.h>
 
 static void printParsedType_inner(const ParsedType* pt);
+static void printNodeAttributes(ASTNode* node, int depth);
+
+static const char* attributeSyntaxName(ASTAttributeSyntax syntax) {
+    switch (syntax) {
+        case AST_ATTRIBUTE_SYNTAX_GNU: return "GNU";
+        case AST_ATTRIBUTE_SYNTAX_CXX: return "CXX";
+        case AST_ATTRIBUTE_SYNTAX_DECLSPEC: return "DECLSPEC";
+        default: return "UNKNOWN";
+    }
+}
+
+static void printNodeAttributes(ASTNode* node, int depth) {
+    if (!node || node->attributeCount == 0 || !node->attributes) {
+        return;
+    }
+    for (size_t i = 0; i < node->attributeCount; ++i) {
+        ASTAttribute* attr = node->attributes[i];
+        if (!attr) continue;
+        for (int j = 0; j < depth; ++j) {
+            printf("  ");
+        }
+        const char* payload = attr->payload ? attr->payload : "";
+        printf("ATTRIBUTE [%s] %s\n", attributeSyntaxName(attr->syntax), payload);
+    }
+}
 
 void printParsedType(const ParsedType* pt) {
     printParsedType_inner(pt);
@@ -146,7 +171,7 @@ void printBasicAST(struct ASTNode* node, int depth, bool inlineMode) {
 
 void printAST(ASTNode* node, int depth) {
     if (!node) return;
-                
+    printNodeAttributes(node, depth);
     // Indentation for tree-like structure
     for (int i = 0; i < depth; i++) {
         printf("  ");
@@ -165,6 +190,13 @@ void printAST(ASTNode* node, int depth) {
             printf("BLOCK\n");
             for (size_t i = 0; i < node->block.statementCount; i++) {
                 printAST(node->block.statements[i], depth + 1);
+            }
+            break;
+
+        case AST_STATEMENT_EXPRESSION:
+            printf("STATEMENT_EXPRESSION\n");
+            if (node->statementExpr.block) {
+                printAST(node->statementExpr.block, depth + 1);
             }
             break;
             

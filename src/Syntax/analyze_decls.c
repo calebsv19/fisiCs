@@ -90,6 +90,7 @@ static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type) {
     hash_bool  (hash, type->isRegister);
     hash_bool  (hash, type->isAuto);
     hash_u64   (hash, (uint64_t)type->pointerDepth);
+    hash_bool  (hash, type->isVLA);
 }
 
 static void hashAstNode(uint64_t* hash, const ASTNode* node) {
@@ -364,6 +365,10 @@ static bool tryEvaluateArrayLength(ASTNode* sizeExpr, size_t* outLen) {
     return true;
 }
 
+static bool scopeIsFileScope(Scope* scope) {
+    return scope && scope->parent == NULL;
+}
+
 static void analyzeDesignatedInitializer(DesignatedInit* init, Scope* scope) {
     if (!init || !scope) return;
     if (init->indexExpr) {
@@ -381,7 +386,7 @@ static void analyzeDesignatedInitializerList(DesignatedInit** list, size_t count
     }
 }
 
-static void validateVariableInitializer(const ParsedType* type, DesignatedInit* init, ASTNode* nameNode, Scope* scope);
+static void validateVariableInitializer(const ParsedType* type, DesignatedInit* init, ASTNode* nameNode, Scope* scope, bool staticStorage);
 static void validateArrayInitializer(ASTNode* node, Scope* scope);
 
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
@@ -404,10 +409,13 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     addError(ident ? ident->line : node->line, 0, "Redefinition of variable", ident->valueNode.value);
                 }
 
+                bool staticStorage = scopeIsFileScope(scope) ||
+                                     (varType && (varType->isStatic || varType->isExtern));
+
                 if (i < node->varDecl.varCount && node->varDecl.initializers) {
                     DesignatedInit* init = node->varDecl.initializers[i];
                     analyzeDesignatedInitializer(init, scope);
-                    validateVariableInitializer(varType, init, ident, scope);
+                    validateVariableInitializer(varType, init, ident, scope, staticStorage);
                 }
             }
             break;
@@ -470,10 +478,28 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 break;
             }
 
+            bool hasVLA = false;
+            ASTNode* dimNode = node->arrayDecl.arraySize;
+            while (dimNode) {
+                (void)analyzeExpression(dimNode, scope);
+                size_t len = 0;
+                if (!tryEvaluateArrayLength(dimNode, &len)) {
+                    hasVLA = true;
+                }
+                dimNode = dimNode->nextStmt;
+            }
+            node->arrayDecl.isVLA = hasVLA;
+            if (hasVLA) {
+                node->arrayDecl.declaredType.isVLA = true;
+            }
+
             Symbol* sym = malloc(sizeof(Symbol));
             sym->name = strdup(nameNode->valueNode.value);
             sym->kind = SYMBOL_VARIABLE;
             sym->type = node->arrayDecl.declaredType;
+            if (hasVLA) {
+                sym->type.isVLA = true;
+            }
             sym->definition = node;
             sym->next = NULL;
             resetFunctionSignature(sym);
@@ -482,10 +508,17 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 addError(nameNode ? nameNode->line : node->line, 0, "Redefinition of variable", nameNode->valueNode.value);
             }
 
-            ASTNode* dim = node->arrayDecl.arraySize;
-            while (dim) {
-                (void)analyzeExpression(dim, scope);
-                dim = dim->nextStmt;
+            if (hasVLA) {
+                bool staticStorage = scopeIsFileScope(scope) ||
+                                     node->arrayDecl.declaredType.isStatic ||
+                                     node->arrayDecl.declaredType.isExtern;
+                if (staticStorage) {
+                    char buffer[256];
+                    snprintf(buffer, sizeof(buffer),
+                             "Variable-length array '%s' is not allowed at static storage duration",
+                             nameNode && nameNode->valueNode.value ? nameNode->valueNode.value : "<unnamed>");
+                    addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                }
             }
 
             analyzeDesignatedInitializerList(node->arrayDecl.initializers, node->arrayDecl.valueCount, scope);
@@ -576,7 +609,11 @@ static void validateScalarCompoundLiteral(ASTNode* compound, ASTNode* context, c
     }
 }
 
-static void validateVariableInitializer(const ParsedType* type, DesignatedInit* init, ASTNode* nameNode, Scope* scope) {
+static void validateVariableInitializer(const ParsedType* type,
+                                        DesignatedInit* init,
+                                        ASTNode* nameNode,
+                                        Scope* scope,
+                                        bool staticStorage) {
     if (!type || !scope || !init) return;
     const char* name = safeIdentifierName(nameNode);
     TypeInfo info = typeInfoFromParsedType(type, scope);
@@ -595,6 +632,13 @@ static void validateVariableInitializer(const ParsedType* type, DesignatedInit* 
 
     if (init->expression && init->expression->type == AST_COMPOUND_LITERAL) {
         validateScalarCompoundLiteral(init->expression, nameNode, name);
+    }
+
+    if (staticStorage && init->expression && init->expression->type == AST_COMPOUND_LITERAL) {
+        char buffer[256];
+        snprintf(buffer, sizeof(buffer),
+                 "Compound literal at static storage must be constant");
+        addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
     }
 }
 

@@ -21,6 +21,8 @@ static ASTNode* new_node(ASTNodeType tag) {
     if (!n) { fprintf(stderr, "OOM ASTNode\n"); return NULL; }
     n->type = tag;
     n->line = 0;
+    n->attributes = NULL;
+    n->attributeCount = 0;
     return n;
 }
 
@@ -80,6 +82,48 @@ ASTNode *createBlockNode(ASTNode **statements, size_t statementCount) {
     node->block.statements = statements;
     inherit_line_from_array(node, statements, statementCount);
     return node;
+}
+
+ASTNode* createStatementExpressionNode(ASTNode* block) {
+    ASTNode* node = new_node(AST_STATEMENT_EXPRESSION);
+    if (!node) return NULL;
+    node->statementExpr.block = block;
+    inherit_line_from_node(node, block);
+    return node;
+}
+
+void astNodeAppendAttributes(ASTNode* node, ASTAttribute** attrs, size_t count) {
+    if (!attrs || count == 0) {
+        free(attrs);
+        return;
+    }
+    if (!node) {
+        astAttributeListDestroy(attrs, count);
+        free(attrs);
+        return;
+    }
+    size_t newCount = node->attributeCount + count;
+    ASTAttribute** merged = (ASTAttribute**)realloc(node->attributes, newCount * sizeof(ASTAttribute*));
+    if (!merged) {
+        astAttributeListDestroy(attrs, count);
+        free(attrs);
+        return;
+    }
+    memcpy(merged + node->attributeCount, attrs, count * sizeof(ASTAttribute*));
+    free(attrs);
+    node->attributes = merged;
+    node->attributeCount = newCount;
+}
+
+void astNodeCloneTypeAttributes(ASTNode* node, const ParsedType* type) {
+    if (!node || !type || type->attributeCount == 0 || !type->attributes) {
+        return;
+    }
+    ASTAttribute** clones = astAttributeListClone(type->attributes, type->attributeCount);
+    if (!clones) {
+        return;
+    }
+    astNodeAppendAttributes(node, clones, type->attributeCount);
 }
 
 
@@ -459,6 +503,7 @@ ASTNode* createArrayDeclarationNode(ParsedType declaredType,
     node->arrayDecl.arraySize    = size;           // may be NULL for unsized
     node->arrayDecl.initializers = initValues;     // may be NULL
     node->arrayDecl.valueCount   = valueCount;     // 0 ok
+    node->arrayDecl.isVLA        = false;
     inherit_line_from_node(node, name);
     inherit_line_from_node(node, size);
     inherit_line_from_designated_inits(node, initValues, valueCount);

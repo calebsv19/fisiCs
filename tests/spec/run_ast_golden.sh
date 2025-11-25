@@ -16,6 +16,7 @@ fi
 
 GOLDEN_ROOT="tests/spec/goldens"
 UPDATE_GOLDENS="${UPDATE_GOLDENS:-0}"
+SPEC_FILTER="${SPEC_FILTER:-}"
 status=0
 
 extract_sections() {
@@ -43,6 +44,12 @@ extract_sections() {
 
 for src in "${TEST_SOURCES[@]}"; do
   rel="${src#tests/}"
+  if [ -n "$SPEC_FILTER" ] && [ "$rel" != "$SPEC_FILTER" ]; then
+    continue
+  fi
+  if [[ "$rel" == parser/gnu_* ]] && [ -z "${ENABLE_GNU_STATEMENT_EXPRESSIONS:-}" ]; then
+    continue
+  fi
   name="${rel%.c}"
   golden_path="${GOLDEN_ROOT}/${name}.golden"
   golden_dir="$(dirname "$golden_path")"

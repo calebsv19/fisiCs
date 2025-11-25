@@ -1,0 +1,30 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER g
+      = NUMBER_LITERAL 3
+  ARRAY_DECLARATION
+    TYPE: int
+    IDENTIFIER file_bad
+    DIMENSION[0]:
+      IDENTIFIER g
+  FUNCTION DEFINITION
+    RETURN TYPE: void
+    IDENTIFIER foo
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER n
+    BLOCK
+      ARRAY_DECLARATION
+        TYPE: static int
+        IDENTIFIER static_bad
+        DIMENSION[0]:
+          IDENTIFIER n
+
+
+Diagnostics:
+Error at (2:0): Variable-length array 'file_bad' is not allowed at static storage duration
+Error at (5:0): Variable-length array 'static_bad' is not allowed at static storage duration
+

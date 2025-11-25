@@ -1,0 +1,23 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      IF_STATEMENT
+        BINARY EXPRESSION '>'
+          IDENTIFIER second
+          NUMBER_LITERAL 0
+        BLOCK
+
+
+Diagnostics:
+Error at (7:0): Undeclared identifier
+   Hint: second
+Error at (7:0): Operator '>' requires comparable operands
+Error at (3:0): Control reaches end of non-void function 'main'
+

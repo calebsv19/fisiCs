@@ -13,6 +13,9 @@ void initParser(Parser* parser, Lexer* lexer, ParserMode mode, CompilerContext* 
     parser->nextNextToken     = getNextToken(lexer);
     parser->nextNextNextToken = getNextToken(lexer);
     parser->ctx = ctx;
+    const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
+    parser->enableStatementExpressions =
+        (gnuEnv && gnuEnv[0] != '\0' && gnuEnv[0] != '0');
 }
 
 // Advance the 4-token lookahead window forward

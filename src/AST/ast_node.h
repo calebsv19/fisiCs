@@ -1,6 +1,7 @@
 #ifndef AST_NODE_H
 #define AST_NODE_H
 
+#include "AST/ast_attribute.h"
 #include "Parser/Helpers/designated_init.h"
 #include "Parser/Helpers/parsed_type.h"
 #include "Lexer/tokens.h"
@@ -15,6 +16,7 @@ struct DesignatedInit;
 typedef enum {
     AST_PROGRAM,
     AST_BLOCK,
+    AST_STATEMENT_EXPRESSION,
     AST_HEAP_ALLOCATION,
 
     AST_INCLUDE_DIRECTIVE,
@@ -84,6 +86,8 @@ struct ASTNode {
     ASTNodeType type;
     int line;
     ASTNode *nextStmt;
+    ASTAttribute** attributes;
+    size_t attributeCount;
 
     union {
         //  **Global Scope & Blocks**
@@ -91,6 +95,10 @@ struct ASTNode {
             ASTNode **statements;
 	    size_t statementCount;
         } block;
+
+        struct {
+            ASTNode* block;
+        } statementExpr;
 	
 	struct {
 	    ASTNode* enumName;
@@ -252,6 +260,7 @@ struct ASTNode {
             ASTNode* arraySize;  // ≈ Holds the size of the array
 	    struct DesignatedInit** initializers;
             size_t valueCount;
+            bool isVLA;
         } arrayDecl;
 
 	struct {
@@ -352,6 +361,9 @@ static inline const ParsedType* astVarDeclTypeAt(const ASTNode* node, size_t ind
 // Main blocks
 ASTNode *createProgramNode(ASTNode **declarations, size_t declCount);
 ASTNode *createBlockNode(ASTNode **statements, size_t statementCount);
+ASTNode* createStatementExpressionNode(ASTNode* block);
+void astNodeAppendAttributes(ASTNode* node, ASTAttribute** attrs, size_t count);
+void astNodeCloneTypeAttributes(ASTNode* node, const ParsedType* type);
 
 
 // Preprocesses

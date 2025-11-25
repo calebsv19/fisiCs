@@ -2,6 +2,7 @@
 #include "Parser/parser.h"
 #include "Parser/Helpers/parser_helpers.h"
 #include "Compiler/compiler_context.h"
+#include "Parser/Helpers/parser_attributes.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -70,6 +71,12 @@ void parsedTypeFree(ParsedType* t) {
     t->fpParamCount = 0;
     t->isFunctionPointer = false;
     parsedTypeResetDerivations(t);
+    if (t->attributes) {
+        astAttributeListDestroy(t->attributes, t->attributeCount);
+        free(t->attributes);
+        t->attributes = NULL;
+    }
+    t->attributeCount = 0;
 }
 
 static ParsedType parsedTypeDefault(void) {
@@ -193,6 +200,8 @@ ParsedType parsedTypeClone(const ParsedType* src) {
     copy.fpParams = NULL;
     copy.derivations = NULL;
     copy.fpParamCount = 0;
+    copy.attributes = NULL;
+    copy.attributeCount = 0;
     if (src->fpParamCount > 0 && src->fpParams) {
         size_t bytes = src->fpParamCount * sizeof(ParsedType);
         copy.fpParams = (ParsedType*)malloc(bytes);
@@ -214,7 +223,22 @@ ParsedType parsedTypeClone(const ParsedType* src) {
     } else {
         copy.derivationCount = 0;
     }
+    if (src->attributeCount > 0 && src->attributes) {
+        copy.attributes = astAttributeListClone(src->attributes, src->attributeCount);
+        if (copy.attributes) {
+            copy.attributeCount = src->attributeCount;
+        }
+    }
     return copy;
+}
+
+void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count) {
+    if (!t) {
+        astAttributeListDestroy(attrs, count);
+        free(attrs);
+        return;
+    }
+    astAttributeListAppend(&t->attributes, &t->attributeCount, attrs, count);
 }
 
 static bool identifierMatchesKnownType(Parser* parser, const char* name) {
@@ -264,11 +288,19 @@ static void consumePointerQualifiers(Parser* parser) {
     }
 }
 
+static void consumeTypeAttributes(Parser* parser, ParsedType* type) {
+    if (!parser || !type) return;
+    size_t attrCount = 0;
+    ASTAttribute** attrs = parserParseAttributeSpecifiers(parser, &attrCount);
+    parsedTypeAdoptAttributes(type, attrs, attrCount);
+}
+
 static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
     ParsedType type = parsedTypeDefault();
     if (!parser) {
         return type;
     }
+    consumeTypeAttributes(parser, &type);
 
     // Storage class specifiers
     for (;;) {
@@ -280,6 +312,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_AUTO:     type.isAuto     = true; advance(parser); continue;
             default: break;
         }
+        consumeTypeAttributes(parser, &type);
         break;
     }
 
@@ -296,6 +329,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_INLINE:   type.isInline   = true; advance(parser); continue;
             default: break;
         }
+        consumeTypeAttributes(parser, &type);
         break;
     }
 
@@ -400,6 +434,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
     if (!sawBaseType) {
         return parsedTypeDefault();
     }
+    consumeTypeAttributes(parser, &type);
 
     return type;
 }

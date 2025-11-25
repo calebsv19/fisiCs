@@ -82,13 +82,12 @@ ASTNode* parseSwitchStatement(Parser* parser) {
             }
              
             // Create and store case node
-            ASTNode* caseNode = malloc(sizeof(ASTNode));
-            caseNode->type = AST_CASE;
-            caseNode->caseStmt.caseValue = caseValue;
-            caseNode->caseStmt.caseBody = caseBody;  
+            ASTNode* caseNode = createCaseNode(caseValue, caseBody);
+            if (!caseNode) {
+                return NULL;
+            }
             caseNode->caseStmt.caseBodySize = caseBodySize;
-            caseNode->caseStmt.nextCase = NULL;
-            
+
             // Store in caseList
             if (caseListSize >= caseListCapacity) {
                 caseListCapacity *= 2;
@@ -108,12 +107,11 @@ ASTNode* parseSwitchStatement(Parser* parser) {
     }
     advance(parser); // Consume '}'
     
-    ASTNode* switchNode = malloc(sizeof(ASTNode));
-    switchNode->type = AST_SWITCH;
-    switchNode->switchStmt.condition = condition;
-    switchNode->switchStmt.caseList = caseList;  
+    ASTNode* switchNode = createSwitchNode(condition, caseList);
+    if (!switchNode) {
+        return NULL;
+    }
     switchNode->switchStmt.caseListSize = caseListSize;
-    
     return switchNode;
 }
 

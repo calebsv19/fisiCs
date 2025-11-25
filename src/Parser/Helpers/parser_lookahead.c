@@ -32,6 +32,7 @@ bool looksLikeTypeDeclaration(Parser* parser) {
         }
     }
 
+    parsedTypeFree(&probe);
     freeParserClone(&temp);
     return result;
 }
@@ -48,6 +49,7 @@ bool looksLikeCastType(Parser* parser) {
     // Parse a base type (primitive/typedef/struct/etc.)
     ParsedType t = parseTypeCtx(&probe, TYPECTX_Strict);
     if (t.kind == TYPE_INVALID) {
+        parsedTypeFree(&t);
         freeParserClone(&probe);
         return false;
     }
@@ -57,6 +59,7 @@ bool looksLikeCastType(Parser* parser) {
 
     // We must be at the closing ')'
     if (probe.currentToken.type != TOKEN_RPAREN) {
+        parsedTypeFree(&t);
         freeParserClone(&probe);
         return false;
     }
@@ -65,6 +68,8 @@ bool looksLikeCastType(Parser* parser) {
     advance(&probe); // consume ')'
     bool ok = isValidExpressionStart(probe.currentToken.type);
 
+    parsedTypeFree(&t);
+    parsedTypeFree(&t);
     freeParserClone(&probe);
     return ok;
 }
@@ -77,21 +82,19 @@ bool looksLikeCompoundLiteral(Parser* parser) {
     Parser probe = cloneParserWithFreshLexer(parser);
 
     ParsedType t = parseTypeCtx(&probe, TYPECTX_Strict);
-    if (t.kind == TYPE_INVALID) { freeParserClone(&probe); return false; }
+    if (t.kind == TYPE_INVALID) { parsedTypeFree(&t); freeParserClone(&probe); return false; }
 
     // Allow pointers/params/arrays after base type
     consumeAbstractDeclarator(&probe);
 
     // Must see ')'
-    if (probe.currentToken.type != TOKEN_RPAREN) { freeParserClone(&probe); return false; }
+    if (probe.currentToken.type != TOKEN_RPAREN) { parsedTypeFree(&t); freeParserClone(&probe); return false; }
     advance(&probe); // consume ')'
 
     // C99 compound literal: next token must be '{'
     bool ok = (probe.currentToken.type == TOKEN_LBRACE);
+    parsedTypeFree(&t);
+    parsedTypeFree(&t);
     freeParserClone(&probe);
     return ok;
 }
-
-
-
-

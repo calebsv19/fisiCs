@@ -27,7 +27,7 @@ typedef struct Parser {
     Lexer* lexer;
 
     ParserMode mode;
-
+    bool enableStatementExpressions;
     CompilerContext* ctx;
 } Parser;
 

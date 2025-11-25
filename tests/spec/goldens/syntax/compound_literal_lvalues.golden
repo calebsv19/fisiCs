@@ -1,0 +1,38 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER S
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+  FUNCTION DEFINITION
+    RETURN TYPE: void
+    IDENTIFIER ok
+    PARAMETERS
+      VAR_DECL
+        TYPE: struct S
+        IDENTIFIER s
+    BLOCK
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          COMPOUND_LITERAL
+            TYPE: struct S
+            .x = NUMBER_LITERAL 1
+
+          FIELD x
+        NUMBER_LITERAL 2
+  VAR_DECL
+    TYPE: static struct S
+    IDENTIFIER bad
+        .x = NUMBER_LITERAL 3
+
+  VAR_DECL
+    TYPE: struct S
+    IDENTIFIER bad2
+        .x = NUMBER_LITERAL 4
+
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

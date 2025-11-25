@@ -1,4 +1,5 @@
 #include "analyze_expr.h"
+#include "analyze_core.h"
 #include "syntax_errors.h"
 #include "symbol_table.h"
 #include "Parser/Helpers/designated_init.h"
@@ -20,6 +21,7 @@ static bool typeInfoIsKnown(const TypeInfo* info);
 static void reportArgumentCountError(ASTNode* call, const char* calleeName, size_t expected, size_t actual, bool tooFew);
 static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* calleeName, const char* message);
 static const char* fallbackFunctionName(const char* name);
+static bool isExpressionNodeType(ASTNodeType type);
 
 static void analyzeDesignatedInitializerExpr(DesignatedInit* init, Scope* scope) {
     if (!init) return;
@@ -117,6 +119,31 @@ static const char* fallbackFunctionName(const char* name) {
     return name ? name : "<anonymous>";
 }
 
+static bool isExpressionNodeType(ASTNodeType type) {
+    switch (type) {
+        case AST_ASSIGNMENT:
+        case AST_BINARY_EXPRESSION:
+        case AST_UNARY_EXPRESSION:
+        case AST_TERNARY_EXPRESSION:
+        case AST_COMMA_EXPRESSION:
+        case AST_CAST_EXPRESSION:
+        case AST_COMPOUND_LITERAL:
+        case AST_ARRAY_ACCESS:
+        case AST_POINTER_ACCESS:
+        case AST_POINTER_DEREFERENCE:
+        case AST_FUNCTION_CALL:
+        case AST_IDENTIFIER:
+        case AST_NUMBER_LITERAL:
+        case AST_CHAR_LITERAL:
+        case AST_STRING_LITERAL:
+        case AST_SIZEOF:
+        case AST_STATEMENT_EXPRESSION:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static void reportArgumentCountError(ASTNode* call, const char* calleeName, size_t expected, size_t actual, bool tooFew) {
     char buffer[160];
     snprintf(buffer,
@@ -162,6 +189,9 @@ static bool isModifiableLValue(const TypeInfo* info) {
         return false;
     }
     if (info->isConst || info->isArray || info->category == TYPEINFO_FUNCTION || info->category == TYPEINFO_VOID) {
+        return false;
+    }
+    if (info->isVLA) {
         return false;
     }
     return true;
@@ -526,11 +556,40 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             return makeInvalidType();
         }
 
-        case AST_COMPOUND_LITERAL:
+        case AST_COMPOUND_LITERAL: {
             for (size_t i = 0; i < node->compoundLiteral.entryCount; ++i) {
                 analyzeDesignatedInitializerExpr(node->compoundLiteral.entries[i], scope);
             }
-            return makeInvalidType();
+            TypeInfo info = typeInfoFromParsedType(&node->compoundLiteral.literalType, scope);
+            info.isLValue = true;
+            return info;
+        }
+
+        case AST_STATEMENT_EXPRESSION: {
+            if (!node->statementExpr.block) {
+                return makeInvalidType();
+            }
+            Scope* inner = createScope(scope);
+            TypeInfo result = makeInvalidType();
+            ASTNode* block = node->statementExpr.block;
+            if (block->type == AST_BLOCK) {
+                size_t count = block->block.statementCount;
+                for (size_t i = 0; i < count; ++i) {
+                    ASTNode* stmt = block->block.statements[i];
+                    if (!stmt) continue;
+                    bool last = (i + 1 == count);
+                    if (last && isExpressionNodeType(stmt->type)) {
+                        result = analyzeExpression(stmt, inner);
+                    } else {
+                        analyze(stmt, inner);
+                    }
+                }
+            } else {
+                analyze(block, inner);
+            }
+            destroyScope(inner);
+            return result;
+        }
 
         case AST_TERNARY_EXPRESSION: {
             analyzeExpression(node->ternaryExpr.condition, scope);

@@ -1,7 +1,35 @@
 AST:
+PROGRAM
+  INCLUDE_DIRECTIVE
+    File: stdio.h (system)
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER flag
+          = NUMBER_LITERAL 1
+      IF_STATEMENT
+        UNARY EXPRESSION '!' (prefix)
+          NUMBER_LITERAL 0
+        BLOCK
+          ASSIGNMENT (=)
+            IDENTIFIER flag
+            BINARY EXPRESSION '&&'
+              IDENTIFIER flag
+              NUMBER_LITERAL 1
+      RETURN
+        TERNARY_EXPRESSION
+          IDENTIFIER flag
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1
 
 
 Diagnostics:
-Error at (0:0): Root AST node is not a program
-   Hint: Ensure parsing produced a valid program node
+Semantic analysis: no issues found.
 

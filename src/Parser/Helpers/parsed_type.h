@@ -1,10 +1,9 @@
 #ifndef PARSED_TYPE_H
 #define PARSED_TYPE_H
 
-#include <stdlib.h>
-
 #include "Lexer/tokens.h"  // Required for TokenType
 #include <stdbool.h>
+#include "AST/ast_attribute.h"
 
 struct Parser;
 struct ASTNode;
@@ -94,11 +93,15 @@ typedef struct ParsedType {
     bool isAuto;
 
     int pointerDepth;
+    bool isVLA;
     bool directlyDeclaresFunction;
     bool isVariadicFunction;
 
     TypeDerivation* derivations;
     size_t derivationCount;
+
+    ASTAttribute** attributes;
+    size_t attributeCount;
 } ParsedType;
 
 
@@ -115,6 +118,7 @@ bool parsedTypeAppendArray(ParsedType* t, struct ASTNode* sizeExpr, bool isVLA);
 bool parsedTypeAppendFunction(ParsedType* t, const ParsedType* params, size_t paramCount, bool isVariadic);
 void parsedTypeResetDerivations(ParsedType* t);
 ParsedType parsedTypeClone(const ParsedType* src);
+void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count);
 
 ParsedType parseType(struct Parser* parser);
 ParsedType parseTypeCtx(struct Parser* parser, TypeContext ctx);

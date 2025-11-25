@@ -23,6 +23,7 @@ Builds the compiler's AST from the lexer token stream. The parser mixes recursiv
   - Handles type-specifier sequences, variable declarator lists, struct/union/enum bodies, and integrates designated initialisers.
 - `parser_config.h`
   - Defines `ParserMode` enum toggling between recursive and Pratt expression parsing.
+- GNU statement expressions (`({ ... })`) can be enabled by setting `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` before invoking the compiler or spec harness; when enabled they are parsed into dedicated `AST_STATEMENT_EXPRESSION` nodes that wrap a block and yield the last expression.
 
 ### Expression engine
 

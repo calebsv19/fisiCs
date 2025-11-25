@@ -30,5 +30,7 @@ ASTNode* parseGotoStatement(Parser* parser);
 ASTNode* parseAsmStatement(Parser* parser);
 ASTNode* parseLabel(Parser* parser);
 
-#endif // _PARSER_STMT_H
+void parserSyncToStatementEnd(Parser* parser);
+void parserSyncToDeclarationStart(Parser* parser);
 
+#endif // _PARSER_STMT_H

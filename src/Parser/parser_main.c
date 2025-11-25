@@ -26,8 +26,8 @@ ASTNode* parseProgram(Parser* parser) {
         if (looksLikeTypeDeclaration(parser)) {
             ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
             if (!decl) { 
-                free(statements); 
-                return NULL; 
+                parserSyncToDeclarationStart(parser);
+                continue;
             }
 
             if (count >= capacity) {
@@ -52,8 +52,8 @@ ASTNode* parseProgram(Parser* parser) {
 
         if (!stmt) {
             fprintf(stderr, "Error: invalid statement at line %d\n", parser->currentToken.line);
-            free(statements);
-            return NULL;
+            parserSyncToStatementEnd(parser);
+            continue;
         }
 
         if (count >= capacity) {
@@ -87,8 +87,11 @@ ASTNode* parseBlock(Parser* parser) {
         ASTNode* stmt = parseStatement(parser);
         if (!stmt) {
             printf("Error: invalid statement inside block at line %d\n", parser->currentToken.line);
-            free(statements);
-            return NULL;
+            parserSyncToStatementEnd(parser);
+            if (parser->currentToken.type == TOKEN_RBRACE || parser->currentToken.type == TOKEN_EOF) {
+                break;
+            }
+            continue;
         }
         if (count >= capacity) {
             capacity *= 2;
@@ -102,10 +105,9 @@ ASTNode* parseBlock(Parser* parser) {
     }
     if (parser->currentToken.type != TOKEN_RBRACE) {
         printf("Error: expected '}' at line %d\n", parser->currentToken.line);
-        free(statements);
-        return NULL;
+    } else {
+        advance(parser);  // consume '}'
     }
-    advance(parser);  // consume '}'
     return createBlockNode(statements, count);
 }
 

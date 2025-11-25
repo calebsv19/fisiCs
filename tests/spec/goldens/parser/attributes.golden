@@ -1,0 +1,22 @@
+AST:
+PROGRAM
+  ATTRIBUTE [GNU] aligned(16)
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER global_value
+  ATTRIBUTE [CXX] gnu::cold
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER flagged
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        IDENTIFIER global_value
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

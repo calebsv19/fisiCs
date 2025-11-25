@@ -29,6 +29,7 @@ typedef struct TypeInfo {
     bool isRestrict;
     bool isArray;
     bool isFunction;
+    bool isVLA;
     TagKind tag;
     const char* userTypeName;
     int pointerDepth;

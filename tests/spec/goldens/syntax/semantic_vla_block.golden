@@ -1,0 +1,26 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: void
+    IDENTIFIER ok
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER n
+    BLOCK
+      ARRAY_DECLARATION
+        TYPE: int
+        IDENTIFIER arr
+        DIMENSION[0]:
+          IDENTIFIER n
+      ASSIGNMENT (=)
+        ARRAY_ACCESS
+          IDENTIFIER arr
+          NUMBER_LITERAL 0
+        IDENTIFIER n
+
+
+Diagnostics:
+Error at (3:0): Left operand of '=' must be a modifiable lvalue
+Error at (3:0): Incompatible assignment operands
+

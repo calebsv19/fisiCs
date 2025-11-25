@@ -125,6 +125,7 @@ void analyze(ASTNode* node, Scope* scope) {
     case AST_COMMA_EXPRESSION:
     case AST_CAST_EXPRESSION:
     case AST_COMPOUND_LITERAL:
+    case AST_STATEMENT_EXPRESSION:
     case AST_ARRAY_ACCESS:
     case AST_POINTER_ACCESS:
     case AST_POINTER_DEREFERENCE:

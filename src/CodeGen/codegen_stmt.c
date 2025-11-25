@@ -5,6 +5,50 @@
 #include <stdio.h>
 #include <string.h>
 
+static bool cg_node_is_expression_type(ASTNodeType type) {
+    switch (type) {
+        case AST_ASSIGNMENT:
+        case AST_BINARY_EXPRESSION:
+        case AST_UNARY_EXPRESSION:
+        case AST_TERNARY_EXPRESSION:
+        case AST_COMMA_EXPRESSION:
+        case AST_CAST_EXPRESSION:
+        case AST_COMPOUND_LITERAL:
+        case AST_ARRAY_ACCESS:
+        case AST_POINTER_ACCESS:
+        case AST_POINTER_DEREFERENCE:
+        case AST_FUNCTION_CALL:
+        case AST_IDENTIFIER:
+        case AST_NUMBER_LITERAL:
+        case AST_CHAR_LITERAL:
+        case AST_STRING_LITERAL:
+        case AST_SIZEOF:
+        case AST_STATEMENT_EXPRESSION:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static LLVMValueRef cg_finalize_statement_expr_result(CodegenContext* ctx, LLVMValueRef value) {
+    if (!value) {
+        return NULL;
+    }
+    LLVMTypeRef valueType = LLVMTypeOf(value);
+    if (!valueType || LLVMGetTypeKind(valueType) == LLVMVoidTypeKind) {
+        return value;
+    }
+
+    if (!LLVMIsConstant(value)) {
+        LLVMSetValueName2(value, "stmt.expr.result", strlen("stmt.expr.result"));
+        return value;
+    }
+
+    LLVMValueRef slot = LLVMBuildAlloca(ctx->builder, valueType, "stmt.expr.result.slot");
+    LLVMBuildStore(ctx->builder, value, slot);
+    return LLVMBuildLoad2(ctx->builder, valueType, slot, "stmt.expr.result");
+}
+
 LLVMValueRef codegenProgram(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid node type for codegenProgram\n");
@@ -34,6 +78,52 @@ LLVMValueRef codegenBlock(CodegenContext* ctx, ASTNode* node) {
     }
     cg_scope_pop(ctx);
     return last;
+}
+
+LLVMValueRef codegenStatementExpression(CodegenContext* ctx, ASTNode* node) {
+    if (!ctx || !node || node->type != AST_STATEMENT_EXPRESSION) {
+        fprintf(stderr, "Error: Invalid node type for codegenStatementExpression\n");
+        return NULL;
+    }
+    ASTNode* block = node->statementExpr.block;
+    if (!block) {
+        fprintf(stderr, "Error: Statement expression missing body\n");
+        return NULL;
+    }
+
+    if (!cg_scope_push(ctx)) {
+        fprintf(stderr, "Error: Failed to create scope for statement expression\n");
+        return NULL;
+    }
+
+    LLVMValueRef resultValue = NULL;
+    if (block->type == AST_BLOCK) {
+        size_t count = block->block.statementCount;
+        for (size_t i = 0; i < count; ++i) {
+            ASTNode* stmt = block->block.statements[i];
+            if (!stmt) {
+                continue;
+            }
+            bool isLast = (i + 1 == count);
+            if (isLast && cg_node_is_expression_type(stmt->type)) {
+                resultValue = codegenNode(ctx, stmt);
+            } else {
+                codegenNode(ctx, stmt);
+            }
+        }
+    } else if (cg_node_is_expression_type(block->type)) {
+        resultValue = codegenNode(ctx, block);
+    } else {
+        codegenNode(ctx, block);
+    }
+
+    cg_scope_pop(ctx);
+
+    if (!resultValue) {
+        fprintf(stderr, "Error: Statement expression did not yield a value\n");
+        return NULL;
+    }
+    return cg_finalize_statement_expr_result(ctx, resultValue);
 }
 
 
@@ -93,6 +183,41 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
 }
 
 
+static LLVMValueRef ensureIntegerLLVMValue(CodegenContext* ctx, LLVMValueRef value) {
+    if (!value) return NULL;
+    LLVMTypeRef ty = LLVMTypeOf(value);
+    if (ty && LLVMGetTypeKind(ty) == LLVMIntegerTypeKind) {
+        return value;
+    }
+    if (ty && LLVMGetTypeKind(ty) == LLVMPointerTypeKind) {
+        LLVMTypeRef target = LLVMIntPtrTypeInContext(ctx->llvmContext, 0);
+        return LLVMBuildPtrToInt(ctx->builder, value, target, "vla.ptrtoint");
+    }
+    return LLVMBuildIntCast(ctx->builder,
+                            value,
+                            LLVMInt32TypeInContext(ctx->llvmContext),
+                            "vla.intcast");
+}
+
+static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, ASTNode* sizeChain) {
+    LLVMValueRef total = NULL;
+    ASTNode* dim = sizeChain;
+    while (dim) {
+        LLVMValueRef dimValue = codegenNode(ctx, dim);
+        dimValue = ensureIntegerLLVMValue(ctx, dimValue);
+        if (!dimValue) {
+            return NULL;
+        }
+        if (!total) {
+            total = dimValue;
+        } else {
+            total = LLVMBuildMul(ctx->builder, total, dimValue, "vla.total");
+        }
+        dim = dim->nextStmt;
+    }
+    return total;
+}
+
 LLVMValueRef codegenArrayDeclaration(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_ARRAY_DECLARATION) {
         fprintf(stderr, "Error: Invalid node type for codegenArrayDeclaration\n");
@@ -102,6 +227,27 @@ LLVMValueRef codegenArrayDeclaration(CodegenContext* ctx, ASTNode* node) {
     LLVMTypeRef elementType = cg_type_from_parsed(ctx, &node->arrayDecl.declaredType);
     if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
         elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+
+    if (node->arrayDecl.isVLA) {
+        LLVMValueRef elementCount = codegenVLAElementCount(ctx, node->arrayDecl.arraySize);
+        if (!elementCount) {
+            fprintf(stderr, "Error: Failed to compute length for variable-length array\n");
+            return NULL;
+        }
+        LLVMValueRef arrayPtr = LLVMBuildArrayAlloca(ctx->builder,
+                                                     elementType,
+                                                     elementCount,
+                                                     node->arrayDecl.varName->valueNode.value);
+        cg_scope_insert(ctx->currentScope,
+                        node->arrayDecl.varName->valueNode.value,
+                        arrayPtr,
+                        LLVMTypeOf(arrayPtr),
+                        false,
+                        true,
+                        elementType,
+                        &node->arrayDecl.declaredType);
+        return arrayPtr;
     }
 
     LLVMValueRef computedSize = node->arrayDecl.arraySize ? codegenNode(ctx, node->arrayDecl.arraySize) : NULL;

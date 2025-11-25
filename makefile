@@ -100,6 +100,9 @@ switch-flow: $(BIN)
 goto-flow: $(BIN)
 	@./tests/parser/run_goto_flow.sh ./$(BIN)
 
+recovery: $(BIN)
+	@./tests/parser/run_recovery.sh ./$(BIN)
+
 pointer-arith: $(BIN)
 	@./tests/codegen/run_pointer_arith.sh ./$(BIN)
 
@@ -108,6 +111,9 @@ codegen-pointer-deref: $(BIN)
 
 codegen-pointer-diff: $(BIN)
 	@./tests/codegen/run_codegen_pointer_diff_long.sh ./$(BIN)
+
+statement-expr-codegen: $(BIN)
+	@./tests/codegen/run_statement_expr_codegen.sh ./$(BIN)
 
 semantic-typedef: $(BIN)
 	@./tests/syntax/run_semantic_typedef.sh ./$(BIN)
@@ -145,18 +151,35 @@ semantic-initializer-shapes: $(BIN)
 semantic-flow: $(BIN)
 	@./tests/syntax/run_semantic_flow.sh ./$(BIN)
 
+semantic-vla-errors: $(BIN)
+	@./tests/syntax/run_semantic_vla_errors.sh ./$(BIN)
+
+semantic-vla-block: $(BIN)
+	@./tests/syntax/run_semantic_vla_block.sh ./$(BIN)
+
+compound-literal-lvalues: $(BIN)
+	@./tests/syntax/run_compound_literal_lvalues.sh ./$(BIN)
+
+statement-expr-enabled: $(BIN)
+	@./tests/parser/run_statement_expr_enabled.sh ./$(BIN)
+
+statement-expr-disabled: $(BIN)
+	@./tests/parser/run_statement_expr_disabled.sh ./$(BIN)
+
 spec-tests: $(BIN)
 	@./tests/spec/run_ast_golden.sh ./$(BIN)
 
 parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \
-              cast-grouped for_typedef function-pointer switch-flow goto-flow
+              cast-grouped for_typedef function-pointer switch-flow goto-flow \
+              statement-expr-enabled statement-expr-disabled recovery
 
 syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic-bool \
               semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
               semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
-              semantic-initializer-shapes semantic-flow
+              semantic-initializer-shapes semantic-flow semantic-vla-errors semantic-vla-block \
+              compound-literal-lvalues
 
-codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff
+codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff statement-expr-codegen
 
 test: spec-tests parser-tests syntax-tests codegen-tests
 
@@ -170,4 +193,7 @@ tests: test
         semantic-bool semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
         semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
         semantic-initializer-shapes semantic-flow codegen-pointer-deref codegen-pointer-diff \
+        compound-literal-lvalues \
+        statement-expr-enabled statement-expr-disabled recovery \
+        statement-expr-codegen \
         parser-tests syntax-tests codegen-tests spec-tests test tests
