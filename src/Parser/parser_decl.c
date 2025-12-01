@@ -11,31 +11,77 @@
 #include "Compiler/compiler_context.h" // make sure this is visible via include path
 
 
-static void skipPointerQualifiers(Parser* parser) {
+static void consumePointerQualifiers(Parser* parser, PointerDeclaratorLayer* layer) {
     while (parser->currentToken.type == TOKEN_CONST ||
            parser->currentToken.type == TOKEN_VOLATILE ||
            parser->currentToken.type == TOKEN_RESTRICT) {
+        if (layer) {
+            if (parser->currentToken.type == TOKEN_CONST) {
+                layer->isConst = true;
+            } else if (parser->currentToken.type == TOKEN_VOLATILE) {
+                layer->isVolatile = true;
+            } else if (parser->currentToken.type == TOKEN_RESTRICT) {
+                layer->isRestrict = true;
+            }
+        }
         advance(parser);
     }
 }
 
-int parsePointerChain(Parser* parser) {
-    int depth = 0;
+PointerChain parsePointerChain(Parser* parser) {
+    PointerChain chain = {0};
     while (parser->currentToken.type == TOKEN_ASTERISK) {
         advance(parser);
-        skipPointerQualifiers(parser);
-        depth++;
+        PointerDeclaratorLayer layer = {0};
+        consumePointerQualifiers(parser, &layer);
+        PointerDeclaratorLayer* grown = realloc(chain.layers, (chain.count + 1) * sizeof(PointerDeclaratorLayer));
+        if (!grown) {
+            pointerChainFree(&chain);
+            chain.layers = NULL;
+            chain.count = 0;
+            return chain;
+        }
+        chain.layers = grown;
+        chain.layers[chain.count++] = layer;
     }
-    return depth;
+    return chain;
 }
 
-void applyPointerChainToType(ParsedType* type, int depth) {
-    if (!type || depth <= 0) {
+void pointerChainFree(PointerChain* chain) {
+    if (!chain) return;
+    free(chain->layers);
+    chain->layers = NULL;
+    chain->count = 0;
+}
+
+void applyPointerChainToType(ParsedType* type, const PointerChain* chain) {
+    if (!type || !chain || chain->count == 0) {
         return;
     }
-    for (int i = 0; i < depth; ++i) {
-        parsedTypeAppendPointer(type);
+    for (size_t i = 0; i < chain->count; ++i) {
+        if (!parsedTypeAppendPointer(type)) {
+            continue;
+        }
+        if (type->derivationCount == 0) continue;
+        TypeDerivation* slot = &type->derivations[type->derivationCount - 1];
+        slot->as.pointer.isConst = chain->layers[i].isConst;
+        slot->as.pointer.isVolatile = chain->layers[i].isVolatile;
+        slot->as.pointer.isRestrict = chain->layers[i].isRestrict;
     }
+}
+
+bool parserConsumeArraySuffixes(Parser* parser, ParsedType* type, ASTNode** outSizeChain) {
+    if (!parser || !type) return false;
+    while (parser->currentToken.type == TOKEN_LBRACKET) {
+        ASTNode* sizeExpr = parseArraySize(parser);
+        if (!parsedTypeAppendArray(type, sizeExpr, false)) {
+            return false;
+        }
+        if (outSizeChain) {
+            *outSizeChain = chainArraySizes(*outSizeChain, sizeExpr);
+        }
+    }
+    return true;
 }
 
 static bool probeDeclaratorTokens(Parser* parser, Token* outIdent, Token* outNext, Token* outNextNext) {
@@ -151,8 +197,9 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
      
     while (1) {
         ParsedType varType = parsedTypeClone(&declaredType);
-        int pointerDepth = parsePointerChain(parser);
-        applyPointerChainToType(&varType, pointerDepth);
+        PointerChain chain = parsePointerChain(parser);
+        applyPointerChainToType(&varType, &chain);
+        pointerChainFree(&chain);
 
         if (parser->currentToken.type != TOKEN_IDENTIFIER) {
             printf("Error: expected variable name at line %d\n", parser->currentToken.line);
@@ -251,8 +298,9 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
 
 ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type) {
     ParsedType arrayType = parsedTypeClone(&type);
-    int pointerDepth = parsePointerChain(parser);
-    applyPointerChainToType(&arrayType, pointerDepth);
+    PointerChain chain = parsePointerChain(parser);
+    applyPointerChainToType(&arrayType, &chain);
+    pointerChainFree(&chain);
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         printParseError("Expected identifier in array declaration", parser);
         return NULL;
@@ -262,9 +310,9 @@ ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type) {
     advance(parser); // consume name
     
     ASTNode* sizeExpr = NULL;
-    while (parser->currentToken.type == TOKEN_LBRACKET) {
-        ASTNode* dim = parseArraySize(parser); // handles one `[num]`
-        sizeExpr = chainArraySizes(sizeExpr, dim);
+    if (!parserConsumeArraySuffixes(parser, &arrayType, &sizeExpr)) {
+        printParseError("Failed to parse array suffix", parser);
+        return NULL;
     }
      
     DesignatedInit** initValues = NULL;
@@ -310,8 +358,9 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
     }       
          
     ParsedType varType = parsedTypeClone(&parsedType);
-    int pointerDepth = parsePointerChain(parser);
-    applyPointerChainToType(&varType, pointerDepth);
+    PointerChain chain = parsePointerChain(parser);
+    applyPointerChainToType(&varType, &chain);
+    pointerChainFree(&chain);
 
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         printf("Error: expected variable name in for-loop initializer at line %d\n",
@@ -323,6 +372,8 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
     if (idNode) idNode->line = parser->currentToken.line;
     advance(parser); // Consume identifier
     
+    parserConsumeArraySuffixes(parser, &varType, NULL);
+
     ASTNode* initializer = NULL;
     if (parser->currentToken.type == TOKEN_ASSIGN) {
         advance(parser); // Consume '='
@@ -502,8 +553,9 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
         }
 
         ParsedType fieldType = parsedTypeClone(&type);
-        int pointerDepth = parsePointerChain(parser);
-        applyPointerChainToType(&fieldType, pointerDepth);
+        PointerChain chain = parsePointerChain(parser);
+        applyPointerChainToType(&fieldType, &chain);
+        pointerChainFree(&chain);
 
         if (parser->currentToken.type != TOKEN_IDENTIFIER) {
             printParseError("Expected field name in struct/union", parser);
@@ -516,10 +568,9 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
 
         // Parse array sizes if present
         ASTNode* arraySize = NULL;
-        while (parser->currentToken.type == TOKEN_LBRACKET) {
-            ASTNode* size = parseArraySize(parser);
-            if (!size) break;
-            arraySize = chainArraySizes(arraySize, size);
+        if (!parserConsumeArraySuffixes(parser, &fieldType, &arraySize)) {
+            printParseError("Failed to parse array suffix in field", parser);
+            break;
         }
 
         // Optional bitfield width
@@ -689,8 +740,9 @@ ASTNode* parseTypedef(Parser* parser) {
 
     // Parse the base type (handles 'struct/union/enum' as needed)
     ParsedType baseType = parseType(parser);
-    int pointerDepth = parsePointerChain(parser);
-    applyPointerChainToType(&baseType, pointerDepth);
+    PointerChain chain = parsePointerChain(parser);
+    applyPointerChainToType(&baseType, &chain);
+    pointerChainFree(&chain);
 
     // NOTE: Your current implementation supports exactly one alias.
     // We'll keep that, but we also record the alias in the CompilerContext.
@@ -705,6 +757,8 @@ ASTNode* parseTypedef(Parser* parser) {
     ASTNode* alias = createIdentifierNode(aliasName);
     if (alias) alias->line = parser->currentToken.line;
     advance(parser); // consume identifier
+
+    parserConsumeArraySuffixes(parser, &baseType, NULL);
 
     size_t typedefAttrCount = 0;
     ASTAttribute** typedefAttrs = parserParseAttributeSpecifiers(parser, &typedefAttrCount);

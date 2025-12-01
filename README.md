@@ -8,7 +8,7 @@ DSL-style annotations, physics-aware types, and IDE integration.
 ## Features (Current)
 
 - **Lexer** – Robust tokenization for C99-style syntax (keywords, identifiers, literals, operators).  
-- **Parser** – Handles expressions, declarations, control-flow, designated initialisers, function pointers, and (optionally) GNU statement expressions when `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` is set in the environment.  
+- **Parser** – Handles expressions, declarations, control-flow, designated initialisers, attributes (`__attribute__`, `[[gnu::...]]`, `__declspec`, …), and (optionally) GNU statement expressions when `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` is set in the environment. On malformed input it runs panic-mode recovery so later diagnostics still appear.  
 - **Semantic Analysis** – Tracks typedef/tag namespaces, enforces lvalue/decay rules, qualifier-safe assignments, pointer arithmetic semantics, records function prototypes (including variadic signatures) and tag-layout fingerprints, validates initializer shapes, understands block-scope variable-length arrays, and treats compound literals as lvalues within their lifetime while flagging illegal static-storage uses.  
 - **LLVM IR Codegen** – Lowers analysed ASTs into LLVM IR (struct/union layouts, arrays including VLAs, compound assignments, loops/conditionals, globals).  
 - **Preprocessor Support** – Parses `#include`, `#define`, `#ifdef`, etc., preserving directives in the AST pipeline.  
@@ -74,7 +74,7 @@ Parsing/semantic support for GNU `({ ... })` statement expressions is behind the
 ENABLE_GNU_STATEMENT_EXPRESSIONS=1 ./compiler tests/parser/gnu_statement_expr.c
 ```
 
-Leave it unset (or `0`) to keep strict C99 behaviour—the parser will reject `({ ... })` constructs in that mode.
+Leave it unset (or `0`) to keep strict C99 behaviour—the parser will reject `({ ... })` constructs in that mode and emit a diagnostic explaining the extension is disabled.
 
 ### Running Parser Smoke Tests
 
@@ -99,6 +99,7 @@ make function-pointer
 make pointer-arith
 make switch-flow
 make goto-flow
+make recovery
 make statement-expr-enabled
 make statement-expr-disabled
 make semantic-typedef

@@ -80,6 +80,18 @@ static const ParsedType* resolveTypedef(const ParsedType* type, Scope* scope) {
 TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
     if (!type) return makeInvalidType();
 
+    if (parsedTypeIsDirectArray(type)) {
+        ParsedType elementType = parsedTypeArrayElementType(type);
+        TypeInfo elementInfo = typeInfoFromParsedType(&elementType, scope);
+        parsedTypeFree(&elementType);
+        elementInfo.category = TYPEINFO_ARRAY;
+        elementInfo.isArray = true;
+        elementInfo.isLValue = true;
+        elementInfo.isVLA |= type->derivations[0].as.array.isVLA;
+        elementInfo.originalType = type;
+        return elementInfo;
+    }
+
     if (type->pointerDepth > 0) {
         TypeInfo info = makeBaseInvalid();
         info.category = TYPEINFO_POINTER;
@@ -218,7 +230,8 @@ bool typeInfoIsArithmetic(const TypeInfo* info) {
 }
 
 bool typeInfoIsPointerLike(const TypeInfo* info) {
-    return info && (info->category == TYPEINFO_POINTER || info->category == TYPEINFO_ARRAY);
+    if (!info) return false;
+    return info->category == TYPEINFO_POINTER || info->category == TYPEINFO_ARRAY || info->isArray;
 }
 
 TypeInfo integerPromote(TypeInfo info) {

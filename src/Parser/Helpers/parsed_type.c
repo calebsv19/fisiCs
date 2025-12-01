@@ -109,6 +109,9 @@ bool parsedTypeAppendArray(ParsedType* t, struct ASTNode* sizeExpr, bool isVLA) 
     slot->kind = TYPE_DERIVATION_ARRAY;
     slot->as.array.sizeExpr = sizeExpr;
     slot->as.array.isVLA = isVLA;
+    if (isVLA) {
+        t->isVLA = true;
+    }
     return true;
 }
 
@@ -239,6 +242,28 @@ void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count
         return;
     }
     astAttributeListAppend(&t->attributes, &t->attributeCount, attrs, count);
+}
+
+bool parsedTypeIsDirectArray(const ParsedType* t) {
+    return t && t->derivationCount > 0 && t->derivations[0].kind == TYPE_DERIVATION_ARRAY;
+}
+
+ParsedType parsedTypeArrayElementType(const ParsedType* t) {
+    ParsedType element = parsedTypeClone(t);
+    if (!parsedTypeIsDirectArray(&element)) {
+        return element;
+    }
+    if (element.derivationCount > 1) {
+        memmove(element.derivations,
+                element.derivations + 1,
+                (element.derivationCount - 1) * sizeof(TypeDerivation));
+    }
+    element.derivationCount--;
+    if (element.derivationCount == 0 && element.derivations) {
+        free(element.derivations);
+        element.derivations = NULL;
+    }
+    return element;
 }
 
 static bool identifierMatchesKnownType(Parser* parser, const char* name) {

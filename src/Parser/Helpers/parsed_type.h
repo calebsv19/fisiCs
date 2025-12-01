@@ -119,6 +119,8 @@ bool parsedTypeAppendFunction(ParsedType* t, const ParsedType* params, size_t pa
 void parsedTypeResetDerivations(ParsedType* t);
 ParsedType parsedTypeClone(const ParsedType* src);
 void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count);
+bool parsedTypeIsDirectArray(const ParsedType* t);
+ParsedType parsedTypeArrayElementType(const ParsedType* t);
 
 ParsedType parseType(struct Parser* parser);
 ParsedType parseTypeCtx(struct Parser* parser, TypeContext ctx);

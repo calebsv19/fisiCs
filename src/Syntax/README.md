@@ -17,6 +17,7 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
   - Variable and array declarations validate initializer shape: scalars require at most one element, aggregates demand brace-enclosed lists, array initializer counts are checked (including designated indices and char-array-as-string cases), and diagnostics fire for too many/few elements. Block-scope variable-length arrays are accepted while file/static scope VLAs trigger diagnostics so they can’t leak into static storage.
   - Typedef aliases and struct/union/enum tags are now also stored in the shared `CompilerContext`, so later strict parsing (casts, sizeof) recognises user-defined types discovered during analysis.
   - Walks initializer expressions (including designated/compound forms and array literals) so every identifier is resolved during bring-up. Compound literals are tracked as lvalues for the lifetime of their block, but sema rejects attempts to embed them directly in static storage unless they’re constant.
+  - Attribute lists parsed by the front-end (`__attribute__`, `[[gnu::...]]`, `__declspec`) are preserved on AST nodes and available for future passes even though semantics/codegen currently treat them as metadata-only.
 
 - `analyze_stmt.h` / `analyze_stmt.c`
   - Validates control-flow structures (`if`, `for`, `while`, `switch`, `case`, `return`, etc.) and ensures nested scopes are established where needed.

@@ -20,10 +20,14 @@ Builds the compiler's AST from the lexer token stream. The parser mixes recursiv
 - `parser_preproc.h` / `parser_preproc.c`
   - Converts preprocessor directives into dedicated AST nodes (`#include`, `#define`, `#ifdef`, `#pragma once`, etc.) so later passes can reason about them.
 - `parser_decl.h` / `parser_decl.c`
-  - Handles type-specifier sequences, variable declarator lists, struct/union/enum bodies, and integrates designated initialisers.
+  - Handles type-specifier sequences, variable declarator lists, struct/union/enum bodies, designated initialisers, and attribute capture (`__attribute__`, `[[gnu::...]]`, `__declspec`).
 - `parser_config.h`
   - Defines `ParserMode` enum toggling between recursive and Pratt expression parsing.
-- GNU statement expressions (`({ ... })`) can be enabled by setting `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` before invoking the compiler or spec harness; when enabled they are parsed into dedicated `AST_STATEMENT_EXPRESSION` nodes that wrap a block and yield the last expression.
+- GNU statement expressions (`({ ... })`) can be enabled by setting `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` before invoking the compiler or spec harness; when enabled they are parsed into dedicated `AST_STATEMENT_EXPRESSION` nodes that wrap a block and yield the last expression. When disabled the parser emits a diagnostic instead of silently consuming the construct.
+
+### Recovery
+
+- Panic-mode sync keeps parsing after an error: statement failures advance to the next `;`/`}` while declaration failures advance to the next `;` or likely type starter. The `tests/parser/recovery.c` fixture exercises this path to ensure multiple diagnostics appear from a single pass.
 
 ### Expression engine
 

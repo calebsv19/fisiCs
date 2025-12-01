@@ -663,6 +663,11 @@ static void validateArrayInitializer(ASTNode* node, Scope* scope) {
     size_t declaredLen = 0;
     bool hasDeclaredLen = tryEvaluateArrayLength(node->arrayDecl.arraySize, &declaredLen);
     TypeInfo elementInfo = typeInfoFromParsedType(&node->arrayDecl.declaredType, scope);
+    if (parsedTypeIsDirectArray(&node->arrayDecl.declaredType)) {
+        ParsedType elementType = parsedTypeArrayElementType(&node->arrayDecl.declaredType);
+        elementInfo = typeInfoFromParsedType(&elementType, scope);
+        parsedTypeFree(&elementType);
+    }
     bool treatAsChar = typeInfoIsCharLike(&elementInfo);
 
     if (valueCount == 1 && isStringLiteralInitializer(values[0]) && treatAsChar) {

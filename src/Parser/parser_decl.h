@@ -9,6 +9,17 @@
 #include "Lexer/tokens.h"
 #include "Lexer/lexer.h"
 
+typedef struct PointerDeclaratorLayer {
+    bool isConst;
+    bool isVolatile;
+    bool isRestrict;
+} PointerDeclaratorLayer;
+
+typedef struct PointerChain {
+    PointerDeclaratorLayer* layers;
+    size_t count;
+} PointerChain;
+
 // Type or function declaration dispatcher
 ASTNode* handleTypeOrFunctionDeclaration(Parser* parser);
 
@@ -28,7 +39,9 @@ ASTNode* parseTypedef(Parser* parser);
 // Struct helper routing
 ASTNode* handleStructStatements(Parser* parser);
 
-int parsePointerChain(Parser* parser);
-void applyPointerChainToType(ParsedType* type, int depth);
+PointerChain parsePointerChain(Parser* parser);
+void pointerChainFree(PointerChain* chain);
+void applyPointerChainToType(ParsedType* type, const PointerChain* chain);
+bool parserConsumeArraySuffixes(Parser* parser, ParsedType* type, ASTNode** outSizeChain);
 
 #endif // _PARSER_DECL_H

@@ -220,7 +220,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             info.isLValue = (sym->kind == SYMBOL_VARIABLE);
             if (sym->definition && sym->definition->type == AST_ARRAY_DECLARATION) {
                 info.isArray = true;
-                info.category = TYPEINFO_ARRAY;
+                info.isLValue = true;
             }
             return info;
         }

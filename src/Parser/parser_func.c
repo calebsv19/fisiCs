@@ -11,8 +11,9 @@
 
 ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     ParsedType funcReturnType = parsedTypeClone(&returnType);
-    int pointerDepth = parsePointerChain(parser);
-    applyPointerChainToType(&funcReturnType, pointerDepth);
+    PointerChain chain = parsePointerChain(parser);
+    applyPointerChainToType(&funcReturnType, &chain);
+    pointerChainFree(&chain);
 
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         printf("Error: expected function name at line %d\n", parser->currentToken.line);
@@ -110,8 +111,9 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
         }
 
         ParsedType paramType = parseType(parser);
-        int pointerDepth = parsePointerChain(parser);
-        applyPointerChainToType(&paramType, pointerDepth);
+        PointerChain chain = parsePointerChain(parser);
+        applyPointerChainToType(&paramType, &chain);
+        pointerChainFree(&chain);
         
         ASTNode* paramName = NULL;
         if (parser->currentToken.type == TOKEN_IDENTIFIER) {
@@ -124,6 +126,8 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
             snprintf(buffer, sizeof(buffer), "__unnamed_param%zu", unnamedIndex++);
             paramName = createIdentifierNode(strdup(buffer));
         }
+
+        parserConsumeArraySuffixes(parser, &paramType, NULL);
         
         ASTNode** paramNames = malloc(sizeof(ASTNode*));
         DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
@@ -307,8 +311,9 @@ ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType) 
             }
 
             ParsedType p = parseType(parser);
-            int paramPtrDepth = parsePointerChain(parser);
-            applyPointerChainToType(&p, paramPtrDepth);
+            PointerChain paramChain = parsePointerChain(parser);
+            applyPointerChainToType(&p, &paramChain);
+            pointerChainFree(&paramChain);
             if (p.kind == TYPE_INVALID) {
                 printParseError("Invalid parameter type in function pointer declaration", parser);
                 if (fpParams) free(fpParams);
@@ -348,10 +353,18 @@ ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType) 
     advance(parser); /* consume ')' */
 
     /* 4) Build the full function-pointer type: base return type + innerStars + params */
+    bool appendedFunction = true;
     if (onlyVoid) {
         parsedTypeSetFunctionPointer(&returnType, 0, NULL);
+        appendedFunction = parsedTypeAppendFunction(&returnType, NULL, 0, false);
     } else {
         parsedTypeSetFunctionPointer(&returnType, cnt, fpParams);
+        appendedFunction = parsedTypeAppendFunction(&returnType, fpParams, cnt, false);
+    }
+    if (!appendedFunction) {
+        if (fpParams) free(fpParams);
+        printParseError("Failed to record function pointer signature", parser);
+        return NULL;
     }
     if (fpParams) free(fpParams);
 
