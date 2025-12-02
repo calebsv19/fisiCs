@@ -26,6 +26,8 @@ typedef struct CGFieldNameIndex {
 
 typedef struct CGStructLLVMInfo {
     char* name;
+    const ASTNode* definition;
+    const Symbol* symbol;
     CGFieldNameIndex* fields;
     size_t fieldCount;
     bool isUnion;
@@ -48,6 +50,8 @@ LLVMTypeRef cg_type_cache_lookup_struct(CGTypeCache* cache, const char* name, bo
 unsigned cg_type_cache_lookup_field_index(CGTypeCache* cache, const char* structName, const char* fieldName, bool* outFound);
 CGStructLLVMInfo* cg_type_cache_get_struct_info(CGTypeCache* cache, const char* name);
 CGNamedLLVMType* cg_type_cache_get_typedef_info(CGTypeCache* cache, const char* name);
+CGStructLLVMInfo* cg_type_cache_get_struct_by_definition(CGTypeCache* cache, const ASTNode* definition);
+CGStructLLVMInfo* cg_type_cache_find_struct_by_llvm(CGTypeCache* cache, LLVMTypeRef llvmType);
 
 #ifdef __cplusplus
 }

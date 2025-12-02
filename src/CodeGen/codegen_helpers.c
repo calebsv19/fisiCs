@@ -182,6 +182,30 @@ LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
     return LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
 }
 
+LLVMTypeRef cg_element_type_hint_from_parsed(CodegenContext* ctx, const ParsedType* parsedType) {
+    if (!ctx || !parsedType) {
+        return NULL;
+    }
+
+    LLVMTypeRef hint = NULL;
+    if (parsedTypeIsDirectArray(parsedType)) {
+        ParsedType element = parsedTypeArrayElementType(parsedType);
+        hint = cg_type_from_parsed(ctx, &element);
+        parsedTypeFree(&element);
+    } else {
+        ParsedType pointed = parsedTypePointerTargetType(parsedType);
+        if (pointed.kind != TYPE_INVALID) {
+            hint = cg_type_from_parsed(ctx, &pointed);
+        }
+        parsedTypeFree(&pointed);
+    }
+
+    if (hint && LLVMGetTypeKind(hint) == LLVMVoidTypeKind) {
+        hint = NULL;
+    }
+    return hint;
+}
+
 LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
                                      LLVMValueRef basePtr,
                                      LLVMValueRef offsetValue,
@@ -281,6 +305,10 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
     switch (node->type) {
         case AST_IDENTIFIER: {
             const char* name = node->valueNode.value;
+            if (!name) {
+                fprintf(stderr, "Error: identifier missing name during type resolution (line %d)\n", node->line);
+                return NULL;
+            }
             NamedValue* entry = cg_scope_lookup(ctx->currentScope, name);
             if (entry && entry->parsedType) {
                 return entry->parsedType;

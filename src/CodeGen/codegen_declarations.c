@@ -6,34 +6,133 @@
 #include <stdlib.h>
 #include <string.h>
 
-LLVMTypeRef* collectParamTypes(CodegenContext* ctx, size_t paramCount, ASTNode** params) {
-    if (paramCount == 0) {
-        return NULL;
+static bool parsedTypeIsPlainVoid(const ParsedType* type) {
+    if (!type) return false;
+    if (type->kind != TYPE_PRIMITIVE) return false;
+    if (type->primitiveType != TOKEN_VOID) return false;
+    if (type->pointerDepth != 0) return false;
+    if (type->derivationCount != 0) return false;
+    return true;
+}
+
+static bool paramDeclRepresentsVoid(ASTNode* param) {
+    if (!param || param->type != AST_VARIABLE_DECLARATION) {
+        return false;
+    }
+    if (param->varDecl.varCount != 1) {
+        return false;
+    }
+    const ParsedType* parsed = astVarDeclTypeAt(param, 0);
+    if (!parsed) {
+        parsed = &param->varDecl.declaredType;
+    }
+    return parsedTypeIsPlainVoid(parsed);
+}
+
+size_t cg_expand_parameters(ASTNode** params,
+                            size_t paramCount,
+                            CGParamInfo** outInfos,
+                            bool* outIsVoidList) {
+    if (outInfos) {
+        *outInfos = NULL;
+    }
+    if (outIsVoidList) {
+        *outIsVoidList = false;
+    }
+    if (!params || paramCount == 0) {
+        return 0;
+    }
+    if (paramCount == 1 && paramDeclRepresentsVoid(params[0])) {
+        if (outIsVoidList) {
+            *outIsVoidList = true;
+        }
+        return 0;
     }
 
-    fprintf(stderr, "collectParamTypes count=%zu\n", paramCount);
-
-    LLVMTypeRef* paramTypes = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
-    if (!paramTypes) {
-        return NULL;
-    }
-
+    size_t total = 0;
     for (size_t i = 0; i < paramCount; ++i) {
-        ASTNode* param = params ? params[i] : NULL;
-        const ParsedType* type = NULL;
-        if (param && param->type == AST_VARIABLE_DECLARATION) {
-            type = astVarDeclTypeAt(param, 0);
+        ASTNode* paramDecl = params[i];
+        if (!paramDecl || paramDecl->type != AST_VARIABLE_DECLARATION) {
+            continue;
         }
-        if (!type) {
-            paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
-        } else {
-            paramTypes[i] = cg_type_from_parsed(ctx, type);
-            if (!paramTypes[i] || LLVMGetTypeKind(paramTypes[i]) == LLVMVoidTypeKind) {
-                paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
+        total += paramDecl->varDecl.varCount;
+    }
+    if (total == 0) {
+        return 0;
+    }
+
+    CGParamInfo* infos = (CGParamInfo*)calloc(total, sizeof(CGParamInfo));
+    if (!infos) {
+        return 0;
+    }
+
+    size_t index = 0;
+    for (size_t i = 0; i < paramCount; ++i) {
+        ASTNode* paramDecl = params[i];
+        if (!paramDecl || paramDecl->type != AST_VARIABLE_DECLARATION) {
+            continue;
+        }
+        for (size_t j = 0; j < paramDecl->varDecl.varCount && index < total; ++j) {
+            const ParsedType* parsed = astVarDeclTypeAt(paramDecl, j);
+            if (!parsed) {
+                parsed = &paramDecl->varDecl.declaredType;
             }
+            infos[index].declaration = paramDecl;
+            infos[index].nameNode = (paramDecl->varDecl.varNames && j < paramDecl->varDecl.varCount)
+                ? paramDecl->varDecl.varNames[j]
+                : NULL;
+            infos[index].nameIndex = j;
+            infos[index].parsedType = parsed;
+            ++index;
         }
     }
 
+    if (outInfos) {
+        *outInfos = infos;
+    } else {
+        free(infos);
+    }
+    return index;
+}
+
+void cg_free_param_infos(CGParamInfo* infos) {
+    free(infos);
+}
+
+LLVMTypeRef* collectParamTypes(CodegenContext* ctx,
+                               size_t paramCount,
+                               ASTNode** params,
+                               size_t* outFlatCount) {
+    if (outFlatCount) {
+        *outFlatCount = 0;
+    }
+    CGParamInfo* infos = NULL;
+    bool isVoidList = false;
+    size_t flatCount = cg_expand_parameters(params, paramCount, &infos, &isVoidList);
+    if (outFlatCount) {
+        *outFlatCount = flatCount;
+    }
+    if (isVoidList || flatCount == 0) {
+        cg_free_param_infos(infos);
+        return NULL;
+    }
+
+    LLVMTypeRef* paramTypes = (LLVMTypeRef*)calloc(flatCount, sizeof(LLVMTypeRef));
+    if (!paramTypes) {
+        cg_free_param_infos(infos);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < flatCount; ++i) {
+        const ParsedType* type = infos[i].parsedType;
+        LLVMTypeRef llvmType = cg_type_from_parsed(ctx, type);
+        if (!llvmType || LLVMGetTypeKind(llvmType) == LLVMVoidTypeKind) {
+            llvmType = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
+        paramTypes[i] = llvmType;
+    }
+
+    cg_free_param_infos(infos);
     return paramTypes;
 }
 
@@ -94,8 +193,9 @@ void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node) {
 
     if (!name) return;
 
-    LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params);
-    LLVMValueRef fn = ensureFunction(ctx, name, returnType, paramCount, paramTypes);
+    size_t flattenedCount = 0;
+    LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
+    LLVMValueRef fn = ensureFunction(ctx, name, returnType, flattenedCount, paramTypes);
     (void)fn;
     free(paramTypes);
 }
@@ -108,13 +208,31 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
         varType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
+    bool isArray = parsedTypeIsDirectArray(&sym->type);
+    LLVMTypeRef elementLLVM = NULL;
+    if (isArray) {
+        ParsedType element = parsedTypeArrayElementType(&sym->type);
+        elementLLVM = cg_type_from_parsed(ctx, &element);
+        parsedTypeFree(&element);
+        if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
+            elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
+    }
+
     LLVMValueRef existing = LLVMGetNamedGlobal(ctx->module, sym->name);
     if (!existing) {
         existing = LLVMAddGlobal(ctx->module, varType, sym->name);
         LLVMSetInitializer(existing, LLVMConstNull(varType));
     }
 
-    cg_scope_insert(ctx->currentScope, sym->name, existing, varType, true, false, NULL, &sym->type);
+    cg_scope_insert(ctx->currentScope,
+                    sym->name,
+                    existing,
+                    varType,
+                    true,
+                    isArray,
+                    elementLLVM,
+                    &sym->type);
 }
 
 void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
@@ -132,8 +250,9 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
         }
     }
 
-    LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params);
-    LLVMValueRef fn = ensureFunction(ctx, sym->name, &sym->type, paramCount, paramTypes);
+    size_t flattenedCount = 0;
+    LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
+    LLVMValueRef fn = ensureFunction(ctx, sym->name, &sym->type, flattenedCount, paramTypes);
     (void)fn;
     free(paramTypes);
 }
@@ -172,32 +291,51 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
             varType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
 
+        bool isArray = parsedType ? parsedTypeIsDirectArray(parsedType) : false;
         LLVMValueRef existing = LLVMGetNamedGlobal(ctx->module, name);
         if (existing) {
             LLVMTypeRef existingType = LLVMGetElementType(LLVMTypeOf(existing));
             if (!existingType || LLVMGetTypeKind(existingType) == LLVMVoidTypeKind) {
                 existingType = varType;
             }
+            LLVMTypeRef elementLLVM = NULL;
+            if (isArray) {
+                ParsedType element = parsedTypeArrayElementType(parsedType ? parsedType : &node->varDecl.declaredType);
+                elementLLVM = cg_type_from_parsed(ctx, &element);
+                parsedTypeFree(&element);
+                if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
+                    elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+            }
             cg_scope_insert(ctx->currentScope,
                             name,
                             existing,
                             existingType,
                             true,
-                            false,
-                            NULL,
+                            isArray,
+                            elementLLVM,
                             parsedType ? parsedType : &node->varDecl.declaredType);
             continue;
         }
 
         LLVMValueRef global = LLVMAddGlobal(ctx->module, varType, name);
         LLVMSetInitializer(global, LLVMConstNull(varType));
+        LLVMTypeRef elementLLVM = NULL;
+        if (isArray) {
+            ParsedType element = parsedTypeArrayElementType(parsedType ? parsedType : &node->varDecl.declaredType);
+            elementLLVM = cg_type_from_parsed(ctx, &element);
+            parsedTypeFree(&element);
+            if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
+                elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+        }
         cg_scope_insert(ctx->currentScope,
                         name,
                         global,
                         varType,
                         true,
-                        false,
-                        NULL,
+                        isArray,
+                        elementLLVM,
                         parsedType ? parsedType : &node->varDecl.declaredType);
     }
 }

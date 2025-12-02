@@ -94,42 +94,125 @@ void declareStructSymbol(CodegenContext* ctx, const Symbol* sym) {
 LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
                                       LLVMValueRef arrayPtr,
                                       LLVMValueRef index,
+                                      const ParsedType* baseParsedHint,
                                       LLVMTypeRef aggregateTypeHint,
                                       LLVMTypeRef elementTypeHint,
                                       LLVMTypeRef* outElementType) {
     if (!ctx || !arrayPtr || !index) return NULL;
-    LLVMTypeRef ptrType = LLVMTypeOf(arrayPtr);
-    if (LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
+
+    LLVMTypeRef valueType = LLVMTypeOf(arrayPtr);
+    if (!valueType) return NULL;
+
+    LLVMValueRef basePtr = arrayPtr;
+    LLVMTypeRef ptrType = valueType;
+    LLVMTypeKind valueKind = LLVMGetTypeKind(valueType);
+
+    if (valueKind == LLVMArrayTypeKind) {
+        LLVMValueRef temp = LLVMBuildAlloca(ctx->builder, valueType, "array.decay.tmp");
+        LLVMBuildStore(ctx->builder, arrayPtr, temp);
+        basePtr = temp;
+        ptrType = LLVMTypeOf(basePtr);
+        aggregateTypeHint = aggregateTypeHint ? aggregateTypeHint : valueType;
+        valueKind = LLVMGetTypeKind(ptrType);
+    }
+
+    if (valueKind != LLVMPointerTypeKind) {
+        LLVMValueRef temp = LLVMBuildAlloca(ctx->builder, valueType, "array.ptr.wrap");
+        LLVMBuildStore(ctx->builder, arrayPtr, temp);
+        basePtr = temp;
+        ptrType = LLVMTypeOf(basePtr);
+        valueKind = LLVMGetTypeKind(ptrType);
+    }
+
+    if (!ptrType || valueKind != LLVMPointerTypeKind) {
         return NULL;
     }
 
-    LLVMTypeRef baseType = LLVMGetElementType(ptrType);
-    LLVMTypeRef aggregateType = baseType;
-    if (aggregateTypeHint && LLVMGetTypeKind(aggregateTypeHint) == LLVMArrayTypeKind) {
-        aggregateType = aggregateTypeHint;
-    }
-    if (!aggregateType || LLVMGetTypeKind(aggregateType) != LLVMArrayTypeKind) {
-        if (LLVMIsAAllocaInst(arrayPtr)) {
-            LLVMTypeRef allocated = LLVMGetAllocatedType(arrayPtr);
-            if (allocated && LLVMGetTypeKind(allocated) == LLVMArrayTypeKind) {
-                aggregateType = allocated;
+    unsigned pointerAddrSpace = LLVMGetPointerAddressSpace(ptrType);
+
+    LLVMTypeRef aggregateType = aggregateTypeHint;
+    if (!aggregateType && baseParsedHint) {
+        if (parsedTypeIsDirectArray(baseParsedHint)) {
+            aggregateType = cg_type_from_parsed(ctx, baseParsedHint);
+        } else {
+            ParsedType pointed = parsedTypePointerTargetType(baseParsedHint);
+            if (parsedTypeIsDirectArray(&pointed)) {
+                aggregateType = cg_type_from_parsed(ctx, &pointed);
             }
+            parsedTypeFree(&pointed);
         }
-    }
-    if (!aggregateType || LLVMGetTypeKind(aggregateType) != LLVMArrayTypeKind) {
-        if (elementTypeHint) {
-            if (outElementType) *outElementType = elementTypeHint;
-            return LLVMBuildGEP2(ctx->builder, elementTypeHint, arrayPtr, &index, 1, "arrayElemPtr");
-        }
-        return NULL;
     }
 
-    LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
-    LLVMValueRef indices[2] = { zero, index };
-    if (outElementType) {
-        *outElementType = LLVMGetElementType(aggregateType);
+    LLVMTypeRef i32Type = LLVMInt32TypeInContext(ctx->llvmContext);
+    LLVMValueRef idx = index;
+    LLVMTypeRef idxType = LLVMTypeOf(idx);
+    if (!idxType || LLVMGetTypeKind(idxType) != LLVMIntegerTypeKind || LLVMGetIntTypeWidth(idxType) != 32) {
+        idx = LLVMBuildIntCast2(ctx->builder, idx, i32Type, 0, "array.idx.cast");
     }
-    return LLVMBuildGEP2(ctx->builder, aggregateType, arrayPtr, indices, 2, "arrayElemPtr");
+
+    LLVMTypeRef elementType = elementTypeHint;
+    if (aggregateType && LLVMGetTypeKind(aggregateType) == LLVMArrayTypeKind) {
+        LLVMValueRef zero = LLVMConstInt(i32Type, 0, 0);
+        LLVMValueRef indices[2] = { zero, idx };
+        LLVMTypeRef ptrToAggregate = LLVMPointerType(aggregateType, pointerAddrSpace);
+        LLVMValueRef aggregatePtr = basePtr;
+        if (LLVMTypeOf(aggregatePtr) != ptrToAggregate) {
+            aggregatePtr = LLVMBuildBitCast(ctx->builder, basePtr, ptrToAggregate, "array.aggregate.cast");
+        }
+        if (!elementType) {
+            elementType = LLVMGetElementType(aggregateType);
+        }
+        if (outElementType && elementType) {
+            *outElementType = elementType;
+        }
+        return LLVMBuildGEP2(ctx->builder, aggregateType, aggregatePtr, indices, 2, "arrayElemPtr");
+    }
+
+    if (!elementType) {
+        elementType = cg_element_type_from_pointer(ctx, baseParsedHint, ptrType);
+    }
+    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
+        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+
+    LLVMTypeRef expectedPtrType = LLVMPointerType(elementType, pointerAddrSpace);
+    if (LLVMTypeOf(basePtr) != expectedPtrType) {
+        basePtr = LLVMBuildBitCast(ctx->builder, basePtr, expectedPtrType, "array.elem.base.cast");
+    }
+
+    if (outElementType) {
+        *outElementType = elementType;
+    }
+    return LLVMBuildGEP2(ctx->builder, elementType, basePtr, &idx, 1, "arrayElemPtr");
+}
+
+static CGStructLLVMInfo* findStructInfoForAggregate(CodegenContext* ctx,
+                                                    LLVMTypeRef aggregateType,
+                                                    const char* structNameHint,
+                                                    const ParsedType* parsedHint) {
+    CGTypeCache* cache = cg_context_get_type_cache(ctx);
+    if (!cache) {
+        return NULL;
+    }
+    if (structNameHint && structNameHint[0]) {
+        CGStructLLVMInfo* info = cg_type_cache_get_struct_info(cache, structNameHint);
+        if (info) {
+            return info;
+        }
+    }
+    if (parsedHint && parsedHint->userTypeName) {
+        CGStructLLVMInfo* info = cg_type_cache_get_struct_info(cache, parsedHint->userTypeName);
+        if (info) {
+            return info;
+        }
+    }
+    if (aggregateType) {
+        CGStructLLVMInfo* info = cg_type_cache_find_struct_by_llvm(cache, aggregateType);
+        if (info) {
+            return info;
+        }
+    }
+    return NULL;
 }
 
 LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
@@ -137,6 +220,7 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
                                      LLVMTypeRef aggregateTypeHint,
                                      const char* structName,
                                      const char* fieldName,
+                                     const ParsedType* structParsedHint,
                                      LLVMTypeRef* outFieldType,
                                      const ParsedType** outFieldParsedType) {
     if (!ctx || !basePtr || !fieldName) {
@@ -167,23 +251,23 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
     LLVMTypeRef fieldLLVMType = NULL;
     bool found = false;
 
-    CGTypeCache* cache = cg_context_get_type_cache(ctx);
     bool isUnion = false;
-    if (cache && structNameHint) {
-        CGStructLLVMInfo* info = cg_type_cache_get_struct_info(cache, structNameHint);
-        if (info) {
-            isUnion = info->isUnion;
-            ensureStructLLVMTypeByName(ctx, structNameHint, isUnion);
-            for (size_t i = 0; i < info->fieldCount; ++i) {
-                if (info->fields[i].name && strcmp(info->fields[i].name, fieldName) == 0) {
-                    fieldIndex = info->isUnion ? 0 : info->fields[i].index;
-                    fieldLLVMType = cg_type_from_parsed(ctx, &info->fields[i].parsedType);
-                    if (outFieldParsedType) {
-                        *outFieldParsedType = &info->fields[i].parsedType;
-                    }
-                    found = true;
-                    break;
+    CGStructLLVMInfo* semanticInfo =
+        findStructInfoForAggregate(ctx, aggregateType, structNameHint, structParsedHint);
+    if (semanticInfo) {
+        isUnion = semanticInfo->isUnion;
+        if (!semanticInfo->llvmType && structNameHint) {
+            semanticInfo->llvmType = ensureStructLLVMTypeByName(ctx, structNameHint, isUnion);
+        }
+        for (size_t i = 0; i < semanticInfo->fieldCount; ++i) {
+            if (semanticInfo->fields[i].name && strcmp(semanticInfo->fields[i].name, fieldName) == 0) {
+                fieldIndex = semanticInfo->isUnion ? 0 : semanticInfo->fields[i].index;
+                fieldLLVMType = cg_type_from_parsed(ctx, &semanticInfo->fields[i].parsedType);
+                if (outFieldParsedType) {
+                    *outFieldParsedType = &semanticInfo->fields[i].parsedType;
                 }
+                found = true;
+                break;
             }
         }
     }
@@ -203,11 +287,10 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
     }
 
     if (!found) {
-        fprintf(stderr,
-                "DEBUG: struct lookup failed for %s.%s (structInfos=%zu)\n",
-                structNameHint ? structNameHint : "<anon>",
-                fieldName,
-                ctx->structInfoCount);
+        CG_DEBUG("struct lookup failed for %s.%s (structInfos=%zu)",
+                 structNameHint ? structNameHint : "<anon>",
+                 fieldName,
+                 ctx->structInfoCount);
         return NULL;
     }
 
@@ -271,8 +354,20 @@ bool codegenLValue(CodegenContext* ctx,
         case AST_ARRAY_ACCESS: {
             LLVMValueRef arrayPtr = codegenNode(ctx, target->arrayAccess.array);
             LLVMValueRef index = codegenNode(ctx, target->arrayAccess.index);
+            const ParsedType* baseParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
+            LLVMTypeRef aggregateHint = NULL;
+            if (baseParsed && parsedTypeIsDirectArray(baseParsed)) {
+                aggregateHint = cg_type_from_parsed(ctx, baseParsed);
+            }
+            LLVMTypeRef elementHint = cg_element_type_hint_from_parsed(ctx, baseParsed);
             LLVMTypeRef elementType = NULL;
-            LLVMValueRef elementPtr = buildArrayElementPointer(ctx, arrayPtr, index, NULL, NULL, &elementType);
+            LLVMValueRef elementPtr = buildArrayElementPointer(ctx,
+                                                               arrayPtr,
+                                                               index,
+                                                               baseParsed,
+                                                               aggregateHint,
+                                                               elementHint,
+                                                               &elementType);
             if (!elementPtr) return false;
             *outPtr = elementPtr;
             if (!elementType) {
@@ -299,7 +394,8 @@ bool codegenLValue(CodegenContext* ctx,
         case AST_DOT_ACCESS: {
             LLVMValueRef basePtr = NULL;
             LLVMTypeRef baseType = NULL;
-            if (!codegenLValue(ctx, target->memberAccess.base, &basePtr, &baseType, NULL)) {
+            const ParsedType* baseParsed = NULL;
+            if (!codegenLValue(ctx, target->memberAccess.base, &basePtr, &baseType, &baseParsed)) {
                 LLVMValueRef baseVal = codegenNode(ctx, target->memberAccess.base);
                 if (!baseVal) return false;
                 if (LLVMGetTypeKind(LLVMTypeOf(baseVal)) == LLVMPointerTypeKind) {
@@ -310,6 +406,9 @@ bool codegenLValue(CodegenContext* ctx,
                     LLVMBuildStore(ctx->builder, baseVal, tmpAlloca);
                     basePtr = tmpAlloca;
                     baseType = LLVMTypeOf(baseVal);
+                }
+                if (!baseParsed) {
+                    baseParsed = cg_resolve_expression_type(ctx, target->memberAccess.base);
                 }
             }
 
@@ -325,6 +424,7 @@ bool codegenLValue(CodegenContext* ctx,
                                                             baseType,
                                                             nameHint,
                                                             target->memberAccess.field,
+                                                            baseParsed,
                                                             &fieldType,
                                                             &fieldParsed);
             if (!fieldPtr) return false;
@@ -349,11 +449,15 @@ bool codegenLValue(CodegenContext* ctx,
             LLVMTypeRef baseType = LLVMGetElementType(LLVMTypeOf(baseValue));
             LLVMTypeRef fieldType = NULL;
             const ParsedType* fieldParsed = NULL;
+            const ParsedType* baseParsed = cg_resolve_expression_type(ctx, target->memberAccess.base);
+            ParsedType pointed = parsedTypePointerTargetType(baseParsed);
+            const ParsedType* structHint = (pointed.kind != TYPE_INVALID) ? &pointed : baseParsed;
             LLVMValueRef fieldPtr = buildStructFieldPointer(ctx,
                                                             basePtr,
                                                             baseType,
                                                             LLVMGetStructName(baseType),
                                                             target->memberAccess.field,
+                                                            structHint,
                                                             &fieldType,
                                                             &fieldParsed);
             if (!fieldPtr) return false;
@@ -361,6 +465,9 @@ bool codegenLValue(CodegenContext* ctx,
             *outType = fieldType ? fieldType : LLVMInt32TypeInContext(ctx->llvmContext);
             if (outParsedType) {
                 *outParsedType = fieldParsed;
+            }
+            if (structHint == &pointed) {
+                parsedTypeFree(&pointed);
             }
             return true;
         }
@@ -379,24 +486,44 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
 
     CG_DEBUG("[CG] Struct/Union definition node\n");
     ASTNode* nameNode = node->structDef.structName;
-    if (!nameNode || nameNode->type != AST_IDENTIFIER) {
-        fprintf(stderr, "Error: Anonymous structs/unions not yet supported in codegen\n");
-        return NULL;
-    }
-    const char* structName = nameNode->valueNode.value;
-    if (!structName || structName[0] == '\0') {
-        fprintf(stderr, "Error: Struct name missing during codegen\n");
-        return NULL;
+    const char* structName = (nameNode && nameNode->type == AST_IDENTIFIER) ? nameNode->valueNode.value : NULL;
+    bool isUnion = (node->type == AST_UNION_DEFINITION);
+    CGTypeCache* cache = cg_context_get_type_cache(ctx);
+    CGStructLLVMInfo* semanticInfo = NULL;
+    if (cache) {
+        if (structName && structName[0]) {
+            semanticInfo = cg_type_cache_get_struct_info(cache, structName);
+        }
+        if (!semanticInfo) {
+            semanticInfo = cg_type_cache_get_struct_by_definition(cache, node);
+        }
     }
 
-    bool isUnion = (node->type == AST_UNION_DEFINITION);
-    LLVMTypeRef structType = ensureStructLLVMTypeByName(ctx, structName, isUnion);
-    if (!structType) {
-        structType = cg_context_lookup_named_type(ctx, structName);
+    LLVMTypeRef structType = NULL;
+    if (semanticInfo && semanticInfo->llvmType) {
+        structType = semanticInfo->llvmType;
     }
+
     if (!structType) {
-        structType = LLVMStructCreateNamed(ctx->llvmContext, structName);
-        cg_context_cache_named_type(ctx, structName, structType);
+        if (structName && structName[0]) {
+            structType = ensureStructLLVMTypeByName(ctx, structName, isUnion);
+        } else {
+            char anonName[64];
+            snprintf(anonName,
+                     sizeof(anonName),
+                     isUnion ? "anon.union.%p" : "anon.struct.%p",
+                     (void*)node);
+            structType = cg_context_lookup_named_type(ctx, anonName);
+            if (!structType) {
+                structType = LLVMStructCreateNamed(ctx->llvmContext, anonName);
+                cg_context_cache_named_type(ctx, anonName, structType);
+            }
+            structName = anonName;
+        }
+    }
+
+    if (semanticInfo && !semanticInfo->llvmType) {
+        semanticInfo->llvmType = structType;
     }
 
     if (!LLVMIsOpaqueStruct(structType)) {
@@ -475,7 +602,8 @@ LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node) {
 
     LLVMValueRef structPtr = NULL;
     LLVMTypeRef baseType = NULL;
-    if (!codegenLValue(ctx, node->structFieldAccess.structInstance, &structPtr, &baseType, NULL)) {
+    const ParsedType* baseParsed = NULL;
+    if (!codegenLValue(ctx, node->structFieldAccess.structInstance, &structPtr, &baseType, &baseParsed)) {
         structPtr = codegenNode(ctx, node->structFieldAccess.structInstance);
         if (!structPtr) {
             fprintf(stderr, "Error: Failed to generate struct instance\n");
@@ -484,6 +612,9 @@ LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node) {
         baseType = LLVMTypeOf(structPtr);
         if (LLVMGetTypeKind(baseType) == LLVMPointerTypeKind) {
             baseType = LLVMGetElementType(baseType);
+        }
+        if (!baseParsed) {
+            baseParsed = cg_resolve_expression_type(ctx, node->structFieldAccess.structInstance);
         }
     }
 
@@ -498,6 +629,7 @@ LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node) {
                                                     baseType,
                                                     nameHint,
                                                     node->structFieldAccess.fieldName,
+                                                    baseParsed,
                                                     &fieldType,
                                                     NULL);
     if (!fieldPtr) {

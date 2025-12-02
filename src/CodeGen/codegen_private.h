@@ -73,6 +73,13 @@ typedef struct StructInfo {
     LLVMTypeRef llvmType;
 } StructInfo;
 
+typedef struct CGParamInfo {
+    ASTNode* declaration;
+    ASTNode* nameNode;
+    size_t nameIndex;
+    const ParsedType* parsedType;
+} CGParamInfo;
+
 typedef struct LabelBinding {
     char* name;
     LLVMBasicBlockRef block;
@@ -168,6 +175,7 @@ LLVMValueRef cg_cast_value(CodegenContext* ctx,
                            const ParsedType* fromParsed,
                            const ParsedType* toParsed,
                            const char* nameHint);
+LLVMTypeRef cg_element_type_hint_from_parsed(CodegenContext* ctx, const ParsedType* parsedType);
 
 bool cg_store_initializer_expression(CodegenContext* ctx,
                                      LLVMValueRef destPtr,
@@ -185,7 +193,15 @@ bool cg_store_compound_literal_into_ptr(CodegenContext* ctx,
                                         LLVMTypeRef destType,
                                         const ParsedType* destParsed,
                                         ASTNode* literalNode);
-
+size_t cg_expand_parameters(ASTNode** params,
+                            size_t paramCount,
+                            CGParamInfo** outInfos,
+                            bool* outIsVoidList);
+void cg_free_param_infos(CGParamInfo* infos);
+LLVMTypeRef* collectParamTypes(CodegenContext* ctx,
+                               size_t paramCount,
+                               ASTNode** params,
+                               size_t* outFlatCount);
 bool codegenLValue(CodegenContext* ctx,
                    ASTNode* target,
                    LLVMValueRef* outPtr,
@@ -196,18 +212,19 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
                                      LLVMTypeRef aggregateTypeHint,
                                      const char* structName,
                                      const char* fieldName,
+                                     const ParsedType* structParsedHint,
                                      LLVMTypeRef* outFieldType,
                                      const ParsedType** outFieldParsedType);
 LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
                                       LLVMValueRef arrayPtr,
                                       LLVMValueRef index,
+                                      const ParsedType* baseParsedHint,
                                       LLVMTypeRef aggregateTypeHint,
                                       LLVMTypeRef elementTypeHint,
                                       LLVMTypeRef* outElementType);
 LLVMTypeRef ensureStructLLVMTypeByName(CodegenContext* ctx, const char* name, bool isUnionHint);
 void declareStructSymbol(CodegenContext* ctx, const Symbol* sym);
 
-LLVMTypeRef* collectParamTypes(CodegenContext* ctx, size_t paramCount, ASTNode** params);
 LLVMValueRef ensureFunction(CodegenContext* ctx,
                             const char* name,
                             const ParsedType* returnType,

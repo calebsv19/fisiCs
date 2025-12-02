@@ -51,3 +51,14 @@ Set `CODEGEN_VERIFY=1` in the environment when invoking `./compiler` (or `make r
 ```
 
 `main.c` controls whether this phase runs via `ENABLE_CODEGEN`. Setting `DISABLE_CODEGEN=1` in the environment temporarily skips LLVM emission—handy when iterating on parser/semantics without worrying about backend regressions.
+
+## Declarator status & remaining work
+
+The declarator bridge is now end-to-end:
+
+- `cg_expand_parameters` flattens multi-name declarators into real LLVM arguments, honours `(void)` signatures, and drives both function definitions and prototypes.
+- Struct/union lowering consults the semantic fingerprints for layout, so anonymous tags and typedef-only names resolve without touching legacy AST caches.
+- Globals, locals, and compound literals store/decay using the semantic element types, so pointer arithmetic and initializer checks see identical LLVM shapes.
+- Array/pointer lvalues decay via `buildArrayElementPointer`, which detects raw `[N x T]` values, stores them into temporaries when needed, and GEPs using parsed aggregate hints. Pointer arithmetic, pointer comparisons, and &/[] expressions now survive the LLVM stage.
+
+With the pointer/array helpers fixed the codegen test suite can run with `DISABLE_CODEGEN=0` (see the Makefile targets). Remaining backend work is feature-oriented rather than infrastructural: e.g., teaching the IR emitter about varargs lowering, debug info emission, and additional GCC extensions.

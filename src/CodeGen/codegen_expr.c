@@ -210,6 +210,16 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
         return isPostfix ? current : updated;
     }
 
+    if (node->expr.op && strcmp(node->expr.op, "&") == 0) {
+        LLVMValueRef addrPtr = NULL;
+        LLVMTypeRef addrType = NULL;
+        if (!codegenLValue(ctx, node->expr.left, &addrPtr, &addrType, NULL)) {
+            fprintf(stderr, "Error: Address-of requires an lvalue\n");
+            return NULL;
+        }
+        return addrPtr;
+    }
+
     const ParsedType* operandParsed = cg_resolve_expression_type(ctx, node->expr.left);
     LLVMValueRef operand = codegenNode(ctx, node->expr.left);
     if (!operand) {
@@ -224,14 +234,6 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
         if (!boolVal) return NULL;
         LLVMValueRef inverted = LLVMBuildNot(ctx->builder, boolVal, "lnot.tmp");
         return cg_widen_bool_to_int(ctx, inverted, "lnot.int");
-    } else if (strcmp(node->expr.op, "&") == 0) {
-        LLVMValueRef addrPtr = NULL;
-        LLVMTypeRef addrType = NULL;
-        if (!codegenLValue(ctx, node->expr.left, &addrPtr, &addrType, NULL)) {
-            fprintf(stderr, "Error: Address-of requires an lvalue\n");
-            return NULL;
-        }
-        return addrPtr;
     } else if (strcmp(node->expr.op, "*") == 0) {
         LLVMTypeRef ptrType = LLVMTypeOf(operand);
         if (!ptrType || LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
@@ -405,20 +407,20 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     char* arrTyStr = LLVMPrintTypeToString(LLVMTypeOf(arrayPtr));
     CG_DEBUG("[CG] Array access base type: %s\n", arrTyStr ? arrTyStr : "<null>");
     if (arrTyStr) LLVMDisposeMessage(arrTyStr);
+    const ParsedType* arrayParsed = cg_resolve_expression_type(ctx, node->arrayAccess.array);
     LLVMTypeRef aggregateHint = NULL;
-    LLVMTypeRef elementHint = NULL;
-    if (node->arrayAccess.array && node->arrayAccess.array->type == AST_IDENTIFIER) {
-        NamedValue* entry = cg_scope_lookup(ctx->currentScope, node->arrayAccess.array->valueNode.value);
-        if (entry) {
-            aggregateHint = entry->type;
-            char* hintStr = aggregateHint ? LLVMPrintTypeToString(aggregateHint) : NULL;
-            CG_DEBUG("[CG] Array access aggregate hint=%s\n", hintStr ? hintStr : "<null>");
-            if (hintStr) LLVMDisposeMessage(hintStr);
-            elementHint = entry->elementType;
-        }
+    if (arrayParsed && parsedTypeIsDirectArray(arrayParsed)) {
+        aggregateHint = cg_type_from_parsed(ctx, arrayParsed);
     }
+    LLVMTypeRef elementHint = cg_element_type_hint_from_parsed(ctx, arrayParsed);
     LLVMTypeRef derivedElementType = NULL;
-    LLVMValueRef elementPtr = buildArrayElementPointer(ctx, arrayPtr, index, aggregateHint, elementHint, &derivedElementType);
+    LLVMValueRef elementPtr = buildArrayElementPointer(ctx,
+                                                       arrayPtr,
+                                                       index,
+                                                       arrayParsed,
+                                                       aggregateHint,
+                                                       elementHint,
+                                                       &derivedElementType);
     if (!elementPtr) {
         fprintf(stderr, "Error: Failed to compute array element pointer\n");
         return NULL;
@@ -464,12 +466,16 @@ LLVMValueRef codegenPointerAccess(CodegenContext* ctx, ASTNode* node) {
             nameHint = LLVMGetStructName(aggregateType);
         }
     }
+    const ParsedType* baseParsed = cg_resolve_expression_type(ctx, node->memberAccess.base);
+    ParsedType pointed = parsedTypePointerTargetType(baseParsed);
+    const ParsedType* structHint = (pointed.kind != TYPE_INVALID) ? &pointed : baseParsed;
     LLVMTypeRef fieldType = NULL;
     LLVMValueRef fieldPtr = buildStructFieldPointer(ctx,
                                                     basePtr,
                                                     aggregateType,
                                                     nameHint,
                                                     node->memberAccess.field,
+                                                    structHint,
                                                     &fieldType,
                                                     NULL);
     if (!fieldPtr) {
@@ -478,6 +484,9 @@ LLVMValueRef codegenPointerAccess(CodegenContext* ctx, ASTNode* node) {
     }
     if (!fieldType || LLVMGetTypeKind(fieldType) == LLVMVoidTypeKind) {
         fieldType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+    if (structHint == &pointed) {
+        parsedTypeFree(&pointed);
     }
     return LLVMBuildLoad2(ctx->builder, fieldType, fieldPtr, "ptr_field");
 }
@@ -492,7 +501,8 @@ LLVMValueRef codegenDotAccess(CodegenContext* ctx, ASTNode* node) {
     CG_DEBUG("[CG] Dot access begin\n");
     LLVMValueRef basePtr = NULL;
     LLVMTypeRef baseType = NULL;
-    if (!codegenLValue(ctx, node->memberAccess.base, &basePtr, &baseType, NULL)) {
+    const ParsedType* baseParsed = NULL;
+    if (!codegenLValue(ctx, node->memberAccess.base, &basePtr, &baseType, &baseParsed)) {
         CG_DEBUG("[CG] Dot access fallback to value\n");
         LLVMValueRef baseVal = codegenNode(ctx, node->memberAccess.base);
         if (!baseVal) return NULL;
@@ -504,6 +514,9 @@ LLVMValueRef codegenDotAccess(CodegenContext* ctx, ASTNode* node) {
             LLVMBuildStore(ctx->builder, baseVal, tmpAlloca);
             basePtr = tmpAlloca;
             baseType = LLVMTypeOf(baseVal);
+        }
+        if (!baseParsed) {
+            baseParsed = cg_resolve_expression_type(ctx, node->memberAccess.base);
         }
     }
 
@@ -518,6 +531,7 @@ LLVMValueRef codegenDotAccess(CodegenContext* ctx, ASTNode* node) {
                                                     baseType,
                                                     nameHint,
                                                     node->memberAccess.field,
+                                                    baseParsed,
                                                     &fieldType,
                                                     NULL);
     if (!fieldPtr) {
@@ -677,8 +691,9 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                 }
             }
 
-            LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params);
-            calleeType = LLVMFunctionType(returnType, paramTypes, (unsigned)paramCount, 0);
+            size_t flattenedCount = 0;
+            LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
+            calleeType = LLVMFunctionType(returnType, paramTypes, (unsigned)flattenedCount, 0);
             free(paramTypes);
         }
     }

@@ -71,6 +71,8 @@ CGTypeCache* cg_type_cache_create(const SemanticModel* model) {
         codegenModelFillStructInfo(model, infos, structCount);
         for (size_t i = 0; i < structCount; ++i) {
             cache->structCache[i].name = infos[i].name ? strdup(infos[i].name) : NULL;
+            cache->structCache[i].definition = infos[i].definition;
+            cache->structCache[i].symbol = infos[i].symbol;
             cache->structCache[i].isUnion = infos[i].isUnion;
             cache->structCache[i].llvmType = NULL;
             cache->structCache[i].fieldCount = infos[i].fieldCount;
@@ -158,4 +160,28 @@ CGStructLLVMInfo* cg_type_cache_get_struct_info(CGTypeCache* cache, const char* 
 
 CGNamedLLVMType* cg_type_cache_get_typedef_info(CGTypeCache* cache, const char* name) {
     return findTypedef(cache, name);
+}
+
+CGStructLLVMInfo* cg_type_cache_get_struct_by_definition(CGTypeCache* cache, const ASTNode* definition) {
+    if (!cache || !definition) {
+        return NULL;
+    }
+    for (size_t i = 0; i < cache->structCount; ++i) {
+        if (cache->structCache[i].definition == definition) {
+            return &cache->structCache[i];
+        }
+    }
+    return NULL;
+}
+
+CGStructLLVMInfo* cg_type_cache_find_struct_by_llvm(CGTypeCache* cache, LLVMTypeRef llvmType) {
+    if (!cache || !llvmType) {
+        return NULL;
+    }
+    for (size_t i = 0; i < cache->structCount; ++i) {
+        if (cache->structCache[i].llvmType == llvmType) {
+            return &cache->structCache[i];
+        }
+    }
+    return NULL;
 }
