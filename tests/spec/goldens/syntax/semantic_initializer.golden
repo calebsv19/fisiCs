@@ -25,14 +25,12 @@ PROGRAM
         IDENTIFIER p
             .x = IDENTIFIER base
 
-            .y = (Unrecognized for inline: type 20)      ARRAY_DECLARATION
-        TYPE: int
+            .y = (Unrecognized for inline: type 19)      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 2]
         IDENTIFIER values
-        DIMENSION[0]:
-          NUMBER_LITERAL 2
-          = IDENTIFIER base
+            = IDENTIFIER base
 
-          = (Unrecognized for inline: type 20)      RETURN
+            = (Unrecognized for inline: type 19)      RETURN
         BINARY EXPRESSION '+'
           DOT_ACCESS '.'
             IDENTIFIER p

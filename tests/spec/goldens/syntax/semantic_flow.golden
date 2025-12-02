@@ -70,5 +70,4 @@ Error at (1:0): Control reaches end of non-void function 'missing_return'
 Warning at (10:0): Unreachable statement
 Warning at (11:0): Unreachable statement
 Warning at (16:0): Switch case may fall through
-Warning at (22:0): Unreachable statement
 

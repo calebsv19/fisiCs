@@ -8,16 +8,14 @@ PROGRAM
         TYPE: void
         IDENTIFIER __unnamed_param0
     BLOCK
-      ARRAY_DECLARATION
-        TYPE: int
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 3]
         IDENTIFIER values
-        DIMENSION[0]:
-          NUMBER_LITERAL 3
-          = NUMBER_LITERAL 1
+            = NUMBER_LITERAL 1
 
-          = NUMBER_LITERAL 2
+            = NUMBER_LITERAL 2
 
-          = NUMBER_LITERAL 3
+            = NUMBER_LITERAL 3
 
       VAR_DECL
         TYPE: float

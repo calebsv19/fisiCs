@@ -1,6 +1,6 @@
 # Semantic Analysis
 
-Runs post-parse validation: builds symbol tables, checks scopes, and reports diagnostics. The pass walks the AST and dispatches into specialised analyzers for declarations, statements, and expressions.
+Runs post-parse validation: builds symbol tables, checks scopes, and reports diagnostics. The pass walks the AST and dispatches into specialised analyzers for declarations, statements, and expressions. With the declarator overhaul, semantics treats the `ParsedType` derivation list as the authoritative description of every pointer/array/function suffix.
 
 ## Phase overview
 
@@ -8,29 +8,26 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
   - Public entry `analyzeSemantics(ASTNode* root)` bootstraps the global scope, kicks off the analysis, and flushes accumulated errors.
 
 - `analyze_core.h` / `analyze_core.c`
-  - Central dispatcher `analyze(ASTNode*, Scope*)` creates new scopes for blocks/functions, routes nodes to declaration/statement/expression analyzers, and ensures child lists are traversed.
+  - Central dispatcher `analyze(ASTNode*, Scope*)` creates new scopes for blocks/functions, routes nodes to declaration/statement/expression analyzers, and ensures child lists are traversed. Declarations are now always `AST_VARIABLE_DECLARATION`; removed array/function-pointer node types are handled by inspecting the `ParsedType` derivations.
 
 - `analyze_decls.h` / `analyze_decls.c`
-  - Registers typedefs, variables, functions, structs, and enums into the current scope via `analyzeDeclaration()`, guarding against redefinitions.
-  - Function declarations/definitions copy their parameter lists (and variadic flag) into the owning `Symbol`, so later passes have a full prototype for argument checking.
-  - Struct/union/enum tags are now tracked with lightweight layout fingerprints so forward declarations can be matched against later definitions and conflicting layouts produce diagnostics instead of silently succeeding.
-  - Variable and array declarations validate initializer shape: scalars require at most one element, aggregates demand brace-enclosed lists, array initializer counts are checked (including designated indices and char-array-as-string cases), and diagnostics fire for too many/few elements. Block-scope variable-length arrays are accepted while file/static scope VLAs trigger diagnostics so they can’t leak into static storage.
-  - Typedef aliases and struct/union/enum tags are now also stored in the shared `CompilerContext`, so later strict parsing (casts, sizeof) recognises user-defined types discovered during analysis.
-  - Walks initializer expressions (including designated/compound forms and array literals) so every identifier is resolved during bring-up. Compound literals are tracked as lvalues for the lifetime of their block, but sema rejects attempts to embed them directly in static storage unless they’re constant.
-  - Attribute lists parsed by the front-end (`__attribute__`, `[[gnu::...]]`, `__declspec`) are preserved on AST nodes and available for future passes even though semantics/codegen currently treat them as metadata-only.
+  - Registers typedefs, variables, functions, structs, and enums into the current scope via `analyzeDeclaration()`.
+  - Function prototypes copy their parameter lists (and variadic flag) into the owning `Symbol` so later passes have the full signature.
+  - Struct/union/enum tags use lightweight layout fingerprints; array fields infer their shapes directly from the `ParsedType` derivations.
+  - Variable/array declarations validate initializer shape by replaying the derivation stack: scalars require a single expression, aggregates demand brace-enclosed lists, arrays check length/designators (including string literal shortcuts), and variable-length arrays trigger diagnostics when declared at static storage.
+  - Typedef aliases and tags update the shared `CompilerContext` so strict parsing (casts, sizeof) recognises newly analysed types.
+  - Attributes are preserved on AST nodes and `ParsedType` entries so future passes can inspect them.
 
 - `analyze_stmt.h` / `analyze_stmt.c`
   - Validates control-flow structures (`if`, `for`, `while`, `switch`, `case`, `return`, etc.) and ensures nested scopes are established where needed.
 - `control_flow.h` / `control_flow.c`
-  - Lightweight flow-sensitive pass that runs after semantic binding to ensure non-void functions return on every path, flag unreachable statements after terminating control transfers, and warn about switch cases that fall through without an explicit `break`.
+  - Lightweight flow-sensitive pass that runs after semantic binding to ensure non-void functions return on every path, flag unreachable statements, and warn about fallthrough cases.
 
 - `analyze_expr.h` / `analyze_expr.c`
-  - Confirms identifiers resolve, checks operand shapes for binary/unary operations, and walks nested expressions (`array`, `call`, `member`, ternary, statement expressions, etc.).
-  - Function-call analysis now matches argument counts/types against the stored prototype, emitting diagnostics for missing/excess arguments, qualifier drops, and incompatible conversions while applying default promotions to variadic arguments.
-  - Enum values participate in arithmetic/comparison rules as integers while still carrying their tag metadata for compatibility checks.
+  - Resolves identifiers, checks operand shapes for expressions, and leverages `typeInfoFromParsedType` to understand pointer/array/function combinations by replaying derivations. Function-call analysis matches argument counts/types, emitting diagnostics for too few/many arguments, qualifier drops, and incompatible conversions while applying default promotions to variadic arguments.
 
 - `type_checker.h` / `type_checker.c`
-  - Primitive type-compatibility checks: `typesAreEqual()` and `canAssignTypes()`. Currently conservative but provides hooks for richer rules.
+  - Builds `TypeInfo` objects by replaying derivations, handles pointer/array/function equality without relying on `pointerDepth`, and exposes `typesAreEqual()` / `canAssignTypes()` for downstream use.
 
 ## Supporting infrastructure
 
@@ -38,21 +35,11 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
   - Hierarchical scope objects with `createScope`, `destroyScope`, `addToScope`, and `resolveInScopeChain`.
 - `symbol_table.h` / `symbol_table.c`
   - Simple hash table storing `Symbol` objects (name, kind, `ParsedType`, AST definition). Shared by scopes.
+- `semantic_model.[ch]`
+  - Captures the analysed state and provides visitors used by codegen (struct metadata, resolved types, diagnostics).
 - `syntax_errors.h` / `syntax_errors.c`
   - Aggregates diagnostics (`addError`, `reportErrors`, `freeErrorList`) so the pass can emit multiple issues in one run.
 
 ## Testing
 
-Run `make semantic-typedef`, `make semantic-initializer`, `make semantic-undeclared`, `make semantic-bool` (or simply `make tests`) to validate typedef-driven casts, initializer analysis, boolean literals, and undeclared identifier reporting alongside the parser fixtures.
-
-## Typical call flow
-
-```
-Scope* global = createScope(NULL);
-analyze(programNode, global);         // analyze_core.c
-// inside analyze():
-//   -> analyzeDeclaration / analyzeStatement / analyzeExpression
-//   -> scope utilities manage nested blocks
-reportErrors();
-destroyScope(global);
-```
+Run `make semantic-typedef`, `make semantic-initializer`, `make semantic-undeclared`, `make semantic-bool` (or simply `make tests`) to validate declarator-driven type binding, initializer analysis, and diagnostics. Fixtures under `tests/spec/goldens/syntax/` assert on both AST dumps and semantic diagnostics; refresh them with `UPDATE_GOLDENS=1` after intentional output changes.

@@ -66,6 +66,12 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
             // Goto/label validation not implemented yet
             break;
 
+        case AST_BLOCK:
+            for (size_t i = 0; i < node->block.statementCount; ++i) {
+                analyze(node->block.statements[i], scope);
+            }
+            break;
+
         case AST_ASSIGNMENT:
         case AST_BINARY_EXPRESSION:
         case AST_UNARY_EXPRESSION:

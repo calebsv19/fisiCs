@@ -26,6 +26,11 @@
 int main(int argc, char **argv) {
     const char *filename = (argc > 1) ? argv[1] : "include/test.txt";
     char *sourceCode = readFile(filename);
+    int enableCodegen = ENABLE_CODEGEN;
+    const char* disableCodegenEnv = getenv("DISABLE_CODEGEN");
+    if (disableCodegenEnv && disableCodegenEnv[0] != '\0' && disableCodegenEnv[0] != '0') {
+        enableCodegen = 0;
+    }
 
     CompilerContext* ctx = cc_create();
     if (!ctx) { fprintf(stderr, "OOM: CompilerContext\n"); return 1; }
@@ -80,7 +85,9 @@ int main(int argc, char **argv) {
 
 #if ENABLE_CODEGEN
     printf("\n️ LLVM Code Generation:\n");
-    if (semanticErrors == 0) {
+    if (!enableCodegen) {
+        printf("Skipping LLVM code generation (disabled via environment).\n");
+    } else if (semanticErrors == 0) {
         CodegenContext* codegenCtx = codegen_context_create("compiler_module", semanticModel);
         if (!codegenCtx) {
             fprintf(stderr, "Error: Failed to initialize LLVM code generation context\n");

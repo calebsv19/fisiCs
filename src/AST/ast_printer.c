@@ -63,7 +63,7 @@ static void printParsedType_inner(const ParsedType* pt) {
     }
 
     /* Declarator part */
-if (pt->isFunctionPointer) {
+    if (pt->isFunctionPointer) {
         /* Render as: <base> ( <stars> )(param, ...) */
         printf(" (");
         if (pt->pointerDepth > 0) {
@@ -81,6 +81,44 @@ if (pt->isFunctionPointer) {
         printf(")");
     } else {
         for (int i = 0; i < pt->pointerDepth; i++) printf("*");
+    }
+
+    for (size_t i = 0; i < pt->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i);
+        if (!deriv) continue;
+        switch (deriv->kind) {
+            case TYPE_DERIVATION_ARRAY:
+                printf(" [");
+                if (deriv->as.array.isVLA) {
+                    printf("VLA");
+                } else if (deriv->as.array.hasConstantSize) {
+                    printf("%lld", deriv->as.array.constantSize);
+                } else if (deriv->as.array.sizeExpr) {
+                    printBasicAST(deriv->as.array.sizeExpr, 0, true);
+                } else {
+                    printf("?");
+                }
+                printf("]");
+                break;
+            case TYPE_DERIVATION_FUNCTION: {
+                printf(" (");
+                for (size_t p = 0; p < deriv->as.function.paramCount; ++p) {
+                    if (p) printf(", ");
+                    printParsedType_inner(&deriv->as.function.params[p]);
+                }
+                if (deriv->as.function.isVariadic) {
+                    if (deriv->as.function.paramCount > 0) {
+                        printf(", ");
+                    }
+                    printf("...");
+                }
+                printf(")");
+                break;
+            }
+            case TYPE_DERIVATION_POINTER:
+            default:
+                break;
+        }
     }
 }
 
@@ -365,34 +403,6 @@ void printAST(ASTNode* node, int depth) {
             }
             break;
 
-       case AST_ARRAY_DECLARATION:
-            printf("ARRAY_DECLARATION\n");
-            
-            for (int i = 0; i < depth + 1; i++) printf("  ");
-            printf("TYPE: ");
-            printParsedType(&node->arrayDecl.declaredType);
-            
-            printAST(node->arrayDecl.varName, depth + 1);
-            
-            // Print all array dimensions chained via nextStmt
-            {
-                ASTNode* dim = node->arrayDecl.arraySize;
-                int dimIndex = 0;
-                while (dim) {
-                    for (int i = 0; i < depth + 1; i++) printf("  ");
-                    printf("DIMENSION[%d]:\n", dimIndex);
-                    printAST(dim, depth + 2);
-                    dim = dim->nextStmt;
-                    dimIndex++;
-                }
-            }
-             
-            for (size_t i = 0; i < node->arrayDecl.valueCount; i++) {
-                printDesignatedInit(node->arrayDecl.initializers[i], 
-                                        depth + 2);
-            }
-            break;
-            
         case AST_ARRAY_ACCESS:
                     printf("ARRAY_ACCESS\n");
             printAST(node->arrayAccess.array, depth + 1);  // Print array being accessed

@@ -11,9 +11,9 @@ PROGRAM
         TYPE: void
         IDENTIFIER __unnamed_param0
     BLOCK
-      FUNCTION POINTER DECLARATION
-        RETURN TYPE: I (*)()
-        NAME: fn
+      VAR_DECL
+        TYPE: I* ()
+        IDENTIFIER fn
       ASSIGNMENT (=)
         IDENTIFIER fn
         CAST_EXPRESSION
@@ -24,8 +24,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (5:0): Undeclared identifier
-   Hint: fn
-Error at (5:0): Left operand of '=' must be a modifiable lvalue
 Error at (5:0): Incompatible assignment operands
 

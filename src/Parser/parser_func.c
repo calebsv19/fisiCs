@@ -2,7 +2,6 @@
 #include "Parser/Helpers/parser_helpers.h"
 #include "parser_main.h"
 #include "parser_decl.h"
-#include "parser_decl.h"
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 #include "Parser/Helpers/parser_attributes.h"
@@ -110,38 +109,39 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
             break;
         }
 
-        ParsedType paramType = parseType(parser);
-        PointerChain chain = parsePointerChain(parser);
-        applyPointerChainToType(&paramType, &chain);
-        pointerChainFree(&chain);
-        
-        ASTNode* paramName = NULL;
-        if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-            paramName = createIdentifierNode(parser->currentToken.value);
-            if (paramName) paramName->line = parser->currentToken.line;
-            advance(parser);  // consume identifier
-        } else {
-            // Create synthetic name for unnamed parameter
+        ParsedType paramBase = parseType(parser);
+        ParsedDeclarator decl;
+        if (!parserParseDeclarator(parser,
+                                   &paramBase,
+                                   false,
+                                   false,
+                                   &decl)) {
+            printParseError("Invalid parameter declarator", parser);
+            free(paramList);
+            return NULL;
+        }
+        parsedTypeFree(&paramBase);
+
+        ASTNode* paramName = decl.identifier;
+        if (!paramName) {
             char buffer[32];
             snprintf(buffer, sizeof(buffer), "__unnamed_param%zu", unnamedIndex++);
             paramName = createIdentifierNode(strdup(buffer));
         }
-
-        parserConsumeArraySuffixes(parser, &paramType, NULL);
         
         ASTNode** paramNames = malloc(sizeof(ASTNode*));
         DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
         paramNames[0] = paramName;
         initializers[0] = NULL;
     
-        ASTNode* paramDecl = createVariableDeclarationNode(paramType, paramNames, initializers, 1);
+        ASTNode* paramDecl = createVariableDeclarationNode(decl.type, paramNames, initializers, 1);
         if (paramDecl) {
             ParsedType* per = malloc(sizeof(ParsedType));
             if (per) {
-                per[0] = paramType;
+                per[0] = decl.type;
                 paramDecl->varDecl.declaredTypes = per;
             }
-            astNodeCloneTypeAttributes(paramDecl, &paramType);
+            astNodeCloneTypeAttributes(paramDecl, &decl.type);
         }
     
         // Expand if needed
@@ -246,166 +246,3 @@ ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee) {
     return createFunctionCallNode(callee, argList, argCount);
 } 
 
-
-
-ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType) {
-    PARSER_DEBUG_PRINTF("DEBUG: Entering parseFunctionPointerDeclaration() at line %d\n",
-           parser->currentToken.line);
-
-    /* 2) Expect '(' then one-or-more '*' then an identifier then ')' */
-    if (parser->currentToken.type != TOKEN_LPAREN) {
-        printParseError("Expected '(' after return type", parser);
-        return NULL;
-    }
-    advance(parser); /* consume '(' */
-
-    int innerStars = 0;
-    if (parser->currentToken.type != TOKEN_ASTERISK) {
-        printParseError("Expected '*' in function pointer declarator", parser);
-        return NULL;
-    }
-    do {
-        ++innerStars;
-        advance(parser);
-        /* Optional: qualifiers after each '*' */
-        /* while (isTypeQualifier(parser->currentToken.type)) advance(parser); */
-    } while (parser->currentToken.type == TOKEN_ASTERISK);
-
-    if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-        printParseError("Expected identifier for function pointer name", parser);
-        return NULL;
-    }
-    ASTNode* name = createIdentifierNode(parser->currentToken.value);
-    if (name) name->line = parser->currentToken.line;
-    advance(parser); /* consume name */
-
-    if (parser->currentToken.type != TOKEN_RPAREN) {
-        printParseError("Expected ')' after function pointer name", parser);
-        return NULL;
-    }
-    advance(parser); /* consume ')' */
-
-    /* 3) Parameter list: '(' param-type-list ')'  (support 'void' or comma-separated types) */
-    if (parser->currentToken.type != TOKEN_LPAREN) {
-        printParseError("Expected '(' to start parameter list", parser);
-        return NULL;
-    }
-    advance(parser); /* consume '(' */
-
-    /* Gather parameter *types* for the ParsedType; we can still build the AST param list
-       later if your node wants names.
-     */
-    size_t cap = 4, cnt = 0;
-    ParsedType* fpParams = (ParsedType*)malloc(cap * sizeof(ParsedType));
-    if (!fpParams) cap = 0;
-
-    bool onlyVoid = false;
-    if (parser->currentToken.type != TOKEN_RPAREN) {
-        while (1) {
-            if (parser->currentToken.type == TOKEN_VOID) {
-                advance(parser);
-                if (parser->currentToken.type == TOKEN_RPAREN) {
-                    onlyVoid = true;
-                }
-                if (onlyVoid) break;
-            }
-
-            ParsedType p = parseType(parser);
-            PointerChain paramChain = parsePointerChain(parser);
-            applyPointerChainToType(&p, &paramChain);
-            pointerChainFree(&paramChain);
-            if (p.kind == TYPE_INVALID) {
-                printParseError("Invalid parameter type in function pointer declaration", parser);
-                if (fpParams) free(fpParams);
-                return NULL;
-            }
-
-            /* Optional parameter name (ignored) */
-            if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-                TokenType look = peekNextToken(parser).type;
-                if (look == TOKEN_COMMA || look == TOKEN_RPAREN) {
-                    advance(parser);
-                }
-            }
-
-            if (!onlyVoid) {
-                if (cnt == cap) {
-                    size_t ncap = cap ? cap * 2 : 4;
-                    ParsedType* nbuf = (ParsedType*)realloc(fpParams, ncap * sizeof(ParsedType));
-                    if (nbuf) { fpParams = nbuf; cap = ncap; }
-                }
-                if (cnt < cap) fpParams[cnt++] = p;
-            }
-
-            if (parser->currentToken.type == TOKEN_COMMA) {
-                advance(parser);
-                continue;
-            }
-            break;
-        }
-    }
-
-    if (parser->currentToken.type != TOKEN_RPAREN) {
-        printParseError("Expected ')' to close parameter list", parser);
-        if (fpParams) free(fpParams);
-        return NULL;
-    }
-    advance(parser); /* consume ')' */
-
-    /* 4) Build the full function-pointer type: base return type + innerStars + params */
-    bool appendedFunction = true;
-    if (onlyVoid) {
-        parsedTypeSetFunctionPointer(&returnType, 0, NULL);
-        appendedFunction = parsedTypeAppendFunction(&returnType, NULL, 0, false);
-    } else {
-        parsedTypeSetFunctionPointer(&returnType, cnt, fpParams);
-        appendedFunction = parsedTypeAppendFunction(&returnType, fpParams, cnt, false);
-    }
-    if (!appendedFunction) {
-        if (fpParams) free(fpParams);
-        printParseError("Failed to record function pointer signature", parser);
-        return NULL;
-    }
-    if (fpParams) free(fpParams);
-
-    /* The stars inside '(*name)' increase the pointer depth of the function pointer */
-    parsedTypeAddPointerDepth(&returnType, innerStars);
-
-    /* 5) Optional initializer: = <expression> ;  (use Pratt) */
-    ASTNode* initializer = NULL;
-    if (parser->currentToken.type == TOKEN_ASSIGN) {
-        advance(parser); /* consume '=' */
-        initializer = parseExpressionPratt(parser, 0);
-        if (!initializer) {
-            printParseError("Invalid initializer for function pointer", parser);
-            return NULL;
-        }
-    }
-    size_t fpAttrCount = 0;
-    ASTAttribute** fpAttrs = parserParseAttributeSpecifiers(parser, &fpAttrCount);
-
-    /* 6) End of declaration ;  (TODO: support comma-list of FP declarators if you want) */
-    if (parser->currentToken.type != TOKEN_SEMICOLON) {
-        printParseError("Expected ';' after function pointer declaration", parser);
-        astAttributeListDestroy(fpAttrs, fpAttrCount);
-        free(fpAttrs);
-        return NULL;
-    }
-    advance(parser); /* consume ';' */
-
-    /* Reuse your existing node factory; if it needs params as AST nodes, you can extend it later.
-       For now we’ve fully encoded the signature in 'returnType' (now a function-pointer type),
-       and 'initializer' is the Pratt-parsed RHS if present.
-    */
-    ASTNode* node = createFunctionPointerDeclarationNode(returnType, name, /*paramList*/NULL, /*paramCount*/0, initializer);
-    if (node) {
-        astNodeCloneTypeAttributes(node, &returnType);
-        astNodeAppendAttributes(node, fpAttrs, fpAttrCount);
-        fpAttrs = NULL;
-        fpAttrCount = 0;
-    } else {
-        astAttributeListDestroy(fpAttrs, fpAttrCount);
-        free(fpAttrs);
-    }
-    return node;
-}

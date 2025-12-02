@@ -7,12 +7,12 @@ DSL-style annotations, physics-aware types, and IDE integration.
 
 ## Features (Current)
 
-- **Lexer** – Robust tokenization for C99-style syntax (keywords, identifiers, literals, operators).  
-- **Parser** – Handles expressions, declarations, control-flow, designated initialisers, attributes (`__attribute__`, `[[gnu::...]]`, `__declspec`, …), and (optionally) GNU statement expressions when `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` is set in the environment. On malformed input it runs panic-mode recovery so later diagnostics still appear.  
-- **Semantic Analysis** – Tracks typedef/tag namespaces, enforces lvalue/decay rules, qualifier-safe assignments, pointer arithmetic semantics, records function prototypes (including variadic signatures) and tag-layout fingerprints, validates initializer shapes, understands block-scope variable-length arrays, and treats compound literals as lvalues within their lifetime while flagging illegal static-storage uses.  
-- **LLVM IR Codegen** – Lowers analysed ASTs into LLVM IR (struct/union layouts, arrays including VLAs, compound assignments, loops/conditionals, globals).  
-- **Preprocessor Support** – Parses `#include`, `#define`, `#ifdef`, etc., preserving directives in the AST pipeline.  
-- **H2 Generator** – Emits helper `.h2` metadata for IDE or tooling experiments.  
+- **Lexer** – Robust tokenization for C99-style syntax (keywords, identifiers, literals, operators).
+- **Parser** – Handles expressions, declarations, control-flow, designated initialisers, and attributes (`__attribute__`, `[[gnu::...]]`, `__declspec`, …). Declarators are normalized into `ParsedType` derivations: pointer chains, array suffixes, and function signatures are recorded structurally so downstream passes no longer depend on bespoke AST nodes. GNU statement expressions can be optionally enabled via `ENABLE_GNU_STATEMENT_EXPRESSIONS=1`; panic-mode recovery keeps parsing after errors so later diagnostics still appear.
+- **Semantic Analysis** – Tracks typedef/tag namespaces, enforces lvalue/decay rules, qualifier-safe assignments, pointer arithmetic semantics, records function prototypes (including variadic signatures) and tag-layout fingerprints, validates initializer shapes (including nested arrays/VLAs) by replaying the `ParsedType` derivations, and treats compound literals as lvalues within their lifetime while flagging illegal static-storage uses.
+- **LLVM IR Codegen** – Lowers analysed ASTs into LLVM IR. Types are rebuilt directly from `ParsedType` derivations so nested combinations (pointer-to-array-of-function pointers, VLAs inside structs, etc.) now compile without custom AST plumbing.
+- **Preprocessor Support** – Parses `#include`, `#define`, `#ifdef`, etc., preserving directives in the AST pipeline.
+- **H2 Generator** – Emits helper `.h2` metadata for IDE or tooling experiments.
 - **Debug Instrumentation** – Opt-in parser/codegen tracing toggled at build time via make variables.
 
 ---
@@ -28,8 +28,8 @@ DSL-style annotations, physics-aware types, and IDE integration.
 
 ### Dependencies
 
-- A C99-compliant compiler (`gcc` or `clang`)  
-- LLVM toolchain (tested with Homebrew LLVM 21) for headers/libs used by IR generation  
+- A C99-compliant compiler (`gcc` or `clang`)
+- LLVM toolchain (tested with Homebrew LLVM 21) for headers/libs used by IR generation
 - POSIX-compatible system (Linux, macOS, or WSL)
 
 ### Build Instructions

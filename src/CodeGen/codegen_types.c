@@ -71,6 +71,7 @@ static LLVMTypeRef primitiveType(CodegenContext* ctx, const ParsedType* type) {
 static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* info);
 static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type);
 static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type);
+static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type, size_t derivationIndex);
 
 static LLVMTypeRef baseType(CodegenContext* ctx, const ParsedType* type) {
     if (!type) {
@@ -126,20 +127,91 @@ static LLVMTypeRef functionPointerType(CodegenContext* ctx, const ParsedType* ty
     return LLVMPointerType(fnType, 0);
 }
 
-LLVMTypeRef cg_type_from_parsed(CodegenContext* ctx, const ParsedType* type) {
-    LLVMTypeRef base = baseType(ctx, type);
+static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type, size_t derivationIndex) {
+    if (!type) {
+        return LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
+    }
+    if (derivationIndex >= type->derivationCount) {
+        return baseType(ctx, type);
+    }
 
-    if (type && type->isFunctionPointer) {
-        LLVMTypeRef fnPtr = functionPointerType(ctx, type, base);
-        int extraDepth = type ? type->pointerDepth : 0;
-        if (extraDepth > 0) {
-            return applyPointerDepth(ctx, fnPtr, extraDepth);
+    const TypeDerivation* deriv = parsedTypeGetDerivation(type, derivationIndex);
+    if (!deriv) {
+        return baseType(ctx, type);
+    }
+
+    switch (deriv->kind) {
+        case TYPE_DERIVATION_POINTER: {
+            LLVMTypeRef target = buildDerivedType(ctx, type, derivationIndex + 1);
+            if (!target || LLVMGetTypeKind(target) == LLVMVoidTypeKind) {
+                target = LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
+            }
+            return LLVMPointerType(target, 0);
+        }
+        case TYPE_DERIVATION_ARRAY: {
+            LLVMTypeRef elementType = buildDerivedType(ctx, type, derivationIndex + 1);
+            if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
+                elementType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
+            }
+            if (!deriv->as.array.isVLA && deriv->as.array.hasConstantSize && deriv->as.array.constantSize > 0) {
+                unsigned len = (unsigned)deriv->as.array.constantSize;
+                return LLVMArrayType(elementType, len);
+            }
+            return LLVMPointerType(elementType, 0);
+        }
+        case TYPE_DERIVATION_FUNCTION: {
+            LLVMTypeRef returnType = buildDerivedType(ctx, type, derivationIndex + 1);
+            size_t paramCount = deriv->as.function.paramCount;
+            LLVMTypeRef* params = NULL;
+            if (paramCount > 0) {
+                params = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
+                if (!params) {
+                    return LLVMFunctionType(returnType ? returnType : LLVMVoidTypeInContext(cg_context_get_llvm_context(ctx)),
+                                            NULL,
+                                            0,
+                                            deriv->as.function.isVariadic ? 1 : 0);
+                }
+                for (size_t i = 0; i < paramCount; ++i) {
+                    params[i] = cg_type_from_parsed(ctx, &deriv->as.function.params[i]);
+                    if (!params[i]) {
+                        params[i] = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
+                    }
+                }
+            }
+            LLVMTypeRef fnType = LLVMFunctionType(returnType ? returnType : LLVMVoidTypeInContext(cg_context_get_llvm_context(ctx)),
+                                                  params,
+                                                  (unsigned)paramCount,
+                                                  deriv->as.function.isVariadic ? 1 : 0);
+            free(params);
+            return fnType;
+        }
+    }
+
+    return baseType(ctx, type);
+}
+
+LLVMTypeRef cg_type_from_parsed(CodegenContext* ctx, const ParsedType* type) {
+    LLVMTypeRef derived = buildDerivedType(ctx, type, 0);
+    if (!derived) {
+        derived = baseType(ctx, type);
+    }
+
+    if (type && type->isFunctionPointer && type->derivationCount == 0) {
+        LLVMTypeRef fnPtr = functionPointerType(ctx, type, derived);
+        int extraDepthLegacy = type ? type->pointerDepth : 0;
+        if (extraDepthLegacy > 0) {
+            return applyPointerDepth(ctx, fnPtr, extraDepthLegacy);
         }
         return fnPtr;
     }
 
-    int depth = type ? type->pointerDepth : 0;
-    return applyPointerDepth(ctx, base, depth);
+    int pointerDerivations = 0;
+    if (type) {
+        pointerDerivations = (int)parsedTypeCountDerivationsOfKind(type, TYPE_DERIVATION_POINTER);
+    }
+    int depth = type ? type->pointerDepth - pointerDerivations : 0;
+    if (depth < 0) depth = 0;
+    return applyPointerDepth(ctx, derived, depth);
 }
 
 static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* info) {

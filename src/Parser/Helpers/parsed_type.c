@@ -109,6 +109,8 @@ bool parsedTypeAppendArray(ParsedType* t, struct ASTNode* sizeExpr, bool isVLA) 
     slot->kind = TYPE_DERIVATION_ARRAY;
     slot->as.array.sizeExpr = sizeExpr;
     slot->as.array.isVLA = isVLA;
+    slot->as.array.hasConstantSize = false;
+    slot->as.array.constantSize = 0;
     if (isVLA) {
         t->isVLA = true;
     }
@@ -172,6 +174,8 @@ static TypeDerivation cloneDerivation(const TypeDerivation* src) {
         case TYPE_DERIVATION_ARRAY:
             dst.as.array.sizeExpr = src->as.array.sizeExpr;
             dst.as.array.isVLA = src->as.array.isVLA;
+            dst.as.array.hasConstantSize = src->as.array.hasConstantSize;
+            dst.as.array.constantSize = src->as.array.constantSize;
             break;
         case TYPE_DERIVATION_FUNCTION:
             dst.as.function.isVariadic = src->as.function.isVariadic;
@@ -264,6 +268,153 @@ ParsedType parsedTypeArrayElementType(const ParsedType* t) {
         element.derivations = NULL;
     }
     return element;
+}
+
+ParsedType parsedTypePointerTargetType(const ParsedType* t) {
+    ParsedType copy = parsedTypeClone(t);
+    if (!t) {
+        copy.kind = TYPE_INVALID;
+        return copy;
+    }
+    bool removed = false;
+    for (size_t i = 0; i < copy.derivationCount; ++i) {
+        if (copy.derivations[i].kind != TYPE_DERIVATION_POINTER) {
+            continue;
+        }
+        if (i + 1 < copy.derivationCount) {
+            memmove(copy.derivations + i,
+                    copy.derivations + i + 1,
+                    (copy.derivationCount - i - 1) * sizeof(TypeDerivation));
+        }
+        copy.derivationCount--;
+        removed = true;
+        break;
+    }
+    if (!removed && copy.pointerDepth > 0) {
+        copy.pointerDepth -= 1;
+        removed = true;
+    }
+    if (!removed) {
+        parsedTypeFree(&copy);
+        memset(&copy, 0, sizeof(copy));
+        copy.kind = TYPE_INVALID;
+    }
+    return copy;
+}
+
+static bool namesEqual(const char* a, const char* b) {
+    if (a == b) return true;
+    if (!a || !b) return false;
+    return strcmp(a, b) == 0;
+}
+
+bool parsedTypesStructurallyEqual(const ParsedType* a, const ParsedType* b) {
+    if (a == b) return true;
+    if (!a || !b) return false;
+    if (a->kind != b->kind) return false;
+    if (a->primitiveType != b->primitiveType) return false;
+    if (a->tag != b->tag) return false;
+    if (!namesEqual(a->userTypeName, b->userTypeName)) return false;
+    if (a->pointerDepth != b->pointerDepth) return false;
+    if (a->derivationCount != b->derivationCount) return false;
+
+    for (size_t i = 0; i < a->derivationCount; ++i) {
+        const TypeDerivation* lhs = &a->derivations[i];
+        const TypeDerivation* rhs = &b->derivations[i];
+        if (lhs->kind != rhs->kind) {
+            return false;
+        }
+        switch (lhs->kind) {
+            case TYPE_DERIVATION_POINTER:
+                if (lhs->as.pointer.isConst != rhs->as.pointer.isConst) return false;
+                if (lhs->as.pointer.isVolatile != rhs->as.pointer.isVolatile) return false;
+                if (lhs->as.pointer.isRestrict != rhs->as.pointer.isRestrict) return false;
+                break;
+            case TYPE_DERIVATION_ARRAY:
+                if (lhs->as.array.isVLA != rhs->as.array.isVLA) return false;
+                break;
+            case TYPE_DERIVATION_FUNCTION:
+                if (lhs->as.function.isVariadic != rhs->as.function.isVariadic) return false;
+                if (lhs->as.function.paramCount != rhs->as.function.paramCount) return false;
+                for (size_t p = 0; p < lhs->as.function.paramCount; ++p) {
+                    if (!parsedTypesStructurallyEqual(&lhs->as.function.params[p],
+                                                      &rhs->as.function.params[p])) {
+                        return false;
+                    }
+                }
+                break;
+        }
+    }
+    return true;
+}
+
+const TypeDerivation* parsedTypeGetDerivation(const ParsedType* t, size_t index) {
+    if (!t || index >= t->derivationCount) {
+        return NULL;
+    }
+    return &t->derivations[index];
+}
+
+const TypeDerivation* parsedTypeGetArrayDerivation(const ParsedType* t, size_t dimensionIndex) {
+    if (!t) {
+        return NULL;
+    }
+    size_t seen = 0;
+    for (size_t i = 0; i < t->derivationCount; ++i) {
+        const TypeDerivation* deriv = &t->derivations[i];
+        if (deriv->kind != TYPE_DERIVATION_ARRAY) {
+            continue;
+        }
+        if (seen == dimensionIndex) {
+            return deriv;
+        }
+        seen++;
+    }
+    return NULL;
+}
+
+TypeDerivation* parsedTypeGetMutableArrayDerivation(ParsedType* t, size_t dimensionIndex) {
+    if (!t) {
+        return NULL;
+    }
+    size_t seen = 0;
+    for (size_t i = 0; i < t->derivationCount; ++i) {
+        TypeDerivation* deriv = &t->derivations[i];
+        if (deriv->kind != TYPE_DERIVATION_ARRAY) {
+            continue;
+        }
+        if (seen == dimensionIndex) {
+            return deriv;
+        }
+        seen++;
+    }
+    return NULL;
+}
+
+size_t parsedTypeCountDerivationsOfKind(const ParsedType* t, TypeDerivationKind kind) {
+    if (!t) {
+        return 0;
+    }
+    size_t count = 0;
+    for (size_t i = 0; i < t->derivationCount; ++i) {
+        if (t->derivations[i].kind == kind) {
+            count++;
+        }
+    }
+    return count;
+}
+
+bool parsedTypeHasVLA(const ParsedType* t) {
+    if (!t) {
+        return false;
+    }
+    for (size_t i = 0; i < t->derivationCount; ++i) {
+        if (t->derivations[i].kind == TYPE_DERIVATION_ARRAY &&
+            t->derivations[i].as.array.isVLA) {
+            return true;
+        }
+    }
+    return false;
 }
 
 static bool identifierMatchesKnownType(Parser* parser, const char* name) {

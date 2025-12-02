@@ -65,13 +65,11 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
     bool allReturn = true;
     bool allStop = true;
     bool anyReachable = false;
-    bool reachable = ctx.reachable;
-
     for (size_t i = 0; i < node->switchStmt.caseListSize; ++i) {
         ASTNode* caseNode = node->switchStmt.caseList[i];
         if (!caseNode) continue;
 
-        bool caseReachable = reachable;
+        bool caseReachable = ctx.reachable;
         if (!caseReachable && !caseCtx.suppressUnreachable) {
             reportUnreachable(caseNode);
         }
@@ -98,12 +96,12 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
         }
 
         if (caseReachable && caseFlow.stops) {
-            reachable = false;
+            /* stopping a case does not affect reachability of other cases */
         }
     }
 
-    result.stops = sawDefault && anyReachable && allStop;
-    result.returns = sawDefault && anyReachable && allReturn;
+    result.stops = sawDefault && ctx.reachable && anyReachable && allStop;
+    result.returns = sawDefault && ctx.reachable && anyReachable && allReturn;
     return result;
 }
 

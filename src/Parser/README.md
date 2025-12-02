@@ -2,6 +2,12 @@
 
 Builds the compiler's AST from the lexer token stream. The parser mixes recursive-descent structure for declarations/statements with a pluggable expression engine (Pratt or legacy chain).
 
+## Declarators & Parsed Types
+
+Every declaration funnels through a shared `ParsedType` structure that records storage specifiers, qualifiers, the base type, and a derivation stack that captures pointer layers, array suffixes (with dimension expressions / VLA flags), and function signatures. Instead of emitting bespoke AST nodes for arrays or function pointers, the parser now records the full declarator grammar inside `ParsedType` so later passes (semantics/codegen) only need to replay the derivations.
+
+Work-in-progress: a dedicated `parseDeclarator` helper will unify the remaining ad-hoc array/function-pointer parsing paths so `AST_VARIABLE_DECLARATION` becomes the single node shape for every declarator form (globals, locals, parameters, typedefs, struct fields).
+
 ## Module map
 
 - `parser.h` — Core `Parser` struct (rolling lookahead tokens, mode flag, shared `CompilerContext`) plus the public `parse(Parser*)` entrypoint.
@@ -12,15 +18,15 @@ Builds the compiler's AST from the lexer token stream. The parser mixes recursiv
 - `parser_stmt.h` / `parser_stmt.c`
   - Recognises control-flow statements (`if`, `for`, `while`, `switch`, `goto`, `return`, etc.), typedef/struct/enum handling, and general assignment forms via `parseAssignment()`.
 - `parser_func.h` / `parser_func.c`
-  - Function declarations/definitions (`parseFunctionDefinition`), parameter list assembly, function calls, and function-pointer declarators.
+  - Function declarations/definitions (`parseFunctionDefinition`), parameter list assembly, function calls, and (legacy) function-pointer declarators. These will eventually call the shared declarator helper.
 - `parser_array.h` / `parser_array.c`
-  - Array declarators and array literal parsing helpers.
+  - Array initializer parsing helpers (designators, nested braces). Declarators themselves now build arrays directly via `ParsedType` derivations.
 - `parser_switch.h` / `parser_switch.c`
   - Detailed parsing of `switch`/`case`/`default` constructs including fallthrough chains.
 - `parser_preproc.h` / `parser_preproc.c`
   - Converts preprocessor directives into dedicated AST nodes (`#include`, `#define`, `#ifdef`, `#pragma once`, etc.) so later passes can reason about them.
 - `parser_decl.h` / `parser_decl.c`
-  - Handles type-specifier sequences, variable declarator lists, struct/union/enum bodies, designated initialisers, and attribute capture (`__attribute__`, `[[gnu::...]]`, `__declspec`).
+  - Handles type-specifier sequences, declarator lists, struct/union/enum bodies, designated initialisers, and attribute capture (`__attribute__`, `[[gnu::...]]`, `__declspec`). Declarators clone the base `ParsedType`, apply pointer layers, and then iterate suffixes (`()`, `[]`) to append derivations.
 - `parser_config.h`
   - Defines `ParserMode` enum toggling between recursive and Pratt expression parsing.
 - GNU statement expressions (`({ ... })`) can be enabled by setting `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` before invoking the compiler or spec harness; when enabled they are parsed into dedicated `AST_STATEMENT_EXPRESSION` nodes that wrap a block and yield the last expression. When disabled the parser emits a diagnostic instead of silently consuming the construct.
@@ -46,4 +52,4 @@ The root `tests/` directory contains small C snippets that exercise tricky parse
 
 - Entry: `initParser(&parser, &lexer, mode, ctx)`, then `parse(&parser)` returns an `ASTNode*` program.
 - Statement-level helpers such as `handleControlStatements`, `parseAssignment`, and `parseStatement` are exported for reuse across modules.
-- Declarator results are `ASTNode*` trees built via constructors defined in `AST/ast_node.c`.
+- Declarator results are `ASTNode*` trees built via constructors defined in `AST/ast_node.c`. The `node->varDecl.declaredTypes` array holds per-declarator clones so semantics/codegen can read the exact `ParsedType` (including pointer/array/function derivations).

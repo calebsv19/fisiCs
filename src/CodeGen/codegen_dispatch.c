@@ -27,8 +27,6 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
             return codegenCastExpression(ctx, node);
         case AST_VARIABLE_DECLARATION:
             return codegenVariableDeclaration(ctx, node);
-        case AST_ARRAY_DECLARATION:
-            return codegenArrayDeclaration(ctx, node);
         case AST_ARRAY_ACCESS:
             return codegenArrayAccess(ctx, node);
         case AST_POINTER_ACCESS:

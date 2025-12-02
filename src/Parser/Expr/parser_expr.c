@@ -647,11 +647,11 @@ ASTNode* handleExpressionOrAssignment(Parser* parser) {
 
     // Wrap top-level comma expressions as a block of statements (unchanged)
     if (expr->type == AST_COMMA_EXPRESSION) {
-        ASTNode* blockNode = malloc(sizeof(ASTNode));
-        blockNode->type = AST_BLOCK;
-        blockNode->block.statementCount = expr->commaExpr.exprCount;
-        blockNode->block.statements = expr->commaExpr.expressions;
-        blockNode->nextStmt = NULL;
+        ASTNode* blockNode = createBlockNode(expr->commaExpr.expressions,
+                                             expr->commaExpr.exprCount);
+        if (!blockNode) {
+            return NULL;
+        }
         return blockNode;
     }
 

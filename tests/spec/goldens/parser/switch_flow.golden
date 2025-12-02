@@ -99,9 +99,6 @@ PROGRAM
 
 
 Diagnostics:
-Warning at (8:0): Unreachable statement
-Warning at (14:0): Unreachable statement
-Warning at (18:0): Unreachable statement
-Warning at (32:0): Unreachable statement
+Warning at (8:0): Switch case may fall through
 Semantic analysis: no issues found.
 

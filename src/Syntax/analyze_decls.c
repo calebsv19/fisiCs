@@ -49,17 +49,6 @@ static void hash_string(uint64_t* hash, const char* str) {
 static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type);
 static void hashAstNode(uint64_t* hash, const ASTNode* node);
 
-static void hashArrayDimensions(uint64_t* hash, ASTNode* dims) {
-    size_t depth = 0;
-    ASTNode* current = dims;
-    while (current) {
-        ++depth;
-        hash_u64(hash, depth);
-        hashAstNode(hash, current);
-        current = current->nextStmt;
-    }
-    hash_u64(hash, depth);
-}
 
 static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type) {
     if (!hash) return;
@@ -180,15 +169,6 @@ static void hashFieldDeclaration(uint64_t* hash, ASTNode* field) {
         } else {
             hash_bool(hash, false);
         }
-    } else if (field->type == AST_ARRAY_DECLARATION) {
-        hashParsedTypeFingerprint(hash, &field->arrayDecl.declaredType);
-        ASTNode* name = field->arrayDecl.varName;
-        if (name && name->type == AST_IDENTIFIER) {
-            hash_string(hash, name->valueNode.value);
-        } else {
-            hash_string(hash, "");
-        }
-        hashArrayDimensions(hash, field->arrayDecl.arraySize);
     }
 }
 
@@ -379,15 +359,15 @@ static void analyzeDesignatedInitializer(DesignatedInit* init, Scope* scope) {
     }
 }
 
-static void analyzeDesignatedInitializerList(DesignatedInit** list, size_t count, Scope* scope) {
-    if (!list) return;
-    for (size_t i = 0; i < count; ++i) {
-        analyzeDesignatedInitializer(list[i], scope);
-    }
-}
-
-static void validateVariableInitializer(const ParsedType* type, DesignatedInit* init, ASTNode* nameNode, Scope* scope, bool staticStorage);
-static void validateArrayInitializer(ASTNode* node, Scope* scope);
+static void validateVariableInitializer(ParsedType* type, DesignatedInit* init, ASTNode* nameNode, Scope* scope, bool staticStorage);
+static void validateVariableArrayInitializer(ParsedType* type, DesignatedInit* init, ASTNode* nameNode, Scope* scope);
+static void validateArrayInitializerEntries(ParsedType* type,
+                                            const char* arrayName,
+                                            DesignatedInit** values,
+                                            size_t valueCount,
+                                            Scope* scope,
+                                            ASTNode* contextNode,
+                                            long long* outInferredLength);
 
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
     switch (node->type) {
@@ -395,8 +375,8 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             ParsedType* declaredTypes = node->varDecl.declaredTypes;
             for (size_t i = 0; i < node->varDecl.varCount; i++) {
                 ASTNode* ident = node->varDecl.varNames[i];
-                const ParsedType* varType = declaredTypes ? &declaredTypes[i]
-                                                          : &node->varDecl.declaredType;
+                ParsedType* varType = declaredTypes ? &declaredTypes[i]
+                                                     : &node->varDecl.declaredType;
                 Symbol* sym = malloc(sizeof(Symbol));
                 sym->name = strdup(ident->valueNode.value);
                 sym->kind = SYMBOL_VARIABLE;
@@ -411,11 +391,40 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
 
                 bool staticStorage = scopeIsFileScope(scope) ||
                                      (varType && (varType->isStatic || varType->isExtern));
+                bool isArrayVar = varType && parsedTypeIsDirectArray(varType);
+                if (isArrayVar) {
+                    for (size_t d = 0; d < varType->derivationCount; ++d) {
+                        TypeDerivation* deriv = parsedTypeGetMutableArrayDerivation(varType, d);
+                        if (!deriv) break;
+                        if (deriv->as.array.sizeExpr) {
+                            size_t len = 0;
+                            if (tryEvaluateArrayLength(deriv->as.array.sizeExpr, &len)) {
+                                deriv->as.array.hasConstantSize = true;
+                                deriv->as.array.constantSize = (long long)len;
+                                deriv->as.array.isVLA = false;
+                            } else {
+                                deriv->as.array.isVLA = true;
+                            }
+                        }
+                    }
+                    if (parsedTypeHasVLA(varType) && staticStorage) {
+                        char buffer[256];
+                        snprintf(buffer,
+                                 sizeof(buffer),
+                                 "Variable-length array '%s' is not allowed at static storage duration",
+                                 ident && ident->valueNode.value ? ident->valueNode.value : "<unnamed>");
+                        addError(ident ? ident->line : node->line, 0, buffer, NULL);
+                    }
+                }
 
                 if (i < node->varDecl.varCount && node->varDecl.initializers) {
                     DesignatedInit* init = node->varDecl.initializers[i];
                     analyzeDesignatedInitializer(init, scope);
-                    validateVariableInitializer(varType, init, ident, scope, staticStorage);
+                    if (parsedTypeIsDirectArray(varType)) {
+                        validateVariableArrayInitializer(varType, init, ident, scope);
+                    } else {
+                        validateVariableInitializer(varType, init, ident, scope, staticStorage);
+                    }
                 }
             }
             break;
@@ -426,6 +435,35 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             ASTNode* funcName = node->type == AST_FUNCTION_DEFINITION
                 ? node->functionDef.funcName
                 : node->functionDecl.funcName;
+            if (node->type == AST_FUNCTION_DEFINITION) {
+                fprintf(stderr, "analyze func %s paramCount=%zu\n",
+                        funcName && funcName->type == AST_IDENTIFIER ? funcName->valueNode.value : "<anon>",
+                        node->functionDef.paramCount);
+            }
+
+            Symbol* existing = lookupSymbol(&scope->table, funcName->valueNode.value);
+            if (existing && existing->kind == SYMBOL_FUNCTION) {
+                if (node->type == AST_FUNCTION_DEFINITION &&
+                    existing->definition &&
+                    existing->definition->type == AST_FUNCTION_DEFINITION) {
+                    addError(funcName ? funcName->line : node->line,
+                             0,
+                             "Redefinition of function",
+                             funcName->valueNode.value);
+                    break;
+                }
+
+                if (node->type == AST_FUNCTION_DEFINITION) {
+                    existing->type = node->functionDef.returnType;
+                    existing->definition = node;
+                    resetFunctionSignature(existing);
+                    assignFunctionSignature(existing,
+                                            node->functionDef.parameters,
+                                            node->functionDef.paramCount,
+                                            node->functionDef.isVariadic);
+                }
+                break;
+            }
 
             Symbol* sym = malloc(sizeof(Symbol));
             sym->name = strdup(funcName->valueNode.value);
@@ -469,60 +507,6 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             if (scope->ctx) {
                 cc_add_typedef(scope->ctx, node->typedefStmt.alias->valueNode.value);
             }
-            break;
-        }
-
-        case AST_ARRAY_DECLARATION: {
-            ASTNode* nameNode = node->arrayDecl.varName;
-            if (!nameNode || nameNode->type != AST_IDENTIFIER) {
-                break;
-            }
-
-            bool hasVLA = false;
-            ASTNode* dimNode = node->arrayDecl.arraySize;
-            while (dimNode) {
-                (void)analyzeExpression(dimNode, scope);
-                size_t len = 0;
-                if (!tryEvaluateArrayLength(dimNode, &len)) {
-                    hasVLA = true;
-                }
-                dimNode = dimNode->nextStmt;
-            }
-            node->arrayDecl.isVLA = hasVLA;
-            if (hasVLA) {
-                node->arrayDecl.declaredType.isVLA = true;
-            }
-
-            Symbol* sym = malloc(sizeof(Symbol));
-            sym->name = strdup(nameNode->valueNode.value);
-            sym->kind = SYMBOL_VARIABLE;
-            sym->type = node->arrayDecl.declaredType;
-            if (hasVLA) {
-                sym->type.isVLA = true;
-            }
-            sym->definition = node;
-            sym->next = NULL;
-            resetFunctionSignature(sym);
-
-            if (!addToScope(scope, sym)) {
-                addError(nameNode ? nameNode->line : node->line, 0, "Redefinition of variable", nameNode->valueNode.value);
-            }
-
-            if (hasVLA) {
-                bool staticStorage = scopeIsFileScope(scope) ||
-                                     node->arrayDecl.declaredType.isStatic ||
-                                     node->arrayDecl.declaredType.isExtern;
-                if (staticStorage) {
-                    char buffer[256];
-                    snprintf(buffer, sizeof(buffer),
-                             "Variable-length array '%s' is not allowed at static storage duration",
-                             nameNode && nameNode->valueNode.value ? nameNode->valueNode.value : "<unnamed>");
-                    addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
-                }
-            }
-
-            analyzeDesignatedInitializerList(node->arrayDecl.initializers, node->arrayDecl.valueCount, scope);
-            validateArrayInitializer(node, scope);
             break;
         }
 
@@ -609,12 +593,19 @@ static void validateScalarCompoundLiteral(ASTNode* compound, ASTNode* context, c
     }
 }
 
-static void validateVariableInitializer(const ParsedType* type,
+static void validateVariableInitializer(ParsedType* type,
                                         DesignatedInit* init,
                                         ASTNode* nameNode,
                                         Scope* scope,
                                         bool staticStorage) {
-    if (!type || !scope || !init) return;
+    if (!type || !scope) return;
+
+    if (parsedTypeIsDirectArray(type)) {
+        validateVariableArrayInitializer(type, init, nameNode, scope);
+        return;
+    }
+
+    if (!init) return;
     const char* name = safeIdentifierName(nameNode);
     TypeInfo info = typeInfoFromParsedType(type, scope);
     if (typeInfoIsStructLike(&info)) {
@@ -651,27 +642,50 @@ static bool isStringLiteralInitializer(DesignatedInit* init) {
            init->expression && init->expression->type == AST_STRING_LITERAL;
 }
 
-static void validateArrayInitializer(ASTNode* node, Scope* scope) {
-    if (!node || node->type != AST_ARRAY_DECLARATION) return;
-    const char* arrayName = safeIdentifierName(node->arrayDecl.varName);
-    DesignatedInit** values = node->arrayDecl.initializers;
-    size_t valueCount = node->arrayDecl.valueCount;
-    if (!values || valueCount == 0) {
+static void validateArrayInitializerEntries(ParsedType* type,
+                                            const char* arrayName,
+                                            DesignatedInit** values,
+                                            size_t valueCount,
+                                            Scope* scope,
+                                            ASTNode* contextNode,
+                                            long long* outInferredLength) {
+    if (!type || !scope || !values || valueCount == 0) {
+        if (outInferredLength) *outInferredLength = -1;
         return;
     }
 
     size_t declaredLen = 0;
-    bool hasDeclaredLen = tryEvaluateArrayLength(node->arrayDecl.arraySize, &declaredLen);
-    TypeInfo elementInfo = typeInfoFromParsedType(&node->arrayDecl.declaredType, scope);
-    if (parsedTypeIsDirectArray(&node->arrayDecl.declaredType)) {
-        ParsedType elementType = parsedTypeArrayElementType(&node->arrayDecl.declaredType);
+    bool hasDeclaredLen = false;
+    TypeDerivation* topArray = parsedTypeGetMutableArrayDerivation(type, 0);
+    ASTNode* sizeExpr = NULL;
+    if (topArray) {
+        if (topArray->as.array.hasConstantSize && !topArray->as.array.isVLA) {
+            hasDeclaredLen = true;
+            declaredLen = (size_t)(topArray->as.array.constantSize >= 0 ? topArray->as.array.constantSize : 0);
+        } else {
+            sizeExpr = topArray->as.array.sizeExpr;
+            if (sizeExpr && tryEvaluateArrayLength(sizeExpr, &declaredLen)) {
+                hasDeclaredLen = true;
+                topArray->as.array.hasConstantSize = true;
+                topArray->as.array.constantSize = (long long)declaredLen;
+                topArray->as.array.isVLA = false;
+            }
+        }
+    }
+    if (outInferredLength) {
+        *outInferredLength = -1;
+    }
+
+    TypeInfo elementInfo = typeInfoFromParsedType(type, scope);
+    if (parsedTypeIsDirectArray(type)) {
+        ParsedType elementType = parsedTypeArrayElementType(type);
         elementInfo = typeInfoFromParsedType(&elementType, scope);
         parsedTypeFree(&elementType);
     }
     bool treatAsChar = typeInfoIsCharLike(&elementInfo);
 
     if (valueCount == 1 && isStringLiteralInitializer(values[0]) && treatAsChar) {
-        size_t literalLen = values[0]->expression->valueNode.value
+        size_t literalLen = values[0]->expression && values[0]->expression->valueNode.value
             ? strlen(values[0]->expression->valueNode.value)
             : 0;
         size_t needed = literalLen + 1;
@@ -680,13 +694,17 @@ static void validateArrayInitializer(ASTNode* node, Scope* scope) {
             snprintf(buffer, sizeof(buffer),
                      "String literal for array '%s' is too long (needs %zu, size %zu)",
                      arrayName, needed, declaredLen);
-            addError(node->line, 0, buffer, NULL);
+            addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+        } else if (!hasDeclaredLen && outInferredLength) {
+            *outInferredLength = (long long)needed;
         }
         return;
     }
 
     size_t sequentialCount = 0;
+    size_t highestIndex = 0;
     bool usedDesignators = false;
+    bool sawAny = false;
     for (size_t i = 0; i < valueCount; ++i) {
         DesignatedInit* init = values[i];
         if (!init) continue;
@@ -708,19 +726,30 @@ static void validateArrayInitializer(ASTNode* node, Scope* scope) {
                          arrayName, indexValue, declaredLen);
                 addError(init->indexExpr->line, 0, buffer, NULL);
             }
+            if (indexValue >= 0) {
+                size_t candidate = (size_t)indexValue + 1;
+                if (candidate > highestIndex) {
+                    highestIndex = candidate;
+                }
+                sawAny = true;
+            }
         } else {
             if (hasDeclaredLen && sequentialCount >= declaredLen) {
                 char buffer[256];
                 snprintf(buffer, sizeof(buffer),
                          "Too many initializers for array '%s' (size %zu)",
                          arrayName, declaredLen);
-                addError(node->line, 0, buffer, NULL);
+                addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
             }
             sequentialCount++;
+            if (sequentialCount > highestIndex) {
+                highestIndex = sequentialCount;
+            }
+            sawAny = true;
         }
 
         if (init->expression && init->expression->type == AST_COMPOUND_LITERAL && !typeInfoIsStructLike(&elementInfo)) {
-            validateScalarCompoundLiteral(init->expression, node, arrayName);
+            validateScalarCompoundLiteral(init->expression, contextNode, arrayName);
         }
     }
 
@@ -729,6 +758,51 @@ static void validateArrayInitializer(ASTNode* node, Scope* scope) {
         snprintf(buffer, sizeof(buffer),
                  "Not enough initializers for array '%s' (have %zu, expected %zu)",
                  arrayName, sequentialCount, declaredLen);
-        addError(node->line, 0, buffer, NULL);
+        addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+    }
+
+    if (!hasDeclaredLen && outInferredLength && sawAny) {
+        *outInferredLength = (long long)highestIndex;
+    }
+}
+
+static void validateVariableArrayInitializer(ParsedType* type,
+                                             DesignatedInit* init,
+                                             ASTNode* nameNode,
+                                             Scope* scope) {
+    if (!type || !scope) return;
+    const char* arrayName = safeIdentifierName(nameNode);
+    if (!init || !init->expression) {
+        return;
+    }
+    long long inferredLen = -1;
+    if (init->expression->type == AST_COMPOUND_LITERAL) {
+        validateArrayInitializerEntries(type,
+                                        arrayName,
+                                        init->expression->compoundLiteral.entries,
+                                        init->expression->compoundLiteral.entryCount,
+                                        scope,
+                                        nameNode,
+                                        &inferredLen);
+    } else if (init->expression->type == AST_STRING_LITERAL) {
+        DesignatedInit* single[1];
+        single[0] = init;
+        validateArrayInitializerEntries(type, arrayName, single, 1, scope, nameNode, &inferredLen);
+    } else {
+        char buffer[256];
+        snprintf(buffer, sizeof(buffer),
+                 "Initializer for array '%s' must be brace-enclosed",
+                 arrayName);
+        addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+        return;
+    }
+
+    if (inferredLen >= 0) {
+        TypeDerivation* topArray = parsedTypeGetMutableArrayDerivation(type, 0);
+        if (topArray) {
+            topArray->as.array.hasConstantSize = true;
+            topArray->as.array.constantSize = inferredLen;
+            topArray->as.array.isVLA = false;
+        }
     }
 }

@@ -30,7 +30,6 @@ typedef enum {
     AST_STRUCT_DEFINITION,
     AST_STRUCT_FIELD_ACCESS,
     AST_ENUM_DEFINITION,
-    AST_ARRAY_DECLARATION,
 
     AST_ARRAY_ACCESS,
     AST_POINTER_ACCESS,
@@ -255,15 +254,6 @@ struct ASTNode {
         } varDecl;
 
 	struct {
-            ParsedType declaredType;
-            ASTNode* varName;
-            ASTNode* arraySize;  // ≈ Holds the size of the array
-	    struct DesignatedInit** initializers;
-            size_t valueCount;
-            bool isVLA;
-        } arrayDecl;
-
-	struct {
 	    ParsedType baseType;
 	    ASTNode* alias;
 	} typedefStmt;
@@ -403,10 +393,6 @@ ASTNode* createEnumDefinitionNode(const char* name, ASTNode** members,
 					ASTNode** values, size_t count);
 ASTNode* createStructOrUnionDefinitionNode(ASTNodeType type, const char* name, 
 					ASTNode** fields, size_t fieldCount);
-ASTNode *createArrayDeclarationNode(ParsedType type, ASTNode *name, ASTNode *size, 
-					struct DesignatedInit **initValues, size_t valueCount);
-
-ASTNode* chainArraySizes(ASTNode* outer, ASTNode* inner);
 ASTNode* createArrayAccessNode(ASTNode* array, ASTNode* index);
 ASTNode* createMemberAccessNode(TokenType op, ASTNode* base, const char* fieldName);
 ASTNode* createPointerDereferenceNode(ASTNode* operand);

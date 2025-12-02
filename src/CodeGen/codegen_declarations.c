@@ -11,6 +11,8 @@ LLVMTypeRef* collectParamTypes(CodegenContext* ctx, size_t paramCount, ASTNode**
         return NULL;
     }
 
+    fprintf(stderr, "collectParamTypes count=%zu\n", paramCount);
+
     LLVMTypeRef* paramTypes = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
     if (!paramTypes) {
         return NULL;

@@ -161,10 +161,17 @@ LLVMValueRef cg_widen_bool_to_int(CodegenContext* ctx, LLVMValueRef value, const
 LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
                                          const ParsedType* pointerParsed,
                                          LLVMTypeRef pointerLLVM) {
-    if (pointerParsed && pointerParsed->pointerDepth > 0) {
-        ParsedType element = *pointerParsed;
-        element.pointerDepth -= 1;
-        return cg_type_from_parsed(ctx, &element);
+    if (pointerParsed) {
+        ParsedType element = parsedTypePointerTargetType(pointerParsed);
+        if (element.kind != TYPE_INVALID) {
+            LLVMTypeRef elemType = cg_type_from_parsed(ctx, &element);
+            parsedTypeFree(&element);
+            if (elemType) {
+                return elemType;
+            }
+        } else {
+            parsedTypeFree(&element);
+        }
     }
     if (pointerLLVM && LLVMGetTypeKind(pointerLLVM) == LLVMPointerTypeKind) {
         LLVMTypeRef elem = LLVMGetElementType(pointerLLVM);

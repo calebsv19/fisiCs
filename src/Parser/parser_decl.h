@@ -26,7 +26,6 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser);
 // Variable and array declarations
 ASTNode* parseDeclaration(Parser* parser, ParsedType declaredType, size_t* varCount);
 ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_t* outVarCount);
-ASTNode* parseArrayDeclaration(Parser* parser, ParsedType type);
 ASTNode* parseDeclarationForLoop(Parser* parser);
 
 // Struct, union, enum, typedef
@@ -42,6 +41,22 @@ ASTNode* handleStructStatements(Parser* parser);
 PointerChain parsePointerChain(Parser* parser);
 void pointerChainFree(PointerChain* chain);
 void applyPointerChainToType(ParsedType* type, const PointerChain* chain);
-bool parserConsumeArraySuffixes(Parser* parser, ParsedType* type, ASTNode** outSizeChain);
+bool parserConsumeArraySuffixes(Parser* parser, ParsedType* type);
+
+typedef struct ParsedDeclarator {
+    ASTNode* identifier;
+    ParsedType type;
+    ASTNode** functionParameters;
+    size_t functionParamCount;
+    bool functionIsVariadic;
+    bool declaresFunction;
+} ParsedDeclarator;
+
+bool parserParseDeclarator(Parser* parser,
+                           const ParsedType* baseType,
+                           bool allowFunctionDeclarator,
+                           bool requireIdentifier,
+                           ParsedDeclarator* out);
+void parserDeclaratorDestroy(ParsedDeclarator* decl);
 
 #endif // _PARSER_DECL_H

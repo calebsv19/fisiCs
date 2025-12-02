@@ -94,7 +94,6 @@ void analyze(ASTNode* node, Scope* scope) {
     // Declarations at current scope
     case AST_FUNCTION_DECLARATION:
     case AST_VARIABLE_DECLARATION:
-    case AST_ARRAY_DECLARATION:
     case AST_STRUCT_DEFINITION:
     case AST_UNION_DEFINITION:
     case AST_ENUM_DEFINITION:

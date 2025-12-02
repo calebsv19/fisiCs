@@ -12,14 +12,12 @@ PROGRAM
         TYPE: const int
         IDENTIFIER c
           = NUMBER_LITERAL 0
-      ARRAY_DECLARATION
-        TYPE: int
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 2]
         IDENTIFIER array
-        DIMENSION[0]:
-          NUMBER_LITERAL 2
-          = NUMBER_LITERAL 1
+            = NUMBER_LITERAL 1
 
-          = NUMBER_LITERAL 2
+            = NUMBER_LITERAL 2
 
       VAR_DECL
         TYPE: int*

@@ -4,11 +4,9 @@ PROGRAM
     TYPE: int
     IDENTIFIER g
       = NUMBER_LITERAL 3
-  ARRAY_DECLARATION
-    TYPE: int
+  VAR_DECL
+    TYPE: int [IDENTIFIER g]
     IDENTIFIER file_bad
-    DIMENSION[0]:
-      IDENTIFIER g
   FUNCTION DEFINITION
     RETURN TYPE: void
     IDENTIFIER foo
@@ -17,11 +15,9 @@ PROGRAM
         TYPE: int
         IDENTIFIER n
     BLOCK
-      ARRAY_DECLARATION
-        TYPE: static int
+      VAR_DECL
+        TYPE: static int [IDENTIFIER n]
         IDENTIFIER static_bad
-        DIMENSION[0]:
-          IDENTIFIER n
 
 
 Diagnostics:

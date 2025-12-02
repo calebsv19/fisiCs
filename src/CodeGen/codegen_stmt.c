@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
+static LLVMValueRef ensureIntegerLLVMValue(CodegenContext* ctx, LLVMValueRef value);
+static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType* type);
+
 static bool cg_node_is_expression_type(ASTNodeType type) {
     switch (type) {
         case AST_ASSIGNMENT:
@@ -125,8 +128,6 @@ LLVMValueRef codegenStatementExpression(CodegenContext* ctx, ASTNode* node) {
     }
     return cg_finalize_statement_expr_result(ctx, resultValue);
 }
-
-
 LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_VARIABLE_DECLARATION) {
         fprintf(stderr, "Error: Invalid node type for codegenVariableDeclaration\n");
@@ -140,40 +141,104 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
     for (size_t i = 0; i < node->varDecl.varCount; i++) {
         ASTNode* varNameNode = node->varDecl.varNames[i];
         const ParsedType* varParsed = astVarDeclTypeAt(node, i);
-        LLVMTypeRef varType = cg_type_from_parsed(ctx, varParsed);
-        if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
-            varType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
+        bool isArray = varParsed ? parsedTypeIsDirectArray(varParsed) : false;
+        bool hasVLA = varParsed ? parsedTypeHasVLA(varParsed) : false;
+
+        LLVMValueRef storage = NULL;
+        LLVMTypeRef storageType = NULL;
+        LLVMTypeRef elementLLVM = NULL;
+
+        if (isArray) {
+            if (hasVLA) {
+                LLVMValueRef elementCount = codegenVLAElementCount(ctx, varParsed ? varParsed : &node->varDecl.declaredType);
+                if (!elementCount) {
+                    fprintf(stderr, "Error: Failed to compute VLA length for '%s'\n", varNameNode->valueNode.value);
+                    continue;
+                }
+                ParsedType base = parsedTypeClone(varParsed ? varParsed : &node->varDecl.declaredType);
+                while (parsedTypeIsDirectArray(&base)) {
+                    ParsedType next = parsedTypeArrayElementType(&base);
+                    parsedTypeFree(&base);
+                    base = next;
+                }
+                elementLLVM = cg_type_from_parsed(ctx, &base);
+                parsedTypeFree(&base);
+                if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
+                    elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+                storage = LLVMBuildArrayAlloca(ctx->builder,
+                                               elementLLVM,
+                                               elementCount,
+                                               varNameNode->valueNode.value);
+                storageType = LLVMTypeOf(storage);
+            } else {
+                storageType = cg_type_from_parsed(ctx, varParsed ? varParsed : &node->varDecl.declaredType);
+                ParsedType element = parsedTypeArrayElementType(varParsed ? varParsed : &node->varDecl.declaredType);
+                elementLLVM = cg_type_from_parsed(ctx, &element);
+                parsedTypeFree(&element);
+                if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
+                    elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+                if (!storageType || LLVMGetTypeKind(storageType) == LLVMVoidTypeKind) {
+                    storageType = LLVMArrayType(elementLLVM, 1);
+                }
+                storage = LLVMBuildAlloca(ctx->builder, storageType, varNameNode->valueNode.value);
+            }
+            cg_scope_insert(ctx->currentScope,
+                            varNameNode->valueNode.value,
+                            storage,
+                            storageType,
+                            false,
+                            true,
+                            elementLLVM,
+                            varParsed ? varParsed : &node->varDecl.declaredType);
+        } else {
+            LLVMTypeRef varType = cg_type_from_parsed(ctx, varParsed);
+            if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
+                varType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
+            }
+            storage = LLVMBuildAlloca(ctx->builder, varType, varNameNode->valueNode.value);
+            storageType = varType;
+            cg_scope_insert(ctx->currentScope,
+                            varNameNode->valueNode.value,
+                            storage,
+                            varType,
+                            false,
+                            false,
+                            NULL,
+                            varParsed ? varParsed : &node->varDecl.declaredType);
         }
-        LLVMValueRef allocaInst = LLVMBuildAlloca(ctx->builder, varType, varNameNode->valueNode.value);
-        cg_scope_insert(ctx->currentScope,
-                        varNameNode->valueNode.value,
-                        allocaInst,
-                        varType,
-                        false,
-                        false,
-                        NULL,
-                        varParsed ? varParsed : &node->varDecl.declaredType);
 
         DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
         if (init && init->expression) {
             if (init->expression->type == AST_COMPOUND_LITERAL) {
                 if (!cg_store_compound_literal_into_ptr(ctx,
-                                                        allocaInst,
-                                                        varType,
+                                                        storage,
+                                                        storageType,
                                                         varParsed ? varParsed : &node->varDecl.declaredType,
                                                         init->expression)) {
-                    fprintf(stderr, "Error: Failed to emit compound initializer for variable\n");
+                    fprintf(stderr, "Error: Failed to emit initializer for variable\n");
                 }
             } else {
-                LLVMValueRef initValue = codegenNode(ctx, init->expression);
-                if (initValue) {
-                    LLVMValueRef casted = cg_cast_value(ctx,
-                                                        initValue,
-                                                        varType,
-                                                        NULL,
-                                                        varParsed ? varParsed : &node->varDecl.declaredType,
-                                                        "init.store");
-                    LLVMBuildStore(ctx->builder, casted, allocaInst);
+                if (!isArray) {
+                    LLVMValueRef initValue = codegenNode(ctx, init->expression);
+                    if (initValue) {
+                        LLVMValueRef casted = cg_cast_value(ctx,
+                                                            initValue,
+                                                            storageType,
+                                                            NULL,
+                                                            varParsed ? varParsed : &node->varDecl.declaredType,
+                                                            "init.store");
+                        LLVMBuildStore(ctx->builder, casted, storage);
+                    }
+                } else {
+                    if (!cg_store_initializer_expression(ctx,
+                                                         storage,
+                                                         storageType,
+                                                         varParsed ? varParsed : &node->varDecl.declaredType,
+                                                         init->expression)) {
+                        fprintf(stderr, "Error: Failed to emit initializer for array variable\n");
+                    }
                 }
             }
         }
@@ -199,12 +264,26 @@ static LLVMValueRef ensureIntegerLLVMValue(CodegenContext* ctx, LLVMValueRef val
                             "vla.intcast");
 }
 
-static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, ASTNode* sizeChain) {
+static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType* type) {
+    if (!ctx || !type) return NULL;
     LLVMValueRef total = NULL;
-    ASTNode* dim = sizeChain;
-    while (dim) {
-        LLVMValueRef dimValue = codegenNode(ctx, dim);
-        dimValue = ensureIntegerLLVMValue(ctx, dimValue);
+    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+        if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY) {
+            continue;
+        }
+
+        LLVMValueRef dimValue = NULL;
+        if (!deriv->as.array.isVLA && deriv->as.array.hasConstantSize && deriv->as.array.constantSize > 0) {
+            dimValue = LLVMConstInt(intptrTy, (unsigned long long)deriv->as.array.constantSize, 0);
+        } else if (deriv->as.array.sizeExpr) {
+            LLVMValueRef evaluated = codegenNode(ctx, deriv->as.array.sizeExpr);
+            dimValue = ensureIntegerLLVMValue(ctx, evaluated);
+        } else {
+            dimValue = LLVMConstInt(intptrTy, 1, 0);
+        }
         if (!dimValue) {
             return NULL;
         }
@@ -213,75 +292,9 @@ static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, ASTNode* sizeCha
         } else {
             total = LLVMBuildMul(ctx->builder, total, dimValue, "vla.total");
         }
-        dim = dim->nextStmt;
     }
     return total;
 }
-
-LLVMValueRef codegenArrayDeclaration(CodegenContext* ctx, ASTNode* node) {
-    if (node->type != AST_ARRAY_DECLARATION) {
-        fprintf(stderr, "Error: Invalid node type for codegenArrayDeclaration\n");
-        return NULL;
-    }
-
-    LLVMTypeRef elementType = cg_type_from_parsed(ctx, &node->arrayDecl.declaredType);
-    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
-        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
-    }
-
-    if (node->arrayDecl.isVLA) {
-        LLVMValueRef elementCount = codegenVLAElementCount(ctx, node->arrayDecl.arraySize);
-        if (!elementCount) {
-            fprintf(stderr, "Error: Failed to compute length for variable-length array\n");
-            return NULL;
-        }
-        LLVMValueRef arrayPtr = LLVMBuildArrayAlloca(ctx->builder,
-                                                     elementType,
-                                                     elementCount,
-                                                     node->arrayDecl.varName->valueNode.value);
-        cg_scope_insert(ctx->currentScope,
-                        node->arrayDecl.varName->valueNode.value,
-                        arrayPtr,
-                        LLVMTypeOf(arrayPtr),
-                        false,
-                        true,
-                        elementType,
-                        &node->arrayDecl.declaredType);
-        return arrayPtr;
-    }
-
-    LLVMValueRef computedSize = node->arrayDecl.arraySize ? codegenNode(ctx, node->arrayDecl.arraySize) : NULL;
-    if (!computedSize && node->arrayDecl.valueCount == 0) {
-        fprintf(stderr, "Error: Array size not specified\n");
-        return NULL;
-    }
-
-    (void)computedSize;
-
-    LLVMTypeRef arrayType = LLVMArrayType(elementType, node->arrayDecl.valueCount ? (unsigned)node->arrayDecl.valueCount : 1);
-    LLVMValueRef array = LLVMBuildAlloca(ctx->builder, arrayType,
-                                         node->arrayDecl.varName->valueNode.value);
-    cg_scope_insert(ctx->currentScope,
-                    node->arrayDecl.varName->valueNode.value,
-                    array,
-                    arrayType,
-                    false,
-                    true,
-                    elementType,
-                    &node->arrayDecl.declaredType);
-
-    if (node->arrayDecl.initializers && node->arrayDecl.valueCount > 0) {
-        cg_store_designated_entries(ctx,
-                                    array,
-                                    arrayType,
-                                    &node->arrayDecl.declaredType,
-                                    node->arrayDecl.initializers,
-                                    node->arrayDecl.valueCount);
-    }
-
-    return array;
-}
-
 
 LLVMValueRef codegenIfStatement(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_IF_STATEMENT) {

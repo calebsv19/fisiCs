@@ -486,41 +486,6 @@ ASTNode* createStructOrUnionDefinitionNode(ASTNodeType type,
     node->structDef.fieldCount = fieldCount;
     return node;
 }
-
-
-
-
-// Array declaration:  T name[size] = { ... }
-ASTNode* createArrayDeclarationNode(ParsedType declaredType,
-                                    ASTNode* name, ASTNode* size,
-                                    struct DesignatedInit** initValues,
-                                    size_t valueCount) {
-    ASTNode* node = new_node(AST_ARRAY_DECLARATION);
-    if (!node) return NULL;
-
-    node->arrayDecl.declaredType = declaredType;   // POD copy
-    node->arrayDecl.varName      = name;
-    node->arrayDecl.arraySize    = size;           // may be NULL for unsized
-    node->arrayDecl.initializers = initValues;     // may be NULL
-    node->arrayDecl.valueCount   = valueCount;     // 0 ok
-    node->arrayDecl.isVLA        = false;
-    inherit_line_from_node(node, name);
-    inherit_line_from_node(node, size);
-    inherit_line_from_designated_inits(node, initValues, valueCount);
-    return node;
-}
-
-
- // Link a chain of array sizes (e.g., [][][]), stored via nextStmt
-ASTNode* chainArraySizes(ASTNode* outer, ASTNode* inner) {
-    if (!outer) return inner;
-    ASTNode* cur = outer;
-    while (cur->nextStmt) cur = cur->nextStmt;
-    cur->nextStmt = inner;   // inner can itself be a chain; last's nextStmt stays NULL
-    return outer;
-}
-
-
 // Array access: arr[index]
 ASTNode* createArrayAccessNode(ASTNode* array, ASTNode* index) {
     ASTNode* node = new_node(AST_ARRAY_ACCESS);

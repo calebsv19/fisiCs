@@ -8,11 +8,9 @@ PROGRAM
         TYPE: int
         IDENTIFIER n
     BLOCK
-      ARRAY_DECLARATION
-        TYPE: int
+      VAR_DECL
+        TYPE: int [IDENTIFIER n]
         IDENTIFIER arr
-        DIMENSION[0]:
-          IDENTIFIER n
       ASSIGNMENT (=)
         ARRAY_ACCESS
           IDENTIFIER arr

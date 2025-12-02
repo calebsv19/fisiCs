@@ -57,7 +57,6 @@ file_definitions = {
         "ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType);",
         "ASTNode** parseParameterList(Parser* parser, size_t* paramCount);",
         "ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee);",
-        "ASTNode* parseFunctionPointerDeclaration(Parser* parser, ParsedType returnType);"
     ],
     "parser_preproc": [
         "ASTNode* handlePreprocessorDirectives(Parser* parser);",

@@ -11,12 +11,8 @@ static TypeInfo makeBaseInvalid(void) {
     return info;
 }
 
-static void propagateVLAFlag(TypeInfo* info, const ParsedType* type) {
-    if (!info || !type) return;
-    if (type->isVLA) {
-        info->isVLA = true;
-    }
-}
+static void propagateVLAFlag(TypeInfo* info, const ParsedType* type);
+static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index, Scope* scope);
 
 TypeInfo makeInvalidType(void) {
     return makeBaseInvalid();
@@ -77,56 +73,23 @@ static const ParsedType* resolveTypedef(const ParsedType* type, Scope* scope) {
     return NULL;
 }
 
-TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
-    if (!type) return makeInvalidType();
-
-    if (parsedTypeIsDirectArray(type)) {
-        ParsedType elementType = parsedTypeArrayElementType(type);
-        TypeInfo elementInfo = typeInfoFromParsedType(&elementType, scope);
-        parsedTypeFree(&elementType);
-        elementInfo.category = TYPEINFO_ARRAY;
-        elementInfo.isArray = true;
-        elementInfo.isLValue = true;
-        elementInfo.isVLA |= type->derivations[0].as.array.isVLA;
-        elementInfo.originalType = type;
-        return elementInfo;
+static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
+    if (!type) {
+        return makeInvalidType();
     }
-
-    if (type->pointerDepth > 0) {
-        TypeInfo info = makeBaseInvalid();
-        info.category = TYPEINFO_POINTER;
-        info.pointerDepth = type->pointerDepth;
-        info.primitive = type->primitiveType;
-        info.tag = type->tag;
-        info.userTypeName = type->userTypeName;
-        info.bitWidth = defaultIntBits();
-        info.isSigned = false;
-        info.originalType = type;
-        applyQualifiers(&info, type);
-        propagateVLAFlag(&info, type);
-        return info;
-    }
-
     switch (type->kind) {
         case TYPE_PRIMITIVE: {
             switch (type->primitiveType) {
                 case TOKEN_BOOL: {
                     TypeInfo info = makeBoolType();
-                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_CHAR: {
                     TypeInfo info = makeIntegerType(8, !type->isUnsigned, TOKEN_CHAR);
-                    applyQualifiers(&info, type);
-                    info.originalType = type;
-                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_SHORT: {
                     TypeInfo info = makeIntegerType(16, !type->isUnsigned, TOKEN_SHORT);
-                    applyQualifiers(&info, type);
-                    info.originalType = type;
-                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_INT:
@@ -134,39 +97,24 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
                 case TOKEN_UNSIGNED: {
                     bool isSigned = !type->isUnsigned;
                     TypeInfo info = makeIntegerType(defaultIntBits(), isSigned, TOKEN_INT);
-                    applyQualifiers(&info, type);
-                    info.originalType = type;
-                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_LONG: {
                     TypeInfo info = makeIntegerType(longBits(), !type->isUnsigned, TOKEN_LONG);
-                    applyQualifiers(&info, type);
-                    info.originalType = type;
-                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_FLOAT: {
                     TypeInfo info = makeFloatTypeInfo(false);
-                    applyQualifiers(&info, type);
-                    info.originalType = type;
-                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_DOUBLE: {
                     TypeInfo info = makeFloatTypeInfo(true);
-                    applyQualifiers(&info, type);
-                    info.originalType = type;
-                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 case TOKEN_VOID: {
                     TypeInfo info = makeBaseInvalid();
                     info.category = TYPEINFO_VOID;
                     info.primitive = TOKEN_VOID;
-                    applyQualifiers(&info, type);
-                    info.originalType = type;
-                    propagateVLAFlag(&info, type);
                     return info;
                 }
                 default:
@@ -176,12 +124,9 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
         }
         case TYPE_ENUM: {
             TypeInfo info = makeIntegerType(defaultIntBits(), true, TOKEN_INT);
-            applyQualifiers(&info, type);
             info.category = TYPEINFO_ENUM;
             info.tag = TAG_ENUM;
             info.userTypeName = type->userTypeName;
-            info.originalType = type;
-            propagateVLAFlag(&info, type);
             return info;
         }
         case TYPE_STRUCT:
@@ -190,9 +135,6 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
             info.category = (type->kind == TYPE_STRUCT) ? TYPEINFO_STRUCT : TYPEINFO_UNION;
             info.tag = (type->kind == TYPE_STRUCT) ? TAG_STRUCT : TAG_UNION;
             info.userTypeName = type->userTypeName;
-            info.originalType = type;
-            applyQualifiers(&info, type);
-            propagateVLAFlag(&info, type);
             return info;
         }
         case TYPE_NAMED: {
@@ -204,8 +146,6 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
             }
             TypeInfo base = typeInfoFromParsedType(resolved, scope);
             applyQualifiers(&base, type);
-            base.originalType = resolved;
-            propagateVLAFlag(&base, type);
             return base;
         }
         case TYPE_INVALID:
@@ -214,6 +154,97 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
     }
 
     return makeInvalidType();
+}
+
+static void propagateVLAFlag(TypeInfo* info, const ParsedType* type) {
+    if (!info || !type) return;
+    if (type->isVLA || parsedTypeHasVLA(type)) {
+        info->isVLA = true;
+    }
+}
+
+static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index, Scope* scope) {
+    if (!type) {
+        return makeInvalidType();
+    }
+    if (index >= type->derivationCount) {
+        TypeInfo base = typeInfoFromBaseKind(type, scope);
+        base.originalType = type;
+        return base;
+    }
+
+    const TypeDerivation* deriv = parsedTypeGetDerivation(type, index);
+    if (!deriv) {
+        return makeInvalidType();
+    }
+
+    switch (deriv->kind) {
+        case TYPE_DERIVATION_POINTER: {
+            TypeInfo target = typeInfoFromDerivationIndex(type, index + 1, scope);
+            TypeInfo info = makeBaseInvalid();
+            info.category = TYPEINFO_POINTER;
+            info.pointerDepth = target.pointerDepth + 1;
+            info.primitive = target.primitive;
+            info.tag = target.tag;
+            info.userTypeName = target.userTypeName;
+            info.bitWidth = target.bitWidth;
+            info.isSigned = target.isSigned;
+            info.isConst = deriv->as.pointer.isConst;
+            info.isVolatile = deriv->as.pointer.isVolatile;
+            info.isRestrict = deriv->as.pointer.isRestrict;
+            info.originalType = type;
+            info.isVLA = target.isVLA;
+            return info;
+        }
+        case TYPE_DERIVATION_ARRAY: {
+            TypeInfo element = typeInfoFromDerivationIndex(type, index + 1, scope);
+            TypeInfo arrayInfo = element;
+            arrayInfo.category = TYPEINFO_ARRAY;
+            arrayInfo.isArray = true;
+            arrayInfo.isLValue = true;
+            arrayInfo.isVLA = element.isVLA || deriv->as.array.isVLA;
+            arrayInfo.originalType = type;
+            return arrayInfo;
+        }
+        case TYPE_DERIVATION_FUNCTION: {
+            TypeInfo info = makeBaseInvalid();
+            info.category = TYPEINFO_FUNCTION;
+            info.isFunction = true;
+            info.originalType = type;
+            info.isLValue = false;
+            return info;
+        }
+        default:
+            break;
+    }
+    return makeInvalidType();
+}
+
+TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
+    if (!type) return makeInvalidType();
+
+    TypeInfo info;
+    if (type->derivationCount > 0) {
+        info = typeInfoFromDerivationIndex(type, 0, scope);
+    } else if (type->pointerDepth > 0) {
+        TypeInfo base = typeInfoFromBaseKind(type, scope);
+        info = makeBaseInvalid();
+        info.category = TYPEINFO_POINTER;
+        info.pointerDepth = type->pointerDepth;
+        info.primitive = base.primitive;
+        info.tag = base.tag;
+        info.userTypeName = base.userTypeName;
+        info.bitWidth = base.bitWidth ? base.bitWidth : defaultIntBits();
+        info.isSigned = base.isSigned;
+        info.originalType = type;
+    } else {
+        info = typeInfoFromBaseKind(type, scope);
+        info.originalType = type;
+    }
+
+    applyQualifiers(&info, type);
+    propagateVLAFlag(&info, type);
+    return info;
 }
 
 bool typeInfoIsInteger(const TypeInfo* info) {
@@ -323,6 +354,9 @@ static bool pointerTargetsEqual(const TypeInfo* a, const TypeInfo* b) {
 bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
     if (!a || !b) return false;
     if (typeInfoIsPointerLike(a) && typeInfoIsPointerLike(b)) {
+        if (a->originalType && b->originalType) {
+            return parsedTypesStructurallyEqual(a->originalType, b->originalType);
+        }
         if (a->pointerDepth != b->pointerDepth) return false;
         return pointerTargetsEqual(a, b);
     }

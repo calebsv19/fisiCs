@@ -17,6 +17,8 @@ typedef enum {
 typedef struct ParsedArrayInfo {
     struct ASTNode* sizeExpr;
     bool isVLA;
+    bool hasConstantSize;
+    long long constantSize;
 } ParsedArrayInfo;
 
 struct ParsedType;
@@ -121,6 +123,13 @@ ParsedType parsedTypeClone(const ParsedType* src);
 void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count);
 bool parsedTypeIsDirectArray(const ParsedType* t);
 ParsedType parsedTypeArrayElementType(const ParsedType* t);
+ParsedType parsedTypePointerTargetType(const ParsedType* t);
+bool parsedTypesStructurallyEqual(const ParsedType* a, const ParsedType* b);
+const TypeDerivation* parsedTypeGetDerivation(const ParsedType* t, size_t index);
+const TypeDerivation* parsedTypeGetArrayDerivation(const ParsedType* t, size_t dimensionIndex);
+TypeDerivation* parsedTypeGetMutableArrayDerivation(ParsedType* t, size_t dimensionIndex);
+size_t parsedTypeCountDerivationsOfKind(const ParsedType* t, TypeDerivationKind kind);
+bool parsedTypeHasVLA(const ParsedType* t);
 
 ParsedType parseType(struct Parser* parser);
 ParsedType parseTypeCtx(struct Parser* parser, TypeContext ctx);

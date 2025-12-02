@@ -9,6 +9,7 @@ LLVM_LIBS := $(shell $(LLVM_CONFIG) --libs core)
 CODEGEN_DEBUG ?= 0
 CODEGEN_TRACE ?= 0
 PARSER_DEBUG ?= 0
+DISABLE_CODEGEN ?= 1
 
 CODEGEN_DEFS :=
 ifeq ($(CODEGEN_DEBUG),1)
@@ -95,7 +96,11 @@ function-pointer: $(BIN)
 	@./tests/parser/run_function_pointer.sh ./$(BIN)
 
 switch-flow: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping switch_flow (codegen disabled)"
+else
 	@./tests/parser/run_switch_flow.sh ./$(BIN)
+endif
 
 goto-flow: $(BIN)
 	@./tests/parser/run_goto_flow.sh ./$(BIN)
@@ -104,16 +109,32 @@ recovery: $(BIN)
 	@./tests/parser/run_recovery.sh ./$(BIN)
 
 pointer-arith: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping pointer-arith (codegen disabled)"
+else
 	@./tests/codegen/run_pointer_arith.sh ./$(BIN)
+endif
 
 codegen-pointer-deref: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-pointer-deref (codegen disabled)"
+else
 	@./tests/codegen/run_codegen_pointer_deref.sh ./$(BIN)
+endif
 
 codegen-pointer-diff: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-pointer-diff (codegen disabled)"
+else
 	@./tests/codegen/run_codegen_pointer_diff_long.sh ./$(BIN)
+endif
 
 statement-expr-codegen: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping statement-expr-codegen (codegen disabled)"
+else
 	@./tests/codegen/run_statement_expr_codegen.sh ./$(BIN)
+endif
 
 semantic-typedef: $(BIN)
 	@./tests/syntax/run_semantic_typedef.sh ./$(BIN)

@@ -31,47 +31,37 @@ PROGRAM
         TYPE: struct Pair
         IDENTIFIER p_bad
           = NUMBER_LITERAL 5
-      ARRAY_DECLARATION
-        TYPE: int
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 2]
         IDENTIFIER arr_too_many
-        DIMENSION[0]:
-          NUMBER_LITERAL 2
-          = NUMBER_LITERAL 1
-
-          = NUMBER_LITERAL 2
-
-          = NUMBER_LITERAL 3
-
-      ARRAY_DECLARATION
-        TYPE: int
-        IDENTIFIER arr_too_few
-        DIMENSION[0]:
-          NUMBER_LITERAL 3
-          = NUMBER_LITERAL 1
-
-      ARRAY_DECLARATION
-        TYPE: int
-        IDENTIFIER arr_designator
-        DIMENSION[0]:
-          NUMBER_LITERAL 2
-          [NUMBER_LITERAL 2] = NUMBER_LITERAL 5
-
-      ARRAY_DECLARATION
-        TYPE: int
-        IDENTIFIER nested
-        DIMENSION[0]:
-          NUMBER_LITERAL 1
-          = 
             = NUMBER_LITERAL 1
 
             = NUMBER_LITERAL 2
 
-      ARRAY_DECLARATION
-        TYPE: char
+            = NUMBER_LITERAL 3
+
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 3]
+        IDENTIFIER arr_too_few
+            = NUMBER_LITERAL 1
+
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 2]
+        IDENTIFIER arr_designator
+            [NUMBER_LITERAL 2] = NUMBER_LITERAL 5
+
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 1]
+        IDENTIFIER nested
+            = 
+              = NUMBER_LITERAL 1
+
+              = NUMBER_LITERAL 2
+
+      VAR_DECL
+        TYPE: char [NUMBER_LITERAL 3]
         IDENTIFIER label
-        DIMENSION[0]:
-          NUMBER_LITERAL 3
-          = STRING_LITERAL "abcd"
+            = STRING_LITERAL "abcd"
 
       RETURN
         BINARY EXPRESSION '+'

@@ -218,10 +218,6 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
             TypeInfo info = typeInfoFromParsedType(&sym->type, scope);
             info.isLValue = (sym->kind == SYMBOL_VARIABLE);
-            if (sym->definition && sym->definition->type == AST_ARRAY_DECLARATION) {
-                info.isArray = true;
-                info.isLValue = true;
-            }
             return info;
         }
 

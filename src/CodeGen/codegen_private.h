@@ -227,7 +227,6 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenTernaryExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node);
-LLVMValueRef codegenArrayDeclaration(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenPointerAccess(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenDotAccess(CodegenContext* ctx, ASTNode* node);
