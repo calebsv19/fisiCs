@@ -9,9 +9,9 @@ void printParserState(const char* label, Parser* parser) {
     printf("nextToken:         %-10s at line %d\n", parser->nextToken.value, parser->nextToken.line);
     printf("nextNextToken:     %-10s at line %d\n", parser->nextNextToken.value, parser->nextNextToken.line);
     printf("nextNextNextToken: %-10s at line %d\n", parser->nextNextNextToken.value, parser->nextNextNextToken.line);
-    if (parser->lexer) {
-        printf("Lexer position:    %d\n", parser->lexer->position);
-        printf("Lexer line:        %d\n", parser->lexer->line);
+    if (parser->tokenBuffer) {
+        printf("Token buffer size: %zu\n", parser->tokenBuffer->count);
+        printf("Cursor index:      %zu\n", parser->cursor);
     }
     printf("===========================\n\n");
 }

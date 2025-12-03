@@ -1,6 +1,17 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
+typedef struct {
+    const char* file;
+    int line;
+    int column;
+} SourceLocation;
+
+typedef struct {
+    SourceLocation start;
+    SourceLocation end;
+} SourceRange;
+
 typedef enum {
     // ==============================
     //  Keywords (Reserved Words)
@@ -33,7 +44,7 @@ typedef enum {
     //  Identifiers & Literals
     // ==============================
     TOKEN_IDENTIFIER,        // Variable & function names
-    TOKEN_INCLUDE, TOKEN_DEFINE,		// Basic preprocessor
+    TOKEN_INCLUDE, TOKEN_DEFINE, TOKEN_UNDEF,		// Basic preprocessor
     TOKEN_IFDEF, TOKEN_IFNDEF, TOKEN_ENDIF,     // if related processor
     TOKEN_PRAGMA, TOKEN_ONCE,			// pragma handling
     TOKEN_PREPROCESSOR_OTHER,			// handles edge cases
@@ -80,6 +91,7 @@ typedef enum {
     // ==============================
     TOKEN_SEMICOLON, TOKEN_COLON, TOKEN_COMMA, TOKEN_DOT, TOKEN_ELLIPSIS, // ; , . ...
     TOKEN_QUESTION,			     // ?
+    TOKEN_HASH, TOKEN_DOUBLE_HASH,         // # ##
     TOKEN_LPAREN, TOKEN_RPAREN,              // ( )
     TOKEN_LBRACE, TOKEN_RBRACE,              // { }
     TOKEN_LBRACKET, TOKEN_RBRACKET,          // [ ]
@@ -102,9 +114,12 @@ typedef enum {
 
 
 typedef struct{
-	TokenType type;
-	char* value;
-	int line;
+    TokenType type;
+    char* value;
+    int line;
+    SourceRange location;
+    SourceRange macroCallSite;
+    SourceRange macroDefinition;
 } Token;
 
 #endif

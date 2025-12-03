@@ -7,16 +7,14 @@
 #include "AST/ast_node.h"
 
 #include "Lexer/tokens.h"
-#include "Lexer/lexer.h"
 
 #include "Compiler/compiler_context.h"
 
 // Token management
-void initParser(Parser* parser, Lexer* lexer, ParserMode mode, CompilerContext* ctx);
+void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerContext* ctx);
 void advance(Parser* parser);
 
-// Lexer cloning
-Lexer* cloneLexer(const Lexer* original);
+// Parser cloning
 Parser cloneParserWithFreshLexer(Parser* original);
 void freeParserClone(Parser* parser);
 

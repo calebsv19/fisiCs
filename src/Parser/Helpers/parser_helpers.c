@@ -5,13 +5,14 @@
 #include <string.h>   // memcpy
 
 // Initialize parser with a fresh token window
-void initParser(Parser* parser, Lexer* lexer, ParserMode mode, CompilerContext* ctx) {
-    parser->lexer = lexer;
+void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerContext* ctx) {
+    parser->tokenBuffer = buffer;
+    parser->cursor = 0;
     parser->mode = mode;
-    parser->currentToken      = getNextToken(lexer);
-    parser->nextToken         = getNextToken(lexer);
-    parser->nextNextToken     = getNextToken(lexer);
-    parser->nextNextNextToken = getNextToken(lexer);
+    parser->currentToken      = *token_buffer_peek(buffer, 0);
+    parser->nextToken         = *token_buffer_peek(buffer, 1);
+    parser->nextNextToken     = *token_buffer_peek(buffer, 2);
+    parser->nextNextNextToken = *token_buffer_peek(buffer, 3);
     parser->ctx = ctx;
     const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
     parser->enableStatementExpressions =
@@ -20,49 +21,26 @@ void initParser(Parser* parser, Lexer* lexer, ParserMode mode, CompilerContext* 
 
 // Advance the 4-token lookahead window forward
 void advance(Parser* parser) {
-    parser->currentToken      = parser->nextToken;
-    parser->nextToken         = parser->nextNextToken;
-    parser->nextNextToken     = parser->nextNextNextToken;
-    parser->nextNextNextToken = getNextToken(parser->lexer);
+    if (!parser || !parser->tokenBuffer) return;
+    parser->cursor++;
+    parser->currentToken      = *token_buffer_peek(parser->tokenBuffer, parser->cursor);
+    parser->nextToken         = *token_buffer_peek(parser->tokenBuffer, parser->cursor + 1);
+    parser->nextNextToken     = *token_buffer_peek(parser->tokenBuffer, parser->cursor + 2);
+    parser->nextNextNextToken = *token_buffer_peek(parser->tokenBuffer, parser->cursor + 3);
 }
 
 void advanceClone(Parser* p) {
-    p->currentToken      = p->nextToken;
-    p->nextToken         = p->nextNextToken;
-    p->nextNextToken     = p->nextNextNextToken;
-    p->nextNextNextToken = getNextToken(p->lexer);
+    advance(p);
 }
 
 // ---------- SAFE CLONE HELPERS ----------
 
-Lexer* cloneLexer(const Lexer* original) {
-    if (!original) return NULL;
-    Lexer* copy = (Lexer*)malloc(sizeof(Lexer));
-    if (!copy) return NULL;
-    // shallow copy is fine if your lexer points at stable source buffers
-    memcpy(copy, original, sizeof(Lexer));
-    return copy;
-}
-
 Parser cloneParserWithFreshLexer(Parser* original) {
-    // Struct assignment avoids any sizeof/ABI weirdness.
-    Parser temp = *original;
-
-    // Heap-clone the lexer so speculative parsing is independent
-    temp.lexer = cloneLexer(original->lexer);
-
-    // Context pointer can be shared
-    temp.ctx = original->ctx;
-    return temp;
+    return *original;
 }
 
 void freeParserClone(Parser* parser) {
-    if (parser && parser->lexer) {
-        // If your Lexer allocates any dynamic internals beyond the struct itself,
-        // free those here before freeing the struct.
-        free(parser->lexer);
-        parser->lexer = NULL;
-    }
+    (void)parser;
 }
 
 
@@ -164,6 +142,7 @@ bool isAssignmentOperator(TokenType type) {
  
 bool isPreprocessorToken(TokenType type) {
     return type == TOKEN_INCLUDE || type == TOKEN_DEFINE ||
+           type == TOKEN_UNDEF ||
            type == TOKEN_IFDEF || type == TOKEN_IFNDEF ||  
            type == TOKEN_ENDIF;
 }

@@ -5,7 +5,7 @@ Utilities shared by every parser module to keep the recursive-descent code lean.
 ## Files & roles
 
 - `parser_helpers.h` / `parser_helpers.c`
-  - Parser lifecycle: `initParser()`, `advance()`, and cloning helpers (`cloneLexer`, `cloneParserWithFreshLexer`, `freeParserClone`) to support speculative lookahead.
+  - Parser lifecycle: `initParser()`, `advance()`, and lightweight parser snapshot helpers (`cloneParserWithFreshLexer`, `freeParserClone`) to support speculative lookahead on the shared token buffer.
   - Token lookahead: `peekNextToken`, `peekTwoTokensAhead`, `peekThreeTokensAhead`.
   - Classification helpers: `isPrimitiveTypeToken`, `isModifierToken`, `isStorageSpecifier`, `isValidExpressionStart`, `getOperatorString`, `isAssignmentOperator`, `isPreprocessorToken`.
   - Error reporting via `printParseError(expected, parser)`.

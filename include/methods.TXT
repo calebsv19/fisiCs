@@ -77,7 +77,7 @@ file_definitions = {
         "void linkStatements(ASTNode* caseBody, ASTNode* stmt);"
     ],
     "parser_helpers": [
-        "void initParser(Parser* parser, Lexer* lexer);",
+        "void initParser(Parser* parser, TokenBuffer* buffer);",
         "void advance(Parser* parser);",
         "void advanceParserWithLexer(Parser* parser, Lexer* tempLexer);",
         "Lexer* cloneLexer(const Lexer* original);",

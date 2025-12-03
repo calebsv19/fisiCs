@@ -18,6 +18,7 @@ This tree implements a single-pass C front-end with optional LLVM IR emission. C
 ## Subdirectories of note
 
 - `CodeGen/` — LLVM IR backend (see `CodeGen/README.md` for emitter details).
+- `Preprocessor/` — Macro infrastructure (tables, expansion engine, upcoming conditional/include logic) that rewrites the lexed token stream before parsing.
 - `Lexer/`, `Parser/`, `AST/`, `Syntax/`, `Compiler/`, `Utils/` — Each phase exposes its own README describing responsibilities and APIs.
 
 

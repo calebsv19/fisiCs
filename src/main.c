@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Lexer/lexer.h"
+#include "Lexer/token_buffer.h"
 #include "Parser/parser.h"
 #include "Parser/Helpers/designated_init.h"
 #include "Parser/Helpers/parser_helpers.h"
@@ -16,6 +17,7 @@
 #include "Compiler/compiler_context.h"
 
 #include "CodeGen/code_gen.h"
+#include "Preprocessor/preprocessor.h"
 
 // === Feature Toggles ===
 #define ENABLE_LEXER_OUTPUT      0
@@ -39,22 +41,65 @@ int main(int argc, char **argv) {
 
     // === Lexing Phase ===
     Lexer lexer;
-    initLexer(&lexer, sourceCode);
+    initLexer(&lexer, sourceCode, filename);
+
+    TokenBuffer tokenBuffer;
+    token_buffer_init(&tokenBuffer);
+    if (!token_buffer_fill_from_lexer(&tokenBuffer, &lexer)) {
+        fprintf(stderr, "Error: failed to lex tokens into buffer\n");
+        free(sourceCode);
+        cc_destroy(ctx);
+        return 1;
+    }
 
 #if ENABLE_LEXER_OUTPUT
-    Token token;
-    do {
-        token = getNextToken(&lexer);
+    for (size_t i = 0; i < tokenBuffer.count; ++i) {
+        Token token = tokenBuffer.tokens[i];
         printf("Token: Type=%d, Value=%s\n", token.type, token.value);
-    } while (token.type != TOKEN_EOF);
+    }
 #endif
+
+    bool preservePPNodes = false;
+    const char* preserveEnv = getenv("PRESERVE_PP_NODES");
+    if (preserveEnv && preserveEnv[0] != '\0' && preserveEnv[0] != '0') {
+        preservePPNodes = true;
+    }
+
+    Preprocessor preprocessor;
+    if (!preprocessor_init(&preprocessor, preservePPNodes)) {
+        fprintf(stderr, "Error: failed to initialize preprocessor\n");
+        token_buffer_destroy(&tokenBuffer);
+        free(sourceCode);
+        cc_destroy(ctx);
+        return 1;
+    }
+
+    PPTokenBuffer preprocessed = {0};
+    if (!preprocessor_run(&preprocessor, &tokenBuffer, &preprocessed)) {
+        fprintf(stderr, "Error: preprocessing failed\n");
+        preprocessor_destroy(&preprocessor);
+        token_buffer_destroy(&tokenBuffer);
+        free(sourceCode);
+        cc_destroy(ctx);
+        return 1;
+    }
+
+    token_buffer_destroy(&tokenBuffer);
+    TokenBuffer parserTokens = {
+        .tokens = preprocessed.tokens,
+        .count = preprocessed.count,
+        .capacity = preprocessed.capacity
+    };
+    preprocessed.tokens = NULL;
+    preprocessed.count = 0;
+    preprocessed.capacity = 0;
 
 
 
 
     // === Parsing Phase ===
     Parser parser;
-    initParser(&parser, &lexer, PARSER_MODE_PRATT, ctx);
+    initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx);
 
     ASTNode *root = parse(&parser);
 
@@ -71,6 +116,8 @@ int main(int argc, char **argv) {
     SemanticModel* semanticModel = analyzeSemanticsBuildModel(root, ctx, false);
     if (!semanticModel) {
         free(sourceCode);
+        token_buffer_destroy(&parserTokens);
+        preprocessor_destroy(&preprocessor);
         cc_destroy(ctx);
         return 1;
     }
@@ -104,7 +151,9 @@ int main(int argc, char **argv) {
 
 
     free(sourceCode);
+    token_buffer_destroy(&parserTokens);
     semanticModelDestroy(semanticModel);
+    preprocessor_destroy(&preprocessor);
     cc_destroy(ctx);
     return 0;
 }

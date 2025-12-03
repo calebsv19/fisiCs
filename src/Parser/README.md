@@ -50,6 +50,6 @@ The root `tests/` directory contains small C snippets that exercise tricky parse
 
 ## External surface
 
-- Entry: `initParser(&parser, &lexer, mode, ctx)`, then `parse(&parser)` returns an `ASTNode*` program.
+- Entry: `initParser(&parser, &tokenBuffer, mode, ctx)`, then `parse(&parser)` returns an `ASTNode*` program.
 - Statement-level helpers such as `handleControlStatements`, `parseAssignment`, and `parseStatement` are exported for reuse across modules.
 - Declarator results are `ASTNode*` trees built via constructors defined in `AST/ast_node.c`. The `node->varDecl.declaredTypes` array holds per-declarator clones so semantics/codegen can read the exact `ParsedType` (including pointer/array/function derivations).

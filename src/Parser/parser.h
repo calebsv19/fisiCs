@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include "Parser/Helpers/parsed_type.h"
 #include "Lexer/tokens.h"
-#include "Lexer/lexer.h"
+#include "Lexer/token_buffer.h"
 #include "parser_config.h"
 #include "AST/ast_node.h"
 #include "Utils/logging.h"
@@ -24,7 +24,8 @@ typedef struct Parser {
     Token nextToken;
     Token nextNextToken;
     Token nextNextNextToken;
-    Lexer* lexer;
+    TokenBuffer* tokenBuffer;
+    size_t cursor;
 
     ParserMode mode;
     bool enableStatementExpressions;

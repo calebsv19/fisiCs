@@ -11,10 +11,83 @@
 
 int print_statements = 0;
 
-void initLexer(Lexer* lexer, const char* source){
+typedef struct {
+    int position;
+    int line;
+    int lineStart;
+} LexerMark;
+
+static inline const char* lexer_file_path(const Lexer* lexer) {
+    return (lexer && lexer->filePath) ? lexer->filePath : "<unknown>";
+}
+
+static inline int lexer_compute_column(int position, int lineStart) {
+    int column = (position - lineStart) + 1;
+    return (column < 1) ? 1 : column;
+}
+
+static inline LexerMark lexer_mark(const Lexer* lexer) {
+    LexerMark mark = {0};
+    if (lexer) {
+        mark.position = lexer->position;
+        mark.line = lexer->line;
+        mark.lineStart = lexer->lineStart;
+    }
+    return mark;
+}
+
+static inline LexerMark lexer_mark_previous(const Lexer* lexer) {
+    LexerMark mark = lexer_mark(lexer);
+    mark.position -= 1;
+    return mark;
+}
+
+static inline SourceLocation lexer_build_location(const Lexer* lexer,
+                                                  int position,
+                                                  int line,
+                                                  int lineStart) {
+    SourceLocation loc;
+    loc.file = lexer_file_path(lexer);
+    loc.line = line;
+    loc.column = lexer_compute_column(position, lineStart);
+    return loc;
+}
+
+static inline SourceRange lexer_build_range(const Lexer* lexer, LexerMark start) {
+    SourceRange range;
+    range.start = lexer_build_location(lexer, start.position, start.line, start.lineStart);
+    range.end   = lexer_build_location(lexer, lexer ? lexer->position : 0,
+                                       lexer ? lexer->line : 0,
+                                       lexer ? lexer->lineStart : 0);
+    return range;
+}
+
+static inline SourceRange empty_source_range(void) {
+    SourceRange range;
+    range.start.file = NULL;
+    range.start.line = 0;
+    range.start.column = 0;
+    range.end = range.start;
+    return range;
+}
+
+static inline Token make_token(Lexer* lexer, TokenType type, char* value, LexerMark start) {
+    Token token;
+    token.type = type;
+    token.value = value;
+    token.line = start.line;
+    token.location = lexer_build_range(lexer, start);
+    token.macroCallSite = empty_source_range();
+    token.macroDefinition = empty_source_range();
+    return token;
+}
+
+void initLexer(Lexer* lexer, const char* source, const char* filePath){
 	lexer->source = source;
+	lexer->filePath = filePath;
 	lexer->position = 0;
 	lexer->line = 1;
+	lexer->lineStart = 0;
 }
 
 Token getNextToken(Lexer* lexer) {
@@ -26,7 +99,8 @@ Token getNextToken(Lexer* lexer) {
     }
 
     if (isEOF(lexer)) {
-        return (Token){TOKEN_EOF, "EOF", lexer->line};
+        LexerMark start = lexer_mark(lexer);
+        return make_token(lexer, TOKEN_EOF, (char*)"EOF", start);
     }
 
     if (isalpha(lexer->source[lexer->position]) || lexer->source[lexer->position] == '_') {
@@ -69,13 +143,15 @@ Token getNextToken(Lexer* lexer) {
 
 // Skips whitespace and keeps track of line numbers
 void skipWhitespace(Lexer* lexer) {
-    while (isspace(lexer->source[lexer->position])) {
+    while (isspace((unsigned char)lexer->source[lexer->position])) {
         if (lexer->source[lexer->position] == '\n') {
+            lexer->position++;
             lexer->line++;
+            lexer->lineStart = lexer->position;
+            continue;
         }
         lexer->position++;
     }
-
 }
 
 // Checks for end of file
@@ -88,14 +164,15 @@ const char *lookupKeyword(const char *str, size_t len) {
 }
 
 Token handleIdentifierOrKeyword(Lexer* lexer) {
-    int start = lexer->position;
+    LexerMark startMark = lexer_mark(lexer);
+    int startPos = lexer->position;
 
     // Consume all alphanumeric characters and underscores
     while (isalnum(lexer->source[lexer->position]) || lexer->source[lexer->position] == '_') {
         lexer->position++;
     }
 
-    char* text = strndup(lexer->source + start, lexer->position - start);
+    char* text = strndup(lexer->source + startPos, lexer->position - startPos);
     if (print_statements == 1){
     	printf("DEBUG: Identified potential identifier or keyword: %s\n", text);
     }
@@ -108,29 +185,30 @@ Token handleIdentifierOrKeyword(Lexer* lexer) {
 	if (print_statements == 1){        
 		printf("DEBUG: Matched keyword: %s → TokenType: %d\n", text, tokenType);
         }
-        return (Token){tokenType, text, lexer->line};
+        return make_token(lexer, tokenType, text, startMark);
     }
 
     if (print_statements == 1){
     	printf("DEBUG: Classified as identifier: %s\n", text);
     }
 
-    return (Token){TOKEN_IDENTIFIER, text, lexer->line};
+    return make_token(lexer, TOKEN_IDENTIFIER, text, startMark);
 }
 
 
 // Processes numbers (integers, floats, hex, binary, octal)
 Token handleNumber(Lexer* lexer) {
-    int start = lexer->position;
+    LexerMark startMark = lexer_mark(lexer);
+    int startPos = lexer->position;
     TokenType type = TOKEN_NUMBER;
 
     // Handle hexadecimal (0x...), binary (0b...), and octal (0...)
-    if (lexer->source[start] == '0') {
-        if (lexer->source[start + 1] == 'x' || lexer->source[start + 1] == 'X') {
+    if (lexer->source[startPos] == '0') {
+        if (lexer->source[startPos + 1] == 'x' || lexer->source[startPos + 1] == 'X') {
             lexer->position += 2;
             while (isxdigit(lexer->source[lexer->position])) lexer->position++;
             type = TOKEN_NUMBER; // Hex integer
-        } else if (lexer->source[start + 1] == 'b' || lexer->source[start + 1] == 'B') {
+        } else if (lexer->source[startPos + 1] == 'b' || lexer->source[startPos + 1] == 'B') {
             lexer->position += 2;
             while (lexer->source[lexer->position] == '0' || lexer->source[lexer->position] == '1') lexer->position++;
             type = TOKEN_NUMBER; // Binary integer
@@ -156,18 +234,19 @@ Token handleNumber(Lexer* lexer) {
         lexer->position++;
     }
 
-    return (Token){type, strndup(lexer->source + start, lexer->position - start), lexer->line};
+    return make_token(lexer, type, strndup(lexer->source + startPos, lexer->position - startPos), startMark);
 
 }
 
 // Processes string literals
 Token handleStringLiteral(Lexer* lexer) {
+    LexerMark startMark = lexer_mark(lexer);
     lexer->position++; // Skip opening quote
     int start = lexer->position;
 
     while (lexer->source[lexer->position] != '"' || lexer->source[lexer->position - 1] == '\\') {
         if (lexer->source[lexer->position] == '\0' || lexer->source[lexer->position] == '\n') {
-            return (Token){TOKEN_UNKNOWN, "Unterminated string", lexer->line};
+            return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated string", startMark);
         }
         lexer->position++;
     }
@@ -175,11 +254,12 @@ Token handleStringLiteral(Lexer* lexer) {
     char* text = strndup(lexer->source + start, lexer->position - start);
     lexer->position++; // Consume closing quote
 
-    return (Token){TOKEN_STRING, text, lexer->line};
+    return make_token(lexer, TOKEN_STRING, text, startMark);
 }
 
 
 Token handleCharLiteral(Lexer* lexer) {
+    LexerMark startMark = lexer_mark(lexer);
     printf("DEBUG: Entering handleCharLiteral() at line %d\n", lexer->line);
     lexer->position++; // skip opening '
 
@@ -211,7 +291,7 @@ Token handleCharLiteral(Lexer* lexer) {
                     else hex += (h - 'A' + 10);
                     any = 1;
                 }
-                if (!any) return (Token){TOKEN_UNKNOWN, "Invalid \\x escape", lexer->line};
+                if (!any) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\x escape", startMark);
                 val = hex & 0xFF;
                 break;
             }
@@ -238,7 +318,7 @@ Token handleCharLiteral(Lexer* lexer) {
     }
 
     if (lexer->source[lexer->position] != '\'')
-        return (Token){TOKEN_UNKNOWN, "Invalid character literal", lexer->line};
+        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid character literal", startMark);
 
     lexer->position++; // consume closing '
 
@@ -246,16 +326,22 @@ Token handleCharLiteral(Lexer* lexer) {
     char buf[16];
     snprintf(buf, sizeof(buf), "%d", val);
     printf("DEBUG: Created TOKEN_CHAR_LITERAL with value %s at line %d\n", buf, lexer->line);
-    return (Token){TOKEN_CHAR_LITERAL, strdup(buf), lexer->line};
+    return make_token(lexer, TOKEN_CHAR_LITERAL, strdup(buf), startMark);
 }
 
 // Processes specific preprocessor directives (#define, #include, etc.)
 Token handlePreprocessorDirective(Lexer* lexer) {
+    LexerMark start = lexer_mark(lexer);
     lexer->position++; // Consume '#'
 
     // Skip whitespace after '#'
-    while (isspace(lexer->source[lexer->position])) {
-        if (lexer->source[lexer->position] == '\n') lexer->line++;
+    while (isspace((unsigned char)lexer->source[lexer->position])) {
+        if (lexer->source[lexer->position] == '\n') {
+            lexer->position++;
+            lexer->line++;
+            lexer->lineStart = lexer->position;
+            continue;
+        }
         lexer->position++;
     }
 
@@ -269,36 +355,39 @@ Token handlePreprocessorDirective(Lexer* lexer) {
 
     // Match known directives
     if (strcmp(directive, "include") == 0) {
-        return (Token){TOKEN_INCLUDE, directive, lexer->line};
+        return make_token(lexer, TOKEN_INCLUDE, directive, start);
     } else if (strcmp(directive, "define") == 0) {
-        return (Token){TOKEN_DEFINE, directive, lexer->line};
+        return make_token(lexer, TOKEN_DEFINE, directive, start);
+    } else if (strcmp(directive, "undef") == 0) {
+        return make_token(lexer, TOKEN_UNDEF, directive, start);
     } else if (strcmp(directive, "ifdef") == 0) {
-        return (Token){TOKEN_IFDEF, directive, lexer->line};
+        return make_token(lexer, TOKEN_IFDEF, directive, start);
     } else if (strcmp(directive, "ifndef") == 0) {
-        return (Token){TOKEN_IFNDEF, directive, lexer->line};
+        return make_token(lexer, TOKEN_IFNDEF, directive, start);
     } else if (strcmp(directive, "endif") == 0) {
-        return (Token){TOKEN_ENDIF, directive, lexer->line};
+        return make_token(lexer, TOKEN_ENDIF, directive, start);
     }
 
     // Fallback: unknown preprocessor directive
-    return (Token){TOKEN_PREPROCESSOR_OTHER, directive, lexer->line};
+    return make_token(lexer, TOKEN_PREPROCESSOR_OTHER, directive, start);
 }
 
 
 // Processes comments (single-line `//` and multi-line `/* */`)
 Token handleComment(Lexer* lexer) {
+    LexerMark slashStart = lexer_mark_previous(lexer);
     printf("DEBUG: Entering handleComment() at line %d, current char '%c'\n",
            lexer->line, lexer->source[lexer->position]);
 
-    lexer->position++;
-    
-    if (lexer->source[lexer->position] == '=') { // Handle `/=`
+    char next = lexer->source[lexer->position];
+
+    if (next == '=') { // Handle `/=`
         lexer->position++;
-        return (Token){TOKEN_DIV_ASSIGN, "/=", lexer->line};
+        return make_token(lexer, TOKEN_DIV_ASSIGN, (char*)"/=", slashStart);
     }
 
     //  **Skip Single-line comments (`// ...`)**
-    if (lexer->source[lexer->position] == '/') {
+    if (next == '/') {
         lexer->position++;
         while (lexer->source[lexer->position] != '\n' && lexer->source[lexer->position] != '\0') {
             lexer->position++;
@@ -308,14 +397,18 @@ Token handleComment(Lexer* lexer) {
     }
 
     //  **Skip Multi-line comments (`/* ... */`)**
-    if (lexer->source[lexer->position] == '*') {
+    if (next == '*') {
         lexer->position++;
         while (!(lexer->source[lexer->position] == '*' && lexer->source[lexer->position + 1] == '/')) {
             if (lexer->source[lexer->position] == '\0') {
-                return (Token){TOKEN_UNKNOWN, "Unterminated comment", lexer->line};
+                LexerMark errorMark = lexer_mark(lexer);
+                return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated comment", errorMark);
             }
             if (lexer->source[lexer->position] == '\n') {
-                lexer->line++; // Handle new lines in multi-line comments
+                lexer->position++;
+                lexer->line++;
+                lexer->lineStart = lexer->position;
+                continue;
             }
             lexer->position++;
         }
@@ -324,11 +417,12 @@ Token handleComment(Lexer* lexer) {
         return getNextToken(lexer);  //  **Skip the comment and return the next real token**
     }
 
-    return (Token){TOKEN_DIVIDE, strndup("/", 1), lexer->line}; // Just a single '/'
+    return make_token(lexer, TOKEN_DIVIDE, strndup("/", 1), slashStart); // Just a single '/'
 }
 
 // Processes all operator tokens (arithmetic, logical, bitwise, assignments)
 Token handleOperator(Lexer* lexer) {
+    LexerMark start = lexer_mark(lexer);
     char current = lexer->source[lexer->position];
     lexer->position++; // Move past the current character
 
@@ -336,44 +430,44 @@ Token handleOperator(Lexer* lexer) {
         case '=':
             if (lexer->source[lexer->position] == '=') {
                 lexer->position++;
-                return (Token){TOKEN_EQUAL, "==", lexer->line};
+                return make_token(lexer, TOKEN_EQUAL, (char*)"==", start);
             }
-            return (Token){TOKEN_ASSIGN, "=", lexer->line};
+            return make_token(lexer, TOKEN_ASSIGN, (char*)"=", start);
 
         case '+':
             if (lexer->source[lexer->position] == '+') {
                 lexer->position++;
-                return (Token){TOKEN_INCREMENT, "++", lexer->line};
+                return make_token(lexer, TOKEN_INCREMENT, (char*)"++", start);
             }
             if (lexer->source[lexer->position] == '=') {
                 lexer->position++;
-                return (Token){TOKEN_PLUS_ASSIGN, "+=", lexer->line};
+                return make_token(lexer, TOKEN_PLUS_ASSIGN, (char*)"+=", start);
             }
-            return (Token){TOKEN_PLUS, "+", lexer->line};
+            return make_token(lexer, TOKEN_PLUS, (char*)"+", start);
 
         case '-':
             if (lexer->source[lexer->position] == '-') {
                 lexer->position++;
-                return (Token){TOKEN_DECREMENT, "--", lexer->line};
+                return make_token(lexer, TOKEN_DECREMENT, (char*)"--", start);
             }
             if (lexer->source[lexer->position] == '=') {
                 lexer->position++;
-                return (Token){TOKEN_MINUS_ASSIGN, "-=", lexer->line};  // Fixed!
+                return make_token(lexer, TOKEN_MINUS_ASSIGN, (char*)"-=", start);
             }
 	    if (lexer->source[lexer->position] == '>') {
                 lexer->position++;
-                return (Token){TOKEN_ARROW, "->", lexer->line};  // Fixed!
+                return make_token(lexer, TOKEN_ARROW, (char*)"->", start);
             }
-            return (Token){TOKEN_MINUS, "-", lexer->line};
+            return make_token(lexer, TOKEN_MINUS, (char*)"-", start);
 	case '*':
             //  Check if it's an assignment (`*=`)
             if (lexer->source[lexer->position] == '=') {
                 lexer->position++; 
-                return (Token){TOKEN_MULT_ASSIGN, "*=", lexer->line};
+                return make_token(lexer, TOKEN_MULT_ASSIGN, (char*)"*=", start);
             }
 
             //  Otherwise, always return `*` as TOKEN_ASTERISK
-            return (Token){TOKEN_ASTERISK, "*", lexer->line};
+            return make_token(lexer, TOKEN_ASTERISK, (char*)"*", start);
 
         case '/':
             return handleComment(lexer); // Redirects to comment handler
@@ -381,78 +475,78 @@ Token handleOperator(Lexer* lexer) {
         case '%':
             if (lexer->source[lexer->position] == '=') {
                 lexer->position++;
-                return (Token){TOKEN_MOD_ASSIGN, "%=", lexer->line};
+                return make_token(lexer, TOKEN_MOD_ASSIGN, (char*)"%=", start);
             }
-            return (Token){TOKEN_MODULO, "%", lexer->line};
+            return make_token(lexer, TOKEN_MODULO, (char*)"%", start);
 
 	case '<':
 	    if (lexer->source[lexer->position] == '<') {                  // << or <<=
 	        lexer->position++;
 	        if (lexer->source[lexer->position] == '=') {              // NEW: <<=
 	            lexer->position++;
-	            return (Token){TOKEN_LEFT_SHIFT_ASSIGN, "<<=", lexer->line};
+	            return make_token(lexer, TOKEN_LEFT_SHIFT_ASSIGN, (char*)"<<=", start);
 	        }
-	        return (Token){TOKEN_LEFT_SHIFT, "<<", lexer->line};
+	        return make_token(lexer, TOKEN_LEFT_SHIFT, (char*)"<<", start);
 	    }
 	    if (lexer->source[lexer->position] == '=') {
 	        lexer->position++;
-	        return (Token){TOKEN_LESS_EQUAL, "<=", lexer->line};
+	        return make_token(lexer, TOKEN_LESS_EQUAL, (char*)"<=", start);
 	    }
-	    return (Token){TOKEN_LESS, "<", lexer->line};
+	    return make_token(lexer, TOKEN_LESS, (char*)"<", start);
 	
 	case '>':
 	    if (lexer->source[lexer->position] == '>') {                  // >> or >>=
 	        lexer->position++;
 	        if (lexer->source[lexer->position] == '=') {              // NEW: >>=
 	            lexer->position++;
-	            return (Token){TOKEN_RIGHT_SHIFT_ASSIGN, ">>=", lexer->line};
+	            return make_token(lexer, TOKEN_RIGHT_SHIFT_ASSIGN, (char*)">>=", start);
 	        }
-	        return (Token){TOKEN_RIGHT_SHIFT, ">>", lexer->line};
+	        return make_token(lexer, TOKEN_RIGHT_SHIFT, (char*)">>", start);
 	    }
 	    if (lexer->source[lexer->position] == '=') {
 	        lexer->position++;
-	        return (Token){TOKEN_GREATER_EQUAL, ">=", lexer->line};
+	        return make_token(lexer, TOKEN_GREATER_EQUAL, (char*)">=", start);
 	    }
-	    return (Token){TOKEN_GREATER, ">", lexer->line};
+	    return make_token(lexer, TOKEN_GREATER, (char*)">", start);
 
         case '!':
             if (lexer->source[lexer->position] == '=') {
                 lexer->position++;
-                return (Token){TOKEN_NOT_EQUAL, "!=", lexer->line};
+                return make_token(lexer, TOKEN_NOT_EQUAL, (char*)"!=", start);
             }
-            return (Token){TOKEN_LOGICAL_NOT, "!", lexer->line};
+            return make_token(lexer, TOKEN_LOGICAL_NOT, (char*)"!", start);
 
 	case '&':
 	    if (lexer->source[lexer->position] == '&') {
 	        lexer->position++;
-	        return (Token){TOKEN_LOGICAL_AND, "&&", lexer->line};
+	        return make_token(lexer, TOKEN_LOGICAL_AND, (char*)"&&", start);
 	    }
 	    if (lexer->source[lexer->position] == '=') {                 // NEW: &=
 	        lexer->position++;
-	        return (Token){TOKEN_BITWISE_AND_ASSIGN, "&=", lexer->line};
+	        return make_token(lexer, TOKEN_BITWISE_AND_ASSIGN, (char*)"&=", start);
 	    }
-	    return (Token){TOKEN_BITWISE_AND, "&", lexer->line};
+	    return make_token(lexer, TOKEN_BITWISE_AND, (char*)"&", start);
 	
 	case '|':
 	    if (lexer->source[lexer->position] == '|') {
 	        lexer->position++;
-	        return (Token){TOKEN_LOGICAL_OR, "||", lexer->line};
+	        return make_token(lexer, TOKEN_LOGICAL_OR, (char*)"||", start);
 	    }
 	    if (lexer->source[lexer->position] == '=') {                  // NEW: |=
 	        lexer->position++;
-	        return (Token){TOKEN_BITWISE_OR_ASSIGN, "|=", lexer->line};
+	        return make_token(lexer, TOKEN_BITWISE_OR_ASSIGN, (char*)"|=", start);
 	    }
-	    return (Token){TOKEN_BITWISE_OR, "|", lexer->line};
+	    return make_token(lexer, TOKEN_BITWISE_OR, (char*)"|", start);
 
 	case '^':
 	    if (lexer->source[lexer->position] == '=') {
 	        lexer->position++;
-	        return (Token){TOKEN_BITWISE_XOR_ASSIGN, "^=", lexer->line};
+	        return make_token(lexer, TOKEN_BITWISE_XOR_ASSIGN, (char*)"^=", start);
 	    }
-	    return (Token){TOKEN_BITWISE_XOR, "^", lexer->line};
+	    return make_token(lexer, TOKEN_BITWISE_XOR, (char*)"^", start);
 
 	// Call helper methods for single-character operators and punctuation
-        case '~': return (Token){TOKEN_BITWISE_NOT, "~", lexer->line};
+        case '~': return make_token(lexer, TOKEN_BITWISE_NOT, (char*)"~", start);
         case ';': return handlePunctuation(lexer);
         case ',': return handlePunctuation(lexer);
         case '.': return handlePunctuation(lexer);
@@ -470,40 +564,42 @@ Token handleOperator(Lexer* lexer) {
 
 // Processes punctuation and delimiters (brackets, parentheses, semicolons, etc.)
 Token handlePunctuation(Lexer* lexer) {
+    LexerMark start = lexer_mark(lexer);
     char current = lexer->source[lexer->position];
     lexer->position++; // Move past the punctuation character
 
     switch (current) {
-	case '?': return (Token){TOKEN_QUESTION, "?", lexer->line};
-        case ';': return (Token){TOKEN_SEMICOLON, ";", lexer->line};
-        case ',': return (Token){TOKEN_COMMA, ",", lexer->line};
+	case '?': return make_token(lexer, TOKEN_QUESTION, (char*)"?", start);
+        case ';': return make_token(lexer, TOKEN_SEMICOLON, (char*)";", start);
+        case ',': return make_token(lexer, TOKEN_COMMA, (char*)",", start);
         case '.': {
             // Detect ellipsis "..." used in variadic parameter lists
             if (lexer->source[lexer->position] == '.' &&
                 lexer->source[lexer->position + 1] == '.') {
                 lexer->position += 2;
-                return (Token){TOKEN_ELLIPSIS, "...", lexer->line};
+                return make_token(lexer, TOKEN_ELLIPSIS, (char*)"...", start);
             }
-            return (Token){TOKEN_DOT, ".", lexer->line};
+            return make_token(lexer, TOKEN_DOT, (char*)".", start);
         }
-        case '(': return (Token){TOKEN_LPAREN, "(", lexer->line};
-        case ')': return (Token){TOKEN_RPAREN, ")", lexer->line};
-        case '{': return (Token){TOKEN_LBRACE, "{", lexer->line};
-        case '}': return (Token){TOKEN_RBRACE, "}", lexer->line};
-        case '[': return (Token){TOKEN_LBRACKET, "[", lexer->line};
-        case ']': return (Token){TOKEN_RBRACKET, "]", lexer->line};
-        case ':': return (Token){TOKEN_COLON, ":", lexer->line}; // Added support for switch-case
+        case '(': return make_token(lexer, TOKEN_LPAREN, (char*)"(", start);
+        case ')': return make_token(lexer, TOKEN_RPAREN, (char*)")", start);
+        case '{': return make_token(lexer, TOKEN_LBRACE, (char*)"{", start);
+        case '}': return make_token(lexer, TOKEN_RBRACE, (char*)"}", start);
+        case '[': return make_token(lexer, TOKEN_LBRACKET, (char*)"[", start);
+        case ']': return make_token(lexer, TOKEN_RBRACKET, (char*)"]", start);
+        case ':': return make_token(lexer, TOKEN_COLON, (char*)":", start); // Added support for switch-case
         default:
             printf("Warning: Unknown punctuation '%c' at line %d\n", current, lexer->line);
-            return (Token){TOKEN_UNKNOWN, "Unknown punctuation", lexer->line};
+            return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unknown punctuation", start);
     }
 }
 
 
 // Handles unknown tokens (invalid characters, etc.)
 Token handleUnknownToken(Lexer* lexer) {
+    LexerMark start = lexer_mark(lexer);
     lexer->position++; // Move past the current character
-    return (Token){TOKEN_UNKNOWN, "ERROR", lexer->line};
+    return make_token(lexer, TOKEN_UNKNOWN, (char*)"ERROR", start);
 }
 
 
