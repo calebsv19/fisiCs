@@ -5,7 +5,7 @@
 #include <string.h>   // memcpy
 
 // Initialize parser with a fresh token window
-void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerContext* ctx) {
+void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerContext* ctx, bool preserveDirectives) {
     parser->tokenBuffer = buffer;
     parser->cursor = 0;
     parser->mode = mode;
@@ -14,6 +14,7 @@ void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerCo
     parser->nextNextToken     = *token_buffer_peek(buffer, 2);
     parser->nextNextNextToken = *token_buffer_peek(buffer, 3);
     parser->ctx = ctx;
+    parser->preserveDirectives = preserveDirectives;
     const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
     parser->enableStatementExpressions =
         (gnuEnv && gnuEnv[0] != '\0' && gnuEnv[0] != '0');

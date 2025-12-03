@@ -386,7 +386,11 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 resetFunctionSignature(sym);
 
                 if (!addToScope(scope, sym)) {
-                    addError(ident ? ident->line : node->line, 0, "Redefinition of variable", ident->valueNode.value);
+                    addErrorWithRanges(ident ? ident->location : node->location,
+                                       ident ? ident->macroCallSite : node->macroCallSite,
+                                       ident ? ident->macroDefinition : node->macroDefinition,
+                                       "Redefinition of variable",
+                                       ident ? ident->valueNode.value : NULL);
                 }
 
                 bool staticStorage = scopeIsFileScope(scope) ||
@@ -446,10 +450,11 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 if (node->type == AST_FUNCTION_DEFINITION &&
                     existing->definition &&
                     existing->definition->type == AST_FUNCTION_DEFINITION) {
-                    addError(funcName ? funcName->line : node->line,
-                             0,
-                             "Redefinition of function",
-                             funcName->valueNode.value);
+                    addErrorWithRanges(funcName ? funcName->location : node->location,
+                                       funcName ? funcName->macroCallSite : node->macroCallSite,
+                                       funcName ? funcName->macroDefinition : node->macroDefinition,
+                                       "Redefinition of function",
+                                       funcName ? funcName->valueNode.value : NULL);
                     break;
                 }
 
@@ -487,7 +492,11 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             }
 
             if (!addToScope(scope, sym)) {
-                addError(funcName ? funcName->line : node->line, 0, "Redefinition of function", funcName->valueNode.value);
+                addErrorWithRanges(funcName ? funcName->location : node->location,
+                                   funcName ? funcName->macroCallSite : node->macroCallSite,
+                                   funcName ? funcName->macroDefinition : node->macroDefinition,
+                                   "Redefinition of function",
+                                   funcName ? funcName->valueNode.value : NULL);
             }
             break;
         }
@@ -502,7 +511,11 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             resetFunctionSignature(sym);
 
             if (!addToScope(scope, sym)) {
-                addError(node ? node->line : 0, 0, "Redefinition of typedef", sym->name);
+                addErrorWithRanges(node ? node->location : (SourceRange){0},
+                                   node ? node->macroCallSite : (SourceRange){0},
+                                   node ? node->macroDefinition : (SourceRange){0},
+                                   "Redefinition of typedef",
+                                   sym->name);
             }
             if (scope->ctx) {
                 cc_add_typedef(scope->ctx, node->typedefStmt.alias->valueNode.value);
@@ -561,7 +574,11 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     enumSym->definition = node;
                     enumSym->next = NULL;
                     if (!addToScope(scope, enumSym)) {
-                        addError(member ? member->line : node->line, 0, "Redefinition of enum constant", member->valueNode.value);
+                        addErrorWithRanges(member ? member->location : node->location,
+                                           member ? member->macroCallSite : node->macroCallSite,
+                                           member ? member->macroDefinition : node->macroDefinition,
+                                           "Redefinition of enum constant",
+                                           member ? member->valueNode.value : NULL);
                     }
                 }
             }

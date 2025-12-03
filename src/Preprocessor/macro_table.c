@@ -300,3 +300,36 @@ const MacroExpansionFrame* macro_table_current_expansion(const MacroTable* table
     }
     return table ? table->expansionStack : NULL;
 }
+
+MacroTable* macro_table_clone(const MacroTable* src) {
+    if (!src) return NULL;
+    MacroTable* clone = macro_table_create();
+    if (!clone) return NULL;
+    for (size_t i = 0; i < src->macroCount; ++i) {
+        const MacroDefinition* def = &src->macros[i];
+        if (def->kind == MACRO_OBJECT) {
+            if (!macro_table_define_object(clone,
+                                           def->name,
+                                           def->body.tokens,
+                                           def->body.count,
+                                           def->definitionRange)) {
+                macro_table_destroy(clone);
+                return NULL;
+            }
+        } else {
+            if (!macro_table_define_function(clone,
+                                             def->name,
+                                             (const char* const*)def->params.names,
+                                             def->params.count,
+                                             def->params.variadic,
+                                             def->params.hasVaOpt,
+                                             def->body.tokens,
+                                             def->body.count,
+                                             def->definitionRange)) {
+                macro_table_destroy(clone);
+                return NULL;
+            }
+        }
+    }
+    return clone;
+}

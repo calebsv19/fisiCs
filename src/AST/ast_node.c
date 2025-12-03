@@ -27,10 +27,36 @@ static ASTNode* new_node(ASTNodeType tag) {
 }
 
 static void inherit_line_from_node(ASTNode* target, ASTNode* source) {
-    if (!target || target->line) return;
-    if (source && source->line) {
+    if (!target || !source) return;
+    if (!target->line && source->line) {
         target->line = source->line;
     }
+    if (target->location.start.file == NULL && source->location.start.file) {
+        target->location = source->location;
+    }
+    if (target->macroCallSite.start.file == NULL && source->macroCallSite.start.file) {
+        target->macroCallSite = source->macroCallSite;
+    }
+    if (target->macroDefinition.start.file == NULL && source->macroDefinition.start.file) {
+        target->macroDefinition = source->macroDefinition;
+    }
+}
+
+static SourceRange empty_range(void) {
+    SourceRange r;
+    r.start.file = NULL;
+    r.start.line = 0;
+    r.start.column = 0;
+    r.end = r.start;
+    return r;
+}
+
+void astNodeSetProvenance(ASTNode* node, const Token* tok) {
+    if (!node || !tok) return;
+    node->line = tok->line;
+    node->location = tok->location;
+    node->macroCallSite = tok->macroCallSite.start.file ? tok->macroCallSite : empty_range();
+    node->macroDefinition = tok->macroDefinition.start.file ? tok->macroDefinition : empty_range();
 }
 
 static void inherit_line_from_pair(ASTNode* target, ASTNode* first, ASTNode* second) {

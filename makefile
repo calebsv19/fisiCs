@@ -24,13 +24,15 @@ ifeq ($(PARSER_DEBUG),1)
 PARSER_DEFS += -DPARSER_DEBUG
 endif
 
-CFLAGS := -Wall -Wextra -Wpedantic -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS)
+CFLAGS = -Wall -Wextra -Wpedantic -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS) -DDEFAULT_INCLUDE_PATHS=\"$(DEFAULT_INCLUDE_PATHS)\"
 LDFLAGS := -fsanitize=address,undefined $(LLVM_LDFLAGS) $(LLVM_LIBS)
 
 INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax
 SRC_DIR := src
 BUILD_DIR := build
 BIN := compiler
+INCLUDE_PATHS ?= include
+DEFAULT_INCLUDE_PATHS := $(if $(INCLUDE_PATHS),$(INCLUDE_PATHS),include)
 
 # === Step 1: Generate keyword_lookup.c from keywords.gperf ===
 src/Lexer/keyword_lookup.c: src/Lexer/keywords.gperf
@@ -44,6 +46,8 @@ $(BUILD_DIR)/%.o: src/Lexer/keyword_lookup.c
 # === Step 3: Find all .c files and create .o list ===
 SRCS := $(shell find $(SRC_DIR) -name '*.c')
 SRCS += src/Lexer/keyword_lookup.c
+
+SRCS += src/Preprocessor/include_resolver.c
 
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
 
@@ -202,7 +206,18 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
 
 codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff statement-expr-codegen
 
-test: spec-tests parser-tests syntax-tests codegen-tests
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests
+preprocessor-tests: $(BIN)
+	@./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_expr.sh
+	@./tests/preprocessor/run_pp_if.sh
+	@./tests/preprocessor/run_pp_nested.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_include_basic.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_include_search.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_include_pragma_once.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_preserve.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_deps.sh ./$(BIN)
 
 tests: test
 
@@ -215,6 +230,6 @@ tests: test
         semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
         semantic-initializer-shapes semantic-flow codegen-pointer-deref codegen-pointer-diff \
         compound-literal-lvalues \
-        statement-expr-enabled statement-expr-disabled recovery \
+        statement-expr-enabled statement-expr-disabled recovery preprocessor-tests \
         statement-expr-codegen \
         parser-tests syntax-tests codegen-tests spec-tests test tests

@@ -4,11 +4,16 @@
 
 #include "AST/ast_node.h"
 #include "Compiler/compiler_context.h"
+#include "Preprocessor/macro_table.h"
 #include <stdbool.h>
 
 typedef struct SemanticModel SemanticModel;
 
-SemanticModel* analyzeSemanticsBuildModel(ASTNode* root, CompilerContext* ctx, bool takeContextOwnership);
+SemanticModel* analyzeSemanticsBuildModel(ASTNode* root,
+                                          CompilerContext* ctx,
+                                          bool takeContextOwnership,
+                                          MacroTable* macros,
+                                          bool takeMacroOwnership);
 
 void analyzeSemantics(ASTNode* root);
 void analyzeSemanticsWithContext(ASTNode* root, CompilerContext* ctx);

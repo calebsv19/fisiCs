@@ -75,5 +75,6 @@ void macro_table_pop_expansion(MacroTable* table, const MacroDefinition* macro);
 bool macro_table_is_expanding(const MacroTable* table, const char* name);
 const MacroExpansionFrame* macro_table_current_expansion(const MacroTable* table,
                                                          size_t* outCount);
+MacroTable* macro_table_clone(const MacroTable* src);
 
 #endif /* PREPROCESSOR_MACRO_TABLE_H */

@@ -128,6 +128,7 @@ CompilerContext* cc_create(void) {
     CompilerContext* c = (CompilerContext*)calloc(1, sizeof(*c));
     if (!c) return NULL;
     cc_builtins_init(&c->builtins);
+    include_graph_init(&c->includeGraph);
     return c;
 }
 
@@ -137,6 +138,7 @@ void cc_destroy(CompilerContext* ctx) {
     cc_tag_table_free(&ctx->tag_struct);
     cc_tag_table_free(&ctx->tag_union);
     cc_tag_table_free(&ctx->tag_enum);
+    include_graph_destroy(&ctx->includeGraph);
     // builtins are static literals; nothing to free.
     free(ctx);
 }
@@ -206,4 +208,14 @@ bool cc_tag_is_defined(const CompilerContext* ctx, CCTagKind kind, const char* n
 bool cc_is_builtin_type(const CompilerContext* ctx, const char* name) {
     (void)ctx;
     return cc_builtins_has(&ctx->builtins, name);
+}
+
+bool cc_set_include_graph(CompilerContext* ctx, const IncludeGraph* graph) {
+    if (!ctx) return false;
+    include_graph_destroy(&ctx->includeGraph);
+    return include_graph_clone(&ctx->includeGraph, graph);
+}
+
+const IncludeGraph* cc_get_include_graph(const CompilerContext* ctx) {
+    return ctx ? &ctx->includeGraph : NULL;
 }

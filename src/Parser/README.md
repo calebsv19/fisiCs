@@ -24,7 +24,7 @@ Work-in-progress: a dedicated `parseDeclarator` helper will unify the remaining 
 - `parser_switch.h` / `parser_switch.c`
   - Detailed parsing of `switch`/`case`/`default` constructs including fallthrough chains.
 - `parser_preproc.h` / `parser_preproc.c`
-  - Converts preprocessor directives into dedicated AST nodes (`#include`, `#define`, `#ifdef`, `#pragma once`, etc.) so later passes can reason about them.
+  - (Removed) Preprocessor directive parsing helpers. Directives are now handled in the dedicated preprocessor stage before parsing.
 - `parser_decl.h` / `parser_decl.c`
   - Handles type-specifier sequences, declarator lists, struct/union/enum bodies, designated initialisers, and attribute capture (`__attribute__`, `[[gnu::...]]`, `__declspec`). Declarators clone the base `ParsedType`, apply pointer layers, and then iterate suffixes (`()`, `[]`) to append derivations.
 - `parser_config.h`

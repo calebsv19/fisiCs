@@ -9,12 +9,16 @@ struct SemanticModel {
     CompilerContext* ctx;
     bool ownsContext;
     size_t errorCount;
+    MacroTable* macros;
+    bool ownsMacros;
 };
 
 SemanticModel* semanticModelCreate(Scope* globalScope,
                                    CompilerContext* ctx,
                                    bool ownsContext,
-                                   size_t errorCount) {
+                                   size_t errorCount,
+                                   MacroTable* macros,
+                                   bool ownsMacros) {
     if (!globalScope) return NULL;
     SemanticModel* model = (SemanticModel*)calloc(1, sizeof(SemanticModel));
     if (!model) return NULL;
@@ -22,6 +26,8 @@ SemanticModel* semanticModelCreate(Scope* globalScope,
     model->ctx = ctx;
     model->ownsContext = ownsContext;
     model->errorCount = errorCount;
+    model->macros = macros;
+    model->ownsMacros = ownsMacros;
     return model;
 }
 
@@ -33,6 +39,10 @@ void semanticModelDestroy(SemanticModel* model) {
         cc_destroy(model->ctx);
     }
     model->ctx = NULL;
+    if (model->ownsMacros && model->macros) {
+        macro_table_destroy(model->macros);
+    }
+    model->macros = NULL;
     free(model);
 }
 
@@ -46,6 +56,10 @@ CompilerContext* semanticModelGetContext(const SemanticModel* model) {
 
 Scope* semanticModelGetGlobalScope(const SemanticModel* model) {
     return model ? model->globalScope : NULL;
+}
+
+const MacroTable* semanticModelGetMacros(const SemanticModel* model) {
+    return model ? model->macros : NULL;
 }
 
 void semanticModelForEachGlobal(const SemanticModel* model,

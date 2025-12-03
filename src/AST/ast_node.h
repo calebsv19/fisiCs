@@ -84,6 +84,9 @@ typedef struct ASTNode ASTNode;
 struct ASTNode {
     ASTNodeType type;
     int line;
+    SourceRange location;
+    SourceRange macroCallSite;
+    SourceRange macroDefinition;
     ASTNode *nextStmt;
     ASTAttribute** attributes;
     size_t attributeCount;
@@ -354,6 +357,7 @@ ASTNode *createBlockNode(ASTNode **statements, size_t statementCount);
 ASTNode* createStatementExpressionNode(ASTNode* block);
 void astNodeAppendAttributes(ASTNode* node, ASTAttribute** attrs, size_t count);
 void astNodeCloneTypeAttributes(ASTNode* node, const ParsedType* type);
+void astNodeSetProvenance(ASTNode* node, const Token* tok);
 
 
 // Preprocesses

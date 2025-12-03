@@ -1,0 +1,6 @@
+#ifndef INCLUDE_BASIC_LOCAL_H
+#define INCLUDE_BASIC_LOCAL_H
+
+#define LOCAL_VALUE 123
+
+#endif /* INCLUDE_BASIC_LOCAL_H */

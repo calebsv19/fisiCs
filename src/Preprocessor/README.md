@@ -9,13 +9,21 @@ Macro handling and (soon) conditional/include logic live here. The directory gra
   - API surface: `macro_table_create/destroy`, `macro_table_define_*`, `macro_table_lookup`, `macro_table_undef`, plus `macro_table_push_expansion` / `macro_table_pop_expansion` helpers.
 - `macro_expander.h/.c`
   - Expansion engine that walks token streams, collects arguments, performs substitution, stringification (`#`), token pasting (`##`), and variadic handling (`__VA_ARGS__`). Each emitted token records both the macro body location and the call site so diagnostics can reference both.
+- `pp_expr.h/.c`
+  - Tiny expression evaluator for `#if` / `#elif`. Parses the limited preprocessor grammar (unary, multiplicative/additive, shifts, comparisons/equality, bitwise/logical ops, ternary), caps arithmetic to 32-bit results, folds `defined(name)` queries via the shared macro table, and treats all other identifiers as `0`.
 - `preprocessor.h/.c`
-  - High-level driver that scans the lexer’s token buffer, consumes `#define`/`#undef` directives into the macro table, and flushes the remaining token chunks through the expander before handing them to the parser. A future flag will keep lightweight directive AST nodes when tooling needs them.
+  - High-level driver that scans the lexer’s token buffer, consumes `#define`/`#undef` directives into the macro table, evaluates `#if/#elif/#else/#endif` with a conditional stack, and flushes active chunks through the expander before handing them to the parser. A `--preserve-pp` flag or `PRESERVE_PP_NODES=1` keeps lightweight directive AST nodes when tooling needs them; otherwise the parser never sees `#` tokens.
+- `include_resolver.h/.c`
+  - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`), caches file contents + mtimes, tracks `#pragma once` and classic guards, and records dependency edges for later `.d` emission.
+  - Write the include graph to JSON via `include_graph_write_json`; surfaced to users with `--emit-deps-json <file>` or `EMIT_DEPS_JSON=path`.
 
-## Roadmap
+## Usage notes
+- All tokens carry spelling, macro call-site, and macro definition ranges; AST nodes inherit this so diagnostics can cite both sites.
+- Unknown identifiers in `#if` expressions evaluate to `0`; `defined(name)` consults the shared macro table.
+- The preprocessor owns include caching; the lexer only tokenizes a resolved file once.
+- Dependency graph can be dumped to JSON for build tools/IDEs (`--emit-deps-json` or `EMIT_DEPS_JSON`).
 
-- `macro_expander.*` (pending): argument collection, substitution, stringification (`#`), token pasting (`##`), variadic handling (`__VA_ARGS__`, `__VA_OPT__` stubs), and recursion control. Will consume tokens via the table API and emit expanded sequences.
-- `pp_expr.*` (pending): preprocessor expression parser/evaluator used by `#if`/`#elif`.
-- Include resolver & guard tracker: resolves `#include` search paths, caches headers, and records dependency edges for build integration.
+## Tests
+Run `make preprocessor-tests` to exercise stringify/paste, variadics, nested expansion, conditional skipping, include resolution (quoted vs. system, pragma once), directive preservation, and the `pp_expr` evaluator.
 
-As new modules land, extend this README with their responsibilities and external APIs so downstream phases know how to call into the preprocessor layer.
+As new behaviours land, extend this README with their responsibilities and external APIs so downstream phases know how to call into the preprocessor layer.

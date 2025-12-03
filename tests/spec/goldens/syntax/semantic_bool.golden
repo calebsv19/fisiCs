@@ -1,7 +1,5 @@
 AST:
 PROGRAM
-  INCLUDE_DIRECTIVE
-    File: stdio.h (system)
   FUNCTION DEFINITION
     RETURN TYPE: int
     IDENTIFIER main

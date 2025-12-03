@@ -17,6 +17,7 @@ PROGRAM
 
 
 Diagnostics:
-Error at (2:0): Undeclared identifier
+Error at (2:17): Undeclared identifier
    Hint: missingSymbol
+   Spelling: tests/syntax/semantic_undeclared.c:2:17
 

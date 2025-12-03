@@ -6,14 +6,22 @@
 #include "Lexer/token_buffer.h"
 #include "Preprocessor/macro_table.h"
 #include "Preprocessor/macro_expander.h"
+#include "Preprocessor/pp_expr.h"
+#include "Preprocessor/include_resolver.h"
 
 typedef struct {
     MacroTable* table;
     MacroExpander expander;
+    PPExprEvaluator exprEval;
+    IncludeResolver* resolver;
+    IncludeGraph includeGraph;
     bool preserveDirectives;
 } Preprocessor;
 
-bool preprocessor_init(Preprocessor* pp, bool preserveDirectives);
+bool preprocessor_init(Preprocessor* pp,
+                       bool preserveDirectives,
+                       const char* const* includePaths,
+                       size_t includePathCount);
 void preprocessor_destroy(Preprocessor* pp);
 
 bool preprocessor_run(Preprocessor* pp,
@@ -21,5 +29,19 @@ bool preprocessor_run(Preprocessor* pp,
                       PPTokenBuffer* output);
 
 MacroTable* preprocessor_get_macro_table(Preprocessor* pp);
+IncludeResolver* preprocessor_get_resolver(Preprocessor* pp);
+IncludeGraph* preprocessor_get_include_graph(Preprocessor* pp);
+
+// Convenience helpers for directive drivers to evaluate #if/#elif expressions
+bool preprocessor_eval_tokens(Preprocessor* pp,
+                              const Token* tokens,
+                              size_t count,
+                              int32_t* outValue);
+
+bool preprocessor_eval_range(Preprocessor* pp,
+                             const TokenBuffer* buffer,
+                             size_t start,
+                             size_t end,
+                             int32_t* outValue);
 
 #endif /* PREPROCESSOR_DRIVER_H */

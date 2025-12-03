@@ -250,9 +250,7 @@ static bool parseDeclaratorInternal(Parser* parser,
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         if (!decl->identifier) {
             decl->identifier = createIdentifierNode(parser->currentToken.value);
-            if (decl->identifier) {
-                decl->identifier->line = parser->currentToken.line;
-            }
+            astNodeSetProvenance(decl->identifier, &parser->currentToken);
         }
         advance(parser);
         sawIdentifier = true;
@@ -779,7 +777,7 @@ ASTNode* parseEnumDefinition(Parser* parser) {
 
     while (parser->currentToken.type == TOKEN_IDENTIFIER) {
         ASTNode* memberName = createIdentifierNode(parser->currentToken.value);
-        if (memberName) memberName->line = parser->currentToken.line;
+        astNodeSetProvenance(memberName, &parser->currentToken);
         advance(parser); // consume member name
 
         ASTNode* valueExpr = NULL;

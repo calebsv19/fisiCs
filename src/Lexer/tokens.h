@@ -48,6 +48,7 @@ typedef enum {
     TOKEN_IFDEF, TOKEN_IFNDEF, TOKEN_ENDIF,     // if related processor
     TOKEN_PRAGMA, TOKEN_ONCE,			// pragma handling
     TOKEN_PREPROCESSOR_OTHER,			// handles edge cases
+    TOKEN_PP_IF, TOKEN_PP_ELIF, TOKEN_PP_ELSE,
 
     TOKEN_NUMBER, TOKEN_FLOAT_LITERAL, // Numeric literals
     TOKEN_STRING, TOKEN_CHAR_LITERAL,  // Text literals

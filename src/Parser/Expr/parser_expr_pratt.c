@@ -150,13 +150,13 @@ static ASTNode* nud(Parser* parser, Token token) {
         case TOKEN_NUMBER:
         case TOKEN_FLOAT_LITERAL: {
             ASTNode* lit = createNumberLiteralNode(token.value);
-            if (lit) lit->line = token.line;
+            astNodeSetProvenance(lit, &token);
             return lit;
         }
 
         case TOKEN_CHAR_LITERAL: {
             ASTNode* lit = createCharLiteralNode(token.value);
-            if (lit) lit->line = token.line;
+            astNodeSetProvenance(lit, &token);
             return lit;
         }
 
@@ -164,19 +164,19 @@ static ASTNode* nud(Parser* parser, Token token) {
         case TOKEN_FALSE: {
             const char* boolValue = (token.type == TOKEN_TRUE) ? "1" : "0";
             ASTNode* lit = createNumberLiteralNode(boolValue);
-            if (lit) lit->line = token.line;
+            astNodeSetProvenance(lit, &token);
             return lit;
         }
 
         case TOKEN_STRING: {
             ASTNode* lit = createStringLiteralNode(token.value);
-            if (lit) lit->line = token.line;
+            astNodeSetProvenance(lit, &token);
             return lit;
         }
 
         case TOKEN_IDENTIFIER: {
                 ASTNode* ident = createIdentifierNode(token.value);
-                if (ident) ident->line = token.line;
+                astNodeSetProvenance(ident, &token);
 
                 // Peek: if the next token is '(', treat as a function call
                 if (parser->currentToken.type == TOKEN_LPAREN) {

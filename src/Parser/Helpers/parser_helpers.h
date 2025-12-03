@@ -11,7 +11,7 @@
 #include "Compiler/compiler_context.h"
 
 // Token management
-void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerContext* ctx);
+void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerContext* ctx, bool preserveDirectives);
 void advance(Parser* parser);
 
 // Parser cloning

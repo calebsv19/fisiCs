@@ -7,6 +7,15 @@
 
 static ErrorList errorList;
 
+static SourceRange empty_range(void) {
+    SourceRange r;
+    r.start.file = NULL;
+    r.start.line = 0;
+    r.start.column = 0;
+    r.end = r.start;
+    return r;
+}
+
 void initErrorList(void) {
     errorList.errors = malloc(sizeof(SyntaxError) * INITIAL_ERROR_CAPACITY);
     errorList.count = 0;
@@ -26,6 +35,9 @@ void addError(int line, int column, const char* message, const char* hint) {
     err->message = strdup(message);
     err->hint = hint ? strdup(hint) : NULL;
     err->isWarning = false;
+    err->spelling = empty_range();
+    err->macroCallSite = empty_range();
+    err->macroDefinition = empty_range();
     errorList.errorCount++;
 }
 
@@ -41,6 +53,37 @@ void addWarning(int line, int column, const char* message, const char* hint) {
     err->message = strdup(message);
     err->hint = hint ? strdup(hint) : NULL;
     err->isWarning = true;
+    err->spelling = empty_range();
+    err->macroCallSite = empty_range();
+    err->macroDefinition = empty_range();
+}
+
+void addErrorFromToken(const Token* tok, const char* message, const char* hint) {
+    int line = tok ? tok->line : 0;
+    int col = (tok && tok->location.start.column) ? tok->location.start.column : 0;
+    addError(line, col, message, hint);
+    if (errorList.count > 0 && tok) {
+        SyntaxError* err = &errorList.errors[errorList.count - 1];
+        err->spelling = tok->location;
+        err->macroCallSite = tok->macroCallSite;
+        err->macroDefinition = tok->macroDefinition;
+    }
+}
+
+void addErrorWithRanges(SourceRange spelling,
+                        SourceRange macroCallSite,
+                        SourceRange macroDefinition,
+                        const char* message,
+                        const char* hint) {
+    int line = spelling.start.line;
+    int col = spelling.start.column;
+    addError(line, col, message, hint);
+    if (errorList.count > 0) {
+        SyntaxError* err = &errorList.errors[errorList.count - 1];
+        err->spelling = spelling;
+        err->macroCallSite = macroCallSite;
+        err->macroDefinition = macroDefinition;
+    }
 }
 
 void reportErrors(void) {
@@ -49,6 +92,24 @@ void reportErrors(void) {
         printf("%s at (%d:%d): %s\n", err.isWarning ? "Warning" : "Error", err.line, err.column, err.message);
         if (err.hint) {
             printf("   Hint: %s\n", err.hint);
+        }
+        if (err.spelling.start.file) {
+            printf("   Spelling: %s:%d:%d\n",
+                   err.spelling.start.file,
+                   err.spelling.start.line,
+                   err.spelling.start.column);
+        }
+        if (err.macroCallSite.start.file) {
+            printf("   Macro call: %s:%d:%d\n",
+                   err.macroCallSite.start.file,
+                   err.macroCallSite.start.line,
+                   err.macroCallSite.start.column);
+        }
+        if (err.macroDefinition.start.file) {
+            printf("   Macro definition: %s:%d:%d\n",
+                   err.macroDefinition.start.file,
+                   err.macroDefinition.start.line,
+                   err.macroDefinition.start.column);
         }
     }
 }
@@ -68,3 +129,4 @@ void freeErrorList(void) {
     errorList.capacity = 0;
     errorList.errorCount = 0;
 }
+#include "Lexer/tokens.h"

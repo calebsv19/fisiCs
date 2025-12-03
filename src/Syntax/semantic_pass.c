@@ -59,21 +59,36 @@ void analyzeSemantics(ASTNode* root) {
     cc_destroy(ctx);
 }
 
-SemanticModel* analyzeSemanticsBuildModel(ASTNode* root, CompilerContext* ctx, bool takeContextOwnership) {
+SemanticModel* analyzeSemanticsBuildModel(ASTNode* root,
+                                          CompilerContext* ctx,
+                                          bool takeContextOwnership,
+                                          MacroTable* macros,
+                                          bool takeMacroOwnership) {
     size_t errorCount = 0;
     Scope* globalScope = runSemanticAnalysis(root, ctx, &errorCount, true);
     if (!globalScope) {
         if (takeContextOwnership && ctx) {
             cc_destroy(ctx);
         }
+        if (takeMacroOwnership && macros) {
+            macro_table_destroy(macros);
+        }
         return NULL;
     }
 
-    SemanticModel* model = semanticModelCreate(globalScope, ctx, takeContextOwnership, errorCount);
+    SemanticModel* model = semanticModelCreate(globalScope,
+                                               ctx,
+                                               takeContextOwnership,
+                                               errorCount,
+                                               macros,
+                                               takeMacroOwnership);
     if (!model) {
         destroyScope(globalScope);
         if (takeContextOwnership && ctx) {
             cc_destroy(ctx);
+        }
+        if (takeMacroOwnership && macros) {
+            macro_table_destroy(macros);
         }
     }
     return model;

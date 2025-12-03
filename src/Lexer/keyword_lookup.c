@@ -1,5 +1,5 @@
-/* C code produced by gperf version 3.3 */
-/* Command-line: gperf src/Lexer/keywords.gperf  */
+/* C code produced by gperf version 3.0.3 */
+/* Command-line: /Library/Developer/CommandLineTools/usr/bin/gperf src/Lexer/keywords.gperf  */
 /* Computed positions: -k'1,3' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -26,7 +26,7 @@
       && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
       && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
-error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
+error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
 #line 1 "src/Lexer/keywords.gperf"
@@ -55,7 +55,7 @@ inline
 static unsigned int
 keyword_hash (str, len)
      register const char *str;
-     register size_t len;
+     register unsigned int len;
 {
   static const unsigned char asso_values[] =
     {
@@ -92,11 +92,6 @@ keyword_hash (str, len)
     {
       default:
         hval += asso_values[(unsigned char)str[2]];
-#if (defined __cplusplus && (__cplusplus >= 201703L || (__cplusplus >= 201103L && defined __clang__ && __clang_major__ + (__clang_minor__ >= 9) > 3))) || (defined __STDC_VERSION__ && __STDC_VERSION__ >= 202000L && ((defined __GNUC__ && __GNUC__ >= 10) || (defined __clang__ && __clang_major__ >= 9)))
-      [[fallthrough]];
-#elif (defined __GNUC__ && __GNUC__ >= 7) || (defined __clang__ && __clang_major__ >= 10)
-      __attribute__ ((__fallthrough__));
-#endif
       /*FALLTHROUGH*/
       case 2:
       case 1:
@@ -109,7 +104,7 @@ keyword_hash (str, len)
 const char *
 in_keyword_set (str, len)
      register const char *str;
-     register size_t len;
+     register unsigned int len;
 {
   static const char * const wordlist[] =
     {
@@ -172,7 +167,7 @@ in_keyword_set (str, len)
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register unsigned int key = keyword_hash (str, len);
+      unsigned int key = keyword_hash (str, len);
 
       if (key <= MAX_HASH_VALUE)
         {
@@ -182,7 +177,7 @@ in_keyword_set (str, len)
             return s;
         }
     }
-  return (const char *) 0;
+  return 0;
 }
 #line 57 "src/Lexer/keywords.gperf"
 

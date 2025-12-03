@@ -43,6 +43,13 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
             return codegenForLoop(ctx, node);
         case AST_FUNCTION_DEFINITION:
             return codegenFunctionDefinition(ctx, node);
+        case AST_FUNCTION_DECLARATION:
+            return NULL; // prototypes do not emit code
+        case AST_INCLUDE_DIRECTIVE:
+        case AST_DEFINE_DIRECTIVE:
+        case AST_CONDITIONAL_DIRECTIVE:
+        case AST_ENDIF_DIRECTIVE:
+            return NULL; // preserved preprocessor artifacts are non-code
         case AST_FUNCTION_CALL:
             return codegenFunctionCall(ctx, node);
         case AST_TYPEDEF:

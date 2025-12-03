@@ -160,6 +160,10 @@ ASTNode* parseTernaryExpression(Parser* parser) {
 }
 
 ASTNode* parseBooleanExpression(Parser* parser) {
+    if (parser->mode == PARSER_MODE_PRATT) {
+        return parseExpressionPratt(parser, -1);
+    }
+
     ASTNode* left = parseComparisonExpression(parser);
     if (!left) {
         printf("Error: Invalid boolean expression at line %d\n", parser->currentToken.line);
@@ -390,7 +394,7 @@ ASTNode* parseFactor(Parser* parser) {
             }
             snprintf(negativeValue, len + 2, "-%s", parser->currentToken.value);
             ASTNode* negativeLiteral = createNumberLiteralNode(negativeValue);
-            if (negativeLiteral) negativeLiteral->line = parser->currentToken.line;
+            astNodeSetProvenance(negativeLiteral, &parser->currentToken);
             free(negativeValue);
             advance(parser);
             return negativeLiteral;
@@ -462,9 +466,11 @@ ASTNode* parsePostfixExpression(Parser* parser) {
     
     // First: parse an identifier or primary expression   
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-        int identLine = parser->currentToken.line;
+        Token identTok = parser->currentToken;
         expr = createIdentifierNode(parser->currentToken.value);
-        if (expr) expr->line = identLine;
+        if (expr) {
+            astNodeSetProvenance(expr, &identTok);
+        }
         advance(parser); // consume identifier
     } else {
         expr = parsePrimary(parser);
@@ -520,7 +526,7 @@ ASTNode* parsePrimary(Parser* parser) {
     // Number & float literals
     if (parser->currentToken.type == TOKEN_FLOAT_LITERAL || parser->currentToken.type == TOKEN_NUMBER){
         ASTNode* node = createNumberLiteralNode(parser->currentToken.value);
-        if (node) node->line = parser->currentToken.line;
+        astNodeSetProvenance(node, &parser->currentToken);
         advance(parser);
         return node;
     }
@@ -528,7 +534,7 @@ ASTNode* parsePrimary(Parser* parser) {
     // Char literal
     if (parser->currentToken.type == TOKEN_CHAR_LITERAL) {
         ASTNode* node = createCharLiteralNode(parser->currentToken.value);
-        if (node) node->line = parser->currentToken.line;
+        astNodeSetProvenance(node, &parser->currentToken);
         advance(parser);
         return node;
     }
@@ -536,14 +542,14 @@ ASTNode* parsePrimary(Parser* parser) {
     // String literal
     if (parser->currentToken.type == TOKEN_STRING) {
         ASTNode* node = createStringLiteralNode(parser->currentToken.value);
-        if (node) node->line = parser->currentToken.line;
+        astNodeSetProvenance(node, &parser->currentToken);
         advance(parser);
         return node;
     }
 
     if (parser->currentToken.type == TOKEN_TRUE || parser->currentToken.type == TOKEN_FALSE) {
         ASTNode* node = createNumberLiteralNode(parser->currentToken.type == TOKEN_TRUE ? "1" : "0");
-        if (node) node->line = parser->currentToken.line;
+        astNodeSetProvenance(node, &parser->currentToken);
         advance(parser);
         return node;
     }
@@ -554,7 +560,7 @@ ASTNode* parsePrimary(Parser* parser) {
      
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         ASTNode* node = createIdentifierNode(parser->currentToken.value);
-        if (node) node->line = parser->currentToken.line;
+        astNodeSetProvenance(node, &parser->currentToken);
         // Do not consume the identifier here — postfix handler will do it
         return node;
     }

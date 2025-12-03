@@ -74,7 +74,7 @@ ASTNode* parseAssignment(Parser* parser) {
     }
     
     ASTNode* idNode = createIdentifierNode(parser->currentToken.value);
-    if (idNode) idNode->line = parser->currentToken.line;
+    astNodeSetProvenance(idNode, &parser->currentToken);
     advance(parser); // Consume identifier
     
     // Handle assignment operators: '=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>='

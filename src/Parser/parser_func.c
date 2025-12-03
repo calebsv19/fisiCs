@@ -20,7 +20,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     }
 
     ASTNode* funcName = createIdentifierNode(parser->currentToken.value);
-    if (funcName) funcName->line = parser->currentToken.line;
+    astNodeSetProvenance(funcName, &parser->currentToken);
     advance(parser);  // Consume function name
 
     // Expect opening parenthesis
@@ -245,4 +245,3 @@ ASTNode* parseFunctionCall(Parser* parser, ASTNode* callee) {
     PARSER_DEBUG_PRINTF("DEBUG: Function call parsed with %zu argument(s)\n", argCount);
     return createFunctionCallNode(callee, argList, argCount);
 } 
-

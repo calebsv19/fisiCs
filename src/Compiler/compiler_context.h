@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "Preprocessor/include_resolver.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +47,7 @@ typedef struct CompilerContext {
     CCTagTable tag_union;       // union tag metadata
     CCTagTable tag_enum;        // enum tag metadata
     CCBuiltins  builtins;       // builtin type names (void,int,uint64_t,...)
+    IncludeGraph includeGraph;  // dependency edges (parent -> child)
 } CompilerContext;
 
 typedef enum {
@@ -71,6 +73,10 @@ bool cc_tag_is_defined(const CompilerContext* ctx, CCTagKind kind, const char* n
 
 // ---- Builtins query ----
 bool cc_is_builtin_type(const CompilerContext* ctx, const char* name);
+
+// Include graph access
+bool cc_set_include_graph(CompilerContext* ctx, const IncludeGraph* graph);
+const IncludeGraph* cc_get_include_graph(const CompilerContext* ctx);
 
 #ifdef __cplusplus
 }

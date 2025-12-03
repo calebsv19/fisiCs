@@ -41,5 +41,6 @@ PROGRAM
 
 
 Diagnostics:
-Error at (10:0): Operator '+' requires arithmetic operands
+Error at (10:12): Operator '+' requires arithmetic operands
+   Spelling: tests/syntax/semantic_initializer.c:10:12
 

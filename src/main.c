@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "Lexer/lexer.h"
 #include "Lexer/token_buffer.h"
 #include "Parser/parser.h"
@@ -26,8 +27,20 @@
 #define ENABLE_CODEGEN           1
 
 int main(int argc, char **argv) {
-    const char *filename = (argc > 1) ? argv[1] : "include/test.txt";
-    char *sourceCode = readFile(filename);
+    const char *filename = NULL;
+    bool preservePPNodes = false;
+    const char* depsJsonPath = NULL;
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--preserve-pp") == 0) {
+            preservePPNodes = true;
+        } else if (strcmp(argv[i], "--emit-deps-json") == 0 && i + 1 < argc) {
+            depsJsonPath = argv[++i];
+        } else if (argv[i][0] != '-' && !filename) {
+            filename = argv[i];
+        }
+    }
+    if (!filename) filename = "include/test.txt";
+
     int enableCodegen = ENABLE_CODEGEN;
     const char* disableCodegenEnv = getenv("DISABLE_CODEGEN");
     if (disableCodegenEnv && disableCodegenEnv[0] != '\0' && disableCodegenEnv[0] != '0') {
@@ -38,40 +51,97 @@ int main(int argc, char **argv) {
     if (!ctx) { fprintf(stderr, "OOM: CompilerContext\n"); return 1; }
     cc_seed_builtins(ctx);
 
-
-    // === Lexing Phase ===
-    Lexer lexer;
-    initLexer(&lexer, sourceCode, filename);
-
-    TokenBuffer tokenBuffer;
-    token_buffer_init(&tokenBuffer);
-    if (!token_buffer_fill_from_lexer(&tokenBuffer, &lexer)) {
-        fprintf(stderr, "Error: failed to lex tokens into buffer\n");
-        free(sourceCode);
-        cc_destroy(ctx);
-        return 1;
-    }
-
-#if ENABLE_LEXER_OUTPUT
-    for (size_t i = 0; i < tokenBuffer.count; ++i) {
-        Token token = tokenBuffer.tokens[i];
-        printf("Token: Type=%d, Value=%s\n", token.type, token.value);
-    }
-#endif
-
-    bool preservePPNodes = false;
     const char* preserveEnv = getenv("PRESERVE_PP_NODES");
     if (preserveEnv && preserveEnv[0] != '\0' && preserveEnv[0] != '0') {
         preservePPNodes = true;
     }
 
+    const char* depsEnv = getenv("EMIT_DEPS_JSON");
+    if (!depsJsonPath && depsEnv && depsEnv[0] != '\0') {
+        depsJsonPath = depsEnv;
+    }
+
+    size_t includePathCount = 0;
+    char* includePathCopy = NULL;
+    char** includePaths = NULL;
+    if (DEFAULT_INCLUDE_PATHS[0] != '\0') {
+        includePathCopy = strdup(DEFAULT_INCLUDE_PATHS);
+        if (!includePathCopy) { fprintf(stderr, "OOM: include paths\n"); return 1; }
+        size_t segments = 1;
+        for (const char* p = includePathCopy; *p; ++p) {
+            if (*p == ':') segments++;
+        }
+        includePaths = calloc(segments, sizeof(char*));
+        if (!includePaths) { fprintf(stderr, "OOM: include path array\n"); free(includePathCopy); return 1; }
+        char* saveptr = NULL;
+        char* tok = strtok_r(includePathCopy, ":", &saveptr);
+        while (tok) {
+            includePaths[includePathCount++] = strdup(tok);
+            tok = strtok_r(NULL, ":", &saveptr);
+        }
+    }
+
     Preprocessor preprocessor;
-    if (!preprocessor_init(&preprocessor, preservePPNodes)) {
+    if (!preprocessor_init(&preprocessor,
+                           preservePPNodes,
+                           (const char* const*)includePaths,
+                           includePathCount)) {
         fprintf(stderr, "Error: failed to initialize preprocessor\n");
-        token_buffer_destroy(&tokenBuffer);
-        free(sourceCode);
+        if (includePaths) {
+            for (size_t i = 0; i < includePathCount; ++i) {
+                free(includePaths[i]);
+            }
+            free(includePaths);
+        }
+        free(includePathCopy);
         cc_destroy(ctx);
         return 1;
+    }
+    if (includePaths) {
+        for (size_t i = 0; i < includePathCount; ++i) {
+            free(includePaths[i]);
+        }
+        free(includePaths);
+    }
+    free(includePathCopy);
+
+    const IncludeFile* rootFile = include_resolver_load(preprocessor_get_resolver(&preprocessor),
+                                                        NULL,
+                                                        filename,
+                                                        false);
+    if (!rootFile) {
+        fprintf(stderr, "Error: failed to load source file %s\n", filename);
+        preprocessor_destroy(&preprocessor);
+        cc_destroy(ctx);
+        return 1;
+    }
+
+    // === Lexing Phase ===
+    Lexer lexer;
+    initLexer(&lexer, rootFile->contents, rootFile->path);
+
+    TokenBuffer tokenBuffer;
+    token_buffer_init(&tokenBuffer);
+    if (!token_buffer_fill_from_lexer(&tokenBuffer, &lexer)) {
+        fprintf(stderr, "Error: failed to lex tokens into buffer\n");
+        preprocessor_destroy(&preprocessor);
+        cc_destroy(ctx);
+        return 1;
+    }
+
+    const char* debugPP = getenv("DEBUG_PP_COUNT");
+    if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
+        fprintf(stderr, "DEBUG: raw tokens=%zu\n", tokenBuffer.count);
+        for (size_t i = 0; i < tokenBuffer.count && i < 16; ++i) {
+            const char* val = tokenBuffer.tokens[i].value ? tokenBuffer.tokens[i].value : "<null>";
+            fprintf(stderr, "  RAW[%zu]: type=%d value=%s loc=%s:%d:%d\n",
+                    i,
+                    tokenBuffer.tokens[i].type,
+                    val,
+                    tokenBuffer.tokens[i].location.start.file ? tokenBuffer.tokens[i].location.start.file : "<null>",
+                    tokenBuffer.tokens[i].location.start.line,
+                    tokenBuffer.tokens[i].location.start.column);
+        }
     }
 
     PPTokenBuffer preprocessed = {0};
@@ -79,9 +149,21 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Error: preprocessing failed\n");
         preprocessor_destroy(&preprocessor);
         token_buffer_destroy(&tokenBuffer);
-        free(sourceCode);
         cc_destroy(ctx);
         return 1;
+    }
+    if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
+        fprintf(stderr, "DEBUG: preprocessed tokens=%zu\n", preprocessed.count);
+        for (size_t i = 0; i < preprocessed.count; ++i) {
+            const char* val = preprocessed.tokens[i].value ? preprocessed.tokens[i].value : "<null>";
+            fprintf(stderr, "  PP[%zu]: type=%d value=%s loc=%s:%d:%d\n",
+                    i,
+                    preprocessed.tokens[i].type,
+                    val,
+                    preprocessed.tokens[i].location.start.file ? preprocessed.tokens[i].location.start.file : "<null>",
+                    preprocessed.tokens[i].location.start.line,
+                    preprocessed.tokens[i].location.start.column);
+        }
     }
 
     token_buffer_destroy(&tokenBuffer);
@@ -94,12 +176,14 @@ int main(int argc, char **argv) {
     preprocessed.count = 0;
     preprocessed.capacity = 0;
 
+    // Snapshot include graph for downstream tooling
+    cc_set_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
 
 
 
     // === Parsing Phase ===
     Parser parser;
-    initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx);
+    initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx, preservePPNodes);
 
     ASTNode *root = parse(&parser);
 
@@ -113,9 +197,10 @@ int main(int argc, char **argv) {
 #if ENABLE_SYNTAX_CHECK
     printf("\n Semantic Analysis:\n");
 #endif
-    SemanticModel* semanticModel = analyzeSemanticsBuildModel(root, ctx, false);
+    MacroTable* macroSnapshot = macro_table_clone(preprocessor_get_macro_table(&preprocessor));
+    SemanticModel* semanticModel = analyzeSemanticsBuildModel(root, ctx, false,
+                                                             macroSnapshot, true);
     if (!semanticModel) {
-        free(sourceCode);
         token_buffer_destroy(&parserTokens);
         preprocessor_destroy(&preprocessor);
         cc_destroy(ctx);
@@ -150,9 +235,14 @@ int main(int argc, char **argv) {
 #endif
 
 
-    free(sourceCode);
     token_buffer_destroy(&parserTokens);
     semanticModelDestroy(semanticModel);
+    if (depsJsonPath && depsJsonPath[0] != '\0') {
+        const IncludeGraph* graph = preprocessor_get_include_graph(&preprocessor);
+        if (!include_graph_write_json(graph, depsJsonPath)) {
+            fprintf(stderr, "Warning: failed to write deps JSON to %s\n", depsJsonPath);
+        }
+    }
     preprocessor_destroy(&preprocessor);
     cc_destroy(ctx);
     return 0;

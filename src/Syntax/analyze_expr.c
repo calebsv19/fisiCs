@@ -108,7 +108,10 @@ static TypeInfo typeFromStringLiteral(void) {
 static void reportOperandError(ASTNode* node, const char* expectation, const char* op) {
     char buffer[128];
     snprintf(buffer, sizeof(buffer), "Operator '%s' requires %s", op ? op : "?", expectation);
-    addError(node ? node->line : 0, 0, buffer, NULL);
+    SourceRange loc = node ? node->location : (SourceRange){0};
+    SourceRange callSite = node ? node->macroCallSite : (SourceRange){0};
+    SourceRange macroDef = node ? node->macroDefinition : (SourceRange){0};
+    addErrorWithRanges(loc, callSite, macroDef, buffer, NULL);
 }
 
 static bool typeInfoIsKnown(const TypeInfo* info) {
@@ -204,7 +207,11 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_IDENTIFIER: {
             Symbol* sym = resolveInScopeChain(scope, node->valueNode.value);
             if (!sym) {
-                addError(node->line, 0, "Undeclared identifier", node->valueNode.value);
+                addErrorWithRanges(node->location,
+                                   node->macroCallSite,
+                                   node->macroDefinition,
+                                   "Undeclared identifier",
+                                   node->valueNode.value);
                 return makeInvalidType();
             }
 

@@ -40,5 +40,6 @@ PROGRAM
 
 Diagnostics:
 Error at (7:0): Left operand of '=' must be a modifiable lvalue
-Error at (8:0): Operator '++' requires modifiable lvalue operand
+Error at (8:8): Operator '++' requires modifiable lvalue operand
+   Spelling: tests/syntax/semantic_lvalue_errors.c:8:8
 

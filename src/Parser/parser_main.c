@@ -1,14 +1,132 @@
 #include "parser_main.h"
 #include "Parser/Helpers/parser_helpers.h"
 #include "parser_func.h"
-#include "parser_preproc.h"
 #include "parser_stmt.h"
 #include "Parser/Helpers/parser_lookahead.h"
 #include "Parser/Expr/parser_expr.h"
 #include "parser_decl.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 //              MAIN BLOCKS
+static void consume_line(Parser* parser, int line) {
+    while (parser->currentToken.type != TOKEN_EOF &&
+           parser->currentToken.line == line) {
+        advance(parser);
+    }
+}
+
+static char* concat_tokens_on_line(Parser* parser, int line) {
+    size_t cap = 64;
+    size_t len = 0;
+    char* buf = malloc(cap);
+    if (!buf) return NULL;
+    buf[0] = '\0';
+    int first = 1;
+    size_t cursor = parser->cursor + 1;
+    while (cursor < parser->tokenBuffer->count) {
+        const Token* tok = token_buffer_peek(parser->tokenBuffer, cursor);
+        if (!tok || tok->type == TOKEN_EOF || tok->line != line) break;
+        const char* text = tok->value ? tok->value : "";
+        size_t tlen = strlen(text);
+        size_t need = len + tlen + (first ? 0 : 1) + 1;
+        if (need > cap) {
+            cap = need * 2;
+            char* nb = realloc(buf, cap);
+            if (!nb) { free(buf); return NULL; }
+            buf = nb;
+        }
+        if (!first) {
+            buf[len++] = ' ';
+        }
+        memcpy(buf + len, text, tlen);
+        len += tlen;
+        buf[len] = '\0';
+        first = 0;
+        cursor++;
+    }
+    return buf;
+}
+
+static ASTNode* parse_preserved_include(Parser* parser) {
+    int line = parser->currentToken.line;
+    advance(parser); // consume include
+    if (parser->currentToken.type == TOKEN_EOF) return NULL;
+
+    bool isSystem = false;
+    char pathBuf[512];
+    pathBuf[0] = '\0';
+
+    if (parser->currentToken.type == TOKEN_STRING) {
+        strncpy(pathBuf, parser->currentToken.value ? parser->currentToken.value : "", sizeof(pathBuf) - 1);
+        pathBuf[sizeof(pathBuf) - 1] = '\0';
+        isSystem = false;
+        advance(parser);
+    } else if (parser->currentToken.type == TOKEN_LESS) {
+        size_t len = 0;
+        advance(parser);
+        while (parser->currentToken.type != TOKEN_EOF &&
+               parser->currentToken.line == line &&
+               parser->currentToken.type != TOKEN_GREATER) {
+            const char* text = parser->currentToken.value ? parser->currentToken.value : "";
+            size_t tlen = strlen(text);
+            if (len + tlen + 1 >= sizeof(pathBuf)) break;
+            memcpy(pathBuf + len, text, tlen);
+            len += tlen;
+            pathBuf[len] = '\0';
+            advance(parser);
+        }
+        isSystem = true;
+        if (parser->currentToken.type == TOKEN_GREATER) {
+            advance(parser);
+        }
+    } else {
+        consume_line(parser, line);
+        return NULL;
+    }
+
+    ASTNode* node = createIncludeDirectiveNode(pathBuf, isSystem);
+    consume_line(parser, line);
+    return node;
+}
+
+static ASTNode* parse_preserved_define(Parser* parser) {
+    int line = parser->currentToken.line;
+    advance(parser); // consume define
+    if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+        consume_line(parser, line);
+        return NULL;
+    }
+    const char* name = parser->currentToken.value;
+    advance(parser);
+    char* value = concat_tokens_on_line(parser, line);
+    ASTNode* node = createDefineDirectiveNode(name ? name : "", value && value[0] ? value : NULL);
+    free(value);
+    consume_line(parser, line);
+    return node;
+}
+
+static ASTNode* parse_preserved_conditional(Parser* parser, bool negate) {
+    int line = parser->currentToken.line;
+    advance(parser); // consume ifdef/ifndef
+    if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+        consume_line(parser, line);
+        return NULL;
+    }
+    const char* name = parser->currentToken.value;
+    ASTNode* node = createConditionalDirectiveNode(name ? name : "", negate);
+    consume_line(parser, line);
+    return node;
+}
+
+static ASTNode* parse_preserved_endif(Parser* parser) {
+    int line = parser->currentToken.line;
+    advance(parser);
+    consume_line(parser, line);
+    return createEndifDirectiveNode();
+}
 
 // large blocks
 ASTNode* parseProgram(Parser* parser) {
@@ -22,6 +140,44 @@ ASTNode* parseProgram(Parser* parser) {
     while (parser->currentToken.type != TOKEN_EOF) {
         PARSER_DEBUG_PRINTF("DEBUG: Starting new statement with token '%s' (line %d)\n",
                parser->currentToken.value, parser->currentToken.line);
+
+        if (parser->preserveDirectives) {
+            ASTNode* ppNode = NULL;
+            switch (parser->currentToken.type) {
+                case TOKEN_INCLUDE:
+                    ppNode = parse_preserved_include(parser);
+                    break;
+                case TOKEN_DEFINE:
+                    ppNode = parse_preserved_define(parser);
+                    break;
+                case TOKEN_IFDEF:
+                    ppNode = parse_preserved_conditional(parser, false);
+                    break;
+                case TOKEN_IFNDEF:
+                    ppNode = parse_preserved_conditional(parser, true);
+                    break;
+                case TOKEN_ENDIF:
+                    ppNode = parse_preserved_endif(parser);
+                    break;
+                default:
+                    break;
+            }
+            if (ppNode) {
+                if (count >= capacity) {
+                    size_t new_cap = capacity * 2;
+                    ASTNode** tmp = realloc(statements, new_cap * sizeof(*tmp));
+                    if (!tmp) {
+                        fprintf(stderr, "Error: Memory reallocation failed (pp directive path).\n");
+                        free(statements);
+                        return NULL;
+                    }
+                    statements = tmp;
+                    capacity = new_cap;
+                }
+                statements[count++] = ppNode;
+                continue;
+            }
+        }
 
         if (looksLikeTypeDeclaration(parser)) {
             ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
@@ -118,11 +274,6 @@ ASTNode* parseStatement(Parser* parser) {
     // --- Block Statement ---
     if (parser->currentToken.type == TOKEN_LBRACE) {
         return parseBlock(parser);
-    }
-
-    // --- Preprocessor Directive ---
-    if (isPreprocessorToken(parser->currentToken.type)) {
-        return handlePreprocessorDirectives(parser);
     }
 
     // --- Control Flow (if, for, while, return, etc.) ---

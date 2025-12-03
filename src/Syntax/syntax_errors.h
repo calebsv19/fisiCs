@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "Lexer/tokens.h"
 
 typedef struct {
     int line;
@@ -10,6 +11,9 @@ typedef struct {
     char* message;
     char* hint;
     bool isWarning;
+    SourceRange spelling;
+    SourceRange macroCallSite;
+    SourceRange macroDefinition;
 } SyntaxError;
 
 typedef struct {
@@ -21,6 +25,12 @@ typedef struct {
 
 void initErrorList(void);
 void addError(int line, int column, const char* message, const char* hint);
+void addErrorFromToken(const Token* tok, const char* message, const char* hint);
+void addErrorWithRanges(SourceRange spelling,
+                        SourceRange macroCallSite,
+                        SourceRange macroDefinition,
+                        const char* message,
+                        const char* hint);
 void addWarning(int line, int column, const char* message, const char* hint);
 void reportErrors(void);
 size_t getErrorCount(void);

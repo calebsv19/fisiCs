@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 #include "lexer.h"
 
 #include "Lexer/keyword_lookup.h"
@@ -100,6 +101,7 @@ Token getNextToken(Lexer* lexer) {
 
     if (isEOF(lexer)) {
         LexerMark start = lexer_mark(lexer);
+        lexer->position++; // move past terminator to avoid repeated EOF
         return make_token(lexer, TOKEN_EOF, (char*)"EOF", start);
     }
 
@@ -332,7 +334,17 @@ Token handleCharLiteral(Lexer* lexer) {
 // Processes specific preprocessor directives (#define, #include, etc.)
 Token handlePreprocessorDirective(Lexer* lexer) {
     LexerMark start = lexer_mark(lexer);
+    bool atLineStart = (start.position == lexer->lineStart);
     lexer->position++; // Consume '#'
+
+    // Treat non-directive '#' tokens (stringification/##) when not at line start.
+    if (!atLineStart) {
+        if (lexer->source[lexer->position] == '#') {
+            lexer->position++;
+            return make_token(lexer, TOKEN_DOUBLE_HASH, strndup("##", 2), start);
+        }
+        return make_token(lexer, TOKEN_HASH, strndup("#", 1), start);
+    }
 
     // Skip whitespace after '#'
     while (isspace((unsigned char)lexer->source[lexer->position])) {
@@ -343,6 +355,12 @@ Token handlePreprocessorDirective(Lexer* lexer) {
             continue;
         }
         lexer->position++;
+    }
+
+    // If no directive keyword follows, treat this as the stringification operator '#'.
+    if (!isalpha((unsigned char)lexer->source[lexer->position]) &&
+        lexer->source[lexer->position] != '_') {
+        return make_token(lexer, TOKEN_HASH, strndup("#", 1), start);
     }
 
     // Capture directive keyword (e.g., include, define)
@@ -364,8 +382,16 @@ Token handlePreprocessorDirective(Lexer* lexer) {
         return make_token(lexer, TOKEN_IFDEF, directive, start);
     } else if (strcmp(directive, "ifndef") == 0) {
         return make_token(lexer, TOKEN_IFNDEF, directive, start);
+    } else if (strcmp(directive, "if") == 0) {
+        return make_token(lexer, TOKEN_PP_IF, directive, start);
+    } else if (strcmp(directive, "elif") == 0) {
+        return make_token(lexer, TOKEN_PP_ELIF, directive, start);
+    } else if (strcmp(directive, "else") == 0) {
+        return make_token(lexer, TOKEN_PP_ELSE, directive, start);
     } else if (strcmp(directive, "endif") == 0) {
         return make_token(lexer, TOKEN_ENDIF, directive, start);
+    } else if (strcmp(directive, "pragma") == 0) {
+        return make_token(lexer, TOKEN_PRAGMA, directive, start);
     }
 
     // Fallback: unknown preprocessor directive
@@ -376,29 +402,30 @@ Token handlePreprocessorDirective(Lexer* lexer) {
 // Processes comments (single-line `//` and multi-line `/* */`)
 Token handleComment(Lexer* lexer) {
     LexerMark slashStart = lexer_mark_previous(lexer);
-    printf("DEBUG: Entering handleComment() at line %d, current char '%c'\n",
-           lexer->line, lexer->source[lexer->position]);
+    if (lexer->source[lexer->position] == '\0' || lexer->source[lexer->position + 1] == '\0') {
+        lexer->position++;
+        return make_token(lexer, TOKEN_DIVIDE, strndup("/", 1), slashStart);
+    }
 
-    char next = lexer->source[lexer->position];
+    char next = lexer->source[lexer->position + 1];
 
     if (next == '=') { // Handle `/=`
-        lexer->position++;
+        lexer->position += 2;
         return make_token(lexer, TOKEN_DIV_ASSIGN, (char*)"/=", slashStart);
     }
 
     //  **Skip Single-line comments (`// ...`)**
     if (next == '/') {
-        lexer->position++;
+        lexer->position += 2;
         while (lexer->source[lexer->position] != '\n' && lexer->source[lexer->position] != '\0') {
             lexer->position++;
         }
-        printf("DEBUG: Skipped single-line comment at line %d\n", lexer->line);
         return getNextToken(lexer);  //  **Skip the comment and return the next real token**
     }
 
     //  **Skip Multi-line comments (`/* ... */`)**
     if (next == '*') {
-        lexer->position++;
+        lexer->position += 2;
         while (!(lexer->source[lexer->position] == '*' && lexer->source[lexer->position + 1] == '/')) {
             if (lexer->source[lexer->position] == '\0') {
                 LexerMark errorMark = lexer_mark(lexer);
@@ -413,10 +440,10 @@ Token handleComment(Lexer* lexer) {
             lexer->position++;
         }
         lexer->position += 2; // Skip `*/`
-        printf("DEBUG: Skipped multi-line comment at line %d\n", lexer->line);
         return getNextToken(lexer);  //  **Skip the comment and return the next real token**
     }
 
+    lexer->position++; // consume '/'
     return make_token(lexer, TOKEN_DIVIDE, strndup("/", 1), slashStart); // Just a single '/'
 }
 
@@ -470,6 +497,7 @@ Token handleOperator(Lexer* lexer) {
             return make_token(lexer, TOKEN_ASTERISK, (char*)"*", start);
 
         case '/':
+            lexer->position--; // Let comment handler inspect from '/'
             return handleComment(lexer); // Redirects to comment handler
 
         case '%':
