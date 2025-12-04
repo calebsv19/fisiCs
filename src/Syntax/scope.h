@@ -3,6 +3,7 @@
 
 #include "symbol_table.h"
 #include "Compiler/compiler_context.h"
+#include "type_checker.h"
 #include <stdlib.h>
 
 typedef struct Scope {
@@ -10,6 +11,8 @@ typedef struct Scope {
     SymbolTable table;
     int depth;
     CompilerContext* ctx;
+    bool hasReturnType;
+    TypeInfo returnType;
 } Scope;
 
 Scope* createScope(Scope* parent);

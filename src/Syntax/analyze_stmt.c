@@ -2,6 +2,7 @@
 #include "analyze_core.h"
 #include "analyze_expr.h"
 #include "syntax_errors.h"
+#include "type_checker.h"
 
 void analyzeStatement(ASTNode* node, Scope* scope) {
     switch (node->type) {
@@ -29,7 +30,20 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
             break;
 
         case AST_RETURN:
-            analyze(node->returnStmt.returnValue, scope);
+            if (node->returnStmt.returnValue) {
+                TypeInfo retVal = analyzeExpression(node->returnStmt.returnValue, scope);
+                retVal = decayToRValue(retVal);
+                if (scope && scope->hasReturnType) {
+                    AssignmentCheckResult res = canAssignTypes(&scope->returnType, &retVal);
+                    if (res == ASSIGN_QUALIFIER_LOSS) {
+                        addError(node->line, 0, "Return discards qualifiers from pointer target", NULL);
+                    }
+                }
+            } else {
+                if (scope && scope->hasReturnType && scope->returnType.category != TYPEINFO_VOID) {
+                    addError(node->line, 0, "Non-void function must return a value", NULL);
+                }
+            }
             break;
 
         case AST_BREAK:

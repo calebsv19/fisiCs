@@ -11,6 +11,8 @@ Scope* createScope(Scope* parent) {
     scope->parent = parent;
     scope->depth = parent ? parent->depth + 1 : 0;
     scope->ctx = parent ? parent->ctx : NULL;
+    scope->hasReturnType = parent ? parent->hasReturnType : false;
+    scope->returnType = parent ? parent->returnType : makeInvalidType();
     return scope;
 }
 

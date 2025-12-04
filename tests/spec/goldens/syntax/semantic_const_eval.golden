@@ -1,0 +1,65 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 19)]
+    IDENTIFIER arr1
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr2
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 19)]
+    IDENTIFIER arr3
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 19)]
+    IDENTIFIER arr4
+  ENUM
+        Name:     IDENTIFIER Numbers
+        Member:   IDENTIFIER ONE
+            Value:  NUMBER_LITERAL 1
+        Member:   IDENTIFIER TWO
+            Value:  BINARY EXPRESSION '+'
+    IDENTIFIER ONE
+    NUMBER_LITERAL 1
+        Member:   IDENTIFIER FOUR
+            Value:  BINARY EXPRESSION '<<'
+    IDENTIFIER TWO
+    NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: int [IDENTIFIER FOUR]
+    IDENTIFIER arr5
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 22)]
+    IDENTIFIER invalid
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '+'
+              BINARY EXPRESSION '+'
+                ARRAY_ACCESS
+                  IDENTIFIER arr1
+                  NUMBER_LITERAL 0
+                ARRAY_ACCESS
+                  IDENTIFIER arr2
+                  NUMBER_LITERAL 0
+              ARRAY_ACCESS
+                IDENTIFIER arr3
+                NUMBER_LITERAL 0
+            ARRAY_ACCESS
+              IDENTIFIER arr4
+              NUMBER_LITERAL 0
+          ARRAY_ACCESS
+            IDENTIFIER arr5
+            NUMBER_LITERAL 0
+
+
+Diagnostics:
+Error at (13:0): Variable-length array 'invalid' is not allowed at static storage duration
+

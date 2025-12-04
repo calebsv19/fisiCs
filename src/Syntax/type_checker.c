@@ -13,6 +13,63 @@ static TypeInfo makeBaseInvalid(void) {
 
 static void propagateVLAFlag(TypeInfo* info, const ParsedType* type);
 static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index, Scope* scope);
+static PointerQualifier makePointerQual(bool isConst, bool isVolatile, bool isRestrict) {
+    PointerQualifier q = { isConst, isVolatile, isRestrict };
+    return q;
+}
+
+static void clearPointerLevels(TypeInfo* info) {
+    if (!info) return;
+    for (int i = 0; i < TYPEINFO_MAX_POINTER_DEPTH; ++i) {
+        info->pointerLevels[i].isConst = false;
+        info->pointerLevels[i].isVolatile = false;
+        info->pointerLevels[i].isRestrict = false;
+    }
+}
+
+void typeInfoPrependPointerLevel(TypeInfo* info, PointerQualifier q) {
+    if (!info) return;
+    int stored = info->pointerDepth;
+    if (stored >= TYPEINFO_MAX_POINTER_DEPTH) {
+        stored = TYPEINFO_MAX_POINTER_DEPTH - 1;
+    }
+    for (int i = stored; i > 0; --i) {
+        info->pointerLevels[i] = info->pointerLevels[i - 1];
+    }
+    if (TYPEINFO_MAX_POINTER_DEPTH > 0) {
+        info->pointerLevels[0] = q;
+    }
+    info->pointerDepth += 1;
+    info->category = TYPEINFO_POINTER;
+    info->isConst = false;
+    info->isVolatile = false;
+    info->isRestrict = false;
+}
+
+void typeInfoDropPointerLevel(TypeInfo* info) {
+    if (!info || info->pointerDepth <= 0) return;
+    PointerQualifier pointed = info->pointerLevels[0];
+    int stored = info->pointerDepth;
+    if (stored > TYPEINFO_MAX_POINTER_DEPTH) {
+        stored = TYPEINFO_MAX_POINTER_DEPTH;
+    }
+    for (int i = 0; i + 1 < stored; ++i) {
+        info->pointerLevels[i] = info->pointerLevels[i + 1];
+    }
+    if (stored > 0) {
+        info->pointerLevels[stored - 1] = makePointerQual(false, false, false);
+    }
+    info->pointerDepth -= 1;
+    if (info->pointerDepth > 0) {
+        info->isConst = info->pointerLevels[0].isConst;
+        info->isVolatile = info->pointerLevels[0].isVolatile;
+        info->isRestrict = info->pointerLevels[0].isRestrict;
+    } else {
+        info->isConst = pointed.isConst;
+        info->isVolatile = pointed.isVolatile;
+        info->isRestrict = pointed.isRestrict;
+    }
+}
 
 TypeInfo makeInvalidType(void) {
     return makeBaseInvalid();
@@ -169,6 +226,7 @@ static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index
     }
     if (index >= type->derivationCount) {
         TypeInfo base = typeInfoFromBaseKind(type, scope);
+        applyQualifiers(&base, type);
         base.originalType = type;
         return base;
     }
@@ -189,11 +247,36 @@ static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index
             info.userTypeName = target.userTypeName;
             info.bitWidth = target.bitWidth;
             info.isSigned = target.isSigned;
-            info.isConst = deriv->as.pointer.isConst;
-            info.isVolatile = deriv->as.pointer.isVolatile;
-            info.isRestrict = deriv->as.pointer.isRestrict;
             info.originalType = type;
             info.isVLA = target.isVLA;
+            clearPointerLevels(&info);
+            PointerQualifier targetQual = makePointerQual(target.isConst,
+                                                          target.isVolatile,
+                                                          target.isRestrict);
+            PointerQualifier pointerSelf = makePointerQual(deriv->as.pointer.isConst,
+                                                           deriv->as.pointer.isVolatile,
+                                                           deriv->as.pointer.isRestrict);
+            int stored = info.pointerDepth;
+            if (stored > TYPEINFO_MAX_POINTER_DEPTH) {
+                stored = TYPEINFO_MAX_POINTER_DEPTH;
+            }
+            if (stored > 0) {
+                info.pointerLevels[0] = targetQual;
+            }
+            int copyDepth = stored - 1;
+            if (copyDepth > 0) {
+                int available = target.pointerDepth;
+                if (available > TYPEINFO_MAX_POINTER_DEPTH) {
+                    available = TYPEINFO_MAX_POINTER_DEPTH;
+                }
+                int toCopy = copyDepth < available ? copyDepth : available;
+                for (int i = 0; i < toCopy; ++i) {
+                    info.pointerLevels[i + 1] = target.pointerLevels[i];
+                }
+            }
+            info.isConst = pointerSelf.isConst;
+            info.isVolatile = pointerSelf.isVolatile;
+            info.isRestrict = pointerSelf.isRestrict;
             return info;
         }
         case TYPE_DERIVATION_ARRAY: {
@@ -237,6 +320,13 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
         info.bitWidth = base.bitWidth ? base.bitWidth : defaultIntBits();
         info.isSigned = base.isSigned;
         info.originalType = type;
+        clearPointerLevels(&info);
+        int stored = info.pointerDepth < TYPEINFO_MAX_POINTER_DEPTH
+            ? info.pointerDepth
+            : TYPEINFO_MAX_POINTER_DEPTH;
+        if (stored > 0) {
+            info.pointerLevels[0] = makePointerQual(base.isConst, base.isVolatile, base.isRestrict);
+        }
     } else {
         info = typeInfoFromBaseKind(type, scope);
         info.originalType = type;
@@ -388,9 +478,18 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
     if (!dest || !src) return ASSIGN_INCOMPATIBLE;
 
     if (typeInfoIsPointerLike(dest) && typeInfoIsPointerLike(src)) {
-        if (src->isConst && !dest->isConst) return ASSIGN_QUALIFIER_LOSS;
-        if (src->isVolatile && !dest->isVolatile) return ASSIGN_QUALIFIER_LOSS;
-        if (src->isRestrict && !dest->isRestrict) return ASSIGN_QUALIFIER_LOSS;
+        if (dest->pointerDepth != src->pointerDepth) {
+            return ASSIGN_INCOMPATIBLE;
+        }
+        int depth = dest->pointerDepth;
+        int limit = depth < TYPEINFO_MAX_POINTER_DEPTH ? depth : TYPEINFO_MAX_POINTER_DEPTH;
+        for (int i = 0; i < limit; ++i) {
+            PointerQualifier s = src->pointerLevels[i];
+            PointerQualifier d = dest->pointerLevels[i];
+            if (s.isConst && !d.isConst) return ASSIGN_QUALIFIER_LOSS;
+            if (s.isVolatile && !d.isVolatile) return ASSIGN_QUALIFIER_LOSS;
+            if (s.isRestrict && !d.isRestrict) return ASSIGN_QUALIFIER_LOSS;
+        }
         return typesAreEqual(dest, src) ? ASSIGN_OK : ASSIGN_INCOMPATIBLE;
     }
 

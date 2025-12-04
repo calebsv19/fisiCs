@@ -33,6 +33,22 @@ static Scope* runSemanticAnalysis(ASTNode* root,
         analyzeControlFlow(root, globalScope);
     }
 
+    // Tentative definitions: promote remaining external tentative declarations to definitions
+    SymbolTable* table = &globalScope->table;
+    for (int i = 0; i < SYMBOL_TABLE_SIZE; ++i) {
+        Symbol* sym = table->buckets[i];
+        while (sym) {
+            if (sym->kind == SYMBOL_VARIABLE &&
+                sym->linkage == LINKAGE_EXTERNAL &&
+                sym->isTentative &&
+                !sym->hasDefinition) {
+                sym->hasDefinition = true;
+                sym->isTentative = false;
+            }
+            sym = sym->next;
+        }
+    }
+
     reportErrors();
     size_t errors = getErrorCount();
     if (printSummary && errors == 0) {

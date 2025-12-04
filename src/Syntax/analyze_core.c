@@ -5,6 +5,7 @@
 #include "analyze_stmt.h"
 #include "scope.h"
 #include "symbol_table.h"
+#include "type_checker.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,6 +40,10 @@ void analyze(ASTNode* node, Scope* scope) {
 
         // 2) Create a function scope chained to the parent
         Scope* fscope = createScope(scope);
+        if (fscope) {
+            fscope->hasReturnType = true;
+            fscope->returnType = typeInfoFromParsedType(&node->functionDef.returnType, scope);
+        }
 
         // 3) Bind parameters (each parameter node is usually a VAR_DECL;
         //    support multiple names per declaration:  int a, b )

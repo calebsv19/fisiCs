@@ -13,6 +13,20 @@ typedef enum {
     SYMBOL_ENUM
 } SymbolKind;
 
+typedef enum {
+    STORAGE_NONE,
+    STORAGE_EXTERN,
+    STORAGE_STATIC,
+    STORAGE_REGISTER,
+    STORAGE_AUTO
+} StorageClass;
+
+typedef enum {
+    LINKAGE_NONE,
+    LINKAGE_INTERNAL,
+    LINKAGE_EXTERNAL
+} SymbolLinkage;
+
 typedef struct FunctionSignature {
     ParsedType* params;
     size_t paramCount;
@@ -25,6 +39,10 @@ typedef struct Symbol {
     ParsedType type;
     ASTNode* definition;
     FunctionSignature signature;
+    StorageClass storage;
+    SymbolLinkage linkage;
+    bool hasDefinition;
+    bool isTentative;
     struct Symbol* next; // For linked list in hash buckets
 } Symbol;
 

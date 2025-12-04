@@ -19,6 +19,14 @@ typedef enum {
     TYPEINFO_VOID
 } TypeInfoCategory;
 
+typedef struct {
+    bool isConst;
+    bool isVolatile;
+    bool isRestrict;
+} PointerQualifier;
+
+#define TYPEINFO_MAX_POINTER_DEPTH 32
+
 typedef struct TypeInfo {
     TypeInfoCategory category;
     TokenType primitive;
@@ -33,6 +41,7 @@ typedef struct TypeInfo {
     TagKind tag;
     const char* userTypeName;
     int pointerDepth;
+    PointerQualifier pointerLevels[TYPEINFO_MAX_POINTER_DEPTH];
     bool isLValue;
     const ParsedType* originalType;
 } TypeInfo;
@@ -58,5 +67,7 @@ TypeInfo usualArithmeticConversion(TypeInfo left, TypeInfo right, bool* ok);
 TypeInfo defaultArgumentPromotion(TypeInfo info);
 bool typesAreEqual(const TypeInfo* a, const TypeInfo* b);
 AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src);
+void typeInfoDropPointerLevel(TypeInfo* info);
+void typeInfoPrependPointerLevel(TypeInfo* info, PointerQualifier q);
 
 #endif // TYPE_CHECKER_H

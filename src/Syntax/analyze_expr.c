@@ -170,17 +170,18 @@ static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* 
     addError(argNode ? argNode->line : 0, 0, buffer, NULL);
 }
 
-static TypeInfo decayToRValue(TypeInfo info) {
+TypeInfo decayToRValue(TypeInfo info) {
     if (!info.isLValue) {
         return info;
     }
     if (info.isArray) {
         info.category = TYPEINFO_POINTER;
-        info.pointerDepth += 1;
+        PointerQualifier q = { info.isConst, info.isVolatile, info.isRestrict };
+        typeInfoPrependPointerLevel(&info, q);
         info.isArray = false;
     } else if (info.category == TYPEINFO_FUNCTION || info.isFunction) {
         info.category = TYPEINFO_POINTER;
-        info.pointerDepth += 1;
+        typeInfoPrependPointerLevel(&info, (PointerQualifier){0});
         info.isFunction = false;
     }
     info.isLValue = false;
@@ -387,8 +388,20 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     reportOperandError(node, "lvalue operand", "&");
                     return makeInvalidType();
                 }
+                ASTNode* target = node->expr.left;
+                if (target && target->type == AST_IDENTIFIER) {
+                    Symbol* sym = resolveInScopeChain(scope, target->valueNode.value);
+                    if (sym && sym->storage == STORAGE_REGISTER) {
+                        addErrorWithRanges(target->location,
+                                           target->macroCallSite,
+                                           target->macroDefinition,
+                                           "Cannot take address of register object",
+                                           target->valueNode.value);
+                    }
+                }
                 operand.category = TYPEINFO_POINTER;
-                operand.pointerDepth += 1;
+                PointerQualifier q = { operand.isConst, operand.isVolatile, operand.isRestrict };
+                typeInfoPrependPointerLevel(&operand, q);
                 operand.isArray = false;
                 operand.isLValue = false;
                 return operand;
@@ -514,7 +527,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_POINTER_DEREFERENCE: {
             TypeInfo base = analyzeExpression(node->pointerDeref.pointer, scope);
             if (base.category == TYPEINFO_POINTER && base.pointerDepth > 0) {
-                base.pointerDepth -= 1;
+                typeInfoDropPointerLevel(&base);
                 if (base.pointerDepth == 0) {
                     base.category = TYPEINFO_INVALID;
                 }
@@ -545,7 +558,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 arrayInfo = decayToRValue(arrayInfo);
             }
             if (arrayInfo.category == TYPEINFO_POINTER && arrayInfo.pointerDepth > 0) {
-                arrayInfo.pointerDepth -= 1;
+                typeInfoDropPointerLevel(&arrayInfo);
                 if (arrayInfo.pointerDepth == 0) {
                     arrayInfo.category = TYPEINFO_INVALID;
                 }

@@ -6,5 +6,6 @@
 #include "type_checker.h"
 
 TypeInfo analyzeExpression(ASTNode* node, Scope* scope);
+TypeInfo decayToRValue(TypeInfo info);
 
 #endif // ANALYZE_EXPR_H
