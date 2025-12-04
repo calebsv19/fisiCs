@@ -166,6 +166,15 @@ LLVMValueRef cg_build_truthy(CodegenContext* ctx,
                              LLVMValueRef value,
                              const ParsedType* parsedType,
                              const char* nameHint);
+LLVMTypeRef cg_merge_types_for_phi(CodegenContext* ctx,
+                                   const ParsedType* a,
+                                   const ParsedType* b,
+                                   LLVMValueRef aVal,
+                                   LLVMValueRef bVal);
+bool cg_size_align_of_parsed(CodegenContext* ctx,
+                             const ParsedType* parsed,
+                             uint64_t* outSize,
+                             uint32_t* outAlign);
 LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
                                          const ParsedType* pointerParsed,
                                          LLVMTypeRef pointerLLVM);

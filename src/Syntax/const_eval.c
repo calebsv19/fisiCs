@@ -1,5 +1,7 @@
 #include "const_eval.h"
 
+#include "analyze_expr.h"
+#include "layout.h"
 #include "scope.h"
 #include "symbol_table.h"
 #include "type_checker.h"
@@ -8,6 +10,16 @@
 #include <string.h>
 #include <limits.h>
 #include <stdint.h>
+
+static ConstEvalResult makeConst(long long value) {
+    ConstEvalResult r = { true, value };
+    return r;
+}
+
+static ConstEvalResult makeNonConst(void) {
+    ConstEvalResult r = { false, 0 };
+    return r;
+}
 
 static long long clamp32(long long value) {
     return (long long)(int32_t)value;
@@ -30,6 +42,84 @@ static bool parseIntegerLiteral(const char* text, long long* out) {
     }
     *out = value;
     return true;
+}
+
+static bool sizeFromTypeInfo(const TypeInfo* info, Scope* scope, long long* out) {
+    (void)scope;
+    if (!info || !out) return false;
+    switch (info->category) {
+        case TYPEINFO_INTEGER:
+        case TYPEINFO_ENUM: {
+            unsigned bits = info->bitWidth ? info->bitWidth : 32;
+            unsigned bytes = (bits + 7) / 8;
+            if (bytes == 0) bytes = 1;
+            *out = (long long)bytes;
+            return true;
+        }
+        case TYPEINFO_FLOAT: {
+            unsigned bits = info->bitWidth ? info->bitWidth : 32;
+            unsigned bytes = (bits + 7) / 8;
+            if (bytes == 0) bytes = 4;
+            *out = (long long)bytes;
+            return true;
+        }
+        case TYPEINFO_POINTER:
+            *out = (long long)sizeof(void*);
+            return true;
+        case TYPEINFO_ARRAY:
+            // Without element count preserved in TypeInfo, caller must handle arrays via ParsedType path.
+            return false;
+        case TYPEINFO_STRUCT:
+        case TYPEINFO_UNION: {
+            if (!scope || !scope->ctx || !info->userTypeName) return false;
+            size_t sz = 0, al = 0;
+            CCTagKind kind = (info->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+            if (!layout_struct_union(scope->ctx, scope, kind, info->userTypeName, &sz, &al)) {
+                return false;
+            }
+            *out = (long long)sz;
+            return true;
+        }
+        default:
+            return false;
+    }
+}
+
+static ConstEvalResult constEvalInternal(ASTNode* expr,
+                                         Scope* scope,
+                                         bool allowEnumRefs);
+
+static bool sizeFromParsedType(const ParsedType* type, Scope* scope, long long* out) {
+    if (!type || !out) return false;
+
+    size_t sz = 0, al = 0;
+    ParsedType mutableType = *type;
+    if (!size_align_of_parsed_type(&mutableType, scope, &sz, &al)) {
+        return false;
+    }
+    *out = (long long)sz;
+    return true;
+}
+
+static bool evalSizeof(ASTNode* target, Scope* scope, long long* out) {
+    if (!target || !scope || !out) return false;
+
+    if (target->type == AST_PARSED_TYPE) {
+        return sizeFromParsedType(&target->parsedTypeNode.parsed, scope, out);
+    }
+
+    if (target->type == AST_IDENTIFIER) {
+        Symbol* sym = resolveInScopeChain(scope, target->valueNode.value);
+        if (sym) {
+            return sizeFromParsedType(&sym->type, scope, out);
+        }
+    }
+
+    TypeInfo info = analyzeExpression(target, scope);
+    if ((info.category == TYPEINFO_STRUCT || info.category == TYPEINFO_UNION) && !info.isComplete) {
+        return false;
+    }
+    return sizeFromTypeInfo(&info, scope, out);
 }
 
 static bool evalCast(long long value, const ParsedType* castType, Scope* scope, long long* out) {
@@ -58,43 +148,39 @@ static bool evalCast(long long value, const ParsedType* castType, Scope* scope, 
     return true;
 }
 
-static bool evalBinaryOp(const char* op, long long lhs, long long rhs, long long* out) {
-    if (!op || !out) return false;
-    if (strcmp(op, "||") == 0) { *out = (lhs != 0) || (rhs != 0); return true; }
-    if (strcmp(op, "&&") == 0) { *out = (lhs != 0) && (rhs != 0); return true; }
-    if (strcmp(op, "|") == 0)  { *out = clamp32(lhs | rhs); return true; }
-    if (strcmp(op, "^") == 0)  { *out = clamp32(lhs ^ rhs); return true; }
-    if (strcmp(op, "&") == 0)  { *out = clamp32(lhs & rhs); return true; }
-    if (strcmp(op, "==") == 0) { *out = lhs == rhs; return true; }
-    if (strcmp(op, "!=") == 0) { *out = lhs != rhs; return true; }
-    if (strcmp(op, "<") == 0)  { *out = lhs < rhs; return true; }
-    if (strcmp(op, "<=") == 0) { *out = lhs <= rhs; return true; }
-    if (strcmp(op, ">") == 0)  { *out = lhs > rhs; return true; }
-    if (strcmp(op, ">=") == 0) { *out = lhs >= rhs; return true; }
+static ConstEvalResult evalBinaryOp(const char* op, long long lhs, long long rhs) {
+    if (!op) return makeNonConst();
+    if (strcmp(op, "||") == 0) { return makeConst((lhs != 0) || (rhs != 0)); }
+    if (strcmp(op, "&&") == 0) { return makeConst((lhs != 0) && (rhs != 0)); }
+    if (strcmp(op, "|") == 0)  { return makeConst(clamp32(lhs | rhs)); }
+    if (strcmp(op, "^") == 0)  { return makeConst(clamp32(lhs ^ rhs)); }
+    if (strcmp(op, "&") == 0)  { return makeConst(clamp32(lhs & rhs)); }
+    if (strcmp(op, "==") == 0) { return makeConst(lhs == rhs); }
+    if (strcmp(op, "!=") == 0) { return makeConst(lhs != rhs); }
+    if (strcmp(op, "<") == 0)  { return makeConst(lhs < rhs); }
+    if (strcmp(op, "<=") == 0) { return makeConst(lhs <= rhs); }
+    if (strcmp(op, ">") == 0)  { return makeConst(lhs > rhs); }
+    if (strcmp(op, ">=") == 0) { return makeConst(lhs >= rhs); }
     if (strcmp(op, "<<") == 0) {
-        if (rhs < 0 || rhs >= 63) return false;
-        *out = clamp32(lhs << rhs);
-        return true;
+        if (rhs < 0 || rhs >= 63) return makeNonConst();
+        return makeConst(clamp32(lhs << rhs));
     }
     if (strcmp(op, ">>") == 0) {
-        if (rhs < 0 || rhs >= 63) return false;
-        *out = clamp32(lhs >> rhs);
-        return true;
+        if (rhs < 0 || rhs >= 63) return makeNonConst();
+        return makeConst(clamp32(lhs >> rhs));
     }
-    if (strcmp(op, "+") == 0) { *out = clamp32(lhs + rhs); return true; }
-    if (strcmp(op, "-") == 0) { *out = clamp32(lhs - rhs); return true; }
-    if (strcmp(op, "*") == 0) { *out = clamp32(lhs * rhs); return true; }
+    if (strcmp(op, "+") == 0) { return makeConst(clamp32(lhs + rhs)); }
+    if (strcmp(op, "-") == 0) { return makeConst(clamp32(lhs - rhs)); }
+    if (strcmp(op, "*") == 0) { return makeConst(clamp32(lhs * rhs)); }
     if (strcmp(op, "/") == 0) {
-        if (rhs == 0) return false;
-        *out = clamp32(lhs / rhs);
-        return true;
+        if (rhs == 0) return makeNonConst();
+        return makeConst(clamp32(lhs / rhs));
     }
     if (strcmp(op, "%") == 0) {
-        if (rhs == 0) return false;
-        *out = clamp32(lhs % rhs);
-        return true;
+        if (rhs == 0) return makeNonConst();
+        return makeConst(clamp32(lhs % rhs));
     }
-    return false;
+    return makeNonConst();
 }
 
 static bool evalIdentifier(ASTNode* expr, Scope* scope, long long* out, bool allowEnumRefs) {
@@ -102,6 +188,11 @@ static bool evalIdentifier(ASTNode* expr, Scope* scope, long long* out, bool all
     Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
     if (!sym || sym->kind != SYMBOL_ENUM || !sym->definition) {
         return false;
+    }
+
+    if (sym->hasConstValue) {
+        *out = sym->constValue;
+        return true;
     }
 
     // Find the enumerator inside the defining enum AST to derive its ordinal.
@@ -139,102 +230,130 @@ static bool evalIdentifier(ASTNode* expr, Scope* scope, long long* out, bool all
     return false;
 }
 
+static ConstEvalResult constEvalInternal(ASTNode* expr,
+                                         Scope* scope,
+                                         bool allowEnumRefs) {
+    if (!expr) return makeNonConst();
+    switch (expr->type) {
+        case AST_NUMBER_LITERAL:
+        {
+            long long value = 0;
+            if (!parseIntegerLiteral(expr->valueNode.value, &value)) {
+                return makeNonConst();
+            }
+            return makeConst(value);
+        }
+        case AST_CHAR_LITERAL:
+            if (!expr->valueNode.value) return makeNonConst();
+            return makeConst((unsigned char)expr->valueNode.value[0]);
+        case AST_IDENTIFIER:
+        {
+            long long idVal = 0;
+            if (evalIdentifier(expr, scope, &idVal, allowEnumRefs)) {
+                return makeConst(idVal);
+            }
+            return makeNonConst();
+        }
+        case AST_CAST_EXPRESSION: {
+            long long inner = 0;
+            ConstEvalResult innerRes = constEvalInternal(expr->castExpr.expression, scope, allowEnumRefs);
+            if (!innerRes.isConst) {
+                return makeNonConst();
+            }
+            if (!evalCast(innerRes.value, &expr->castExpr.castType, scope, &inner)) {
+                return makeNonConst();
+            }
+            return makeConst(inner);
+        }
+        case AST_UNARY_EXPRESSION: {
+            if (!expr->expr.left || !expr->expr.op) return makeNonConst();
+            ConstEvalResult valueRes = constEvalInternal(expr->expr.left, scope, allowEnumRefs);
+            if (!valueRes.isConst) {
+                return makeNonConst();
+            }
+            if (strcmp(expr->expr.op, "-") == 0) {
+                return makeConst(clamp32(-valueRes.value));
+            }
+            if (strcmp(expr->expr.op, "+") == 0) {
+                return makeConst(clamp32(valueRes.value));
+            }
+            if (strcmp(expr->expr.op, "!") == 0) {
+                return makeConst((valueRes.value == 0) ? 1 : 0);
+            }
+            if (strcmp(expr->expr.op, "~") == 0) {
+                return makeConst(clamp32(~valueRes.value));
+            }
+            return makeNonConst();
+        }
+        case AST_BINARY_EXPRESSION: {
+            if (!expr->expr.op) return makeNonConst();
+            if (strcmp(expr->expr.op, "||") == 0) {
+                ConstEvalResult lhs = constEvalInternal(expr->expr.left, scope, allowEnumRefs);
+                if (!lhs.isConst) return makeNonConst();
+                if (lhs.value != 0) return makeConst(1);
+                ConstEvalResult rhs = constEvalInternal(expr->expr.right, scope, allowEnumRefs);
+                if (!rhs.isConst) return makeNonConst();
+                return makeConst(rhs.value != 0);
+            }
+            if (strcmp(expr->expr.op, "&&") == 0) {
+                ConstEvalResult lhs = constEvalInternal(expr->expr.left, scope, allowEnumRefs);
+                if (!lhs.isConst) return makeNonConst();
+                if (lhs.value == 0) return makeConst(0);
+                ConstEvalResult rhs = constEvalInternal(expr->expr.right, scope, allowEnumRefs);
+                if (!rhs.isConst) return makeNonConst();
+                return makeConst(rhs.value != 0);
+            }
+
+            ConstEvalResult lhs = constEvalInternal(expr->expr.left, scope, allowEnumRefs);
+            ConstEvalResult rhs = constEvalInternal(expr->expr.right, scope, allowEnumRefs);
+            if (!lhs.isConst || !rhs.isConst) return makeNonConst();
+            return evalBinaryOp(expr->expr.op, lhs.value, rhs.value);
+        }
+        case AST_TERNARY_EXPRESSION: {
+            long long cond = 0;
+            ConstEvalResult condRes = constEvalInternal(expr->ternaryExpr.condition, scope, allowEnumRefs);
+            if (!condRes.isConst) return makeNonConst();
+            cond = condRes.value;
+            ASTNode* chosen = cond ? expr->ternaryExpr.trueExpr : expr->ternaryExpr.falseExpr;
+            if (!chosen) return makeNonConst();
+            return constEvalInternal(chosen, scope, allowEnumRefs);
+        }
+        case AST_COMMA_EXPRESSION: {
+            if (!expr->commaExpr.expressions || expr->commaExpr.exprCount == 0) return makeNonConst();
+            ConstEvalResult value = makeNonConst();
+            for (size_t i = 0; i < expr->commaExpr.exprCount; ++i) {
+                value = constEvalInternal(expr->commaExpr.expressions[i], scope, allowEnumRefs);
+                if (!value.isConst) {
+                    return makeNonConst();
+                }
+            }
+            return value;
+        }
+        case AST_SIZEOF: {
+            long long sizeVal = 0;
+            if (!evalSizeof(expr->expr.left, scope, &sizeVal)) {
+                return makeNonConst();
+            }
+            return makeConst(sizeVal);
+        }
+        default:
+            return makeNonConst();
+    }
+}
+
+ConstEvalResult constEval(ASTNode* expr,
+                          Scope* scope,
+                          bool allowEnumRefs) {
+    return constEvalInternal(expr, scope, allowEnumRefs);
+}
+
 bool constEvalInteger(ASTNode* expr,
                       Scope* scope,
                       long long* out,
                       bool allowEnumRefs) {
-    if (!expr || !out) return false;
-
-    switch (expr->type) {
-        case AST_NUMBER_LITERAL:
-            return parseIntegerLiteral(expr->valueNode.value, out);
-        case AST_CHAR_LITERAL:
-            if (!expr->valueNode.value) return false;
-            *out = (unsigned char)expr->valueNode.value[0];
-            return true;
-        case AST_IDENTIFIER:
-            return evalIdentifier(expr, scope, out, allowEnumRefs);
-        case AST_CAST_EXPRESSION: {
-            long long inner = 0;
-            if (!constEvalInteger(expr->castExpr.expression, scope, &inner, allowEnumRefs)) {
-                return false;
-            }
-            return evalCast(inner, &expr->castExpr.castType, scope, out);
-        }
-        case AST_UNARY_EXPRESSION: {
-            if (!expr->expr.left || !expr->expr.op) return false;
-            long long value = 0;
-            if (!constEvalInteger(expr->expr.left, scope, &value, allowEnumRefs)) {
-                return false;
-            }
-            if (strcmp(expr->expr.op, "-") == 0) {
-                *out = clamp32(-value);
-                return true;
-            }
-            if (strcmp(expr->expr.op, "+") == 0) {
-                *out = clamp32(value);
-                return true;
-            }
-            if (strcmp(expr->expr.op, "!") == 0) {
-                *out = (value == 0) ? 1 : 0;
-                return true;
-            }
-            if (strcmp(expr->expr.op, "~") == 0) {
-                *out = clamp32(~value);
-                return true;
-            }
-            return false;
-        }
-        case AST_BINARY_EXPRESSION: {
-            if (!expr->expr.op) return false;
-            if (strcmp(expr->expr.op, "||") == 0) {
-                long long lhs = 0;
-                if (!constEvalInteger(expr->expr.left, scope, &lhs, allowEnumRefs)) return false;
-                if (lhs != 0) { *out = 1; return true; }
-                long long rhs = 0;
-                if (!constEvalInteger(expr->expr.right, scope, &rhs, allowEnumRefs)) return false;
-                *out = (rhs != 0);
-                return true;
-            }
-            if (strcmp(expr->expr.op, "&&") == 0) {
-                long long lhs = 0;
-                if (!constEvalInteger(expr->expr.left, scope, &lhs, allowEnumRefs)) return false;
-                if (lhs == 0) { *out = 0; return true; }
-                long long rhs = 0;
-                if (!constEvalInteger(expr->expr.right, scope, &rhs, allowEnumRefs)) return false;
-                *out = (rhs != 0);
-                return true;
-            }
-
-            long long lhs = 0;
-            long long rhs = 0;
-            if (!constEvalInteger(expr->expr.left, scope, &lhs, allowEnumRefs)) return false;
-            if (!constEvalInteger(expr->expr.right, scope, &rhs, allowEnumRefs)) return false;
-            return evalBinaryOp(expr->expr.op, lhs, rhs, out);
-        }
-        case AST_TERNARY_EXPRESSION: {
-            long long cond = 0;
-            if (!constEvalInteger(expr->ternaryExpr.condition, scope, &cond, allowEnumRefs)) return false;
-            ASTNode* chosen = cond ? expr->ternaryExpr.trueExpr : expr->ternaryExpr.falseExpr;
-            if (!chosen) return false;
-            return constEvalInteger(chosen, scope, out, allowEnumRefs);
-        }
-        case AST_COMMA_EXPRESSION: {
-            if (!expr->commaExpr.expressions || expr->commaExpr.exprCount == 0) return false;
-            long long value = 0;
-            for (size_t i = 0; i < expr->commaExpr.exprCount; ++i) {
-                if (!constEvalInteger(expr->commaExpr.expressions[i], scope, &value, allowEnumRefs)) {
-                    return false;
-                }
-            }
-            *out = value;
-            return true;
-        }
-        case AST_SIZEOF: {
-            *out = (long long)sizeof(void*);
-            return true;
-        }
-        default:
-            return false;
+    ConstEvalResult res = constEvalInternal(expr, scope, allowEnumRefs);
+    if (res.isConst && out) {
+        *out = res.value;
     }
+    return res.isConst;
 }

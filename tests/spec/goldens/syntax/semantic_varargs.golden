@@ -1,0 +1,82 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER good
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER fmt
+    VARIADIC: yes
+    BLOCK
+      FUNCTION CALL
+        IDENTIFIER va_start
+        ARGUMENTS
+          IDENTIFIER ap
+          IDENTIFIER fmt
+      RETURN
+        IDENTIFIER a
+  FUNCTION CALL
+    IDENTIFIER va_start
+    ARGUMENTS
+      IDENTIFIER ap
+      IDENTIFIER fmt
+  RETURN
+    NUMBER_LITERAL 0
+  FUNCTION CALL
+    IDENTIFIER va_start
+    ARGUMENTS
+      IDENTIFIER ap
+      IDENTIFIER a
+  RETURN
+    IDENTIFIER a
+  FUNCTION CALL
+    IDENTIFIER bad1
+  FUNCTION CALL
+    IDENTIFIER bad2
+    ARGUMENTS
+      NUMBER_LITERAL 3
+  RETURN
+    NUMBER_LITERAL 0
+
+
+Diagnostics:
+Error at (3:5): Undeclared identifier
+   Hint: va_start
+   Spelling: tests/syntax/semantic_varargs.c:3:5
+Error at (3:14): Undeclared identifier
+   Hint: ap
+   Spelling: tests/syntax/semantic_varargs.c:3:14
+Error at (9:5): Undeclared identifier
+   Hint: va_start
+   Spelling: tests/syntax/semantic_varargs.c:9:5
+Error at (9:14): Undeclared identifier
+   Hint: ap
+   Spelling: tests/syntax/semantic_varargs.c:9:14
+Error at (9:18): Undeclared identifier
+   Hint: fmt
+   Spelling: tests/syntax/semantic_varargs.c:9:18
+Error at (9:0): va_start can only appear inside a function
+Error at (15:5): Undeclared identifier
+   Hint: va_start
+   Spelling: tests/syntax/semantic_varargs.c:15:5
+Error at (15:14): Undeclared identifier
+   Hint: ap
+   Spelling: tests/syntax/semantic_varargs.c:15:14
+Error at (15:18): Undeclared identifier
+   Hint: a
+   Spelling: tests/syntax/semantic_varargs.c:15:18
+Error at (15:0): va_start can only appear inside a function
+Error at (16:12): Undeclared identifier
+   Hint: a
+   Spelling: tests/syntax/semantic_varargs.c:16:12
+Error at (21:5): Undeclared identifier
+   Hint: bad1
+   Spelling: tests/syntax/semantic_varargs.c:21:5
+Error at (22:5): Undeclared identifier
+   Hint: bad2
+   Spelling: tests/syntax/semantic_varargs.c:22:5
+

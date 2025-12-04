@@ -8,9 +8,19 @@
 
 struct Scope;
 
+typedef struct {
+    bool isConst;
+    long long value;
+} ConstEvalResult;
+
 // Evaluate an integer constant expression in a semantic (non-codegen) context.
-// Returns true when the expression is a valid constant and stores the value in `out`.
 // `allowEnumRefs` lets callers decide whether bare enum constants are permitted.
+ConstEvalResult constEval(ASTNode* expr,
+                          struct Scope* scope,
+                          bool allowEnumRefs);
+
+// Convenience wrapper to match older call sites; returns true on success and
+// writes the value into `out`.
 bool constEvalInteger(ASTNode* expr,
                       struct Scope* scope,
                       long long* out,

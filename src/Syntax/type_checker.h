@@ -43,6 +43,7 @@ typedef struct TypeInfo {
     int pointerDepth;
     PointerQualifier pointerLevels[TYPEINFO_MAX_POINTER_DEPTH];
     bool isLValue;
+    bool isComplete;
     const ParsedType* originalType;
 } TypeInfo;
 

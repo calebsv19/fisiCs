@@ -1,6 +1,7 @@
 #include "codegen_private.h"
 
 #include "codegen_types.h"
+#include "Syntax/layout.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -142,11 +143,14 @@ static bool cg_should_treat_as_unsigned(const ParsedType* parsedType, LLVMTypeRe
 }
 
 LLVMTypeRef cg_get_intptr_type(CodegenContext* ctx) {
-    LLVMContextRef llvmCtx = cg_context_get_llvm_context(ctx);
-    if (!llvmCtx) {
-        return LLVMInt64Type();
+    if (ctx && ctx->module) {
+        LLVMTargetDataRef layout = LLVMGetModuleDataLayout(ctx->module);
+        if (layout) {
+            return LLVMIntPtrType(layout);
+        }
     }
-    return LLVMInt64TypeInContext(llvmCtx);
+    LLVMContextRef llvmCtx = cg_context_get_llvm_context(ctx);
+    return llvmCtx ? LLVMInt64TypeInContext(llvmCtx) : LLVMInt64Type();
 }
 
 LLVMValueRef cg_widen_bool_to_int(CodegenContext* ctx, LLVMValueRef value, const char* nameHint) {
@@ -156,6 +160,46 @@ LLVMValueRef cg_widen_bool_to_int(CodegenContext* ctx, LLVMValueRef value, const
         return LLVMBuildZExt(ctx->builder, value, target, nameHint ? nameHint : "bool.to.int");
     }
     return value;
+}
+
+LLVMTypeRef cg_merge_types_for_phi(CodegenContext* ctx,
+                                   const ParsedType* a,
+                                   const ParsedType* b,
+                                   LLVMValueRef aVal,
+                                   LLVMValueRef bVal) {
+    if (!ctx) return NULL;
+    if (!a && !b) return NULL;
+    if (!a) return LLVMTypeOf(bVal);
+    if (!b) return LLVMTypeOf(aVal);
+    CGValueCategory aCat = cg_classify_parsed_type(a);
+    CGValueCategory bCat = cg_classify_parsed_type(b);
+    if (cg_is_unsigned_category(aCat) && !cg_is_unsigned_category(bCat)) {
+        return LLVMTypeOf(aVal);
+    }
+    if (cg_is_unsigned_category(bCat) && !cg_is_unsigned_category(aCat)) {
+        return LLVMTypeOf(bVal);
+    }
+    return LLVMTypeOf(aVal);
+}
+
+bool cg_size_align_of_parsed(CodegenContext* ctx,
+                             const ParsedType* parsed,
+                             uint64_t* outSize,
+                             uint32_t* outAlign) {
+    if (!ctx || !parsed) return false;
+    const SemanticModel* model = cg_context_get_semantic_model(ctx);
+    if (!model) return false;
+    CompilerContext* cctx = semanticModelGetContext(model);
+    struct Scope* gscope = semanticModelGetGlobalScope(model);
+    if (!cctx || !gscope) return false;
+    ParsedType copy = *parsed;
+    size_t sz = 0, al = 0;
+    if (!size_align_of_parsed_type(&copy, gscope, &sz, &al)) {
+        return false;
+    }
+    if (outSize) *outSize = (uint64_t)sz;
+    if (outAlign) *outAlign = (uint32_t)al;
+    return true;
 }
 
 LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
@@ -334,6 +378,7 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
         case AST_TERNARY_EXPRESSION: {
             const ParsedType* tType = cg_resolve_expression_type(ctx, node->ternaryExpr.trueExpr);
             const ParsedType* fType = cg_resolve_expression_type(ctx, node->ternaryExpr.falseExpr);
+            if (!tType && !fType) return NULL;
             if (!tType) return fType;
             if (!fType) return tType;
             CGValueCategory tCat = cg_classify_parsed_type(tType);

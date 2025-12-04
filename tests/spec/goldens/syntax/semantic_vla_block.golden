@@ -20,5 +20,4 @@ PROGRAM
 
 Diagnostics:
 Error at (3:0): Left operand of '=' must be a modifiable lvalue
-Error at (3:0): Incompatible assignment operands
 

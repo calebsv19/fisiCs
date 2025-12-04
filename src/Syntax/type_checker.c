@@ -8,6 +8,7 @@ static TypeInfo makeBaseInvalid(void) {
     TypeInfo info;
     memset(&info, 0, sizeof(info));
     info.category = TYPEINFO_INVALID;
+    info.isComplete = false;
     return info;
 }
 
@@ -81,6 +82,7 @@ TypeInfo makeBoolType(void) {
     info.primitive = TOKEN_BOOL;
     info.bitWidth = 1;
     info.isSigned = false;
+    info.isComplete = true;
     return info;
 }
 
@@ -90,6 +92,7 @@ TypeInfo makeIntegerType(unsigned bitWidth, bool isSigned, TokenType primitive) 
     info.bitWidth = bitWidth;
     info.isSigned = isSigned;
     info.primitive = primitive;
+    info.isComplete = true;
     return info;
 }
 
@@ -107,6 +110,7 @@ TypeInfo makeFloatTypeInfo(bool isDouble) {
     info.primitive = isDouble ? TOKEN_DOUBLE : TOKEN_FLOAT;
     info.bitWidth = isDouble ? 64 : 32;
     info.isSigned = true;
+    info.isComplete = true;
     return info;
 }
 
@@ -184,6 +188,7 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
             info.category = TYPEINFO_ENUM;
             info.tag = TAG_ENUM;
             info.userTypeName = type->userTypeName;
+            info.isComplete = true;
             return info;
         }
         case TYPE_STRUCT:
@@ -192,6 +197,11 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
             info.category = (type->kind == TYPE_STRUCT) ? TYPEINFO_STRUCT : TYPEINFO_UNION;
             info.tag = (type->kind == TYPE_STRUCT) ? TAG_STRUCT : TAG_UNION;
             info.userTypeName = type->userTypeName;
+            info.isComplete = false;
+            if (scope && scope->ctx && type->userTypeName) {
+                CCTagKind k = (type->kind == TYPE_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+                info.isComplete = cc_tag_is_defined(scope->ctx, k, type->userTypeName);
+            }
             return info;
         }
         case TYPE_NAMED: {
@@ -249,6 +259,7 @@ static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index
             info.isSigned = target.isSigned;
             info.originalType = type;
             info.isVLA = target.isVLA;
+            info.isComplete = true;
             clearPointerLevels(&info);
             PointerQualifier targetQual = makePointerQual(target.isConst,
                                                           target.isVolatile,
@@ -287,6 +298,7 @@ static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index
             arrayInfo.isLValue = true;
             arrayInfo.isVLA = element.isVLA || deriv->as.array.isVLA;
             arrayInfo.originalType = type;
+            arrayInfo.isComplete = element.isComplete;
             return arrayInfo;
         }
         case TYPE_DERIVATION_FUNCTION: {
@@ -327,6 +339,7 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
         if (stored > 0) {
             info.pointerLevels[0] = makePointerQual(base.isConst, base.isVolatile, base.isRestrict);
         }
+        info.isComplete = true; // pointer itself is complete regardless of target
     } else {
         info = typeInfoFromBaseKind(type, scope);
         info.originalType = type;

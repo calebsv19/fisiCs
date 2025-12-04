@@ -349,6 +349,7 @@ static void validateArrayInitializerEntries(ParsedType* type,
                                             Scope* scope,
                                             ASTNode* contextNode,
                                             long long* outInferredLength);
+static void validateBitField(ASTNode* field, ParsedType* fieldType, Scope* scope);
 
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
     switch (node->type) {
@@ -358,6 +359,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 ASTNode* ident = node->varDecl.varNames[i];
                 ParsedType* varType = declaredTypes ? &declaredTypes[i]
                                                      : &node->varDecl.declaredType;
+                TypeInfo varInfo = typeInfoFromParsedType(varType, scope);
                 StorageClass storage = deduceStorageClass(varType);
                 SymbolLinkage linkage = deduceLinkage(varType, scopeIsFileScope(scope));
                 bool hasInitializer = node->varDecl.initializers &&
@@ -369,6 +371,23 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                   storage != STORAGE_EXTERN &&
                                   !hasInitializer;
                 bool newDefinition = !tentative || hasInitializer || storage == STORAGE_STATIC || !fileScope;
+
+                if ((varInfo.category == TYPEINFO_STRUCT || varInfo.category == TYPEINFO_UNION) && !varInfo.isComplete) {
+                    addErrorWithRanges(ident ? ident->location : node->location,
+                                       ident ? ident->macroCallSite : node->macroCallSite,
+                                       ident ? ident->macroDefinition : node->macroDefinition,
+                                       "Variable has incomplete type",
+                                       ident ? ident->valueNode.value : NULL);
+                    continue;
+                }
+                if (varInfo.category == TYPEINFO_ARRAY && !varInfo.isComplete) {
+                    addErrorWithRanges(ident ? ident->location : node->location,
+                                       ident ? ident->macroCallSite : node->macroCallSite,
+                                       ident ? ident->macroDefinition : node->macroDefinition,
+                                       "Array has incomplete element type",
+                                       ident ? ident->valueNode.value : NULL);
+                    continue;
+                }
 
                 Symbol* existing = lookupSymbol(&scope->table, ident->valueNode.value);
                 if (existing) {
@@ -638,32 +657,75 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             CCTagKind tagKind = CC_TAG_STRUCT;
             uint64_t fingerprint = 0;
             const char* kindLabel = "struct";
+            bool isForward = false;
 
             if (node->type == AST_UNION_DEFINITION) {
                 tagKind = CC_TAG_UNION;
                 kindLabel = "union";
                 fingerprint = fingerprintStructLike(node);
+                isForward = (node->structDef.fieldCount == 0);
             } else if (node->type == AST_ENUM_DEFINITION) {
                 tagKind = CC_TAG_ENUM;
                 kindLabel = "enum";
                 fingerprint = fingerprintEnumDefinition(node);
+                isForward = false;
             } else {
                 fingerprint = fingerprintStructLike(node);
+                isForward = (node->structDef.fieldCount == 0);
             }
 
-            CCTagDefineResult result = cc_define_tag(scope->ctx, tagKind, nameNode->valueNode.value, fingerprint);
-            if (result == CC_TAGDEF_CONFLICT) {
-                char buffer[128];
-                snprintf(buffer, sizeof(buffer), "Conflicting definition of %s '%s'", kindLabel, nameNode->valueNode.value);
-                addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+            if (isForward && tagKind != CC_TAG_ENUM) {
+                if (!cc_add_tag(scope->ctx, tagKind, nameNode->valueNode.value)) {
+                    char buffer[128];
+                    snprintf(buffer, sizeof(buffer), "Conflicting tag name for %s '%s'", kindLabel, nameNode->valueNode.value);
+                    addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                }
+            } else {
+                CCTagDefineResult result = cc_define_tag(scope->ctx,
+                                                         tagKind,
+                                                         nameNode->valueNode.value,
+                                                         fingerprint,
+                                                         node);
+                if (result == CC_TAGDEF_CONFLICT) {
+                    char buffer[128];
+                    snprintf(buffer, sizeof(buffer), "Conflicting definition of %s '%s'", kindLabel, nameNode->valueNode.value);
+                    addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                }
             }
 
             if (node->type == AST_ENUM_DEFINITION) {
                 ParsedType enumValueType = makeEnumValueParsedType();
+                long long currentValue = 0;
+                bool haveCurrent = false;
                 for (size_t i = 0; i < node->enumDef.memberCount; ++i) {
                     ASTNode* member = node->enumDef.members ? node->enumDef.members[i] : NULL;
                     if (!member || member->type != AST_IDENTIFIER) {
                         continue;
+                    }
+                    long long enumVal = 0;
+                    bool hasValue = false;
+                    if (node->enumDef.values && node->enumDef.values[i]) {
+                        ConstEvalResult val = constEval(node->enumDef.values[i], scope, true);
+                        if (!val.isConst) {
+                            addErrorWithRanges(member ? member->location : node->location,
+                                               member ? member->macroCallSite : node->macroCallSite,
+                                               member ? member->macroDefinition : node->macroDefinition,
+                                               "Enumerator value is not a constant expression",
+                                               member ? member->valueNode.value : NULL);
+                        } else {
+                            enumVal = val.value;
+                            hasValue = true;
+                        }
+                    } else if (haveCurrent) {
+                        enumVal = currentValue + 1;
+                        hasValue = true;
+                    } else {
+                        enumVal = 0;
+                        hasValue = true;
+                    }
+                    if (hasValue) {
+                        currentValue = enumVal;
+                        haveCurrent = true;
                     }
                     Symbol* enumSym = calloc(1, sizeof(Symbol));
                     if (!enumSym) {
@@ -674,6 +736,8 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     enumSym->kind = SYMBOL_ENUM;
                     enumSym->type = enumValueType;
                     enumSym->definition = node;
+                    enumSym->hasConstValue = hasValue;
+                    enumSym->constValue = enumVal;
                     enumSym->storage = STORAGE_NONE;
                     enumSym->linkage = LINKAGE_NONE;
                     enumSym->next = NULL;
@@ -683,6 +747,37 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                            member ? member->macroDefinition : node->macroDefinition,
                                            "Redefinition of enum constant",
                                            member ? member->valueNode.value : NULL);
+                    }
+                }
+            }
+
+            if (node->type == AST_STRUCT_DEFINITION || node->type == AST_UNION_DEFINITION) {
+                for (size_t i = 0; i < node->structDef.fieldCount; ++i) {
+                    ASTNode* field = node->structDef.fields ? node->structDef.fields[i] : NULL;
+                    if (!field || field->type != AST_VARIABLE_DECLARATION) continue;
+                    ParsedType* fType = field->varDecl.declaredTypes
+                        ? &field->varDecl.declaredTypes[0]
+                        : &field->varDecl.declaredType;
+                    validateBitField(field, fType, scope);
+                    if (parsedTypeIsDirectArray(fType)) {
+                        for (size_t d = 0; d < fType->derivationCount; ++d) {
+                            TypeDerivation* deriv = parsedTypeGetMutableArrayDerivation(fType, d);
+                            if (!deriv) break;
+                            if (deriv->as.array.sizeExpr) {
+                                size_t len = 0;
+                                if (tryEvaluateArrayLength(deriv->as.array.sizeExpr, scope, &len)) {
+                                    deriv->as.array.hasConstantSize = true;
+                                    deriv->as.array.constantSize = (long long)len;
+                                    deriv->as.array.isVLA = false;
+                                } else {
+                                    deriv->as.array.isVLA = true;
+                                    addError(field->line,
+                                             0,
+                                             "Variable-length array not allowed in struct/union field",
+                                             NULL);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -751,6 +846,17 @@ static void validateVariableInitializer(ParsedType* type,
         snprintf(buffer, sizeof(buffer),
                  "Compound literal at static storage must be constant");
         addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+    }
+
+    if (staticStorage && init->expression && init->expression->type != AST_COMPOUND_LITERAL) {
+        long long ignored = 0;
+        if (!constEvalInteger(init->expression, scope, &ignored, true)) {
+            char buffer[256];
+            snprintf(buffer, sizeof(buffer),
+                     "Initializer for static variable '%s' is not a constant expression",
+                     name ? name : "<unnamed>");
+            addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+        }
     }
 }
 
@@ -925,5 +1031,55 @@ static void validateVariableArrayInitializer(ParsedType* type,
             topArray->as.array.constantSize = inferredLen;
             topArray->as.array.isVLA = false;
         }
+    }
+}
+
+static void validateBitField(ASTNode* field, ParsedType* fieldType, Scope* scope) {
+    if (!field || !fieldType || !field->varDecl.bitFieldWidth) return;
+    long long width = 0;
+    if (!constEvalInteger(field->varDecl.bitFieldWidth, scope, &width, true)) {
+        addErrorWithRanges(field->location,
+                           field->macroCallSite,
+                           field->macroDefinition,
+                           "Bitfield width must be an integer constant expression",
+                           NULL);
+        return;
+    }
+    if (width < 0) {
+        addErrorWithRanges(field->location,
+                           field->macroCallSite,
+                           field->macroDefinition,
+                           "Bitfield width must be non-negative",
+                           NULL);
+        return;
+    }
+
+    const char* name = safeIdentifierName(field->varDecl.varNames ? field->varDecl.varNames[0] : NULL);
+    bool hasName = name != NULL;
+    if (width == 0 && hasName) {
+        addErrorWithRanges(field->location,
+                           field->macroCallSite,
+                           field->macroDefinition,
+                           "Zero-width bitfield must be unnamed",
+                           name);
+        return;
+    }
+
+    TypeInfo info = typeInfoFromParsedType(fieldType, scope);
+    if (!typeInfoIsInteger(&info) && info.category != TYPEINFO_ENUM) {
+        addErrorWithRanges(field->location,
+                           field->macroCallSite,
+                           field->macroDefinition,
+                           "Bitfield requires integral or enum type",
+                           name);
+        return;
+    }
+    unsigned bitWidth = info.bitWidth ? info.bitWidth : 0;
+    if (bitWidth == 0 || (unsigned long long)width > bitWidth) {
+        addErrorWithRanges(field->location,
+                           field->macroCallSite,
+                           field->macroDefinition,
+                           "Bitfield width exceeds type width",
+                           name);
     }
 }

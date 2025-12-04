@@ -43,6 +43,8 @@ typedef struct Symbol {
     SymbolLinkage linkage;
     bool hasDefinition;
     bool isTentative;
+    bool hasConstValue;
+    long long constValue;
     struct Symbol* next; // For linked list in hash buckets
 } Symbol;
 

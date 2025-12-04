@@ -1,0 +1,44 @@
+AST:
+PROGRAM
+  ATTRIBUTE [GNU] aligned(16)
+  STRUCT
+        Name:     IDENTIFIER A
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+  ATTRIBUTE [GNU] packed
+  STRUCT
+        Name:     IDENTIFIER B
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: char
+      IDENTIFIER y
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr1
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr2
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          ARRAY_ACCESS
+            IDENTIFIER arr1
+            NUMBER_LITERAL 0
+          ARRAY_ACCESS
+            IDENTIFIER arr2
+            NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

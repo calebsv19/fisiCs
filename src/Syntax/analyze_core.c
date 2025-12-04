@@ -43,6 +43,18 @@ void analyze(ASTNode* node, Scope* scope) {
         if (fscope) {
             fscope->hasReturnType = true;
             fscope->returnType = typeInfoFromParsedType(&node->functionDef.returnType, scope);
+            fscope->inFunction = true;
+            fscope->currentFunctionIsVariadic = node->functionDef.isVariadic;
+            fscope->currentFunctionName = node->functionDef.funcName && node->functionDef.funcName->valueNode.value
+                ? node->functionDef.funcName->valueNode.value
+                : NULL;
+            size_t fixedCount = 0;
+            for (size_t i = 0; i < node->functionDef.paramCount; ++i) {
+                ASTNode* p = node->functionDef.parameters[i];
+                if (!p || p->type != AST_VARIABLE_DECLARATION) continue;
+                fixedCount += p->varDecl.varCount;
+            }
+            fscope->currentFunctionFixedParams = fixedCount;
         }
 
         // 3) Bind parameters (each parameter node is usually a VAR_DECL;

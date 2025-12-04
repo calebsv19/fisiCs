@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_BINARY_EXPRESSION) {
@@ -280,16 +281,54 @@ LLVMValueRef codegenTernaryExpression(CodegenContext* ctx, ASTNode* node) {
 
     LLVMPositionBuilderAtEnd(ctx->builder, trueBB);
     LLVMValueRef trueValue = codegenNode(ctx, node->ternaryExpr.trueExpr);
+    const ParsedType* trueParsed = cg_resolve_expression_type(ctx, node->ternaryExpr.trueExpr);
     LLVMBuildBr(ctx->builder, mergeBB);
 
     LLVMPositionBuilderAtEnd(ctx->builder, falseBB);
     LLVMValueRef falseValue = codegenNode(ctx, node->ternaryExpr.falseExpr);
+    const ParsedType* falseParsed = cg_resolve_expression_type(ctx, node->ternaryExpr.falseExpr);
     LLVMBuildBr(ctx->builder, mergeBB);
 
     LLVMPositionBuilderAtEnd(ctx->builder, mergeBB);
-    LLVMValueRef phi = LLVMBuildPhi(ctx->builder, LLVMInt32TypeInContext(ctx->llvmContext), "ternaryResult");
-    LLVMAddIncoming(phi, &trueValue, &trueBB, 1);
-    LLVMAddIncoming(phi, &falseValue, &falseBB, 1);
+    // If both arms are void, just merge control flow.
+    if (!trueValue && !falseValue) {
+        return NULL;
+    }
+
+    LLVMTypeRef mergedType = NULL;
+    if (trueValue && falseValue) {
+        mergedType = cg_merge_types_for_phi(ctx, trueParsed, falseParsed, trueValue, falseValue);
+    } else if (trueValue) {
+        mergedType = LLVMTypeOf(trueValue);
+    } else {
+        mergedType = LLVMTypeOf(falseValue);
+    }
+    if (!mergedType) {
+        mergedType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+
+    if (trueValue && LLVMTypeOf(trueValue) != mergedType) {
+        trueValue = cg_cast_value(ctx, trueValue, mergedType, trueParsed, falseParsed, "ternary.true.cast");
+    }
+    if (falseValue && LLVMTypeOf(falseValue) != mergedType) {
+        falseValue = cg_cast_value(ctx, falseValue, mergedType, falseParsed, trueParsed, "ternary.false.cast");
+    }
+
+    LLVMValueRef phi = LLVMBuildPhi(ctx->builder, mergedType, "ternaryResult");
+    LLVMValueRef incomingVals[2];
+    LLVMBasicBlockRef incomingBlocks[2];
+    int count = 0;
+    if (trueValue) {
+        incomingVals[count] = trueValue;
+        incomingBlocks[count] = trueBB;
+        count++;
+    }
+    if (falseValue) {
+        incomingVals[count] = falseValue;
+        incomingBlocks[count] = falseBB;
+        count++;
+    }
+    LLVMAddIncoming(phi, incomingVals, incomingBlocks, count);
 
     return phi;
 }
@@ -317,6 +356,39 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
     const ParsedType* valueParsed = cg_resolve_expression_type(ctx, node->assignment.value);
+
+    bool destIsAggregate = targetType && (LLVMGetTypeKind(targetType) == LLVMStructTypeKind ||
+                                          LLVMGetTypeKind(targetType) == LLVMArrayTypeKind);
+    if (destIsAggregate) {
+        LLVMValueRef srcPtr = NULL;
+        LLVMTypeRef srcType = NULL;
+        const ParsedType* srcParsed = NULL;
+        if (!codegenLValue(ctx, node->assignment.value, &srcPtr, &srcType, &srcParsed)) {
+            LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, targetType, "agg.tmp");
+            LLVMBuildStore(ctx->builder, value, tmp);
+            srcPtr = tmp;
+            srcType = targetType;
+            srcParsed = targetParsed;
+        }
+        uint64_t bytes = 0;
+        uint32_t align = 0;
+        if (!cg_size_align_of_parsed(ctx, targetParsed, &bytes, &align)) {
+            bytes = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), targetType);
+            align = (uint32_t)LLVMABIAlignmentOfType(LLVMGetModuleDataLayout(ctx->module), targetType);
+        }
+        LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+        LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, targetPtr, i8Ptr, "agg.dst");
+        LLVMValueRef srcCast = LLVMBuildBitCast(ctx->builder, srcPtr, i8Ptr, "agg.src");
+        LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
+        unsigned alignVal = align ? align : 1;
+        LLVMBuildMemCpy(ctx->builder,
+                        dstCast,
+                        alignVal,
+                        srcCast,
+                        alignVal,
+                        sizeVal);
+        return targetPtr;
+    }
 
     const char* op = node->assignment.op ? node->assignment.op : "=";
     LLVMTypeRef storeType = targetType;

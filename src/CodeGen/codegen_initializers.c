@@ -50,6 +50,25 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
         return false;
     }
 
+    // Zero initializer to memset if possible
+    if (expr->type == AST_NUMBER_LITERAL && expr->valueNode.value && strcmp(expr->valueNode.value, "0") == 0) {
+        uint64_t bytes = 0;
+        uint32_t align = 0;
+        if (!cg_size_align_of_parsed(ctx, destParsed, &bytes, &align)) {
+            bytes = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), storeType);
+            align = (uint32_t)LLVMABIAlignmentOfType(LLVMGetModuleDataLayout(ctx->module), storeType);
+        }
+        LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+        LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, destPtr, i8Ptr, "init.zero.dst");
+        LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
+        LLVMBuildMemSet(ctx->builder,
+                        dstCast,
+                        LLVMConstInt(LLVMInt8TypeInContext(ctx->llvmContext), 0, 0),
+                        sizeVal,
+                        align ? align : 1);
+        return true;
+    }
+
     LLVMValueRef casted = cg_cast_value(ctx, value, storeType, cg_resolve_expression_type(ctx, expr), destParsed, "init.cast");
     LLVMBuildStore(ctx->builder, casted, destPtr);
     return true;

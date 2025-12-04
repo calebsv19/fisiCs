@@ -1,0 +1,57 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER S
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER a
+    VAR_DECL
+      TYPE: char
+      IDENTIFIER b
+  UNION
+        Name:     IDENTIFIER U
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: char
+      IDENTIFIER y
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 29)]
+    IDENTIFIER arr
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 29)]
+    IDENTIFIER arr2
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER f
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER v
+    BLOCK
+      SWITCH
+        IDENTIFIER v
+        CASE
+          SIZEOF
+                        PARSED_TYPE struct S
+          RETURN
+            ARRAY_ACCESS
+              IDENTIFIER arr
+              NUMBER_LITERAL 0
+        CASE
+          SIZEOF
+                        PARSED_TYPE union U
+          RETURN
+            ARRAY_ACCESS
+              IDENTIFIER arr2
+              NUMBER_LITERAL 0
+        CASE
+          DEFAULT
+          RETURN
+            NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

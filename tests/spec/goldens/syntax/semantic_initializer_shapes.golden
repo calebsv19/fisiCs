@@ -99,8 +99,4 @@ Error at (13:0): Not enough initializers for array 'arr_too_few' (have 1, expect
 Error at (14:0): Array 'arr_designator' designator index 2 is out of bounds (size 2)
 Error at (16:0): Excess elements in scalar initializer for 'nested'
 Error at (18:0): String literal for array 'label' is too long (needs 5, size 3)
-Error at (20:12): Operator '+' requires arithmetic operands
-   Spelling: tests/syntax/semantic_initializer_shapes.c:20:12
-Error at (20:12): Operator '+' requires arithmetic operands
-   Spelling: tests/syntax/semantic_initializer_shapes.c:20:12
 

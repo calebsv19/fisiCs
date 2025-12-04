@@ -70,4 +70,5 @@ Error at (15:12): Redefinition of variable
 Error at (18:11): Cannot take address of register object
    Hint: regvar
    Spelling: tests/syntax/semantic_storage.c:18:11
+Error at (18:0): Initializer for static variable 'p' is not a constant expression
 

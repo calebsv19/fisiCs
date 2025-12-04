@@ -1,16 +1,94 @@
 #include "analyze_stmt.h"
 #include "analyze_core.h"
+#include "analyze_decls.h"
 #include "analyze_expr.h"
+#include "const_eval.h"
 #include "syntax_errors.h"
 #include "type_checker.h"
+#include "Lexer/tokens.h"
+#include <stdlib.h>
 
-void analyzeStatement(ASTNode* node, Scope* scope) {
+typedef struct {
+    long long* values;
+    SourceRange* locations;
+    size_t count;
+    size_t capacity;
+    bool hasDefault;
+    SourceRange defaultLoc;
+} SwitchFrame;
+
+#define SWITCH_STACK_MAX 32
+
+typedef struct {
+    SwitchFrame frames[SWITCH_STACK_MAX];
+    int depth;
+} SwitchStack;
+
+static void switchFrameFree(SwitchFrame* frame) {
+    if (!frame) return;
+    free(frame->values);
+    free(frame->locations);
+    frame->values = NULL;
+    frame->locations = NULL;
+    frame->count = 0;
+    frame->capacity = 0;
+    frame->hasDefault = false;
+    frame->defaultLoc = (SourceRange){0};
+}
+
+static SwitchFrame* pushSwitchFrame(SwitchStack* stack) {
+    if (!stack || stack->depth >= SWITCH_STACK_MAX) {
+        return NULL;
+    }
+    SwitchFrame* frame = &stack->frames[stack->depth++];
+    frame->values = NULL;
+    frame->locations = NULL;
+    frame->count = 0;
+    frame->capacity = 0;
+    frame->hasDefault = false;
+    frame->defaultLoc = (SourceRange){0};
+    return frame;
+}
+
+static void popSwitchFrame(SwitchStack* stack) {
+    if (!stack || stack->depth <= 0) return;
+    stack->depth--;
+    switchFrameFree(&stack->frames[stack->depth]);
+}
+
+static bool switchFrameRecordValue(SwitchFrame* frame, long long value, SourceRange loc) {
+    if (!frame) return false;
+    for (size_t i = 0; i < frame->count; ++i) {
+        if (frame->values[i] == value) {
+            return false;
+        }
+    }
+    if (frame->count == frame->capacity) {
+        size_t newCap = frame->capacity == 0 ? 8 : frame->capacity * 2;
+        long long* newVals = realloc(frame->values, newCap * sizeof(long long));
+        SourceRange* newLocs = realloc(frame->locations, newCap * sizeof(SourceRange));
+        if (!newVals || !newLocs) {
+            free(newVals);
+            free(newLocs);
+            return false;
+        }
+        frame->values = newVals;
+        frame->locations = newLocs;
+        frame->capacity = newCap;
+    }
+    frame->values[frame->count] = value;
+    frame->locations[frame->count] = loc;
+    frame->count++;
+    return true;
+}
+
+static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* switchStack) {
     switch (node->type) {
         case AST_IF_STATEMENT:
             analyze(node->ifStmt.condition, scope);
-            analyze(node->ifStmt.thenBranch, scope);
+            analyzeStatementInternal(node->ifStmt.thenBranch, scope, switchStack);
             if (node->ifStmt.elseBranch) {
-                analyze(node->ifStmt.elseBranch, scope);
+                analyzeStatementInternal(node->ifStmt.elseBranch, scope, switchStack);
             }
             break;
 
@@ -19,14 +97,14 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
             analyze(node->forLoop.initializer, inner);
             analyze(node->forLoop.condition, inner);
             analyze(node->forLoop.increment, inner);
-            analyze(node->forLoop.body, inner);
+            analyzeStatementInternal(node->forLoop.body, inner, switchStack);
             destroyScope(inner);
             break;
         }
 
         case AST_WHILE_LOOP:
             analyze(node->whileLoop.condition, scope);
-            analyze(node->whileLoop.body, scope);
+            analyzeStatementInternal(node->whileLoop.body, scope, switchStack);
             break;
 
         case AST_RETURN:
@@ -51,22 +129,69 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
             // Could track enclosing loop for validation
             break;
 
-        case AST_SWITCH:
+        case AST_SWITCH: {
             analyze(node->switchStmt.condition, scope);
+            SwitchFrame* frame = pushSwitchFrame(switchStack);
             for (size_t i = 0; i < node->switchStmt.caseListSize; i++) {
-                analyze(node->switchStmt.caseList[i], scope);
+                analyzeStatementInternal(node->switchStmt.caseList[i], scope, switchStack);
             }
+            popSwitchFrame(switchStack);
+            (void)frame;
             break;
+        }
 
         case AST_CASE:
             if (node->caseStmt.caseValue) {
                 analyze(node->caseStmt.caseValue, scope);
+                ConstEvalResult res = constEval(node->caseStmt.caseValue, scope, true);
+                if (!res.isConst) {
+                    addError(node->caseStmt.caseValue->line, 0, "Case label is not a constant expression", NULL);
+                } else if (switchStack && switchStack->depth > 0) {
+                    SwitchFrame* frame = &switchStack->frames[switchStack->depth - 1];
+                    if (!switchFrameRecordValue(frame, res.value, node->caseStmt.caseValue->location)) {
+                        SourceRange prev = {0};
+                        // find previous location to report
+                        for (size_t i = 0; i < frame->count; ++i) {
+                            if (frame->values[i] == res.value) {
+                                prev = frame->locations[i];
+                                break;
+                            }
+                        }
+                        char buffer[128];
+                        snprintf(buffer, sizeof(buffer), "Duplicate case label with value %lld", res.value);
+                        addErrorWithRanges(node->caseStmt.caseValue->location,
+                                           node->caseStmt.caseValue->macroCallSite,
+                                           node->caseStmt.caseValue->macroDefinition,
+                                           buffer,
+                                           NULL);
+                        if (prev.start.line > 0) {
+                            addWarning(prev.start.line, 0, "Previous case label with same value here", NULL);
+                        }
+                    }
+                }
+            } else {
+                if (switchStack && switchStack->depth > 0) {
+                    SwitchFrame* frame = &switchStack->frames[switchStack->depth - 1];
+                    if (frame->hasDefault) {
+                        addErrorWithRanges(node->location,
+                                           node->macroCallSite,
+                                           node->macroDefinition,
+                                           "Duplicate default label in switch",
+                                           NULL);
+                        if (frame->defaultLoc.start.line > 0) {
+                            addWarning(frame->defaultLoc.start.line, 0, "Previous default label is here", NULL);
+                        }
+                    } else {
+                        frame->hasDefault = true;
+                        frame->defaultLoc = node->location;
+                    }
+                }
             }
             for (size_t i = 0; i < node->caseStmt.caseBodySize; i++) {
-                analyze(node->caseStmt.caseBody[i], scope);
+                analyzeStatementInternal(node->caseStmt.caseBody[i], scope, switchStack);
             }
             if (node->caseStmt.nextCase) {
-                analyze(node->caseStmt.nextCase, scope);
+                analyzeStatementInternal(node->caseStmt.nextCase, scope, switchStack);
             }
             break;
 
@@ -82,8 +207,16 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
 
         case AST_BLOCK:
             for (size_t i = 0; i < node->block.statementCount; ++i) {
-                analyze(node->block.statements[i], scope);
+                analyzeStatementInternal(node->block.statements[i], scope, switchStack);
             }
+            break;
+
+        case AST_VARIABLE_DECLARATION:
+        case AST_STRUCT_DEFINITION:
+        case AST_UNION_DEFINITION:
+        case AST_ENUM_DEFINITION:
+        case AST_TYPEDEF:
+            analyzeDeclaration(node, scope);
             break;
 
         case AST_ASSIGNMENT:
@@ -99,4 +232,9 @@ void analyzeStatement(ASTNode* node, Scope* scope) {
             addError(node ? node->line : 0, 0, "Unhandled statement node", "No analysis implemented for this statement type");
             break;
     }
+}
+
+void analyzeStatement(ASTNode* node, Scope* scope) {
+    SwitchStack stack = {0};
+    analyzeStatementInternal(node, scope, &stack);
 }

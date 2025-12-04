@@ -1,0 +1,52 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: struct Node*
+    IDENTIFIER ok_ptr
+  VAR_DECL
+    TYPE: struct Node
+    IDENTIFIER ok_obj
+  VAR_DECL
+    TYPE: struct Node [NUMBER_LITERAL 2]
+    IDENTIFIER arr
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER bad_sizeof
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        SIZEOF
+                    PARSED_TYPE struct Node
+  STRUCT
+        Name:     IDENTIFIER Node
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER good
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Node
+        IDENTIFIER n
+      RETURN
+        SIZEOF
+                    IDENTIFIER n
+
+
+Diagnostics:
+Error at (4:13): Variable has incomplete type
+   Hint: ok_obj
+   Spelling: tests/syntax/semantic_incomplete.c:4:13
+Error at (5:13): Array has incomplete element type
+   Hint: arr
+   Spelling: tests/syntax/semantic_incomplete.c:5:13
+Error at (0:0): sizeof applied to incomplete type
+

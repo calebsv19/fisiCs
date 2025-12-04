@@ -1,0 +1,31 @@
+AST:
+PROGRAM
+  LABEL: shade
+    NUMBER_LITERAL 2
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct BF
+        IDENTIFIER bf
+            = NUMBER_LITERAL 0
+
+      RETURN
+        DOT_ACCESS '.'
+          IDENTIFIER bf
+          FIELD a
+
+
+Diagnostics:
+Error at (12:15): Variable has incomplete type
+   Hint: bf
+   Spelling: tests/syntax/semantic_bitfields.c:12:15
+Error at (13:12): Undeclared identifier
+   Hint: bf
+   Spelling: tests/syntax/semantic_bitfields.c:13:12
+

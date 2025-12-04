@@ -33,6 +33,19 @@ PROGRAM
             Value:  NUMBER_LITERAL 1
         Member:   IDENTIFIER SHADE_BLUE
         Member:   IDENTIFIER SHADE_GREEN
+  STRUCT
+        Name:     IDENTIFIER TagX
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+  UNION
+        Name:     IDENTIFIER TagX
+    VAR_DECL
+      TYPE: float
+      IDENTIFIER f
+  ENUM
+        Name:     IDENTIFIER TagX
+        Member:   IDENTIFIER TAGX_A
   ENUM
         Name:     IDENTIFIER Color
         Member:   IDENTIFIER COLOR_RED
@@ -61,4 +74,6 @@ Error at (24:5): Redefinition of enum constant
 Error at (25:5): Redefinition of enum constant
    Hint: SHADE_BLUE
    Spelling: tests/syntax/semantic_tag_conflicts.c:25:5
+Error at (30:0): Conflicting definition of union 'TagX'
+Error at (31:0): Conflicting definition of enum 'TagX'
 

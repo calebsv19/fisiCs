@@ -30,11 +30,17 @@ int main(int argc, char **argv) {
     const char *filename = NULL;
     bool preservePPNodes = false;
     const char* depsJsonPath = NULL;
+    const char* targetTriple = NULL;
+    const char* dataLayout = NULL;
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--preserve-pp") == 0) {
             preservePPNodes = true;
         } else if (strcmp(argv[i], "--emit-deps-json") == 0 && i + 1 < argc) {
             depsJsonPath = argv[++i];
+        } else if (strcmp(argv[i], "--target") == 0 && i + 1 < argc) {
+            targetTriple = argv[++i];
+        } else if (strcmp(argv[i], "--data-layout") == 0 && i + 1 < argc) {
+            dataLayout = argv[++i];
         } else if (argv[i][0] != '-' && !filename) {
             filename = argv[i];
         }
@@ -50,6 +56,12 @@ int main(int argc, char **argv) {
     CompilerContext* ctx = cc_create();
     if (!ctx) { fprintf(stderr, "OOM: CompilerContext\n"); return 1; }
     cc_seed_builtins(ctx);
+    if (targetTriple) {
+        cc_set_target_triple(ctx, targetTriple);
+    }
+    if (dataLayout) {
+        cc_set_data_layout(ctx, dataLayout);
+    }
 
     const char* preserveEnv = getenv("PRESERVE_PP_NODES");
     if (preserveEnv && preserveEnv[0] != '\0' && preserveEnv[0] != '0') {

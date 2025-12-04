@@ -13,6 +13,10 @@ Scope* createScope(Scope* parent) {
     scope->ctx = parent ? parent->ctx : NULL;
     scope->hasReturnType = parent ? parent->hasReturnType : false;
     scope->returnType = parent ? parent->returnType : makeInvalidType();
+    scope->inFunction = parent ? parent->inFunction : false;
+    scope->currentFunctionIsVariadic = parent ? parent->currentFunctionIsVariadic : false;
+    scope->currentFunctionFixedParams = parent ? parent->currentFunctionFixedParams : 0;
+    scope->currentFunctionName = parent ? parent->currentFunctionName : NULL;
     return scope;
 }
 

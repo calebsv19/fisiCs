@@ -26,6 +26,10 @@ enum Shade {
     SHADE_GREEN
 };
 
+struct TagX { int x; };
+union TagX { float f; };
+enum TagX { TAGX_A };
+
 enum Color {
     COLOR_RED,
     COLOR_GREEN

@@ -47,6 +47,18 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
             free(ctx);
             return NULL;
         }
+
+        CompilerContext* cctx = semanticModelGetContext(semanticModel);
+        if (cctx) {
+            const char* triple = cc_get_target_triple(cctx);
+            if (triple && triple[0]) {
+                LLVMSetTarget(ctx->module, triple);
+            }
+            const char* layout = cc_get_data_layout(cctx);
+            if (layout && layout[0]) {
+                LLVMSetDataLayout(ctx->module, layout);
+            }
+        }
     }
 
     return ctx;

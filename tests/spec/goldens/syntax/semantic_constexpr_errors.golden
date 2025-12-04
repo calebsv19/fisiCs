@@ -1,0 +1,36 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER g
+      = NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER static_bad
+      = IDENTIFIER g
+  ENUM
+        Name:     IDENTIFIER Trouble
+        Member:   IDENTIFIER GOOD
+            Value:  NUMBER_LITERAL 0
+        Member:   IDENTIFIER BAD
+            Value:  IDENTIFIER g
+        Member:   IDENTIFIER NEXT
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER demo
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER v
+    BLOCK
+      LABEL: v
+        RETURN
+          NUMBER_LITERAL 1
+
+
+Diagnostics:
+Error at (2:0): Initializer for static variable 'static_bad' is not a constant expression
+Error at (6:5): Enumerator value is not a constant expression
+   Hint: BAD
+   Spelling: tests/syntax/semantic_constexpr_errors.c:6:5
+

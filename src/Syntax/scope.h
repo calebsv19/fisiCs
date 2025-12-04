@@ -13,6 +13,10 @@ typedef struct Scope {
     CompilerContext* ctx;
     bool hasReturnType;
     TypeInfo returnType;
+    bool inFunction;
+    bool currentFunctionIsVariadic;
+    size_t currentFunctionFixedParams;
+    const char* currentFunctionName;
 } Scope;
 
 Scope* createScope(Scope* parent);

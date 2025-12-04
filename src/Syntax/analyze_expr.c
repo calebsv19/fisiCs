@@ -118,6 +118,34 @@ static bool typeInfoIsKnown(const TypeInfo* info) {
     return info && info->category != TYPEINFO_INVALID;
 }
 
+static void restoreBaseCategory(TypeInfo* info) {
+    if (!info || info->pointerDepth != 0) return;
+    if (info->isFunction) {
+        info->category = TYPEINFO_FUNCTION;
+        return;
+    }
+    switch (info->tag) {
+        case TAG_STRUCT:
+            info->category = TYPEINFO_STRUCT;
+            return;
+        case TAG_UNION:
+            info->category = TYPEINFO_UNION;
+            return;
+        case TAG_ENUM:
+            info->category = TYPEINFO_ENUM;
+            return;
+        default:
+            break;
+    }
+    if (info->primitive == TOKEN_FLOAT || info->primitive == TOKEN_DOUBLE) {
+        info->category = TYPEINFO_FLOAT;
+    } else if (info->primitive == TOKEN_VOID) {
+        info->category = TYPEINFO_VOID;
+    } else {
+        info->category = TYPEINFO_INTEGER;
+    }
+}
+
 static const char* fallbackFunctionName(const char* name) {
     return name ? name : "<anonymous>";
 }
@@ -237,6 +265,10 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
         case AST_STRING_LITERAL:
             return typeFromStringLiteral();
+
+        case AST_PARSED_TYPE: {
+            return typeInfoFromParsedType(&node->parsedTypeNode.parsed, scope);
+        }
 
         case AST_ASSIGNMENT: {
             TypeInfo targetInfo = analyzeExpression(node->assignment.target, scope);
@@ -409,6 +441,22 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
             operand = decayToRValue(operand);
 
+            if (strcmp(op, "*") == 0) {
+                if (operand.category == TYPEINFO_POINTER && operand.pointerDepth > 0) {
+                    typeInfoDropPointerLevel(&operand);
+                    if (operand.pointerDepth == 0) {
+                        restoreBaseCategory(&operand);
+                    }
+                    operand.isArray = false;
+                    operand.isLValue = true;
+                    return operand;
+                }
+                if (typeInfoIsKnown(&operand)) {
+                    reportOperandError(node, "pointer operand", "*");
+                }
+                return makeInvalidType();
+            }
+
             if (strcmp(op, "+") == 0 || strcmp(op, "-") == 0) {
                 if (!typeInfoIsArithmetic(&operand)) {
                     if (typeInfoIsKnown(&operand)) {
@@ -477,6 +525,21 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             }
 
             TypeInfo result = makeInvalidType();
+            if (calleeName && strcmp(calleeName, "va_start") == 0) {
+                if (!scope || !scope->inFunction) {
+                    addError(node->line, 0, "va_start can only appear inside a function", NULL);
+                } else {
+                    if (argCount < 2) {
+                        addError(node->line, 0, "va_start expects at least two arguments", NULL);
+                    }
+                    if (!scope->currentFunctionIsVariadic) {
+                        addError(node->line, 0, "va_start used in non-variadic function", NULL);
+                    }
+                    if (scope->currentFunctionFixedParams == 0) {
+                        addError(node->line, 0, "va_start requires at least one named parameter", NULL);
+                    }
+                }
+            }
             if (sym && sym->kind == SYMBOL_FUNCTION) {
                 FunctionSignature* sig = &sym->signature;
                 size_t expected = sig->paramCount;
@@ -529,7 +592,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             if (base.category == TYPEINFO_POINTER && base.pointerDepth > 0) {
                 typeInfoDropPointerLevel(&base);
                 if (base.pointerDepth == 0) {
-                    base.category = TYPEINFO_INVALID;
+                    restoreBaseCategory(&base);
                 }
                 base.isArray = false;
                 base.isLValue = true;
@@ -560,7 +623,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             if (arrayInfo.category == TYPEINFO_POINTER && arrayInfo.pointerDepth > 0) {
                 typeInfoDropPointerLevel(&arrayInfo);
                 if (arrayInfo.pointerDepth == 0) {
-                    arrayInfo.category = TYPEINFO_INVALID;
+                    restoreBaseCategory(&arrayInfo);
                 }
                 arrayInfo.isArray = false;
                 arrayInfo.isLValue = true;
@@ -624,6 +687,13 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         }
 
         case AST_SIZEOF:
+            if (node->expr.left) {
+                TypeInfo target = analyzeExpression(node->expr.left, scope);
+                if ((target.category == TYPEINFO_STRUCT || target.category == TYPEINFO_UNION) && !target.isComplete) {
+                    addError(node->line, 0, "sizeof applied to incomplete type", NULL);
+                    return makeInvalidType();
+                }
+            }
             return makeIntegerType(64, false, TOKEN_UNSIGNED);
 
         default:

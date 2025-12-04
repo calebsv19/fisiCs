@@ -87,6 +87,11 @@ static bool cc_tag_table_add(CCTagTable* table, const char* name) {
     }
     rec->isDefined = false;
     rec->fingerprint = 0;
+    rec->definition = NULL;
+    rec->hasLayout = false;
+    rec->layoutSize = 0;
+    rec->layoutAlign = 0;
+    rec->computingLayout = false;
     return true;
 }
 
@@ -139,6 +144,8 @@ void cc_destroy(CompilerContext* ctx) {
     cc_tag_table_free(&ctx->tag_union);
     cc_tag_table_free(&ctx->tag_enum);
     include_graph_destroy(&ctx->includeGraph);
+    free(ctx->targetTriple);
+    free(ctx->dataLayout);
     // builtins are static literals; nothing to free.
     free(ctx);
 }
@@ -173,17 +180,46 @@ static const CCTagTable* pick_tag_table_const(const CompilerContext* ctx, CCTagK
     }
 }
 
+static bool cc_tag_exists_other_kind(const CompilerContext* ctx, CCTagKind kind, const char* name) {
+    if (!ctx || !name) return false;
+    CCTagKind kinds[] = { CC_TAG_STRUCT, CC_TAG_UNION, CC_TAG_ENUM };
+    for (size_t i = 0; i < sizeof(kinds)/sizeof(kinds[0]); ++i) {
+        if (kinds[i] == kind) continue;
+        const CCTagTable* table = pick_tag_table_const(ctx, kinds[i]);
+        if (table && cc_tag_lookup_const(table, name)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool cc_has_tag(const CompilerContext* ctx, CCTagKind kind, const char* name) {
     const CCTagTable* table = pick_tag_table_const(ctx, kind);
     return table ? (cc_tag_lookup_const(table, name) != NULL) : false;
 }
+
+static CCTagRecord* cc_tag_lookup_mut_named(CompilerContext* ctx, CCTagKind kind, const char* name) {
+    CCTagTable* table = pick_tag_table(ctx, kind);
+    return table ? cc_tag_lookup_mut(table, name) : NULL;
+}
+
 bool cc_add_tag(CompilerContext* ctx, CCTagKind kind, const char* name) {
+    if (cc_tag_exists_other_kind(ctx, kind, name)) {
+        return false;
+    }
     CCTagTable* table = pick_tag_table(ctx, kind);
     return table ? cc_tag_table_add(table, name) : false;
 }
 
-CCTagDefineResult cc_define_tag(CompilerContext* ctx, CCTagKind kind, const char* name, uint64_t fingerprint) {
+CCTagDefineResult cc_define_tag(CompilerContext* ctx,
+                                CCTagKind kind,
+                                const char* name,
+                                uint64_t fingerprint,
+                                struct ASTNode* definition) {
     if (!ctx || !name) return CC_TAGDEF_CONFLICT;
+    if (cc_tag_exists_other_kind(ctx, kind, name)) {
+        return CC_TAGDEF_CONFLICT;
+    }
     if (!cc_add_tag(ctx, kind, name)) {
         return CC_TAGDEF_CONFLICT;
     }
@@ -192,10 +228,21 @@ CCTagDefineResult cc_define_tag(CompilerContext* ctx, CCTagKind kind, const char
     CCTagRecord* rec = cc_tag_lookup_mut(table, name);
     if (!rec) return CC_TAGDEF_CONFLICT;
     if (rec->isDefined) {
-        return (rec->fingerprint == fingerprint) ? CC_TAGDEF_MATCHING : CC_TAGDEF_CONFLICT;
+        if (rec->fingerprint == fingerprint) {
+            if (!rec->definition && definition) {
+                rec->definition = definition;
+            }
+            return CC_TAGDEF_MATCHING;
+        }
+        return CC_TAGDEF_CONFLICT;
     }
     rec->isDefined = true;
     rec->fingerprint = fingerprint;
+    rec->definition = definition;
+    rec->hasLayout = false;
+    rec->layoutSize = 0;
+    rec->layoutAlign = 0;
+    rec->computingLayout = false;
     return CC_TAGDEF_ADDED;
 }
 
@@ -203,6 +250,44 @@ bool cc_tag_is_defined(const CompilerContext* ctx, CCTagKind kind, const char* n
     const CCTagTable* table = pick_tag_table_const(ctx, kind);
     const CCTagRecord* rec = cc_tag_lookup_const(table, name);
     return rec ? rec->isDefined : false;
+}
+
+struct ASTNode* cc_tag_definition(const CompilerContext* ctx, CCTagKind kind, const char* name) {
+    const CCTagTable* table = pick_tag_table_const(ctx, kind);
+    const CCTagRecord* rec = cc_tag_lookup_const(table, name);
+    return rec ? rec->definition : NULL;
+}
+
+bool cc_set_tag_layout(CompilerContext* ctx, CCTagKind kind, const char* name, size_t size, size_t align) {
+    CCTagRecord* rec = cc_tag_lookup_mut_named(ctx, kind, name);
+    if (!rec) return false;
+    rec->hasLayout = true;
+    rec->layoutSize = size;
+    rec->layoutAlign = align;
+    rec->computingLayout = false;
+    return true;
+}
+
+bool cc_get_tag_layout(const CompilerContext* ctx, CCTagKind kind, const char* name, size_t* sizeOut, size_t* alignOut) {
+    const CCTagTable* table = pick_tag_table_const(ctx, kind);
+    const CCTagRecord* rec = cc_tag_lookup_const(table, name);
+    if (!rec || !rec->hasLayout) return false;
+    if (sizeOut) *sizeOut = rec->layoutSize;
+    if (alignOut) *alignOut = rec->layoutAlign;
+    return true;
+}
+
+bool cc_tag_mark_computing(CompilerContext* ctx, CCTagKind kind, const char* name, bool computing) {
+    CCTagRecord* rec = cc_tag_lookup_mut_named(ctx, kind, name);
+    if (!rec) return false;
+    rec->computingLayout = computing;
+    return true;
+}
+
+bool cc_tag_is_computing(const CompilerContext* ctx, CCTagKind kind, const char* name) {
+    const CCTagTable* table = pick_tag_table_const(ctx, kind);
+    const CCTagRecord* rec = cc_tag_lookup_const(table, name);
+    return rec ? rec->computingLayout : false;
 }
 
 bool cc_is_builtin_type(const CompilerContext* ctx, const char* name) {
@@ -218,4 +303,26 @@ bool cc_set_include_graph(CompilerContext* ctx, const IncludeGraph* graph) {
 
 const IncludeGraph* cc_get_include_graph(const CompilerContext* ctx) {
     return ctx ? &ctx->includeGraph : NULL;
+}
+
+bool cc_set_target_triple(CompilerContext* ctx, const char* triple) {
+    if (!ctx) return false;
+    free(ctx->targetTriple);
+    ctx->targetTriple = triple ? strdup(triple) : NULL;
+    return true;
+}
+
+const char* cc_get_target_triple(const CompilerContext* ctx) {
+    return ctx ? ctx->targetTriple : NULL;
+}
+
+bool cc_set_data_layout(CompilerContext* ctx, const char* layout) {
+    if (!ctx) return false;
+    free(ctx->dataLayout);
+    ctx->dataLayout = layout ? strdup(layout) : NULL;
+    return true;
+}
+
+const char* cc_get_data_layout(const CompilerContext* ctx) {
+    return ctx ? ctx->dataLayout : NULL;
 }

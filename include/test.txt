@@ -1,6 +1,5 @@
 typedef int I;
 typedef unsigned long ULong;
-
 struct Point {
     int x;
     int y;
@@ -11,6 +10,10 @@ union Data {
     float f;
 };
 
+struct Agg {
+    int a[4];
+    struct Point p;
+};
 
 enum Color {
     COLOR_RED = 1,
@@ -20,30 +23,45 @@ enum Color {
 
 typedef struct Point Point;
 
-I addNumbers(I a, I b) {
+static I addNumbers(I a, I b) {
     return a + b;
 }
 
+static I logical_short(I a, I b) {
+    return (a && (b / a)) || (a + b);
+}
+
 I mainFunction(void) {
-    Point p = { .x = 1, .y = 2 };
-    union Data d;
-    d.i = addNumbers(p.x, p.y);
+    struct Agg agg1 = {0};          // triggers memset zero
+    struct Agg agg2 = { {1,2,3,4}, {5,6} };
+    int arr[4] = {1,2,3,4};
+    int *p = &arr[0];
+    int *q = &arr[3];
+    ptrdiff_t diff = q - p;         // pointer diff
+    unsigned int ux = 10u;          // tests ternary merge unsigned
+    int sw = 0;
+    int *p2 = p;
 
-    I value = (I)(p.x * d.i);
-    ULong scale = sizeof(Point) + sizeof(union Data);
+    agg1 = agg2;                    // triggers memcpy copy
 
-    if (value > 3) {
-        value = value + (I)scale;
-    } else {
-        value -= 1;
+    I value = addNumbers(agg1.p.x, agg1.p.y);
+    value += logical_short(value, arr[0]);
+    value += (value > 0) ? (I)ux : -1;
+
+    sw = arr[2];
+    switch (sw) {
+        case 1: value += 1; break;
+        case 2: value += 2; break;
+        case 3: value += 3; /* fallthrough */
+        case 4: value += 4; break;
+        case 100: value += 100; break;
+        default: value -= 5; break;
     }
 
-    I i = 0;
-    while (i < 2) {
-        value += i;
-        ++i;
-    }
+    p2 = p + 2; // pointer add/sub
+    value += *p2;
+    p2 = p2 - 1;
+    value += *p2;
 
-
-    return value;
+    return value + (I)diff;
 }
