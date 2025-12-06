@@ -179,6 +179,20 @@ void printBasicAST(struct ASTNode* node, int depth, bool inlineMode) {
         case AST_IDENTIFIER:
             printf("IDENTIFIER %s", node->valueNode.value);
             break;
+        case AST_UNARY_EXPRESSION:
+            if (inlineMode) {
+                const char* op = node->expr.op ? node->expr.op : "";
+                if (node->expr.isPostfix) {
+                    printBasicAST(node->expr.left, depth, true);
+                    printf("%s", op);
+                } else {
+                    printf("%s", op);
+                    printBasicAST(node->expr.left, depth, true);
+                }
+                break;
+            }
+            printAST(node, depth);
+            return;
         case AST_COMMA_EXPRESSION:
             printf("COMMA EXPRESSION");
             if (!inlineMode) printf("\n");
@@ -360,7 +374,30 @@ void printAST(ASTNode* node, int depth) {
                 const ParsedType* pt = perTypes ? &perTypes[i] : &node->varDecl.declaredType;
                 printParsedType(pt);
 
-                printAST(node->varDecl.varNames[i], depth + 1);
+                if (node->varDecl.varNames[i]) {
+                    printAST(node->varDecl.varNames[i], depth + 1);
+                } else {
+                    for (int indent = 0; indent < depth + 1; indent++) printf("  ");
+                    printf("IDENTIFIER <unnamed>\n");
+                }
+
+                if (node->varDecl.bitFieldWidth) {
+                    for (int indent = 0; indent < depth + 2; indent++) printf("  ");
+                    printf("BITFIELD : ");
+                    bool simpleWidth =
+                        node->varDecl.bitFieldWidth->type == AST_NUMBER_LITERAL ||
+                        node->varDecl.bitFieldWidth->type == AST_IDENTIFIER ||
+                        node->varDecl.bitFieldWidth->type == AST_CHAR_LITERAL ||
+                        node->varDecl.bitFieldWidth->type == AST_STRING_LITERAL ||
+                        node->varDecl.bitFieldWidth->type == AST_UNARY_EXPRESSION;
+                    if (simpleWidth) {
+                        printBasicAST(node->varDecl.bitFieldWidth, 0, true);
+                        printf("\n");
+                    } else {
+                        printf("\n");
+                        printAST(node->varDecl.bitFieldWidth, depth + 3);
+                    }
+                }
 
                 DesignatedInit* init = node->varDecl.initializers[i];
                 if (!init) continue;

@@ -179,6 +179,64 @@ ASTNode* parseProgram(Parser* parser) {
             }
         }
 
+        if (parser->currentToken.type == TOKEN_STRUCT) {
+            Token n = peekNextToken(parser);
+            Token a = peekTwoTokensAhead(parser);
+            if ((n.type == TOKEN_IDENTIFIER && a.type == TOKEN_LBRACE) ||
+                n.type == TOKEN_LBRACE) {
+                ASTNode* def = parseStructDefinition(parser);
+                if (def) {
+                    if (count >= capacity) {
+                        size_t new_cap = capacity * 2;
+                        ASTNode** tmp = realloc(statements, new_cap * sizeof(*tmp));
+                        if (!tmp) { free(statements); return NULL; }
+                        statements = tmp;
+                        capacity = new_cap;
+                    }
+                    statements[count++] = def;
+                    continue;
+                }
+            }
+        }
+
+        if (parser->currentToken.type == TOKEN_UNION) {
+            Token n = peekNextToken(parser);
+            Token a = peekTwoTokensAhead(parser);
+            if ((n.type == TOKEN_IDENTIFIER && a.type == TOKEN_LBRACE) ||
+                n.type == TOKEN_LBRACE) {
+                ASTNode* def = parseUnionDefinition(parser);
+                if (def) {
+                    if (count >= capacity) {
+                        size_t new_cap = capacity * 2;
+                        ASTNode** tmp = realloc(statements, new_cap * sizeof(*tmp));
+                        if (!tmp) { free(statements); return NULL; }
+                        statements = tmp;
+                        capacity = new_cap;
+                    }
+                    statements[count++] = def;
+                    continue;
+                }
+            }
+        }
+
+        if (parser->currentToken.type == TOKEN_ENUM) {
+            Token n = peekNextToken(parser);
+            if ((n.type == TOKEN_IDENTIFIER || n.type == TOKEN_LBRACE)) {
+                ASTNode* def = parseEnumDefinition(parser);
+                if (def) {
+                    if (count >= capacity) {
+                        size_t new_cap = capacity * 2;
+                        ASTNode** tmp = realloc(statements, new_cap * sizeof(*tmp));
+                        if (!tmp) { free(statements); return NULL; }
+                        statements = tmp;
+                        capacity = new_cap;
+                    }
+                    statements[count++] = def;
+                    continue;
+                }
+            }
+        }
+
         if (looksLikeTypeDeclaration(parser)) {
             ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
             if (!decl) { 

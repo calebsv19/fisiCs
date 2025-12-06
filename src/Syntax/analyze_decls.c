@@ -351,6 +351,13 @@ static void validateArrayInitializerEntries(ParsedType* type,
                                             long long* outInferredLength);
 static void validateBitField(ASTNode* field, ParsedType* fieldType, Scope* scope);
 
+static void analyzeInlineAggregateDefinition(const ParsedType* type, Scope* scope) {
+    if (!type) return;
+    if (type->inlineStructOrUnionDef) {
+        analyzeDeclaration(type->inlineStructOrUnionDef, scope);
+    }
+}
+
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
     switch (node->type) {
         case AST_VARIABLE_DECLARATION: {
@@ -359,6 +366,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 ASTNode* ident = node->varDecl.varNames[i];
                 ParsedType* varType = declaredTypes ? &declaredTypes[i]
                                                      : &node->varDecl.declaredType;
+                analyzeInlineAggregateDefinition(varType, scope);
                 TypeInfo varInfo = typeInfoFromParsedType(varType, scope);
                 StorageClass storage = deduceStorageClass(varType);
                 SymbolLinkage linkage = deduceLinkage(varType, scopeIsFileScope(scope));
@@ -824,6 +832,12 @@ static void validateVariableInitializer(ParsedType* type,
     if (!init) return;
     const char* name = safeIdentifierName(nameNode);
     TypeInfo info = typeInfoFromParsedType(type, scope);
+    if (init->expression &&
+        init->expression->type == AST_COMPOUND_LITERAL &&
+        typeInfoIsPointerLike(&info)) {
+        // Allow pointer initialized from any compound literal (array decays; struct becomes pointer to first field unsupported but not here).
+        return;
+    }
     if (typeInfoIsStructLike(&info)) {
         if (!init->expression || init->expression->type != AST_COMPOUND_LITERAL) {
             char buffer[256];
@@ -1054,9 +1068,13 @@ static void validateBitField(ASTNode* field, ParsedType* fieldType, Scope* scope
         return;
     }
 
-    const char* name = safeIdentifierName(field->varDecl.varNames ? field->varDecl.varNames[0] : NULL);
-    bool hasName = name != NULL;
-    if (width == 0 && hasName) {
+    ASTNode* nameNode = field->varDecl.varNames ? field->varDecl.varNames[0] : NULL;
+    const char* name = safeIdentifierName(nameNode);
+    bool hasExplicitName =
+        nameNode &&
+        nameNode->type == AST_IDENTIFIER &&
+        nameNode->valueNode.value != NULL;
+    if (width == 0 && hasExplicitName) {
         addErrorWithRanges(field->location,
                            field->macroCallSite,
                            field->macroDefinition,

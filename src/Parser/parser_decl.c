@@ -151,14 +151,13 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         PointerChain chain = parsePointerChain(parser);
         applyPointerChainToType(&paramType, &chain);
         pointerChainFree(&chain);
-        parserConsumeArraySuffixes(parser, &paramType);
 
+        // Consume identifier if present (regardless of following '[') to allow array declarators like int a[n]
         if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-            TokenType look = peekNextToken(parser).type;
-            if (look == TOKEN_COMMA || look == TOKEN_RPAREN) {
-                advance(parser);
-            }
+            advance(parser);
         }
+
+        parserConsumeArraySuffixes(parser, &paramType);
 
         if (out->count == capacity) {
             size_t newCap = capacity == 0 ? 4 : capacity * 2;
@@ -572,6 +571,9 @@ ASTNode* parseStructDefinition(Parser* parser) {
     }
     advance(parser);  // consume '}'
 
+    size_t trailingAttrCount = 0;
+    ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
+
     // NOTE: In standard C, an identifier *after* '}' would start a declarator
     // (e.g., 'struct S { ... } var;'). Your function treats it as an "optional trailing name".
     // That trailing identifier is *not* a tag; do NOT record it as a tag.
@@ -593,11 +595,16 @@ ASTNode* parseStructDefinition(Parser* parser) {
         def->line = structLine;
         if (def->structDef.structName) def->structDef.structName->line = structLine;
         astNodeAppendAttributes(def, structAttrs, structAttrCount);
+        astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
         structAttrs = NULL;
         structAttrCount = 0;
+        trailingAttrs = NULL;
+        trailingAttrCount = 0;
     } else {
         astAttributeListDestroy(structAttrs, structAttrCount);
         free(structAttrs);
+        astAttributeListDestroy(trailingAttrs, trailingAttrCount);
+        free(trailingAttrs);
     }
     return def;
 }
@@ -640,6 +647,9 @@ ASTNode* parseUnionDefinition(Parser* parser) {
     }
     advance(parser);  // consume '}'
 
+    size_t trailingAttrCount = 0;
+    ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
+
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
         printParseError("Expected ';' after union definition", parser);
         return NULL;
@@ -653,11 +663,16 @@ ASTNode* parseUnionDefinition(Parser* parser) {
         def->line = unionLine;
         if (def->structDef.structName) def->structDef.structName->line = unionLine;
         astNodeAppendAttributes(def, unionAttrs, unionAttrCount);
+        astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
         unionAttrs = NULL;
         unionAttrCount = 0;
+        trailingAttrs = NULL;
+        trailingAttrCount = 0;
     } else {
         astAttributeListDestroy(unionAttrs, unionAttrCount);
         free(unionAttrs);
+        astAttributeListDestroy(trailingAttrs, trailingAttrCount);
+        free(trailingAttrs);
     }
     return def;
 }
@@ -680,11 +695,16 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
         }
 
         ParsedDeclarator decl;
-        if (!parserParseDeclarator(parser, &type, false, true, &decl)) {
+        if (!parserParseDeclarator(parser, &type, false, false, &decl)) {
             printParseError("Invalid field declarator", parser);
             break;
         }
         ASTNode* fieldName = decl.identifier;
+
+        if (!fieldName && parser->currentToken.type != TOKEN_COLON) {
+            printParseError("Expected identifier for struct/union field (unnamed only allowed for bitfields)", parser);
+            break;
+        }
 
         // Optional bitfield width
         ASTNode* bitFieldWidth = NULL;
@@ -893,6 +913,64 @@ ASTNode* parseTypedef(Parser* parser) {
 
 
 ASTNode* handleStructStatements(Parser* parser) {
+    // Obvious struct definition patterns: struct S { ... }; or struct { ... };
+    Token nextTok = peekNextToken(parser);
+    Token afterTok = peekTwoTokensAhead(parser);
+    if ((nextTok.type == TOKEN_IDENTIFIER && afterTok.type == TOKEN_LBRACE) ||
+        nextTok.type == TOKEN_LBRACE) {
+        return parseStructDefinition(parser);
+    }
+
+    // Allow bare struct/union definitions at file scope: `struct S { ... };`
+    Parser defProbe = cloneParserWithFreshLexer(parser);
+    ParsedType defProbeType = parseType(&defProbe);
+    if (defProbeType.inlineStructOrUnionDef && defProbe.currentToken.type == TOKEN_SEMICOLON) {
+        parsedTypeFree(&defProbeType);
+        freeParserClone(&defProbe);
+
+        ParsedType realType = parseType(parser);
+        ASTNode* def = realType.inlineStructOrUnionDef;
+        if (!def) {
+            parsedTypeFree(&realType);
+            printParseError("Invalid struct/union definition", parser);
+            return NULL;
+        }
+        if (parser->currentToken.type != TOKEN_SEMICOLON) {
+            parsedTypeFree(&realType);
+            printParseError("Expected ';' after struct/union definition", parser);
+            return NULL;
+        }
+        advance(parser); // consume ';'
+        parsedTypeFree(&realType); // leaves inline def intact
+        return def;
+    }
+    parsedTypeFree(&defProbeType);
+    freeParserClone(&defProbe);
+
+    // First, attempt to treat this as a declaration (including inline definitions)
+    Parser probe = cloneParserWithFreshLexer(parser);
+    ParsedType probeType = parseType(&probe);
+    bool looksLikeDeclaratorStart =
+        (probe.currentToken.type == TOKEN_IDENTIFIER) ||
+        (probe.currentToken.type == TOKEN_ASTERISK)   ||
+        (probe.currentToken.type == TOKEN_LPAREN);
+    if (probeType.kind != TYPE_INVALID && looksLikeDeclaratorStart) {
+        ParsedDeclarator probeDecl;
+        if (parserParseDeclarator(&probe,
+                                  &probeType,
+                                  true,
+                                  true,
+                                  &probeDecl)) {
+            parserDeclaratorDestroy(&probeDecl);
+            parsedTypeFree(&probeType);
+            freeParserClone(&probe);
+            return handleTypeOrFunctionDeclaration(parser);
+        }
+        parserDeclaratorDestroy(&probeDecl);
+    }
+    parsedTypeFree(&probeType);
+    freeParserClone(&probe);
+
     Parser look = cloneParserWithFreshLexer(parser);
     advance(&look); // consume 'struct'
     size_t skippedAttrCount = 0;

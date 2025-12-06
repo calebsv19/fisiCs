@@ -21,6 +21,24 @@ static ParsedType intType(void) {
     return t;
 }
 
+static ParsedType longType(bool isUnsigned) {
+    ParsedType t;
+    memset(&t, 0, sizeof(t));
+    t.kind = TYPE_PRIMITIVE;
+    t.primitiveType = TOKEN_LONG;
+    t.isLong = true;
+    t.isUnsigned = isUnsigned;
+    return t;
+}
+
+static Symbol* makeTypedef(const char* name, ParsedType base, CompilerContext* ctx) {
+    Symbol* sym = makeBuiltin(name, SYMBOL_TYPEDEF, base, NULL);
+    if (sym && ctx) {
+        cc_add_typedef(ctx, name);
+    }
+    return sym;
+}
+
 void seedBuiltins(Scope* globalScope) {
     if (!globalScope) return;
 
@@ -52,6 +70,22 @@ void seedBuiltins(Scope* globalScope) {
         falseSym->definition = NULL;
         addToScope(scope, falseSym);
     }
+
+    // Common typedefs for standalone builds without headers
+    Symbol* sz  = makeTypedef("size_t",    longType(true), scope->ctx);
+    Symbol* ssz = makeTypedef("ssize_t",   longType(false), scope->ctx);
+    Symbol* ip  = makeTypedef("intptr_t",  longType(false), scope->ctx);
+    Symbol* uip = makeTypedef("uintptr_t", longType(true), scope->ctx);
+    Symbol* pd  = makeTypedef("ptrdiff_t", longType(false), scope->ctx);
+    if (sz)  addToScope(scope, sz);
+    if (ssz) addToScope(scope, ssz);
+    if (ip)  addToScope(scope, ip);
+    if (uip) addToScope(scope, uip);
+    if (pd)  addToScope(scope, pd);
+
+    // NULL as a weak builtin integer macro substitute
+    Symbol* nullSym = makeBuiltin("NULL", SYMBOL_VARIABLE, longType(true), NULL);
+    if (nullSym) addToScope(scope, nullSym);
 
     if (scope->ctx) {
         cc_add_typedef(scope->ctx, "bool");

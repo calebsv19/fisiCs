@@ -133,6 +133,20 @@ else
 	@./tests/codegen/run_codegen_pointer_diff_long.sh ./$(BIN)
 endif
 
+codegen-function-pointer-call: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-function-pointer-call (codegen disabled)"
+else
+	@./tests/codegen/run_function_pointer_call.sh ./$(BIN)
+endif
+
+codegen-compound-literal-pointer-decay: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-compound-literal-pointer-decay (codegen disabled)"
+else
+	@./tests/codegen/run_compound_literal_pointer_decay.sh ./$(BIN)
+endif
+
 statement-expr-codegen: $(BIN)
 ifeq ($(DISABLE_CODEGEN),1)
 	@echo "Skipping statement-expr-codegen (codegen disabled)"
@@ -182,6 +196,12 @@ semantic-vla-errors: $(BIN)
 semantic-vla-block: $(BIN)
 	@./tests/syntax/run_semantic_vla_block.sh ./$(BIN)
 
+semantic-struct-definition-only: $(BIN)
+	@./tests/syntax/run_semantic_struct_definition_only.sh ./$(BIN)
+
+semantic-vla-param-decay: $(BIN)
+	@./tests/syntax/run_semantic_vla_param_decay.sh ./$(BIN)
+
 compound-literal-lvalues: $(BIN)
 	@./tests/syntax/run_compound_literal_lvalues.sh ./$(BIN)
 
@@ -202,9 +222,12 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
               semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
               semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
               semantic-initializer-shapes semantic-flow semantic-vla-errors semantic-vla-block \
+              semantic-struct-definition-only semantic-vla-param-decay \
               compound-literal-lvalues
 
-codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff statement-expr-codegen
+codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff \
+               codegen-function-pointer-call codegen-compound-literal-pointer-decay \
+               statement-expr-codegen
 
 test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests
 preprocessor-tests: $(BIN)
@@ -228,8 +251,10 @@ tests: test
         goto-flow semantic-typedef semantic-initializer semantic-undeclared \
         semantic-bool semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
         semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
-        semantic-initializer-shapes semantic-flow codegen-pointer-deref codegen-pointer-diff \
+        semantic-initializer-shapes semantic-flow semantic-struct-definition-only \
+        semantic-vla-param-decay codegen-pointer-deref codegen-pointer-diff \
         compound-literal-lvalues \
+        codegen-function-pointer-call codegen-compound-literal-pointer-decay \
         statement-expr-enabled statement-expr-disabled recovery preprocessor-tests \
         statement-expr-codegen \
         parser-tests syntax-tests codegen-tests spec-tests test tests

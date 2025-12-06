@@ -198,6 +198,8 @@ static bool layout_struct_fields(ASTNode* def,
                                  size_t* alignOut) {
     size_t offset = 0;
     size_t maxAlign = 1;
+    size_t bitOffset = 0;       // bit position within current storage unit
+    size_t currentUnitSize = 0; // bytes of the current bitfield storage unit
     if (!def) return false;
     bool packed = false;
     size_t structAlignOverride = 0;
@@ -207,28 +209,90 @@ static bool layout_struct_fields(ASTNode* def,
         if (!field || field->type != AST_VARIABLE_DECLARATION) {
             continue;
         }
+        bool isBitfield = field->varDecl.bitFieldWidth != NULL;
         bool fieldPacked = packed;
         size_t fieldAlignOverride = 0;
         collectAttrLayout(field->attributes, field->attributeCount, &fieldPacked, &fieldAlignOverride);
         ParsedType* baseType = field->varDecl.declaredTypes
             ? &field->varDecl.declaredTypes[0]
             : &field->varDecl.declaredType;
-        size_t fieldSize = 0, fieldAlign = 0;
-        bool ok = size_align_of_parsed_type(baseType, scope, &fieldSize, &fieldAlign);
-        if (!ok) return false;
-        if (fieldAlign == 0) fieldAlign = 1;
-        if (fieldPacked) fieldAlign = 1;
-        if (fieldAlignOverride > 0 && fieldAlignOverride > fieldAlign) {
-            fieldAlign = fieldAlignOverride;
-        }
-        offset = round_up(offset, fieldAlign);
-        offset += fieldSize;
-        if (fieldAlign > maxAlign) {
-            maxAlign = fieldAlign;
+
+        if (isBitfield) {
+            long long widthVal = 0;
+            if (!constEvalInteger(field->varDecl.bitFieldWidth, scope, &widthVal, true)) {
+                return false;
+            }
+            size_t fieldSize = 0, fieldAlign = 0;
+            if (!size_align_of_parsed_type(baseType, scope, &fieldSize, &fieldAlign)) {
+                return false;
+            }
+            if (fieldSize == 0) return false;
+            size_t unitBits = fieldSize * 8;
+            if (fieldPacked) fieldAlign = 1;
+            if (fieldAlignOverride > 0 && fieldAlignOverride > fieldAlign) {
+                fieldAlign = fieldAlignOverride;
+            }
+            if (fieldAlign == 0) fieldAlign = 1;
+            if (fieldAlign > maxAlign) maxAlign = fieldAlign;
+
+            // Align to storage unit before placing bitfield
+            offset = round_up(offset, fieldAlign);
+            if (widthVal == 0) {
+                // Zero-width forces alignment to next storage unit boundary
+                if (bitOffset > 0) {
+                    offset += currentUnitSize;
+                }
+                bitOffset = 0;
+                currentUnitSize = 0;
+                continue;
+            }
+            size_t width = (size_t)widthVal;
+            if (width > unitBits) return false;
+            if (bitOffset == 0) {
+                currentUnitSize = fieldSize;
+            }
+            // If not enough bits remain, move to next unit
+            if (bitOffset + width > unitBits) {
+                offset += currentUnitSize;
+                bitOffset = 0;
+                currentUnitSize = fieldSize;
+            }
+            bitOffset += width;
+            if (bitOffset == unitBits) {
+                offset += currentUnitSize;
+                bitOffset = 0;
+                currentUnitSize = 0;
+            }
+        } else {
+            // Flush any in-progress bitfield storage before a non-bitfield
+            if (bitOffset > 0) {
+                offset += currentUnitSize;
+                bitOffset = 0;
+                currentUnitSize = 0;
+            }
+
+            size_t fieldSize = 0, fieldAlign = 0;
+            bool ok = size_align_of_parsed_type(baseType, scope, &fieldSize, &fieldAlign);
+            if (!ok) return false;
+            if (fieldAlign == 0) fieldAlign = 1;
+            if (fieldPacked) fieldAlign = 1;
+            if (fieldAlignOverride > 0 && fieldAlignOverride > fieldAlign) {
+                fieldAlign = fieldAlignOverride;
+            }
+            offset = round_up(offset, fieldAlign);
+            offset += fieldSize;
+            if (fieldAlign > maxAlign) {
+                maxAlign = fieldAlign;
+            }
         }
         // handle multiple declarators
         if (field->varDecl.varCount > 1 && field->varDecl.declaredTypes) {
             for (size_t k = 1; k < field->varDecl.varCount; ++k) {
+                if (bitOffset > 0) {
+                    offset += currentUnitSize;
+                    bitOffset = 0;
+                    currentUnitSize = 0;
+                }
                 ParsedType* t = &field->varDecl.declaredTypes[k];
                 size_t sz = 0, al = 0;
                 if (!size_align_of_parsed_type(t, scope, &sz, &al)) return false;
@@ -240,6 +304,12 @@ static bool layout_struct_fields(ASTNode* def,
                 if (al > maxAlign) maxAlign = al;
             }
         }
+    }
+    // Flush any remaining bitfield storage
+    if (bitOffset > 0) {
+        offset += currentUnitSize;
+        bitOffset = 0;
+        currentUnitSize = 0;
     }
     size_t finalAlign = maxAlign;
     if (packed && structAlignOverride == 0) {

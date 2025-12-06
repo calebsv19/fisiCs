@@ -1,0 +1,31 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: ptrdiff_t
+    IDENTIFIER diff
+  VAR_DECL
+    TYPE: size_t
+    IDENTIFIER sz
+      = NUMBER_LITERAL 4u
+  VAR_DECL
+    TYPE: ssize_t
+    IDENTIFIER ss
+  VAR_DECL
+    TYPE: uintptr_t
+    IDENTIFIER up
+  VAR_DECL
+    TYPE: intptr_t
+    IDENTIFIER ip
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    BLOCK
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          IDENTIFIER sz
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

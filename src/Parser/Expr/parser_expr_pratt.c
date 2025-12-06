@@ -8,6 +8,8 @@
 #include "parser_main.h"
 #include "AST/ast_node.h"
 
+#include <stdlib.h>
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -478,6 +480,54 @@ void consumeAbstractDeclarator(Parser* p) {
     }
 }
 
+// Consume abstract declarators and record simple pointer/array layers onto `type`.
+// Falls back to the lightweight skipper when patterns are more complex.
+void consumeAbstractDeclaratorIntoType(Parser* p, ParsedType* type) {
+    if (!type) {
+        consumeAbstractDeclarator(p);
+        return;
+    }
+
+    // Leading pointer stars
+    while (p->currentToken.type == TOKEN_ASTERISK) {
+        parsedTypeAppendPointer(type);
+        advance(p);
+    }
+
+    bool sawComplex = false;
+    while (p->currentToken.type == TOKEN_LPAREN) {
+        // For now, treat parenthesised abstract declarators as opaque.
+        sawComplex = true;
+        consumeBalancedParens(p);
+    }
+
+    // Array suffixes
+    while (p->currentToken.type == TOKEN_LBRACKET) {
+        advance(p); // '['
+        ASTNode* sizeExpr = NULL;
+        if (p->currentToken.type != TOKEN_RBRACKET) {
+            sizeExpr = parseExpressionPratt(p, 0);
+        }
+        if (p->currentToken.type != TOKEN_RBRACKET) {
+            printParseError("Expected ']' after array declarator", p);
+            return;
+        }
+        advance(p); // ']'
+
+        parsedTypeAppendArray(type, sizeExpr, false);
+        TypeDerivation* arr = parsedTypeGetMutableArrayDerivation(type, type->derivationCount - 1);
+        if (arr && sizeExpr && sizeExpr->type == AST_NUMBER_LITERAL && sizeExpr->valueNode.value) {
+            arr->as.array.hasConstantSize = true;
+            arr->as.array.constantSize = atoll(sizeExpr->valueNode.value);
+        }
+    }
+
+    if (sawComplex) {
+        // Consume any remaining nested pieces without recording details.
+        consumeAbstractDeclarator(p);
+    }
+}
+
 
 bool looksLikeParenTypeName(Parser* parser) {
     if (parser->currentToken.type != TOKEN_LPAREN) return false;
@@ -638,8 +688,8 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
         return NULL;
     }
 
-    // allow things like int[], int(*)(void), etc.
-    consumeAbstractDeclarator(parser);
+    // allow things like int[], int(*)(void), etc., and record them on the type
+    consumeAbstractDeclaratorIntoType(parser, &literalType);
 
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' after compound literal type", parser);

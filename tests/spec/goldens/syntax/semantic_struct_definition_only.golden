@@ -1,0 +1,38 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER S
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER a
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct S
+        IDENTIFIER t
+            .a = NUMBER_LITERAL 1
+
+            .b = NUMBER_LITERAL 2
+
+      RETURN
+        BINARY EXPRESSION '+'
+          DOT_ACCESS '.'
+            IDENTIFIER t
+            FIELD a
+          DOT_ACCESS '.'
+            IDENTIFIER t
+            FIELD b
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

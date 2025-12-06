@@ -6,6 +6,60 @@
 #include <string.h>
 #include <stdint.h>
 
+static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
+                                                 const ParsedType* type,
+                                                 size_t fallbackArgCount,
+                                                 LLVMValueRef* args) {
+    if (!ctx || !type) {
+        return NULL;
+    }
+
+    LLVMTypeRef returnType = NULL;
+    switch (type->primitiveType) {
+        case TOKEN_INT:    returnType = LLVMInt32TypeInContext(ctx->llvmContext); break;
+        case TOKEN_CHAR:   returnType = LLVMInt8TypeInContext(ctx->llvmContext);  break;
+        case TOKEN_BOOL:   returnType = LLVMInt1TypeInContext(ctx->llvmContext);  break;
+        case TOKEN_VOID:   returnType = LLVMVoidTypeInContext(ctx->llvmContext);  break;
+        default: break;
+    }
+    if (!returnType) {
+        ParsedType retClone = parsedTypeClone(type);
+        retClone.isFunctionPointer = false;
+        retClone.fpParamCount = 0;
+        retClone.fpParams = NULL;
+        retClone.derivationCount = 0;
+        retClone.pointerDepth = 0;
+
+        returnType = cg_type_from_parsed(ctx, &retClone);
+        parsedTypeFree(&retClone);
+    }
+    if (!returnType || LLVMGetTypeKind(returnType) == LLVMVoidTypeKind ||
+        LLVMGetTypeKind(returnType) == LLVMPointerTypeKind) {
+        returnType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+
+    size_t count = type->fpParamCount ? type->fpParamCount : fallbackArgCount;
+    LLVMTypeRef* params = NULL;
+    if (count > 0) {
+        params = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * count);
+        if (!params) return NULL;
+        for (size_t i = 0; i < count; ++i) {
+            if (type->fpParamCount > 0 && type->fpParams) {
+                params[i] = cg_type_from_parsed(ctx, &type->fpParams[i]);
+            } else if (args && i < fallbackArgCount) {
+                params[i] = args[i] ? LLVMTypeOf(args[i]) : NULL;
+            }
+            if (!params[i]) {
+                params[i] = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+        }
+    }
+
+    LLVMTypeRef fnType = LLVMFunctionType(returnType, params, (unsigned)count, 0);
+    free(params);
+    return fnType;
+}
+
 LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_BINARY_EXPRESSION) {
         fprintf(stderr, "Error: Invalid node type for codegenBinaryExpression\n");
@@ -18,7 +72,8 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: Failed to generate LHS for binary expression\n");
         return NULL;
     }
-
+    LLVMValueRef Rdbg = NULL;
+    (void)Rdbg;
     if (strcmp(op, "&&") == 0) {
         return codegenLogicalAndOr(ctx, L, node->expr.right, true);
     }
@@ -714,22 +769,24 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    if (!node->functionCall.callee || node->functionCall.callee->type != AST_IDENTIFIER) {
+    if (!node->functionCall.callee) {
         fprintf(stderr, "Error: Unsupported callee in function call\n");
         return NULL;
     }
 
-    LLVMValueRef function = LLVMGetNamedFunction(ctx->module,
-                                                 node->functionCall.callee->valueNode.value);
+    const ParsedType* calleeParsed = cg_resolve_expression_type(ctx, node->functionCall.callee);
+    const char* calleeName = node->functionCall.callee->type == AST_IDENTIFIER
+        ? node->functionCall.callee->valueNode.value
+        : NULL;
+
+    LLVMValueRef function = codegenNode(ctx, node->functionCall.callee);
     if (!function) {
         fprintf(stderr, "Error: Undefined function %s\n",
-                node->functionCall.callee->valueNode.value);
+                calleeName ? calleeName : "<expr>");
         return NULL;
     }
 
-    char* rawFnType = LLVMPrintTypeToString(LLVMTypeOf(function));
-    CG_DEBUG("[CG] Function call raw type: %s\n", rawFnType ? rawFnType : "<null>");
-    if (rawFnType) LLVMDisposeMessage(rawFnType);
+    // Opaque-pointer friendly: prefer semantic signature, only peel one level of pointer-to-function.
 
     LLVMValueRef* args = NULL;
     if (node->functionCall.argumentCount > 0) {
@@ -741,43 +798,22 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     }
 
     LLVMTypeRef calleeType = NULL;
-    const SemanticModel* model = cg_context_get_semantic_model(ctx);
-    if (model) {
-        const char* name = node->functionCall.callee->valueNode.value;
-        const Symbol* sym = semanticModelLookupGlobal(model, name);
-        if (sym && sym->kind == SYMBOL_FUNCTION) {
-            LLVMTypeRef returnType = cg_type_from_parsed(ctx, &sym->type);
-            if (!returnType || LLVMGetTypeKind(returnType) == LLVMVoidTypeKind) {
-                returnType = LLVMVoidTypeInContext(ctx->llvmContext);
-            }
-
-            size_t paramCount = 0;
-            ASTNode** params = NULL;
-            if (sym->definition) {
-                if (sym->definition->type == AST_FUNCTION_DEFINITION) {
-                    paramCount = sym->definition->functionDef.paramCount;
-                    params = sym->definition->functionDef.parameters;
-                } else if (sym->definition->type == AST_FUNCTION_DECLARATION) {
-                    paramCount = sym->definition->functionDecl.paramCount;
-                    params = sym->definition->functionDecl.parameters;
-                }
-            }
-
-            size_t flattenedCount = 0;
-            LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
-            calleeType = LLVMFunctionType(returnType, paramTypes, (unsigned)flattenedCount, 0);
-            free(paramTypes);
-        }
+    if (calleeParsed) {
+        calleeType = functionTypeFromPointerParsed(ctx, calleeParsed, node->functionCall.argumentCount, args);
     }
-
     if (!calleeType) {
         calleeType = LLVMTypeOf(function);
-        if (LLVMGetTypeKind(calleeType) == LLVMPointerTypeKind) {
+        if (calleeType && LLVMGetTypeKind(calleeType) == LLVMPointerTypeKind) {
             LLVMTypeRef element = LLVMGetElementType(calleeType);
-            if (element) {
+            if (element && LLVMGetTypeKind(element) == LLVMFunctionTypeKind) {
                 calleeType = element;
             }
         }
+    }
+    if (!calleeType || LLVMGetTypeKind(calleeType) != LLVMFunctionTypeKind) {
+        fprintf(stderr, "Error: call target is not a function type\n");
+        free(args);
+        return NULL;
     }
 
     char* resolvedFnType = LLVMPrintTypeToString(calleeType);
@@ -920,6 +956,10 @@ LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
 
     LLVMValueRef global = LLVMGetNamedGlobal(ctx->module, node->valueNode.value);
     if (!global) {
+        LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, node->valueNode.value);
+        if (fn) {
+            return fn;
+        }
         fprintf(stderr, "Error: Undefined variable %s\n", node->valueNode.value);
         return NULL;
     }

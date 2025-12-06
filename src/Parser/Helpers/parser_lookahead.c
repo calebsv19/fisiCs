@@ -21,6 +21,35 @@ bool looksLikeTypeDeclaration(Parser* parser) {
     if (parser->currentToken.type == TOKEN_TYPEDEF) {
         return false; // handled explicitly via parseTypedef
     }
+
+    // Fast path: obvious type-start tokens
+    switch (parser->currentToken.type) {
+        case TOKEN_INT:
+        case TOKEN_FLOAT:
+        case TOKEN_DOUBLE:
+        case TOKEN_CHAR:
+        case TOKEN_LONG:
+        case TOKEN_SHORT:
+        case TOKEN_SIGNED:
+        case TOKEN_UNSIGNED:
+        case TOKEN_VOID:
+        case TOKEN_BOOL:
+        case TOKEN_STRUCT:
+        case TOKEN_UNION:
+        case TOKEN_ENUM:
+        case TOKEN_CONST:
+        case TOKEN_VOLATILE:
+        case TOKEN_RESTRICT:
+        case TOKEN_INLINE:
+        case TOKEN_STATIC:
+        case TOKEN_EXTERN:
+        case TOKEN_AUTO:
+        case TOKEN_REGISTER:
+            return true;
+        default:
+            break;
+    }
+
     Parser temp = cloneParserWithFreshLexer(parser);
     ParsedType probe = parseTypeCtx(&temp, TYPECTX_Strict);
     bool result = false;

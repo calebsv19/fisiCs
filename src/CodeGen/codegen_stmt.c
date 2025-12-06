@@ -3,10 +3,128 @@
 #include "codegen_types.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static LLVMValueRef ensureIntegerLLVMValue(CodegenContext* ctx, LLVMValueRef value);
 static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType* type);
+
+static bool cg_parsed_type_is_pointer_like(const ParsedType* type) {
+    if (!type) return false;
+    if (type->isFunctionPointer || type->pointerDepth > 0) return true;
+    return parsedTypeCountDerivationsOfKind(type, TYPE_DERIVATION_POINTER) > 0;
+}
+
+static bool cg_try_eval_initializer_index(ASTNode* expr, unsigned long long* outIndex) {
+    if (!expr || !outIndex) return false;
+    switch (expr->type) {
+        case AST_NUMBER_LITERAL:
+            *outIndex = strtoull(expr->valueNode.value ? expr->valueNode.value : "0", NULL, 0);
+            return true;
+        case AST_CHAR_LITERAL:
+            if (expr->valueNode.value && expr->valueNode.value[0] != '\0') {
+                *outIndex = (unsigned char)expr->valueNode.value[0];
+                return true;
+            }
+            break;
+        default:
+            break;
+    }
+    return false;
+}
+
+static unsigned long long cg_guess_compound_literal_length(ASTNode* literal) {
+    if (!literal || literal->type != AST_COMPOUND_LITERAL) return 0;
+    unsigned long long maxIndexPlusOne = 0;
+    unsigned long long implicit = 0;
+    for (size_t i = 0; i < literal->compoundLiteral.entryCount; ++i) {
+        DesignatedInit* entry = literal->compoundLiteral.entries[i];
+        if (!entry) continue;
+
+        unsigned long long idx = implicit;
+        if (entry->indexExpr) {
+            if (!cg_try_eval_initializer_index(entry->indexExpr, &idx)) {
+                return 0; // unknown size
+            }
+            implicit = idx + 1;
+        } else {
+            implicit = idx + 1;
+        }
+        if (idx + 1 > maxIndexPlusOne) {
+            maxIndexPlusOne = idx + 1;
+        }
+    }
+    if (maxIndexPlusOne == 0) {
+        return literal->compoundLiteral.entryCount;
+    }
+    return maxIndexPlusOne;
+}
+
+static bool cg_init_pointer_from_compound_literal(CodegenContext* ctx,
+                                                  LLVMValueRef storage,
+                                                  LLVMTypeRef storageType,
+                                                  const ParsedType* varParsed,
+                                                  ASTNode* literal) {
+    if (!ctx || !storage || !literal || literal->type != AST_COMPOUND_LITERAL) return false;
+    if (!cg_parsed_type_is_pointer_like(varParsed)) return false;
+
+    const ParsedType* litParsed = &literal->compoundLiteral.literalType;
+    LLVMTypeRef litType = cg_type_from_parsed(ctx, litParsed);
+    const TypeDerivation* firstDeriv = parsedTypeGetDerivation(litParsed, 0);
+    if (firstDeriv &&
+        firstDeriv->kind == TYPE_DERIVATION_ARRAY &&
+        !firstDeriv->as.array.isVLA &&
+        (!firstDeriv->as.array.hasConstantSize || firstDeriv->as.array.constantSize <= 0)) {
+        ParsedType elementParsed = parsedTypeArrayElementType(litParsed);
+        LLVMTypeRef elementLLVM = cg_type_from_parsed(ctx, &elementParsed);
+        parsedTypeFree(&elementParsed);
+        if (!elementLLVM) {
+            elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
+        unsigned long long guessedLen = cg_guess_compound_literal_length(literal);
+        if (guessedLen == 0) {
+            guessedLen = literal->compoundLiteral.entryCount;
+        }
+        if (guessedLen == 0) {
+            guessedLen = 1; // fallback to avoid zero-length LLVM array
+        }
+        litType = LLVMArrayType(elementLLVM, (unsigned)guessedLen);
+        TypeDerivation* mutableArray =
+            parsedTypeGetMutableArrayDerivation((ParsedType*)litParsed, 0);
+        if (mutableArray) {
+            mutableArray->as.array.hasConstantSize = true;
+            mutableArray->as.array.constantSize = (long long)guessedLen;
+        }
+    }
+
+    if (!litType || LLVMGetTypeKind(litType) == LLVMVoidTypeKind) {
+        return false;
+    }
+
+    LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, litType, "compound.literal.tmp");
+    if (!cg_store_compound_literal_into_ptr(ctx, tmp, litType, litParsed, literal)) {
+        return false;
+    }
+
+    LLVMValueRef ptrValue = tmp;
+    if (LLVMGetTypeKind(litType) == LLVMArrayTypeKind) {
+        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+        LLVMValueRef idx[2] = { zero, zero };
+        ptrValue = LLVMBuildGEP2(ctx->builder, litType, tmp, idx, 2, "compound.literal.decay");
+    }
+
+    LLVMValueRef casted = cg_cast_value(ctx,
+                                        ptrValue,
+                                        storageType,
+                                        litParsed,
+                                        varParsed,
+                                        "compound.literal.ptr");
+    if (!casted) {
+        return false;
+    }
+    LLVMBuildStore(ctx->builder, casted, storage);
+    return true;
+}
 
 static bool cg_node_is_expression_type(ASTNodeType type) {
     switch (type) {
@@ -144,6 +262,11 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         bool isArray = varParsed ? parsedTypeIsDirectArray(varParsed) : false;
         bool hasVLA = varParsed ? parsedTypeHasVLA(varParsed) : false;
 
+        // Inline struct/union definitions need layouts before emitting storage/initializers
+        if (varParsed && varParsed->inlineStructOrUnionDef) {
+            codegenStructDefinition(ctx, varParsed->inlineStructOrUnionDef);
+        }
+
         LLVMValueRef storage = NULL;
         LLVMTypeRef storageType = NULL;
         LLVMTypeRef elementLLVM = NULL;
@@ -216,6 +339,13 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 valueType = storageType;
             }
             if (init->expression->type == AST_COMPOUND_LITERAL) {
+                if (!isArray && cg_init_pointer_from_compound_literal(ctx,
+                                                                      storage,
+                                                                      valueType,
+                                                                      varParsed ? varParsed : &node->varDecl.declaredType,
+                                                                      init->expression)) {
+                    continue;
+                }
                 if (!cg_store_compound_literal_into_ptr(ctx,
                                                         storage,
                                                         valueType,

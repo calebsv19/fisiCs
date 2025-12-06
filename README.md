@@ -8,10 +8,10 @@ DSL-style annotations, physics-aware types, and IDE integration.
 ## Features (Current)
 
 - **Lexer** – Robust tokenization for C99-style syntax (keywords, identifiers, literals, operators).
-- **Parser** – Handles expressions, declarations, control-flow, designated initialisers, and attributes (`__attribute__`, `[[gnu::...]]`, `__declspec`, …). Declarators are normalized into `ParsedType` derivations: pointer chains, array suffixes, and function signatures are recorded structurally so downstream passes no longer depend on bespoke AST nodes. GNU statement expressions can be optionally enabled via `ENABLE_GNU_STATEMENT_EXPRESSIONS=1`; panic-mode recovery keeps parsing after errors so later diagnostics still appear.
-- **Semantic Analysis** – Tracks typedef/tag namespaces, enforces lvalue/decay rules, qualifier-safe assignments, pointer arithmetic semantics, records function prototypes (including variadic signatures) and tag-layout fingerprints, validates initializer shapes (including nested arrays/VLAs) by replaying the `ParsedType` derivations, and treats compound literals as lvalues within their lifetime while flagging illegal static-storage uses.
-- **LLVM IR Codegen** – Lowers analysed ASTs into LLVM IR. Types are rebuilt directly from `ParsedType` derivations so nested combinations (pointer-to-array-of-function pointers, VLAs inside structs, etc.) now compile without custom AST plumbing.
-- **Preprocessor Support** – Full C99-style preprocessing pass runs before parsing: macro table + expansion engine (args, stringification, pasting, variadics), conditional stack for `#if/#elif/#else` with a dedicated PP expression evaluator, include resolver with project/system search paths and pragma-once/guard short-circuiting. A `--preserve-pp` flag or `PRESERVE_PP_NODES=1` keeps directive AST stubs for tooling.
+- **Preprocessor** – Runs before parsing: macro table + expansion engine (args, stringification, pasting, variadics), conditional stack for `#if/#elif/#else` with a dedicated PP expression evaluator, include resolver with project/system search paths, pragma-once/guard short-circuiting, and include-graph JSON emission (`--emit-deps-json` / `EMIT_DEPS_JSON`). `--preserve-pp` or `PRESERVE_PP_NODES=1` keeps directive AST stubs for tooling.
+- **Parser** – Handles expressions, declarations, control-flow, designated initialisers, and attributes (`__attribute__`, `[[gnu::...]]`, `__declspec`, …). Declarators are normalized into `ParsedType` derivations (pointer chains, array suffixes, function signatures). GNU statement expressions can be toggled via `ENABLE_GNU_STATEMENT_EXPRESSIONS=1`; panic-mode recovery keeps parsing after errors so later diagnostics still appear.
+- **Semantic Analysis** – Storage/linkage + tentative defs, deep pointer qualifiers, incomplete types, bitfields, integer const-eval (enums, case labels, array sizes, static initializers), switch diagnostics (duplicate cases, fallthrough warnings), varargs checks (default promotions, `va_start` validation), and strict layout inference (packed/aligned attributes, ABI profiles) feeding sizeof/alignof and codegen. Pointer arithmetic, lvalue/decay, and initializer-shape checks all replay the `ParsedType` derivations.
+- **LLVM IR Codegen** – Ternary merge typing with PHI, short-circuiting, dense vs sparse switch lowering, pointer diff arithmetic, memcpy/memset for aggregates/zero-inits, and intptr width sourced from the LLVM module data layout. Types are rebuilt directly from `ParsedType` derivations; target triple and data layout propagate from CLI flags.
 - **H2 Generator** – Emits helper `.h2` metadata for IDE or tooling experiments.
 - **Debug Instrumentation** – Opt-in parser/codegen tracing toggled at build time via make variables.
 
@@ -79,7 +79,7 @@ Leave it unset (or `0`) to keep strict C99 behaviour—the parser will reject `(
 ### Preprocessing pipeline
 
 - **Token provenance**: every token carries spelling location plus macro call-site/definition ranges; AST nodes inherit this for diagnostics.
-- **Includes**: `INCLUDE_PATHS` (Makefile, defaults to `include`) controls search order. Quoted includes first try the including file’s directory, then project paths, then raw names; angle-bracket includes skip the including directory. Resolver caches file contents + mtimes, tracks `#pragma once` and classic guards, and records include edges for future `.d` emission.
+- **Includes**: `INCLUDE_PATHS` (Makefile, defaults to `include`) controls search order. Quoted includes first try the including file’s directory, then project paths, then raw names; angle-bracket includes skip the including directory. Resolver caches file contents + mtimes, tracks `#pragma once` and classic guards, and records include edges for JSON emission.
 - **Macros**: object- and function-like, variadic (`__VA_ARGS__`), stringification `#`, token-paste `##` (dangling edges handled), recursion guarded via expansion stack.
 - **Conditionals**: dedicated evaluator for `#if/#elif` limited grammar, `defined(name)` support, unknown identifiers treated as `0`. Conditional stack suppresses inactive regions while still consuming directives.
 - **Preservation**: pass `--preserve-pp` or `PRESERVE_PP_NODES=1` to keep lightweight directive nodes in the AST for tooling.
@@ -104,7 +104,7 @@ make preprocessor-tests
 ./tests/preprocessor/run_pp_expr.sh                   # pp_expr parser/evaluator
 ```
 
-### Running Parser Smoke Tests
+### Running Parser/Semantic/IR Smoke Tests
 
 The `tests/` folder holds focused fixtures covering parser, semantic, and LLVM IR behaviour (typedef chains, union declarations, designated initialisers, semantic diagnostics, etc.).
 

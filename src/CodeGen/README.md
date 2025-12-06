@@ -13,17 +13,17 @@ Experimental LLVM IR emitter that lowers the semantic AST into executable IR. Ty
 - `codegen_context.c`
   - Owns lifecycle concerns: LLVM context/module/builder creation, semantic-model wiring, scope stack, loop stack, named-type cache, label book-keeping, and public context accessors.
 - `codegen_helpers.c`
-  - Reusable expression utilities (value classification, truthiness coercion, pointer arithmetic, pointer difference, integer predicate selection, `cg_cast_value`, etc.). Pointer element types are determined by peeling `ParsedType` derivations; VLAs use the derivation metadata to compute extents.
+  - Reusable expression utilities (value classification, truthiness coercion, pointer arithmetic, pointer difference, integer predicate selection, `cg_cast_value`, ternary arm merge/PHI builder, size/align bridge to layout). Pointer element types are determined by peeling `ParsedType` derivations; VLAs use derivation metadata to compute extents.
 - `codegen_declarations.c`
   - Handles global prepasses: collecting parameter LLVM types, ensuring functions/globals exist in the module, registering struct symbols, and walking the AST/SemanticModel to predeclare everything prior to body emission.
 - `codegen_initializers.c`
-  - Emits designated/compound initializer stores for arrays/structs/scalars, reusing the expression helpers to fill aggregates element-by-element.
+  - Emits designated/compound initializer stores for arrays/structs/scalars, reusing the expression helpers to fill aggregates element-by-element. Zero-inits use `memset`; aggregate copies use `memcpy` with semantic size/align hints.
 - `codegen_structs.c`
   - Tracks struct metadata (`StructInfo` cache), bridges to the semantic/type-cache layer, builds struct field pointers/array element pointers, and implements struct/union definition lowering plus lvalue helpers.
 - `codegen_expr.c`
-  - Expression-level IR generators: arithmetic/logic, casts, literals, compound literals, member/array/pointer access, function calls, and heap allocation nodes.
+  - Expression-level IR generators: arithmetic/logic, casts, literals, compound literals, member/array/pointer access, ternary with merged result type/PHI, function calls, heap allocation nodes, pointer diff arithmetic, and aggregate assignments via memcpy/memset.
 - `codegen_stmt.c`
-  - Statement/control-flow lowering: programs, blocks, declarations, conditionals, loops, switches, returns/break/continue, typedef/enum lowering, labels/gotos, and top-level function bodies. Variable-length arrays allocate based on the derivation-provided extents.
+  - Statement/control-flow lowering: programs, blocks, declarations, conditionals, loops, switches (dense jump tables vs sparse chains with fallthrough), returns/break/continue, typedef/enum lowering, labels/gotos, and top-level function bodies. Variable-length arrays allocate based on the derivation-provided extents.
 - `codegen_dispatch.c`
   - Central `codegenNode` dispatcher that routes AST node kinds to the appropriate statement/expression emitter.
 - `codegen_types.c` / `codegen_types.h`
@@ -50,15 +50,13 @@ semanticModelDestroy(sem);
 Set `CODEGEN_VERIFY=1` in the environment when invoking `./compiler` (or `make run/tests`) to ask LLVM to run `LLVMVerifyFunction` after each function body is emitted. Any verification failures are printed to stderr so malformed IR is caught early while iterating on new control-flow paths.
 ```
 
-`main.c` controls whether this phase runs via `ENABLE_CODEGEN`. Setting `DISABLE_CODEGEN=1` in the environment temporarily skips LLVM emission—handy when iterating on parser/semantics without worrying about backend regressions.
+`main.c` controls whether this phase runs via `ENABLE_CODEGEN`. Setting `DISABLE_CODEGEN=1` in the environment temporarily skips LLVM emission—handy when iterating on parser/semantics without worrying about backend regressions. Flags `--target <triple>` and `--data-layout <layout>` (or env vars) seed the LLVM module; intptr width and pointer sizes reflect the active data layout.
 
-## Declarator status & remaining work
-
-The declarator bridge is now end-to-end:
+## Declarator status & recent backend work
 
 - `cg_expand_parameters` flattens multi-name declarators into real LLVM arguments, honours `(void)` signatures, and drives both function definitions and prototypes.
-- Struct/union lowering consults the semantic fingerprints for layout, so anonymous tags and typedef-only names resolve without touching legacy AST caches.
+- Struct/union lowering consults the semantic fingerprints for layout, so anonymous tags and typedef-only names resolve without touching legacy AST caches. Size/align bridge pulls from `layout.c` (packed/aligned, ABI profiles).
 - Globals, locals, and compound literals store/decay using the semantic element types, so pointer arithmetic and initializer checks see identical LLVM shapes.
-- Array/pointer lvalues decay via `buildArrayElementPointer`, which detects raw `[N x T]` values, stores them into temporaries when needed, and GEPs using parsed aggregate hints. Pointer arithmetic, pointer comparisons, and &/[] expressions now survive the LLVM stage.
-
-With the pointer/array helpers fixed the codegen test suite can run with `DISABLE_CODEGEN=0` (see the Makefile targets). Remaining backend work is feature-oriented rather than infrastructural: e.g., teaching the IR emitter about varargs lowering, debug info emission, and additional GCC extensions.
+- Array/pointer lvalues decay via `buildArrayElementPointer`, which detects raw `[N x T]` values, stores them into temporaries when needed, and GEPs using parsed aggregate hints. Pointer arithmetic, pointer comparisons, `&`/`[]` expressions survive the LLVM stage; pointer diff uses element size to compute `ptrdiff_t`.
+- Ternary lowerer merges arm types and builds a PHI; switch lowering chooses jump table vs chained branches and preserves fallthrough.
+- Aggregate copies lower to memcpy; zero-init lowers to memset. Target triple/data layout flow into the LLVM module, and `intptr` sizing is derived from the active layout.

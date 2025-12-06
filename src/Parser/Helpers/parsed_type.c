@@ -3,7 +3,10 @@
 #include "Parser/Helpers/parser_helpers.h"
 #include "Compiler/compiler_context.h"
 #include "Parser/Helpers/parser_attributes.h"
+#include "Parser/parser_decl.h"
+#include "AST/ast_node.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -528,34 +531,94 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
                parser->currentToken.type == TOKEN_UNION ||
                parser->currentToken.type == TOKEN_ENUM) {
         TokenType tagToken = parser->currentToken.type;
+        TagKind tag = tagKindFromToken(tagToken);
         advance(parser); // consume keyword
 
-        if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-            if (ctx == TYPECTX_Declaration) {
-                printParseError("Expected identifier after aggregate keyword", parser);
+        char* tagName = NULL;
+        int tagLine = parser->currentToken.line;
+        if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+            tagName = strdup(parser->currentToken.value);
+            advance(parser);
+        }
+
+        bool hasBody = parser->currentToken.type == TOKEN_LBRACE &&
+                       (tagToken == TOKEN_STRUCT || tagToken == TOKEN_UNION);
+        if (hasBody) {
+            advance(parser); // consume '{'
+            size_t fieldCount = 0;
+            ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount);
+            if (parser->currentToken.type != TOKEN_RBRACE) {
+                printParseError("Expected '}' to close struct/union body", parser);
+                return parsedTypeDefault();
             }
-            return parsedTypeDefault();
-        }
+            advance(parser); // consume '}'
 
-        const char* tagName = parser->currentToken.value;
-        TagKind tag = tagKindFromToken(tagToken);
-        if (ctx == TYPECTX_Strict && !tagIsKnown(parser, tag, tagName)) {
-            return parsedTypeDefault();
-        }
+            size_t trailingAttrCount = 0;
+            ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
 
-        type.tag = tag;
-        type.userTypeName = strdup(tagName);
-        switch (tag) {
-            case TAG_STRUCT: type.kind = TYPE_STRUCT; break;
-            case TAG_UNION:  type.kind = TYPE_UNION;  break;
-            case TAG_ENUM:   type.kind = TYPE_ENUM;   break;
-            case TAG_NONE:
-            default:
-                type.kind = TYPE_NAMED;
-                break;
+            if (!tagName) {
+                char buffer[64];
+                snprintf(buffer, sizeof(buffer), "__anon_%s_%d",
+                         tagToken == TOKEN_STRUCT ? "struct" : "union",
+                         parser->currentToken.line);
+                tagName = strdup(buffer);
+            }
+
+            ASTNodeType defType = (tagToken == TOKEN_STRUCT)
+                                   ? AST_STRUCT_DEFINITION
+                                   : AST_UNION_DEFINITION;
+            ASTNode* def = createStructOrUnionDefinitionNode(defType,
+                                                             tagName ? tagName : "",
+                                                             fields,
+                                                             fieldCount);
+            if (def) {
+                def->line = tagLine;
+                if (def->structDef.structName) def->structDef.structName->line = tagLine;
+                astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
+                trailingAttrs = NULL;
+                trailingAttrCount = 0;
+            } else {
+                astAttributeListDestroy(trailingAttrs, trailingAttrCount);
+                free(trailingAttrs);
+            }
+
+            type.tag = tag;
+            type.kind = (tagToken == TOKEN_STRUCT) ? TYPE_STRUCT : TYPE_UNION;
+            type.userTypeName = tagName ? strdup(tagName) : NULL;
+            type.inlineStructOrUnionDef = def;
+            sawBaseType = true;
+            if (parser->ctx && tagName) {
+                cc_add_tag(parser->ctx,
+                           tagToken == TOKEN_STRUCT ? CC_TAG_STRUCT : CC_TAG_UNION,
+                           tagName);
+            }
+            consumeTypeAttributes(parser, &type);
+        } else {
+            if (!tagName) {
+                if (ctx == TYPECTX_Declaration) {
+                    printParseError("Expected identifier after aggregate keyword", parser);
+                }
+                return parsedTypeDefault();
+            }
+
+            if (ctx == TYPECTX_Strict && !tagIsKnown(parser, tag, tagName)) {
+                free(tagName);
+                return parsedTypeDefault();
+            }
+
+            type.tag = tag;
+            type.userTypeName = tagName;
+            switch (tag) {
+                case TAG_STRUCT: type.kind = TYPE_STRUCT; break;
+                case TAG_UNION:  type.kind = TYPE_UNION;  break;
+                case TAG_ENUM:   type.kind = TYPE_ENUM;   break;
+                case TAG_NONE:
+                default:
+                    type.kind = TYPE_NAMED;
+                    break;
+            }
+            sawBaseType = true;
         }
-        advance(parser);
-        sawBaseType = true;
     } else if (!sawBaseType && parser->currentToken.type == TOKEN_IDENTIFIER) {
         const char* ident = parser->currentToken.value;
         bool known = identifierMatchesKnownType(parser, ident);

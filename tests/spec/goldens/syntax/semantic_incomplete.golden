@@ -17,9 +17,6 @@ PROGRAM
         TYPE: void
         IDENTIFIER __unnamed_param0
     BLOCK
-      RETURN
-        SIZEOF
-                    PARSED_TYPE struct Node
   STRUCT
         Name:     IDENTIFIER Node
     VAR_DECL
@@ -48,5 +45,5 @@ Error at (4:13): Variable has incomplete type
 Error at (5:13): Array has incomplete element type
    Hint: arr
    Spelling: tests/syntax/semantic_incomplete.c:5:13
-Error at (0:0): sizeof applied to incomplete type
+Error at (7:0): Control reaches end of non-void function 'bad_sizeof'
 

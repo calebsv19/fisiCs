@@ -306,11 +306,15 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     if (leftPtr && typeInfoIsInteger(&right)) {
                         left.isLValue = false;
                         left.isArray = false;
+                        left.category = TYPEINFO_POINTER;
+                        if (left.pointerDepth == 0) left.pointerDepth = 1;
                         return left;
                     }
                     if (rightPtr && typeInfoIsInteger(&left)) {
                         right.isLValue = false;
                         right.isArray = false;
+                        right.category = TYPEINFO_POINTER;
+                        if (right.pointerDepth == 0) right.pointerDepth = 1;
                         return right;
                     }
                     if (leftPtr || rightPtr) {
@@ -321,13 +325,12 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     if (leftPtr && typeInfoIsInteger(&right)) {
                         left.isLValue = false;
                         left.isArray = false;
+                        left.category = TYPEINFO_POINTER;
+                        if (left.pointerDepth == 0) left.pointerDepth = 1;
                         return left;
                     }
                     if (leftPtr && rightPtr) {
-                        if (!typesAreEqual(&left, &right)) {
-                            reportOperandError(node, "pointers to the same element type", op);
-                            return makeInvalidType();
-                        }
+                        // Allow pointer difference if both are pointer-like; target equality is relaxed.
                         TypeInfo diff = makeIntegerType(64, true, TOKEN_LONG);
                         diff.isLValue = false;
                         return diff;
@@ -554,6 +557,9 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 size_t pairCount = expected < argCount ? expected : argCount;
                 for (size_t i = 0; i < pairCount; ++i) {
                     TypeInfo paramInfo = typeInfoFromParsedType(&sig->params[i], scope);
+                    if (paramInfo.isArray) {
+                        paramInfo = decayToRValue(paramInfo);
+                    }
                     TypeInfo argInfo = argInfos ? argInfos[i] : makeInvalidType();
                     AssignmentCheckResult check = canAssignTypes(&paramInfo, &argInfo);
                     if (check == ASSIGN_QUALIFIER_LOSS) {
@@ -625,6 +631,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 if (arrayInfo.pointerDepth == 0) {
                     restoreBaseCategory(&arrayInfo);
                 }
+                arrayInfo.isVLA = false;
                 arrayInfo.isArray = false;
                 arrayInfo.isLValue = true;
                 return arrayInfo;

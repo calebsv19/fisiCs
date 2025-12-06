@@ -1,0 +1,38 @@
+AST:
+PROGRAM
+  ATTRIBUTE [GNU] packed
+  STRUCT
+        Name:     IDENTIFIER Packed
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER <unnamed>
+        BITFIELD : NUMBER_LITERAL 0
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER a
+        BITFIELD : NUMBER_LITERAL 3
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER <unnamed>
+        BITFIELD : NUMBER_LITERAL 5
+  ATTRIBUTE [GNU] aligned(8)
+  UNION
+        Name:     IDENTIFIER U
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER y
+        BITFIELD : NUMBER_LITERAL 4
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER g
+      = 
+        UNARY EXPRESSION '-' (prefix)
+          NUMBER_LITERAL 1
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

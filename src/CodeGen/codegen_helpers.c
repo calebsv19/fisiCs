@@ -219,6 +219,9 @@ LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
     }
     if (pointerLLVM && LLVMGetTypeKind(pointerLLVM) == LLVMPointerTypeKind) {
         LLVMTypeRef elem = LLVMGetElementType(pointerLLVM);
+        if (elem && LLVMGetTypeKind(elem) == LLVMArrayTypeKind) {
+            elem = LLVMGetElementType(elem);
+        }
         if (elem && LLVMGetTypeKind(elem) != LLVMVoidTypeKind) {
             return elem;
         }

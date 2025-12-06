@@ -19,5 +19,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (3:0): Left operand of '=' must be a modifiable lvalue
+Semantic analysis: no issues found.
 

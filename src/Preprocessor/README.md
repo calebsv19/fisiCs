@@ -1,6 +1,6 @@
 # Preprocessor
 
-Macro handling and (soon) conditional/include logic live here. The directory gradually evolves into a full C99-style preprocessor that transforms the lexer’s raw token buffer before the parser sees it.
+Macro handling, conditional skipping, and include resolution live here. This is a full C99-style preprocessing stage that transforms the lexer’s raw token buffer before the parser sees it.
 
 ## Files
 
@@ -14,13 +14,13 @@ Macro handling and (soon) conditional/include logic live here. The directory gra
 - `preprocessor.h/.c`
   - High-level driver that scans the lexer’s token buffer, consumes `#define`/`#undef` directives into the macro table, evaluates `#if/#elif/#else/#endif` with a conditional stack, and flushes active chunks through the expander before handing them to the parser. A `--preserve-pp` flag or `PRESERVE_PP_NODES=1` keeps lightweight directive AST nodes when tooling needs them; otherwise the parser never sees `#` tokens.
 - `include_resolver.h/.c`
-  - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`), caches file contents + mtimes, tracks `#pragma once` and classic guards, and records dependency edges for later `.d` emission.
+  - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`), caches file contents + mtimes, tracks `#pragma once` and classic guards, and records dependency edges for JSON emission.
   - Write the include graph to JSON via `include_graph_write_json`; surfaced to users with `--emit-deps-json <file>` or `EMIT_DEPS_JSON=path`.
 
 ## Usage notes
 - All tokens carry spelling, macro call-site, and macro definition ranges; AST nodes inherit this so diagnostics can cite both sites.
 - Unknown identifiers in `#if` expressions evaluate to `0`; `defined(name)` consults the shared macro table.
-- The preprocessor owns include caching; the lexer only tokenizes a resolved file once.
+- The preprocessor owns include caching; the lexer only tokenizes a resolved file once. The include graph is attached to `CompilerContext` for downstream tooling.
 - Dependency graph can be dumped to JSON for build tools/IDEs (`--emit-deps-json` or `EMIT_DEPS_JSON`).
 
 ## Tests

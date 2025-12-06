@@ -66,6 +66,9 @@ typedef struct ParsedType {
     TypeKind kind;
     TagKind tag;
 
+    // Optional inline aggregate definition captured in a declaration specifier
+    struct ASTNode* inlineStructOrUnionDef;
+
     bool isFunctionPointer;
     size_t fpParamCount;
     struct ParsedType* fpParams;  // array of parameter types (own it)
