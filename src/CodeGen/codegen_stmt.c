@@ -592,9 +592,21 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                                             paramTypes,
                                             (unsigned)paramCount,
                                             node->functionDef.isVariadic ? 1 : 0);
-    LLVMValueRef function = LLVMAddFunction(ctx->module,
-                                            node->functionDef.funcName->valueNode.value,
-                                            funcType);
+    const char* fnName = node->functionDef.funcName->valueNode.value;
+    LLVMValueRef function = LLVMGetNamedFunction(ctx->module, fnName);
+    if (function) {
+        // If a prototype already exists, reuse it; otherwise fall back to a fresh function.
+        // Best-effort type nudge: replace the function's type if it mismatches.
+        LLVMTypeRef existingType = LLVMGetElementType(LLVMTypeOf(function));
+        if (existingType != funcType) {
+            LLVMDeleteFunction(function);
+            function = NULL;
+        }
+    }
+    if (!function) {
+        function = LLVMAddFunction(ctx->module, fnName, funcType);
+    }
+    LLVMSetLinkage(function, LLVMExternalLinkage);
 
     LLVMBasicBlockRef entry = LLVMAppendBasicBlock(function, "entry");
     LLVMPositionBuilderAtEnd(ctx->builder, entry);

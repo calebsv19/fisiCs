@@ -307,18 +307,30 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
                     elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
                 }
             }
-            cg_scope_insert(ctx->currentScope,
-                            name,
-                            existing,
-                            existingType,
-                            true,
-                            isArray,
+        bool isBuiltinConst = (strcmp(name, "NULL") == 0 ||
+                               strcmp(name, "true") == 0 ||
+                               strcmp(name, "false") == 0);
+        if (isBuiltinConst) {
+            LLVMSetLinkage(existing, LLVMInternalLinkage);
+        }
+        cg_scope_insert(ctx->currentScope,
+                        name,
+                        existing,
+                        existingType,
+                        true,
+                        isArray,
                             elementLLVM,
                             parsedType ? parsedType : &node->varDecl.declaredType);
             continue;
         }
 
+        bool isBuiltinConst = (strcmp(name, "NULL") == 0 ||
+                               strcmp(name, "true") == 0 ||
+                               strcmp(name, "false") == 0);
         LLVMValueRef global = LLVMAddGlobal(ctx->module, varType, name);
+        if (isBuiltinConst) {
+            LLVMSetLinkage(global, LLVMInternalLinkage);
+        }
         LLVMSetInitializer(global, LLVMConstNull(varType));
         LLVMTypeRef elementLLVM = NULL;
         if (isArray) {

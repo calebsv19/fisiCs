@@ -42,6 +42,9 @@ cd custom-c-compiler
 make
 make tests      # includes parser/semantic/codegen + preprocessor regression scripts
 
+# integration smoke (object emission + link)
+make integration
+
 # run built-in demo (parse → semantics → LLVM IR dump)
 make run
 ```
@@ -64,6 +67,30 @@ Manual build shortcut:
 
 ```bash
 cc -o compiler src/*.c -Iinclude $(llvm-config --cflags --ldflags --libs core)
+```
+
+### Driver usage (mycc-compatible shape)
+
+```bash
+# compile only
+./compiler -c hello.c                 # -> hello.o
+./compiler -c foo.c -o foo.o          # explicit output (only 1 source allowed with -o)
+
+# compile + link (default mode)
+./compiler main.c util.c -o app       # emits temps for .c, links with clang/cc driver
+./compiler main.c existing.o -o app   # mixes .c and .o; passes -L/-l through
+
+# flags
+-I<path>           add include search path (can repeat)
+-L<path>           add library search path for linker
+-l<name>           link against -l<name>
+--linker=<path>    override linker driver (default clang)
+-o <file>          output name (.o in -c mode, binary otherwise)
+-c                 compile only (no link)
+--dump-ast         print AST
+--dump-sema        print semantic model
+--dump-ir          print LLVM IR
+--target/--data-layout  override target triple/data layout
 ```
 
 ### GNU Statement Expressions (optional)

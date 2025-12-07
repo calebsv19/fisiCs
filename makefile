@@ -71,6 +71,14 @@ clean:
 	rm -rf $(BUILD_DIR) $(BIN)
 	rm -f src/Lexer/keyword_lookup.c
 
+integration-compile-only: $(BIN)
+	@./tests/integration/compile_only.sh ./$(BIN)
+
+integration-compile-link: $(BIN)
+	@./tests/integration/compile_and_link.sh ./$(BIN)
+
+integration: integration-compile-only integration-compile-link
+
 # === Run the compiled binary ===
 run: src/Lexer/keyword_lookup.c $(BIN)
 	@./$(BIN)

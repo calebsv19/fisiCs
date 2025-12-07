@@ -637,13 +637,13 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "char") == 0) return TOKEN_CHAR;
     if (strcmp(word, "float") == 0) return TOKEN_FLOAT;
     if (strcmp(word, "double") == 0) return TOKEN_DOUBLE;
+    if (strcmp(word, "bool") == 0) return TOKEN_BOOL;
+    if (strcmp(word, "true") == 0) return TOKEN_TRUE;
+    if (strcmp(word, "false") == 0) return TOKEN_FALSE;
     if (strcmp(word, "long") == 0) return TOKEN_LONG;
     if (strcmp(word, "short") == 0) return TOKEN_SHORT;
     if (strcmp(word, "signed") == 0) return TOKEN_SIGNED;
     if (strcmp(word, "unsigned") == 0) return TOKEN_UNSIGNED;
-    if (strcmp(word, "bool") == 0) return TOKEN_BOOL;
-    if (strcmp(word, "true") == 0) return TOKEN_TRUE;
-    if (strcmp(word, "false") == 0) return TOKEN_FALSE;
     if (strcmp(word, "enum") == 0) return TOKEN_ENUM;
     if (strcmp(word, "union") == 0) return TOKEN_UNION;
     if (strcmp(word, "struct") == 0) return TOKEN_STRUCT;

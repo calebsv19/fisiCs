@@ -1,24 +1,166 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Lexer/lexer.h"
-#include "Lexer/token_buffer.h"
-#include "Parser/parser.h"
-#include "Parser/Helpers/designated_init.h"
-#include "Parser/Helpers/parser_helpers.h"
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <limits.h>
 
-#include "Syntax/semantic_pass.h"
-#include "Syntax/semantic_model.h"
-#include "Syntax/semantic_model_printer.h"
+#include "Compiler/pipeline.h"
+#include "Compiler/object_emit.h"
 
-#include "AST/ast_printer.h"
+typedef struct {
+    char** items;
+    size_t count;
+    size_t capacity;
+} StringList;
 
-#include "Utils/utils.h"
+static void string_list_free(StringList* list) {
+    if (!list) return;
+    for (size_t i = 0; i < list->count; ++i) {
+        free(list->items[i]);
+    }
+    free(list->items);
+    list->items = NULL;
+    list->count = 0;
+    list->capacity = 0;
+}
 
-#include "Compiler/compiler_context.h"
+static bool string_list_push(StringList* list, const char* value) {
+    if (!list || !value) return false;
+    if (list->count == list->capacity) {
+        size_t newCap = list->capacity ? list->capacity * 2 : 4;
+        char** grown = realloc(list->items, newCap * sizeof(char*));
+        if (!grown) return false;
+        list->items = grown;
+        list->capacity = newCap;
+    }
+    list->items[list->count] = strdup(value);
+    if (!list->items[list->count]) return false;
+    list->count++;
+    return true;
+}
 
-#include "CodeGen/code_gen.h"
-#include "Preprocessor/preprocessor.h"
+static bool has_extension(const char* path, const char* ext) {
+    if (!path || !ext) return false;
+    size_t pathLen = strlen(path);
+    size_t extLen = strlen(ext);
+    if (pathLen < extLen) return false;
+    return strcmp(path + pathLen - extLen, ext) == 0;
+}
+
+static char* derive_object_path(const char* cPath) {
+    if (!cPath) return NULL;
+    size_t len = strlen(cPath);
+    const char* dot = strrchr(cPath, '.');
+    size_t baseLen = (dot && strcmp(dot, ".c") == 0) ? (size_t)(dot - cPath) : len;
+    char* out = (char*)malloc(baseLen + 3); // ".o" + null
+    if (!out) return NULL;
+    memcpy(out, cPath, baseLen);
+    out[baseLen] = '\0';
+    strcat(out, ".o");
+    return out;
+}
+
+static char* create_temp_object_path(const char* baseName) {
+    (void)baseName;
+    char tmpl[] = "/tmp/mycc-XXXXXX";
+    int fd = mkstemp(tmpl);
+    if (fd == -1) {
+        perror("mkstemp");
+        return NULL;
+    }
+    close(fd);
+    size_t len = strlen(tmpl);
+    char* withExt = malloc(len + 3);
+    if (!withExt) {
+        unlink(tmpl);
+        return NULL;
+    }
+    snprintf(withExt, len + 3, "%s.o", tmpl);
+    // Rename temp file to have .o extension.
+    if (rename(tmpl, withExt) != 0) {
+        perror("rename");
+        unlink(tmpl);
+        free(withExt);
+        return NULL;
+    }
+    return withExt;
+}
+
+static bool dir_exists(const char* path) {
+    if (!path || !*path) return false;
+    struct stat st;
+    if (stat(path, &st) != 0) return false;
+    return S_ISDIR(st.st_mode);
+}
+
+static void append_include_dir_if_exists(StringList* list, const char* path) {
+    if (!list || !path) return;
+    if (dir_exists(path)) {
+        string_list_push(list, path);
+    }
+}
+
+static void print_argv(const char* prefix, StringList* argv) {
+    if (!argv) return;
+    fprintf(stderr, "%s", prefix ? prefix : "[exec]");
+    for (size_t i = 0; i < argv->count; ++i) {
+        fprintf(stderr, " %s", argv->items[i]);
+    }
+    fputc('\n', stderr);
+}
+
+static char* detect_sdk_include_from_xcrun(void) {
+    FILE* fp = popen("xcrun --show-sdk-path 2>/dev/null", "r");
+    if (!fp) return NULL;
+    char buffer[PATH_MAX];
+    if (!fgets(buffer, sizeof(buffer), fp)) {
+        pclose(fp);
+        return NULL;
+    }
+    pclose(fp);
+    size_t len = strlen(buffer);
+    if (len > 0 && buffer[len - 1] == '\n') {
+        buffer[len - 1] = '\0';
+    }
+    if (buffer[0] == '\0') return NULL;
+
+    size_t baseLen = strlen(buffer);
+    const char* suffix = "/usr/include";
+    size_t suffixLen = strlen(suffix);
+    char* path = malloc(baseLen + suffixLen + 1);
+    if (!path) return NULL;
+    memcpy(path, buffer, baseLen);
+    memcpy(path + baseLen, suffix, suffixLen + 1);
+    return path;
+}
+
+static char* detect_clang_resource_include(void) {
+    FILE* fp = popen("clang -print-resource-dir 2>/dev/null", "r");
+    if (!fp) return NULL;
+    char buffer[PATH_MAX];
+    if (!fgets(buffer, sizeof(buffer), fp)) {
+        pclose(fp);
+        return NULL;
+    }
+    pclose(fp);
+    size_t len = strlen(buffer);
+    if (len > 0 && buffer[len - 1] == '\n') {
+        buffer[len - 1] = '\0';
+    }
+    if (buffer[0] == '\0') return NULL;
+
+    size_t baseLen = strlen(buffer);
+    const char* suffix = "/include";
+    size_t suffixLen = strlen(suffix);
+    char* path = malloc(baseLen + suffixLen + 1);
+    if (!path) return NULL;
+    memcpy(path, buffer, baseLen);
+    memcpy(path + baseLen, suffix, suffixLen + 1);
+    return path;
+}
 
 // === Feature Toggles ===
 #define ENABLE_LEXER_OUTPUT      0
@@ -27,11 +169,75 @@
 #define ENABLE_CODEGEN           1
 
 int main(int argc, char **argv) {
+    const char* nanoEnv = getenv("MallocNanoZone");
+    if (!nanoEnv) {
+        setenv("MallocNanoZone", "0", 0);
+    }
+
     const char *filename = NULL;
     bool preservePPNodes = false;
     const char* depsJsonPath = NULL;
     const char* targetTriple = NULL;
     const char* dataLayout = NULL;
+    bool compileOnly = false;
+    const char* outputName = NULL;
+    const char* linkerPath = NULL;
+    bool dumpAst = false;
+    bool dumpSemantic = false;
+    bool dumpIR = false;
+    StringList includePaths = {0};
+    StringList inputCFiles = {0};
+    StringList inputOFiles = {0};
+    StringList linkerSearchPaths = {0};
+    StringList linkerLibs = {0};
+
+    // Seed include paths from default list.
+    char** defaultIncludePaths = NULL;
+    size_t defaultIncludeCount = 0;
+    if (!compiler_collect_include_paths(DEFAULT_INCLUDE_PATHS,
+                                        &defaultIncludePaths,
+                                        &defaultIncludeCount)) {
+        fprintf(stderr, "OOM: include paths\n");
+        return 1;
+    }
+    for (size_t i = 0; i < defaultIncludeCount; ++i) {
+        string_list_push(&includePaths, defaultIncludePaths[i]);
+    }
+    compiler_free_include_paths(defaultIncludePaths, defaultIncludeCount);
+    // Optional system include paths (e.g., macOS SDK)
+    const char* sysEnv = getenv("SYSTEM_INCLUDE_PATHS");
+    if (sysEnv && sysEnv[0]) {
+        char** parsed = NULL;
+        size_t parsedCount = 0;
+        if (compiler_collect_include_paths(sysEnv, &parsed, &parsedCount)) {
+            for (size_t i = 0; i < parsedCount; ++i) {
+                string_list_push(&includePaths, parsed[i]);
+            }
+            compiler_free_include_paths(parsed, parsedCount);
+        }
+    }
+    const char* sdkRoot = getenv("SDKROOT");
+    if (sdkRoot && sdkRoot[0]) {
+        char buffer[PATH_MAX];
+        snprintf(buffer, sizeof(buffer), "%s/usr/include", sdkRoot);
+        append_include_dir_if_exists(&includePaths, buffer);
+    } else {
+        char* sdkFromXcrun = detect_sdk_include_from_xcrun();
+        if (sdkFromXcrun) {
+            append_include_dir_if_exists(&includePaths, sdkFromXcrun);
+            free(sdkFromXcrun);
+        } else {
+            append_include_dir_if_exists(&includePaths, "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include");
+            append_include_dir_if_exists(&includePaths, "/Library/Developer/CommandLineTools/usr/include");
+            append_include_dir_if_exists(&includePaths, "/usr/include");
+        }
+    }
+    char* clangResource = detect_clang_resource_include();
+    if (clangResource) {
+        append_include_dir_if_exists(&includePaths, clangResource);
+        free(clangResource);
+    }
+
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--preserve-pp") == 0) {
             preservePPNodes = true;
@@ -41,26 +247,67 @@ int main(int argc, char **argv) {
             targetTriple = argv[++i];
         } else if (strcmp(argv[i], "--data-layout") == 0 && i + 1 < argc) {
             dataLayout = argv[++i];
+        } else if (strcmp(argv[i], "--dump-ast") == 0) {
+            dumpAst = true;
+        } else if (strcmp(argv[i], "--dump-sema") == 0) {
+            dumpSemantic = true;
+        } else if (strcmp(argv[i], "--dump-ir") == 0) {
+            dumpIR = true;
+        } else if (strcmp(argv[i], "-c") == 0) {
+            compileOnly = true;
+        } else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
+            outputName = argv[++i];
+        } else if (strncmp(argv[i], "-I", 2) == 0) {
+            const char* path = argv[i] + 2;
+            if (!*path) {
+                if (i + 1 >= argc) { fprintf(stderr, "-I requires a path\n"); goto fail; }
+                path = argv[++i];
+            }
+            if (!string_list_push(&includePaths, path)) { fprintf(stderr, "OOM: include path\n"); goto fail; }
+        } else if (strncmp(argv[i], "-L", 2) == 0) {
+            const char* path = argv[i] + 2;
+            if (!*path) {
+                if (i + 1 >= argc) { fprintf(stderr, "-L requires a path\n"); goto fail; }
+                path = argv[++i];
+            }
+            if (!string_list_push(&linkerSearchPaths, path)) { fprintf(stderr, "OOM: -L path\n"); goto fail; }
+        } else if (strncmp(argv[i], "-l", 2) == 0) {
+            const char* lib = argv[i] + 2;
+            if (!*lib) {
+                if (i + 1 >= argc) { fprintf(stderr, "-l requires a library name\n"); goto fail; }
+                lib = argv[++i];
+            }
+            if (!string_list_push(&linkerLibs, lib)) { fprintf(stderr, "OOM: -l name\n"); goto fail; }
+        } else if (strncmp(argv[i], "--linker=", 9) == 0) {
+            linkerPath = argv[i] + 9;
         } else if (argv[i][0] != '-' && !filename) {
             filename = argv[i];
+            if (has_extension(filename, ".c")) {
+                string_list_push(&inputCFiles, filename);
+            } else if (has_extension(filename, ".o")) {
+                string_list_push(&inputOFiles, filename);
+            } else {
+                fprintf(stderr, "Warning: unrecognized input extension for %s\n", filename);
+            }
+        } else if (argv[i][0] != '-') {
+            if (has_extension(argv[i], ".c")) {
+                string_list_push(&inputCFiles, argv[i]);
+            } else if (has_extension(argv[i], ".o")) {
+                string_list_push(&inputOFiles, argv[i]);
+            } else {
+                fprintf(stderr, "Warning: unrecognized input extension for %s\n", argv[i]);
+            }
         }
     }
-    if (!filename) filename = "include/test.txt";
+    if (!filename && inputCFiles.count == 0 && inputOFiles.count == 0) {
+        filename = "include/test.txt";
+        string_list_push(&inputCFiles, filename);
+    }
 
     int enableCodegen = ENABLE_CODEGEN;
     const char* disableCodegenEnv = getenv("DISABLE_CODEGEN");
     if (disableCodegenEnv && disableCodegenEnv[0] != '\0' && disableCodegenEnv[0] != '0') {
         enableCodegen = 0;
-    }
-
-    CompilerContext* ctx = cc_create();
-    if (!ctx) { fprintf(stderr, "OOM: CompilerContext\n"); return 1; }
-    cc_seed_builtins(ctx);
-    if (targetTriple) {
-        cc_set_target_triple(ctx, targetTriple);
-    }
-    if (dataLayout) {
-        cc_set_data_layout(ctx, dataLayout);
     }
 
     const char* preserveEnv = getenv("PRESERVE_PP_NODES");
@@ -73,189 +320,301 @@ int main(int argc, char **argv) {
         depsJsonPath = depsEnv;
     }
 
-    size_t includePathCount = 0;
-    char* includePathCopy = NULL;
-    char** includePaths = NULL;
-    if (DEFAULT_INCLUDE_PATHS[0] != '\0') {
-        includePathCopy = strdup(DEFAULT_INCLUDE_PATHS);
-        if (!includePathCopy) { fprintf(stderr, "OOM: include paths\n"); return 1; }
-        size_t segments = 1;
-        for (const char* p = includePathCopy; *p; ++p) {
-            if (*p == ':') segments++;
-        }
-        includePaths = calloc(segments, sizeof(char*));
-        if (!includePaths) { fprintf(stderr, "OOM: include path array\n"); free(includePathCopy); return 1; }
-        char* saveptr = NULL;
-        char* tok = strtok_r(includePathCopy, ":", &saveptr);
-        while (tok) {
-            includePaths[includePathCount++] = strdup(tok);
-            tok = strtok_r(NULL, ":", &saveptr);
-        }
-    }
-
-    Preprocessor preprocessor;
-    if (!preprocessor_init(&preprocessor,
-                           preservePPNodes,
-                           (const char* const*)includePaths,
-                           includePathCount)) {
-        fprintf(stderr, "Error: failed to initialize preprocessor\n");
-        if (includePaths) {
-            for (size_t i = 0; i < includePathCount; ++i) {
-                free(includePaths[i]);
+    bool driverMode = compileOnly || outputName || inputOFiles.count > 0 ||
+                      linkerSearchPaths.count > 0 || linkerLibs.count > 0 || linkerPath;
+    if (driverMode) {
+        if (compileOnly) {
+            if (inputCFiles.count == 0) {
+                fprintf(stderr, "Error: no .c inputs provided for -c\n");
+                goto fail;
             }
-            free(includePaths);
-        }
-        free(includePathCopy);
-        cc_destroy(ctx);
-        return 1;
-    }
-    if (includePaths) {
-        for (size_t i = 0; i < includePathCount; ++i) {
-            free(includePaths[i]);
-        }
-        free(includePaths);
-    }
-    free(includePathCopy);
+            if (outputName && inputCFiles.count != 1) {
+                fprintf(stderr, "Error: -o with -c requires exactly one .c input\n");
+                goto fail;
+            }
+            if (!enableCodegen) {
+                fprintf(stderr, "Error: codegen disabled (DISABLE_CODEGEN set); cannot emit object files\n");
+                goto fail;
+            }
 
-    const IncludeFile* rootFile = include_resolver_load(preprocessor_get_resolver(&preprocessor),
-                                                        NULL,
-                                                        filename,
-                                                        false);
-    if (!rootFile) {
-        fprintf(stderr, "Error: failed to load source file %s\n", filename);
-        preprocessor_destroy(&preprocessor);
-        cc_destroy(ctx);
-        return 1;
-    }
+            for (size_t i = 0; i < inputCFiles.count; ++i) {
+                const char* cPath = inputCFiles.items[i];
+                char* objPath = NULL;
+                if (outputName) {
+                    objPath = strdup(outputName);
+                } else {
+                    objPath = derive_object_path(cPath);
+                }
+                if (!objPath) {
+                    fprintf(stderr, "Error: failed to compute output path for %s\n", cPath);
+                    goto fail;
+                }
 
-    // === Lexing Phase ===
-    Lexer lexer;
-    initLexer(&lexer, rootFile->contents, rootFile->path);
+                CompileOptions options = {
+                    .inputPath = cPath,
+                    .preservePPNodes = preservePPNodes,
+                    .depsJsonPath = depsJsonPath,
+                    .targetTriple = targetTriple,
+                    .dataLayout = dataLayout,
+                    .includePaths = (const char* const*)includePaths.items,
+                    .includePathCount = includePaths.count,
+                    .dumpAst = dumpAst,
+                    .dumpSemantic = dumpSemantic,
+                    .dumpIR = dumpIR,
+                    .enableCodegen = enableCodegen
+                };
 
-    TokenBuffer tokenBuffer;
-    token_buffer_init(&tokenBuffer);
-    if (!token_buffer_fill_from_lexer(&tokenBuffer, &lexer)) {
-        fprintf(stderr, "Error: failed to lex tokens into buffer\n");
-        preprocessor_destroy(&preprocessor);
-        cc_destroy(ctx);
-        return 1;
-    }
+                CompileResult result;
+                int status = compile_translation_unit(&options, &result);
+                if (status != 0 || result.semanticErrors > 0 || !result.module) {
+                    fprintf(stderr, "Error: compilation failed for %s\n", cPath);
+                    free(objPath);
+                    compile_result_destroy(&result);
+                    goto fail;
+                }
 
-    const char* debugPP = getenv("DEBUG_PP_COUNT");
-    if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
-        fprintf(stderr, "DEBUG: raw tokens=%zu\n", tokenBuffer.count);
-        for (size_t i = 0; i < tokenBuffer.count && i < 16; ++i) {
-            const char* val = tokenBuffer.tokens[i].value ? tokenBuffer.tokens[i].value : "<null>";
-            fprintf(stderr, "  RAW[%zu]: type=%d value=%s loc=%s:%d:%d\n",
-                    i,
-                    tokenBuffer.tokens[i].type,
-                    val,
-                    tokenBuffer.tokens[i].location.start.file ? tokenBuffer.tokens[i].location.start.file : "<null>",
-                    tokenBuffer.tokens[i].location.start.line,
-                    tokenBuffer.tokens[i].location.start.column);
-        }
-    }
+                char* emitErr = NULL;
+                if (!compiler_emit_object_file(result.module,
+                                               targetTriple,
+                                               dataLayout,
+                                               objPath,
+                                               &emitErr)) {
+                    fprintf(stderr, "Error: failed to emit object %s: %s\n",
+                            objPath,
+                            emitErr ? emitErr : "unknown error");
+                    free(emitErr);
+                    free(objPath);
+                    compile_result_destroy(&result);
+                    goto fail;
+                }
+                free(emitErr);
+                compile_result_destroy(&result);
+                free(objPath);
+            }
 
-    PPTokenBuffer preprocessed = {0};
-    if (!preprocessor_run(&preprocessor, &tokenBuffer, &preprocessed)) {
-        fprintf(stderr, "Error: preprocessing failed\n");
-        preprocessor_destroy(&preprocessor);
-        token_buffer_destroy(&tokenBuffer);
-        cc_destroy(ctx);
-        return 1;
-    }
-    if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
-        fprintf(stderr, "DEBUG: preprocessed tokens=%zu\n", preprocessed.count);
-        for (size_t i = 0; i < preprocessed.count; ++i) {
-            const char* val = preprocessed.tokens[i].value ? preprocessed.tokens[i].value : "<null>";
-            fprintf(stderr, "  PP[%zu]: type=%d value=%s loc=%s:%d:%d\n",
-                    i,
-                    preprocessed.tokens[i].type,
-                    val,
-                    preprocessed.tokens[i].location.start.file ? preprocessed.tokens[i].location.start.file : "<null>",
-                    preprocessed.tokens[i].location.start.line,
-                    preprocessed.tokens[i].location.start.column);
-        }
-    }
-
-    token_buffer_destroy(&tokenBuffer);
-    TokenBuffer parserTokens = {
-        .tokens = preprocessed.tokens,
-        .count = preprocessed.count,
-        .capacity = preprocessed.capacity
-    };
-    preprocessed.tokens = NULL;
-    preprocessed.count = 0;
-    preprocessed.capacity = 0;
-
-    // Snapshot include graph for downstream tooling
-    cc_set_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
-
-
-
-    // === Parsing Phase ===
-    Parser parser;
-    initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx, preservePPNodes);
-
-    ASTNode *root = parse(&parser);
-
-
-#if ENABLE_AST_PRINT
-    printf(" AST Output:\n");
-    printAST(root, 0);
-#endif
-
-
-#if ENABLE_SYNTAX_CHECK
-    printf("\n Semantic Analysis:\n");
-#endif
-    MacroTable* macroSnapshot = macro_table_clone(preprocessor_get_macro_table(&preprocessor));
-    SemanticModel* semanticModel = analyzeSemanticsBuildModel(root, ctx, false,
-                                                             macroSnapshot, true);
-    if (!semanticModel) {
-        token_buffer_destroy(&parserTokens);
-        preprocessor_destroy(&preprocessor);
-        cc_destroy(ctx);
-        return 1;
-    }
-
-    size_t semanticErrors = semanticModelGetErrorCount(semanticModel);
-
-#if ENABLE_SYNTAX_CHECK
-    printf("\n Semantic Model Dump:\n");
-    semanticModelDump(semanticModel);
-#endif
-
-
-#if ENABLE_CODEGEN
-    printf("\n️ LLVM Code Generation:\n");
-    if (!enableCodegen) {
-        printf("Skipping LLVM code generation (disabled via environment).\n");
-    } else if (semanticErrors == 0) {
-        CodegenContext* codegenCtx = codegen_context_create("compiler_module", semanticModel);
-        if (!codegenCtx) {
-            fprintf(stderr, "Error: Failed to initialize LLVM code generation context\n");
+            string_list_free(&includePaths);
+            string_list_free(&inputCFiles);
+            string_list_free(&inputOFiles);
+            string_list_free(&linkerSearchPaths);
+            string_list_free(&linkerLibs);
+            return 0;
         } else {
-            LLVMValueRef result = codegen_generate(codegenCtx, root);
-            (void)result;
-            LLVMDumpModule(codegen_get_module(codegenCtx));
-            codegen_context_destroy(codegenCtx);
-        }
-    } else {
-        printf("Skipping LLVM code generation due to semantic errors.\n");
-    }
-#endif
+            if (inputCFiles.count == 0 && inputOFiles.count == 0) {
+                fprintf(stderr, "Error: no inputs provided\n");
+                goto fail;
+            }
+            if (!enableCodegen && inputCFiles.count > 0) {
+                fprintf(stderr, "Error: codegen disabled (DISABLE_CODEGEN set); cannot compile .c inputs for linking\n");
+                goto fail;
+            }
 
+            StringList tempObjects = {0};
+            bool allOk = true;
 
-    token_buffer_destroy(&parserTokens);
-    semanticModelDestroy(semanticModel);
-    if (depsJsonPath && depsJsonPath[0] != '\0') {
-        const IncludeGraph* graph = preprocessor_get_include_graph(&preprocessor);
-        if (!include_graph_write_json(graph, depsJsonPath)) {
-            fprintf(stderr, "Warning: failed to write deps JSON to %s\n", depsJsonPath);
+            // Step A: compile all .c to temp .o
+            for (size_t i = 0; i < inputCFiles.count; ++i) {
+                const char* cPath = inputCFiles.items[i];
+                char* objPath = create_temp_object_path(cPath);
+                if (!objPath) { allOk = false; break; }
+
+                CompileOptions options = {
+                    .inputPath = cPath,
+                    .preservePPNodes = preservePPNodes,
+                    .depsJsonPath = NULL,
+                    .targetTriple = targetTriple,
+                    .dataLayout = dataLayout,
+                    .includePaths = (const char* const*)includePaths.items,
+                    .includePathCount = includePaths.count,
+                    .dumpAst = dumpAst,
+                    .dumpSemantic = dumpSemantic,
+                    .dumpIR = dumpIR,
+                    .enableCodegen = enableCodegen
+                };
+
+                CompileResult result;
+                int status = compile_translation_unit(&options, &result);
+                if (status != 0 || result.semanticErrors > 0 || !result.module) {
+                    fprintf(stderr, "Error: compilation failed for %s\n", cPath);
+                    free(objPath);
+                    compile_result_destroy(&result);
+                    allOk = false;
+                    break;
+                }
+
+                char* emitErr = NULL;
+                if (!compiler_emit_object_file(result.module,
+                                               targetTriple,
+                                               dataLayout,
+                                               objPath,
+                                               &emitErr)) {
+                    fprintf(stderr, "Error: failed to emit object %s: %s\n",
+                            objPath,
+                            emitErr ? emitErr : "unknown error");
+                    free(emitErr);
+                    free(objPath);
+                    compile_result_destroy(&result);
+                    allOk = false;
+                    break;
+                }
+                free(emitErr);
+                compile_result_destroy(&result);
+                if (!string_list_push(&tempObjects, objPath)) {
+                    fprintf(stderr, "OOM: temp object list\n");
+                    free(objPath);
+                    allOk = false;
+                    break;
+                }
+                free(objPath);
+            }
+
+            if (!allOk) {
+                for (size_t i = 0; i < tempObjects.count; ++i) {
+                    unlink(tempObjects.items[i]);
+                }
+                string_list_free(&tempObjects);
+                goto fail;
+            }
+
+            // Step B: build linker argv
+            const char* linker = linkerPath ? linkerPath : "clang";
+            StringList argvList = {0};
+            if (!string_list_push(&argvList, linker)) {
+                allOk = false;
+            }
+            for (size_t i = 0; allOk && i < inputOFiles.count; ++i) {
+                allOk = string_list_push(&argvList, inputOFiles.items[i]);
+            }
+            for (size_t i = 0; allOk && i < tempObjects.count; ++i) {
+                allOk = string_list_push(&argvList, tempObjects.items[i]);
+            }
+            for (size_t i = 0; allOk && i < linkerSearchPaths.count; ++i) {
+                size_t len = strlen(linkerSearchPaths.items[i]) + 3;
+                char* flag = (char*)malloc(len);
+                if (!flag) { allOk = false; break; }
+                snprintf(flag, len, "-L%s", linkerSearchPaths.items[i]);
+                allOk = string_list_push(&argvList, flag);
+                free(flag);
+            }
+            for (size_t i = 0; allOk && i < linkerLibs.count; ++i) {
+                size_t len = strlen(linkerLibs.items[i]) + 3;
+                char* flag = (char*)malloc(len);
+                if (!flag) { allOk = false; break; }
+                snprintf(flag, len, "-l%s", linkerLibs.items[i]);
+                allOk = string_list_push(&argvList, flag);
+                free(flag);
+            }
+            const char* finalOutput = outputName ? outputName : "a.out";
+            if (allOk) {
+                allOk = string_list_push(&argvList, "-o") &&
+                        string_list_push(&argvList, finalOutput);
+            }
+
+            if (!allOk) {
+                fprintf(stderr, "Error: failed to prepare linker invocation\n");
+                for (size_t i = 0; i < tempObjects.count; ++i) {
+                    unlink(tempObjects.items[i]);
+                }
+                string_list_free(&tempObjects);
+                string_list_free(&argvList);
+                goto fail;
+            }
+
+            // execvp-style array
+            char** execArgv = calloc(argvList.count + 1, sizeof(char*));
+            if (!execArgv) {
+                fprintf(stderr, "OOM: linker argv\n");
+                for (size_t i = 0; i < tempObjects.count; ++i) {
+                    unlink(tempObjects.items[i]);
+                }
+                string_list_free(&tempObjects);
+                string_list_free(&argvList);
+                goto fail;
+            }
+            for (size_t i = 0; i < argvList.count; ++i) {
+                execArgv[i] = argvList.items[i];
+            }
+            execArgv[argvList.count] = NULL;
+
+            pid_t pid = fork();
+            if (pid == 0) {
+                execvp(linker, execArgv);
+                perror("execvp");
+                _exit(127);
+            } else if (pid < 0) {
+                perror("fork");
+                free(execArgv);
+                for (size_t i = 0; i < tempObjects.count; ++i) {
+                    unlink(tempObjects.items[i]);
+                }
+                string_list_free(&tempObjects);
+                string_list_free(&argvList);
+                goto fail;
+            }
+
+            print_argv("[link]", &argvList);
+            int statusCode = 0;
+            if (waitpid(pid, &statusCode, 0) == -1) {
+                perror("waitpid");
+                statusCode = 1;
+            } else if (WIFEXITED(statusCode)) {
+                statusCode = WEXITSTATUS(statusCode);
+                if (statusCode != 0) {
+                    fprintf(stderr, "Linker exited with status %d\n", statusCode);
+                }
+            } else {
+                fprintf(stderr, "Linker terminated abnormally\n");
+                statusCode = 1;
+            }
+
+            for (size_t i = 0; i < tempObjects.count; ++i) {
+                unlink(tempObjects.items[i]);
+            }
+
+            free(execArgv);
+            string_list_free(&tempObjects);
+            string_list_free(&argvList);
+
+            string_list_free(&includePaths);
+            string_list_free(&inputCFiles);
+            string_list_free(&inputOFiles);
+            string_list_free(&linkerSearchPaths);
+            string_list_free(&linkerLibs);
+            return statusCode;
         }
     }
-    preprocessor_destroy(&preprocessor);
-    cc_destroy(ctx);
-    return 0;
+
+    const char* inputPath = (inputCFiles.count > 0) ? inputCFiles.items[0] : filename;
+
+    CompileOptions options = {
+        .inputPath = inputPath,
+        .preservePPNodes = preservePPNodes,
+        .depsJsonPath = depsJsonPath,
+        .targetTriple = targetTriple,
+        .dataLayout = dataLayout,
+        .includePaths = (const char* const*)includePaths.items,
+        .includePathCount = includePaths.count,
+        .dumpAst = dumpAst || ENABLE_AST_PRINT,
+        .dumpSemantic = dumpSemantic || ENABLE_SYNTAX_CHECK,
+        .dumpIR = dumpIR || (enableCodegen && ENABLE_CODEGEN),
+        .enableCodegen = enableCodegen
+    };
+
+    CompileResult result;
+    int status = compile_translation_unit(&options, &result);
+
+    compile_result_destroy(&result);
+    string_list_free(&includePaths);
+    string_list_free(&inputCFiles);
+    string_list_free(&inputOFiles);
+    string_list_free(&linkerSearchPaths);
+    string_list_free(&linkerLibs);
+    return status;
+
+fail:
+    string_list_free(&includePaths);
+    string_list_free(&inputCFiles);
+    string_list_free(&inputOFiles);
+    string_list_free(&linkerSearchPaths);
+    string_list_free(&linkerLibs);
+    return 1;
 }

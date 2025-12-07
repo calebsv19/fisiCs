@@ -343,7 +343,7 @@ static bool process_define(Preprocessor* pp,
     size_t i = *cursor;
     int directiveLine = tokens[i].line;
     i++;
-    if (i >= count || tokens[i].type != TOKEN_IDENTIFIER) {
+    if (i >= count || !tokens[i].value) {
         fprintf(stderr, "Preprocessor error: expected identifier after #define\n");
         return false;
     }

@@ -45,13 +45,24 @@ void seedBuiltins(Scope* globalScope) {
     Scope* scope = globalScope;
 
     Symbol* printfSym = makeBuiltin("printf", SYMBOL_FUNCTION, intType(), NULL);
-    if (printfSym) addToScope(scope, printfSym);
+    if (printfSym) {
+        printfSym->signature.isVariadic = true;
+        printfSym->signature.paramCount = 0;
+        addToScope(scope, printfSym);
+    }
 
     Symbol* fprintfSym = makeBuiltin("fprintf", SYMBOL_FUNCTION, intType(), NULL);
-    if (fprintfSym) addToScope(scope, fprintfSym);
+    if (fprintfSym) {
+        fprintfSym->signature.isVariadic = true;
+        fprintfSym->signature.paramCount = 0;
+        addToScope(scope, fprintfSym);
+    }
 
     Symbol* exitSym = makeBuiltin("exit", SYMBOL_FUNCTION, intType(), NULL);
-    if (exitSym) addToScope(scope, exitSym);
+    if (exitSym) {
+        exitSym->signature.paramCount = 1;
+        addToScope(scope, exitSym);
+    }
 
     Symbol* trueSym = (Symbol*)calloc(1, sizeof(Symbol));
     if (trueSym) {
