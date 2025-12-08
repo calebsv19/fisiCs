@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BIN="${1:-./compiler}"
+BIN="${1:-./fisics}"
 if [ ! -x "$BIN" ]; then
   echo "compiler binary not found at $BIN" >&2
   exit 1

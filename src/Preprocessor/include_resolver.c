@@ -58,6 +58,33 @@ static const IncludeFile* ir_lookup(const IncludeResolver* resolver, const char*
     return NULL;
 }
 
+bool include_resolver_set_root_buffer(IncludeResolver* resolver,
+                                      const char* path,
+                                      char* contents_owned,
+                                      long mtime) {
+    if (!resolver || !path || !contents_owned) return false;
+    if (ir_lookup(resolver, path)) {
+        free(contents_owned);
+        return true;
+    }
+    IncludeFile file;
+    file.path = ir_strdup(path);
+    file.contents = contents_owned;
+    file.mtime = mtime;
+    file.pragmaOnce = false;
+    file.includedOnce = false;
+    if (!file.path) {
+        free(contents_owned);
+        return false;
+    }
+    if (!ir_append_file(resolver, file)) {
+        free(file.path);
+        free(file.contents);
+        return false;
+    }
+    return true;
+}
+
 static bool ir_build_path(char* buffer, size_t bufSize, const char* dir, const char* name) {
     if (!dir || dir[0] == '\0') {
         return snprintf(buffer, bufSize, "%s", name) < (int)bufSize;
@@ -169,6 +196,8 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
                                          const char* name,
                                          bool isSystem) {
     if (!resolver || !name) return NULL;
+    const IncludeFile* cached = ir_lookup(resolver, name);
+    if (cached) return cached;
     return ir_search_and_load(resolver, includingFile, name, isSystem);
 }
 

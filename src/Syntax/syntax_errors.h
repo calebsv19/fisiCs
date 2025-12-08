@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "Lexer/tokens.h"
+#include "Compiler/compiler_context.h"
 
 typedef struct {
     int line;
@@ -23,7 +24,7 @@ typedef struct {
     size_t errorCount;
 } ErrorList;
 
-void initErrorList(void);
+void initErrorList(struct CompilerContext* ctx);
 void addError(int line, int column, const char* message, const char* hint);
 void addErrorFromToken(const Token* tok, const char* message, const char* hint);
 void addErrorWithRanges(SourceRange spelling,

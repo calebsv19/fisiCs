@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BIN="${1:-./compiler}"
+BIN="${1:-./fisics}"
 SRC="tests/preprocessor/nested_macro.c"
 
 if [ ! -x "$BIN" ]; then

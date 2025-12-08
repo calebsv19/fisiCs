@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BIN="${1:-./compiler}"
+BIN="${1:-./fisics}"
 SRC="${2:-tests/parser/union_decl.c}"
 OUT="${3:-/tmp/mycc-integration.o}"
 

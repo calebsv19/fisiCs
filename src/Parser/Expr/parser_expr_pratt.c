@@ -7,6 +7,7 @@
 #include "parser_expr.h"
 #include "parser_main.h"
 #include "AST/ast_node.h"
+#include "Compiler/diagnostics.h"
 
 #include <stdlib.h>
 
@@ -773,7 +774,14 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
         // append to items
         DesignatedInit** newItems = realloc(items, (count + 1) * sizeof(*newItems));
         if (!newItems) {
-            fprintf(stderr, "Error: OOM in compound literal items\n");
+            if (parser && parser->ctx) {
+                compiler_report_diag(parser->ctx,
+                                     parser->currentToken.location,
+                                     DIAG_ERROR,
+                                     CDIAG_PARSER_GENERIC,
+                                     NULL,
+                                     "out of memory while parsing compound literal");
+            }
             return NULL;
         }
         items = newItems;

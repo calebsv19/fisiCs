@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "AST/ast_node.h"
 #include "AST/ast_printer.h"
 #include "CodeGen/code_gen.h"
 #include "Compiler/compiler_context.h"
@@ -17,6 +18,126 @@
 #include "Syntax/semantic_model_printer.h"
 #include "Syntax/semantic_pass.h"
 #include "Utils/utils.h"
+
+typedef struct {
+    FisicsSymbol* items;
+    size_t count;
+    size_t capacity;
+} SymbolBuffer;
+
+static bool symbuf_append(SymbolBuffer* buf, const FisicsSymbol* sym) {
+    if (!buf || !sym) return false;
+    if (buf->count == buf->capacity) {
+        size_t newCap = buf->capacity ? buf->capacity * 2 : 8;
+        FisicsSymbol* grown = (FisicsSymbol*)realloc(buf->items, newCap * sizeof(FisicsSymbol));
+        if (!grown) return false;
+        buf->items = grown;
+        buf->capacity = newCap;
+    }
+    buf->items[buf->count++] = *sym;
+    return true;
+}
+
+static const char* identifier_name(const ASTNode* node) {
+    if (!node) return NULL;
+    if (node->type == AST_IDENTIFIER) {
+        return node->valueNode.value;
+    }
+    return NULL;
+}
+
+static void collect_top_symbols(ASTNode* root, CompilerContext* ctx) {
+    if (!root || root->type != AST_PROGRAM || !ctx) return;
+    SymbolBuffer buf = {0};
+
+    for (size_t i = 0; i < root->block.statementCount; ++i) {
+        ASTNode* stmt = root->block.statements ? root->block.statements[i] : NULL;
+        if (!stmt) continue;
+
+        const char* name = NULL;
+        switch (stmt->type) {
+            case AST_FUNCTION_DEFINITION:
+                name = identifier_name(stmt->functionDef.funcName);
+                break;
+            case AST_FUNCTION_DECLARATION:
+                name = identifier_name(stmt->functionDecl.funcName);
+                break;
+            case AST_STRUCT_DEFINITION:
+            case AST_UNION_DEFINITION:
+                name = identifier_name(stmt->structDef.structName);
+                break;
+            case AST_ENUM_DEFINITION:
+                name = identifier_name(stmt->enumDef.enumName);
+                break;
+            default:
+                break;
+        }
+        if (!name || name[0] == '\0') {
+            continue;
+        }
+
+        FisicsSymbol sym = {0};
+        sym.name = name;
+        sym.file_path = stmt->location.start.file;
+        sym.start_line = stmt->location.start.line;
+        sym.start_col = stmt->location.start.column;
+        sym.end_line = stmt->location.end.line ? stmt->location.end.line : sym.start_line;
+        sym.end_col = stmt->location.end.column ? stmt->location.end.column : sym.start_col;
+        symbuf_append(&buf, &sym);
+    }
+
+    if (buf.count > 0) {
+        cc_set_symbols(ctx, buf.items, buf.count);
+    } else {
+        cc_clear_symbols(ctx);
+    }
+    free(buf.items);
+}
+
+static FisicsTokenKind map_token_kind(TokenType t) {
+    switch (t) {
+        case TOKEN_IDENTIFIER: return FISICS_TOK_IDENTIFIER;
+        case TOKEN_NUMBER:
+        case TOKEN_FLOAT_LITERAL: return FISICS_TOK_NUMBER;
+        case TOKEN_STRING: return FISICS_TOK_STRING;
+        case TOKEN_CHAR_LITERAL: return FISICS_TOK_CHAR;
+        case TOKEN_LINE_COMMENT:
+        case TOKEN_BLOCK_COMMENT: return FISICS_TOK_COMMENT;
+        case TOKEN_INCLUDE: case TOKEN_DEFINE: case TOKEN_UNDEF:
+        case TOKEN_IFDEF: case TOKEN_IFNDEF: case TOKEN_ENDIF:
+        case TOKEN_PRAGMA: case TOKEN_PP_IF: case TOKEN_PP_ELIF: case TOKEN_PP_ELSE:
+        case TOKEN_INT: case TOKEN_FLOAT: case TOKEN_CHAR: case TOKEN_DOUBLE: case TOKEN_LONG: case TOKEN_SHORT:
+        case TOKEN_SIGNED: case TOKEN_UNSIGNED: case TOKEN_VOID: case TOKEN_BOOL: case TOKEN_ENUM: case TOKEN_UNION:
+        case TOKEN_STRUCT: case TOKEN_TYPEDEF: case TOKEN_IF: case TOKEN_ELSE: case TOKEN_WHILE: case TOKEN_FOR:
+        case TOKEN_DO: case TOKEN_SWITCH: case TOKEN_CASE: case TOKEN_DEFAULT: case TOKEN_RETURN: case TOKEN_GOTO:
+        case TOKEN_BREAK: case TOKEN_CONTINUE: case TOKEN_EXTERN: case TOKEN_STATIC: case TOKEN_AUTO:
+        case TOKEN_REGISTER: case TOKEN_CONST: case TOKEN_VOLATILE: case TOKEN_RESTRICT: case TOKEN_INLINE:
+        case TOKEN_NULL: case TOKEN_SIZEOF: case TOKEN_TRUE: case TOKEN_FALSE: case TOKEN_ASM:
+            return FISICS_TOK_KEYWORD;
+        case TOKEN_LPAREN: case TOKEN_RPAREN: case TOKEN_LBRACE: case TOKEN_RBRACE:
+        case TOKEN_LBRACKET: case TOKEN_RBRACKET: case TOKEN_SEMICOLON: case TOKEN_COMMA:
+        case TOKEN_COLON: case TOKEN_DOT: case TOKEN_ELLIPSIS: case TOKEN_ARROW:
+        case TOKEN_QUESTION:
+            return FISICS_TOK_PUNCT;
+        default:
+            return FISICS_TOK_OPERATOR;
+    }
+}
+
+static void capture_token_spans(CompilerContext* ctx, const PPTokenBuffer* preprocessed) {
+    if (!ctx || !preprocessed) return;
+    cc_clear_token_spans(ctx);
+    for (size_t i = 0; i < preprocessed->count; ++i) {
+        const Token* tok = &preprocessed->tokens[i];
+        FisicsTokenSpan span;
+        span.line = tok->location.start.line;
+        span.column = tok->location.start.column;
+        int len = tok->location.end.column - tok->location.start.column;
+        span.length = len > 0 ? len : 1;
+        span.kind = map_token_kind(tok->type);
+        cc_append_token_span(ctx, &span);
+    }
+}
 
 static bool append_include_path(char*** paths, size_t* count, size_t* capacity, const char* path) {
     if (!paths || !count || !capacity || !path) return false;
@@ -72,18 +193,18 @@ void compiler_free_include_paths(char** paths, size_t count) {
     free(paths);
 }
 
-int compile_translation_unit(const CompileOptions* options, CompileResult* outResult) {
-    if (outResult) {
-        memset(outResult, 0, sizeof(*outResult));
-    }
-    if (!options || !options->inputPath) {
-        fprintf(stderr, "Error: compile_translation_unit requires an inputPath\n");
-        return 1;
-    }
-
-    int status = 1;
-    CompileResult result = {0};
-
+static bool compiler_run_frontend_internal(CompilerContext* ctx,
+                                           const char* file_path,
+                                           const char* source,
+                                           size_t length,
+                                           bool preservePPNodes,
+                                           const char* const* includePaths,
+                                           size_t includePathCount,
+                                           bool dumpAst,
+                                           bool dumpSemantic,
+                                           ASTNode** outAst,
+                                           SemanticModel** outModel,
+                                           size_t* outSemanticErrors) {
     TokenBuffer tokenBuffer;
     token_buffer_init(&tokenBuffer);
 
@@ -91,36 +212,43 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     PPTokenBuffer preprocessed = {0};
     Preprocessor preprocessor;
     memset(&preprocessor, 0, sizeof(preprocessor));
-
-    CompilerContext* ctx = cc_create();
-    if (!ctx) {
-        fprintf(stderr, "OOM: CompilerContext\n");
-        goto cleanup;
-    }
-    result.compilerCtx = ctx;
-    cc_seed_builtins(ctx);
-
-    if (options->targetTriple) {
-        cc_set_target_triple(ctx, options->targetTriple);
-    }
-    if (options->dataLayout) {
-        cc_set_data_layout(ctx, options->dataLayout);
-    }
+    ASTNode* root = NULL;
+    SemanticModel* semanticModel = NULL;
 
     if (!preprocessor_init(&preprocessor,
-                           options->preservePPNodes,
-                           options->includePaths,
-                           options->includePathCount)) {
+                           ctx,
+                           preservePPNodes,
+                           includePaths,
+                           includePathCount)) {
         fprintf(stderr, "Error: failed to initialize preprocessor\n");
         goto cleanup;
     }
 
-    const IncludeFile* rootFile = include_resolver_load(preprocessor_get_resolver(&preprocessor),
-                                                        NULL,
-                                                        options->inputPath,
-                                                        false);
+    const IncludeFile* rootFile = NULL;
+    if (source) {
+        char* owned = (char*)malloc(length + 1);
+        if (!owned) goto cleanup;
+        memcpy(owned, source, length);
+        owned[length] = '\0';
+        if (!include_resolver_set_root_buffer(preprocessor_get_resolver(&preprocessor),
+                                              file_path ? file_path : "<buffer>",
+                                              owned,
+                                              0)) {
+            free(owned);
+            goto cleanup;
+        }
+        rootFile = include_resolver_load(preprocessor_get_resolver(&preprocessor),
+                                         NULL,
+                                         file_path ? file_path : "<buffer>",
+                                         false);
+    } else {
+        rootFile = include_resolver_load(preprocessor_get_resolver(&preprocessor),
+                                         NULL,
+                                         file_path,
+                                         false);
+    }
     if (!rootFile) {
-        fprintf(stderr, "Error: failed to load source file %s\n", options->inputPath);
+        fprintf(stderr, "Error: failed to load source file %s\n", file_path ? file_path : "<null>");
         goto cleanup;
     }
 
@@ -152,6 +280,8 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         goto cleanup;
     }
 
+    capture_token_spans(ctx, &preprocessed);
+
     if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
         fprintf(stderr, "DEBUG: preprocessed tokens=%zu\n", preprocessed.count);
         for (size_t i = 0; i < preprocessed.count; ++i) {
@@ -177,47 +307,148 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     cc_set_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
 
     Parser parser;
-    initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx, options->preservePPNodes);
+    initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx, preservePPNodes);
 
-    ASTNode* root = parse(&parser);
-    result.ast = root;
+    root = parse(&parser);
+    cc_set_translation_unit(ctx, root);
+    collect_top_symbols(root, ctx);
 
-    if (options->dumpAst) {
+    if (dumpAst) {
         printf(" AST Output:\n");
         printAST(root, 0);
     }
 
-    if (options->dumpSemantic) {
+    if (dumpSemantic) {
         printf("\n Semantic Analysis:\n");
     }
 
     MacroTable* macroSnapshot = macro_table_clone(preprocessor_get_macro_table(&preprocessor));
-    SemanticModel* semanticModel = analyzeSemanticsBuildModel(root,
-                                                              ctx,
-                                                              false,
-                                                              macroSnapshot,
-                                                              true);
+    semanticModel = analyzeSemanticsBuildModel(root,
+                                               ctx,
+                                               false,
+                                               macroSnapshot,
+                                               true);
     if (!semanticModel) {
         goto cleanup;
     }
 
-    result.semanticModel = semanticModel;
     size_t semanticErrors = semanticModelGetErrorCount(semanticModel);
-    result.semanticErrors = semanticErrors;
 
-    if (options->dumpSemantic) {
+    if (dumpSemantic) {
         printf("\n Semantic Model Dump:\n");
         semanticModelDump(semanticModel);
     }
 
+    if (outAst) *outAst = root;
+    if (outModel) *outModel = semanticModel;
+    if (outSemanticErrors) *outSemanticErrors = semanticErrors;
+
+    preprocessor_destroy(&preprocessor);
+    token_buffer_destroy(&parserTokens);
+    return true;
+
+cleanup:
+    pp_token_buffer_destroy(&preprocessed);
+    token_buffer_destroy(&tokenBuffer);
+    preprocessor_destroy(&preprocessor);
+    token_buffer_destroy(&parserTokens);
+
+    if (semanticModel) {
+        semanticModelDestroy(semanticModel);
+    }
+    (void)root;
+
+    return false;
+}
+
+bool compiler_run_frontend(CompilerContext* ctx,
+                           const char* file_path,
+                           const char* source,
+                           size_t length,
+                           bool preservePPNodes,
+                           const char* const* includePaths,
+                           size_t includePathCount,
+                           bool dumpAst,
+                           bool dumpSemantic,
+                           ASTNode** outAst,
+                           SemanticModel** outModel,
+                           size_t* outSemanticErrors) {
+    if (!ctx || !file_path) {
+        return false;
+    }
+    cc_seed_builtins(ctx);
+    return compiler_run_frontend_internal(ctx,
+                                          file_path,
+                                          source,
+                                          length,
+                                          preservePPNodes,
+                                          includePaths,
+                                          includePathCount,
+                                          dumpAst,
+                                          dumpSemantic,
+                                          outAst,
+                                          outModel,
+                                          outSemanticErrors);
+}
+
+int compile_translation_unit(const CompileOptions* options, CompileResult* outResult) {
+    if (outResult) {
+        memset(outResult, 0, sizeof(*outResult));
+    }
+    if (!options || !options->inputPath) {
+        fprintf(stderr, "Error: compile_translation_unit requires an inputPath\n");
+        return 1;
+    }
+
+    int status = 1;
+    CompileResult result = {0};
+
+    CompilerContext* ctx = cc_create();
+    if (!ctx) {
+        fprintf(stderr, "OOM: CompilerContext\n");
+        return 1;
+    }
+    result.compilerCtx = ctx;
+    cc_seed_builtins(ctx);
+
+    if (options->targetTriple) {
+        cc_set_target_triple(ctx, options->targetTriple);
+    }
+    if (options->dataLayout) {
+        cc_set_data_layout(ctx, options->dataLayout);
+    }
+
+    ASTNode* ast = NULL;
+    SemanticModel* model = NULL;
+    size_t semaErrors = 0;
+
+    if (!compiler_run_frontend_internal(ctx,
+                                        options->inputPath,
+                                        NULL,
+                                        0,
+                                        options->preservePPNodes,
+                                        options->includePaths,
+                                        options->includePathCount,
+                                        options->dumpAst,
+                                        options->dumpSemantic,
+                                        &ast,
+                                        &model,
+                                        &semaErrors)) {
+        goto cleanup;
+    }
+
+    result.ast = ast;
+    result.semanticModel = model;
+    result.semanticErrors = semaErrors;
+
     if (options->enableCodegen) {
         printf("\n️ LLVM Code Generation:\n");
-        if (semanticErrors == 0) {
-            CodegenContext* codegenCtx = codegen_context_create("compiler_module", semanticModel);
+        if (semaErrors == 0) {
+            CodegenContext* codegenCtx = codegen_context_create("compiler_module", model);
             if (!codegenCtx) {
                 fprintf(stderr, "Error: Failed to initialize LLVM code generation context\n");
             } else {
-                LLVMValueRef resultValue = codegen_generate(codegenCtx, root);
+                LLVMValueRef resultValue = codegen_generate(codegenCtx, ast);
                 (void)resultValue;
                 if (options->dumpIR) {
                     LLVMDumpModule(codegen_get_module(codegenCtx));
@@ -246,8 +477,8 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     }
 
     if (options->depsJsonPath && options->depsJsonPath[0] != '\0') {
-        const IncludeGraph* graph = preprocessor_get_include_graph(&preprocessor);
-        if (!include_graph_write_json(graph, options->depsJsonPath)) {
+        const IncludeGraph* graph = cc_get_include_graph(ctx);
+        if (graph && !include_graph_write_json(graph, options->depsJsonPath)) {
             fprintf(stderr, "Warning: failed to write deps JSON to %s\n", options->depsJsonPath);
         }
     }
@@ -255,11 +486,6 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     status = 0;
 
 cleanup:
-    pp_token_buffer_destroy(&preprocessed);
-    token_buffer_destroy(&tokenBuffer);
-    preprocessor_destroy(&preprocessor);
-    token_buffer_destroy(&parserTokens);
-
     if (status != 0) {
         compile_result_destroy(&result);
     } else if (outResult) {

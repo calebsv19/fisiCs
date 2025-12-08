@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "Preprocessor/include_resolver.h"
+#include "Compiler/diagnostics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +49,52 @@ typedef struct {
     size_t capacity;
 } CCTagTable;
 
+typedef struct {
+    FisicsDiagnostic* items;
+    size_t count;
+    size_t capacity;
+} CompilerDiagnostics;
+
+typedef enum {
+    FISICS_TOK_IDENTIFIER,
+    FISICS_TOK_KEYWORD,
+    FISICS_TOK_NUMBER,
+    FISICS_TOK_STRING,
+    FISICS_TOK_CHAR,
+    FISICS_TOK_OPERATOR,
+    FISICS_TOK_PUNCT,
+    FISICS_TOK_COMMENT,
+    FISICS_TOK_WHITESPACE
+} FisicsTokenKind;
+
+typedef struct {
+    int line;
+    int column;
+    int length;
+    FisicsTokenKind kind;
+} FisicsTokenSpan;
+
+typedef struct {
+    const char* name;
+    const char* file_path;
+    int start_line;
+    int start_col;
+    int end_line;
+    int end_col;
+} FisicsSymbol;
+
+typedef struct {
+    FisicsTokenSpan* items;
+    size_t count;
+    size_t capacity;
+} CompilerTokenSpans;
+
+typedef struct {
+    FisicsSymbol* items;
+    size_t count;
+    size_t capacity;
+} CompilerSymbols;
+
 typedef struct CompilerContext {
     CCStringSet typedef_names;  // names introduced by 'typedef'
     CCTagTable tag_struct;      // struct tag metadata
@@ -57,6 +104,10 @@ typedef struct CompilerContext {
     IncludeGraph includeGraph;  // dependency edges (parent -> child)
     char* targetTriple;
     char* dataLayout;
+    CompilerDiagnostics diags;  // Diagnostics recorded during lex/parse/sema.
+    CompilerTokenSpans tokenSpans;
+    CompilerSymbols symbols;
+    struct ASTNode* translationUnit;
 } CompilerContext;
 
 typedef enum {
@@ -101,6 +152,21 @@ bool cc_set_target_triple(CompilerContext* ctx, const char* triple);
 const char* cc_get_target_triple(const CompilerContext* ctx);
 bool cc_set_data_layout(CompilerContext* ctx, const char* layout);
 const char* cc_get_data_layout(const CompilerContext* ctx);
+
+// Token span helpers
+bool cc_set_token_spans(CompilerContext* ctx, const FisicsTokenSpan* spans, size_t count);
+const FisicsTokenSpan* cc_get_token_spans(const CompilerContext* ctx, size_t* countOut);
+void cc_clear_token_spans(CompilerContext* ctx);
+bool cc_append_token_span(CompilerContext* ctx, const FisicsTokenSpan* span);
+
+// Symbol helpers
+bool cc_set_symbols(CompilerContext* ctx, const FisicsSymbol* symbols, size_t count);
+const FisicsSymbol* cc_get_symbols(const CompilerContext* ctx, size_t* countOut);
+void cc_clear_symbols(CompilerContext* ctx);
+
+// Translation unit pointer access
+void cc_set_translation_unit(CompilerContext* ctx, struct ASTNode* root);
+struct ASTNode* cc_get_translation_unit(const CompilerContext* ctx);
 
 #ifdef __cplusplus
 }

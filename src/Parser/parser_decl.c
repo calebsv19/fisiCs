@@ -459,7 +459,14 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
             continue;
         }
         if (parser->currentToken.type != TOKEN_SEMICOLON) {
-            printf("Error: expected ';' at line %d\n", parser->currentToken.line);
+            if (parser && parser->ctx) {
+                compiler_report_diag(parser->ctx,
+                                     parser->currentToken.location,
+                                     DIAG_ERROR,
+                                     CDIAG_PARSER_EXPECT_SEMICOLON,
+                                     "did you forget a ';'?",
+                                     "expected ';' after declaration");
+            }
             free(varNames);
             free(initializers);
             return NULL;

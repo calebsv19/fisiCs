@@ -30,6 +30,12 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
                                          const char* name,
                                          bool isSystem);
 
+// Allows injecting an already-loaded root file (for in-memory buffers). The resolver takes ownership.
+bool include_resolver_set_root_buffer(IncludeResolver* resolver,
+                                      const char* path,
+                                      char* contents_owned,
+                                      long mtime);
+
 // Record a #pragma once hit for the given resolved path.
 void include_resolver_mark_pragma_once(IncludeResolver* resolver, const char* resolvedPath);
 void include_resolver_mark_included(IncludeResolver* resolver, const char* resolvedPath);

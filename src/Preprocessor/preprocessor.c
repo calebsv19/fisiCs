@@ -1,10 +1,12 @@
 #include "Preprocessor/preprocessor.h"
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "Lexer/tokens.h"
+#include "Compiler/diagnostics.h"
 
 static bool preprocess_tokens(Preprocessor* pp,
                               const TokenBuffer* input,
@@ -97,6 +99,27 @@ static void pp_token_buffer_reset(PPTokenBuffer* buffer) {
     buffer->tokens = NULL;
     buffer->count = 0;
     buffer->capacity = 0;
+}
+
+static void pp_report_diag(Preprocessor* pp,
+                           const Token* tok,
+                           DiagKind kind,
+                           int code,
+                           const char* fmt,
+                           ...) {
+    if (!pp || !pp->ctx || !fmt) return;
+    va_list args;
+    va_start(args, fmt);
+    char buffer[512];
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+    compiler_report_diag(pp->ctx,
+                         tok ? tok->location : (SourceRange){0},
+                         kind,
+                         code,
+                         NULL,
+                         "%s",
+                         buffer);
 }
 
 typedef struct {
@@ -344,7 +367,7 @@ static bool process_define(Preprocessor* pp,
     int directiveLine = tokens[i].line;
     i++;
     if (i >= count || !tokens[i].value) {
-        fprintf(stderr, "Preprocessor error: expected identifier after #define\n");
+        pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #define");
         return false;
     }
     const Token* nameTok = &tokens[i];
@@ -360,13 +383,13 @@ static bool process_define(Preprocessor* pp,
         tokens[i].line == nameTok->line) {
         isFunction = true;
         if (!parse_macro_parameters(tokens, count, &i, &params)) {
-            fprintf(stderr, "Preprocessor error: invalid parameter list in #define %s\n", nameTok->value);
+            pp_report_diag(pp, nameTok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "invalid parameter list in #define %s", nameTok->value ? nameTok->value : "");
             goto cleanup;
         }
     }
 
     if (!collect_macro_body(tokens, count, &i, directiveLine, &body)) {
-        fprintf(stderr, "Preprocessor error: failed to collect macro body for %s\n", nameTok->value);
+        pp_report_diag(pp, nameTok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "failed to collect macro body for %s", nameTok->value ? nameTok->value : "");
         goto cleanup;
     }
 
@@ -389,7 +412,7 @@ static bool process_define(Preprocessor* pp,
     }
 
     if (!ok) {
-        fprintf(stderr, "Preprocessor error: failed to record macro %s\n", nameTok->value);
+        pp_report_diag(pp, nameTok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "failed to record macro %s", nameTok->value ? nameTok->value : "");
         goto cleanup;
     }
 
@@ -408,7 +431,7 @@ static bool process_undef(Preprocessor* pp,
     int directiveLine = tokens[i].line;
     i++;
     if (i >= count || tokens[i].type != TOKEN_IDENTIFIER) {
-        fprintf(stderr, "Preprocessor error: expected identifier after #undef\n");
+        pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #undef");
         return false;
     }
     macro_table_undef(pp->table, tokens[i].value);
@@ -496,8 +519,8 @@ static bool process_ifdeflike(Preprocessor* pp,
     int directiveLine = tokens[i].line;
     i++;
     if (i >= count || tokens[i].type != TOKEN_IDENTIFIER) {
-        fprintf(stderr, "Preprocessor error: expected identifier after #%s\n",
-                negate ? "ifndef" : "ifdef");
+        pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #%s",
+                       negate ? "ifndef" : "ifdef");
         return false;
     }
     const char* name = tokens[i].value;
@@ -529,13 +552,13 @@ static bool process_include(Preprocessor* pp,
                             size_t* cursor,
                             PPTokenBuffer* output) {
     if (!pp || !pp->resolver) {
-        fprintf(stderr, "Preprocessor error: include resolver not initialized\n");
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "include resolver not initialized");
         return false;
     }
     char* name = NULL;
     bool isSystem = false;
     if (!parse_include_operand(tokens, count, cursor, &name, &isSystem)) {
-        fprintf(stderr, "Preprocessor error: invalid #include operand\n");
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "invalid #include operand");
         return false;
     }
 
@@ -543,12 +566,12 @@ static bool process_include(Preprocessor* pp,
     const IncludeFile* inc = include_resolver_load(pp->resolver, parentFile, name, isSystem);
     if (!inc) {
         if (isSystem) {
-            fprintf(stderr, "Preprocessor warning: skipping missing system include '%s'\n",
-                    name ? name : "<null>");
+            pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_WARNING, CDIAG_PREPROCESSOR_GENERIC, "skipping missing system include '%s'",
+                           name ? name : "<null>");
             free(name);
             return true;
         }
-        fprintf(stderr, "Preprocessor error: could not resolve include '%s'\n", name ? name : "<null>");
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "could not resolve include '%s'", name ? name : "<null>");
         free(name);
         return false;
     }
@@ -591,7 +614,7 @@ static bool process_elif(Preprocessor* pp,
                          PPConditionalFrame* stack,
                          size_t depth) {
     if (depth == 0) {
-        fprintf(stderr, "Preprocessor error: #elif without matching #if\n");
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#elif without matching #if");
         return false;
     }
     size_t i = *cursor;
@@ -604,7 +627,7 @@ static bool process_elif(Preprocessor* pp,
 
     PPConditionalFrame* frame = &stack[depth - 1];
     if (frame->sawElse) {
-        fprintf(stderr, "Preprocessor error: #elif after #else\n");
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#elif after #else");
         return false;
     }
 
@@ -623,14 +646,14 @@ static bool process_elif(Preprocessor* pp,
     return true;
 }
 
-static bool process_else(PPConditionalFrame* stack, size_t depth) {
+static bool process_else(Preprocessor* pp, PPConditionalFrame* stack, size_t depth, const Token* tok) {
     if (depth == 0) {
-        fprintf(stderr, "Preprocessor error: #else without matching #if\n");
+        pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#else without matching #if");
         return false;
     }
     PPConditionalFrame* frame = &stack[depth - 1];
     if (frame->sawElse) {
-        fprintf(stderr, "Preprocessor error: duplicate #else\n");
+        pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "duplicate #else");
         return false;
     }
     bool newActive = frame->parentActive && !frame->branchTaken;
@@ -642,10 +665,10 @@ static bool process_else(PPConditionalFrame* stack, size_t depth) {
     return true;
 }
 
-static bool process_endif(PPConditionalFrame* stack, size_t* depth) {
+static bool process_endif(Preprocessor* pp, PPConditionalFrame* stack, size_t* depth, const Token* tok) {
     (void)stack;
     if (*depth == 0) {
-        fprintf(stderr, "Preprocessor error: #endif without matching #if\n");
+        pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#endif without matching #if");
         return false;
     }
     (*depth)--;
@@ -674,6 +697,7 @@ static bool process_pragma(Preprocessor* pp,
 }
 
 bool preprocessor_init(Preprocessor* pp,
+                       CompilerContext* ctx,
                        bool preserveDirectives,
                        const char* const* includePaths,
                        size_t includePathCount) {
@@ -692,6 +716,7 @@ bool preprocessor_init(Preprocessor* pp,
     }
     include_graph_init(&pp->includeGraph);
     pp->preserveDirectives = preserveDirectives;
+    pp->ctx = ctx;
     return true;
 }
 
@@ -849,7 +874,7 @@ static bool preprocess_tokens(Preprocessor* pp,
                     free(condStack);
                     return false;
                 }
-                if (!process_else(condStack, condDepth)) {
+                if (!process_else(pp, condStack, condDepth, &input->tokens[i])) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     return false;
@@ -869,7 +894,7 @@ static bool preprocess_tokens(Preprocessor* pp,
                         return false;
                     }
                 }
-                if (!process_endif(condStack, &condDepth)) {
+                if (!process_endif(pp, condStack, &condDepth, &input->tokens[i])) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     return false;

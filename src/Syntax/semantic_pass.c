@@ -14,7 +14,7 @@ static Scope* runSemanticAnalysis(ASTNode* root,
                                   CompilerContext* ctx,
                                   size_t* outErrorCount,
                                   bool printSummary) {
-    initErrorList();
+    initErrorList(ctx);
 
     Scope* globalScope = createScope(NULL);
     if (!globalScope) {

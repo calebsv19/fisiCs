@@ -144,6 +144,9 @@ void cc_destroy(CompilerContext* ctx) {
     cc_tag_table_free(&ctx->tag_union);
     cc_tag_table_free(&ctx->tag_enum);
     include_graph_destroy(&ctx->includeGraph);
+    compiler_diagnostics_clear(ctx);
+    cc_clear_token_spans(ctx);
+    cc_clear_symbols(ctx);
     free(ctx->targetTriple);
     free(ctx->dataLayout);
     // builtins are static literals; nothing to free.
@@ -325,4 +328,126 @@ bool cc_set_data_layout(CompilerContext* ctx, const char* layout) {
 
 const char* cc_get_data_layout(const CompilerContext* ctx) {
     return ctx ? ctx->dataLayout : NULL;
+}
+
+// ---- Token spans ----
+static void cc_token_spans_free(CompilerTokenSpans* spans) {
+    if (!spans) return;
+    free(spans->items);
+    spans->items = NULL;
+    spans->count = 0;
+    spans->capacity = 0;
+}
+
+bool cc_set_token_spans(CompilerContext* ctx, const FisicsTokenSpan* spans, size_t count) {
+    if (!ctx) return false;
+    cc_token_spans_free(&ctx->tokenSpans);
+    if (!spans || count == 0) {
+        return true;
+    }
+    FisicsTokenSpan* copy = (FisicsTokenSpan*)malloc(count * sizeof(FisicsTokenSpan));
+    if (!copy) return false;
+    memcpy(copy, spans, count * sizeof(FisicsTokenSpan));
+    ctx->tokenSpans.items = copy;
+    ctx->tokenSpans.count = count;
+    ctx->tokenSpans.capacity = count;
+    return true;
+}
+
+bool cc_append_token_span(CompilerContext* ctx, const FisicsTokenSpan* span) {
+    if (!ctx || !span) return false;
+    CompilerTokenSpans* s = &ctx->tokenSpans;
+    if (s->count == s->capacity) {
+        size_t newCap = s->capacity ? s->capacity * 2 : 64;
+        FisicsTokenSpan* grown = (FisicsTokenSpan*)realloc(s->items, newCap * sizeof(FisicsTokenSpan));
+        if (!grown) return false;
+        s->items = grown;
+        s->capacity = newCap;
+    }
+    s->items[s->count++] = *span;
+    return true;
+}
+
+const FisicsTokenSpan* cc_get_token_spans(const CompilerContext* ctx, size_t* countOut) {
+    if (countOut) {
+        *countOut = ctx ? ctx->tokenSpans.count : 0;
+    }
+    return ctx ? ctx->tokenSpans.items : NULL;
+}
+
+void cc_clear_token_spans(CompilerContext* ctx) {
+    cc_token_spans_free(ctx ? &ctx->tokenSpans : NULL);
+}
+
+// ---- Symbols ----
+static char* cc_strdup(const char* s) {
+    if (!s) return NULL;
+    size_t len = strlen(s) + 1;
+    char* copy = (char*)malloc(len);
+    if (copy) memcpy(copy, s, len);
+    return copy;
+}
+
+static void cc_symbols_free(CompilerSymbols* symbols) {
+    if (!symbols) return;
+    for (size_t i = 0; i < symbols->count; ++i) {
+        free((char*)symbols->items[i].name);
+        free((char*)symbols->items[i].file_path);
+    }
+    free(symbols->items);
+    symbols->items = NULL;
+    symbols->count = 0;
+    symbols->capacity = 0;
+}
+
+bool cc_set_symbols(CompilerContext* ctx, const FisicsSymbol* symbols, size_t count) {
+    if (!ctx) return false;
+    cc_symbols_free(&ctx->symbols);
+    if (!symbols || count == 0) {
+        return true;
+    }
+    FisicsSymbol* copy = (FisicsSymbol*)calloc(count, sizeof(FisicsSymbol));
+    if (!copy) return false;
+    for (size_t i = 0; i < count; ++i) {
+        copy[i] = symbols[i];
+        if (symbols[i].name) {
+            copy[i].name = cc_strdup(symbols[i].name);
+            if (!copy[i].name) {
+                cc_symbols_free(&(CompilerSymbols){ .items = copy, .count = i, .capacity = count });
+                return false;
+            }
+        }
+        if (symbols[i].file_path) {
+            copy[i].file_path = cc_strdup(symbols[i].file_path);
+            if (!copy[i].file_path) {
+                cc_symbols_free(&(CompilerSymbols){ .items = copy, .count = i + 1, .capacity = count });
+                return false;
+            }
+        }
+    }
+    ctx->symbols.items = copy;
+    ctx->symbols.count = count;
+    ctx->symbols.capacity = count;
+    return true;
+}
+
+const FisicsSymbol* cc_get_symbols(const CompilerContext* ctx, size_t* countOut) {
+    if (countOut) {
+        *countOut = ctx ? ctx->symbols.count : 0;
+    }
+    return ctx ? ctx->symbols.items : NULL;
+}
+
+void cc_clear_symbols(CompilerContext* ctx) {
+    cc_symbols_free(ctx ? &ctx->symbols : NULL);
+}
+
+// ---- Translation unit ----
+void cc_set_translation_unit(CompilerContext* ctx, struct ASTNode* root) {
+    if (!ctx) return;
+    ctx->translationUnit = root;
+}
+
+struct ASTNode* cc_get_translation_unit(const CompilerContext* ctx) {
+    return ctx ? ctx->translationUnit : NULL;
 }

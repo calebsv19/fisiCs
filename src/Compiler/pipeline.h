@@ -33,6 +33,21 @@ typedef struct {
     size_t semanticErrors;
 } CompileResult;
 
+// Reusable frontend entry point: runs lex -> preprocess -> parse -> sema on an
+// optional in-memory buffer. Results (diags/tokens/symbols/TU) live on ctx.
+bool compiler_run_frontend(struct CompilerContext* ctx,
+                           const char* file_path,
+                           const char* source,
+                           size_t length,
+                           bool preservePPNodes,
+                           const char* const* includePaths,
+                           size_t includePathCount,
+                           bool dumpAst,
+                           bool dumpSemantic,
+                           struct ASTNode** outAst,
+                           struct SemanticModel** outModel,
+                           size_t* outSemanticErrors);
+
 int compile_translation_unit(const CompileOptions* options, CompileResult* outResult);
 void compile_result_destroy(CompileResult* result);
 

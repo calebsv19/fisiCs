@@ -1,4 +1,5 @@
 # === Config ===
+.DEFAULT_GOAL := all
 CC := cc
 LLVM_CONFIG := llvm-config
 
@@ -30,7 +31,7 @@ LDFLAGS := -fsanitize=address,undefined $(LLVM_LDFLAGS) $(LLVM_LIBS)
 INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax
 SRC_DIR := src
 BUILD_DIR := build
-BIN := compiler
+BIN := fisics
 INCLUDE_PATHS ?= include
 DEFAULT_INCLUDE_PATHS := $(if $(INCLUDE_PATHS),$(INCLUDE_PATHS),include)
 
@@ -50,14 +51,33 @@ SRCS += src/Lexer/keyword_lookup.c
 SRCS += src/Preprocessor/include_resolver.c
 
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
+LIB_FRONTEND := libfisics_frontend.a
+# Include codegen in the archive so downstream IDEs don’t see undefined symbols.
+FRONTEND_OBJS := $(filter-out $(BUILD_DIR)/main.o $(BUILD_DIR)/Compiler/object_emit.o,$(OBJS))
+# Only keep the object emitter separate for the CLI binary.
+BACKEND_OBJS := $(BUILD_DIR)/Compiler/object_emit.o
 
 # === Default Target ===
 all: $(BIN)
 
+# Frontend-only targets
+.PHONY: frontend frontend-clean frontend-rebuild
+frontend: $(LIB_FRONTEND)
+frontend-clean:
+	@echo "Cleaning frontend library..."
+	rm -f $(LIB_FRONTEND)
+	rm -f $(FRONTEND_OBJS)
+frontend-rebuild: frontend-clean frontend
+
+# Frontend static library (reusable by IDE)
+$(LIB_FRONTEND): $(FRONTEND_OBJS)
+	@echo "Archiving $@..."
+	ar rcs $@ $^
+
 # === Link object files into final binary ===
-$(BIN): $(OBJS)
+$(BIN): $(LIB_FRONTEND) $(BUILD_DIR)/main.o $(BACKEND_OBJS)
 	@echo "Linking $@..."
-	$(CC) $^ -o $@ $(LDFLAGS)
+	$(CC) $(BUILD_DIR)/main.o $(BACKEND_OBJS) $(LIB_FRONTEND) -o $@ $(LDFLAGS)
 
 # === Compile each .c file into .o only if changed ===
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
@@ -68,7 +88,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 # === Clean: remove binary + build artifacts ===
 clean:
 	@echo "Cleaning..."
-	rm -rf $(BUILD_DIR) $(BIN)
+	rm -rf $(BUILD_DIR) $(BIN) $(LIB_FRONTEND)
 	rm -f src/Lexer/keyword_lookup.c
 
 integration-compile-only: $(BIN)
@@ -250,7 +270,14 @@ preprocessor-tests: $(BIN)
 	@./tests/preprocessor/run_pp_preserve.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_deps.sh ./$(BIN)
 
-tests: test
+frontend-api-test: $(LIB_FRONTEND)
+	@echo "Building frontend API test..."
+	@mkdir -p build/tests
+	$(CC) $(CFLAGS) $(INCLUDES) tests/unit/frontend_api.c -L. -lfisics_frontend -o build/tests/frontend_api_test $(LDFLAGS)
+	@echo "Running frontend API test..."
+	@build/tests/frontend_api_test
+
+tests: test frontend-api-test
 
 # === Phony Targets ===
 .PHONY: all clean run \

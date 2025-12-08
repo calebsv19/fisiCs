@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BIN="${1:-./compiler}"
+BIN="${1:-./fisics}"
 OUT="${2:-/tmp/mycc-integration-a.out}"
 
 if [ ! -x "$BIN" ]; then

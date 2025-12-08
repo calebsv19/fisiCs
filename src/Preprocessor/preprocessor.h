@@ -8,6 +8,7 @@
 #include "Preprocessor/macro_expander.h"
 #include "Preprocessor/pp_expr.h"
 #include "Preprocessor/include_resolver.h"
+#include "Compiler/compiler_context.h"
 
 typedef struct {
     MacroTable* table;
@@ -16,9 +17,11 @@ typedef struct {
     IncludeResolver* resolver;
     IncludeGraph includeGraph;
     bool preserveDirectives;
+    CompilerContext* ctx;
 } Preprocessor;
 
 bool preprocessor_init(Preprocessor* pp,
+                       CompilerContext* ctx,
                        bool preserveDirectives,
                        const char* const* includePaths,
                        size_t includePathCount);
