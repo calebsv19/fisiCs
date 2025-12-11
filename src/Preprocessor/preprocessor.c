@@ -563,11 +563,41 @@ static bool process_include(Preprocessor* pp,
     }
 
     const char* parentFile = token_file(&tokens[*cursor]);
-    const IncludeFile* inc = include_resolver_load(pp->resolver, parentFile, name, isSystem);
+    IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;
+    const IncludeFile* inc = include_resolver_load(pp->resolver, parentFile, name, isSystem, &origin);
+
+    // Record include metadata on the compiler context for tooling/IDE.
+    FisicsInclude incRec = {0};
+    incRec.name = name;
+    incRec.kind = isSystem ? FISICS_INCLUDE_SYSTEM : FISICS_INCLUDE_LOCAL;
+    incRec.line = tokens ? tokens[*cursor].line : 0;
+    incRec.column = tokens ? tokens[*cursor].location.start.column : 0;
+    incRec.resolved = (inc != NULL);
+    incRec.resolved_path = inc ? inc->path : NULL;
     if (!inc) {
-        if (isSystem) {
-            pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_WARNING, CDIAG_PREPROCESSOR_GENERIC, "skipping missing system include '%s'",
-                           name ? name : "<null>");
+        incRec.origin = FISICS_INCLUDE_UNRESOLVED;
+    } else {
+        switch (origin) {
+            case INCLUDE_SEARCH_SAME_DIR:
+                incRec.origin = FISICS_INCLUDE_PROJECT;
+                break;
+            case INCLUDE_SEARCH_INCLUDE_PATH:
+                incRec.origin = isSystem ? FISICS_INCLUDE_SYSTEM_ORIGIN : FISICS_INCLUDE_PROJECT;
+                break;
+            case INCLUDE_SEARCH_RAW:
+            default:
+                incRec.origin = isSystem ? FISICS_INCLUDE_SYSTEM_ORIGIN : FISICS_INCLUDE_EXTERNAL;
+                break;
+        }
+    }
+    if (pp->ctx) {
+        cc_append_include(pp->ctx, &incRec);
+    }
+    if (!inc) {
+        bool warnOnly = isSystem || pp->lenientMissingIncludes;
+        if (warnOnly) {
+            pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_WARNING, CDIAG_PREPROCESSOR_GENERIC,
+                           "skipping missing %s include '%s'", isSystem ? "system" : "local", name ? name : "<null>");
             free(name);
             return true;
         }
@@ -699,6 +729,7 @@ static bool process_pragma(Preprocessor* pp,
 bool preprocessor_init(Preprocessor* pp,
                        CompilerContext* ctx,
                        bool preserveDirectives,
+                       bool lenientMissingIncludes,
                        const char* const* includePaths,
                        size_t includePathCount) {
     if (!pp) return false;
@@ -716,6 +747,7 @@ bool preprocessor_init(Preprocessor* pp,
     }
     include_graph_init(&pp->includeGraph);
     pp->preserveDirectives = preserveDirectives;
+    pp->lenientMissingIncludes = lenientMissingIncludes;
     pp->ctx = ctx;
     return true;
 }

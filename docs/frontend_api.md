@@ -9,7 +9,11 @@ This API exposes the compiler frontend (lex/parse/sema) as a reusable library fo
 
 const char* src = "int main(){ return missing; }";
 FisicsAnalysisResult res = {0};
-if (fisics_analyze_buffer("inline.c", src, strlen(src), &res)) {
+FisicsFrontendOptions opts = {
+    .include_paths = NULL, // or an array of -I paths
+    .include_path_count = 0,
+};
+if (fisics_analyze_buffer("inline.c", src, strlen(src), &opts, &res)) {
     // inspect res.diagnostics / res.tokens / res.symbols
 }
 fisics_free_analysis_result(&res);

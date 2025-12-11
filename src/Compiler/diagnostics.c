@@ -82,7 +82,16 @@ bool compiler_report_diag(struct CompilerContext* ctx,
     }
 
     FisicsDiagnostic* d = &buf->items[buf->count++];
-    d->file_path = loc.start.file;
+    if (loc.start.file) {
+        d->file_path = strdup(loc.start.file);
+        if (!d->file_path) {
+            free(message);
+            free(hintCopy);
+            return false;
+        }
+    } else {
+        d->file_path = NULL;
+    }
     d->line = loc.start.line;
     d->column = loc.start.column;
     d->length = range_length(loc);
@@ -145,10 +154,12 @@ void compiler_diagnostics_clear(struct CompilerContext* ctx) {
     CompilerDiagnostics* buf = ctx_buffer(ctx);
     if (!buf) return;
     for (size_t i = 0; i < buf->count; ++i) {
+        free((void*)buf->items[i].file_path);
         free(buf->items[i].message);
         buf->items[i].message = NULL;
         free(buf->items[i].hint);
         buf->items[i].hint = NULL;
+        buf->items[i].file_path = NULL;
     }
     free(buf->items);
     buf->items = NULL;

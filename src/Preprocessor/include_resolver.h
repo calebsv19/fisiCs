@@ -20,6 +20,12 @@ typedef struct {
     size_t includePathCount;
 } IncludeResolver;
 
+typedef enum {
+    INCLUDE_SEARCH_SAME_DIR = 0,
+    INCLUDE_SEARCH_INCLUDE_PATH = 1,
+    INCLUDE_SEARCH_RAW = 2
+} IncludeSearchOrigin;
+
 IncludeResolver* include_resolver_create(const char* const* includePaths, size_t pathCount);
 void include_resolver_destroy(IncludeResolver* resolver);
 
@@ -28,7 +34,8 @@ void include_resolver_destroy(IncludeResolver* resolver);
 const IncludeFile* include_resolver_load(IncludeResolver* resolver,
                                          const char* includingFile,
                                          const char* name,
-                                         bool isSystem);
+                                         bool isSystem,
+                                         IncludeSearchOrigin* originOut);
 
 // Allows injecting an already-loaded root file (for in-memory buffers). The resolver takes ownership.
 bool include_resolver_set_root_buffer(IncludeResolver* resolver,

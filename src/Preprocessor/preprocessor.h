@@ -17,12 +17,14 @@ typedef struct {
     IncludeResolver* resolver;
     IncludeGraph includeGraph;
     bool preserveDirectives;
+    bool lenientMissingIncludes;
     CompilerContext* ctx;
 } Preprocessor;
 
 bool preprocessor_init(Preprocessor* pp,
                        CompilerContext* ctx,
                        bool preserveDirectives,
+                       bool lenientMissingIncludes,
                        const char* const* includePaths,
                        size_t includePathCount);
 void preprocessor_destroy(Preprocessor* pp);

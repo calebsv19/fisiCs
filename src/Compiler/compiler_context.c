@@ -147,6 +147,7 @@ void cc_destroy(CompilerContext* ctx) {
     compiler_diagnostics_clear(ctx);
     cc_clear_token_spans(ctx);
     cc_clear_symbols(ctx);
+    cc_clear_includes(ctx);
     free(ctx->targetTriple);
     free(ctx->dataLayout);
     // builtins are static literals; nothing to free.
@@ -440,6 +441,92 @@ const FisicsSymbol* cc_get_symbols(const CompilerContext* ctx, size_t* countOut)
 
 void cc_clear_symbols(CompilerContext* ctx) {
     cc_symbols_free(ctx ? &ctx->symbols : NULL);
+}
+
+// ---- Includes ----
+static void cc_includes_free(CompilerIncludes* includes) {
+    if (!includes) return;
+    for (size_t i = 0; i < includes->count; ++i) {
+        free((char*)includes->items[i].name);
+        free((char*)includes->items[i].resolved_path);
+    }
+    free(includes->items);
+    includes->items = NULL;
+    includes->count = 0;
+    includes->capacity = 0;
+}
+
+bool cc_set_includes(CompilerContext* ctx, const FisicsInclude* includes, size_t count) {
+    if (!ctx) return false;
+    cc_includes_free(&ctx->includes);
+    if (!includes || count == 0) {
+        return true;
+    }
+    FisicsInclude* copy = (FisicsInclude*)calloc(count, sizeof(FisicsInclude));
+    if (!copy) return false;
+    for (size_t i = 0; i < count; ++i) {
+        copy[i] = includes[i];
+        if (includes[i].name) {
+            copy[i].name = cc_strdup(includes[i].name);
+            if (!copy[i].name) {
+                cc_includes_free(&(CompilerIncludes){ .items = copy, .count = i, .capacity = count });
+                return false;
+            }
+        }
+        if (includes[i].resolved_path) {
+            copy[i].resolved_path = cc_strdup(includes[i].resolved_path);
+            if (!copy[i].resolved_path) {
+                cc_includes_free(&(CompilerIncludes){ .items = copy, .count = i + 1, .capacity = count });
+                return false;
+            }
+        }
+    }
+    ctx->includes.items = copy;
+    ctx->includes.count = count;
+    ctx->includes.capacity = count;
+    return true;
+}
+
+bool cc_append_include(CompilerContext* ctx, const FisicsInclude* include) {
+    if (!ctx || !include) return false;
+    CompilerIncludes* inc = &ctx->includes;
+    if (inc->count == inc->capacity) {
+        size_t newCap = inc->capacity ? inc->capacity * 2 : 16;
+        FisicsInclude* grown = (FisicsInclude*)realloc(inc->items, newCap * sizeof(FisicsInclude));
+        if (!grown) return false;
+        inc->items = grown;
+        inc->capacity = newCap;
+    }
+    FisicsInclude* dst = &inc->items[inc->count];
+    *dst = *include;
+    dst->name = NULL;
+    dst->resolved_path = NULL;
+    if (include->name) {
+        dst->name = cc_strdup(include->name);
+        if (!dst->name) return false;
+    }
+    if (include->resolved_path) {
+        dst->resolved_path = cc_strdup(include->resolved_path);
+        if (!dst->resolved_path) {
+            free((char*)dst->name);
+            dst->name = NULL;
+            dst->resolved_path = NULL;
+            return false;
+        }
+    }
+    inc->count++;
+    return true;
+}
+
+const FisicsInclude* cc_get_includes(const CompilerContext* ctx, size_t* countOut) {
+    if (countOut) {
+        *countOut = ctx ? ctx->includes.count : 0;
+    }
+    return ctx ? ctx->includes.items : NULL;
+}
+
+void cc_clear_includes(CompilerContext* ctx) {
+    cc_includes_free(ctx ? &ctx->includes : NULL);
 }
 
 // ---- Translation unit ----

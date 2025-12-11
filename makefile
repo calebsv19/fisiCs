@@ -270,12 +270,16 @@ preprocessor-tests: $(BIN)
 	@./tests/preprocessor/run_pp_preserve.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_deps.sh ./$(BIN)
 
-frontend-api-test: $(LIB_FRONTEND)
-	@echo "Building frontend API test..."
+FRONTEND_TEST_SRCS := $(wildcard tests/unit/frontend_api*.c)
+FRONTEND_TEST_BINS := $(patsubst tests/unit/%.c,build/tests/%,$(FRONTEND_TEST_SRCS))
+
+build/tests/%: tests/unit/%.c $(LIB_FRONTEND)
 	@mkdir -p build/tests
-	$(CC) $(CFLAGS) $(INCLUDES) tests/unit/frontend_api.c -L. -lfisics_frontend -o build/tests/frontend_api_test $(LDFLAGS)
-	@echo "Running frontend API test..."
-	@build/tests/frontend_api_test
+	$(CC) $(CFLAGS) $(INCLUDES) $< -L. -lfisics_frontend -o $@ $(LDFLAGS)
+
+frontend-api-test: $(LIB_FRONTEND) $(FRONTEND_TEST_BINS)
+	@echo "Running frontend API tests..."
+	@for t in $(FRONTEND_TEST_BINS); do echo "==> $$t"; $$t; done
 
 tests: test frontend-api-test
 

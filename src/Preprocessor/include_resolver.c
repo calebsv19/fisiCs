@@ -157,8 +157,10 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver, const char* pat
 static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
                                              const char* includingFile,
                                              const char* name,
-                                             bool isSystem) {
+                                             bool isSystem,
+                                             IncludeSearchOrigin* originOut) {
     char candidate[4096];
+    IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;
     // 1) If quoted include and includingFile provided, search its directory.
     if (!isSystem && includingFile) {
         const char* slash = strrchr(includingFile, '/');
@@ -170,7 +172,11 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
                 dir[dirLen] = '\0';
                 if (ir_build_path(candidate, sizeof(candidate), dir, name)) {
                     const IncludeFile* file = ir_try_load(resolver, candidate);
-                    if (file) return file;
+                    if (file) {
+                        origin = INCLUDE_SEARCH_SAME_DIR;
+                        if (originOut) *originOut = origin;
+                        return file;
+                    }
                 }
             }
         }
@@ -180,12 +186,17 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
     for (size_t i = 0; i < resolver->includePathCount; ++i) {
         if (ir_build_path(candidate, sizeof(candidate), resolver->includePaths[i], name)) {
             const IncludeFile* file = ir_try_load(resolver, candidate);
-            if (file) return file;
+            if (file) {
+                origin = INCLUDE_SEARCH_INCLUDE_PATH;
+                if (originOut) *originOut = origin;
+                return file;
+            }
         }
     }
 
     // 3) Fallback: raw name
     if (ir_try_load(resolver, name)) {
+        if (originOut) *originOut = origin;
         return ir_lookup(resolver, name);
     }
     return NULL;
@@ -194,11 +205,15 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
 const IncludeFile* include_resolver_load(IncludeResolver* resolver,
                                          const char* includingFile,
                                          const char* name,
-                                         bool isSystem) {
+                                         bool isSystem,
+                                         IncludeSearchOrigin* originOut) {
     if (!resolver || !name) return NULL;
     const IncludeFile* cached = ir_lookup(resolver, name);
-    if (cached) return cached;
-    return ir_search_and_load(resolver, includingFile, name, isSystem);
+    if (cached) {
+        if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+        return cached;
+    }
+    return ir_search_and_load(resolver, includingFile, name, isSystem, originOut);
 }
 
 void include_resolver_mark_pragma_once(IncludeResolver* resolver, const char* resolvedPath) {

@@ -200,6 +200,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            bool preservePPNodes,
                                            const char* const* includePaths,
                                            size_t includePathCount,
+                                           bool lenientIncludes,
                                            bool dumpAst,
                                            bool dumpSemantic,
                                            ASTNode** outAst,
@@ -218,6 +219,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     if (!preprocessor_init(&preprocessor,
                            ctx,
                            preservePPNodes,
+                           lenientIncludes,
                            includePaths,
                            includePathCount)) {
         fprintf(stderr, "Error: failed to initialize preprocessor\n");
@@ -240,12 +242,14 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         rootFile = include_resolver_load(preprocessor_get_resolver(&preprocessor),
                                          NULL,
                                          file_path ? file_path : "<buffer>",
-                                         false);
+                                         false,
+                                         NULL);
     } else {
         rootFile = include_resolver_load(preprocessor_get_resolver(&preprocessor),
                                          NULL,
                                          file_path,
-                                         false);
+                                         false,
+                                         NULL);
     }
     if (!rootFile) {
         fprintf(stderr, "Error: failed to load source file %s\n", file_path ? file_path : "<null>");
@@ -368,6 +372,7 @@ bool compiler_run_frontend(CompilerContext* ctx,
                            bool preservePPNodes,
                            const char* const* includePaths,
                            size_t includePathCount,
+                           bool lenientIncludes,
                            bool dumpAst,
                            bool dumpSemantic,
                            ASTNode** outAst,
@@ -380,15 +385,16 @@ bool compiler_run_frontend(CompilerContext* ctx,
     return compiler_run_frontend_internal(ctx,
                                           file_path,
                                           source,
-                                          length,
-                                          preservePPNodes,
-                                          includePaths,
-                                          includePathCount,
-                                          dumpAst,
-                                          dumpSemantic,
-                                          outAst,
-                                          outModel,
-                                          outSemanticErrors);
+                                         length,
+                                         preservePPNodes,
+                                         includePaths,
+                                         includePathCount,
+                                         lenientIncludes,
+                                         dumpAst,
+                                         dumpSemantic,
+                                         outAst,
+                                         outModel,
+                                         outSemanticErrors);
 }
 
 int compile_translation_unit(const CompileOptions* options, CompileResult* outResult) {
@@ -429,6 +435,7 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
                                         options->preservePPNodes,
                                         options->includePaths,
                                         options->includePathCount,
+                                        false, // lenientIncludes disabled for CLI path
                                         options->dumpAst,
                                         options->dumpSemantic,
                                         &ast,

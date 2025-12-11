@@ -7,7 +7,12 @@
 #include "Compiler/diagnostics.h"
 #include "Compiler/pipeline.h"
 
-static bool copy_diagnostics(const CompilerContext* ctx, FisicsAnalysisResult* out) {
+// Copy diagnostics out of the compiler context. We purposefully override the
+// file_path with the caller's file_path to avoid dangling pointers from the
+// preprocessor/include resolver teardown.
+static bool copy_diagnostics(const CompilerContext* ctx,
+                             const char* callerFilePath,
+                             FisicsAnalysisResult* out) {
     size_t count = 0;
     const FisicsDiagnostic* src = compiler_diagnostics_data(ctx, &count);
     if (count == 0) {
@@ -18,7 +23,21 @@ static bool copy_diagnostics(const CompilerContext* ctx, FisicsAnalysisResult* o
     FisicsDiagnostic* dst = (FisicsDiagnostic*)calloc(count, sizeof(FisicsDiagnostic));
     if (!dst) return false;
     for (size_t i = 0; i < count; ++i) {
-        dst[i] = src[i];
+        // Copy only POD fields directly; never read src[i].file_path to avoid
+        // dangling pointers from preprocessor buffers.
+        dst[i].line   = src[i].line;
+        dst[i].column = src[i].column;
+        dst[i].length = src[i].length;
+        dst[i].kind   = src[i].kind;
+        dst[i].code   = src[i].code;
+
+        dst[i].file_path = callerFilePath ? strdup(callerFilePath) : NULL;
+        if (callerFilePath && !dst[i].file_path) {
+            out->diag_count = i;
+            fisics_free_analysis_result(out);
+            return false;
+        }
+
         if (src[i].message) {
             dst[i].message = strdup(src[i].message);
             if (!dst[i].message) {
@@ -91,9 +110,36 @@ static bool copy_symbols(const CompilerContext* ctx, FisicsAnalysisResult* out) 
     return true;
 }
 
+static bool copy_includes(const CompilerContext* ctx, FisicsAnalysisResult* out) {
+    size_t count = 0;
+    const FisicsInclude* src = cc_get_includes(ctx, &count);
+    if (count == 0 || !src) {
+        out->includes = NULL;
+        out->include_count = 0;
+        return true;
+    }
+    FisicsInclude* dst = (FisicsInclude*)calloc(count, sizeof(FisicsInclude));
+    if (!dst) return false;
+    for (size_t i = 0; i < count; ++i) {
+        dst[i] = src[i];
+        if (src[i].name) {
+            dst[i].name = dupstr(src[i].name);
+            if (!dst[i].name) { out->include_count = i; fisics_free_analysis_result(out); return false; }
+        }
+        if (src[i].resolved_path) {
+            dst[i].resolved_path = dupstr(src[i].resolved_path);
+            if (!dst[i].resolved_path) { out->include_count = i + 1; fisics_free_analysis_result(out); return false; }
+        }
+    }
+    out->includes = dst;
+    out->include_count = count;
+    return true;
+}
+
 bool fisics_analyze_buffer(const char* file_path,
                            const char* source,
                            size_t length,
+                           const FisicsFrontendOptions* opts,
                            FisicsAnalysisResult* out) {
     if (out) {
         memset(out, 0, sizeof(*out));
@@ -111,8 +157,9 @@ bool fisics_analyze_buffer(const char* file_path,
                                     source,
                                     length,
                                     false,
-                                    NULL,
-                                    0,
+                                    opts ? opts->include_paths : NULL,
+                                    opts ? opts->include_path_count : 0,
+                                    true, // lenient includes for IDE/frontend API
                                     false,
                                     false,
                                     &ast,
@@ -120,23 +167,30 @@ bool fisics_analyze_buffer(const char* file_path,
                                     &semaErrors);
     (void)ast;
     (void)model;
-    if (!ok) {
-        cc_destroy(ctx);
-        return false;
+    bool copied = false;
+    if (ok) {
+        copied = copy_diagnostics(ctx, file_path, out) &&
+                 copy_tokens(ctx, out) &&
+                 copy_symbols(ctx, out) &&
+                 copy_includes(ctx, out);
+    } else {
+        // IDE lenient path: even if the pipeline failed (e.g., missing headers or parse
+        // errors), return whatever diagnostics/includes we captured so the IDE can show them.
+        copied = copy_diagnostics(ctx, file_path, out) &&
+                 copy_tokens(ctx, out) &&
+                 copy_symbols(ctx, out) &&
+                 copy_includes(ctx, out);
     }
 
-    bool copied = copy_diagnostics(ctx, out) &&
-                  copy_tokens(ctx, out) &&
-                  copy_symbols(ctx, out);
-
     cc_destroy(ctx);
-    return copied;
+    return copied && ok ? true : copied;
 }
 
 void fisics_free_analysis_result(FisicsAnalysisResult* result) {
     if (!result) return;
     if (result->diagnostics) {
         for (size_t i = 0; i < result->diag_count; ++i) {
+            free((char*)result->diagnostics[i].file_path);
             free(result->diagnostics[i].message);
             free(result->diagnostics[i].hint);
         }
@@ -152,10 +206,19 @@ void fisics_free_analysis_result(FisicsAnalysisResult* result) {
         }
         free(result->symbols);
     }
+    if (result->includes) {
+        for (size_t i = 0; i < result->include_count; ++i) {
+            free((char*)result->includes[i].name);
+            free((char*)result->includes[i].resolved_path);
+        }
+        free(result->includes);
+    }
     result->diagnostics = NULL;
     result->diag_count = 0;
     result->tokens = NULL;
     result->token_count = 0;
     result->symbols = NULL;
     result->symbol_count = 0;
+    result->includes = NULL;
+    result->include_count = 0;
 }

@@ -231,6 +231,8 @@ static ASTNode* nud(Parser* parser, Token token) {
     if (parser->currentToken.type == TOKEN_LBRACE) {
         if (!parser->enableStatementExpressions) {
             printParseError("GNU statement expressions are disabled (set ENABLE_GNU_STATEMENT_EXPRESSIONS=1)", parser);
+            fprintf(stderr,
+                    "GNU statement expressions are disabled (set ENABLE_GNU_STATEMENT_EXPRESSIONS=1)\n");
             return NULL;
         }
         ASTNode* stmtExpr = parseGNUStatementExpression(parser);

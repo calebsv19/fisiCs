@@ -1,6 +1,7 @@
 #include "Parser/Helpers/parser_helpers.h"
 #include "Parser/Helpers/parser_lookahead.h"
 #include "parser_config.h"
+#include "Compiler/diagnostics.h"
 #include <stdlib.h>   // malloc, free
 #include <string.h>   // memcpy
 
@@ -47,9 +48,20 @@ void freeParserClone(Parser* parser) {
 
 
 void printParseError(const char* expected, Parser* parser) {
-    printf("Error: expected '%s' at line %d, got '%s' (Type: %d)\n",
-           expected, parser->currentToken.line, parser->currentToken.value, 
-			parser->currentToken.type);
+    if (!parser) return;
+    const Token* tok = &parser->currentToken;
+    const char* got = tok && tok->value ? tok->value : "<eof>";
+    if (parser->ctx) {
+        compiler_report_diag(parser->ctx,
+                             tok ? tok->location : (SourceRange){0},
+                             DIAG_ERROR,
+                             CDIAG_PARSER_GENERIC,
+                             NULL,
+                             "expected '%s', got '%s' (type %d)",
+                             expected ? expected : "",
+                             got,
+                             tok ? tok->type : -1);
+    }
 }
 
 

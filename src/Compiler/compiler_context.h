@@ -95,6 +95,34 @@ typedef struct {
     size_t capacity;
 } CompilerSymbols;
 
+typedef enum {
+    FISICS_INCLUDE_LOCAL = 0,
+    FISICS_INCLUDE_SYSTEM = 1
+} FisicsIncludeKind;
+
+typedef enum {
+    FISICS_INCLUDE_PROJECT = 0,
+    FISICS_INCLUDE_SYSTEM_ORIGIN = 1,
+    FISICS_INCLUDE_EXTERNAL = 2,
+    FISICS_INCLUDE_UNRESOLVED = 3
+} FisicsIncludeOrigin;
+
+typedef struct {
+    const char* name;          // as written in source
+    const char* resolved_path; // nullable if unresolved
+    FisicsIncludeKind kind;    // angle vs quoted
+    FisicsIncludeOrigin origin;
+    bool resolved;
+    int line;
+    int column;
+} FisicsInclude;
+
+typedef struct {
+    FisicsInclude* items;
+    size_t count;
+    size_t capacity;
+} CompilerIncludes;
+
 typedef struct CompilerContext {
     CCStringSet typedef_names;  // names introduced by 'typedef'
     CCTagTable tag_struct;      // struct tag metadata
@@ -107,6 +135,7 @@ typedef struct CompilerContext {
     CompilerDiagnostics diags;  // Diagnostics recorded during lex/parse/sema.
     CompilerTokenSpans tokenSpans;
     CompilerSymbols symbols;
+    CompilerIncludes includes;
     struct ASTNode* translationUnit;
 } CompilerContext;
 
@@ -163,6 +192,12 @@ bool cc_append_token_span(CompilerContext* ctx, const FisicsTokenSpan* span);
 bool cc_set_symbols(CompilerContext* ctx, const FisicsSymbol* symbols, size_t count);
 const FisicsSymbol* cc_get_symbols(const CompilerContext* ctx, size_t* countOut);
 void cc_clear_symbols(CompilerContext* ctx);
+
+// Include helpers
+bool cc_set_includes(CompilerContext* ctx, const FisicsInclude* includes, size_t count);
+const FisicsInclude* cc_get_includes(const CompilerContext* ctx, size_t* countOut);
+void cc_clear_includes(CompilerContext* ctx);
+bool cc_append_include(CompilerContext* ctx, const FisicsInclude* include);
 
 // Translation unit pointer access
 void cc_set_translation_unit(CompilerContext* ctx, struct ASTNode* root);
