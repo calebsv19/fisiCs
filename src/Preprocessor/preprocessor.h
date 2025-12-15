@@ -26,7 +26,9 @@ bool preprocessor_init(Preprocessor* pp,
                        bool preserveDirectives,
                        bool lenientMissingIncludes,
                        const char* const* includePaths,
-                       size_t includePathCount);
+                       size_t includePathCount,
+                       const char* const* macroDefines,
+                       size_t macroDefineCount);
 void preprocessor_destroy(Preprocessor* pp);
 
 bool preprocessor_run(Preprocessor* pp,

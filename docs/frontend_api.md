@@ -12,6 +12,8 @@ FisicsAnalysisResult res = {0};
 FisicsFrontendOptions opts = {
     .include_paths = NULL, // or an array of -I paths
     .include_path_count = 0,
+    .macro_defines = NULL, // e.g., (const char*[]){"DEBUG=1","PLATFORM_MAC"}
+    .macro_define_count = 0,
 };
 if (fisics_analyze_buffer("inline.c", src, strlen(src), &opts, &res)) {
     // inspect res.diagnostics / res.tokens / res.symbols

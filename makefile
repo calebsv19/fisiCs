@@ -269,6 +269,7 @@ preprocessor-tests: $(BIN)
 	@./tests/preprocessor/run_pp_include_pragma_once.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_preserve.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_deps.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_macro_adjacent.sh ./$(BIN)
 
 FRONTEND_TEST_SRCS := $(wildcard tests/unit/frontend_api*.c)
 FRONTEND_TEST_BINS := $(patsubst tests/unit/%.c,build/tests/%,$(FRONTEND_TEST_SRCS))
@@ -280,6 +281,16 @@ build/tests/%: tests/unit/%.c $(LIB_FRONTEND)
 frontend-api-test: $(LIB_FRONTEND) $(FRONTEND_TEST_BINS)
 	@echo "Running frontend API tests..."
 	@for t in $(FRONTEND_TEST_BINS); do echo "==> $$t"; $$t; done
+
+HARNESS_SRC := tests/harness/frontend_harness.c
+HARNESS_BIN := build/tests/frontend_harness
+
+$(HARNESS_BIN): $(HARNESS_SRC) $(LIB_FRONTEND)
+	@mkdir -p build/tests
+	$(CC) $(CFLAGS) $(INCLUDES) $(HARNESS_SRC) -L. -lfisics_frontend -o $@ $(LDFLAGS)
+
+frontend-harness: $(HARNESS_BIN)
+	@$(HARNESS_BIN)
 
 tests: test frontend-api-test
 
@@ -294,6 +305,6 @@ tests: test frontend-api-test
         semantic-vla-param-decay codegen-pointer-deref codegen-pointer-diff \
         compound-literal-lvalues \
         codegen-function-pointer-call codegen-compound-literal-pointer-decay \
-        statement-expr-enabled statement-expr-disabled recovery preprocessor-tests \
+        statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
         statement-expr-codegen \
         parser-tests syntax-tests codegen-tests spec-tests test tests

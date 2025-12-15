@@ -23,19 +23,23 @@ static bool copy_diagnostics(const CompilerContext* ctx,
     FisicsDiagnostic* dst = (FisicsDiagnostic*)calloc(count, sizeof(FisicsDiagnostic));
     if (!dst) return false;
     for (size_t i = 0; i < count; ++i) {
-        // Copy only POD fields directly; never read src[i].file_path to avoid
-        // dangling pointers from preprocessor buffers.
+        // Copy POD fields directly.
         dst[i].line   = src[i].line;
         dst[i].column = src[i].column;
         dst[i].length = src[i].length;
         dst[i].kind   = src[i].kind;
         dst[i].code   = src[i].code;
 
-        dst[i].file_path = callerFilePath ? strdup(callerFilePath) : NULL;
-        if (callerFilePath && !dst[i].file_path) {
-            out->diag_count = i;
-            fisics_free_analysis_result(out);
-            return false;
+        const char* chosenPath = src[i].file_path ? src[i].file_path : callerFilePath;
+        if (chosenPath) {
+            dst[i].file_path = strdup(chosenPath);
+            if (!dst[i].file_path) {
+                out->diag_count = i;
+                fisics_free_analysis_result(out);
+                return false;
+            }
+        } else {
+            dst[i].file_path = NULL;
         }
 
         if (src[i].message) {
@@ -152,6 +156,12 @@ bool fisics_analyze_buffer(const char* file_path,
     struct SemanticModel* model = NULL;
     size_t semaErrors = 0;
 
+    bool lenient = true;
+    if (opts) {
+        if (opts->lenient_mode < 0) lenient = false;
+        else if (opts->lenient_mode > 0) lenient = true;
+    }
+
     bool ok = compiler_run_frontend(ctx,
                                     file_path,
                                     source,
@@ -159,7 +169,9 @@ bool fisics_analyze_buffer(const char* file_path,
                                     false,
                                     opts ? opts->include_paths : NULL,
                                     opts ? opts->include_path_count : 0,
-                                    true, // lenient includes for IDE/frontend API
+                                    opts ? opts->macro_defines : NULL,
+                                    opts ? opts->macro_define_count : 0,
+                                    lenient,
                                     false,
                                     false,
                                     &ast,

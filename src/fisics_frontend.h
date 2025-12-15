@@ -28,6 +28,14 @@ typedef struct {
     // Array of include search paths (equivalent to -I). Optional; pass NULL/0 to use defaults.
     const char* const* include_paths;
     size_t include_path_count;
+
+    // Array of predefined macros (equivalent to -DNAME or -DNAME=VALUE). Optional.
+    const char* const* macro_defines;
+    size_t macro_define_count;
+
+    // Lenient mode toggle: 0 = default (lenient), >0 = force lenient, <0 = force strict.
+    // Lenient is recommended for IDE usage to continue after missing headers/malformed macros.
+    int lenient_mode;
 } FisicsFrontendOptions;
 
 bool fisics_analyze_buffer(const char* file_path,

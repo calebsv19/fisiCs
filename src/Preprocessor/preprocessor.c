@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "Lexer/tokens.h"
 #include "Compiler/diagnostics.h"
@@ -108,13 +109,16 @@ static void pp_report_diag(Preprocessor* pp,
                            const char* fmt,
                            ...) {
     if (!pp || !pp->ctx || !fmt) return;
+    /* Prefer the token's own location (header path, etc.). If missing, leave
+       it empty rather than incorrectly attributing to the including TU. */
+    SourceRange loc = tok ? tok->location : (SourceRange){0};
     va_list args;
     va_start(args, fmt);
     char buffer[512];
     vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
     compiler_report_diag(pp->ctx,
-                         tok ? tok->location : (SourceRange){0},
+                         loc,
                          kind,
                          code,
                          NULL,
@@ -169,6 +173,12 @@ static bool parse_macro_parameters(const Token* tokens,
         return false;
     }
     i++; // consume '('
+    // Handle empty parameter list: #define F()
+    if (i < count && tokens[i].type == TOKEN_RPAREN) {
+        i++; // consume ')'
+        *cursor = i;
+        return true;
+    }
     bool expectParam = true;
     bool variadicDetected = false;
 
@@ -248,9 +258,36 @@ static void skip_to_line_end(const Token* tokens,
     *cursor = (i == 0) ? 0 : i - 1;
 }
 
+static bool pp_debug_fail_enabled(void) {
+    static int cached = -1;
+    if (cached < 0) {
+        const char* env = getenv("FISICS_DEBUG_PP_FAIL");
+        cached = (env && env[0]) ? 1 : 0;
+    }
+    return cached != 0;
+}
+
+static void pp_debug_fail(const char* label, const Token* tok) {
+    if (!pp_debug_fail_enabled()) return;
+    const char* file = tok && tok->location.start.file ? tok->location.start.file : "<unknown>";
+    int line = tok ? tok->location.start.line : 0;
+    int col = tok ? tok->location.start.column : 0;
+    fprintf(stderr, "[PP-DEBUG] failure at %s %s:%d:%d (tok type=%d)\n",
+            label ? label : "<unknown>", file, line, col, tok ? tok->type : -1);
+}
+
 static const char* token_file(const Token* tok) {
     if (!tok || !tok->location.start.file) return NULL;
     return tok->location.start.file;
+}
+
+static bool tokens_adjacent(const Token* left, const Token* right) {
+    if (!left || !right) return false;
+    if (left->location.end.line != right->location.start.line) return false;
+    /* Columns are 1-based; end column corresponds to the lexer position after the token.
+       Treat the tokens as adjacent if the next token starts at or before the previous end column,
+       which indicates no intervening whitespace (e.g., NAME() vs NAME ()). */
+    return right->location.start.column <= left->location.end.column;
 }
 
 static const char* detect_include_guard(const TokenBuffer* buffer) {
@@ -367,7 +404,13 @@ static bool process_define(Preprocessor* pp,
     int directiveLine = tokens[i].line;
     i++;
     if (i >= count || !tokens[i].value) {
-        pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #define");
+        DiagKind kind = pp && pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
+        pp_report_diag(pp, tokens ? &tokens[i] : NULL, kind, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #define");
+        if (pp && pp->lenientMissingIncludes) {
+            skip_to_line_end(tokens, count, &i);
+            *cursor = (i == 0) ? 0 : i - 1;
+            return true;
+        }
         return false;
     }
     const Token* nameTok = &tokens[i];
@@ -380,16 +423,35 @@ static bool process_define(Preprocessor* pp,
 
     if (i < count &&
         tokens[i].type == TOKEN_LPAREN &&
-        tokens[i].line == nameTok->line) {
+        tokens[i].line == nameTok->line &&
+        tokens_adjacent(nameTok, &tokens[i])) {
         isFunction = true;
         if (!parse_macro_parameters(tokens, count, &i, &params)) {
-            pp_report_diag(pp, nameTok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "invalid parameter list in #define %s", nameTok->value ? nameTok->value : "");
+            DiagKind kind = pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
+            pp_report_diag(pp, nameTok, kind, CDIAG_PREPROCESSOR_GENERIC, "invalid parameter list in #define %s", nameTok->value ? nameTok->value : "");
+            if (pp->lenientMissingIncludes) {
+                while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
+                    i++;
+                }
+                *cursor = (i == 0) ? 0 : i - 1;
+                macro_param_parse_destroy(&params);
+                pp_token_buffer_reset(&body);
+                return true;
+            }
             goto cleanup;
         }
     }
 
     if (!collect_macro_body(tokens, count, &i, directiveLine, &body)) {
-        pp_report_diag(pp, nameTok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "failed to collect macro body for %s", nameTok->value ? nameTok->value : "");
+        DiagKind kind = pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
+        pp_report_diag(pp, nameTok, kind, CDIAG_PREPROCESSOR_GENERIC, "failed to collect macro body for %s", nameTok->value ? nameTok->value : "");
+        if (pp->lenientMissingIncludes) {
+            skip_to_line_end(tokens, count, &i);
+            *cursor = (i == 0) ? 0 : i - 1;
+            macro_param_parse_destroy(&params);
+            pp_token_buffer_reset(&body);
+            return true;
+        }
         goto cleanup;
     }
 
@@ -412,7 +474,15 @@ static bool process_define(Preprocessor* pp,
     }
 
     if (!ok) {
-        pp_report_diag(pp, nameTok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "failed to record macro %s", nameTok->value ? nameTok->value : "");
+        DiagKind kind = pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
+        pp_report_diag(pp, nameTok, kind, CDIAG_PREPROCESSOR_GENERIC, "failed to record macro %s", nameTok->value ? nameTok->value : "");
+        if (pp->lenientMissingIncludes) {
+            skip_to_line_end(tokens, count, &i);
+            *cursor = (i == 0) ? 0 : i - 1;
+            macro_param_parse_destroy(&params);
+            pp_token_buffer_reset(&body);
+            return true;
+        }
         goto cleanup;
     }
 
@@ -564,7 +634,14 @@ static bool process_include(Preprocessor* pp,
 
     const char* parentFile = token_file(&tokens[*cursor]);
     IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;
-    const IncludeFile* inc = include_resolver_load(pp->resolver, parentFile, name, isSystem, &origin);
+    const IncludeFile* incPtr = include_resolver_load(pp->resolver, parentFile, name, isSystem, &origin);
+    IncludeFile incValue;
+    bool haveInc = false;
+    if (incPtr) {
+        incValue = *incPtr; // copy to avoid stale pointer if resolver reallocates during nested loads
+        incPtr = NULL;
+        haveInc = true;
+    }
 
     // Record include metadata on the compiler context for tooling/IDE.
     FisicsInclude incRec = {0};
@@ -572,9 +649,9 @@ static bool process_include(Preprocessor* pp,
     incRec.kind = isSystem ? FISICS_INCLUDE_SYSTEM : FISICS_INCLUDE_LOCAL;
     incRec.line = tokens ? tokens[*cursor].line : 0;
     incRec.column = tokens ? tokens[*cursor].location.start.column : 0;
-    incRec.resolved = (inc != NULL);
-    incRec.resolved_path = inc ? inc->path : NULL;
-    if (!inc) {
+    incRec.resolved = haveInc;
+    incRec.resolved_path = haveInc ? incValue.path : NULL;
+    if (!haveInc) {
         incRec.origin = FISICS_INCLUDE_UNRESOLVED;
     } else {
         switch (origin) {
@@ -593,7 +670,7 @@ static bool process_include(Preprocessor* pp,
     if (pp->ctx) {
         cc_append_include(pp->ctx, &incRec);
     }
-    if (!inc) {
+    if (!haveInc) {
         bool warnOnly = isSystem || pp->lenientMissingIncludes;
         if (warnOnly) {
             pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_WARNING, CDIAG_PREPROCESSOR_GENERIC,
@@ -609,14 +686,14 @@ static bool process_include(Preprocessor* pp,
 
     include_graph_add(&pp->includeGraph,
                       parentFile ? parentFile : "<unknown>",
-                      inc->path ? inc->path : "<unknown>");
+                      incValue.path ? incValue.path : "<unknown>");
 
-    if (inc->pragmaOnce && include_resolver_was_included(pp->resolver, inc->path)) {
+    if (incValue.pragmaOnce && include_resolver_was_included(pp->resolver, incValue.path)) {
         return true;
     }
 
     Lexer lexer;
-    initLexer(&lexer, inc->contents, inc->path);
+    initLexer(&lexer, incValue.contents, incValue.path);
     TokenBuffer buffer;
     token_buffer_init(&buffer);
     if (!token_buffer_fill_from_lexer(&buffer, &lexer)) {
@@ -627,13 +704,16 @@ static bool process_include(Preprocessor* pp,
     const char* guard = detect_include_guard(&buffer);
     if (guard && macro_table_lookup(pp->table, guard) != NULL) {
         token_buffer_destroy(&buffer);
-        include_resolver_mark_included(pp->resolver, inc->path);
+        include_resolver_mark_included(pp->resolver, incValue.path);
         return true;
     }
 
     bool ok = preprocess_tokens(pp, &buffer, output, false);
+    if (!ok) {
+        pp_debug_fail("process_include_body", tokens ? &tokens[*cursor] : NULL);
+    }
     token_buffer_destroy(&buffer);
-    include_resolver_mark_included(pp->resolver, inc->path);
+    include_resolver_mark_included(pp->resolver, incValue.path);
     return ok;
 }
 
@@ -645,7 +725,7 @@ static bool process_elif(Preprocessor* pp,
                          size_t depth) {
     if (depth == 0) {
         pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#elif without matching #if");
-        return false;
+        return pp && pp->lenientMissingIncludes;
     }
     size_t i = *cursor;
     int directiveLine = tokens[i].line;
@@ -658,7 +738,7 @@ static bool process_elif(Preprocessor* pp,
     PPConditionalFrame* frame = &stack[depth - 1];
     if (frame->sawElse) {
         pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#elif after #else");
-        return false;
+        return pp && pp->lenientMissingIncludes;
     }
 
     bool newActive = false;
@@ -679,12 +759,12 @@ static bool process_elif(Preprocessor* pp,
 static bool process_else(Preprocessor* pp, PPConditionalFrame* stack, size_t depth, const Token* tok) {
     if (depth == 0) {
         pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#else without matching #if");
-        return false;
+        return pp && pp->lenientMissingIncludes;
     }
     PPConditionalFrame* frame = &stack[depth - 1];
     if (frame->sawElse) {
         pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "duplicate #else");
-        return false;
+        return pp && pp->lenientMissingIncludes;
     }
     bool newActive = frame->parentActive && !frame->branchTaken;
     frame->selfActive = newActive;
@@ -699,7 +779,7 @@ static bool process_endif(Preprocessor* pp, PPConditionalFrame* stack, size_t* d
     (void)stack;
     if (*depth == 0) {
         pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#endif without matching #if");
-        return false;
+        return pp && pp->lenientMissingIncludes;
     }
     (*depth)--;
     return true;
@@ -731,7 +811,9 @@ bool preprocessor_init(Preprocessor* pp,
                        bool preserveDirectives,
                        bool lenientMissingIncludes,
                        const char* const* includePaths,
-                       size_t includePathCount) {
+                       size_t includePathCount,
+                       const char* const* macroDefines,
+                       size_t macroDefineCount) {
     if (!pp) return false;
     pp->table = macro_table_create();
     if (!pp->table) {
@@ -749,6 +831,54 @@ bool preprocessor_init(Preprocessor* pp,
     pp->preserveDirectives = preserveDirectives;
     pp->lenientMissingIncludes = lenientMissingIncludes;
     pp->ctx = ctx;
+
+    // Predefine macros passed in (simple -DNAME or -DNAME=VALUE forms).
+    for (size_t i = 0; i < macroDefineCount; ++i) {
+        const char* def = macroDefines ? macroDefines[i] : NULL;
+        if (!def || def[0] == '\0') continue;
+        const char* eq = strchr(def, '=');
+        char* name = NULL;
+        char* value = NULL;
+        if (eq) {
+            size_t nameLen = (size_t)(eq - def);
+            name = (char*)malloc(nameLen + 1);
+            if (!name) continue;
+            memcpy(name, def, nameLen);
+            name[nameLen] = '\0';
+            value = strdup(eq + 1);
+            if (!value) {
+                free(name);
+                continue;
+            }
+        } else {
+            name = strdup(def);
+            if (!name) continue;
+        }
+
+        Token tok = {0};
+        PPTokenBuffer body = {0};
+        if (value && value[0]) {
+            tok.type = isdigit((unsigned char)value[0]) ? TOKEN_NUMBER : TOKEN_IDENTIFIER;
+            tok.value = strdup(value);
+            tok.location = (SourceRange){0};
+            tok.macroCallSite = (SourceRange){0};
+            tok.macroDefinition = (SourceRange){0};
+            if (tok.value) {
+                body.tokens = &tok;
+                body.count = 1;
+            }
+        }
+
+        macro_table_define_object(pp->table,
+                                  name,
+                                  body.tokens,
+                                  body.count,
+                                  (SourceRange){0});
+
+        free(name);
+        if (value) free(value);
+        free(tok.value);
+    }
     return true;
 }
 
@@ -823,12 +953,14 @@ static bool preprocess_tokens(Preprocessor* pp,
                         if (!append_directive_line(input->tokens, input->count, i, output)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
+                            pp_debug_fail("append_directive_line", &input->tokens[i]);
                             return false;
                         }
                     }
                     if (!process_define(pp, input->tokens, input->count, &i)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("process_define", &input->tokens[i]);
                         return false;
                     }
                 } else {
@@ -846,12 +978,14 @@ static bool preprocess_tokens(Preprocessor* pp,
                         if (!append_directive_line(input->tokens, input->count, i, output)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
+                            pp_debug_fail("append_directive_line", &input->tokens[i]);
                             return false;
                         }
                     }
                     if (!process_include(pp, input->tokens, input->count, &i, output)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("process_include", &input->tokens[i]);
                         return false;
                     }
                 } else {
@@ -863,11 +997,13 @@ static bool preprocess_tokens(Preprocessor* pp,
                     if (!flush_chunk(pp, &chunk, output)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("flush_chunk", &input->tokens[i]);
                         return false;
                     }
                     if (!process_undef(pp, input->tokens, input->count, &i)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("process_undef", &input->tokens[i]);
                         return false;
                     }
                 } else {
@@ -878,12 +1014,14 @@ static bool preprocess_tokens(Preprocessor* pp,
                 if (!flush_chunk(pp, &chunk, output)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
                 if (!process_if(pp, input->tokens, input->count, &i,
                                 &condStack, &condDepth, &condCap)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("process_if", &input->tokens[i]);
                     return false;
                 }
                 break;
@@ -891,12 +1029,14 @@ static bool preprocess_tokens(Preprocessor* pp,
                 if (!flush_chunk(pp, &chunk, output)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
                 if (!process_elif(pp, input->tokens, input->count, &i,
                                   condStack, condDepth)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("process_elif", &input->tokens[i]);
                     return false;
                 }
                 break;
@@ -904,11 +1044,13 @@ static bool preprocess_tokens(Preprocessor* pp,
                 if (!flush_chunk(pp, &chunk, output)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
                 if (!process_else(pp, condStack, condDepth, &input->tokens[i])) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("process_else", &input->tokens[i]);
                     return false;
                 }
                 skip_to_line_end(input->tokens, input->count, &i);
@@ -917,18 +1059,21 @@ static bool preprocess_tokens(Preprocessor* pp,
                 if (!flush_chunk(pp, &chunk, output)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
                 if (pp->preserveDirectives && active) {
                     if (!append_directive_line(input->tokens, input->count, i, output)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("append_directive_line", &input->tokens[i]);
                         return false;
                     }
                 }
                 if (!process_endif(pp, condStack, &condDepth, &input->tokens[i])) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("process_endif", &input->tokens[i]);
                     return false;
                 }
                 break;
@@ -936,12 +1081,14 @@ static bool preprocess_tokens(Preprocessor* pp,
                 if (!flush_chunk(pp, &chunk, output)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
                 if (pp->preserveDirectives && active) {
                     if (!append_directive_line(input->tokens, input->count, i, output)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("append_directive_line", &input->tokens[i]);
                         return false;
                     }
                 }
@@ -949,6 +1096,7 @@ static bool preprocess_tokens(Preprocessor* pp,
                                        &condStack, &condDepth, &condCap, false)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("process_ifdeflike", &input->tokens[i]);
                     return false;
                 }
                 break;
@@ -956,12 +1104,14 @@ static bool preprocess_tokens(Preprocessor* pp,
                 if (!flush_chunk(pp, &chunk, output)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
                 if (pp->preserveDirectives && active) {
                     if (!append_directive_line(input->tokens, input->count, i, output)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("append_directive_line", &input->tokens[i]);
                         return false;
                     }
                 }
@@ -969,6 +1119,7 @@ static bool preprocess_tokens(Preprocessor* pp,
                                        &condStack, &condDepth, &condCap, true)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
+                    pp_debug_fail("process_ifdeflike", &input->tokens[i]);
                     return false;
                 }
                 break;
@@ -977,11 +1128,13 @@ static bool preprocess_tokens(Preprocessor* pp,
                     if (!flush_chunk(pp, &chunk, output)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("flush_chunk", &input->tokens[i]);
                         return false;
                     }
                     if (!process_pragma(pp, input->tokens, input->count, &i)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
+                        pp_debug_fail("process_pragma", &input->tokens[i]);
                         return false;
                     }
                 } else {
@@ -1020,5 +1173,9 @@ bool preprocessor_run(Preprocessor* pp,
                       PPTokenBuffer* output) {
     if (!pp || !input || !output) return false;
     pp_token_buffer_init_local(output);
-    return preprocess_tokens(pp, input, output, true);
+    bool ok = preprocess_tokens(pp, input, output, true);
+    if (!ok) {
+        pp_debug_fail("preprocess_tokens", input->count > 0 ? &input->tokens[0] : NULL);
+    }
+    return ok;
 }

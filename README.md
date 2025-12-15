@@ -131,6 +131,15 @@ make preprocessor-tests
 ./tests/preprocessor/run_pp_expr.sh                   # pp_expr parser/evaluator
 ```
 
+### Frontend API tests and harness
+
+- `make frontend-api-test` builds `libfisics_frontend.a` and runs all `tests/unit/frontend_api*.c` binaries.
+- `make frontend-harness` builds and runs `build/tests/frontend_harness`, a fast runner linked against `libfisics_frontend.a`. It exercises small string-based cases and directory fixtures (macro spacing, missing includes, header-path diagnostics, include search, lenient macro parsing). Exit status is non-zero if any fixture fails. This harness is not part of `make tests`.
+  - Include paths/macros: `build/tests/frontend_harness -I path/to/includes -DNAME -DNAME=VAL`
+  - Lenient/strict toggle (lenient is default): `--strict` or `--lenient`
+  - Target a specific string case: `build/tests/frontend_harness --string missing_include.c`
+  - Target a directory fixture (defaults to `main.c` if given a dir): `build/tests/frontend_harness --dir tests/preprocessor/diag_header_path`
+
 ### Running Parser/Semantic/IR Smoke Tests
 
 The `tests/` folder holds focused fixtures covering parser, semantic, and LLVM IR behaviour (typedef chains, union declarations, designated initialisers, semantic diagnostics, etc.).

@@ -12,6 +12,17 @@
 
 int print_statements = 0;
 
+static int lexer_debug_flag = -1;
+static int lexer_debug_enabled(void) {
+    if (lexer_debug_flag < 0) {
+        const char* env = getenv("FISICS_DEBUG_LEXER");
+        lexer_debug_flag = (env && env[0]) ? 1 : 0;
+    }
+    return lexer_debug_flag;
+}
+
+#define LEXER_DEBUG_PRINTF(...) do { if (lexer_debug_enabled()) fprintf(stderr, __VA_ARGS__); } while (0)
+
 typedef struct {
     int position;
     int line;
@@ -94,8 +105,8 @@ void initLexer(Lexer* lexer, const char* source, const char* filePath){
 Token getNextToken(Lexer* lexer) {
     skipWhitespace(lexer);
 
-    if (print_statements == 1){
-    	printf("DEBUG: Current char in getNextToken(): '%c' (ASCII: %d) at line %d\n", 
+    if (lexer_debug_enabled()) {
+    	LEXER_DEBUG_PRINTF("DEBUG: Current char in getNextToken(): '%c' (ASCII: %d) at line %d\n",
     	 	      lexer->source[lexer->position], lexer->source[lexer->position], lexer->line);
     }
 
@@ -119,7 +130,7 @@ Token getNextToken(Lexer* lexer) {
 
 
     if (lexer->source[lexer->position] == '\'') {
-	printf("it worked it worked\n");
+        LEXER_DEBUG_PRINTF("it worked it worked\n");
         return handleCharLiteral(lexer);
     }
 
@@ -175,8 +186,8 @@ Token handleIdentifierOrKeyword(Lexer* lexer) {
     }
 
     char* text = strndup(lexer->source + startPos, lexer->position - startPos);
-    if (print_statements == 1){
-    	printf("DEBUG: Identified potential identifier or keyword: %s\n", text);
+    if (lexer_debug_enabled()) {
+    	LEXER_DEBUG_PRINTF("DEBUG: Identified potential identifier or keyword: %s\n", text);
     }
 
     // Use gperf string-based lookup
@@ -184,14 +195,14 @@ Token handleIdentifierOrKeyword(Lexer* lexer) {
     if (matchedKeyword) {
         TokenType tokenType = keywordToTokenType(matchedKeyword);
         
-	if (print_statements == 1){        
-		printf("DEBUG: Matched keyword: %s → TokenType: %d\n", text, tokenType);
+	if (lexer_debug_enabled()){        
+		LEXER_DEBUG_PRINTF("DEBUG: Matched keyword: %s → TokenType: %d\n", text, tokenType);
         }
         return make_token(lexer, tokenType, text, startMark);
     }
 
-    if (print_statements == 1){
-    	printf("DEBUG: Classified as identifier: %s\n", text);
+    if (lexer_debug_enabled()){
+    	LEXER_DEBUG_PRINTF("DEBUG: Classified as identifier: %s\n", text);
     }
 
     return make_token(lexer, TOKEN_IDENTIFIER, text, startMark);
@@ -262,7 +273,7 @@ Token handleStringLiteral(Lexer* lexer) {
 
 Token handleCharLiteral(Lexer* lexer) {
     LexerMark startMark = lexer_mark(lexer);
-    printf("DEBUG: Entering handleCharLiteral() at line %d\n", lexer->line);
+    LEXER_DEBUG_PRINTF("DEBUG: Entering handleCharLiteral() at line %d\n", lexer->line);
     lexer->position++; // skip opening '
 
     int val = 0;
@@ -327,7 +338,7 @@ Token handleCharLiteral(Lexer* lexer) {
     // store numeric value as text, keeps your existing print style simple
     char buf[16];
     snprintf(buf, sizeof(buf), "%d", val);
-    printf("DEBUG: Created TOKEN_CHAR_LITERAL with value %s at line %d\n", buf, lexer->line);
+    LEXER_DEBUG_PRINTF("DEBUG: Created TOKEN_CHAR_LITERAL with value %s at line %d\n", buf, lexer->line);
     return make_token(lexer, TOKEN_CHAR_LITERAL, strdup(buf), startMark);
 }
 
@@ -617,9 +628,9 @@ Token handlePunctuation(Lexer* lexer) {
         case ']': return make_token(lexer, TOKEN_RBRACKET, (char*)"]", start);
         case ':': return make_token(lexer, TOKEN_COLON, (char*)":", start); // Added support for switch-case
         default:
-            printf("Warning: Unknown punctuation '%c' at line %d\n", current, lexer->line);
+            LEXER_DEBUG_PRINTF("Warning: Unknown punctuation '%c' at line %d\n", current, lexer->line);
             return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unknown punctuation", start);
-    }
+        }
 }
 
 
