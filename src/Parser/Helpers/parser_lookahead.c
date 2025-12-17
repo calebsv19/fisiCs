@@ -50,6 +50,12 @@ bool looksLikeTypeDeclaration(Parser* parser) {
             break;
     }
 
+    if (parser->currentToken.type == TOKEN_IDENTIFIER &&
+        parser->ctx &&
+        cc_is_typedef(parser->ctx, parser->currentToken.value)) {
+        return true;
+    }
+
     Parser temp = cloneParserWithFreshLexer(parser);
     ParsedType probe = parseTypeCtx(&temp, TYPECTX_Strict);
     bool result = false;

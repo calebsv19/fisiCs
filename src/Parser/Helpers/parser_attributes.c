@@ -75,6 +75,16 @@ bool parserLookaheadStartsAttribute(Parser* parser) {
         if (strcmp(parser->currentToken.value, "__declspec") == 0) {
             return true;
         }
+        if (strcmp(parser->currentToken.value, "__asm") == 0 ||
+            strcmp(parser->currentToken.value, "__asm__") == 0 ||
+            strcmp(parser->currentToken.value, "asm") == 0) {
+            return true;
+        }
+        if (strcmp(parser->currentToken.value, "_Nonnull") == 0 ||
+            strcmp(parser->currentToken.value, "_Nullable") == 0 ||
+            strcmp(parser->currentToken.value, "_Null_unspecified") == 0) {
+            return true;
+        }
     }
     return parser->currentToken.type == TOKEN_LBRACKET &&
            parser->nextToken.type == TOKEN_LBRACKET;
@@ -183,6 +193,35 @@ static ASTAttribute* parseDeclspecAttribute(Parser* parser) {
     return attr;
 }
 
+static ASTAttribute* parseAsmAttribute(Parser* parser) {
+    advance(parser); /* consume asm/__asm/__asm__ */
+    if (!expectToken(parser, TOKEN_LPAREN, "Expected '(' after asm")) {
+        return NULL;
+    }
+    char* payload = collectBalancedRegion(parser, TOKEN_LPAREN, TOKEN_RPAREN, 1);
+    if (!payload) {
+        return NULL;
+    }
+    ASTAttribute* attr = astAttributeCreate(AST_ATTRIBUTE_SYNTAX_GNU, payload);
+    free(payload);
+    return attr;
+}
+
+static ASTAttribute* parseNullabilityAttribute(Parser* parser) {
+    if (!parser || parser->currentToken.type != TOKEN_IDENTIFIER || !parser->currentToken.value) {
+        return NULL;
+    }
+    const char* name = parser->currentToken.value;
+    if (strcmp(name, "_Nonnull") != 0 &&
+        strcmp(name, "_Nullable") != 0 &&
+        strcmp(name, "_Null_unspecified") != 0) {
+        return NULL;
+    }
+    ASTAttribute* attr = astAttributeCreate(AST_ATTRIBUTE_SYNTAX_GNU, name);
+    advance(parser);
+    return attr;
+}
+
 static ASTAttribute* parseSingleAttribute(Parser* parser) {
     if (parser->currentToken.type == TOKEN_IDENTIFIER &&
         parser->currentToken.value &&
@@ -193,6 +232,17 @@ static ASTAttribute* parseSingleAttribute(Parser* parser) {
         parser->currentToken.value &&
         strcmp(parser->currentToken.value, "__declspec") == 0) {
         return parseDeclspecAttribute(parser);
+    }
+    if (parser->currentToken.type == TOKEN_IDENTIFIER &&
+        parser->currentToken.value &&
+        (strcmp(parser->currentToken.value, "__asm") == 0 ||
+         strcmp(parser->currentToken.value, "__asm__") == 0 ||
+         strcmp(parser->currentToken.value, "asm") == 0)) {
+        return parseAsmAttribute(parser);
+    }
+    if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        ASTAttribute* nb = parseNullabilityAttribute(parser);
+        if (nb) return nb;
     }
     if (parser->currentToken.type == TOKEN_LBRACKET &&
         parser->nextToken.type == TOKEN_LBRACKET) {

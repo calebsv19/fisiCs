@@ -169,6 +169,9 @@ static char* detect_clang_resource_include(void) {
 #define ENABLE_CODEGEN           1
 
 int main(int argc, char **argv) {
+    const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
+    bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
+    if (debugProgress) fprintf(stderr, "[main] start argc=%d\n", argc);
     const char* nanoEnv = getenv("MallocNanoZone");
     if (!nanoEnv) {
         setenv("MallocNanoZone", "0", 0);
@@ -185,6 +188,7 @@ int main(int argc, char **argv) {
     bool dumpAst = false;
     bool dumpSemantic = false;
     bool dumpIR = false;
+    bool enableTrigraphs = false;
     StringList includePaths = {0};
     StringList inputCFiles = {0};
     StringList inputOFiles = {0};
@@ -200,6 +204,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "OOM: include paths\n");
         return 1;
     }
+    if (debugProgress) fprintf(stderr, "[main] default include count=%zu\n", defaultIncludeCount);
     for (size_t i = 0; i < defaultIncludeCount; ++i) {
         string_list_push(&includePaths, defaultIncludePaths[i]);
     }
@@ -217,21 +222,23 @@ int main(int argc, char **argv) {
         }
     }
     const char* sdkRoot = getenv("SDKROOT");
+    const char* enableXcrun = getenv("ENABLE_XCRUN_DETECT");
+    bool allowXcrunDetect = enableXcrun && enableXcrun[0] && enableXcrun[0] != '0';
     if (sdkRoot && sdkRoot[0]) {
         char buffer[PATH_MAX];
         snprintf(buffer, sizeof(buffer), "%s/usr/include", sdkRoot);
         append_include_dir_if_exists(&includePaths, buffer);
-    } else {
+    } else if (allowXcrunDetect) {
         char* sdkFromXcrun = detect_sdk_include_from_xcrun();
         if (sdkFromXcrun) {
             append_include_dir_if_exists(&includePaths, sdkFromXcrun);
             free(sdkFromXcrun);
-        } else {
-            append_include_dir_if_exists(&includePaths, "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include");
-            append_include_dir_if_exists(&includePaths, "/Library/Developer/CommandLineTools/usr/include");
-            append_include_dir_if_exists(&includePaths, "/usr/include");
         }
     }
+    // Always fall back to common macOS SDK/system include locations so we don’t hang on xcrun.
+    append_include_dir_if_exists(&includePaths, "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include");
+    append_include_dir_if_exists(&includePaths, "/Library/Developer/CommandLineTools/usr/include");
+    append_include_dir_if_exists(&includePaths, "/usr/include");
     char* clangResource = detect_clang_resource_include();
     if (clangResource) {
         append_include_dir_if_exists(&includePaths, clangResource);
@@ -253,6 +260,8 @@ int main(int argc, char **argv) {
             dumpSemantic = true;
         } else if (strcmp(argv[i], "--dump-ir") == 0) {
             dumpIR = true;
+        } else if (strcmp(argv[i], "--trigraphs") == 0) {
+            enableTrigraphs = true;
         } else if (strcmp(argv[i], "-c") == 0) {
             compileOnly = true;
         } else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
@@ -314,6 +323,10 @@ int main(int argc, char **argv) {
     if (preserveEnv && preserveEnv[0] != '\0' && preserveEnv[0] != '0') {
         preservePPNodes = true;
     }
+    const char* triEnv = getenv("ENABLE_TRIGRAPHS");
+    if (triEnv && triEnv[0] != '\0' && triEnv[0] != '0') {
+        enableTrigraphs = true;
+    }
 
     const char* depsEnv = getenv("EMIT_DEPS_JSON");
     if (!depsJsonPath && depsEnv && depsEnv[0] != '\0') {
@@ -353,6 +366,7 @@ int main(int argc, char **argv) {
                 CompileOptions options = {
                     .inputPath = cPath,
                     .preservePPNodes = preservePPNodes,
+                    .enableTrigraphs = enableTrigraphs,
                     .depsJsonPath = depsJsonPath,
                     .targetTriple = targetTriple,
                     .dataLayout = dataLayout,
@@ -420,6 +434,7 @@ int main(int argc, char **argv) {
                 CompileOptions options = {
                     .inputPath = cPath,
                     .preservePPNodes = preservePPNodes,
+                    .enableTrigraphs = enableTrigraphs,
                     .depsJsonPath = NULL,
                     .targetTriple = targetTriple,
                     .dataLayout = dataLayout,
@@ -585,9 +600,11 @@ int main(int argc, char **argv) {
 
     const char* inputPath = (inputCFiles.count > 0) ? inputCFiles.items[0] : filename;
 
+    if (debugProgress) fprintf(stderr, "[main] starting compile for %s\n", inputPath ? inputPath : "<null>");
     CompileOptions options = {
         .inputPath = inputPath,
         .preservePPNodes = preservePPNodes,
+        .enableTrigraphs = enableTrigraphs,
         .depsJsonPath = depsJsonPath,
         .targetTriple = targetTriple,
         .dataLayout = dataLayout,

@@ -1,0 +1,6 @@
+#ifndef SHARED_NEXT_H_GLOBAL
+#define SHARED_NEXT_H_GLOBAL
+
+#define NEXT_VALUE 222
+
+#endif /* SHARED_NEXT_H_GLOBAL */

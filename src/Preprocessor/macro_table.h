@@ -37,6 +37,12 @@ typedef struct {
     SourceRange expansionRange;
 } MacroExpansionFrame;
 
+typedef enum {
+    MT_ERR_NONE = 0,
+    MT_ERR_RECURSION = 1,
+    MT_ERR_DEPTH = 2
+} MacroExpansionError;
+
 typedef struct MacroTable {
     MacroDefinition* macros;
     size_t macroCount;
@@ -45,6 +51,8 @@ typedef struct MacroTable {
     MacroExpansionFrame* expansionStack;
     size_t expansionCount;
     size_t expansionCapacity;
+    size_t expansionLimit;
+    MacroExpansionError lastError;
 } MacroTable;
 
 MacroTable* macro_table_create(void);
@@ -75,6 +83,9 @@ void macro_table_pop_expansion(MacroTable* table, const MacroDefinition* macro);
 bool macro_table_is_expanding(const MacroTable* table, const char* name);
 const MacroExpansionFrame* macro_table_current_expansion(const MacroTable* table,
                                                          size_t* outCount);
+MacroExpansionError macro_table_last_error(const MacroTable* table,
+                                           const MacroExpansionFrame** outTopFrame);
+void macro_table_set_expansion_limit(MacroTable* table, size_t limit);
 MacroTable* macro_table_clone(const MacroTable* src);
 
 #endif /* PREPROCESSOR_MACRO_TABLE_H */

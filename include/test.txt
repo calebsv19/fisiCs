@@ -1,5 +1,10 @@
-// Focus test 11: compound literal array decay
+#include <stdio.h>
+
+struct Pair { int a; int b; };
+
 int main(void) {
-    int *p = (int[]){ 10, 20, 30, 40 };
-    return p[2];
+    struct Pair p = { .a = 1, .b = 2 };
+    printf("pair: %d %d\n", p.a, p.b);
+    int *arr = (int[]){ 10, 20, 30, 40 };
+    return arr[2];
 }

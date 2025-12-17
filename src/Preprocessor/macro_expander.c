@@ -25,6 +25,8 @@ typedef struct {
     size_t variadicCount;
 } MacroArgPack;
 
+static SourceRange empty_range(void);
+
 static char* pp_strdup(const char* s) {
     if (!s) return NULL;
     size_t len = strlen(s) + 1;
@@ -120,6 +122,11 @@ static void pp_token_buffer_release(PPTokenBuffer* buffer) {
 
 void pp_token_buffer_destroy(PPTokenBuffer* buffer) {
     pp_token_buffer_release(buffer);
+}
+
+void macro_expander_set_builtins(MacroExpander* expander, PPBuiltinState state) {
+    if (!expander) return;
+    expander->builtins = state;
 }
 
 static void pp_argument_list_init(PPArgumentList* list) {
@@ -297,7 +304,6 @@ static bool build_macro_arg_pack(const MacroDefinition* def,
             return false;
         }
     }
-
     if (expected > 0) {
         pack->positionals = (MacroArg*)calloc(expected, sizeof(MacroArg));
         if (!pack->positionals) {
@@ -330,6 +336,64 @@ static bool build_macro_arg_pack(const MacroDefinition* def,
     }
 
     return true;
+}
+
+static bool emit_builtin_literal(PPTokenBuffer* dest,
+                                 const Token* tok,
+                                 TokenType type,
+                                 const char* text) {
+    Token clone = token_clone(tok);
+    clone.type = type;
+    if (clone.value) free(clone.value);
+    clone.value = text ? pp_strdup(text) : NULL;
+    clone.macroDefinition = empty_range();
+    clone.macroCallSite = tok ? tok->location : empty_range();
+    if (!pp_token_buffer_append(dest, clone)) {
+        token_free(&clone);
+        return false;
+    }
+    return true;
+}
+
+static bool handle_builtin_identifier(MacroExpander* expander,
+                                      const Token* tok,
+                                      PPTokenBuffer* out) {
+    if (!tok || tok->type != TOKEN_IDENTIFIER || !tok->value) return false;
+    const char* name = tok->value;
+    const SourceRange* loc = range_is_initialized(&tok->macroCallSite)
+        ? &tok->macroCallSite
+        : &tok->location;
+    if (strcmp(name, "__FILE__") == 0) {
+        const char* file = loc->start.file ? loc->start.file : expander->builtins.baseFile;
+        return emit_builtin_literal(out, tok, TOKEN_STRING, file ? file : "");
+    }
+    if (strcmp(name, "__LINE__") == 0) {
+        char buffer[32];
+        snprintf(buffer, sizeof(buffer), "%d", loc->start.line);
+        return emit_builtin_literal(out, tok, TOKEN_NUMBER, buffer);
+    }
+    if (strcmp(name, "__BASE_FILE__") == 0) {
+        const char* file = expander->builtins.baseFile;
+        return emit_builtin_literal(out, tok, TOKEN_STRING, file ? file : "");
+    }
+    if (strcmp(name, "__COUNTER__") == 0) {
+        int value = expander->builtins.counter ? *expander->builtins.counter : 0;
+        if (expander->builtins.counter) {
+            (*expander->builtins.counter)++;
+        }
+        char buffer[32];
+        snprintf(buffer, sizeof(buffer), "%d", value);
+        return emit_builtin_literal(out, tok, TOKEN_NUMBER, buffer);
+    }
+    if (strcmp(name, "__DATE__") == 0) {
+        const char* date = expander->builtins.dateString ? expander->builtins.dateString : "";
+        return emit_builtin_literal(out, tok, TOKEN_STRING, date);
+    }
+    if (strcmp(name, "__TIME__") == 0) {
+        const char* timeStr = expander->builtins.timeString ? expander->builtins.timeString : "";
+        return emit_builtin_literal(out, tok, TOKEN_STRING, timeStr);
+    }
+    return false;
 }
 
 static bool expand_macro_argument(MacroExpander* expander,
@@ -506,14 +570,16 @@ static bool stringify_variadic_arguments(PPTokenBuffer* dest,
 static bool relex_single_token(const char* text, SourceRange origin, Token* out) {
     if (!text || !out) return false;
     Lexer lexer;
-    initLexer(&lexer, text, "<macro paste>");
+    initLexer(&lexer, text, "<macro paste>", false);
     Token first = getNextToken(&lexer);
     if (first.type == TOKEN_EOF) {
+        destroyLexer(&lexer);
         return false;
     }
     Token second = getNextToken(&lexer);
     if (second.type != TOKEN_EOF) {
         token_free(&first);
+        destroyLexer(&lexer);
         return false;
     }
     first.location = origin;
@@ -521,6 +587,7 @@ static bool relex_single_token(const char* text, SourceRange origin, Token* out)
     first.macroCallSite = empty_range();
     first.macroDefinition = empty_range();
     *out = first;
+    destroyLexer(&lexer);
     return true;
 }
 
@@ -642,6 +709,48 @@ static bool substitute_macro(MacroExpander* expander,
         }
 
         if (def->kind == MACRO_FUNCTION && args && tok->type == TOKEN_IDENTIFIER) {
+            if (def->params.variadic &&
+                def->params.hasVaOpt &&
+                tok->value &&
+                strcmp(tok->value, "__VA_OPT__") == 0) {
+                // Expect a parenthesized sequence after __VA_OPT__
+                if (i + 1 < def->body.count && def->body.tokens[i + 1].type == TOKEN_LPAREN) {
+                    size_t start = i + 2;
+                    size_t j = i + 2;
+                    int depth = 1;
+                    for (; j < def->body.count; ++j) {
+                        if (def->body.tokens[j].type == TOKEN_LPAREN) depth++;
+                        else if (def->body.tokens[j].type == TOKEN_RPAREN) {
+                            depth--;
+                            if (depth == 0) {
+                                break;
+                            }
+                        }
+                    }
+                    if (depth == 0 && j > start) {
+                        if (args->variadicCount > 0) {
+                            MacroDefinition inner = *def;
+                            inner.body.tokens = def->body.tokens + start;
+                            inner.body.count = j - start;
+                            PPTokenBuffer optOut = {0};
+                            bool ok = substitute_macro(expander, &inner, args, callSite, &optOut);
+                            if (!ok) {
+                                pp_token_buffer_release(&working);
+                                return false;
+                            }
+                            if (!append_argument_tokens(&working, &optOut)) {
+                                pp_token_buffer_release(&optOut);
+                                pp_token_buffer_release(&working);
+                                return false;
+                            }
+                            pp_token_buffer_release(&optOut);
+                        }
+                        i = j; // skip to closing paren
+                        continue;
+                    }
+                }
+                // If malformed, fall through and treat as identifier.
+            }
             ssize_t index = macro_param_index(def, tok->value);
             bool adjacentPaste = false;
             if (index >= 0) {
@@ -708,6 +817,10 @@ static bool append_buffer(PPTokenBuffer* dest, const PPTokenBuffer* src) {
 void macro_expander_init(MacroExpander* expander, MacroTable* table) {
     if (!expander) return;
     expander->table = table;
+    expander->builtins.baseFile = NULL;
+    expander->builtins.dateString = NULL;
+    expander->builtins.timeString = NULL;
+    expander->builtins.counter = NULL;
 }
 
 void macro_expander_reset(MacroExpander* expander) {
@@ -729,8 +842,18 @@ bool macro_expander_expand(MacroExpander* expander,
     for (size_t i = 0; i < count; ++i) {
         const Token* tok = &input[i];
 
+        if (tok->type == TOKEN_IDENTIFIER && expander) {
+            if (handle_builtin_identifier(expander, tok, outTokens)) {
+                continue;
+            }
+        }
+
         if (tok->type == TOKEN_IDENTIFIER && expander && expander->table) {
             const MacroDefinition* def = macro_table_lookup(expander->table, tok->value);
+            if (def && macro_table_is_expanding(expander->table, tok->value)) {
+                expander->table->lastError = MT_ERR_RECURSION;
+                return false;
+            }
             if (def && !macro_table_is_expanding(expander->table, tok->value)) {
                 SourceRange callRange = tok->location;
                 if (def->kind == MACRO_OBJECT) {

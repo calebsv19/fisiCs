@@ -94,12 +94,107 @@ static inline Token make_token(Lexer* lexer, TokenType type, char* value, LexerM
     return token;
 }
 
-void initLexer(Lexer* lexer, const char* source, const char* filePath){
-	lexer->source = source;
+static char translate_trigraph_char(char c) {
+    switch (c) {
+        case '=': return '#';
+        case '/': return '\\';
+        case '\'': return '^';
+        case '<': return '{';
+        case '>': return '}';
+        case '!': return '|';
+        case '(': return '[';
+        case ')': return ']';
+        case '-': return '~';
+        default: return 0;
+    }
+}
+
+static char* translate_source(const char* source, bool enableTrigraphs, bool* outSawTrigraph) {
+    if (!source) return NULL;
+    size_t len = strlen(source);
+    char* out = (char*)malloc(len + 1);
+    if (!out) return NULL;
+    size_t w = 0;
+    bool sawTrigraph = false;
+    for (size_t i = 0; i < len; ) {
+        if (enableTrigraphs && i + 2 < len && source[i] == '?' && source[i + 1] == '?') {
+            char mapped = translate_trigraph_char(source[i + 2]);
+            if (mapped) {
+                out[w++] = mapped;
+                i += 3;
+                sawTrigraph = true;
+                continue;
+            }
+        }
+        if (i + 3 < len && source[i] == '%' && source[i + 1] == ':' &&
+            source[i + 2] == '%' && source[i + 3] == ':') {
+            out[w++] = '#';
+            out[w++] = '#';
+            i += 4;
+            continue;
+        }
+        if (i + 1 < len && source[i] == '%' && source[i + 1] == ':') {
+            out[w++] = '#';
+            i += 2;
+            continue;
+        }
+        if (i + 1 < len && source[i] == '<' && source[i + 1] == ':') {
+            out[w++] = '[';
+            i += 2;
+            continue;
+        }
+        if (i + 1 < len && source[i] == ':' && source[i + 1] == '>') {
+            out[w++] = ']';
+            i += 2;
+            continue;
+        }
+        if (i + 1 < len && source[i] == '<' && source[i + 1] == '%') {
+            out[w++] = '{';
+            i += 2;
+            continue;
+        }
+        if (i + 1 < len && source[i] == '%' && source[i + 1] == '>') {
+            out[w++] = '}';
+            i += 2;
+            continue;
+        }
+        out[w++] = source[i++];
+    }
+    out[w] = '\0';
+    if (outSawTrigraph) *outSawTrigraph = sawTrigraph;
+    char* shrunk = realloc(out, w + 1);
+    return shrunk ? shrunk : out;
+}
+
+void initLexer(Lexer* lexer, const char* source, const char* filePath, bool enableTrigraphs){
+	lexer->ownedSource = NULL;
+	lexer->enableTrigraphs = enableTrigraphs;
 	lexer->filePath = filePath;
 	lexer->position = 0;
+    lexer->length = 0;
 	lexer->line = 1;
 	lexer->lineStart = 0;
+    bool sawTrigraph = false;
+    const char* rawSource = source ? source : "";
+    char* translated = translate_source(rawSource, enableTrigraphs, &sawTrigraph);
+    if (translated) {
+        lexer->ownedSource = translated;
+        lexer->source = translated;
+    } else {
+        lexer->source = rawSource;
+    }
+    lexer->length = (int)strlen(lexer->source);
+    if (sawTrigraph && !enableTrigraphs) {
+        fprintf(stderr, "warning: trigraphs present; enable trigraph translation to honor them\n");
+    }
+}
+
+void destroyLexer(Lexer* lexer) {
+    if (!lexer) return;
+    free(lexer->ownedSource);
+    lexer->ownedSource = NULL;
+    lexer->source = NULL;
+    lexer->length = 0;
 }
 
 Token getNextToken(Lexer* lexer) {
@@ -107,7 +202,9 @@ Token getNextToken(Lexer* lexer) {
 
     if (lexer_debug_enabled()) {
     	LEXER_DEBUG_PRINTF("DEBUG: Current char in getNextToken(): '%c' (ASCII: %d) at line %d\n",
-    	 	      lexer->source[lexer->position], lexer->source[lexer->position], lexer->line);
+    	 	      (lexer->position < lexer->length ? lexer->source[lexer->position] : '\0'),
+                  (lexer->position < lexer->length ? lexer->source[lexer->position] : 0),
+                  lexer->line);
     }
 
     if (isEOF(lexer)) {
@@ -156,8 +253,25 @@ Token getNextToken(Lexer* lexer) {
 
 // Skips whitespace and keeps track of line numbers
 void skipWhitespace(Lexer* lexer) {
-    while (isspace((unsigned char)lexer->source[lexer->position])) {
-        if (lexer->source[lexer->position] == '\n') {
+    while (lexer->position < lexer->length) {
+        char c = lexer->source[lexer->position];
+        char next = (lexer->position + 1 < lexer->length) ? lexer->source[lexer->position + 1] : '\0';
+        char next2 = (lexer->position + 2 < lexer->length) ? lexer->source[lexer->position + 2] : '\0';
+
+        // Line splices: remove backslash + newline (handles \n and \r\n).
+        if (c == '\\' && next == '\n') {
+            lexer->position += 2;
+            continue;
+        }
+        if (c == '\\' && next == '\r' && next2 == '\n') {
+            lexer->position += 3;
+            continue;
+        }
+
+        if (!isspace((unsigned char)c)) {
+            break;
+        }
+        if (c == '\n') {
             lexer->position++;
             lexer->line++;
             lexer->lineStart = lexer->position;
@@ -169,7 +283,7 @@ void skipWhitespace(Lexer* lexer) {
 
 // Checks for end of file
 int isEOF(Lexer* lexer) {
-    return lexer->source[lexer->position] == '\0';
+    return !lexer || lexer->position >= lexer->length || lexer->source[lexer->position] == '\0';
 }
 
 const char *lookupKeyword(const char *str, size_t len) {
@@ -345,7 +459,14 @@ Token handleCharLiteral(Lexer* lexer) {
 // Processes specific preprocessor directives (#define, #include, etc.)
 Token handlePreprocessorDirective(Lexer* lexer) {
     LexerMark start = lexer_mark(lexer);
-    bool atLineStart = (start.position == lexer->lineStart);
+    bool atLineStart = true;
+    for (int pos = lexer->lineStart; pos < start.position; ++pos) {
+        char c = lexer->source[pos];
+        if (c != ' ' && c != '\t' && c != '\r') {
+            atLineStart = false;
+            break;
+        }
+    }
     lexer->position++; // Consume '#'
 
     // Treat non-directive '#' tokens (stringification/##) when not at line start.
@@ -385,6 +506,8 @@ Token handlePreprocessorDirective(Lexer* lexer) {
     // Match known directives
     if (strcmp(directive, "include") == 0) {
         return make_token(lexer, TOKEN_INCLUDE, directive, start);
+    } else if (strcmp(directive, "include_next") == 0) {
+        return make_token(lexer, TOKEN_INCLUDE_NEXT, directive, start);
     } else if (strcmp(directive, "define") == 0) {
         return make_token(lexer, TOKEN_DEFINE, directive, start);
     } else if (strcmp(directive, "undef") == 0) {
@@ -654,12 +777,14 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "long") == 0) return TOKEN_LONG;
     if (strcmp(word, "short") == 0) return TOKEN_SHORT;
     if (strcmp(word, "signed") == 0) return TOKEN_SIGNED;
+    if (strcmp(word, "__signed") == 0 || strcmp(word, "__signed__") == 0) return TOKEN_SIGNED;
     if (strcmp(word, "unsigned") == 0) return TOKEN_UNSIGNED;
     if (strcmp(word, "enum") == 0) return TOKEN_ENUM;
     if (strcmp(word, "union") == 0) return TOKEN_UNION;
     if (strcmp(word, "struct") == 0) return TOKEN_STRUCT;
     if (strcmp(word, "typedef") == 0) return TOKEN_TYPEDEF;
     if (strcmp(word, "void") == 0) return TOKEN_VOID;
+    if (strcmp(word, "__inline") == 0 || strcmp(word, "__inline__") == 0) return TOKEN_INLINE;
     if (strcmp(word, "if") == 0) return TOKEN_IF;
     if (strcmp(word, "else") == 0) return TOKEN_ELSE;
     if (strcmp(word, "for") == 0) return TOKEN_FOR;
@@ -677,8 +802,9 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "auto") == 0) return TOKEN_AUTO;
     if (strcmp(word, "register") == 0) return TOKEN_REGISTER;
     if (strcmp(word, "const") == 0) return TOKEN_CONST;
+    if (strcmp(word, "__const") == 0 || strcmp(word, "__const__") == 0) return TOKEN_CONST;
     if (strcmp(word, "volatile") == 0) return TOKEN_VOLATILE;
-    if (strcmp(word, "restrict") == 0) return TOKEN_RESTRICT;
+    if (strcmp(word, "restrict") == 0 || strcmp(word, "__restrict") == 0 || strcmp(word, "__restrict__") == 0) return TOKEN_RESTRICT;
     if (strcmp(word, "inline") == 0) return TOKEN_INLINE;
     if (strcmp(word, "sizeof") == 0) return TOKEN_SIZEOF;
     if (strcmp(word, "asm") == 0) return TOKEN_ASM;

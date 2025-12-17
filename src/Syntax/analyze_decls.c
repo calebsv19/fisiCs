@@ -631,8 +631,23 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
         }
 
         case AST_TYPEDEF: {
+            const char* aliasName = node->typedefStmt.alias->valueNode.value;
+            Symbol* existing = lookupSymbol(&scope->table, aliasName);
+            if (existing && existing->kind == SYMBOL_TYPEDEF) {
+                if (parsedTypesStructurallyEqual(&existing->type, &node->typedefStmt.baseType)) {
+                    // Compatible redeclaration — permitted by C; keep the first definition.
+                    break;
+                }
+                if (existing->definition == NULL) {
+                    // Built-in / seeded typedef being replaced by a real one: update in-place.
+                    existing->type = node->typedefStmt.baseType;
+                    existing->definition = node;
+                    break;
+                }
+            }
+
             Symbol* sym = calloc(1, sizeof(Symbol));
-            sym->name = strdup(node->typedefStmt.alias->valueNode.value);
+            sym->name = strdup(aliasName);
             sym->kind = SYMBOL_TYPEDEF;
             sym->type = node->typedefStmt.baseType;
             sym->definition = node;
@@ -647,7 +662,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                    sym->name);
             }
             if (scope->ctx) {
-                cc_add_typedef(scope->ctx, node->typedefStmt.alias->valueNode.value);
+                cc_add_typedef(scope->ctx, aliasName);
             }
             break;
         }
@@ -860,6 +875,12 @@ static void validateVariableInitializer(ParsedType* type,
         snprintf(buffer, sizeof(buffer),
                  "Compound literal at static storage must be constant");
         addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+        return;
+    }
+
+    if (staticStorage && init->expression && init->expression->type == AST_STRING_LITERAL) {
+        // String literals are load-time constants for pointers/arrays at static storage.
+        return;
     }
 
     if (staticStorage && init->expression && init->expression->type != AST_COMPOUND_LITERAL) {

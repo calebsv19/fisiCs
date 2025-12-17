@@ -1,314 +1,81 @@
 #include "Preprocessor/preprocessor.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <time.h>
+
+#include "Preprocessor/pp_internal.h"
 
 #include "Lexer/tokens.h"
 #include "Compiler/diagnostics.h"
 
-static bool preprocess_tokens(Preprocessor* pp,
-                              const TokenBuffer* input,
-                              PPTokenBuffer* output,
-                              bool appendEOF);
-static void pp_token_buffer_init_local(PPTokenBuffer* buffer) {
-    if (!buffer) return;
-    buffer->tokens = NULL;
-    buffer->count = 0;
-    buffer->capacity = 0;
-}
-
-static bool pp_token_buffer_reserve(PPTokenBuffer* buffer, size_t extra) {
-    if (!buffer) return false;
-    size_t required = buffer->count + extra;
-    if (required <= buffer->capacity) {
-        return true;
-    }
-    size_t newCapacity = buffer->capacity ? buffer->capacity * 2 : 16;
-    while (newCapacity < required) {
-        newCapacity *= 2;
-    }
-    Token* tokens = (Token*)realloc(buffer->tokens, newCapacity * sizeof(Token));
-    if (!tokens) {
-        return false;
-    }
-    buffer->tokens = tokens;
-    buffer->capacity = newCapacity;
-    return true;
-}
-
-static char* pp_strdup_local(const char* s) {
-    if (!s) return NULL;
-    size_t len = strlen(s) + 1;
-    char* copy = (char*)malloc(len);
-    if (copy) {
-        memcpy(copy, s, len);
-    }
-    return copy;
-}
-
-static void pp_token_free(Token* tok) {
-    if (!tok) return;
-    free(tok->value);
-    tok->value = NULL;
-}
-
-static Token pp_token_clone(const Token* tok) {
-    Token clone = *tok;
-    if (tok->value) {
-        clone.value = pp_strdup_local(tok->value);
-    }
-    return clone;
-}
-
-static bool pp_token_buffer_append_token(PPTokenBuffer* buffer, Token token) {
-    if (!pp_token_buffer_reserve(buffer, 1)) {
-        pp_token_free(&token);
-        return false;
-    }
-    buffer->tokens[buffer->count++] = token;
-    return true;
-}
-
-static bool pp_token_buffer_append_clone(PPTokenBuffer* buffer, const Token* tok) {
-    Token clone = pp_token_clone(tok);
-    if (!pp_token_buffer_append_token(buffer, clone)) {
-        pp_token_free(&clone);
-        return false;
-    }
-    return true;
-}
-
-static bool pp_token_buffer_append_buffer(PPTokenBuffer* dest, const PPTokenBuffer* src) {
-    if (!dest || !src) return true;
-    for (size_t i = 0; i < src->count; ++i) {
-        if (!pp_token_buffer_append_clone(dest, &src->tokens[i])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-static void pp_token_buffer_reset(PPTokenBuffer* buffer) {
-    if (!buffer) return;
-    for (size_t i = 0; i < buffer->count; ++i) {
-        pp_token_free(&buffer->tokens[i]);
-    }
-    free(buffer->tokens);
-    buffer->tokens = NULL;
-    buffer->count = 0;
-    buffer->capacity = 0;
-}
-
-static void pp_report_diag(Preprocessor* pp,
-                           const Token* tok,
-                           DiagKind kind,
-                           int code,
-                           const char* fmt,
-                           ...) {
-    if (!pp || !pp->ctx || !fmt) return;
-    /* Prefer the token's own location (header path, etc.). If missing, leave
-       it empty rather than incorrectly attributing to the including TU. */
-    SourceRange loc = tok ? tok->location : (SourceRange){0};
-    va_list args;
-    va_start(args, fmt);
-    char buffer[512];
-    vsnprintf(buffer, sizeof(buffer), fmt, args);
-    va_end(args);
-    compiler_report_diag(pp->ctx,
-                         loc,
-                         kind,
-                         code,
-                         NULL,
-                         "%s",
-                         buffer);
-}
-
-typedef struct {
-    char** names;
-    size_t count;
-    size_t capacity;
-    bool variadic;
-    bool hasVaOpt;
-} MacroParamParse;
-
-static void macro_param_parse_destroy(MacroParamParse* params) {
-    if (!params) return;
-    for (size_t i = 0; i < params->count; ++i) {
-        free(params->names[i]);
-    }
-    free(params->names);
-    params->names = NULL;
-    params->count = 0;
-    params->capacity = 0;
-    params->variadic = false;
-    params->hasVaOpt = false;
-}
-
-static bool macro_param_append(MacroParamParse* params, const char* name) {
-    if (!params) return false;
-    if (params->count == params->capacity) {
-        size_t newCapacity = params->capacity ? params->capacity * 2 : 4;
-        char** names = (char**)realloc(params->names, newCapacity * sizeof(char*));
-        if (!names) return false;
-        params->names = names;
-        params->capacity = newCapacity;
-    }
-    params->names[params->count] = pp_strdup_local(name);
-    if (!params->names[params->count]) {
-        return false;
-    }
-    params->count++;
-    return true;
-}
-
-static bool parse_macro_parameters(const Token* tokens,
-                                   size_t count,
-                                   size_t* cursor,
-                                   MacroParamParse* params) {
-    size_t i = *cursor;
-    if (i >= count || tokens[i].type != TOKEN_LPAREN) {
-        return false;
-    }
-    i++; // consume '('
-    // Handle empty parameter list: #define F()
-    if (i < count && tokens[i].type == TOKEN_RPAREN) {
-        i++; // consume ')'
-        *cursor = i;
-        return true;
-    }
-    bool expectParam = true;
-    bool variadicDetected = false;
-
-    while (i < count) {
-        const Token* tok = &tokens[i];
-        if (tok->type == TOKEN_RPAREN) {
-            i++;
-            break;
-        }
-        if (!expectParam) {
-            if (tok->type != TOKEN_COMMA) {
-                return false;
-            }
-            expectParam = true;
-            i++;
-            continue;
-        }
-        if (tok->type == TOKEN_IDENTIFIER) {
-            if (!macro_param_append(params, tok->value)) {
-                return false;
-            }
-            expectParam = false;
-            i++;
-            continue;
-        }
-        if (tok->type == TOKEN_ELLIPSIS) {
-            params->variadic = true;
-            variadicDetected = true;
-            expectParam = false;
-            i++;
-            continue;
-        }
-        return false;
-    }
-
-    if (i > count) {
-        return false;
-    }
-    if (expectParam && !variadicDetected) {
-        return false;
-    }
-    *cursor = i;
-    return true;
-}
-
-static bool collect_macro_body(const Token* tokens,
-                               size_t count,
-                               size_t* cursor,
-                               int directiveLine,
-                               PPTokenBuffer* body) {
-    size_t i = *cursor;
-    while (i < count) {
-        const Token* tok = &tokens[i];
-        if (tok->type == TOKEN_EOF) {
-            break;
-        }
-        if (tok->line != directiveLine) {
-            break;
-        }
-        if (!pp_token_buffer_append_clone(body, tok)) {
-            return false;
-        }
-        i++;
-    }
-    *cursor = i;
-    return true;
-}
-
-static void skip_to_line_end(const Token* tokens,
-                             size_t count,
-                             size_t* cursor) {
-    size_t i = *cursor;
-    int line = tokens[i].line;
+static bool append_directive_line(const Token* tokens,
+                                  size_t count,
+                                  size_t cursor,
+                                  PPTokenBuffer* output,
+                                  Preprocessor* pp) {
+    if (!tokens || !output) return false;
+    int line = tokens[cursor].line;
+    size_t i = cursor;
     while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == line) {
+        if (!pp_token_buffer_append_clone_remap(output, pp, &tokens[i])) {
+            return false;
+        }
         i++;
     }
-    *cursor = (i == 0) ? 0 : i - 1;
+    return true;
 }
 
-static bool pp_debug_fail_enabled(void) {
-    static int cached = -1;
-    if (cached < 0) {
-        const char* env = getenv("FISICS_DEBUG_PP_FAIL");
-        cached = (env && env[0]) ? 1 : 0;
+// Consume a _Pragma("...") operator; returns true if handled (skipped).
+static bool skip_pragma_operator(const Token* tokens,
+                                 size_t count,
+                                 size_t* cursor) {
+    if (!tokens || !cursor) return false;
+    size_t i = *cursor;
+    const Token* tok = &tokens[i];
+    if (tok->type != TOKEN_IDENTIFIER || !tok->value) {
+        return false;
     }
-    return cached != 0;
-}
-
-static void pp_debug_fail(const char* label, const Token* tok) {
-    if (!pp_debug_fail_enabled()) return;
-    const char* file = tok && tok->location.start.file ? tok->location.start.file : "<unknown>";
-    int line = tok ? tok->location.start.line : 0;
-    int col = tok ? tok->location.start.column : 0;
-    fprintf(stderr, "[PP-DEBUG] failure at %s %s:%d:%d (tok type=%d)\n",
-            label ? label : "<unknown>", file, line, col, tok ? tok->type : -1);
-}
-
-static const char* token_file(const Token* tok) {
-    if (!tok || !tok->location.start.file) return NULL;
-    return tok->location.start.file;
-}
-
-static bool tokens_adjacent(const Token* left, const Token* right) {
-    if (!left || !right) return false;
-    if (left->location.end.line != right->location.start.line) return false;
-    /* Columns are 1-based; end column corresponds to the lexer position after the token.
-       Treat the tokens as adjacent if the next token starts at or before the previous end column,
-       which indicates no intervening whitespace (e.g., NAME() vs NAME ()). */
-    return right->location.start.column <= left->location.end.column;
-}
-
-static const char* detect_include_guard(const TokenBuffer* buffer) {
-    if (!buffer || buffer->count < 3) return NULL;
-    const Token* tokens = buffer->tokens;
-    if (tokens[0].type != TOKEN_IFNDEF) return NULL;
-    if (tokens[1].type != TOKEN_IDENTIFIER) return NULL;
-    const char* guard = tokens[1].value;
-    size_t i = 2;
-    int firstLine = tokens[0].line;
-    while (i < buffer->count && tokens[i].type != TOKEN_EOF && tokens[i].line == firstLine) {
-        i++;
+    if (strcmp(tok->value, "_Pragma") != 0) {
+        return false;
     }
-    if (i >= buffer->count || tokens[i].type == TOKEN_EOF) return NULL;
-    int defineLine = tokens[i].line;
-    if (tokens[i].type != TOKEN_DEFINE) return NULL;
-    i++;
-    if (i >= buffer->count || tokens[i].type == TOKEN_EOF || tokens[i].line != defineLine) return NULL;
-    if (tokens[i].type != TOKEN_IDENTIFIER) return NULL;
-    if (strcmp(tokens[i].value, guard) != 0) return NULL;
-    return guard;
+    size_t j = i + 1;
+    if (j < count && tokens[j].type == TOKEN_LPAREN) {
+        j++;
+        if (j < count && tokens[j].type == TOKEN_STRING) {
+            j++;
+        }
+        if (j < count && tokens[j].type == TOKEN_RPAREN) {
+            j++;
+        }
+    }
+    // Advance caller to last token we looked at so the for-loop increments past it.
+    if (j > i) {
+        *cursor = j - 1;
+    }
+    return true;
+}
+
+static void define_builtin_object(Preprocessor* pp, const char* name, const char* value) {
+    if (!pp || !name) return;
+    Token tok = {0};
+    PPTokenBuffer body = {0};
+    if (value && value[0]) {
+        tok.type = isdigit((unsigned char)value[0]) ? TOKEN_NUMBER : TOKEN_IDENTIFIER;
+        tok.value = strdup(value);
+        tok.location = (SourceRange){0};
+        tok.macroCallSite = (SourceRange){0};
+        tok.macroDefinition = (SourceRange){0};
+        if (tok.value) {
+            body.tokens = &tok;
+            body.count = 1;
+        }
+    }
+    macro_table_define_object(pp->table, name, body.tokens, body.count, (SourceRange){0});
+    free(tok.value);
 }
 
 static bool flush_chunk(Preprocessor* pp,
@@ -319,620 +86,78 @@ static bool flush_chunk(Preprocessor* pp,
     }
     PPTokenBuffer expanded = {0};
     if (!macro_expander_expand(&pp->expander, chunk->tokens, chunk->count, &expanded)) {
+        const MacroExpansionFrame* top = NULL;
+        MacroExpansionError err = macro_table_last_error(pp->table, &top);
+        if (err == MT_ERR_RECURSION || err == MT_ERR_DEPTH || err == MT_ERR_NONE) {
+            const char* macroName = (top && top->macro && top->macro->name) ? top->macro->name : "<macro>";
+            SourceRange loc = top ? top->callSiteRange : (SourceRange){0};
+            Token tmp = {0};
+            tmp.location = loc;
+            const char* msg = "macro recursion detected while expanding '%s'";
+            if (err == MT_ERR_DEPTH) {
+                msg = "macro expansion depth exceeded (possible recursion) for '%s'";
+            } else if (err == MT_ERR_NONE) {
+                msg = "macro expansion failed (possible recursion) for '%s'";
+            }
+            char buf[256];
+            snprintf(buf, sizeof(buf), msg, macroName);
+            pp_report_diag(pp,
+                           top ? &tmp : NULL,
+                           DIAG_ERROR,
+                           CDIAG_PREPROCESSOR_GENERIC,
+                           "%s",
+                           buf);
+            const char* path = loc.start.file ? loc.start.file : "<unknown>";
+            fprintf(stderr, "%s:%d:%d: error: %s\n",
+                    path,
+                    loc.start.line,
+                    loc.start.column,
+                    buf);
+        }
         pp_token_buffer_destroy(&expanded);
         return false;
     }
-    bool ok = pp_token_buffer_append_buffer(output, &expanded);
+    bool ok = true;
+    for (size_t j = 0; j < expanded.count; ++j) {
+        size_t cursor = j;
+        if (skip_pragma_operator(expanded.tokens, expanded.count, &cursor)) {
+            j = cursor;
+            continue;
+        }
+        if (expanded.tokens[j].type == TOKEN_UNKNOWN) {
+            continue; // drop poison tokens such as stray backslashes that survive lexing
+        }
+        if (!pp_token_buffer_append_clone(output, &expanded.tokens[j])) {
+            ok = false;
+            break;
+        }
+    }
     pp_token_buffer_destroy(&expanded);
     pp_token_buffer_destroy(chunk);
     pp_token_buffer_init_local(chunk);
     return ok;
 }
 
-static bool append_directive_line(const Token* tokens,
-                                  size_t count,
-                                  size_t cursor,
-                                  PPTokenBuffer* output) {
-    if (!tokens || !output) return false;
-    int line = tokens[cursor].line;
-    size_t i = cursor;
-    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == line) {
-        if (!pp_token_buffer_append_clone(output, &tokens[i])) {
-            return false;
-        }
-        i++;
-    }
-    return true;
-}
-
-static bool parse_include_operand(const Token* tokens,
-                                  size_t count,
-                                  size_t* cursor,
-                                  char** outName,
-                                  bool* outIsSystem) {
-    size_t i = *cursor + 1;
-    int directiveLine = tokens[*cursor].line;
-    if (i >= count) return false;
-
-    const Token* tok = &tokens[i];
-    if (tok->type == TOKEN_STRING) {
-        *outName = pp_strdup_local(tok->value);
-        *outIsSystem = false;
-        if (!*outName) return false;
-        i++;
-    } else if (tok->type == TOKEN_LESS) {
-        char buffer[1024];
-        size_t len = 0;
-        i++;
-        bool closed = false;
-        while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
-            if (tokens[i].type == TOKEN_GREATER) {
-                closed = true;
-                i++;
-                break;
-            }
-            const char* piece = tokens[i].value ? tokens[i].value : "";
-            size_t pieceLen = strlen(piece);
-            if (len + pieceLen + 1 >= sizeof(buffer)) {
-                return false;
-            }
-            memcpy(buffer + len, piece, pieceLen);
-            len += pieceLen;
-            i++;
-        }
-        if (!closed) return false;
-        buffer[len] = '\0';
-        *outName = pp_strdup_local(buffer);
-        *outIsSystem = true;
-        if (!*outName) return false;
-    } else {
-        return false;
-    }
-
-    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
-        i++;
-    }
-    *cursor = (i == 0) ? 0 : i - 1;
-    return true;
-}
-
-static bool process_define(Preprocessor* pp,
-                           const Token* tokens,
-                           size_t count,
-                           size_t* cursor) {
-    size_t i = *cursor;
-    int directiveLine = tokens[i].line;
-    i++;
-    if (i >= count || !tokens[i].value) {
-        DiagKind kind = pp && pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
-        pp_report_diag(pp, tokens ? &tokens[i] : NULL, kind, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #define");
-        if (pp && pp->lenientMissingIncludes) {
-            skip_to_line_end(tokens, count, &i);
-            *cursor = (i == 0) ? 0 : i - 1;
-            return true;
-        }
-        return false;
-    }
-    const Token* nameTok = &tokens[i];
-    i++;
-
-    bool isFunction = false;
-    MacroParamParse params = {0};
-    PPTokenBuffer body = {0};
-    bool ok = false;
-
-    if (i < count &&
-        tokens[i].type == TOKEN_LPAREN &&
-        tokens[i].line == nameTok->line &&
-        tokens_adjacent(nameTok, &tokens[i])) {
-        isFunction = true;
-        if (!parse_macro_parameters(tokens, count, &i, &params)) {
-            DiagKind kind = pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
-            pp_report_diag(pp, nameTok, kind, CDIAG_PREPROCESSOR_GENERIC, "invalid parameter list in #define %s", nameTok->value ? nameTok->value : "");
-            if (pp->lenientMissingIncludes) {
-                while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
-                    i++;
-                }
-                *cursor = (i == 0) ? 0 : i - 1;
-                macro_param_parse_destroy(&params);
-                pp_token_buffer_reset(&body);
-                return true;
-            }
-            goto cleanup;
-        }
-    }
-
-    if (!collect_macro_body(tokens, count, &i, directiveLine, &body)) {
-        DiagKind kind = pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
-        pp_report_diag(pp, nameTok, kind, CDIAG_PREPROCESSOR_GENERIC, "failed to collect macro body for %s", nameTok->value ? nameTok->value : "");
-        if (pp->lenientMissingIncludes) {
-            skip_to_line_end(tokens, count, &i);
-            *cursor = (i == 0) ? 0 : i - 1;
-            macro_param_parse_destroy(&params);
-            pp_token_buffer_reset(&body);
-            return true;
-        }
-        goto cleanup;
-    }
-
-    if (isFunction) {
-        ok = macro_table_define_function(pp->table,
-                                         nameTok->value,
-                                         (const char* const*)params.names,
-                                         params.count,
-                                         params.variadic,
-                                         params.hasVaOpt,
-                                         body.tokens,
-                                         body.count,
-                                         tokens[*cursor].location);
-    } else {
-        ok = macro_table_define_object(pp->table,
-                                       nameTok->value,
-                                       body.tokens,
-                                       body.count,
-                                       tokens[*cursor].location);
-    }
-
-    if (!ok) {
-        DiagKind kind = pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
-        pp_report_diag(pp, nameTok, kind, CDIAG_PREPROCESSOR_GENERIC, "failed to record macro %s", nameTok->value ? nameTok->value : "");
-        if (pp->lenientMissingIncludes) {
-            skip_to_line_end(tokens, count, &i);
-            *cursor = (i == 0) ? 0 : i - 1;
-            macro_param_parse_destroy(&params);
-            pp_token_buffer_reset(&body);
-            return true;
-        }
-        goto cleanup;
-    }
-
-    *cursor = (i == 0) ? 0 : i - 1;
-    cleanup:
-    macro_param_parse_destroy(&params);
-    pp_token_buffer_reset(&body);
-    return ok;
-}
-
-static bool process_undef(Preprocessor* pp,
-                          const Token* tokens,
-                          size_t count,
-                          size_t* cursor) {
-    size_t i = *cursor;
-    int directiveLine = tokens[i].line;
-    i++;
-    if (i >= count || tokens[i].type != TOKEN_IDENTIFIER) {
-        pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #undef");
-        return false;
-    }
-    macro_table_undef(pp->table, tokens[i].value);
-    i++;
-    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
-        i++;
-    }
-    *cursor = (i == 0) ? 0 : i - 1;
-    return true;
-}
-
-typedef struct {
-    bool parentActive;
-    bool selfActive;
-    bool branchTaken;
-    bool sawElse;
-} PPConditionalFrame;
-
-static bool conditional_stack_is_active(const PPConditionalFrame* stack, size_t depth) {
-    if (depth == 0) return true;
-    return stack[depth - 1].selfActive;
-}
-
-static bool push_conditional(PPConditionalFrame** stack,
-                             size_t* depth,
-                             size_t* capacity,
-                             PPConditionalFrame frame) {
-    if (*depth == *capacity) {
-        size_t newCap = (*capacity == 0) ? 4 : (*capacity * 2);
-        PPConditionalFrame* newStack = realloc(*stack, newCap * sizeof(PPConditionalFrame));
-        if (!newStack) return false;
-        *stack = newStack;
-        *capacity = newCap;
-    }
-    (*stack)[(*depth)++] = frame;
-    return true;
-}
-
-static bool process_if(Preprocessor* pp,
-                       const Token* tokens,
-                       size_t count,
-                       size_t* cursor,
-                       PPConditionalFrame** stack,
-                       size_t* depth,
-                       size_t* capacity) {
-    size_t i = *cursor;
-    int directiveLine = tokens[i].line;
-    size_t exprStart = i + 1;
-    size_t exprEnd = exprStart;
-    while (exprEnd < count && tokens[exprEnd].type != TOKEN_EOF && tokens[exprEnd].line == directiveLine) {
-        exprEnd++;
-    }
-
-    bool parentActive = conditional_stack_is_active(*stack, *depth);
-    bool condValue = false;
-    if (parentActive) {
-        int32_t value = 0;
-        preprocessor_eval_tokens(pp, tokens + exprStart, exprEnd - exprStart, &value);
-        condValue = (value != 0);
-    }
-
-    PPConditionalFrame frame;
-    frame.parentActive = parentActive;
-    frame.selfActive = parentActive && condValue;
-    frame.branchTaken = frame.selfActive;
-    frame.sawElse = false;
-
-    if (!push_conditional(stack, depth, capacity, frame)) {
-        return false;
-    }
-
-    *cursor = (exprEnd == 0) ? 0 : exprEnd - 1;
-    return true;
-}
-
-static bool process_ifdeflike(Preprocessor* pp,
-                              const Token* tokens,
-                              size_t count,
-                              size_t* cursor,
-                              PPConditionalFrame** stack,
-                              size_t* depth,
-                              size_t* capacity,
-                              bool negate) {
-    size_t i = *cursor;
-    int directiveLine = tokens[i].line;
-    i++;
-    if (i >= count || tokens[i].type != TOKEN_IDENTIFIER) {
-        pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #%s",
-                       negate ? "ifndef" : "ifdef");
-        return false;
-    }
-    const char* name = tokens[i].value;
-    bool parentActive = conditional_stack_is_active(*stack, *depth);
-    bool isDefined = parentActive && (macro_table_lookup(pp->table, name) != NULL);
-    bool selfActive = parentActive && (negate ? !isDefined : isDefined);
-
-    PPConditionalFrame frame;
-    frame.parentActive = parentActive;
-    frame.selfActive = selfActive;
-    frame.branchTaken = selfActive;
-    frame.sawElse = false;
-
-    if (!push_conditional(stack, depth, capacity, frame)) {
-        return false;
-    }
-
-    // skip rest of the line
-    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
-        i++;
-    }
-    *cursor = (i == 0) ? 0 : i - 1;
-    return true;
-}
-
-static bool process_include(Preprocessor* pp,
-                            const Token* tokens,
-                            size_t count,
-                            size_t* cursor,
-                            PPTokenBuffer* output) {
-    if (!pp || !pp->resolver) {
-        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "include resolver not initialized");
-        return false;
-    }
-    char* name = NULL;
-    bool isSystem = false;
-    if (!parse_include_operand(tokens, count, cursor, &name, &isSystem)) {
-        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "invalid #include operand");
-        return false;
-    }
-
-    const char* parentFile = token_file(&tokens[*cursor]);
-    IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;
-    const IncludeFile* incPtr = include_resolver_load(pp->resolver, parentFile, name, isSystem, &origin);
-    IncludeFile incValue;
-    bool haveInc = false;
-    if (incPtr) {
-        incValue = *incPtr; // copy to avoid stale pointer if resolver reallocates during nested loads
-        incPtr = NULL;
-        haveInc = true;
-    }
-
-    // Record include metadata on the compiler context for tooling/IDE.
-    FisicsInclude incRec = {0};
-    incRec.name = name;
-    incRec.kind = isSystem ? FISICS_INCLUDE_SYSTEM : FISICS_INCLUDE_LOCAL;
-    incRec.line = tokens ? tokens[*cursor].line : 0;
-    incRec.column = tokens ? tokens[*cursor].location.start.column : 0;
-    incRec.resolved = haveInc;
-    incRec.resolved_path = haveInc ? incValue.path : NULL;
-    if (!haveInc) {
-        incRec.origin = FISICS_INCLUDE_UNRESOLVED;
-    } else {
-        switch (origin) {
-            case INCLUDE_SEARCH_SAME_DIR:
-                incRec.origin = FISICS_INCLUDE_PROJECT;
-                break;
-            case INCLUDE_SEARCH_INCLUDE_PATH:
-                incRec.origin = isSystem ? FISICS_INCLUDE_SYSTEM_ORIGIN : FISICS_INCLUDE_PROJECT;
-                break;
-            case INCLUDE_SEARCH_RAW:
-            default:
-                incRec.origin = isSystem ? FISICS_INCLUDE_SYSTEM_ORIGIN : FISICS_INCLUDE_EXTERNAL;
-                break;
-        }
-    }
-    if (pp->ctx) {
-        cc_append_include(pp->ctx, &incRec);
-    }
-    if (!haveInc) {
-        bool warnOnly = isSystem || pp->lenientMissingIncludes;
-        if (warnOnly) {
-            pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_WARNING, CDIAG_PREPROCESSOR_GENERIC,
-                           "skipping missing %s include '%s'", isSystem ? "system" : "local", name ? name : "<null>");
-            free(name);
-            return true;
-        }
-        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "could not resolve include '%s'", name ? name : "<null>");
-        free(name);
-        return false;
-    }
-    free(name);
-
-    include_graph_add(&pp->includeGraph,
-                      parentFile ? parentFile : "<unknown>",
-                      incValue.path ? incValue.path : "<unknown>");
-
-    if (incValue.pragmaOnce && include_resolver_was_included(pp->resolver, incValue.path)) {
-        return true;
-    }
-
-    Lexer lexer;
-    initLexer(&lexer, incValue.contents, incValue.path);
-    TokenBuffer buffer;
-    token_buffer_init(&buffer);
-    if (!token_buffer_fill_from_lexer(&buffer, &lexer)) {
-        token_buffer_destroy(&buffer);
-        return false;
-    }
-
-    const char* guard = detect_include_guard(&buffer);
-    if (guard && macro_table_lookup(pp->table, guard) != NULL) {
-        token_buffer_destroy(&buffer);
-        include_resolver_mark_included(pp->resolver, incValue.path);
-        return true;
-    }
-
-    bool ok = preprocess_tokens(pp, &buffer, output, false);
-    if (!ok) {
-        pp_debug_fail("process_include_body", tokens ? &tokens[*cursor] : NULL);
-    }
-    token_buffer_destroy(&buffer);
-    include_resolver_mark_included(pp->resolver, incValue.path);
-    return ok;
-}
-
-static bool process_elif(Preprocessor* pp,
-                         const Token* tokens,
-                         size_t count,
-                         size_t* cursor,
-                         PPConditionalFrame* stack,
-                         size_t depth) {
-    if (depth == 0) {
-        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#elif without matching #if");
-        return pp && pp->lenientMissingIncludes;
-    }
-    size_t i = *cursor;
-    int directiveLine = tokens[i].line;
-    size_t exprStart = i + 1;
-    size_t exprEnd = exprStart;
-    while (exprEnd < count && tokens[exprEnd].type != TOKEN_EOF && tokens[exprEnd].line == directiveLine) {
-        exprEnd++;
-    }
-
-    PPConditionalFrame* frame = &stack[depth - 1];
-    if (frame->sawElse) {
-        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#elif after #else");
-        return pp && pp->lenientMissingIncludes;
-    }
-
-    bool newActive = false;
-    if (frame->parentActive && !frame->branchTaken) {
-        int32_t value = 0;
-        preprocessor_eval_tokens(pp, tokens + exprStart, exprEnd - exprStart, &value);
-        newActive = (value != 0);
-    }
-    frame->selfActive = frame->parentActive && newActive;
-    if (newActive && frame->parentActive) {
-        frame->branchTaken = true;
-    }
-
-    *cursor = (exprEnd == 0) ? 0 : exprEnd - 1;
-    return true;
-}
-
-static bool process_else(Preprocessor* pp, PPConditionalFrame* stack, size_t depth, const Token* tok) {
-    if (depth == 0) {
-        pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#else without matching #if");
-        return pp && pp->lenientMissingIncludes;
-    }
-    PPConditionalFrame* frame = &stack[depth - 1];
-    if (frame->sawElse) {
-        pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "duplicate #else");
-        return pp && pp->lenientMissingIncludes;
-    }
-    bool newActive = frame->parentActive && !frame->branchTaken;
-    frame->selfActive = newActive;
-    if (newActive) {
-        frame->branchTaken = true;
-    }
-    frame->sawElse = true;
-    return true;
-}
-
-static bool process_endif(Preprocessor* pp, PPConditionalFrame* stack, size_t* depth, const Token* tok) {
-    (void)stack;
-    if (*depth == 0) {
-        pp_report_diag(pp, tok, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "#endif without matching #if");
-        return pp && pp->lenientMissingIncludes;
-    }
-    (*depth)--;
-    return true;
-}
-
-static bool process_pragma(Preprocessor* pp,
-                           const Token* tokens,
-                           size_t count,
-                           size_t* cursor) {
-    size_t i = *cursor;
-    int directiveLine = tokens[i].line;
-    i++;
-    if (i < count && tokens[i].type == TOKEN_ONCE) {
-        const char* path = token_file(&tokens[i]);
-        if (!path) path = token_file(&tokens[*cursor]);
-        if (path && pp && pp->resolver) {
-            include_resolver_mark_pragma_once(pp->resolver, path);
-        }
-    }
-    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
-        i++;
-    }
-    *cursor = (i == 0) ? 0 : i - 1;
-    return true;
-}
-
-bool preprocessor_init(Preprocessor* pp,
-                       CompilerContext* ctx,
-                       bool preserveDirectives,
-                       bool lenientMissingIncludes,
-                       const char* const* includePaths,
-                       size_t includePathCount,
-                       const char* const* macroDefines,
-                       size_t macroDefineCount) {
-    if (!pp) return false;
-    pp->table = macro_table_create();
-    if (!pp->table) {
-        return false;
-    }
-    macro_expander_init(&pp->expander, pp->table);
-    pp_expr_evaluator_init(&pp->exprEval, pp->table);
-    pp->resolver = include_resolver_create(includePaths, includePathCount);
-    if (!pp->resolver) {
-        macro_table_destroy(pp->table);
-        pp->table = NULL;
-        return false;
-    }
-    include_graph_init(&pp->includeGraph);
-    pp->preserveDirectives = preserveDirectives;
-    pp->lenientMissingIncludes = lenientMissingIncludes;
-    pp->ctx = ctx;
-
-    // Predefine macros passed in (simple -DNAME or -DNAME=VALUE forms).
-    for (size_t i = 0; i < macroDefineCount; ++i) {
-        const char* def = macroDefines ? macroDefines[i] : NULL;
-        if (!def || def[0] == '\0') continue;
-        const char* eq = strchr(def, '=');
-        char* name = NULL;
-        char* value = NULL;
-        if (eq) {
-            size_t nameLen = (size_t)(eq - def);
-            name = (char*)malloc(nameLen + 1);
-            if (!name) continue;
-            memcpy(name, def, nameLen);
-            name[nameLen] = '\0';
-            value = strdup(eq + 1);
-            if (!value) {
-                free(name);
-                continue;
-            }
-        } else {
-            name = strdup(def);
-            if (!name) continue;
-        }
-
-        Token tok = {0};
-        PPTokenBuffer body = {0};
-        if (value && value[0]) {
-            tok.type = isdigit((unsigned char)value[0]) ? TOKEN_NUMBER : TOKEN_IDENTIFIER;
-            tok.value = strdup(value);
-            tok.location = (SourceRange){0};
-            tok.macroCallSite = (SourceRange){0};
-            tok.macroDefinition = (SourceRange){0};
-            if (tok.value) {
-                body.tokens = &tok;
-                body.count = 1;
-            }
-        }
-
-        macro_table_define_object(pp->table,
-                                  name,
-                                  body.tokens,
-                                  body.count,
-                                  (SourceRange){0});
-
-        free(name);
-        if (value) free(value);
-        free(tok.value);
-    }
-    return true;
-}
-
-void preprocessor_destroy(Preprocessor* pp) {
-    if (!pp) return;
-    macro_table_destroy(pp->table);
-    pp->table = NULL;
-    macro_expander_reset(&pp->expander);
-    pp_expr_evaluator_reset(&pp->exprEval);
-    include_resolver_destroy(pp->resolver);
-    pp->resolver = NULL;
-    include_graph_destroy(&pp->includeGraph);
-}
-
-MacroTable* preprocessor_get_macro_table(Preprocessor* pp) {
-    return pp ? pp->table : NULL;
-}
-
-IncludeResolver* preprocessor_get_resolver(Preprocessor* pp) {
-    return pp ? pp->resolver : NULL;
-}
-
-IncludeGraph* preprocessor_get_include_graph(Preprocessor* pp) {
-    return pp ? &pp->includeGraph : NULL;
-}
-
-bool preprocessor_eval_tokens(Preprocessor* pp,
-                              const Token* tokens,
-                              size_t count,
-                              int32_t* outValue) {
-    if (!pp) {
-        if (outValue) *outValue = 0;
-        return false;
-    }
-    return pp_expr_eval_tokens(&pp->exprEval, tokens, count, outValue);
-}
-
-bool preprocessor_eval_range(Preprocessor* pp,
-                             const TokenBuffer* buffer,
-                             size_t start,
-                             size_t end,
-                             int32_t* outValue) {
-    if (!pp) {
-        if (outValue) *outValue = 0;
-        return false;
-    }
-    return pp_expr_eval_range(&pp->exprEval, buffer, start, end, outValue);
-}
-
-static bool preprocess_tokens(Preprocessor* pp,
-                              const TokenBuffer* input,
-                              PPTokenBuffer* output,
-                              bool appendEOF) {
+bool preprocess_tokens(Preprocessor* pp,
+                       const TokenBuffer* input,
+                       PPTokenBuffer* output,
+                       bool appendEOF) {
     if (!pp || !input || !output) return false;
+    if (input->count > 0 && input->tokens) {
+        const char* filePath = input->tokens[0].location.start.file;
+        if (filePath) {
+            pp_set_base_file(pp, filePath);
+            if (!pp->logicalFile) {
+                pp_set_logical_file(pp, filePath);
+            }
+        }
+    }
+    PPBuiltinState builtins = {0};
+    builtins.baseFile = pp->baseFile;
+    builtins.dateString = pp->dateString[0] ? pp->dateString : NULL;
+    builtins.timeString = pp->timeString[0] ? pp->timeString : NULL;
+    builtins.counter = &pp->counter;
+    macro_expander_set_builtins(&pp->expander, builtins);
     PPTokenBuffer chunk = {0};
     PPConditionalFrame* condStack = NULL;
     size_t condDepth = 0;
@@ -950,7 +175,7 @@ static bool preprocess_tokens(Preprocessor* pp,
                         return false;
                     }
                     if (pp->preserveDirectives) {
-                        if (!append_directive_line(input->tokens, input->count, i, output)) {
+                        if (!append_directive_line(input->tokens, input->count, i, output, pp)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
                             pp_debug_fail("append_directive_line", &input->tokens[i]);
@@ -968,6 +193,7 @@ static bool preprocess_tokens(Preprocessor* pp,
                 }
                 break;
             case TOKEN_INCLUDE:
+            case TOKEN_INCLUDE_NEXT:
                 if (active) {
                     if (!flush_chunk(pp, &chunk, output)) {
                         pp_token_buffer_reset(&chunk);
@@ -975,14 +201,15 @@ static bool preprocess_tokens(Preprocessor* pp,
                         return false;
                     }
                     if (pp->preserveDirectives) {
-                        if (!append_directive_line(input->tokens, input->count, i, output)) {
+                        if (!append_directive_line(input->tokens, input->count, i, output, pp)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
                             pp_debug_fail("append_directive_line", &input->tokens[i]);
                             return false;
                         }
                     }
-                    if (!process_include(pp, input->tokens, input->count, &i, output)) {
+                    bool isIncludeNext = tok->type == TOKEN_INCLUDE_NEXT;
+                    if (!process_include(pp, input->tokens, input->count, &i, output, isIncludeNext)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         pp_debug_fail("process_include", &input->tokens[i]);
@@ -997,7 +224,6 @@ static bool preprocess_tokens(Preprocessor* pp,
                     if (!flush_chunk(pp, &chunk, output)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
-                        pp_debug_fail("flush_chunk", &input->tokens[i]);
                         return false;
                     }
                     if (!process_undef(pp, input->tokens, input->count, &i)) {
@@ -1063,7 +289,7 @@ static bool preprocess_tokens(Preprocessor* pp,
                     return false;
                 }
                 if (pp->preserveDirectives && active) {
-                    if (!append_directive_line(input->tokens, input->count, i, output)) {
+                    if (!append_directive_line(input->tokens, input->count, i, output, pp)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         pp_debug_fail("append_directive_line", &input->tokens[i]);
@@ -1076,60 +302,40 @@ static bool preprocess_tokens(Preprocessor* pp,
                     pp_debug_fail("process_endif", &input->tokens[i]);
                     return false;
                 }
+                skip_to_line_end(input->tokens, input->count, &i);
                 break;
             case TOKEN_IFDEF:
+            case TOKEN_IFNDEF: {
                 if (!flush_chunk(pp, &chunk, output)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
-                if (pp->preserveDirectives && active) {
-                    if (!append_directive_line(input->tokens, input->count, i, output)) {
-                        pp_token_buffer_reset(&chunk);
-                        free(condStack);
-                        pp_debug_fail("append_directive_line", &input->tokens[i]);
-                        return false;
-                    }
-                }
+                bool negate = tok->type == TOKEN_IFNDEF;
                 if (!process_ifdeflike(pp, input->tokens, input->count, &i,
-                                       &condStack, &condDepth, &condCap, false)) {
+                                       &condStack, &condDepth, &condCap, negate)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_ifdeflike", &input->tokens[i]);
                     return false;
                 }
                 break;
-            case TOKEN_IFNDEF:
-                if (!flush_chunk(pp, &chunk, output)) {
-                    pp_token_buffer_reset(&chunk);
-                    free(condStack);
-                    pp_debug_fail("flush_chunk", &input->tokens[i]);
-                    return false;
-                }
-                if (pp->preserveDirectives && active) {
-                    if (!append_directive_line(input->tokens, input->count, i, output)) {
-                        pp_token_buffer_reset(&chunk);
-                        free(condStack);
-                        pp_debug_fail("append_directive_line", &input->tokens[i]);
-                        return false;
-                    }
-                }
-                if (!process_ifdeflike(pp, input->tokens, input->count, &i,
-                                       &condStack, &condDepth, &condCap, true)) {
-                    pp_token_buffer_reset(&chunk);
-                    free(condStack);
-                    pp_debug_fail("process_ifdeflike", &input->tokens[i]);
-                    return false;
-                }
-                break;
+            }
             case TOKEN_PRAGMA:
                 if (active) {
                     if (!flush_chunk(pp, &chunk, output)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
-                        pp_debug_fail("flush_chunk", &input->tokens[i]);
                         return false;
+                    }
+                    if (pp->preserveDirectives) {
+                        if (!append_directive_line(input->tokens, input->count, i, output, pp)) {
+                            pp_token_buffer_reset(&chunk);
+                            free(condStack);
+                            pp_debug_fail("append_directive_line", &input->tokens[i]);
+                            return false;
+                        }
                     }
                     if (!process_pragma(pp, input->tokens, input->count, &i)) {
                         pp_token_buffer_reset(&chunk);
@@ -1141,12 +347,62 @@ static bool preprocess_tokens(Preprocessor* pp,
                     skip_to_line_end(input->tokens, input->count, &i);
                 }
                 break;
+            case TOKEN_PREPROCESSOR_OTHER:
+                if (tok->value && strcmp(tok->value, "line") == 0) {
+                    if (active) {
+                        if (!flush_chunk(pp, &chunk, output)) {
+                            pp_token_buffer_reset(&chunk);
+                            free(condStack);
+                            return false;
+                        }
+                        if (!process_line_directive(pp, input->tokens, input->count, &i)) {
+                            pp_token_buffer_reset(&chunk);
+                            free(condStack);
+                            pp_debug_fail("process_line_directive", &input->tokens[i]);
+                            return false;
+                        }
+                    } else {
+                        skip_to_line_end(input->tokens, input->count, &i);
+                    }
+                    break;
+                } else if (tok->value &&
+                           (strcmp(tok->value, "warning") == 0 || strcmp(tok->value, "error") == 0)) {
+                    bool isError = (strcmp(tok->value, "error") == 0);
+                    if (active) {
+                        char buffer[256];
+                        buffer[0] = '\0';
+                        size_t cursor = i + 1;
+                        int directiveLine = tok->line;
+                        while (cursor < input->count &&
+                               input->tokens[cursor].type != TOKEN_EOF &&
+                               input->tokens[cursor].line == directiveLine) {
+                            const Token* lt = &input->tokens[cursor];
+                            const char* piece = lt->value ? lt->value : "";
+                            if (strlen(buffer) + strlen(piece) + 2 < sizeof(buffer)) {
+                                if (buffer[0] != '\0') {
+                                    strcat(buffer, " ");
+                                }
+                                strcat(buffer, piece);
+                            }
+                            cursor++;
+                        }
+                        DiagKind kind = isError ? DIAG_ERROR : DIAG_WARNING;
+                        const char* msg = buffer[0] ? buffer : (isError ? "#error" : "#warning");
+                        pp_report_diag(pp, tok, kind, CDIAG_PREPROCESSOR_GENERIC, "%s", msg);
+                    }
+                    skip_to_line_end(input->tokens, input->count, &i);
+                    break;
+                }
+                // fall through to default handling for other unknown directives
             case TOKEN_EOF:
                 // handled after loop
                 break;
             default:
                 if (active) {
-                    if (!pp_token_buffer_append_clone(&chunk, tok)) {
+                    if (skip_pragma_operator(input->tokens, input->count, &i)) {
+                        break;
+                    }
+                    if (!pp_token_buffer_append_clone_remap(&chunk, pp, tok)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
@@ -1156,16 +412,203 @@ static bool preprocess_tokens(Preprocessor* pp,
         }
     }
 
-    bool flushed = flush_chunk(pp, &chunk, output);
-    if (flushed && appendEOF && input->count > 0) {
-        const Token* eofTok = &input->tokens[input->count - 1];
-        if (eofTok->type == TOKEN_EOF) {
-            flushed = pp_token_buffer_append_clone(output, eofTok);
+    if (!flush_chunk(pp, &chunk, output)) {
+        pp_token_buffer_reset(&chunk);
+        free(condStack);
+        return false;
+    }
+
+    if (appendEOF) {
+        Token eof = {0};
+        eof.type = TOKEN_EOF;
+        if (!pp_token_buffer_append_token(output, eof)) {
+            free(condStack);
+            return false;
         }
     }
-    pp_token_buffer_reset(&chunk);
+
+    if (condDepth != 0) {
+        pp_report_diag(pp, NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "unclosed #if/#ifdef/#ifndef");
+        free(condStack);
+        return false;
+    }
+
     free(condStack);
-    return flushed;
+    return true;
+}
+
+bool preprocessor_init(Preprocessor* pp,
+                       CompilerContext* ctx,
+                       bool preserveDirectives,
+                       bool lenientMissingIncludes,
+                       bool enableTrigraphs,
+                       const char* const* includePaths,
+                       size_t includePathCount,
+                       const char* const* macroDefines,
+                       size_t macroDefineCount) {
+    if (!pp) return false;
+    pp->table = macro_table_create();
+    if (!pp->table) {
+        return false;
+    }
+    macro_expander_init(&pp->expander, pp->table);
+    pp_expr_evaluator_init(&pp->exprEval, pp->table);
+    pp->resolver = include_resolver_create(includePaths, includePathCount);
+    if (!pp->resolver) {
+        macro_table_destroy(pp->table);
+        pp->table = NULL;
+        return false;
+    }
+    const char* limitEnv = getenv("FISICS_MACRO_EXP_LIMIT");
+    if (limitEnv && limitEnv[0] != '\0') {
+        long lim = strtol(limitEnv, NULL, 10);
+        if (lim > 0) {
+            macro_table_set_expansion_limit(pp->table, (size_t)lim);
+        }
+    }
+    include_graph_init(&pp->includeGraph);
+    pp->baseFile = NULL;
+    pp->logicalFile = NULL;
+    pp->lineOffset = 0;
+    pp->counter = 0;
+    pp->includeStack.frames = NULL;
+    pp->includeStack.depth = 0;
+    pp->includeStack.capacity = 0;
+    pp->logicalFilePool = NULL;
+    pp->logicalFileCount = 0;
+    pp->logicalFileCap = 0;
+    pp->dateString[0] = '\0';
+    pp->timeString[0] = '\0';
+    time_t now = time(NULL);
+    struct tm* tmNow = now == (time_t)-1 ? NULL : localtime(&now);
+    if (tmNow) {
+        strftime(pp->dateString, sizeof(pp->dateString), "%b %e %Y", tmNow);
+        strftime(pp->timeString, sizeof(pp->timeString), "%H:%M:%S", tmNow);
+    }
+    pp->preserveDirectives = preserveDirectives;
+    pp->lenientMissingIncludes = lenientMissingIncludes;
+    pp->enableTrigraphs = enableTrigraphs;
+    pp->ctx = ctx;
+
+    // Minimal builtin macros so system headers don't trigger #error on unknown/unsupported targets.
+    define_builtin_object(pp, "__APPLE__", "1");
+    define_builtin_object(pp, "__MACH__", "1");
+    define_builtin_object(pp, "__arm64__", "1");
+    define_builtin_object(pp, "__LP64__", "1");
+    define_builtin_object(pp, "__clang__", "1");
+    define_builtin_object(pp, "__GNUC__", "4");
+    define_builtin_object(pp, "__GNUC_MINOR__", "2");
+    define_builtin_object(pp, "__GNUC_PATCHLEVEL__", "1");
+    define_builtin_object(pp, "__STDC_HOSTED__", "1");
+    define_builtin_object(pp, "__STDC_VERSION__", "199901L");
+
+    for (size_t i = 0; i < macroDefineCount; ++i) {
+        const char* def = macroDefines ? macroDefines[i] : NULL;
+        if (!def || def[0] == '\0') continue;
+        const char* eq = strchr(def, '=');
+        char* name = NULL;
+        char* value = NULL;
+        if (eq) {
+            size_t nameLen = (size_t)(eq - def);
+            name = (char*)malloc(nameLen + 1);
+            if (!name) continue;
+            memcpy(name, def, nameLen);
+            name[nameLen] = '\0';
+            value = strdup(eq + 1);
+            if (!value) {
+                free(name);
+                continue;
+            }
+        } else {
+            name = strdup(def);
+            if (!name) continue;
+        }
+
+        Token tok = {0};
+        PPTokenBuffer body = {0};
+        if (value && value[0]) {
+            tok.type = isdigit((unsigned char)value[0]) ? TOKEN_NUMBER : TOKEN_IDENTIFIER;
+            tok.value = strdup(value);
+            tok.location = (SourceRange){0};
+            tok.macroCallSite = (SourceRange){0};
+            tok.macroDefinition = (SourceRange){0};
+            if (tok.value) {
+                body.tokens = &tok;
+                body.count = 1;
+            }
+        }
+
+        macro_table_define_object(pp->table,
+                                  name,
+                                  body.tokens,
+                                  body.count,
+                                  (SourceRange){0});
+
+        free(name);
+        if (value) free(value);
+        free(tok.value);
+    }
+    return true;
+}
+
+void preprocessor_destroy(Preprocessor* pp) {
+    if (!pp) return;
+    macro_table_destroy(pp->table);
+    pp->table = NULL;
+    macro_expander_reset(&pp->expander);
+    pp_expr_evaluator_reset(&pp->exprEval);
+    include_resolver_destroy(pp->resolver);
+    pp->resolver = NULL;
+    include_graph_destroy(&pp->includeGraph);
+    free(pp->includeStack.frames);
+    pp->includeStack.frames = NULL;
+    pp->includeStack.depth = 0;
+    pp->includeStack.capacity = 0;
+    for (size_t i = 0; i < pp->logicalFileCount; ++i) {
+        free(pp->logicalFilePool[i]);
+    }
+    free(pp->logicalFilePool);
+    free(pp->baseFile);
+    pp->logicalFilePool = NULL;
+    pp->logicalFileCount = 0;
+    pp->logicalFileCap = 0;
+    pp->baseFile = NULL;
+    pp->logicalFile = NULL;
+}
+
+MacroTable* preprocessor_get_macro_table(Preprocessor* pp) {
+    return pp ? pp->table : NULL;
+}
+
+IncludeResolver* preprocessor_get_resolver(Preprocessor* pp) {
+    return pp ? pp->resolver : NULL;
+}
+
+IncludeGraph* preprocessor_get_include_graph(Preprocessor* pp) {
+    return pp ? &pp->includeGraph : NULL;
+}
+
+bool preprocessor_eval_tokens(Preprocessor* pp,
+                              const Token* tokens,
+                              size_t count,
+                              int32_t* outValue) {
+    if (!pp) {
+        if (outValue) *outValue = 0;
+        return false;
+    }
+    return pp_expr_eval_tokens(&pp->exprEval, tokens, count, outValue);
+}
+
+bool preprocessor_eval_range(Preprocessor* pp,
+                             const TokenBuffer* buffer,
+                             size_t start,
+                             size_t end,
+                             int32_t* outValue) {
+    if (!pp) {
+        if (outValue) *outValue = 0;
+        return false;
+    }
+    return pp_expr_eval_range(&pp->exprEval, buffer, start, end, outValue);
 }
 
 bool preprocessor_run(Preprocessor* pp,
@@ -1173,9 +616,25 @@ bool preprocessor_run(Preprocessor* pp,
                       PPTokenBuffer* output) {
     if (!pp || !input || !output) return false;
     pp_token_buffer_init_local(output);
+    const char* rootPath = (input->count > 0 && input->tokens)
+                               ? token_file(&input->tokens[0])
+                               : NULL;
+    IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;
+    size_t originIndex = (size_t)-1;
+    if (rootPath && pp->resolver) {
+        const IncludeFile* info = include_resolver_lookup(pp->resolver, rootPath);
+        if (info) {
+            origin = info->origin;
+            originIndex = info->originIndex;
+        }
+    }
+    bool pushed = false;
+    if (rootPath) {
+        pushed = pp_include_stack_push(pp, rootPath, origin, originIndex);
+    }
     bool ok = preprocess_tokens(pp, input, output, true);
-    if (!ok) {
-        pp_debug_fail("preprocess_tokens", input->count > 0 ? &input->tokens[0] : NULL);
+    if (pushed) {
+        pp_include_stack_pop(pp);
     }
     return ok;
 }

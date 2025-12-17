@@ -1,0 +1,6 @@
+#ifndef SHARED_NEXT_H_LOCAL
+#define SHARED_NEXT_H_LOCAL
+
+#define NEXT_VALUE 111
+
+#endif /* SHARED_NEXT_H_LOCAL */

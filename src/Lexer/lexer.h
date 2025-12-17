@@ -8,12 +8,16 @@ typedef struct {
     const char* source;
     const char* filePath;
     int position;
+    int length;
     int line;
     int lineStart;
+    char* ownedSource;   // translated buffer (trigraph/digraph), owned if non-NULL
+    bool enableTrigraphs;
 } Lexer;
 
 // Function declarations
-void initLexer(Lexer* lexer, const char* source, const char* filePath);
+void initLexer(Lexer* lexer, const char* source, const char* filePath, bool enableTrigraphs);
+void destroyLexer(Lexer* lexer);
 Token getNextToken(Lexer* lexer);
 void skipWhitespace(Lexer* lexer);
 int isEOF(Lexer* lexer);

@@ -12,7 +12,7 @@ static bool eval_expr(MacroTable* table,
                       int32_t expected,
                       bool shouldFail) {
     Lexer lexer;
-    initLexer(&lexer, expr, "<expr>");
+    initLexer(&lexer, expr, "<expr>", false);
 
     TokenBuffer buffer;
     token_buffer_init(&buffer);

@@ -14,7 +14,7 @@ Macro handling, conditional skipping, and include resolution live here. This is 
 - `preprocessor.h/.c`
   - High-level driver that scans the lexer’s token buffer, consumes `#define`/`#undef` directives into the macro table, evaluates `#if/#elif/#else/#endif` with a conditional stack, and flushes active chunks through the expander before handing them to the parser. A `--preserve-pp` flag or `PRESERVE_PP_NODES=1` keeps lightweight directive AST nodes when tooling needs them; otherwise the parser never sees `#` tokens.
 - `include_resolver.h/.c`
-  - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`), caches file contents + mtimes, tracks `#pragma once` and classic guards, and records dependency edges for JSON emission.
+  - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`) plus optional `SYSTEM_INCLUDE_PATHS`, caches file contents + mtimes, tracks `#pragma once` and classic guards, records dependency edges for JSON emission, and understands `#include_next` by skipping the directory that produced the current header.
   - Write the include graph to JSON via `include_graph_write_json`; surfaced to users with `--emit-deps-json <file>` or `EMIT_DEPS_JSON=path`.
 
 ## Usage notes

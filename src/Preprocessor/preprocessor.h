@@ -10,14 +10,33 @@
 #include "Preprocessor/include_resolver.h"
 #include "Compiler/compiler_context.h"
 
+struct PPIncludeFrame;
+
 typedef struct {
     MacroTable* table;
     MacroExpander expander;
     PPExprEvaluator exprEval;
     IncludeResolver* resolver;
     IncludeGraph includeGraph;
+    // Logical location tracking for #line and built-ins
+    char* baseFile;
+    char* logicalFile;
+    int lineOffset;
+    int counter;
+    char dateString[16];
+    char timeString[16];
+    char** logicalFilePool;
+    size_t logicalFileCount;
+    size_t logicalFileCap;
+    // Include processing stack (non-owning path pointers held by resolver)
+    struct {
+        struct PPIncludeFrame* frames;
+        size_t depth;
+        size_t capacity;
+    } includeStack;
     bool preserveDirectives;
     bool lenientMissingIncludes;
+    bool enableTrigraphs;
     CompilerContext* ctx;
 } Preprocessor;
 
@@ -25,6 +44,7 @@ bool preprocessor_init(Preprocessor* pp,
                        CompilerContext* ctx,
                        bool preserveDirectives,
                        bool lenientMissingIncludes,
+                       bool enableTrigraphs,
                        const char* const* includePaths,
                        size_t includePathCount,
                        const char* const* macroDefines,

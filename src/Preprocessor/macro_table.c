@@ -139,6 +139,10 @@ static bool macro_table_grow(MacroTable* table) {
 
 MacroTable* macro_table_create(void) {
     MacroTable* table = (MacroTable*)calloc(1, sizeof(MacroTable));
+    if (table) {
+        table->expansionLimit = 1000;
+        table->lastError = MT_ERR_NONE;
+    }
     return table;
 }
 
@@ -257,7 +261,16 @@ bool macro_table_push_expansion(MacroTable* table,
                                 SourceRange callSite,
                                 SourceRange expansionRange) {
     if (!table || !macro) return false;
+    if (table->expansionLimit > 0 && table->expansionCount >= table->expansionLimit) {
+        table->lastError = MT_ERR_DEPTH;
+        return false;
+    }
+    if (macro_table_is_expanding(table, macro->name)) {
+        table->lastError = MT_ERR_RECURSION;
+        return false;
+    }
     if (!macro_expansion_grow(table)) return false;
+    table->lastError = MT_ERR_NONE;
     MacroExpansionFrame* frame = &table->expansionStack[table->expansionCount++];
     frame->macro = macro;
     frame->callSiteRange = callSite;
@@ -299,6 +312,23 @@ const MacroExpansionFrame* macro_table_current_expansion(const MacroTable* table
         *outCount = table ? table->expansionCount : 0;
     }
     return table ? table->expansionStack : NULL;
+}
+
+MacroExpansionError macro_table_last_error(const MacroTable* table,
+                                           const MacroExpansionFrame** outTopFrame) {
+    if (outTopFrame) {
+        if (table && table->expansionCount > 0) {
+            *outTopFrame = &table->expansionStack[table->expansionCount - 1];
+        } else {
+            *outTopFrame = NULL;
+        }
+    }
+    return table ? table->lastError : MT_ERR_NONE;
+}
+
+void macro_table_set_expansion_limit(MacroTable* table, size_t limit) {
+    if (!table) return;
+    table->expansionLimit = limit;
 }
 
 MacroTable* macro_table_clone(const MacroTable* src) {

@@ -18,6 +18,7 @@
 #include "Syntax/semantic_model_printer.h"
 #include "Syntax/semantic_pass.h"
 #include "Utils/utils.h"
+#include "Compiler/diagnostics.h"
 
 typedef struct {
     FisicsSymbol* items;
@@ -36,6 +37,33 @@ static bool symbuf_append(SymbolBuffer* buf, const FisicsSymbol* sym) {
     }
     buf->items[buf->count++] = *sym;
     return true;
+}
+
+static const char* diag_kind_str(DiagKind kind) {
+    switch (kind) {
+        case DIAG_ERROR: return "error";
+        case DIAG_WARNING: return "warning";
+        default: return "note";
+    }
+}
+
+static void pipeline_print_diagnostics(CompilerContext* ctx) {
+    if (!ctx) return;
+    size_t count = 0;
+    const FisicsDiagnostic* diags = compiler_diagnostics_data(ctx, &count);
+    for (size_t i = 0; i < count; ++i) {
+        const FisicsDiagnostic* d = &diags[i];
+        const char* path = d->file_path ? d->file_path : "<unknown>";
+        fprintf(stderr, "%s:%d:%d: %s: %s\n",
+                path,
+                d->line,
+                d->column,
+                diag_kind_str(d->kind),
+                d->message ? d->message : "<unknown>");
+        if (d->hint && d->hint[0]) {
+            fprintf(stderr, "  hint: %s\n", d->hint);
+        }
+    }
 }
 
 static const char* identifier_name(const ASTNode* node) {
@@ -198,6 +226,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            const char* source,
                                            size_t length,
                                            bool preservePPNodes,
+                                           bool enableTrigraphs,
                                            const char* const* includePaths,
                                            size_t includePathCount,
                                            const char* const* macroDefines,
@@ -208,6 +237,9 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            ASTNode** outAst,
                                            SemanticModel** outModel,
                                            size_t* outSemanticErrors) {
+    const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
+    bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
+
     TokenBuffer tokenBuffer;
     token_buffer_init(&tokenBuffer);
 
@@ -222,6 +254,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                            ctx,
                            preservePPNodes,
                            lenientIncludes,
+                           enableTrigraphs,
                            includePaths,
                            includePathCount,
                            macroDefines,
@@ -247,12 +280,16 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                          NULL,
                                          file_path ? file_path : "<buffer>",
                                          false,
+                                         false,
+                                         NULL,
                                          NULL);
     } else {
         rootFile = include_resolver_load(preprocessor_get_resolver(&preprocessor),
                                          NULL,
                                          file_path,
                                          false,
+                                         false,
+                                         NULL,
                                          NULL);
     }
     if (!rootFile) {
@@ -260,13 +297,16 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         goto cleanup;
     }
 
+    if (debugProgress) fprintf(stderr, "[pipeline] lexing %s\n", rootFile->path);
     Lexer lexer;
-    initLexer(&lexer, rootFile->contents, rootFile->path);
+    initLexer(&lexer, rootFile->contents, rootFile->path, preprocessor.enableTrigraphs);
 
     if (!token_buffer_fill_from_lexer(&tokenBuffer, &lexer)) {
+        destroyLexer(&lexer);
         fprintf(stderr, "Error: failed to lex tokens into buffer\n");
         goto cleanup;
     }
+    destroyLexer(&lexer);
 
     const char* debugPP = getenv("DEBUG_PP_COUNT");
     if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
@@ -283,8 +323,10 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         }
     }
 
+    if (debugProgress) fprintf(stderr, "[pipeline] preprocessing\n");
     if (!preprocessor_run(&preprocessor, &tokenBuffer, &preprocessed)) {
         fprintf(stderr, "Error: preprocessing failed\n");
+        pipeline_print_diagnostics(ctx);
         goto cleanup;
     }
 
@@ -314,6 +356,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
 
     cc_set_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
 
+    if (debugProgress) fprintf(stderr, "[pipeline] parsing\n");
     Parser parser;
     initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx, preservePPNodes);
 
@@ -374,6 +417,7 @@ bool compiler_run_frontend(CompilerContext* ctx,
                            const char* source,
                            size_t length,
                            bool preservePPNodes,
+                           bool enableTrigraphs,
                            const char* const* includePaths,
                            size_t includePathCount,
                            const char* const* macroDefines,
@@ -393,6 +437,7 @@ bool compiler_run_frontend(CompilerContext* ctx,
                                           source,
                                           length,
                                           preservePPNodes,
+                                          enableTrigraphs,
                                           includePaths,
                                           includePathCount,
                                           macroDefines,
@@ -441,6 +486,7 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
                                         NULL,
                                         0,
                                         options->preservePPNodes,
+                                        options->enableTrigraphs,
                                         options->includePaths,
                                         options->includePathCount,
                                         NULL,
@@ -451,6 +497,7 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
                                         &ast,
                                         &model,
                                         &semaErrors)) {
+        pipeline_print_diagnostics(ctx);
         goto cleanup;
     }
 

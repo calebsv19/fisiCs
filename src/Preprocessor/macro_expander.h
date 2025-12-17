@@ -13,11 +13,20 @@ typedef struct {
 } PPTokenBuffer;
 
 typedef struct {
+    const char* baseFile;
+    const char* dateString;
+    const char* timeString;
+    int* counter;
+} PPBuiltinState;
+
+typedef struct {
     MacroTable* table;
+    PPBuiltinState builtins;
 } MacroExpander;
 
 void macro_expander_init(MacroExpander* expander, MacroTable* table);
 void macro_expander_reset(MacroExpander* expander);
+void macro_expander_set_builtins(MacroExpander* expander, PPBuiltinState state);
 
 bool macro_expander_expand(MacroExpander* expander,
                            const Token* input,

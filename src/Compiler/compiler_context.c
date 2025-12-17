@@ -155,9 +155,20 @@ void cc_destroy(CompilerContext* ctx) {
 }
 
 void cc_seed_builtins(CompilerContext* ctx) {
-    // Nothing to do right now (we baked them in).
-    // This exists so you can later extend with platform-specific typedefs.
-    (void)ctx;
+    if (!ctx) return;
+    // Seed common typedefs so the parser recognizes them as type names even
+    // without headers.
+    const char* typedefs[] = {
+        "size_t",
+        "ssize_t",
+        "intptr_t",
+        "uintptr_t",
+        "ptrdiff_t",
+        "bool",
+    };
+    for (size_t i = 0; i < sizeof(typedefs) / sizeof(typedefs[0]); ++i) {
+        cc_add_typedef(ctx, typedefs[i]);
+    }
 }
 
 bool cc_is_typedef(const CompilerContext* ctx, const char* name) {

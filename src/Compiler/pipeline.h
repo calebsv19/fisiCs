@@ -22,6 +22,7 @@ typedef struct {
     bool dumpSemantic;
     bool dumpIR;
     bool enableCodegen;
+    bool enableTrigraphs;
 } CompileOptions;
 
 typedef struct {
@@ -40,6 +41,7 @@ bool compiler_run_frontend(struct CompilerContext* ctx,
                            const char* source,
                            size_t length,
                            bool preservePPNodes,
+                           bool enableTrigraphs,
                            const char* const* includePaths,
                            size_t includePathCount,
                            const char* const* macroDefines,

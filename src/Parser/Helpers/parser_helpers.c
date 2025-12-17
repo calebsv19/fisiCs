@@ -38,7 +38,9 @@ void advanceClone(Parser* p) {
 // ---------- SAFE CLONE HELPERS ----------
 
 Parser cloneParserWithFreshLexer(Parser* original) {
-    return *original;
+    Parser clone = *original;
+    // Keep context so typedef/tag lookups remain accurate during speculative parses.
+    return clone;
 }
 
 void freeParserClone(Parser* parser) {
@@ -51,6 +53,8 @@ void printParseError(const char* expected, Parser* parser) {
     if (!parser) return;
     const Token* tok = &parser->currentToken;
     const char* got = tok && tok->value ? tok->value : "<eof>";
+    const char* file = tok && tok->location.start.file ? tok->location.start.file : "<unknown>";
+    int line = tok ? tok->location.start.line : -1;
     if (parser->ctx) {
         compiler_report_diag(parser->ctx,
                              tok ? tok->location : (SourceRange){0},
@@ -62,6 +66,11 @@ void printParseError(const char* expected, Parser* parser) {
                              got,
                              tok ? tok->type : -1);
     }
+    fprintf(stderr, "Error: %s at %s:%d (got '%s')\n",
+            expected ? expected : "",
+            file,
+            line,
+            got);
 }
 
 

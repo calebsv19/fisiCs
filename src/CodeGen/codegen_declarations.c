@@ -1,10 +1,116 @@
 #include "codegen_private.h"
 
+#include "Syntax/const_eval.h"
 #include "codegen_types.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static int g_const_string_counter = 0;
+
+static LLVMValueRef cg_make_const_string_global(CodegenContext* ctx,
+                                                const char* contents,
+                                                LLVMTypeRef targetPtrType) {
+    if (!ctx || !contents || !targetPtrType) return NULL;
+    size_t len = strlen(contents);
+    LLVMTypeRef i8 = LLVMInt8TypeInContext(ctx->llvmContext);
+    LLVMTypeRef arrayTy = LLVMArrayType(i8, (unsigned)(len + 1));
+
+    char name[64];
+    snprintf(name, sizeof(name), ".str.%d", g_const_string_counter++);
+
+    LLVMValueRef global = LLVMAddGlobal(ctx->module, arrayTy, name);
+    LLVMSetLinkage(global, LLVMPrivateLinkage);
+    LLVMSetGlobalConstant(global, 1);
+    LLVMSetUnnamedAddr(global, LLVMGlobalUnnamedAddr);
+    LLVMValueRef strConst = LLVMConstStringInContext(ctx->llvmContext, contents, (unsigned)len, 0);
+    LLVMSetInitializer(global, strConst);
+
+    LLVMTypeRef defaultPtr = LLVMPointerType(i8, 0);
+    LLVMValueRef basePtr = LLVMConstBitCast(global, defaultPtr);
+    if (LLVMTypeOf(basePtr) == targetPtrType) {
+        return basePtr;
+    }
+    return LLVMConstBitCast(basePtr, targetPtrType);
+}
+
+static LLVMValueRef cg_const_from_eval(CodegenContext* ctx,
+                                       const ConstEvalResult* res,
+                                       LLVMTypeRef targetType,
+                                       const ParsedType* parsedType) {
+    if (!ctx || !res || !res->isConst || !targetType) return NULL;
+
+    LLVMTypeKind kind = LLVMGetTypeKind(targetType);
+    if (kind == LLVMIntegerTypeKind) {
+        int isUnsigned = parsedType && parsedType->isUnsigned;
+        return LLVMConstInt(targetType, (unsigned long long)res->value, isUnsigned ? 0 : 1);
+    }
+    if (kind == LLVMPointerTypeKind) {
+        LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+        int isUnsigned = parsedType && parsedType->isUnsigned;
+        LLVMValueRef asInt = LLVMConstInt(intptrTy, (unsigned long long)res->value, isUnsigned ? 0 : 1);
+        return LLVMConstIntToPtr(asInt, targetType);
+    }
+    return NULL;
+}
+
+static LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
+                                               ASTNode* expr,
+                                               LLVMTypeRef targetType,
+                                               const ParsedType* parsedType) {
+    if (!ctx || !expr || !targetType) return NULL;
+
+    LLVMTypeKind targetKind = LLVMGetTypeKind(targetType);
+    if (targetKind == LLVMVoidTypeKind) {
+        return NULL;
+    }
+    if (expr->type == AST_STRING_LITERAL) {
+        if (targetKind == LLVMPointerTypeKind) {
+            return cg_make_const_string_global(ctx, expr->valueNode.value, targetType);
+        }
+        if (targetKind == LLVMArrayTypeKind) {
+            LLVMTypeRef element = LLVMGetElementType(targetType);
+            if (element && LLVMGetTypeKind(element) == LLVMIntegerTypeKind &&
+                LLVMGetIntTypeWidth(element) == 8) {
+                size_t len = strlen(expr->valueNode.value);
+                LLVMValueRef strConst =
+                    LLVMConstStringInContext(ctx->llvmContext, expr->valueNode.value, (unsigned)len, 0);
+                return strConst;
+            }
+        }
+        return NULL;
+    }
+
+    struct Scope* globalScope = NULL;
+    if (ctx->semanticModel) {
+        globalScope = semanticModelGetGlobalScope(ctx->semanticModel);
+    }
+    ConstEvalResult res = constEval(expr, globalScope, true);
+    if (!res.isConst) {
+        return NULL;
+    }
+    return cg_const_from_eval(ctx, &res, targetType, parsedType);
+}
+
+static DesignatedInit* cg_find_initializer_for_symbol(const Symbol* sym) {
+    if (!sym || !sym->definition) {
+        return NULL;
+    }
+    ASTNode* def = sym->definition;
+    if (def->type != AST_VARIABLE_DECLARATION) {
+        return NULL;
+    }
+    for (size_t i = 0; i < def->varDecl.varCount; ++i) {
+        ASTNode* nameNode = def->varDecl.varNames[i];
+        if (nameNode && nameNode->type == AST_IDENTIFIER &&
+            nameNode->valueNode.value &&
+            strcmp(nameNode->valueNode.value, sym->name) == 0) {
+            return def->varDecl.initializers ? def->varDecl.initializers[i] : NULL;
+        }
+    }
+    return NULL;
+}
 
 static bool parsedTypeIsPlainVoid(const ParsedType* type) {
     if (!type) return false;
@@ -223,6 +329,22 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     if (!existing) {
         existing = LLVMAddGlobal(ctx->module, varType, sym->name);
         LLVMSetInitializer(existing, LLVMConstNull(varType));
+    }
+
+    if (!sym->isTentative) {
+        DesignatedInit* init = cg_find_initializer_for_symbol(sym);
+        if (init && init->expression && !parsedTypeHasVLA(&sym->type)) {
+            LLVMTypeRef elementType = LLVMGlobalGetValueType(existing);
+            if (elementType) {
+                LLVMValueRef constInit = cg_build_const_initializer(ctx,
+                                                                    init->expression,
+                                                                    elementType,
+                                                                    &sym->type);
+                if (constInit) {
+                    LLVMSetInitializer(existing, constInit);
+                }
+            }
+        }
     }
 
     cg_scope_insert(ctx->currentScope,

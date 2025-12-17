@@ -44,7 +44,7 @@ typedef enum {
     //  Identifiers & Literals
     // ==============================
     TOKEN_IDENTIFIER,        // Variable & function names
-    TOKEN_INCLUDE, TOKEN_DEFINE, TOKEN_UNDEF,		// Basic preprocessor
+    TOKEN_INCLUDE, TOKEN_INCLUDE_NEXT, TOKEN_DEFINE, TOKEN_UNDEF,		// Basic preprocessor
     TOKEN_IFDEF, TOKEN_IFNDEF, TOKEN_ENDIF,     // if related processor
     TOKEN_PRAGMA, TOKEN_ONCE,			// pragma handling
     TOKEN_PREPROCESSOR_OTHER,			// handles edge cases
