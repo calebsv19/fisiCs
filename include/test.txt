@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 
 struct Pair { int a; int b; };
 
@@ -6,5 +7,6 @@ int main(void) {
     struct Pair p = { .a = 1, .b = 2 };
     printf("pair: %d %d\n", p.a, p.b);
     int *arr = (int[]){ 10, 20, 30, 40 };
-    return arr[2];
+    uint32_t mask = 0xFFu;
+    return arr[2] + (int)mask;
 }

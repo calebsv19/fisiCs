@@ -315,6 +315,24 @@ Token handleIdentifierOrKeyword(Lexer* lexer) {
         return make_token(lexer, tokenType, text, startMark);
     }
 
+    /* Manual aliases for compiler builtins / GNU spellings that are not
+       listed in the gperf table. */
+    if (strcmp(text, "__signed") == 0 || strcmp(text, "__signed__") == 0) {
+        return make_token(lexer, TOKEN_SIGNED, text, startMark);
+    }
+    if (strcmp(text, "__inline") == 0 || strcmp(text, "__inline__") == 0) {
+        return make_token(lexer, TOKEN_INLINE, text, startMark);
+    }
+    if (strcmp(text, "__const") == 0 || strcmp(text, "__const__") == 0) {
+        return make_token(lexer, TOKEN_CONST, text, startMark);
+    }
+    if (strcmp(text, "__restrict") == 0 || strcmp(text, "__restrict__") == 0) {
+        return make_token(lexer, TOKEN_RESTRICT, text, startMark);
+    }
+    if (strcmp(text, "__asm") == 0 || strcmp(text, "__asm__") == 0) {
+        return make_token(lexer, TOKEN_ASM, text, startMark);
+    }
+
     if (lexer_debug_enabled()){
     	LEXER_DEBUG_PRINTF("DEBUG: Classified as identifier: %s\n", text);
     }

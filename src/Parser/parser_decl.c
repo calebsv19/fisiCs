@@ -147,7 +147,10 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
             }
         }
 
+        size_t leadingAttrCount = 0;
+        ASTAttribute** leadingAttrs = parserParseAttributeSpecifiers(parser, &leadingAttrCount);
         ParsedType paramType = parseType(parser);
+        parsedTypeAdoptAttributes(&paramType, leadingAttrs, leadingAttrCount);
         PointerChain chain = parsePointerChain(parser);
         applyPointerChainToType(&paramType, &chain);
         pointerChainFree(&chain);
@@ -158,6 +161,10 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         }
 
         parserConsumeArraySuffixes(parser, &paramType);
+
+        size_t trailingAttrCount = 0;
+        ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
+        parsedTypeAdoptAttributes(&paramType, trailingAttrs, trailingAttrCount);
 
         if (out->count == capacity) {
             size_t newCap = capacity == 0 ? 4 : capacity * 2;
@@ -240,9 +247,17 @@ static bool parseDeclaratorInternal(Parser* parser,
                                     bool trackDirectFunction,
                                     bool requireIdentifier,
                                     bool topLevel) {
+    size_t leadingAttrCount = 0;
+    ASTAttribute** leadingAttrs = parserParseAttributeSpecifiers(parser, &leadingAttrCount);
+    parsedTypeAdoptAttributes(type, leadingAttrs, leadingAttrCount);
+
     PointerChain chain = parsePointerChain(parser);
     applyPointerChainToType(type, &chain);
     pointerChainFree(&chain);
+
+    size_t midAttrCount = 0;
+    ASTAttribute** midAttrs = parserParseAttributeSpecifiers(parser, &midAttrCount);
+    parsedTypeAdoptAttributes(type, midAttrs, midAttrCount);
 
     bool sawIdentifier = decl->identifier != NULL;
 
@@ -293,6 +308,10 @@ static bool parseDeclaratorInternal(Parser* parser,
             }
         }
     }
+
+    size_t suffixAttrCount = 0;
+    ASTAttribute** suffixAttrs = parserParseAttributeSpecifiers(parser, &suffixAttrCount);
+    parsedTypeAdoptAttributes(type, suffixAttrs, suffixAttrCount);
 
     if (requireIdentifier && !decl->identifier) {
         printParseError("Expected identifier in declarator", parser);

@@ -109,7 +109,10 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
             break;
         }
 
+        size_t leadingAttrCount = 0;
+        ASTAttribute** leadingAttrs = parserParseAttributeSpecifiers(parser, &leadingAttrCount);
         ParsedType paramBase = parseType(parser);
+        parsedTypeAdoptAttributes(&paramBase, leadingAttrs, leadingAttrCount);
         ParsedDeclarator decl;
         if (!parserParseDeclarator(parser,
                                    &paramBase,
@@ -121,6 +124,10 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
             return NULL;
         }
         parsedTypeFree(&paramBase);
+
+        size_t trailingAttrCount = 0;
+        ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
+        parsedTypeAdoptAttributes(&decl.type, trailingAttrs, trailingAttrCount);
 
         ASTNode* paramName = decl.identifier;
         if (!paramName) {

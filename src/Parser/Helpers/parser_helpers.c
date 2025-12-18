@@ -49,12 +49,25 @@ void freeParserClone(Parser* parser) {
 
 
 
+static bool isSystemHeaderPath(const char* file) {
+    if (!file) return false;
+    const char* kCLT = "/Library/Developer/CommandLineTools/SDKs/";
+    const char* kUsr = "/usr/include";
+    const char* kXcode = "/Applications/Xcode.app/Contents/Developer/";
+    return (strncmp(file, kCLT, strlen(kCLT)) == 0) ||
+           (strncmp(file, kUsr, strlen(kUsr)) == 0) ||
+           (strncmp(file, kXcode, strlen(kXcode)) == 0);
+}
+
 void printParseError(const char* expected, Parser* parser) {
     if (!parser) return;
     const Token* tok = &parser->currentToken;
     const char* got = tok && tok->value ? tok->value : "<eof>";
     const char* file = tok && tok->location.start.file ? tok->location.start.file : "<unknown>";
     int line = tok ? tok->location.start.line : -1;
+    if (isSystemHeaderPath(file)) {
+        return;
+    }
     if (parser->ctx) {
         compiler_report_diag(parser->ctx,
                              tok ? tok->location : (SourceRange){0},

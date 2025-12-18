@@ -621,10 +621,10 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         }
     } else if (!sawBaseType && parser->currentToken.type == TOKEN_IDENTIFIER) {
         const char* ident = parser->currentToken.value;
-        bool known = identifierMatchesKnownType(parser, ident);
         bool hasQualifierSpecs =
             type.isUnsigned || type.isSigned || type.isShort || type.isLong ||
             type.isConst || type.isVolatile || type.isRestrict || type.isInline;
+        bool known = hasQualifierSpecs ? false : identifierMatchesKnownType(parser, ident);
 
         if (!known) {
             if (ctx == TYPECTX_Strict) {

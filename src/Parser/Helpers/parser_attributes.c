@@ -66,6 +66,45 @@ static bool expectToken(Parser* parser, TokenType type, const char* message) {
     return true;
 }
 
+static bool looksLikeFallbackAttribute(Parser* parser) {
+    if (!parser || parser->currentToken.type != TOKEN_IDENTIFIER || !parser->currentToken.value) {
+        return false;
+    }
+    const char* name = parser->currentToken.value;
+    if (!(name[0] == '_' && name[1] == '_')) {
+        return false;
+    }
+    if (parser->nextToken.type == TOKEN_LPAREN) {
+        return true;
+    }
+    static const char* kNoParenAttrs[] = {
+        "__dead",
+        "__dead2",
+        "__pure",
+        "__pure2",
+        "__unused",
+        "__cold",
+        "__deprecated",
+        "__deprecated_msg",
+        "__deprecated_enum_msg",
+        "__not_tail_called",
+        "__result_use_check",
+        "__abortlike",
+        "__stateful_pure",
+        "__single",
+        "__unsafe_indexable",
+        "__null_terminated",
+        "__nonnull",
+        "__nullable"
+    };
+    for (size_t i = 0; i < sizeof(kNoParenAttrs) / sizeof(kNoParenAttrs[0]); ++i) {
+        if (strcmp(name, kNoParenAttrs[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool parserLookaheadStartsAttribute(Parser* parser) {
     if (!parser) return false;
     if (parser->currentToken.type == TOKEN_IDENTIFIER && parser->currentToken.value) {
@@ -85,6 +124,12 @@ bool parserLookaheadStartsAttribute(Parser* parser) {
             strcmp(parser->currentToken.value, "_Null_unspecified") == 0) {
             return true;
         }
+        if (looksLikeFallbackAttribute(parser)) {
+            return true;
+        }
+    }
+    if (parser->currentToken.type == TOKEN_ASM) {
+        return true;
     }
     return parser->currentToken.type == TOKEN_LBRACKET &&
            parser->nextToken.type == TOKEN_LBRACKET;
@@ -222,6 +267,49 @@ static ASTAttribute* parseNullabilityAttribute(Parser* parser) {
     return attr;
 }
 
+static ASTAttribute* parseFallbackAttribute(Parser* parser) {
+    if (!looksLikeFallbackAttribute(parser)) return NULL;
+    const char* name = parser->currentToken.value;
+    advance(parser); /* consume identifier */
+
+    AttributeTextBuilder builder = {0};
+    if (!builderAppend(&builder, name)) {
+        builderReset(&builder);
+        return NULL;
+    }
+
+    if (parser->currentToken.type == TOKEN_LPAREN) {
+        if (!builderAppend(&builder, "(")) {
+            builderReset(&builder);
+            return NULL;
+        }
+        advance(parser); // consume '('
+        char* payload = collectBalancedRegion(parser, TOKEN_LPAREN, TOKEN_RPAREN, 1);
+        if (!payload) {
+            builderReset(&builder);
+            return NULL;
+        }
+        if (!builderAppendRaw(&builder, payload)) {
+            free(payload);
+            builderReset(&builder);
+            return NULL;
+        }
+        free(payload);
+        if (parser->currentToken.type == TOKEN_RPAREN) {
+            if (!builderAppend(&builder, ")")) {
+                builderReset(&builder);
+                return NULL;
+            }
+            advance(parser); // consume ')'
+        }
+    }
+
+    char* text = builderDetach(&builder);
+    ASTAttribute* attr = astAttributeCreate(AST_ATTRIBUTE_SYNTAX_GNU, text);
+    free(text);
+    return attr;
+}
+
 static ASTAttribute* parseSingleAttribute(Parser* parser) {
     if (parser->currentToken.type == TOKEN_IDENTIFIER &&
         parser->currentToken.value &&
@@ -233,16 +321,21 @@ static ASTAttribute* parseSingleAttribute(Parser* parser) {
         strcmp(parser->currentToken.value, "__declspec") == 0) {
         return parseDeclspecAttribute(parser);
     }
-    if (parser->currentToken.type == TOKEN_IDENTIFIER &&
-        parser->currentToken.value &&
-        (strcmp(parser->currentToken.value, "__asm") == 0 ||
-         strcmp(parser->currentToken.value, "__asm__") == 0 ||
-         strcmp(parser->currentToken.value, "asm") == 0)) {
+    if ((parser->currentToken.type == TOKEN_IDENTIFIER &&
+         parser->currentToken.value &&
+         (strcmp(parser->currentToken.value, "__asm") == 0 ||
+          strcmp(parser->currentToken.value, "__asm__") == 0 ||
+          strcmp(parser->currentToken.value, "asm") == 0)) ||
+        parser->currentToken.type == TOKEN_ASM) {
         return parseAsmAttribute(parser);
     }
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         ASTAttribute* nb = parseNullabilityAttribute(parser);
         if (nb) return nb;
+    }
+    {
+        ASTAttribute* fallback = parseFallbackAttribute(parser);
+        if (fallback) return fallback;
     }
     if (parser->currentToken.type == TOKEN_LBRACKET &&
         parser->nextToken.type == TOKEN_LBRACKET) {
