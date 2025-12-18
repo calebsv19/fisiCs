@@ -68,6 +68,7 @@ typedef struct ParsedType {
 
     // Optional inline aggregate definition captured in a declaration specifier
     struct ASTNode* inlineStructOrUnionDef;
+    struct ASTNode* inlineEnumDef;
 
     bool isFunctionPointer;
     size_t fpParamCount;

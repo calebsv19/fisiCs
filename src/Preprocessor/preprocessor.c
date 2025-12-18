@@ -470,6 +470,7 @@ bool preprocessor_init(Preprocessor* pp,
     pp->baseFile = NULL;
     pp->logicalFile = NULL;
     pp->lineOffset = 0;
+    pp->lineRemapActive = false;
     pp->counter = 0;
     pp->includeStack.frames = NULL;
     pp->includeStack.depth = 0;

@@ -1,4 +1,5 @@
 #include "builtins.h"
+#include "Parser/Helpers/parsed_type.h"
 #include "syntax_errors.h"
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,30 @@ static ParsedType longType(bool isUnsigned) {
     return t;
 }
 
+static ParsedType voidType(void) {
+    ParsedType t;
+    memset(&t, 0, sizeof(t));
+    t.kind = TYPE_PRIMITIVE;
+    t.primitiveType = TOKEN_VOID;
+    return t;
+}
+
+static ParsedType pointerTo(ParsedType base) {
+    parsedTypeAppendPointer(&base);
+    return base;
+}
+
+static ParsedType constVoidPtrType(void) {
+    ParsedType t = voidType();
+    t.isConst = true;
+    return pointerTo(t);
+}
+
+static ParsedType voidPtrType(void) {
+    ParsedType t = voidType();
+    return pointerTo(t);
+}
+
 static Symbol* makeTypedef(const char* name, ParsedType base, CompilerContext* ctx) {
     Symbol* sym = makeBuiltin(name, SYMBOL_TYPEDEF, base, NULL);
     if (sym && ctx) {
@@ -58,10 +83,34 @@ void seedBuiltins(Scope* globalScope) {
         addToScope(scope, fprintfSym);
     }
 
-    Symbol* exitSym = makeBuiltin("exit", SYMBOL_FUNCTION, intType(), NULL);
+    Symbol* exitSym = makeBuiltin("exit", SYMBOL_FUNCTION, voidType(), NULL);
     if (exitSym) {
         exitSym->signature.paramCount = 1;
         addToScope(scope, exitSym);
+    }
+
+    Symbol* objSizeSym = makeBuiltin("__builtin_object_size", SYMBOL_FUNCTION, longType(true), NULL);
+    if (objSizeSym) {
+        objSizeSym->signature.paramCount = 2;
+        objSizeSym->signature.params = (ParsedType*)calloc(2, sizeof(ParsedType));
+        if (objSizeSym->signature.params) {
+            objSizeSym->signature.params[0] = constVoidPtrType();
+            objSizeSym->signature.params[1] = intType();
+        }
+        addToScope(scope, objSizeSym);
+    }
+
+    Symbol* memcpyChkSym = makeBuiltin("__builtin___memcpy_chk", SYMBOL_FUNCTION, voidPtrType(), NULL);
+    if (memcpyChkSym) {
+        memcpyChkSym->signature.paramCount = 4;
+        memcpyChkSym->signature.params = (ParsedType*)calloc(4, sizeof(ParsedType));
+        if (memcpyChkSym->signature.params) {
+            memcpyChkSym->signature.params[0] = voidPtrType();
+            memcpyChkSym->signature.params[1] = constVoidPtrType();
+            memcpyChkSym->signature.params[2] = longType(true);
+            memcpyChkSym->signature.params[3] = longType(true);
+        }
+        addToScope(scope, memcpyChkSym);
     }
 
     Symbol* trueSym = (Symbol*)calloc(1, sizeof(Symbol));

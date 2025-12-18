@@ -4,6 +4,7 @@
 #include "Compiler/compiler_context.h"
 #include "Parser/Helpers/parser_attributes.h"
 #include "Parser/parser_decl.h"
+#include "Parser/Expr/parser_expr.h"
 #include "AST/ast_node.h"
 
 #include <stdio.h>
@@ -474,6 +475,87 @@ static void consumeTypeAttributes(Parser* parser, ParsedType* type) {
     parsedTypeAdoptAttributes(type, attrs, attrCount);
 }
 
+static bool parseInlineEnumBody(Parser* parser,
+                                ASTNode*** outMembers,
+                                ASTNode*** outValues,
+                                size_t* outCount) {
+    if (!parser || !outMembers || !outValues || !outCount) return false;
+    if (parser->currentToken.type != TOKEN_LBRACE) {
+        printParseError("Expected '{' to begin enum body", parser);
+        return false;
+    }
+
+    advance(parser); // consume '{'
+
+    size_t count = 0;
+    size_t capacity = 4;
+    ASTNode** members = (ASTNode**)malloc(capacity * sizeof(ASTNode*));
+    ASTNode** values = (ASTNode**)malloc(capacity * sizeof(ASTNode*));
+    if (!members || !values) {
+        free(members);
+        free(values);
+        return false;
+    }
+
+    while (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        ASTNode* memberName = createIdentifierNode(parser->currentToken.value);
+        astNodeSetProvenance(memberName, &parser->currentToken);
+        advance(parser); // consume member name
+
+        ASTNode* valueExpr = NULL;
+        if (parser->currentToken.type == TOKEN_ASSIGN) {
+            advance(parser); // consume '='
+            valueExpr = parseAssignmentExpression(parser);
+            if (!valueExpr) {
+                printParseError("Invalid value expression in enum", parser);
+                free(members);
+                free(values);
+                return false;
+            }
+        }
+
+        if (count >= capacity) {
+            capacity *= 2;
+            members = (ASTNode**)realloc(members, capacity * sizeof(ASTNode*));
+            values = (ASTNode**)realloc(values, capacity * sizeof(ASTNode*));
+            if (!members || !values) {
+                return false;
+            }
+        }
+
+        members[count] = memberName;
+        values[count] = valueExpr;
+        count++;
+
+        if (parser->currentToken.type == TOKEN_COMMA) {
+            advance(parser); // continue
+            if (parser->currentToken.type == TOKEN_RBRACE) {
+                break;
+            }
+        } else if (parser->currentToken.type == TOKEN_RBRACE) {
+            break;
+        } else {
+            printParseError("Expected ',' or '}' after enum member", parser);
+            free(members);
+            free(values);
+            return false;
+        }
+    }
+
+    if (parser->currentToken.type != TOKEN_RBRACE) {
+        printParseError("Expected '}' to close enum body", parser);
+        free(members);
+        free(values);
+        return false;
+    }
+    advance(parser); // consume '}'
+
+    *outMembers = members;
+    *outValues = values;
+    *outCount = count;
+    return true;
+}
+
 static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
     ParsedType type = parsedTypeDefault();
     if (!parser) {
@@ -543,6 +625,8 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
 
         bool hasBody = parser->currentToken.type == TOKEN_LBRACE &&
                        (tagToken == TOKEN_STRUCT || tagToken == TOKEN_UNION);
+        bool hasEnumBody = parser->currentToken.type == TOKEN_LBRACE &&
+                           tagToken == TOKEN_ENUM;
         if (hasBody) {
             advance(parser); // consume '{'
             size_t fieldCount = 0;
@@ -593,6 +677,44 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
                            tagName);
             }
             consumeTypeAttributes(parser, &type);
+        } else if (hasEnumBody) {
+            ASTNode** members = NULL;
+            ASTNode** values = NULL;
+            size_t count = 0;
+            if (!parseInlineEnumBody(parser, &members, &values, &count)) {
+                return parsedTypeDefault();
+            }
+
+            size_t trailingAttrCount = 0;
+            ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
+
+            if (!tagName) {
+                char buffer[64];
+                snprintf(buffer, sizeof(buffer), "__anon_enum_%d", tagLine);
+                tagName = strdup(buffer);
+            }
+
+            ASTNode* def = createEnumDefinitionNode(tagName ? tagName : "", members, values, count);
+            if (def) {
+                def->line = tagLine;
+                if (def->enumDef.enumName) def->enumDef.enumName->line = tagLine;
+                astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
+                trailingAttrs = NULL;
+                trailingAttrCount = 0;
+            } else {
+                astAttributeListDestroy(trailingAttrs, trailingAttrCount);
+                free(trailingAttrs);
+            }
+
+            type.tag = tag;
+            type.kind = TYPE_ENUM;
+            type.userTypeName = tagName ? strdup(tagName) : NULL;
+            type.inlineEnumDef = def;
+            sawBaseType = true;
+            if (parser->ctx && tagName) {
+                cc_add_tag(parser->ctx, CC_TAG_ENUM, tagName);
+            }
+            consumeTypeAttributes(parser, &type);
         } else {
             if (!tagName) {
                 if (ctx == TYPECTX_Declaration) {
@@ -621,17 +743,18 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         }
     } else if (!sawBaseType && parser->currentToken.type == TOKEN_IDENTIFIER) {
         const char* ident = parser->currentToken.value;
-        bool hasQualifierSpecs =
-            type.isUnsigned || type.isSigned || type.isShort || type.isLong ||
+        bool hasTypeModifiers =
+            type.isUnsigned || type.isSigned || type.isShort || type.isLong;
+        bool hasQualifiers =
             type.isConst || type.isVolatile || type.isRestrict || type.isInline;
-        bool known = hasQualifierSpecs ? false : identifierMatchesKnownType(parser, ident);
+        bool known = (!hasTypeModifiers) && identifierMatchesKnownType(parser, ident);
 
         if (!known) {
             if (ctx == TYPECTX_Strict) {
                 return parsedTypeDefault();
             }
 
-            if (hasQualifierSpecs) {
+            if (hasTypeModifiers || hasQualifiers) {
                 // Treat combinations like "unsigned long" as integral types without
                 // consuming the following identifier (likely the declarator name).
                 type.kind = TYPE_PRIMITIVE;

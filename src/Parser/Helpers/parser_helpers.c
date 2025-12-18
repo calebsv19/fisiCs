@@ -66,7 +66,10 @@ void printParseError(const char* expected, Parser* parser) {
     const char* file = tok && tok->location.start.file ? tok->location.start.file : "<unknown>";
     int line = tok ? tok->location.start.line : -1;
     if (isSystemHeaderPath(file)) {
-        return;
+        const char* env = getenv("FISICS_SHOW_SYSTEM_PARSE_ERRORS");
+        if (!env || env[0] == '\0' || env[0] == '0') {
+            return;
+        }
     }
     if (parser->ctx) {
         compiler_report_diag(parser->ctx,

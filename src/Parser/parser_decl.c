@@ -9,6 +9,7 @@
 #include "Parser/Helpers/parser_attributes.h"
 
 #include "Compiler/compiler_context.h" // make sure this is visible via include path
+#include <string.h>
 
 typedef struct FunctionTypeParseResult {
     ParsedType* params;
@@ -149,22 +150,23 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
 
         size_t leadingAttrCount = 0;
         ASTAttribute** leadingAttrs = parserParseAttributeSpecifiers(parser, &leadingAttrCount);
-        ParsedType paramType = parseType(parser);
-        parsedTypeAdoptAttributes(&paramType, leadingAttrs, leadingAttrCount);
-        PointerChain chain = parsePointerChain(parser);
-        applyPointerChainToType(&paramType, &chain);
-        pointerChainFree(&chain);
-
-        // Consume identifier if present (regardless of following '[') to allow array declarators like int a[n]
-        if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-            advance(parser);
+        ParsedType baseType = parseType(parser);
+        if (baseType.kind == TYPE_INVALID) {
+            parsedTypeAdoptAttributes(NULL, leadingAttrs, leadingAttrCount);
+            return false;
         }
 
-        parserConsumeArraySuffixes(parser, &paramType);
+        ParsedDeclarator paramDecl;
+        if (!parserParseDeclarator(parser, &baseType, false, false, &paramDecl)) {
+            parsedTypeFree(&baseType);
+            parsedTypeAdoptAttributes(NULL, leadingAttrs, leadingAttrCount);
+            return false;
+        }
+        ParsedType paramType = parsedTypeClone(&paramDecl.type);
+        parserDeclaratorDestroy(&paramDecl);
+        parsedTypeFree(&baseType);
 
-        size_t trailingAttrCount = 0;
-        ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
-        parsedTypeAdoptAttributes(&paramType, trailingAttrs, trailingAttrCount);
+        parsedTypeAdoptAttributes(&paramType, leadingAttrs, leadingAttrCount);
 
         if (out->count == capacity) {
             size_t newCap = capacity == 0 ? 4 : capacity * 2;
@@ -363,6 +365,24 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
     ASTAttribute** typeAttrs = parserParseAttributeSpecifiers(parser, &typeAttrCount);
     parsedTypeAdoptAttributes(&parsedType, typeAttrs, typeAttrCount);
 
+    if (parser->currentToken.type == TOKEN_SEMICOLON &&
+        parsedType.tag != TAG_NONE) {
+        advance(parser); // consume ';' on tag-only declaration
+        if (parser->ctx && parsedType.userTypeName) {
+            CCTagKind tagKind = CC_TAG_STRUCT;
+            if (parsedType.tag == TAG_UNION) tagKind = CC_TAG_UNION;
+            else if (parsedType.tag == TAG_ENUM) tagKind = CC_TAG_ENUM;
+            cc_add_tag(parser->ctx, tagKind, parsedType.userTypeName);
+        }
+        if (parsedType.inlineStructOrUnionDef) {
+            return parsedType.inlineStructOrUnionDef;
+        }
+        if (parsedType.inlineEnumDef) {
+            return parsedType.inlineEnumDef;
+        }
+        return NULL;
+    }
+
     bool isFunctionDeclarator = false;
     Parser probeParser = cloneParserWithFreshLexer(parser);
     ParsedDeclarator probeDecl;
@@ -415,7 +435,7 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
                                    false,
                                    true,
                                    &decl)) {
-            printf("Error: invalid declarator at line %d\n", parser->currentToken.line);
+            printParseError("invalid declarator", parser);
             free(varNames);
             free(initializers);
             free(perTypes);
@@ -521,7 +541,7 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
          
     ParsedDeclarator decl;
     if (!parserParseDeclarator(parser, &parsedType, false, true, &decl)) {
-        printf("Error: invalid declarator in for-loop at line %d\n", parser->currentToken.line);
+        printParseError("invalid declarator in for-loop", parser);
         return NULL;
     }
     ASTNode* idNode = decl.identifier;
@@ -560,10 +580,16 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
 
 
 ASTNode* parseStructDefinition(Parser* parser) {
-    printf("    entering struct parsing\n");
     if (parser->currentToken.type != TOKEN_STRUCT) {
         printParseError("Expected 'struct'", parser);
         return NULL;
+    }
+    bool precededByTypedef = false;
+    if (parser->tokenBuffer && parser->cursor > 0) {
+        const Token* prev = token_buffer_peek(parser->tokenBuffer, parser->cursor - 1);
+        if (prev && prev->type == TOKEN_TYPEDEF) {
+            precededByTypedef = true;
+        }
     }
     advance(parser);  // consume 'struct'
     size_t structAttrCount = 0;
@@ -600,12 +626,18 @@ ASTNode* parseStructDefinition(Parser* parser) {
     size_t trailingAttrCount = 0;
     ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
 
-    // NOTE: In standard C, an identifier *after* '}' would start a declarator
-    // (e.g., 'struct S { ... } var;'). Your function treats it as an "optional trailing name".
-    // That trailing identifier is *not* a tag; do NOT record it as a tag.
-    if (!structName && parser->currentToken.type == TOKEN_IDENTIFIER) {
-        structName = strdup(parser->currentToken.value);
-        advance(parser);
+    char* typedefAlias = NULL;
+    int typedefAliasLine = 0;
+    if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        if (precededByTypedef) {
+            typedefAlias = strdup(parser->currentToken.value);
+            typedefAliasLine = parser->currentToken.line;
+            advance(parser);
+        } else if (!structName) {
+            // Legacy behavior: treat trailing identifier as the tag name when missing.
+            structName = strdup(parser->currentToken.value);
+            advance(parser);
+        }
     }
 
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
@@ -632,7 +664,34 @@ ASTNode* parseStructDefinition(Parser* parser) {
         astAttributeListDestroy(trailingAttrs, trailingAttrCount);
         free(trailingAttrs);
     }
-    return def;
+    if (!typedefAlias) {
+        return def;
+    }
+
+    ParsedType baseType;
+    memset(&baseType, 0, sizeof(baseType));
+    baseType.kind = TYPE_STRUCT;
+    baseType.tag = TAG_STRUCT;
+    if (structName) {
+        baseType.userTypeName = strdup(structName);
+    }
+    baseType.inlineStructOrUnionDef = def;
+
+    ASTNode* alias = createIdentifierNode(typedefAlias);
+    if (alias) {
+        alias->line = typedefAliasLine;
+    }
+    if (parser->ctx && typedefAlias && typedefAlias[0]) {
+        cc_add_typedef(parser->ctx, typedefAlias);
+    }
+    free(typedefAlias);
+
+    ASTNode* typedefNode = createTypedefNode(baseType, alias);
+    if (!typedefNode) {
+        parsedTypeFree(&baseType);
+        return def;
+    }
+    return typedefNode;
 }
 
 
@@ -720,67 +779,100 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
             break;
         }
 
-        ParsedDeclarator decl;
-        if (!parserParseDeclarator(parser, &type, false, false, &decl)) {
-            printParseError("Invalid field declarator", parser);
-            break;
-        }
-        ASTNode* fieldName = decl.identifier;
-
-        if (!fieldName && parser->currentToken.type != TOKEN_COLON) {
-            printParseError("Expected identifier for struct/union field (unnamed only allowed for bitfields)", parser);
-            break;
-        }
-
-        // Optional bitfield width
-        ASTNode* bitFieldWidth = NULL;
-        if (parser->currentToken.type == TOKEN_COLON) {
-            advance(parser);
-            bitFieldWidth = parseAssignmentExpression(parser);
-        }
-
-        size_t fieldAttrCount = 0;
-        ASTAttribute** fieldAttrs = parserParseAttributeSpecifiers(parser, &fieldAttrCount);
-
-        if (parser->currentToken.type != TOKEN_SEMICOLON) {
-            printParseError("Expected ';' after struct/union field", parser);
-            break;
-        }
-        advance(parser); // consume ';'
-
-        ASTNode** names = malloc(sizeof(ASTNode*));
-        DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
-        names[0] = fieldName;
-        initializers[0] = NULL;
-        ASTNode* fieldDecl = createVariableDeclarationNode(decl.type, names, initializers, 1);
-        if (fieldDecl) {
-            ParsedType* per = malloc(sizeof(ParsedType));
-            if (per) {
-                per[0] = decl.type;
-                fieldDecl->varDecl.declaredTypes = per;
+        if (parser->currentToken.type == TOKEN_SEMICOLON &&
+            type.inlineStructOrUnionDef) {
+            advance(parser); // consume ';'
+            ASTNode** names = malloc(sizeof(ASTNode*));
+            DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
+            names[0] = NULL;
+            initializers[0] = NULL;
+            ASTNode* fieldDecl = createVariableDeclarationNode(type, names, initializers, 1);
+            if (fieldDecl) {
+                ParsedType* per = malloc(sizeof(ParsedType));
+                if (per) {
+                    per[0] = type;
+                    fieldDecl->varDecl.declaredTypes = per;
+                }
+                astNodeCloneTypeAttributes(fieldDecl, &type);
             }
+
+            if (count >= capacity) {
+                capacity *= 2;
+                fields = realloc(fields, sizeof(ASTNode*) * capacity);
+            }
+            fields[count++] = fieldDecl;
+            continue;
         }
 
-        if (fieldDecl && fieldDecl->type == AST_VARIABLE_DECLARATION) {
-            fieldDecl->varDecl.bitFieldWidth = bitFieldWidth;
-        }
-        if (fieldDecl) {
-            astNodeCloneTypeAttributes(fieldDecl, &decl.type);
-            astNodeAppendAttributes(fieldDecl, fieldAttrs, fieldAttrCount);
-            fieldAttrs = NULL;
-            fieldAttrCount = 0;
-        } else {
-            astAttributeListDestroy(fieldAttrs, fieldAttrCount);
-            free(fieldAttrs);
-        }
+        for (;;) {
+            ParsedDeclarator decl;
+            if (!parserParseDeclarator(parser, &type, false, false, &decl)) {
+                printParseError("Invalid field declarator", parser);
+                goto finish_fields;
+            }
+            ASTNode* fieldName = decl.identifier;
 
-        if (count >= capacity) {
-            capacity *= 2;
-            fields = realloc(fields, sizeof(ASTNode*) * capacity);
+            // Optional bitfield width
+            ASTNode* bitFieldWidth = NULL;
+            if (parser->currentToken.type == TOKEN_COLON) {
+                advance(parser);
+                bitFieldWidth = parseAssignmentExpression(parser);
+            }
+
+            if (!fieldName && !bitFieldWidth) {
+                printParseError("Expected identifier for struct/union field (unnamed only allowed for bitfields)", parser);
+                goto finish_fields;
+            }
+
+            size_t fieldAttrCount = 0;
+            ASTAttribute** fieldAttrs = parserParseAttributeSpecifiers(parser, &fieldAttrCount);
+
+            ASTNode** names = malloc(sizeof(ASTNode*));
+            DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
+            names[0] = fieldName;
+            initializers[0] = NULL;
+            ASTNode* fieldDecl = createVariableDeclarationNode(decl.type, names, initializers, 1);
+            if (fieldDecl) {
+                ParsedType* per = malloc(sizeof(ParsedType));
+                if (per) {
+                    per[0] = decl.type;
+                    fieldDecl->varDecl.declaredTypes = per;
+                }
+            }
+
+            if (fieldDecl && fieldDecl->type == AST_VARIABLE_DECLARATION) {
+                fieldDecl->varDecl.bitFieldWidth = bitFieldWidth;
+            }
+            if (fieldDecl) {
+                astNodeCloneTypeAttributes(fieldDecl, &decl.type);
+                astNodeAppendAttributes(fieldDecl, fieldAttrs, fieldAttrCount);
+                fieldAttrs = NULL;
+                fieldAttrCount = 0;
+            } else {
+                astAttributeListDestroy(fieldAttrs, fieldAttrCount);
+                free(fieldAttrs);
+            }
+
+            if (count >= capacity) {
+                capacity *= 2;
+                fields = realloc(fields, sizeof(ASTNode*) * capacity);
+            }
+            fields[count++] = fieldDecl;
+
+            if (parser->currentToken.type == TOKEN_COMMA) {
+                advance(parser); // next declarator in same field list
+                continue;
+            }
+            if (parser->currentToken.type == TOKEN_SEMICOLON) {
+                advance(parser); // consume ';'
+                break;
+            }
+            printParseError("Expected ';' after struct/union field", parser);
+            goto finish_fields;
         }
-        fields[count++] = fieldDecl;
     }
 
+finish_fields:
     *outCount = count;
     return fields;
 }
@@ -896,6 +988,23 @@ ASTNode* parseTypedef(Parser* parser) {
     ParsedType baseType = parseType(parser);
     ParsedDeclarator decl;
     if (!parserParseDeclarator(parser, &baseType, false, true, &decl)) {
+        if (parser->currentToken.type == TOKEN_SEMICOLON &&
+            parser->tokenBuffer && parser->cursor > 0) {
+            const Token* prev = token_buffer_peek(parser->tokenBuffer, parser->cursor - 1);
+            if (prev && prev->type == TOKEN_IDENTIFIER) {
+                ASTNode* alias = createIdentifierNode(prev->value);
+                if (alias) {
+                    alias->line = prev->line;
+                    astNodeSetProvenance(alias, prev);
+                }
+                advance(parser); // consume ';'
+                if (parser->ctx && prev->value && prev->value[0]) {
+                    cc_add_typedef(parser->ctx, prev->value);
+                }
+                ASTNode* node = createTypedefNode(baseType, alias);
+                return node;
+            }
+        }
         printParseError("Invalid typedef declarator", parser);
         parsedTypeFree(&baseType);
         return NULL;

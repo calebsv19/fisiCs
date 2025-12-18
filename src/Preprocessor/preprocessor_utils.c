@@ -87,16 +87,18 @@ Token pp_token_clone(const Token* tok) {
 Token pp_token_clone_remap(Preprocessor* pp, const Token* tok) {
     Token clone = pp_token_clone(tok);
     if (!pp) return clone;
-    const char* logicalFile = pp->logicalFile ? pp->logicalFile : clone.location.start.file;
-    if (logicalFile) {
-        clone.location.start.file = logicalFile;
-        clone.location.end.file = logicalFile;
-    }
-    if (pp->lineOffset != 0) {
-        clone.location.start.line += pp->lineOffset;
-        clone.location.end.line += pp->lineOffset;
-        if (clone.location.start.line < 1) clone.location.start.line = 1;
-        if (clone.location.end.line < 1) clone.location.end.line = 1;
+    if (pp->lineRemapActive) {
+        const char* logicalFile = pp->logicalFile ? pp->logicalFile : clone.location.start.file;
+        if (logicalFile) {
+            clone.location.start.file = logicalFile;
+            clone.location.end.file = logicalFile;
+        }
+        if (pp->lineOffset != 0) {
+            clone.location.start.line += pp->lineOffset;
+            clone.location.end.line += pp->lineOffset;
+            if (clone.location.start.line < 1) clone.location.start.line = 1;
+            if (clone.location.end.line < 1) clone.location.end.line = 1;
+        }
     }
     return clone;
 }

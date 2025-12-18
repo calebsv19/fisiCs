@@ -22,6 +22,7 @@ typedef struct {
     char* baseFile;
     char* logicalFile;
     int lineOffset;
+    bool lineRemapActive;
     int counter;
     char dateString[16];
     char timeString[16];

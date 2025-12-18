@@ -14,19 +14,31 @@ ASTNode* handleControlStatements(Parser* parser) {
         return handleStructStatements(parser);
     }
     if (parser->currentToken.type == TOKEN_UNION) {
-        Token next = peekNextToken(parser);
-        Token after = peekTwoTokensAhead(parser);
+        Parser defProbe = cloneParserWithFreshLexer(parser);
+        ParsedType defProbeType = parseType(&defProbe);
+        if (defProbeType.inlineStructOrUnionDef &&
+            defProbe.currentToken.type == TOKEN_SEMICOLON) {
+            parsedTypeFree(&defProbeType);
+            freeParserClone(&defProbe);
 
-        if ((next.type == TOKEN_IDENTIFIER && after.type == TOKEN_LBRACE) ||
-            next.type == TOKEN_LBRACE) {
-            return parseUnionDefinition(parser);
-        }
-        if (next.type == TOKEN_IDENTIFIER && after.type == TOKEN_SEMICOLON) {
-            advance(parser); // consume 'union'
-            advance(parser); // consume identifier
+            ParsedType realType = parseType(parser);
+            ASTNode* def = realType.inlineStructOrUnionDef;
+            if (!def) {
+                parsedTypeFree(&realType);
+                printParseError("Invalid union definition", parser);
+                return NULL;
+            }
+            if (parser->currentToken.type != TOKEN_SEMICOLON) {
+                parsedTypeFree(&realType);
+                printParseError("Expected ';' after union definition", parser);
+                return NULL;
+            }
             advance(parser); // consume ';'
-            return NULL;
+            parsedTypeFree(&realType);
+            return def;
         }
+        parsedTypeFree(&defProbeType);
+        freeParserClone(&defProbe);
         return handleTypeOrFunctionDeclaration(parser);
     }
     if (parser->currentToken.type == TOKEN_ENUM)

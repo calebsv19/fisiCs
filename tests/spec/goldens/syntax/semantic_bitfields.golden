@@ -1,8 +1,35 @@
 AST:
 PROGRAM
-  BLOCK
-  LABEL: shade
-    NUMBER_LITERAL 2
+  STRUCT
+        Name:     IDENTIFIER BF
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER a
+        BITFIELD : NUMBER_LITERAL 3
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER b
+        BITFIELD : NUMBER_LITERAL 33
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER <unnamed>
+        BITFIELD : NUMBER_LITERAL 0
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER named_zero
+        BITFIELD : NUMBER_LITERAL 0
+    VAR_DECL
+      TYPE: float
+      IDENTIFIER f
+        BITFIELD : NUMBER_LITERAL 2
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER neg
+        BITFIELD : -NUMBER_LITERAL 1
+    VAR_DECL
+      TYPE: Shade
+      IDENTIFIER shade
+        BITFIELD : NUMBER_LITERAL 2
   FUNCTION DEFINITION
     RETURN TYPE: int
     IDENTIFIER main
@@ -23,10 +50,11 @@ PROGRAM
 
 
 Diagnostics:
-Error at (12:15): Variable has incomplete type
-   Hint: bf
-   Spelling: tests/syntax/semantic_bitfields.c:12:15
-Error at (13:12): Undeclared identifier
-   Hint: bf
-   Spelling: tests/syntax/semantic_bitfields.c:13:12
+Error at (0:0): Bitfield width exceeds type width
+   Hint: b
+Error at (0:0): Zero-width bitfield must be unnamed
+   Hint: named_zero
+Error at (0:0): Bitfield requires integral or enum type
+   Hint: f
+Error at (0:0): Bitfield width must be non-negative
 

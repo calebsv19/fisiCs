@@ -430,7 +430,9 @@ bool process_include(Preprocessor* pp,
 
     int savedOffset = pp->lineOffset;
     char* savedLogical = pp->logicalFile;
+    bool savedRemap = pp->lineRemapActive;
     pp->lineOffset = 0;
+    pp->lineRemapActive = false;
     pp_set_logical_file(pp, incValue.path);
 
     Lexer lexer;
@@ -444,6 +446,7 @@ bool process_include(Preprocessor* pp,
         destroyLexer(&lexer);
         pp->lineOffset = savedOffset;
         pp->logicalFile = savedLogical;
+        pp->lineRemapActive = savedRemap;
         if (pushedFrame) pp_include_stack_pop(pp);
         return false;
     }
@@ -453,6 +456,9 @@ bool process_include(Preprocessor* pp,
     if (guard && macro_table_lookup(pp->table, guard) != NULL) {
         token_buffer_destroy(&buffer);
         include_resolver_mark_included(pp->resolver, incValue.path);
+        pp->lineOffset = savedOffset;
+        pp->logicalFile = savedLogical;
+        pp->lineRemapActive = savedRemap;
         if (pushedFrame) pp_include_stack_pop(pp);
         return true;
     }
@@ -464,6 +470,7 @@ bool process_include(Preprocessor* pp,
     token_buffer_destroy(&buffer);
     pp->lineOffset = savedOffset;
     pp->logicalFile = savedLogical;
+    pp->lineRemapActive = savedRemap;
     include_resolver_mark_included(pp->resolver, incValue.path);
     if (pushedFrame) pp_include_stack_pop(pp);
     return ok;
@@ -530,6 +537,7 @@ bool process_line_directive(Preprocessor* pp,
     }
     int nextPhysical = directiveLine + 1;
     pp->lineOffset = (int)newLine - nextPhysical;
+    pp->lineRemapActive = true;
     if (newFile && newFile[0]) {
         pp_set_logical_file(pp, newFile);
     }

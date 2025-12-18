@@ -66,15 +66,22 @@ static bool isBitwiseOperator(const char* op) {
 
 static bool literalLooksFloat(const char* text) {
     if (!text) return false;
+    bool isHex = text[0] == '0' && (text[1] == 'x' || text[1] == 'X');
     for (const char* p = text; *p; ++p) {
-        if (*p == '.' || *p == 'e' || *p == 'E') {
+        if (*p == '.') {
+            return true;
+        }
+        if (!isHex && (*p == 'e' || *p == 'E')) {
+            return true;
+        }
+        if (isHex && (*p == 'p' || *p == 'P')) {
             return true;
         }
     }
     size_t len = strlen(text);
     if (len > 0) {
         char last = text[len - 1];
-        if (last == 'f' || last == 'F') {
+        if (!isHex && (last == 'f' || last == 'F')) {
             return true;
         }
     }
@@ -196,6 +203,40 @@ static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* 
              fallbackFunctionName(calleeName),
              message);
     addError(argNode ? argNode->line : 0, 0, buffer, NULL);
+}
+
+static const ParsedType* lookupFieldType(const TypeInfo* base,
+                                         const char* fieldName,
+                                         Scope* scope) {
+    if (!base || !fieldName || !scope || !scope->ctx) {
+        return NULL;
+    }
+    if (base->category != TYPEINFO_STRUCT && base->category != TYPEINFO_UNION) {
+        return NULL;
+    }
+    CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    ASTNode* def = cc_tag_definition(scope->ctx, kind, base->userTypeName);
+    if (!def || (def->type != AST_STRUCT_DEFINITION && def->type != AST_UNION_DEFINITION)) {
+        return NULL;
+    }
+    for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
+        ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
+        if (!field || field->type != AST_VARIABLE_DECLARATION) {
+            continue;
+        }
+        for (size_t k = 0; k < field->varDecl.varCount; ++k) {
+            ASTNode* name = field->varDecl.varNames ? field->varDecl.varNames[k] : NULL;
+            const char* nameValue = name ? name->valueNode.value : NULL;
+            if (!nameValue || strcmp(nameValue, fieldName) != 0) {
+                continue;
+            }
+            if (field->varDecl.declaredTypes) {
+                return &field->varDecl.declaredTypes[k];
+            }
+            return &field->varDecl.declaredType;
+        }
+    }
+    return NULL;
 }
 
 TypeInfo decayToRValue(TypeInfo info) {
@@ -473,7 +514,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             }
 
             if (strcmp(op, "!") == 0) {
-                if (!typeInfoIsArithmetic(&operand)) {
+                if (!typeInfoIsArithmetic(&operand) && !typeInfoIsPointerLike(&operand)) {
                     if (typeInfoIsKnown(&operand)) {
                         reportOperandError(node, "scalar operand", op);
                     }
@@ -613,7 +654,28 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_DOT_ACCESS:
         case AST_POINTER_ACCESS: {
             TypeInfo base = analyzeExpression(node->memberAccess.base, scope);
-            (void)base;
+            if (node->type == AST_POINTER_ACCESS) {
+                if (base.category == TYPEINFO_POINTER && base.pointerDepth > 0) {
+                    typeInfoDropPointerLevel(&base);
+                    if (base.pointerDepth == 0) {
+                        restoreBaseCategory(&base);
+                    }
+                    base.isArray = false;
+                    base.isLValue = true;
+                } else if (typeInfoIsKnown(&base)) {
+                    reportOperandError(node, "pointer operand", "->");
+                    return makeInvalidType();
+                }
+            }
+
+            const ParsedType* fieldType = lookupFieldType(&base, node->memberAccess.field, scope);
+            if (fieldType) {
+                TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, scope);
+                fieldInfo.isLValue = true;
+                fieldInfo.isConst = base.isConst || fieldInfo.isConst;
+                return fieldInfo;
+            }
+
             TypeInfo field = makeIntegerType(32, true, TOKEN_INT);
             field.isLValue = true;
             field.isConst = base.isConst;

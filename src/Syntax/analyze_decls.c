@@ -356,6 +356,9 @@ static void analyzeInlineAggregateDefinition(const ParsedType* type, Scope* scop
     if (type->inlineStructOrUnionDef) {
         analyzeDeclaration(type->inlineStructOrUnionDef, scope);
     }
+    if (type->inlineEnumDef) {
+        analyzeDeclaration(type->inlineEnumDef, scope);
+    }
 }
 
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
@@ -965,13 +968,11 @@ static void validateArrayInitializerEntries(ParsedType* type,
 
     size_t sequentialCount = 0;
     size_t highestIndex = 0;
-    bool usedDesignators = false;
     bool sawAny = false;
     for (size_t i = 0; i < valueCount; ++i) {
         DesignatedInit* init = values[i];
         if (!init) continue;
         if (init->indexExpr) {
-            usedDesignators = true;
             long long indexValue = 0;
             if (!constEvalInteger(init->indexExpr, scope, &indexValue, true)) {
                 char buffer[256];
@@ -1015,13 +1016,6 @@ static void validateArrayInitializerEntries(ParsedType* type,
         }
     }
 
-    if (hasDeclaredLen && !usedDesignators && sequentialCount < declaredLen) {
-        char buffer[256];
-        snprintf(buffer, sizeof(buffer),
-                 "Not enough initializers for array '%s' (have %zu, expected %zu)",
-                 arrayName, sequentialCount, declaredLen);
-        addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
-    }
 
     if (!hasDeclaredLen && outInferredLength && sawAny) {
         *outInferredLength = (long long)highestIndex;

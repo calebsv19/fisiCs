@@ -74,8 +74,34 @@ static bool looksLikeFallbackAttribute(Parser* parser) {
     if (!(name[0] == '_' && name[1] == '_')) {
         return false;
     }
+    static const char* kParenAttrs[] = {
+        "__printflike",
+        "__scanflike",
+        "__format__",
+        "__format_arg",
+        "__nonnull",
+        "__returns_nonnull",
+        "__alloc_size",
+        "__alloc_align",
+        "__malloc",
+        "__warn_unused_result",
+        "__availability",
+        "__swift_name",
+        "__swift_unavailable",
+        "__deprecated_msg",
+        "__deprecated_enum_msg",
+        "__unavailable",
+        "__counted_by",
+        "__sized_by",
+        "__null_terminated"
+    };
     if (parser->nextToken.type == TOKEN_LPAREN) {
-        return true;
+        for (size_t i = 0; i < sizeof(kParenAttrs) / sizeof(kParenAttrs[0]); ++i) {
+            if (strcmp(name, kParenAttrs[i]) == 0) {
+                return true;
+            }
+        }
+        return false;
     }
     static const char* kNoParenAttrs[] = {
         "__dead",
@@ -95,7 +121,10 @@ static bool looksLikeFallbackAttribute(Parser* parser) {
         "__unsafe_indexable",
         "__null_terminated",
         "__nonnull",
-        "__nullable"
+        "__nullable",
+        "__noreturn",
+        "__always_inline",
+        "__noinline"
     };
     for (size_t i = 0; i < sizeof(kNoParenAttrs) / sizeof(kNoParenAttrs[0]); ++i) {
         if (strcmp(name, kNoParenAttrs[i]) == 0) {

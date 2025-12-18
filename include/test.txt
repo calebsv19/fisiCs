@@ -1,12 +1,9 @@
-#include <stdio.h>
-#include <stdint.h>
-
-struct Pair { int a; int b; };
+#include <string.h>
 
 int main(void) {
-    struct Pair p = { .a = 1, .b = 2 };
-    printf("pair: %d %d\n", p.a, p.b);
-    int *arr = (int[]){ 10, 20, 30, 40 };
-    uint32_t mask = 0xFFu;
-    return arr[2] + (int)mask;
+    const char src[] = "abcd";
+    char dst[8] = {0};
+    size_t n = strlen(src);
+    memcpy(dst, src, n + 1);
+    return (int)(dst[0] + dst[3]);
 }

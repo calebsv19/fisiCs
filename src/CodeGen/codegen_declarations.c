@@ -242,6 +242,36 @@ LLVMTypeRef* collectParamTypes(CodegenContext* ctx,
     return paramTypes;
 }
 
+static LLVMTypeRef* collectParamTypesFromSignature(CodegenContext* ctx,
+                                                   const ParsedType* params,
+                                                   size_t paramCount,
+                                                   size_t* outFlatCount) {
+    if (outFlatCount) {
+        *outFlatCount = 0;
+    }
+    if (!params || paramCount == 0) {
+        return NULL;
+    }
+    if (paramCount == 1 && parsedTypeIsPlainVoid(&params[0])) {
+        return NULL;
+    }
+    LLVMTypeRef* paramTypes = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
+    if (!paramTypes) {
+        return NULL;
+    }
+    for (size_t i = 0; i < paramCount; ++i) {
+        LLVMTypeRef llvmType = cg_type_from_parsed(ctx, &params[i]);
+        if (!llvmType || LLVMGetTypeKind(llvmType) == LLVMVoidTypeKind) {
+            llvmType = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
+        paramTypes[i] = llvmType;
+    }
+    if (outFlatCount) {
+        *outFlatCount = paramCount;
+    }
+    return paramTypes;
+}
+
 LLVMValueRef ensureFunction(CodegenContext* ctx,
                             const char* name,
                             const ParsedType* returnType,
@@ -362,6 +392,8 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
 
     size_t paramCount = 0;
     ASTNode** params = NULL;
+    const ParsedType* sigParams = NULL;
+    bool useSignature = false;
     if (sym->definition) {
         if (sym->definition->type == AST_FUNCTION_DEFINITION) {
             paramCount = sym->definition->functionDef.paramCount;
@@ -370,10 +402,19 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
             paramCount = sym->definition->functionDecl.paramCount;
             params = sym->definition->functionDecl.parameters;
         }
+    } else if (sym->signature.paramCount > 0 && sym->signature.params) {
+        paramCount = sym->signature.paramCount;
+        sigParams = sym->signature.params;
+        useSignature = true;
     }
 
     size_t flattenedCount = 0;
-    LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
+    LLVMTypeRef* paramTypes = NULL;
+    if (useSignature) {
+        paramTypes = collectParamTypesFromSignature(ctx, sigParams, paramCount, &flattenedCount);
+    } else {
+        paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
+    }
     LLVMValueRef fn = ensureFunction(ctx, sym->name, &sym->type, flattenedCount, paramTypes);
     (void)fn;
     free(paramTypes);
