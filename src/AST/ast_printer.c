@@ -91,6 +91,8 @@ static void printParsedType_inner(const ParsedType* pt) {
                 printf(" [");
                 if (deriv->as.array.isVLA) {
                     printf("VLA");
+                } else if (deriv->as.array.isFlexible) {
+                    printf("flex");
                 } else if (deriv->as.array.hasConstantSize) {
                     printf("%lld", deriv->as.array.constantSize);
                 } else if (deriv->as.array.sizeExpr) {
@@ -170,12 +172,18 @@ void printBasicAST(struct ASTNode* node, int depth, bool inlineMode) {
         case AST_NUMBER_LITERAL:
             printf("NUMBER_LITERAL %s", node->valueNode.value);
             break;
-        case AST_STRING_LITERAL:
-            printf("STRING_LITERAL \"%s\"", node->valueNode.value);
+        case AST_STRING_LITERAL: {
+            const char* payload = NULL;
+            ast_literal_encoding(node->valueNode.value, &payload);
+            printf("STRING_LITERAL \"%s\"", payload ? payload : node->valueNode.value);
             break;
-        case AST_CHAR_LITERAL:
-            printf("CHAR_LITERAL '%s'", node->valueNode.value);
+        }
+        case AST_CHAR_LITERAL: {
+            const char* payload = NULL;
+            ast_literal_encoding(node->valueNode.value, &payload);
+            printf("CHAR_LITERAL '%s'", payload ? payload : node->valueNode.value);
             break;
+        }
         case AST_IDENTIFIER:
             printf("IDENTIFIER %s", node->valueNode.value);
             break;
@@ -757,13 +765,19 @@ void printAST(ASTNode* node, int depth) {
             printf("NUMBER_LITERAL %s\n", node->valueNode.value);
             break;
             
-        case AST_CHAR_LITERAL:
-            printf("CHAR_LITERAL %s\n", node->valueNode.value);
+        case AST_CHAR_LITERAL: {
+            const char* payload = NULL;
+            ast_literal_encoding(node->valueNode.value, &payload);
+            printf("CHAR_LITERAL %s\n", payload ? payload : node->valueNode.value);
             break;
+        }
             
-        case AST_STRING_LITERAL:
-            printf("STRING_LITERAL %s\n", node->valueNode.value);
+        case AST_STRING_LITERAL: {
+            const char* payload = NULL;
+            ast_literal_encoding(node->valueNode.value, &payload);
+            printf("STRING_LITERAL %s\n", payload ? payload : node->valueNode.value);
             break;
+        }
             
         case AST_IDENTIFIER:
             printf("IDENTIFIER %s\n", node->valueNode.value);

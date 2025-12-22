@@ -1,0 +1,70 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER FlexOK
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER count
+    VAR_DECL
+      TYPE: int [flex]
+      IDENTIFIER data
+  STRUCT
+        Name:     IDENTIFIER FlexBad
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER count
+    VAR_DECL
+      TYPE: int [flex]
+      IDENTIFIER data
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tail
+  UNION
+        Name:     IDENTIFIER FlexUnion
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER count
+    VAR_DECL
+      TYPE: int [flex]
+      IDENTIFIER data
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER consume
+    PARAMETERS
+      VAR_DECL
+        TYPE: struct FlexOK*
+        IDENTIFIER f
+    BLOCK
+      RETURN
+        TERNARY_EXPRESSION
+          IDENTIFIER f
+          POINTER_ACCESS '->'
+            IDENTIFIER f
+            FIELD count
+          NUMBER_LITERAL 0
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER demo
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct FlexOK
+        IDENTIFIER local
+      RETURN
+        SIZEOF
+                    PARSED_TYPE struct FlexOK
+
+
+Diagnostics:
+Error at (0:0): Flexible array member must be the last field in a struct
+   Hint: data
+Error at (0:0): Flexible array members are not allowed in unions
+   Hint: data
+Error at (12:19): Variable has incomplete type
+   Hint: local
+   Spelling: tests/syntax/semantic_flexible_array.c:12:19
+Error at (0:0): sizeof applied to incomplete type
+

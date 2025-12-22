@@ -115,6 +115,7 @@ bool parsedTypeAppendArray(ParsedType* t, struct ASTNode* sizeExpr, bool isVLA) 
     slot->as.array.isVLA = isVLA;
     slot->as.array.hasConstantSize = false;
     slot->as.array.constantSize = 0;
+    slot->as.array.isFlexible = false;
     if (isVLA) {
         t->isVLA = true;
     }
@@ -180,6 +181,7 @@ static TypeDerivation cloneDerivation(const TypeDerivation* src) {
             dst.as.array.isVLA = src->as.array.isVLA;
             dst.as.array.hasConstantSize = src->as.array.hasConstantSize;
             dst.as.array.constantSize = src->as.array.constantSize;
+            dst.as.array.isFlexible = src->as.array.isFlexible;
             break;
         case TYPE_DERIVATION_FUNCTION:
             dst.as.function.isVariadic = src->as.function.isVariadic;
@@ -588,6 +590,8 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_VOLATILE: type.isVolatile = true; advance(parser); continue;
             case TOKEN_RESTRICT: type.isRestrict = true; advance(parser); continue;
             case TOKEN_INLINE:   type.isInline   = true; advance(parser); continue;
+            case TOKEN_COMPLEX:  type.isComplex  = true; advance(parser); continue;
+            case TOKEN_IMAGINARY: type.isImaginary = true; advance(parser); continue;
             default: break;
         }
         consumeTypeAttributes(parser, &type);
@@ -616,12 +620,16 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         TagKind tag = tagKindFromToken(tagToken);
         advance(parser); // consume keyword
 
+        consumeTypeAttributes(parser, &type);
+
         char* tagName = NULL;
         int tagLine = parser->currentToken.line;
         if (parser->currentToken.type == TOKEN_IDENTIFIER) {
             tagName = strdup(parser->currentToken.value);
             advance(parser);
         }
+
+        consumeTypeAttributes(parser, &type);
 
         bool hasBody = parser->currentToken.type == TOKEN_LBRACE &&
                        (tagToken == TOKEN_STRUCT || tagToken == TOKEN_UNION);
@@ -630,7 +638,8 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         if (hasBody) {
             advance(parser); // consume '{'
             size_t fieldCount = 0;
-            ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount);
+            bool hasFlexible = false;
+            ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount, &hasFlexible);
             if (parser->currentToken.type != TOKEN_RBRACE) {
                 printParseError("Expected '}' to close struct/union body", parser);
                 return parsedTypeDefault();
@@ -658,6 +667,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             if (def) {
                 def->line = tagLine;
                 if (def->structDef.structName) def->structDef.structName->line = tagLine;
+                def->structDef.hasFlexibleArray = hasFlexible;
                 astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
                 trailingAttrs = NULL;
                 trailingAttrCount = 0;
@@ -772,16 +782,33 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             advance(parser);
             sawBaseType = true;
         }
-    } else if (type.isUnsigned || type.isSigned || type.isShort || type.isLong) {
+    } else if (type.isUnsigned || type.isSigned || type.isShort || type.isLong || type.isComplex || type.isImaginary) {
         // Modifier with implicit int
         type.kind = TYPE_PRIMITIVE;
         type.primitiveType = TOKEN_INT;
+        if (type.isComplex || type.isImaginary) {
+            type.primitiveType = TOKEN_DOUBLE; // _Complex/_Imaginary without explicit base defaults to double
+        }
         sawBaseType = true;
     } else {
         if (ctx == TYPECTX_Declaration) {
             printParseError("Expected type name", parser);
         }
         return type;
+    }
+
+    // Trailing qualifiers (e.g., "char const *p")
+    for (;;) {
+        switch (parser->currentToken.type) {
+            case TOKEN_CONST:    type.isConst    = true; advance(parser); continue;
+            case TOKEN_VOLATILE: type.isVolatile = true; advance(parser); continue;
+            case TOKEN_RESTRICT: type.isRestrict = true; advance(parser); continue;
+            case TOKEN_COMPLEX:  type.isComplex  = true; advance(parser); continue;
+            case TOKEN_IMAGINARY: type.isImaginary = true; advance(parser); continue;
+            default: break;
+        }
+        consumeTypeAttributes(parser, &type);
+        break;
     }
 
     // Pointer qualifiers (only consumed eagerly outside declaration contexts)

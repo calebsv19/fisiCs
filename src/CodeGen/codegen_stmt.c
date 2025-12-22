@@ -307,6 +307,14 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 }
                 storage = LLVMBuildAlloca(ctx->builder, storageType, varNameNode->valueNode.value);
             }
+            const ParsedType* storedParsed = varParsed ? varParsed : &node->varDecl.declaredType;
+            if (storedParsed && storedParsed->kind == TYPE_NAMED) {
+                CGTypeCache* cache = cg_context_get_type_cache(ctx);
+                CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, storedParsed->userTypeName);
+                if (info) {
+                    storedParsed = &info->parsedType;
+                }
+            }
             cg_scope_insert(ctx->currentScope,
                             varNameNode->valueNode.value,
                             storage,
@@ -314,7 +322,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                             false,
                             true,
                             elementLLVM,
-                            varParsed ? varParsed : &node->varDecl.declaredType);
+                            storedParsed);
         } else {
             LLVMTypeRef varType = cg_type_from_parsed(ctx, varParsed);
             if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
@@ -322,6 +330,14 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
             }
             storage = LLVMBuildAlloca(ctx->builder, varType, varNameNode->valueNode.value);
             storageType = varType;
+            const ParsedType* storedParsed = varParsed ? varParsed : &node->varDecl.declaredType;
+            if (storedParsed && storedParsed->kind == TYPE_NAMED) {
+                CGTypeCache* cache = cg_context_get_type_cache(ctx);
+                CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, storedParsed->userTypeName);
+                if (info) {
+                    storedParsed = &info->parsedType;
+                }
+            }
             cg_scope_insert(ctx->currentScope,
                             varNameNode->valueNode.value,
                             storage,
@@ -329,7 +345,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                             false,
                             false,
                             NULL,
-                            varParsed ? varParsed : &node->varDecl.declaredType);
+                            storedParsed);
         }
 
         DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;

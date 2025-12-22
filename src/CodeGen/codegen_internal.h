@@ -18,6 +18,7 @@ LLVMModuleRef cg_context_get_module(CodegenContext* ctx);
 LLVMBuilderRef cg_context_get_builder(CodegenContext* ctx);
 const struct SemanticModel* cg_context_get_semantic_model(CodegenContext* ctx);
 CGTypeCache* cg_context_get_type_cache(CodegenContext* ctx);
+const TargetLayout* cg_context_get_target_layout(CodegenContext* ctx);
 
 LLVMTypeRef cg_context_lookup_named_type(CodegenContext* ctx, const char* name);
 void cg_context_cache_named_type(CodegenContext* ctx, const char* name, LLVMTypeRef type);

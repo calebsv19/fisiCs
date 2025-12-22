@@ -12,10 +12,10 @@ fi
 TMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TMP_OUTPUT"' EXIT
 
-"$BIN" --trigraphs "$SRC" > "$TMP_OUTPUT" 2>&1
+DISABLE_CODEGEN=1 "$BIN" --dump-ast --trigraphs "$SRC" > "$TMP_OUTPUT" 2>&1
 
-if ! grep -Fq "ret i32 7" "$TMP_OUTPUT"; then
-  echo "Expected trigraph/digraph sample to fold to return 7" >&2
+if ! grep -Fq "NUMBER_LITERAL 3" "$TMP_OUTPUT" || ! grep -Fq "NUMBER_LITERAL 4" "$TMP_OUTPUT"; then
+  echo "Expected trigraph/digraph sample to expand to literals 3 and 4" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi

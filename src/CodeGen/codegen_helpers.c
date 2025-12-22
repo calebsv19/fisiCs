@@ -438,6 +438,24 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             }
             return NULL;
         }
+        case AST_ARRAY_ACCESS: {
+            const ParsedType* base = cg_resolve_expression_type(ctx, node->arrayAccess.array);
+            static ParsedType cached;
+            parsedTypeFree(&cached);
+            cached.kind = TYPE_INVALID;
+            if (!base) return NULL;
+            if (parsedTypeIsDirectArray(base)) {
+                cached = parsedTypeArrayElementType(base);
+                return &cached;
+            }
+            ParsedType pointed = parsedTypePointerTargetType(base);
+            if (pointed.kind != TYPE_INVALID) {
+                cached = pointed;
+                return &cached;
+            }
+            parsedTypeFree(&pointed);
+            return NULL;
+        }
         default:
             break;
     }

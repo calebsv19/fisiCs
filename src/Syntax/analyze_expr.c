@@ -3,6 +3,7 @@
 #include "syntax_errors.h"
 #include "symbol_table.h"
 #include "Parser/Helpers/designated_init.h"
+#include "literal_utils.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
@@ -15,13 +16,246 @@ static bool isLogicalOperator(const char* op);
 static bool isBitwiseOperator(const char* op);
 static bool literalLooksFloat(const char* text);
 static TypeInfo typeFromLiteral(const char* text);
-static TypeInfo typeFromStringLiteral(void);
+static TypeInfo typeFromStringLiteral(Scope* scope, const char* value);
+static void validateStringLiteral(ASTNode* node, Scope* scope, const TypeInfo* baseType);
 static void reportOperandError(ASTNode* node, const char* expectation, const char* op);
 static bool typeInfoIsKnown(const TypeInfo* info);
 static void reportArgumentCountError(ASTNode* call, const char* calleeName, size_t expected, size_t actual, bool tooFew);
 static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* calleeName, const char* message);
 static const char* fallbackFunctionName(const char* name);
 static bool isExpressionNodeType(ASTNodeType type);
+
+typedef struct {
+    const char* name;
+    bool read;
+    bool write;
+} AccessEntry;
+
+typedef struct {
+    AccessEntry* entries;
+    size_t count;
+    size_t capacity;
+} AccessSet;
+
+static void accessSetFree(AccessSet* set) {
+    if (!set) return;
+    free(set->entries);
+    set->entries = NULL;
+    set->count = 0;
+    set->capacity = 0;
+}
+
+static void accessSetAdd(AccessSet* set, const char* name, bool asRead, bool asWrite) {
+    if (!set || !name || (!asRead && !asWrite)) return;
+    for (size_t i = 0; i < set->count; ++i) {
+        if (set->entries[i].name == name || (set->entries[i].name && name && strcmp(set->entries[i].name, name) == 0)) {
+            set->entries[i].read |= asRead;
+            set->entries[i].write |= asWrite;
+            return;
+        }
+    }
+    if (set->count == set->capacity) {
+        size_t newCap = set->capacity == 0 ? 8 : set->capacity * 2;
+        AccessEntry* grown = realloc(set->entries, newCap * sizeof(AccessEntry));
+        if (!grown) return;
+        set->entries = grown;
+        set->capacity = newCap;
+    }
+    set->entries[set->count].name = name;
+    set->entries[set->count].read = asRead;
+    set->entries[set->count].write = asWrite;
+    set->count++;
+}
+
+static void accessSetMerge(AccessSet* dst, const AccessSet* src) {
+    if (!dst || !src) return;
+    for (size_t i = 0; i < src->count; ++i) {
+        accessSetAdd(dst, src->entries[i].name, src->entries[i].read, src->entries[i].write);
+    }
+}
+
+static void warnUnsequenced(const ASTNode* atNode, const char* name) {
+    if (!name) return;
+    char buf[160];
+    snprintf(buf, sizeof(buf), "Unsequenced modification and access of '%s'", name);
+    addWarning(atNode ? atNode->line : 0, 0, buf, NULL);
+}
+
+static void mergeUnsequenced(const ASTNode* atNode, AccessSet* accum, const AccessSet* other) {
+    if (!accum || !other) return;
+    for (size_t i = 0; i < other->count; ++i) {
+        const AccessEntry* e = &other->entries[i];
+        for (size_t j = 0; j < accum->count; ++j) {
+            AccessEntry* a = &accum->entries[j];
+            if ((a->name == e->name) || (a->name && e->name && strcmp(a->name, e->name) == 0)) {
+                bool conflict = (a->write && (e->write || e->read)) || (e->write && (a->write || a->read));
+                if (conflict) {
+                    warnUnsequenced(atNode, a->name ? a->name : e->name);
+                }
+                break;
+            }
+        }
+    }
+    accessSetMerge(accum, other);
+}
+
+static const char* baseIdentifierName(ASTNode* node) {
+    if (!node) return NULL;
+    switch (node->type) {
+        case AST_IDENTIFIER:
+            return node->valueNode.value;
+        case AST_POINTER_ACCESS:
+        case AST_DOT_ACCESS:
+            return baseIdentifierName(node->memberAccess.base);
+        case AST_ARRAY_ACCESS:
+            return baseIdentifierName(node->arrayAccess.array);
+        case AST_POINTER_DEREFERENCE:
+            return baseIdentifierName(node->pointerDeref.pointer);
+        case AST_UNARY_EXPRESSION:
+            if (node->expr.op && strcmp(node->expr.op, "&") == 0) {
+                return baseIdentifierName(node->expr.left);
+            }
+            return NULL;
+        default:
+            return NULL;
+    }
+}
+
+static AccessSet analyzeEffects(ASTNode* node, Scope* scope, bool asRead, bool asWrite);
+
+static AccessSet analyzeEffectsBinary(ASTNode* node, Scope* scope) {
+    const char* op = node->expr.op;
+    bool isComma = op && strcmp(op, ",") == 0;
+    bool isLogical = op && (strcmp(op, "&&") == 0 || strcmp(op, "||") == 0);
+    AccessSet left = analyzeEffects(node->expr.left, scope, true, false);
+    AccessSet right = analyzeEffects(node->expr.right, scope, true, false);
+    if (isComma || isLogical) {
+        accessSetMerge(&left, &right);
+    } else {
+        mergeUnsequenced(node, &left, &right);
+    }
+    accessSetFree(&right);
+    return left;
+}
+
+static AccessSet analyzeEffects(ASTNode* node, Scope* scope, bool asRead, bool asWrite) {
+    (void)scope;
+    AccessSet set = {0};
+    if (!node) return set;
+
+    switch (node->type) {
+        case AST_IDENTIFIER: {
+            accessSetAdd(&set, node->valueNode.value, asRead, asWrite);
+            break;
+        }
+        case AST_NUMBER_LITERAL:
+        case AST_CHAR_LITERAL:
+        case AST_STRING_LITERAL:
+            break;
+        case AST_ASSIGNMENT: {
+            bool isCompound = node->assignment.op && strcmp(node->assignment.op, "=") != 0;
+            AccessSet lhs = analyzeEffects(node->assignment.target, scope, isCompound, true);
+            AccessSet rhs = analyzeEffects(node->assignment.value, scope, true, false);
+            // Assignment sequences the write after evaluating both operands; treat as sequenced
+            // to avoid false positives on idioms like x = x + 1.
+            accessSetMerge(&lhs, &rhs);
+            accessSetFree(&rhs);
+            set = lhs;
+            break;
+        }
+        case AST_BINARY_EXPRESSION: {
+            set = analyzeEffectsBinary(node, scope);
+            break;
+        }
+        case AST_COMMA_EXPRESSION: {
+            for (size_t i = 0; i < node->commaExpr.exprCount; ++i) {
+                AccessSet part = analyzeEffects(node->commaExpr.expressions[i], scope, true, false);
+                accessSetMerge(&set, &part);
+                accessSetFree(&part);
+            }
+            break;
+        }
+        case AST_UNARY_EXPRESSION: {
+            const char* op = node->expr.op;
+            bool isIncDec = op && ((strcmp(op, "++") == 0) || (strcmp(op, "--") == 0));
+            AccessSet inner = analyzeEffects(node->expr.left, scope, true, isIncDec);
+            accessSetMerge(&set, &inner);
+            accessSetFree(&inner);
+            break;
+        }
+        case AST_TERNARY_EXPRESSION: {
+            AccessSet cond = analyzeEffects(node->ternaryExpr.condition, scope, true, false);
+            AccessSet tset = analyzeEffects(node->ternaryExpr.trueExpr, scope, true, false);
+            AccessSet fset = analyzeEffects(node->ternaryExpr.falseExpr, scope, true, false);
+            accessSetMerge(&cond, &tset);
+            accessSetMerge(&cond, &fset);
+            set = cond;
+            accessSetFree(&tset);
+            accessSetFree(&fset);
+            break;
+        }
+        case AST_ARRAY_ACCESS: {
+            AccessSet base = analyzeEffects(node->arrayAccess.array, scope, true, false);
+            AccessSet idx = analyzeEffects(node->arrayAccess.index, scope, true, false);
+            mergeUnsequenced(node, &base, &idx);
+            set = base;
+            accessSetFree(&idx);
+            break;
+        }
+        case AST_POINTER_ACCESS:
+        case AST_DOT_ACCESS: {
+            AccessSet base = analyzeEffects(node->memberAccess.base, scope, true, false);
+            accessSetMerge(&set, &base);
+            accessSetFree(&base);
+            break;
+        }
+        case AST_POINTER_DEREFERENCE: {
+            AccessSet base = analyzeEffects(node->pointerDeref.pointer, scope, true, false);
+            accessSetMerge(&set, &base);
+            accessSetFree(&base);
+            break;
+        }
+        case AST_FUNCTION_CALL: {
+            AccessSet callee = analyzeEffects(node->functionCall.callee, scope, true, false);
+            AccessSet accum = callee;
+            for (size_t i = 0; i < node->functionCall.argumentCount; ++i) {
+                AccessSet arg = analyzeEffects(node->functionCall.arguments[i], scope, true, false);
+                mergeUnsequenced(node, &accum, &arg);
+                accessSetFree(&arg);
+            }
+            set = accum;
+            break;
+        }
+        default:
+            // Recurse generically over known expression children
+            if (node->type == AST_CAST_EXPRESSION) {
+                AccessSet inner = analyzeEffects(node->castExpr.expression, scope, true, false);
+                accessSetMerge(&set, &inner);
+                accessSetFree(&inner);
+            } else if (node->type == AST_SIZEOF) {
+                AccessSet inner = analyzeEffects(node->expr.left, scope, true, false);
+                accessSetMerge(&set, &inner);
+                accessSetFree(&inner);
+            }
+            break;
+    }
+
+    // Mark base object access if this node is being treated as a read/write lvalue directly.
+    const char* baseName = baseIdentifierName(node);
+    if (baseName) {
+        accessSetAdd(&set, baseName, asRead, asWrite);
+    }
+    return set;
+}
+
+static int g_effectDepth = 0;
+
+static bool parsedTypeIsRestrictPointer(const ParsedType* pt) {
+    if (!pt) return false;
+    const TypeDerivation* d = parsedTypeGetDerivation(pt, 0);
+    if (!d || d->kind != TYPE_DERIVATION_POINTER) return false;
+    return d->as.pointer.isRestrict;
+}
 
 static void analyzeDesignatedInitializerExpr(DesignatedInit* init, Scope* scope) {
     if (!init) return;
@@ -91,8 +325,16 @@ static bool literalLooksFloat(const char* text) {
 static TypeInfo typeFromLiteral(const char* text) {
     if (literalLooksFloat(text)) {
         size_t len = text ? strlen(text) : 0;
-        bool isFloat = len > 0 && (text[len - 1] == 'f' || text[len - 1] == 'F');
-        TypeInfo info = makeFloatTypeInfo(!isFloat);
+        bool hasImag = len > 0 && (text[len - 1] == 'i' || text[len - 1] == 'I' || text[len - 1] == 'j' || text[len - 1] == 'J');
+        size_t coreLen = len;
+        if (hasImag && coreLen > 0) {
+            coreLen--;
+        }
+        bool isFloat = coreLen > 0 && (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F');
+        bool isLongDouble = coreLen > 0 && (text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L');
+        FloatKind fk = isFloat ? FLOAT_KIND_FLOAT : (isLongDouble ? FLOAT_KIND_LONG_DOUBLE : FLOAT_KIND_DOUBLE);
+        TypeInfo info = makeFloatTypeInfo(fk, hasImag);
+        info.isImaginary = hasImag;
         info.isLValue = false;
         return info;
     }
@@ -101,15 +343,52 @@ static TypeInfo typeFromLiteral(const char* text) {
     return info;
 }
 
-static TypeInfo typeFromStringLiteral(void) {
+static TypeInfo makeWCharType(Scope* scope) {
+    TypeInfo info = makeIntegerType(32, true, TOKEN_INT);
+    if (!scope) return info;
+    Symbol* w = resolveInScopeChain(scope, "wchar_t");
+    if (w && w->kind == SYMBOL_TYPEDEF) {
+        info = typeInfoFromParsedType(&w->type, scope);
+    }
+    return info;
+}
+
+static TypeInfo typeFromStringLiteral(Scope* scope, const char* value) {
+    const char* payload = NULL;
+    LiteralEncoding enc = ast_literal_encoding(value, &payload);
+    (void)payload;
+
+    TypeInfo base = makeIntegerType(8, true, TOKEN_CHAR);
+    if (enc == LIT_ENC_WIDE) {
+        base = makeWCharType(scope);
+    }
+
     TypeInfo info = makeInvalidType();
     info.category = TYPEINFO_POINTER;
     info.pointerDepth = 1;
-    info.primitive = TOKEN_CHAR;
+    info.primitive = base.primitive;
+    info.tag = base.tag;
+    info.userTypeName = base.userTypeName;
+    info.bitWidth = base.bitWidth ? base.bitWidth : 8;
+    info.isSigned = base.isSigned;
     info.isConst = true;
-    info.bitWidth = 64;
+    info.isComplete = true;
     info.isLValue = false;
     return info;
+}
+
+static void validateStringLiteral(ASTNode* node, Scope* scope, const TypeInfo* baseType) {
+    if (!node || !baseType) return;
+    (void)scope;
+    const char* payload = NULL;
+    ast_literal_encoding(node->valueNode.value, &payload);
+    int bitWidth = baseType->bitWidth ? baseType->bitWidth : 8;
+    LiteralDecodeResult res = decode_c_string_literal(payload ? payload : "", bitWidth, NULL, NULL);
+    if (!res.ok) {
+        addError(node->line, 0, "Invalid escape sequence in string literal", NULL);
+    } else if (res.overflow) {
+        addError(node->line, 0, "String literal contains code point not representable in target character type", NULL);
+    }
 }
 
 static void reportOperandError(ASTNode* node, const char* expectation, const char* op) {
@@ -273,6 +552,13 @@ static bool isModifiableLValue(const TypeInfo* info) {
 TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
     if (!node) return makeInvalidType();
 
+    if (g_effectDepth == 0) {
+        g_effectDepth++;
+        AccessSet effects = analyzeEffects(node, scope, true, false);
+        accessSetFree(&effects);
+        g_effectDepth--;
+    }
+
     switch (node->type) {
         case AST_IDENTIFIER: {
             Symbol* sym = resolveInScopeChain(scope, node->valueNode.value);
@@ -301,11 +587,27 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_NUMBER_LITERAL:
             return typeFromLiteral(node->valueNode.value);
 
-        case AST_CHAR_LITERAL:
+        case AST_CHAR_LITERAL: {
+            const char* payload = NULL;
+            LiteralEncoding enc = ast_literal_encoding(node->valueNode.value, &payload);
+            (void)payload;
+            if (enc == LIT_ENC_WIDE) {
+                return makeWCharType(scope);
+            }
             return makeIntegerType(32, true, TOKEN_INT);
+        }
 
-        case AST_STRING_LITERAL:
-            return typeFromStringLiteral();
+        case AST_STRING_LITERAL: {
+            const char* payload = NULL;
+            LiteralEncoding enc = ast_literal_encoding(node->valueNode.value, &payload);
+            (void)payload;
+            TypeInfo base = makeIntegerType(8, true, TOKEN_CHAR);
+            if (enc == LIT_ENC_WIDE) {
+                base = makeWCharType(scope);
+            }
+            validateStringLiteral(node, scope, &base);
+            return typeFromStringLiteral(scope, node->valueNode.value);
+        }
 
         case AST_PARSED_TYPE: {
             return typeInfoFromParsedType(&node->parsedTypeNode.parsed, scope);
@@ -596,10 +898,19 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     reportArgumentCountError(node, calleeName, expected, argCount, false);
                 }
                 size_t pairCount = expected < argCount ? expected : argCount;
+                bool* paramRestrict = pairCount ? calloc(pairCount, sizeof(bool)) : NULL;
+                const char** argBases = pairCount ? calloc(pairCount, sizeof(const char*)) : NULL;
                 for (size_t i = 0; i < pairCount; ++i) {
                     TypeInfo paramInfo = typeInfoFromParsedType(&sig->params[i], scope);
                     if (paramInfo.isArray) {
                         paramInfo = decayToRValue(paramInfo);
+                    }
+                    if (paramRestrict) {
+                        paramRestrict[i] = parsedTypeIsRestrictPointer(&sig->params[i]) ||
+                                           ((paramInfo.pointerDepth > 0) && paramInfo.pointerLevels[0].isRestrict);
+                    }
+                    if (argBases && node->functionCall.arguments) {
+                        argBases[i] = baseIdentifierName(node->functionCall.arguments[i]);
                     }
                     TypeInfo argInfo = argInfos ? argInfos[i] : makeInvalidType();
                     AssignmentCheckResult check = canAssignTypes(&paramInfo, &argInfo);
@@ -615,12 +926,26 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                                                 "has incompatible type");
                     }
                 }
+                if (paramRestrict && argBases) {
+                    for (size_t i = 0; i < pairCount; ++i) {
+                        if (!paramRestrict[i] || !argBases[i]) continue;
+                        for (size_t j = i + 1; j < pairCount; ++j) {
+                            if (!paramRestrict[j] || !argBases[j]) continue;
+                            if (strcmp(argBases[i], argBases[j]) == 0) {
+                                addWarning(node->line, 0, "Restrict parameters may alias the same object", argBases[i]);
+                            }
+                        }
+                    }
+                }
                 if (sig->isVariadic && argInfos) {
                     for (size_t i = expected; i < argCount; ++i) {
                         argInfos[i] = defaultArgumentPromotion(argInfos[i]);
                     }
                 }
                 result = typeInfoFromParsedType(&sym->type, scope);
+
+                free(paramRestrict);
+                free(argBases);
             }
 
             if (argInfos) {

@@ -36,7 +36,8 @@ typedef enum {
     
     // Modifiers
     TOKEN_CONST, TOKEN_VOLATILE, TOKEN_RESTRICT, TOKEN_INLINE, 
-    
+    TOKEN_COMPLEX, TOKEN_IMAGINARY,
+
     // Special Values
     TOKEN_NULL, TOKEN_SIZEOF, 
 

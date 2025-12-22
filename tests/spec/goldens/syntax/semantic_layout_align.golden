@@ -1,14 +1,24 @@
 AST:
 PROGRAM
+  STRUCT
+        Name:     IDENTIFIER A
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+  STRUCT
+        Name:     IDENTIFIER B
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: char
+      IDENTIFIER y
   VAR_DECL
-    TYPE: int
-    IDENTIFIER x
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr1
   VAR_DECL
-    TYPE: int
-    IDENTIFIER x
-  VAR_DECL
-    TYPE: char
-    IDENTIFIER y
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr2
   FUNCTION DEFINITION
     RETURN TYPE: int
     IDENTIFIER main
@@ -28,10 +38,6 @@ PROGRAM
 
 
 Diagnostics:
-Error at (14:12): Undeclared identifier
-   Hint: arr1
-   Spelling: tests/syntax/semantic_layout_align.c:14:12
-Error at (14:22): Undeclared identifier
-   Hint: arr2
-   Spelling: tests/syntax/semantic_layout_align.c:14:22
+Error at (10:0): Variable-length array 'arr1' is not allowed at static storage duration
+Error at (11:0): Variable-length array 'arr2' is not allowed at static storage duration
 

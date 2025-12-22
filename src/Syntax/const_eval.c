@@ -5,6 +5,7 @@
 #include "scope.h"
 #include "symbol_table.h"
 #include "type_checker.h"
+#include "syntax_errors.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +61,9 @@ static bool sizeFromTypeInfo(const TypeInfo* info, Scope* scope, long long* out)
             unsigned bits = info->bitWidth ? info->bitWidth : 32;
             unsigned bytes = (bits + 7) / 8;
             if (bytes == 0) bytes = 4;
+            if (info->isComplex) {
+                bytes *= 2;
+            }
             *out = (long long)bytes;
             return true;
         }
@@ -245,7 +249,32 @@ static ConstEvalResult constEvalInternal(ASTNode* expr,
         }
         case AST_CHAR_LITERAL:
             if (!expr->valueNode.value) return makeNonConst();
-            return makeConst((unsigned char)expr->valueNode.value[0]);
+            const char* payload = NULL;
+            ast_literal_encoding(expr->valueNode.value, &payload);
+            if (!payload) return makeNonConst();
+            long long chVal = 0;
+            if (!parseIntegerLiteral(payload, &chVal)) {
+                chVal = (unsigned char)payload[0];
+            }
+            int bitWidth = 32;
+            if (expr->valueNode.value[0] && expr->valueNode.value[1] && expr->valueNode.value[0] == 'W' && expr->valueNode.value[1] == '|') {
+                TypeInfo w = makeIntegerType(32, true, TOKEN_INT);
+                if (scope) {
+                    Symbol* sym = resolveInScopeChain(scope, "wchar_t");
+                    if (sym && sym->kind == SYMBOL_TYPEDEF) {
+                        w = typeInfoFromParsedType(&sym->type, scope);
+                    }
+                }
+                bitWidth = w.bitWidth ? w.bitWidth : 32;
+            }
+            if (bitWidth < 63) {
+                uint64_t maxVal = (1ULL << bitWidth) - 1ULL;
+                if (chVal < 0 || (uint64_t)chVal > maxVal) {
+                    addError(expr->line, 0, "Wide character literal value is out of range for wchar_t", NULL);
+                    return makeNonConst();
+                }
+            }
+            return makeConst(chVal);
         case AST_IDENTIFIER:
         {
             long long idVal = 0;

@@ -27,6 +27,12 @@ typedef struct {
 
 #define TYPEINFO_MAX_POINTER_DEPTH 32
 
+typedef enum {
+    FLOAT_KIND_FLOAT = 0,
+    FLOAT_KIND_DOUBLE,
+    FLOAT_KIND_LONG_DOUBLE
+} FloatKind;
+
 typedef struct TypeInfo {
     TypeInfoCategory category;
     TokenType primitive;
@@ -38,6 +44,8 @@ typedef struct TypeInfo {
     bool isArray;
     bool isFunction;
     bool isVLA;
+    bool isComplex;
+    bool isImaginary;
     TagKind tag;
     const char* userTypeName;
     int pointerDepth;
@@ -56,7 +64,7 @@ typedef enum {
 TypeInfo makeInvalidType(void);
 TypeInfo makeBoolType(void);
 TypeInfo makeIntegerType(unsigned bitWidth, bool isSigned, TokenType primitive);
-TypeInfo makeFloatTypeInfo(bool isDouble);
+TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex);
 TypeInfo typeInfoFromParsedType(const ParsedType* type, struct Scope* scope);
 
 bool typeInfoIsInteger(const TypeInfo* info);

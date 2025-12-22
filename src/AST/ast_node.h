@@ -10,6 +10,27 @@
 #include <stdbool.h>
 #include <string.h>
 
+typedef enum {
+    LIT_ENC_NARROW = 0,
+    LIT_ENC_WIDE,
+    LIT_ENC_UTF8
+} LiteralEncoding;
+
+static inline LiteralEncoding ast_literal_encoding(const char* value, const char** payloadOut) {
+    if (value) {
+        if (strncmp(value, "W|", 2) == 0) {
+            if (payloadOut) *payloadOut = value + 2;
+            return LIT_ENC_WIDE;
+        }
+        if (strncmp(value, "U8|", 3) == 0) {
+            if (payloadOut) *payloadOut = value + 3;
+            return LIT_ENC_UTF8;
+        }
+    }
+    if (payloadOut) *payloadOut = value;
+    return LIT_ENC_NARROW;
+}
+
 struct DesignatedInit;
 
 // Define AST Node Types
@@ -114,6 +135,7 @@ struct ASTNode {
 	    ASTNode *structName;
 	    ASTNode **fields;
 	    size_t fieldCount;
+            bool hasFlexibleArray;
 	} structDef;
 	
 	struct {

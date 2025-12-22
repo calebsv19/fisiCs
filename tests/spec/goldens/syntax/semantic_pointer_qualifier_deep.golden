@@ -27,8 +27,19 @@ PROGRAM
         IDENTIFIER cptrptr
       RETURN
         NUMBER_LITERAL 0
+  FUNCTION DEFINITION
+    RETURN TYPE: int*
+    IDENTIFIER ret_discard
+    PARAMETERS
+      VAR_DECL
+        TYPE: const int*
+        IDENTIFIER p
+    BLOCK
+      RETURN
+        IDENTIFIER p
 
 
 Diagnostics:
 Error at (7:0): Assignment discards qualifiers from pointer target
+Error at (12:0): Return discards qualifiers from pointer target
 

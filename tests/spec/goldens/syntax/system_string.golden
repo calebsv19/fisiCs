@@ -1,0 +1,1029 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER __int8_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER __uint8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER __int16_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER __uint16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __int32_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __uint32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __int64_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __uint64_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_intptr_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_natural_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_ct_rune_t
+  TYPEDEF
+        TYPE: union __anon_union_70
+        Alias:     IDENTIFIER __mbstate_t
+  TYPEDEF
+        TYPE: __mbstate_t
+        Alias:     IDENTIFIER __darwin_mbstate_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ptrdiff_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_size_t
+  TYPEDEF
+        TYPE: __builtin_va_list
+        Alias:     IDENTIFIER __darwin_va_list
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wchar_t
+  TYPEDEF
+        TYPE: __darwin_wchar_t
+        Alias:     IDENTIFIER __darwin_rune_t
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wint_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_clock_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_socklen_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ssize_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_time_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_blkcnt_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_blksize_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_dev_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsblkcnt_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsfilcnt_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_gid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_id_t
+  TYPEDEF
+        TYPE: __uint64_t
+        Alias:     IDENTIFIER __darwin_ino64_t
+  TYPEDEF
+        TYPE: __darwin_ino64_t
+        Alias:     IDENTIFIER __darwin_ino_t
+  TYPEDEF
+        TYPE: __darwin_natural_t
+        Alias:     IDENTIFIER __darwin_mach_port_name_t
+  TYPEDEF
+        TYPE: __darwin_mach_port_name_t
+        Alias:     IDENTIFIER __darwin_mach_port_t
+  TYPEDEF
+        TYPE: __uint16_t
+        Alias:     IDENTIFIER __darwin_mode_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_off_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_pid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_sigset_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_suseconds_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_uid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_useconds_t
+  TYPEDEF
+        TYPE: unsigned char [NUMBER_LITERAL 16]
+        Alias:     IDENTIFIER __darwin_uuid_t
+  TYPEDEF
+        TYPE: char [NUMBER_LITERAL 37]
+        Alias:     IDENTIFIER __darwin_uuid_string_t
+  STRUCT
+        Name:     IDENTIFIER __darwin_pthread_handler_rec
+    VAR_DECL
+      TYPE: void (*)(void*) (void*)
+      IDENTIFIER __routine
+    VAR_DECL
+      TYPE: void*
+      IDENTIFIER __arg
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __next
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_attr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_cond_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 40]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_condattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutex_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutexattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_once_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlock_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 192]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlockattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 16]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __cleanup_stack
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8176]
+      IDENTIFIER __opaque
+  TYPEDEF
+        TYPE: struct _opaque_pthread_attr_t
+        Alias:     IDENTIFIER __darwin_pthread_attr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_cond_t
+        Alias:     IDENTIFIER __darwin_pthread_cond_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_condattr_t
+        Alias:     IDENTIFIER __darwin_pthread_condattr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_pthread_key_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutex_t
+        Alias:     IDENTIFIER __darwin_pthread_mutex_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutexattr_t
+        Alias:     IDENTIFIER __darwin_pthread_mutexattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_once_t
+        Alias:     IDENTIFIER __darwin_pthread_once_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlock_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlock_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlockattr_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlockattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_t*
+        Alias:     IDENTIFIER __darwin_pthread_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_nl_item
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_wctrans_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_wctype_t
+  TYPEDEF
+        TYPE: __darwin_size_t
+        Alias:     IDENTIFIER size_t
+  FUNCTION DECLARATION
+    RETURN TYPE: void*
+    IDENTIFIER memchr
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __s
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __c
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER memcmp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __s2
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: void*
+    IDENTIFIER memcpy
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __src
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: void*
+    IDENTIFIER memmove
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __src
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __len
+  FUNCTION DECLARATION
+    RETURN TYPE: void*
+    IDENTIFIER memset
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __b
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __c
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __len
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strcat
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s2
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strchr
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __c
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER strcmp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s2
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER strcoll
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s2
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strcpy
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __src
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER strcspn
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __charset
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strerror
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __errnum
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER strlen
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strncat
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s2
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER strncmp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s2
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strncpy
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __src
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strpbrk
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __charset
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strrchr
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __c
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER strspn
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __charset
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strstr
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __big
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __little
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strtok
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __str
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __sep
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER strxfrm
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s2
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strtok_r
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __str
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __sep
+      VAR_DECL
+        TYPE: char**
+        IDENTIFIER __lasts
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER strerror_r
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __errnum
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __strerrbuf
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __buflen
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strdup
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s1
+  FUNCTION DECLARATION
+    RETURN TYPE: void*
+    IDENTIFIER memccpy
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __src
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __c
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER stpcpy
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __src
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER stpncpy
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __src
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strndup
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER strnlen
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strsignal
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __sig
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER int8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER int16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER int32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER int64_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER u_int8_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER u_int16_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER u_int32_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER u_int64_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER register_t
+  TYPEDEF
+        TYPE: __darwin_intptr_t
+        Alias:     IDENTIFIER intptr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER uintptr_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_addr_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_size_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_ssize_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_long_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_ulong_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_time_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_off_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER syscall_arg_t
+  TYPEDEF
+        TYPE: __darwin_size_t
+        Alias:     IDENTIFIER rsize_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER errno_t
+  FUNCTION DECLARATION
+    RETURN TYPE: errno_t
+    IDENTIFIER memset_s
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __s
+      VAR_DECL
+        TYPE: rsize_t
+        IDENTIFIER __smax
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __c
+      VAR_DECL
+        TYPE: rsize_t
+        IDENTIFIER __n
+  TYPEDEF
+        TYPE: __darwin_ssize_t
+        Alias:     IDENTIFIER ssize_t
+  FUNCTION DECLARATION
+    RETURN TYPE: void*
+    IDENTIFIER memmem
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __big
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __big_len
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __little
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __little_len
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER memset_pattern4
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __b
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __pattern4
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __len
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER memset_pattern8
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __b
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __pattern8
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __len
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER memset_pattern16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __b
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __pattern16
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __len
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strcasestr
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __big
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __little
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strchrnul
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __s
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __c
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strnstr
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __big
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __little
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __len
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER strlcat
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __source
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __size
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER strlcpy
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __dst
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __source
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __size
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER strmode
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __mode
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __bp
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strsep
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char**
+        IDENTIFIER __stringp
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __delim
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER swab
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: ssize_t
+        IDENTIFIER __len
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER timingsafe_bcmp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __b1
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __b2
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __len
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER strsignal_r
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __sig
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __strsignalbuf
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __buflen
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER bcmp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER bcopy
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER bzero
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __n
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER index
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER rindex
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER ffs
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER strcasecmp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER strncasecmp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER ffsl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER ffsll
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fls
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER flsl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER flsll
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: const char [?]
+        IDENTIFIER src
+          = STRING_LITERAL "abcd"
+      VAR_DECL
+        TYPE: char [NUMBER_LITERAL 8]
+        IDENTIFIER dst
+            = NUMBER_LITERAL 0
+
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER n
+          = 
+            FUNCTION CALL
+              IDENTIFIER strlen
+              ARGUMENTS
+                IDENTIFIER src
+      FUNCTION CALL
+        IDENTIFIER __builtin___memcpy_chk
+        ARGUMENTS
+          IDENTIFIER dst
+          IDENTIFIER src
+          BINARY EXPRESSION '+'
+            IDENTIFIER n
+            NUMBER_LITERAL 1
+          FUNCTION CALL
+            IDENTIFIER __builtin_object_size
+            ARGUMENTS
+              IDENTIFIER dst
+              NUMBER_LITERAL 0
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '+'
+            ARRAY_ACCESS
+              IDENTIFIER dst
+              NUMBER_LITERAL 0
+            ARRAY_ACCESS
+              IDENTIFIER dst
+              NUMBER_LITERAL 3
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

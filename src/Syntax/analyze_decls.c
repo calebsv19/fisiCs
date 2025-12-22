@@ -6,6 +6,7 @@
 #include "Parser/Helpers/designated_init.h"
 #include "const_eval.h"
 #include "analyze_expr.h"
+#include "literal_utils.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -49,6 +50,14 @@ static void hash_string(uint64_t* hash, const char* str) {
 
 static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type);
 static void hashAstNode(uint64_t* hash, const ASTNode* node);
+
+static bool parsedTypeIsFlexibleArray(const ParsedType* type) {
+    if (!type || type->derivationCount == 0) return false;
+    const TypeDerivation* last = parsedTypeGetDerivation(type, type->derivationCount - 1);
+    return last &&
+           last->kind == TYPE_DERIVATION_ARRAY &&
+           last->as.array.isFlexible;
+}
 
 
 static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type) {
@@ -178,6 +187,7 @@ static uint64_t fingerprintStructLike(const ASTNode* node) {
     if (!node) return hash;
 
     hash_u64(&hash, node->type == AST_UNION_DEFINITION ? 2u : 1u);
+    hash_bool(&hash, node->structDef.hasFlexibleArray);
     for (size_t i = 0; i < node->structDef.fieldCount; ++i) {
         hash_u64(&hash, i + 1);
         hashFieldDeclaration(&hash, node->structDef.fields[i]);
@@ -519,12 +529,6 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             ASTNode* funcName = node->type == AST_FUNCTION_DEFINITION
                 ? node->functionDef.funcName
                 : node->functionDecl.funcName;
-            if (node->type == AST_FUNCTION_DEFINITION) {
-                fprintf(stderr, "analyze func %s paramCount=%zu\n",
-                        funcName && funcName->type == AST_IDENTIFIER ? funcName->valueNode.value : "<anon>",
-                        node->functionDef.paramCount);
-            }
-
             StorageClass storage = deduceStorageClass(node->type == AST_FUNCTION_DEFINITION
                                                       ? &node->functionDef.returnType
                                                       : &node->functionDecl.returnType);
@@ -634,6 +638,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
         }
 
         case AST_TYPEDEF: {
+            analyzeInlineAggregateDefinition(&node->typedefStmt.baseType, scope);
             const char* aliasName = node->typedefStmt.alias->valueNode.value;
             Symbol* existing = lookupSymbol(&scope->table, aliasName);
             if (existing && existing->kind == SYMBOL_TYPEDEF) {
@@ -784,11 +789,45 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     ParsedType* fType = field->varDecl.declaredTypes
                         ? &field->varDecl.declaredTypes[0]
                         : &field->varDecl.declaredType;
+                    bool isFlexible = parsedTypeIsFlexibleArray(fType);
+                    const char* fieldName =
+                        (field->varDecl.varNames && field->varDecl.varNames[0] &&
+                         field->varDecl.varNames[0]->type == AST_IDENTIFIER)
+                            ? field->varDecl.varNames[0]->valueNode.value
+                            : NULL;
+                    if (isFlexible) {
+                        if (node->type == AST_UNION_DEFINITION) {
+                            addErrorWithRanges(field->location,
+                                               field->macroCallSite,
+                                               field->macroDefinition,
+                                               "Flexible array members are not allowed in unions",
+                                               fieldName);
+                        } else {
+                            if (i + 1 != node->structDef.fieldCount) {
+                                addErrorWithRanges(field->location,
+                                                   field->macroCallSite,
+                                                   field->macroDefinition,
+                                                   "Flexible array member must be the last field in a struct",
+                                                   fieldName);
+                            }
+                            if (field->varDecl.varCount > 1) {
+                                addErrorWithRanges(field->location,
+                                                   field->macroCallSite,
+                                                   field->macroDefinition,
+                                                   "Flexible array member cannot be declared with multiple declarators",
+                                                   fieldName);
+                            }
+                            node->structDef.hasFlexibleArray = true;
+                        }
+                    }
                     validateBitField(field, fType, scope);
                     if (parsedTypeIsDirectArray(fType)) {
                         for (size_t d = 0; d < fType->derivationCount; ++d) {
                             TypeDerivation* deriv = parsedTypeGetMutableArrayDerivation(fType, d);
                             if (!deriv) break;
+                            if (deriv->as.array.isFlexible) {
+                                continue;
+                            }
                             if (deriv->as.array.sizeExpr) {
                                 size_t len = 0;
                                 if (tryEvaluateArrayLength(deriv->as.array.sizeExpr, scope, &len)) {
@@ -857,11 +896,12 @@ static void validateVariableInitializer(ParsedType* type,
         return;
     }
     if (typeInfoIsStructLike(&info)) {
-        if (!init->expression || init->expression->type != AST_COMPOUND_LITERAL) {
+        if (!init->expression) {
             char buffer[256];
-            snprintf(buffer, sizeof(buffer), "Initializer for struct variable '%s' must be brace-enclosed", name);
+            snprintf(buffer, sizeof(buffer), "Initializer for struct variable '%s' must not be empty", name);
             addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
-        } else if (init->expression->compoundLiteral.entryCount == 0) {
+        } else if (init->expression->type == AST_COMPOUND_LITERAL &&
+                   init->expression->compoundLiteral.entryCount == 0) {
             char buffer[256];
             snprintf(buffer, sizeof(buffer), "Empty initializer for struct variable '%s'", name);
             addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
@@ -948,22 +988,45 @@ static void validateArrayInitializerEntries(ParsedType* type,
         parsedTypeFree(&elementType);
     }
     bool treatAsChar = typeInfoIsCharLike(&elementInfo);
+    bool treatAsWideChar = elementInfo.category == TYPEINFO_INTEGER && elementInfo.bitWidth > 8;
 
-    if (valueCount == 1 && isStringLiteralInitializer(values[0]) && treatAsChar) {
-        size_t literalLen = values[0]->expression && values[0]->expression->valueNode.value
-            ? strlen(values[0]->expression->valueNode.value)
-            : 0;
-        size_t needed = literalLen + 1;
-        if (hasDeclaredLen && needed > declaredLen) {
+    if (valueCount == 1 && isStringLiteralInitializer(values[0])) {
+        const char* payload = NULL;
+        LiteralEncoding enc = ast_literal_encoding(values[0]->expression->valueNode.value, &payload);
+        int charWidth = treatAsWideChar ? (elementInfo.bitWidth ? elementInfo.bitWidth : 32) : 8;
+        LiteralDecodeResult res = decode_c_string_literal(payload ? payload : "", charWidth, NULL, NULL);
+        size_t needed = res.length + 1;
+        bool okType = (treatAsChar && enc != LIT_ENC_WIDE) ||
+                      (treatAsWideChar && enc == LIT_ENC_WIDE);
+        if (!okType) {
+            // fall through to generic checks for incompatible literal/type
+        } else if (!res.ok) {
+            char buffer[256];
+            snprintf(buffer, sizeof(buffer),
+                     "Invalid escape sequence in string literal for array '%s'",
+                     arrayName);
+            addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+            return;
+        } else if (res.overflow) {
+            char buffer[256];
+            snprintf(buffer, sizeof(buffer),
+                     "String literal for array '%s' contains code points not representable in element type",
+                     arrayName);
+            addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+            return;
+        } else if (hasDeclaredLen && needed > declaredLen) {
             char buffer[256];
             snprintf(buffer, sizeof(buffer),
                      "String literal for array '%s' is too long (needs %zu, size %zu)",
                      arrayName, needed, declaredLen);
             addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+            return;
         } else if (!hasDeclaredLen && outInferredLength) {
             *outInferredLength = (long long)needed;
+            return;
+        } else {
+            return;
         }
-        return;
     }
 
     size_t sequentialCount = 0;

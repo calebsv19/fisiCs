@@ -11,6 +11,7 @@
 
 #include "Lexer/tokens.h"
 #include "Compiler/diagnostics.h"
+#include "Utils/logging.h"
 
 static bool append_directive_line(const Token* tokens,
                                   size_t count,
@@ -143,6 +144,8 @@ bool preprocess_tokens(Preprocessor* pp,
                        PPTokenBuffer* output,
                        bool appendEOF) {
     if (!pp || !input || !output) return false;
+    CompilerContext* ctx = pp->ctx;
+    const char* baselineLayout = ctx ? cc_get_data_layout(ctx) : NULL;
     if (input->count > 0 && input->tokens) {
         const char* filePath = input->tokens[0].location.start.file;
         if (filePath) {
@@ -164,6 +167,19 @@ bool preprocess_tokens(Preprocessor* pp,
     size_t condCap = 0;
 
     for (size_t i = 0; i < input->count; ++i) {
+        if (ctx) {
+            const char* curLayout = cc_get_data_layout(ctx);
+            if (curLayout != baselineLayout) {
+                const Token* t = &input->tokens[i];
+                LOG_WARN("codegen", "[preprocess_tokens] dataLayout changed to %p at token %zu type=%d line=%d val=%s",
+                         (void*)curLayout,
+                         i,
+                         t ? t->type : -1,
+                         t ? t->line : -1,
+                         (t && t->value) ? t->value : "<null>");
+                baselineLayout = curLayout;
+            }
+        }
         const Token* tok = &input->tokens[i];
         bool active = conditional_stack_is_active(condStack, condDepth);
         switch (tok->type) {

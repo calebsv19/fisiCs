@@ -1,6 +1,9 @@
 #include "type_checker.h"
 #include "scope.h"
 #include "symbol_table.h"
+#include "Compiler/compiler_context.h"
+#include "Syntax/target_layout.h"
+#include "AST/ast_node.h"
 
 #include <string.h>
 
@@ -104,11 +107,31 @@ static unsigned longBits(void) {
     return 64;
 }
 
-TypeInfo makeFloatTypeInfo(bool isDouble) {
+static unsigned targetLongDoubleBits(Scope* scope) {
+    const struct TargetLayout* tl = scope && scope->ctx ? cc_get_target_layout(scope->ctx) : tl_default();
+    if (!tl) tl = tl_default();
+    return (unsigned)tl->longDoubleBits;
+}
+
+TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex) {
     TypeInfo info = makeBaseInvalid();
     info.category = TYPEINFO_FLOAT;
-    info.primitive = isDouble ? TOKEN_DOUBLE : TOKEN_FLOAT;
-    info.bitWidth = isDouble ? 64 : 32;
+    switch (kind) {
+        case FLOAT_KIND_LONG_DOUBLE:
+            info.primitive = TOKEN_DOUBLE;
+            info.bitWidth = 128;
+            break;
+        case FLOAT_KIND_DOUBLE:
+            info.primitive = TOKEN_DOUBLE;
+            info.bitWidth = 64;
+            break;
+        case FLOAT_KIND_FLOAT:
+        default:
+            info.primitive = TOKEN_FLOAT;
+            info.bitWidth = 32;
+            break;
+    }
+    info.isComplex = isComplex;
     info.isSigned = true;
     info.isComplete = true;
     return info;
@@ -145,6 +168,15 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
                     TypeInfo info = makeBoolType();
                     return info;
                 }
+                case TOKEN_COMPLEX: {
+                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, true);
+                    return info;
+                }
+                case TOKEN_IMAGINARY: {
+                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, true);
+                    info.isImaginary = true;
+                    return info;
+                }
                 case TOKEN_CHAR: {
                     TypeInfo info = makeIntegerType(8, !type->isUnsigned, TOKEN_CHAR);
                     return info;
@@ -165,11 +197,21 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
                     return info;
                 }
                 case TOKEN_FLOAT: {
-                    TypeInfo info = makeFloatTypeInfo(false);
+                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_FLOAT, type->isComplex || type->isImaginary);
+                    info.isImaginary = type->isImaginary;
                     return info;
                 }
                 case TOKEN_DOUBLE: {
-                    TypeInfo info = makeFloatTypeInfo(true);
+                    FloatKind fk = FLOAT_KIND_DOUBLE;
+                    if (type->isLong) {
+                        fk = FLOAT_KIND_LONG_DOUBLE;
+                    }
+                    TypeInfo info = makeFloatTypeInfo(fk, type->isComplex || type->isImaginary);
+                    if (fk == FLOAT_KIND_LONG_DOUBLE) {
+                        unsigned bits = targetLongDoubleBits(scope);
+                        info.bitWidth = bits;
+                    }
+                    info.isImaginary = type->isImaginary;
                     return info;
                 }
                 case TOKEN_VOID: {
@@ -201,6 +243,14 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
             if (scope && scope->ctx && type->userTypeName) {
                 CCTagKind k = (type->kind == TYPE_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
                 info.isComplete = cc_tag_is_defined(scope->ctx, k, type->userTypeName);
+                if (info.isComplete) {
+                    ASTNode* def = cc_tag_definition(scope->ctx, k, type->userTypeName);
+                    if (def &&
+                        def->type == AST_STRUCT_DEFINITION &&
+                        def->structDef.hasFlexibleArray) {
+                        info.isComplete = false;
+                    }
+                }
             }
             return info;
         }
@@ -257,6 +307,8 @@ static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index
             info.userTypeName = target.userTypeName;
             info.bitWidth = target.bitWidth;
             info.isSigned = target.isSigned;
+            info.isComplex = target.isComplex;
+            info.isImaginary = target.isImaginary;
             info.originalType = type;
             info.isVLA = target.isVLA;
             info.isComplete = true;
@@ -298,7 +350,9 @@ static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index
             arrayInfo.isLValue = true;
             arrayInfo.isVLA = element.isVLA || deriv->as.array.isVLA;
             arrayInfo.originalType = type;
-            arrayInfo.isComplete = element.isComplete;
+            arrayInfo.isComplete = element.isComplete && !deriv->as.array.isFlexible;
+            arrayInfo.isComplex = element.isComplex;
+            arrayInfo.isImaginary = element.isImaginary;
             return arrayInfo;
         }
         case TYPE_DERIVATION_FUNCTION: {
@@ -331,6 +385,8 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
         info.userTypeName = base.userTypeName;
         info.bitWidth = base.bitWidth ? base.bitWidth : defaultIntBits();
         info.isSigned = base.isSigned;
+        info.isComplex = base.isComplex;
+        info.isImaginary = base.isImaginary;
         info.originalType = type;
         clearPointerLevels(&info);
         int stored = info.pointerDepth < TYPEINFO_MAX_POINTER_DEPTH
@@ -389,7 +445,8 @@ TypeInfo defaultArgumentPromotion(TypeInfo info) {
         return info;
     }
     if (typeInfoIsFloating(&info) && info.bitWidth < 64) {
-        TypeInfo promoted = makeFloatTypeInfo(true);
+        TypeInfo promoted = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, info.isComplex);
+        promoted.isImaginary = info.isImaginary && !info.isComplex;
         promoted.isLValue = false;
         return promoted;
     }
@@ -431,10 +488,18 @@ TypeInfo usualArithmeticConversion(TypeInfo left, TypeInfo right, bool* ok) {
     }
 
     if (typeInfoIsFloating(&left) || typeInfoIsFloating(&right)) {
-        if (left.bitWidth == 64 || right.bitWidth == 64) {
-            return makeFloatTypeInfo(true);
+        FloatKind fk = FLOAT_KIND_FLOAT;
+        bool isComplex = left.isComplex || right.isComplex || left.isImaginary || right.isImaginary;
+        bool isImag = left.isImaginary || right.isImaginary;
+        unsigned maxBits = left.bitWidth > right.bitWidth ? left.bitWidth : right.bitWidth;
+        if (maxBits >= 128) {
+            fk = FLOAT_KIND_LONG_DOUBLE;
+        } else if (maxBits >= 64) {
+            fk = FLOAT_KIND_DOUBLE;
         }
-        return makeFloatTypeInfo(false);
+        TypeInfo r = makeFloatTypeInfo(fk, isComplex);
+        r.isImaginary = isImag && !isComplex;
+        return r;
     }
 
     TypeInfo a = integerPromote(left);
@@ -471,7 +536,9 @@ bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
         case TYPEINFO_INTEGER:
             return a->bitWidth == b->bitWidth && a->isSigned == b->isSigned;
         case TYPEINFO_FLOAT:
-            return a->bitWidth == b->bitWidth;
+            return a->bitWidth == b->bitWidth &&
+                   a->isComplex == b->isComplex &&
+                   a->isImaginary == b->isImaginary;
         case TYPEINFO_STRUCT:
         case TYPEINFO_UNION:
             return a->tag == b->tag && sameString(a->userTypeName, b->userTypeName);

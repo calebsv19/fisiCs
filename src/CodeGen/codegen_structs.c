@@ -129,6 +129,16 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     }
 
     unsigned pointerAddrSpace = LLVMGetPointerAddressSpace(ptrType);
+    /* Defensive: LLVM requires address spaces to fit in 24 bits; log and clamp if
+     * we see garbage (e.g., uninitialized address space flowing in). */
+    if (pointerAddrSpace > 0xFFFFFF) {
+        char* tyStr = LLVMPrintTypeToString(ptrType);
+        LOG_WARN("codegen", "Invalid pointer address space (%u); type=%s. Clamping to 0.",
+                 pointerAddrSpace,
+                 tyStr ? tyStr : "<unknown>");
+        if (tyStr) LLVMDisposeMessage(tyStr);
+        pointerAddrSpace = 0;
+    }
 
     LLVMTypeRef aggregateType = aggregateTypeHint;
     if (!aggregateType && baseParsedHint) {
@@ -379,6 +389,21 @@ bool codegenLValue(CodegenContext* ctx,
             *outType = elementType;
             return true;
         }
+        case AST_UNARY_EXPRESSION: {
+            if (!target->expr.op || strcmp(target->expr.op, "*") != 0) {
+                return false;
+            }
+            LLVMValueRef pointerValue = codegenNode(ctx, target->expr.left);
+            if (!pointerValue) return false;
+            const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, target->expr.left);
+            LLVMTypeRef elemType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(pointerValue));
+            if (!elemType || LLVMGetTypeKind(elemType) == LLVMVoidTypeKind) {
+                elemType = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+            *outPtr = pointerValue;
+            *outType = elemType;
+            return true;
+        }
         case AST_POINTER_DEREFERENCE: {
             LLVMValueRef pointerValue = codegenNode(ctx, target->pointerDeref.pointer);
             if (!pointerValue) return false;
@@ -452,10 +477,14 @@ bool codegenLValue(CodegenContext* ctx,
             const ParsedType* baseParsed = cg_resolve_expression_type(ctx, target->memberAccess.base);
             ParsedType pointed = parsedTypePointerTargetType(baseParsed);
             const ParsedType* structHint = (pointed.kind != TYPE_INVALID) ? &pointed : baseParsed;
+            const char* nameHint = NULL;
+            if (baseType && LLVMGetTypeKind(baseType) == LLVMStructTypeKind) {
+                nameHint = LLVMGetStructName(baseType);
+            }
             LLVMValueRef fieldPtr = buildStructFieldPointer(ctx,
                                                             basePtr,
                                                             baseType,
-                                                            LLVMGetStructName(baseType),
+                                                            nameHint,
                                                             target->memberAccess.field,
                                                             structHint,
                                                             &fieldType,

@@ -1,0 +1,33 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: wchar_t
+    IDENTIFIER wc
+      = CHAR_LITERAL '97'
+  VAR_DECL
+    TYPE: wchar_t*
+    IDENTIFIER ws
+      = STRING_LITERAL "hi"
+  VAR_DECL
+    TYPE: const wchar_t [?]
+    IDENTIFIER arr
+      = STRING_LITERAL "ok"
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '!='
+          ARRAY_ACCESS
+            IDENTIFIER ws
+            NUMBER_LITERAL 0
+          CHAR_LITERAL 104
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

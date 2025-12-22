@@ -1,0 +1,61 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER f
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER i
+          = NUMBER_LITERAL 0
+      ASSIGNMENT (=)
+        IDENTIFIER i
+        BINARY EXPRESSION '+'
+          UNARY EXPRESSION '++' (postfix)
+            IDENTIFIER i
+          IDENTIFIER i
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            FUNCTION CALL
+              IDENTIFIER f
+              ARGUMENTS
+                UNARY EXPRESSION '++' (postfix)
+                  IDENTIFIER i
+                IDENTIFIER i
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = IDENTIFIER i
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER a
+          IDENTIFIER b
+
+
+Diagnostics:
+Warning at (5:0): Unsequenced modification and access of 'i'
+Warning at (5:0): Unsequenced modification and access of 'i'
+Warning at (6:0): Unsequenced modification and access of 'i'
+Semantic analysis: no issues found.
+

@@ -38,9 +38,9 @@ error "gperf generated tables don't work with this execution character set. Plea
 #pragma clang diagnostic ignored "-Wdeprecated-non-prototype"
 #endif
 
-#define TOTAL_KEYWORDS 40
+#define TOTAL_KEYWORDS 43
 #define MIN_WORD_LENGTH 2
-#define MAX_WORD_LENGTH 8
+#define MAX_WORD_LENGTH 10
 #define MIN_HASH_VALUE 2
 #define MAX_HASH_VALUE 70
 /* maximum key range = 69, duplicates = 0 */
@@ -68,9 +68,9 @@ keyword_hash (str, len)
       71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
       71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
       71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-      71, 71, 71, 71, 71, 71, 71, 25, 50,  5,
+      71, 71, 71, 71, 71, 30, 71, 25, 50,  5,
        0, 15,  0, 40, 71, 20, 71, 71, 15,  0,
-      20,  0, 25, 71,  5,  5,  0,  0, 25, 10,
+      20,  0, 25, 71,  5,  5,  0,  0, 25, 20,
       71, 71, 15, 71, 71, 71, 71, 71, 71, 71,
       71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
       71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
@@ -142,15 +142,17 @@ in_keyword_set (str, len)
       "typedef",
       "continue",
       "char",
-      "while",
+      "_Bool",
       "static",
-      "", "",
-      "long",
       "",
+      "_Complex",
+      "long",
+      "_Imaginary",
       "inline",
       "", "",
       "goto",
-      "", "", "",
+      "while",
+      "", "",
       "volatile",
       "void",
       "",
@@ -179,5 +181,5 @@ in_keyword_set (str, len)
     }
   return 0;
 }
-#line 57 "src/Lexer/keywords.gperf"
+#line 60 "src/Lexer/keywords.gperf"
 

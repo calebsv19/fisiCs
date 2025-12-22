@@ -8,6 +8,7 @@
 #include "AST/ast_printer.h"
 #include "CodeGen/code_gen.h"
 #include "Compiler/compiler_context.h"
+#include "Syntax/target_layout.h"
 #include "Lexer/lexer.h"
 #include "Lexer/token_buffer.h"
 #include "Parser/Helpers/designated_init.h"
@@ -221,6 +222,15 @@ void compiler_free_include_paths(char** paths, size_t count) {
     free(paths);
 }
 
+static void log_layout_state(CompilerContext* ctx, const char* stage) {
+    if (!ctx) return;
+    LOG_WARN("codegen", "[%s] dataLayout=%p canaries=%llx/%llx",
+             stage,
+             (void*)cc_get_data_layout(ctx),
+             (unsigned long long)ctx->dl_canary_front,
+             (unsigned long long)ctx->dl_canary_back);
+}
+
 static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            const char* file_path,
                                            const char* source,
@@ -237,6 +247,14 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            ASTNode** outAst,
                                            SemanticModel** outModel,
                                            size_t* outSemanticErrors) {
+    (void)ctx; // ctx is valid for logging below
+    #define LOG_LAYOUT(stage) \
+        LOG_WARN("codegen", "[%s] dataLayout=%p canaries=%llx/%llx", \
+                 stage, \
+                 (void*)cc_get_data_layout(ctx), \
+                 (unsigned long long)ctx->dl_canary_front, \
+                 (unsigned long long)ctx->dl_canary_back)
+    LOG_LAYOUT("frontend entry");
     const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
     bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
 
@@ -250,6 +268,8 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     ASTNode* root = NULL;
     SemanticModel* semanticModel = NULL;
 
+    log_layout_state(ctx, "frontend entry");
+
     if (!preprocessor_init(&preprocessor,
                            ctx,
                            preservePPNodes,
@@ -262,6 +282,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         fprintf(stderr, "Error: failed to initialize preprocessor\n");
         goto cleanup;
     }
+    log_layout_state(ctx, "after preprocessor_init");
 
     const IncludeFile* rootFile = NULL;
     if (source) {
@@ -296,6 +317,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         fprintf(stderr, "Error: failed to load source file %s\n", file_path ? file_path : "<null>");
         goto cleanup;
     }
+    log_layout_state(ctx, "after root load");
 
     if (debugProgress) fprintf(stderr, "[pipeline] lexing %s\n", rootFile->path);
     Lexer lexer;
@@ -307,6 +329,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         goto cleanup;
     }
     destroyLexer(&lexer);
+    log_layout_state(ctx, "after lex");
 
     const char* debugPP = getenv("DEBUG_PP_COUNT");
     if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
@@ -329,6 +352,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         pipeline_print_diagnostics(ctx);
         goto cleanup;
     }
+    log_layout_state(ctx, "after preprocessor_run");
 
     capture_token_spans(ctx, &preprocessed);
 
@@ -355,6 +379,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     preprocessed.capacity = 0;
 
     cc_set_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
+    log_layout_state(ctx, "after include graph copy");
 
     if (debugProgress) fprintf(stderr, "[pipeline] parsing\n");
     Parser parser;
@@ -363,6 +388,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     root = parse(&parser);
     cc_set_translation_unit(ctx, root);
     collect_top_symbols(root, ctx);
+    log_layout_state(ctx, "after parse");
 
     if (dumpAst) {
         printf(" AST Output:\n");
@@ -382,6 +408,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     if (!semanticModel) {
         goto cleanup;
     }
+    log_layout_state(ctx, "after semantic");
 
     size_t semanticErrors = semanticModelGetErrorCount(semanticModel);
 
@@ -467,12 +494,18 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         fprintf(stderr, "OOM: CompilerContext\n");
         return 1;
     }
+    LOG_WARN("codegen", "ctx dataLayout initially %p canaries=%llx/%llx",
+             (void*)cc_get_data_layout(ctx),
+             (unsigned long long)ctx->dl_canary_front,
+             (unsigned long long)ctx->dl_canary_back);
     result.compilerCtx = ctx;
     cc_seed_builtins(ctx);
 
     if (options->targetTriple) {
         cc_set_target_triple(ctx, options->targetTriple);
     }
+    const TargetLayout* tl = tl_from_triple(options->targetTriple);
+    cc_set_target_layout(ctx, tl);
     if (options->dataLayout) {
         cc_set_data_layout(ctx, options->dataLayout);
     }
@@ -500,10 +533,34 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         pipeline_print_diagnostics(ctx);
         goto cleanup;
     }
+    LOG_WARN("codegen", "ctx dataLayout after frontend %p canaries=%llx/%llx",
+             (void*)cc_get_data_layout(ctx),
+             (unsigned long long)ctx->dl_canary_front,
+             (unsigned long long)ctx->dl_canary_back);
 
     result.ast = ast;
     result.semanticModel = model;
     result.semanticErrors = semaErrors;
+
+    /* If no data layout was provided but the context somehow has one, log and clear it
+     * to avoid propagating corrupted strings into LLVM. */
+    if (!options->dataLayout && cc_get_data_layout(ctx)) {
+        const char* strayLayout = cc_get_data_layout(ctx);
+        size_t len = 0;
+        unsigned char b0 = 0, b1 = 0;
+        if ((uintptr_t)strayLayout > 0x1000 && strayLayout) {
+            len = strlen(strayLayout);
+            b0 = (unsigned char)strayLayout[0];
+            b1 = (len > 1) ? (unsigned char)strayLayout[1] : 0;
+        } else {
+            len = (size_t)(uintptr_t)strayLayout;
+        }
+        LOG_WARN("codegen", "Unexpected data layout present (len=%zu, bytes=%02x %02x); clearing before codegen. Canaries=%llx/%llx",
+                 len, b0, b1,
+                 (unsigned long long)ctx->dl_canary_front,
+                 (unsigned long long)ctx->dl_canary_back);
+        cc_set_data_layout(ctx, NULL);
+    }
 
     if (options->enableCodegen) {
         printf("\n️ LLVM Code Generation:\n");

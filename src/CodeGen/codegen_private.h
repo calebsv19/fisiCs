@@ -7,6 +7,7 @@
 #include "Parser/Helpers/designated_init.h"
 #include "Parser/Helpers/parsed_type.h"
 #include "Syntax/semantic_model.h"
+#include "Syntax/target_layout.h"
 
 #include <llvm-c/Core.h>
 

@@ -12,17 +12,17 @@ PROGRAM
         IDENTIFIER __unnamed_param0
     BLOCK
       VAR_DECL
-        TYPE: I* ()
+        TYPE: I (*)() ()
         IDENTIFIER fn
       ASSIGNMENT (=)
         IDENTIFIER fn
         CAST_EXPRESSION
-                    CAST TYPE: I
+                    CAST TYPE: I (*)() ()
           NUMBER_LITERAL 0
       RETURN
         NUMBER_LITERAL 0
 
 
 Diagnostics:
-Error at (5:0): Incompatible assignment operands
+Semantic analysis: no issues found.
 

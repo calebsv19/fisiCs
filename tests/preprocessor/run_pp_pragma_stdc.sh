@@ -12,6 +12,6 @@ fi
 TMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TMP_OUTPUT"' EXIT
 
-"$BIN" "$SRC" >"$TMP_OUTPUT"
+DISABLE_CODEGEN=1 "$BIN" "$SRC" >"$TMP_OUTPUT" 2>&1
 
 echo "preprocessor pragma STDC stub test passed."

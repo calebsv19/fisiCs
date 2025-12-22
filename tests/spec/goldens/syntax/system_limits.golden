@@ -1,0 +1,38 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER m
+          = NUMBER_LITERAL 2147483647
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER u
+          = NUMBER_LITERAL 0xffffffff
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '&&'
+            BINARY EXPRESSION '&&'
+              BINARY EXPRESSION '>'
+                IDENTIFIER m
+                NUMBER_LITERAL 0
+              BINARY EXPRESSION '>'
+                IDENTIFIER u
+                NUMBER_LITERAL 0
+            BINARY EXPRESSION '=='
+              NUMBER_LITERAL 8
+              NUMBER_LITERAL 8
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

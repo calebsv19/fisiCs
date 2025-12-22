@@ -4,10 +4,12 @@ PROGRAM
   VAR_DECL
     TYPE: int
     IDENTIFIER global_value
-  ATTRIBUTE [DECLSPEC] dllexport
-  VAR_DECL
-    TYPE: int
-    IDENTIFIER exported
+  STRUCT
+        Name:     IDENTIFIER Example
+    ATTRIBUTE [DECLSPEC] dllexport
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER exported
   ATTRIBUTE [CXX] gnu::cold
   FUNCTION DEFINITION
     RETURN TYPE: int

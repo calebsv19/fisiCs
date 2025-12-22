@@ -654,7 +654,13 @@ ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen) {
     }
 
     // Accept abstract declarators after the base type: (*)(...), [N], (...)
-    consumeAbstractDeclarator(parser);
+    ParsedDeclarator abstractDecl;
+    if (parserParseDeclarator(parser, &castType, false, false, &abstractDecl)) {
+        ParsedType clone = parsedTypeClone(&abstractDecl.type);
+        parserDeclaratorDestroy(&abstractDecl);
+        parsedTypeFree(&castType);
+        castType = clone;
+    }
 
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' after cast type", parser);
@@ -692,7 +698,13 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
     }
 
     // allow things like int[], int(*)(void), etc., and record them on the type
-    consumeAbstractDeclaratorIntoType(parser, &literalType);
+    ParsedDeclarator abstractDecl;
+    if (parserParseDeclarator(parser, &literalType, false, false, &abstractDecl)) {
+        ParsedType clone = parsedTypeClone(&abstractDecl.type);
+        parserDeclaratorDestroy(&abstractDecl);
+        parsedTypeFree(&literalType);
+        literalType = clone;
+    }
 
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' after compound literal type", parser);

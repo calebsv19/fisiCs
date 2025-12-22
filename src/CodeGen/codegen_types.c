@@ -153,6 +153,9 @@ static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type,
             if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
                 elementType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
             }
+            if (deriv->as.array.isFlexible) {
+                return LLVMArrayType(elementType, 0);
+            }
             if (!deriv->as.array.isVLA && deriv->as.array.hasConstantSize && deriv->as.array.constantSize > 0) {
                 unsigned len = (unsigned)deriv->as.array.constantSize;
                 return LLVMArrayType(elementType, len);

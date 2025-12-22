@@ -1,0 +1,362 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER int8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER int16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER int32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER int64_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER uint8_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER uint16_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER uint32_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER uint64_t
+  TYPEDEF
+        TYPE: int8_t
+        Alias:     IDENTIFIER int_least8_t
+  TYPEDEF
+        TYPE: int16_t
+        Alias:     IDENTIFIER int_least16_t
+  TYPEDEF
+        TYPE: int32_t
+        Alias:     IDENTIFIER int_least32_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER int_least64_t
+  TYPEDEF
+        TYPE: uint8_t
+        Alias:     IDENTIFIER uint_least8_t
+  TYPEDEF
+        TYPE: uint16_t
+        Alias:     IDENTIFIER uint_least16_t
+  TYPEDEF
+        TYPE: uint32_t
+        Alias:     IDENTIFIER uint_least32_t
+  TYPEDEF
+        TYPE: uint64_t
+        Alias:     IDENTIFIER uint_least64_t
+  TYPEDEF
+        TYPE: int8_t
+        Alias:     IDENTIFIER int_fast8_t
+  TYPEDEF
+        TYPE: int16_t
+        Alias:     IDENTIFIER int_fast16_t
+  TYPEDEF
+        TYPE: int32_t
+        Alias:     IDENTIFIER int_fast32_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER int_fast64_t
+  TYPEDEF
+        TYPE: uint8_t
+        Alias:     IDENTIFIER uint_fast8_t
+  TYPEDEF
+        TYPE: uint16_t
+        Alias:     IDENTIFIER uint_fast16_t
+  TYPEDEF
+        TYPE: uint32_t
+        Alias:     IDENTIFIER uint_fast32_t
+  TYPEDEF
+        TYPE: uint64_t
+        Alias:     IDENTIFIER uint_fast64_t
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER __int8_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER __uint8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER __int16_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER __uint16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __int32_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __uint32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __int64_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __uint64_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_intptr_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_natural_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_ct_rune_t
+  TYPEDEF
+        TYPE: union __anon_union_70
+        Alias:     IDENTIFIER __mbstate_t
+  TYPEDEF
+        TYPE: __mbstate_t
+        Alias:     IDENTIFIER __darwin_mbstate_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ptrdiff_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_size_t
+  TYPEDEF
+        TYPE: __builtin_va_list
+        Alias:     IDENTIFIER __darwin_va_list
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wchar_t
+  TYPEDEF
+        TYPE: __darwin_wchar_t
+        Alias:     IDENTIFIER __darwin_rune_t
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wint_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_clock_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_socklen_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ssize_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_time_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_blkcnt_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_blksize_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_dev_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsblkcnt_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsfilcnt_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_gid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_id_t
+  TYPEDEF
+        TYPE: __uint64_t
+        Alias:     IDENTIFIER __darwin_ino64_t
+  TYPEDEF
+        TYPE: __darwin_ino64_t
+        Alias:     IDENTIFIER __darwin_ino_t
+  TYPEDEF
+        TYPE: __darwin_natural_t
+        Alias:     IDENTIFIER __darwin_mach_port_name_t
+  TYPEDEF
+        TYPE: __darwin_mach_port_name_t
+        Alias:     IDENTIFIER __darwin_mach_port_t
+  TYPEDEF
+        TYPE: __uint16_t
+        Alias:     IDENTIFIER __darwin_mode_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_off_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_pid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_sigset_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_suseconds_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_uid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_useconds_t
+  TYPEDEF
+        TYPE: unsigned char [NUMBER_LITERAL 16]
+        Alias:     IDENTIFIER __darwin_uuid_t
+  TYPEDEF
+        TYPE: char [NUMBER_LITERAL 37]
+        Alias:     IDENTIFIER __darwin_uuid_string_t
+  STRUCT
+        Name:     IDENTIFIER __darwin_pthread_handler_rec
+    VAR_DECL
+      TYPE: void (*)(void*) (void*)
+      IDENTIFIER __routine
+    VAR_DECL
+      TYPE: void*
+      IDENTIFIER __arg
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __next
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_attr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_cond_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 40]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_condattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutex_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutexattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_once_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlock_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 192]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlockattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 16]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __cleanup_stack
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8176]
+      IDENTIFIER __opaque
+  TYPEDEF
+        TYPE: struct _opaque_pthread_attr_t
+        Alias:     IDENTIFIER __darwin_pthread_attr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_cond_t
+        Alias:     IDENTIFIER __darwin_pthread_cond_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_condattr_t
+        Alias:     IDENTIFIER __darwin_pthread_condattr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_pthread_key_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutex_t
+        Alias:     IDENTIFIER __darwin_pthread_mutex_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutexattr_t
+        Alias:     IDENTIFIER __darwin_pthread_mutexattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_once_t
+        Alias:     IDENTIFIER __darwin_pthread_once_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlock_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlock_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlockattr_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlockattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_t*
+        Alias:     IDENTIFIER __darwin_pthread_t
+  TYPEDEF
+        TYPE: __darwin_intptr_t
+        Alias:     IDENTIFIER intptr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER uintptr_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER intmax_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER uintmax_t
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int32_t
+        IDENTIFIER a
+          = NUMBER_LITERAL 10
+      VAR_DECL
+        TYPE: uint64_t
+        IDENTIFIER b
+          = NUMBER_LITERAL 20ULL
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '+'
+            IDENTIFIER a
+            CAST_EXPRESSION
+                            CAST TYPE: int32_t
+              BINARY EXPRESSION '>>'
+                IDENTIFIER b
+                NUMBER_LITERAL 1
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

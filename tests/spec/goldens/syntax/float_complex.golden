@@ -1,0 +1,80 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: double
+    IDENTIFIER zd
+  VAR_DECL
+    TYPE: float
+    IDENTIFIER zf
+  VAR_DECL
+    TYPE: long double
+    IDENTIFIER ld
+      = NUMBER_LITERAL 1.0L
+  VAR_DECL
+    TYPE: double
+    IDENTIFIER mix
+      = 
+        BINARY EXPRESSION '+'
+          CAST_EXPRESSION
+                        CAST TYPE: double
+            IDENTIFIER ld
+          NUMBER_LITERAL 2.0
+  VAR_DECL
+    TYPE: float
+    IDENTIFIER promote
+      = 
+        BINARY EXPRESSION '+'
+          NUMBER_LITERAL 1.0f
+          NUMBER_LITERAL 2.0f
+  VAR_DECL
+    TYPE: double
+    IDENTIFIER lit_imag
+      = 
+        BINARY EXPRESSION '+'
+          NUMBER_LITERAL 1.0
+          NUMBER_LITERAL 2.0i
+  VAR_DECL
+    TYPE: double
+    IDENTIFIER just_imag
+      = NUMBER_LITERAL 3.0j
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER local
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER zd
+              CAST_EXPRESSION
+                                CAST TYPE: double
+                IDENTIFIER mix
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER combo
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER lit_imag
+              IDENTIFIER just_imag
+      CAST_EXPRESSION
+                CAST TYPE: void
+        IDENTIFIER local
+      CAST_EXPRESSION
+                CAST TYPE: void
+        IDENTIFIER combo
+      RETURN
+        NUMBER_LITERAL 0
+
+
+Diagnostics:
+Error at (5:0): Initializer for static variable 'ld' is not a constant expression
+Error at (6:0): Initializer for static variable 'mix' is not a constant expression
+Error at (7:0): Initializer for static variable 'promote' is not a constant expression
+Error at (8:0): Initializer for static variable 'lit_imag' is not a constant expression
+Error at (9:0): Initializer for static variable 'just_imag' is not a constant expression
+

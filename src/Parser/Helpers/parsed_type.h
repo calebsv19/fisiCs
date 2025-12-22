@@ -19,6 +19,7 @@ typedef struct ParsedArrayInfo {
     bool isVLA;
     bool hasConstantSize;
     long long constantSize;
+    bool isFlexible;
 } ParsedArrayInfo;
 
 struct ParsedType;
@@ -86,6 +87,8 @@ typedef struct ParsedType {
     bool isUnsigned;
     bool isShort;
     bool isLong;
+    bool isComplex;
+    bool isImaginary;
 
     // Qualifiers (C99)
     bool isVolatile;   //  volatile int x;

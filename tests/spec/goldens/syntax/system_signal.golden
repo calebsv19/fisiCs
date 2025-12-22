@@ -1,0 +1,1108 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER __int8_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER __uint8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER __int16_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER __uint16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __int32_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __uint32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __int64_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __uint64_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_intptr_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_natural_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_ct_rune_t
+  TYPEDEF
+        TYPE: union __anon_union_70
+        Alias:     IDENTIFIER __mbstate_t
+  TYPEDEF
+        TYPE: __mbstate_t
+        Alias:     IDENTIFIER __darwin_mbstate_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ptrdiff_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_size_t
+  TYPEDEF
+        TYPE: __builtin_va_list
+        Alias:     IDENTIFIER __darwin_va_list
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wchar_t
+  TYPEDEF
+        TYPE: __darwin_wchar_t
+        Alias:     IDENTIFIER __darwin_rune_t
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wint_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_clock_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_socklen_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ssize_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_time_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_blkcnt_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_blksize_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_dev_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsblkcnt_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsfilcnt_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_gid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_id_t
+  TYPEDEF
+        TYPE: __uint64_t
+        Alias:     IDENTIFIER __darwin_ino64_t
+  TYPEDEF
+        TYPE: __darwin_ino64_t
+        Alias:     IDENTIFIER __darwin_ino_t
+  TYPEDEF
+        TYPE: __darwin_natural_t
+        Alias:     IDENTIFIER __darwin_mach_port_name_t
+  TYPEDEF
+        TYPE: __darwin_mach_port_name_t
+        Alias:     IDENTIFIER __darwin_mach_port_t
+  TYPEDEF
+        TYPE: __uint16_t
+        Alias:     IDENTIFIER __darwin_mode_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_off_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_pid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_sigset_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_suseconds_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_uid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_useconds_t
+  TYPEDEF
+        TYPE: unsigned char [NUMBER_LITERAL 16]
+        Alias:     IDENTIFIER __darwin_uuid_t
+  TYPEDEF
+        TYPE: char [NUMBER_LITERAL 37]
+        Alias:     IDENTIFIER __darwin_uuid_string_t
+  STRUCT
+        Name:     IDENTIFIER __darwin_pthread_handler_rec
+    VAR_DECL
+      TYPE: void (*)(void*) (void*)
+      IDENTIFIER __routine
+    VAR_DECL
+      TYPE: void*
+      IDENTIFIER __arg
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __next
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_attr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_cond_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 40]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_condattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutex_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutexattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_once_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlock_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 192]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlockattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 16]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __cleanup_stack
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8176]
+      IDENTIFIER __opaque
+  TYPEDEF
+        TYPE: struct _opaque_pthread_attr_t
+        Alias:     IDENTIFIER __darwin_pthread_attr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_cond_t
+        Alias:     IDENTIFIER __darwin_pthread_cond_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_condattr_t
+        Alias:     IDENTIFIER __darwin_pthread_condattr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_pthread_key_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutex_t
+        Alias:     IDENTIFIER __darwin_pthread_mutex_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutexattr_t
+        Alias:     IDENTIFIER __darwin_pthread_mutexattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_once_t
+        Alias:     IDENTIFIER __darwin_pthread_once_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlock_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlock_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlockattr_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlockattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_t*
+        Alias:     IDENTIFIER __darwin_pthread_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_nl_item
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_wctrans_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_wctype_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER sig_atomic_t
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER int8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER int16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER int32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER int64_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER u_int8_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER u_int16_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER u_int32_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER u_int64_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER register_t
+  TYPEDEF
+        TYPE: __darwin_intptr_t
+        Alias:     IDENTIFIER intptr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER uintptr_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_addr_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_size_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_ssize_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_long_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_ulong_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_time_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_off_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER syscall_arg_t
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_exception_state
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __exception
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __fsr
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __far
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_exception_state64
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __far
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __esr
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __exception
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_exception_state64_v2
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __far
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __esr
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_thread_state
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 13]
+      IDENTIFIER __r
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __sp
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __lr
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __pc
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __cpsr
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_thread_state64
+    VAR_DECL
+      TYPE: __uint64_t [NUMBER_LITERAL 29]
+      IDENTIFIER __x
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __fp
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __lr
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __sp
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __pc
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __cpsr
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __pad
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_vfp_state
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 64]
+      IDENTIFIER __r
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __fpscr
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_neon_state64
+    VAR_DECL
+      TYPE: __uint128_t [NUMBER_LITERAL 32]
+      IDENTIFIER __v
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __fpsr
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __fpcr
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_neon_state
+    VAR_DECL
+      TYPE: __uint128_t [NUMBER_LITERAL 16]
+      IDENTIFIER __v
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __fpsr
+    VAR_DECL
+      TYPE: __uint32_t
+      IDENTIFIER __fpcr
+  STRUCT
+        Name:     IDENTIFIER __arm_pagein_state
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER __pagein_error
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_sme_state
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __svcr
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __tpidr2_el0
+    VAR_DECL
+      TYPE: __uint16_t
+      IDENTIFIER __svl_b
+  ATTRIBUTE [GNU] aligned(4)
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_sve_z_state
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 16] [NUMBER_LITERAL 256]
+      IDENTIFIER __z
+  ATTRIBUTE [GNU] aligned(4)
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_sve_p_state
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 16] [(Unrecognized for inline: type 19)]
+      IDENTIFIER __p
+  ATTRIBUTE [GNU] aligned(4)
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_sme_za_state
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 4096]
+      IDENTIFIER __za
+  ATTRIBUTE [GNU] aligned(4)
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_sme2_state
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 64]
+      IDENTIFIER __zt0
+  STRUCT
+        Name:     IDENTIFIER __arm_legacy_debug_state
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      IDENTIFIER __bvr
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      IDENTIFIER __bcr
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      IDENTIFIER __wvr
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      IDENTIFIER __wcr
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_debug_state32
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      IDENTIFIER __bvr
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      IDENTIFIER __bcr
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      IDENTIFIER __wvr
+    VAR_DECL
+      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      IDENTIFIER __wcr
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __mdscr_el1
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_debug_state64
+    VAR_DECL
+      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      IDENTIFIER __bvr
+    VAR_DECL
+      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      IDENTIFIER __bcr
+    VAR_DECL
+      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      IDENTIFIER __wvr
+    VAR_DECL
+      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      IDENTIFIER __wcr
+    VAR_DECL
+      TYPE: __uint64_t
+      IDENTIFIER __mdscr_el1
+  STRUCT
+        Name:     IDENTIFIER __darwin_arm_cpmu_state64
+    VAR_DECL
+      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      IDENTIFIER __ctrs
+  STRUCT
+        Name:     IDENTIFIER __darwin_mcontext32
+    VAR_DECL
+      TYPE: struct __darwin_arm_exception_state
+      IDENTIFIER __es
+    VAR_DECL
+      TYPE: struct __darwin_arm_thread_state
+      IDENTIFIER __ss
+    VAR_DECL
+      TYPE: struct __darwin_arm_vfp_state
+      IDENTIFIER __fs
+  STRUCT
+        Name:     IDENTIFIER __darwin_mcontext64
+    VAR_DECL
+      TYPE: struct __darwin_arm_exception_state64
+      IDENTIFIER __es
+    VAR_DECL
+      TYPE: struct __darwin_arm_thread_state64
+      IDENTIFIER __ss
+    VAR_DECL
+      TYPE: struct __darwin_arm_neon_state64
+      IDENTIFIER __ns
+  TYPEDEF
+        TYPE: struct __darwin_mcontext64*
+        Alias:     IDENTIFIER mcontext_t
+  TYPEDEF
+        TYPE: __darwin_pthread_attr_t
+        Alias:     IDENTIFIER pthread_attr_t
+  STRUCT
+        Name:     IDENTIFIER __darwin_sigaltstack
+    VAR_DECL
+      TYPE: void*
+      IDENTIFIER ss_sp
+    VAR_DECL
+      TYPE: __darwin_size_t
+      IDENTIFIER ss_size
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER ss_flags
+  TYPEDEF
+        TYPE: struct __darwin_sigaltstack
+        Alias:     IDENTIFIER stack_t
+  STRUCT
+        Name:     IDENTIFIER __darwin_ucontext
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER uc_onstack
+    VAR_DECL
+      TYPE: __darwin_sigset_t
+      IDENTIFIER uc_sigmask
+    VAR_DECL
+      TYPE: struct __darwin_sigaltstack
+      IDENTIFIER uc_stack
+    VAR_DECL
+      TYPE: struct __darwin_ucontext*
+      IDENTIFIER uc_link
+    VAR_DECL
+      TYPE: __darwin_size_t
+      IDENTIFIER uc_mcsize
+    VAR_DECL
+      TYPE: struct __darwin_mcontext64*
+      IDENTIFIER uc_mcontext
+  TYPEDEF
+        TYPE: struct __darwin_ucontext
+        Alias:     IDENTIFIER ucontext_t
+  TYPEDEF
+        TYPE: __darwin_pid_t
+        Alias:     IDENTIFIER pid_t
+  TYPEDEF
+        TYPE: __darwin_sigset_t
+        Alias:     IDENTIFIER sigset_t
+  TYPEDEF
+        TYPE: __darwin_size_t
+        Alias:     IDENTIFIER size_t
+  TYPEDEF
+        TYPE: __darwin_uid_t
+        Alias:     IDENTIFIER uid_t
+  UNION
+        Name:     IDENTIFIER sigval
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER sival_int
+    VAR_DECL
+      TYPE: void*
+      IDENTIFIER sival_ptr
+  STRUCT
+        Name:     IDENTIFIER sigevent
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER sigev_notify
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER sigev_signo
+    VAR_DECL
+      TYPE: union sigval
+      IDENTIFIER sigev_value
+    VAR_DECL
+      TYPE: void (*)(union sigval) (union sigval)
+      IDENTIFIER sigev_notify_function
+    VAR_DECL
+      TYPE: pthread_attr_t*
+      IDENTIFIER sigev_notify_attributes
+  TYPEDEF
+        TYPE: struct __siginfo
+        Alias:     IDENTIFIER siginfo_t
+  UNION
+        Name:     IDENTIFIER __sigaction_u
+    VAR_DECL
+      TYPE: void (*)(int) (int)
+      IDENTIFIER __sa_handler
+    VAR_DECL
+      TYPE: void (*)(int, struct __siginfo*, void*) (int, struct __siginfo*, void*)
+      IDENTIFIER __sa_sigaction
+  STRUCT
+        Name:     IDENTIFIER __sigaction
+    VAR_DECL
+      TYPE: union __sigaction_u
+      IDENTIFIER __sigaction_u
+    VAR_DECL
+      TYPE: void (*)(void*, int, int, siginfo_t*, void*) (void*, int, int, siginfo_t*, void*)
+      IDENTIFIER sa_tramp
+    VAR_DECL
+      TYPE: sigset_t
+      IDENTIFIER sa_mask
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER sa_flags
+  STRUCT
+        Name:     IDENTIFIER sigaction
+    VAR_DECL
+      TYPE: union __sigaction_u
+      IDENTIFIER __sigaction_u
+    VAR_DECL
+      TYPE: sigset_t
+      IDENTIFIER sa_mask
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER sa_flags
+  TYPEDEF
+        TYPE: void (*)(int) (int)
+        Alias:     IDENTIFIER sig_t
+  STRUCT
+        Name:     IDENTIFIER sigvec
+    VAR_DECL
+      TYPE: void (*)(int) (int)
+      IDENTIFIER sv_handler
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER sv_mask
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER sv_flags
+  STRUCT
+        Name:     IDENTIFIER sigstack
+    VAR_DECL
+      TYPE: char*
+      IDENTIFIER ss_sp
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER ss_onstack
+  TYPEDEF
+        TYPE: __darwin_pthread_t
+        Alias:     IDENTIFIER pthread_t
+  VAR_DECL
+    TYPE: extern const char* [NUMBER_LITERAL 32]
+    IDENTIFIER sys_signame
+  VAR_DECL
+    TYPE: extern const char* [NUMBER_LITERAL 32]
+    IDENTIFIER sys_siglist
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER raise
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER kill
+    PARAMETERS:
+      VAR_DECL
+        TYPE: pid_t
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER killpg
+    PARAMETERS:
+      VAR_DECL
+        TYPE: pid_t
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER pthread_kill
+    PARAMETERS:
+      VAR_DECL
+        TYPE: pthread_t
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER pthread_sigmask
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const sigset_t*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: sigset_t*
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigaction
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const struct sigaction*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: struct sigaction*
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigaddset
+    PARAMETERS:
+      VAR_DECL
+        TYPE: sigset_t*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigaltstack
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const stack_t*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: stack_t*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigdelset
+    PARAMETERS:
+      VAR_DECL
+        TYPE: sigset_t*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigemptyset
+    PARAMETERS:
+      VAR_DECL
+        TYPE: sigset_t*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigfillset
+    PARAMETERS:
+      VAR_DECL
+        TYPE: sigset_t*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sighold
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigignore
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER siginterrupt
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigismember
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const sigset_t*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigpause
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigpending
+    PARAMETERS:
+      VAR_DECL
+        TYPE: sigset_t*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigprocmask
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const sigset_t*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: sigset_t*
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigrelse
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigsuspend
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const sigset_t*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigwait
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const sigset_t*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER psignal
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigblock
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigsetmask
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sigvec
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: struct sigvec*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: struct sigvec*
+        IDENTIFIER __unnamed_param2
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __sigbits
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __signo
+    BLOCK
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '>'
+            IDENTIFIER __signo
+            NUMBER_LITERAL 32
+          NUMBER_LITERAL 0
+          BINARY EXPRESSION '<<'
+            NUMBER_LITERAL 1
+            BINARY EXPRESSION '-'
+              IDENTIFIER __signo
+              NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: void
+    IDENTIFIER handler
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER sig
+    BLOCK
+      CAST_EXPRESSION
+                CAST TYPE: void
+        IDENTIFIER sig
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: sigset_t
+        IDENTIFIER set
+      VAR_DECL
+        TYPE: struct sigaction
+        IDENTIFIER act
+            = NUMBER_LITERAL 0
+
+      FUNCTION CALL
+        IDENTIFIER sigaction
+        ARGUMENTS
+          NUMBER_LITERAL 2
+          UNARY; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+
+%sigaction = type { %__sigaction_u, i32, i32 }
+%__sigaction_u = type { ptr, ptr }
+
+@sys_signame = global ptr null
+@sys_siglist = global ptr null
+@__LDBL_MIN__ = global double 0.000000e+00
+@NULL = global ptr null
+@__FLT_MIN__ = global float 0.000000e+00
+@true = global i32 0
+@false = global i32 0
+@__DBL_MIN__ = global double 0.000000e+00
+
+declare i64 @__builtin_object_size(ptr %0, i32 %1)
+
+declare i32 @sigpending(ptr %0)
+
+declare i32 @kill(i32 %0, i32 %1)
+
+declare i32 @sigismember(ptr %0, i32 %1)
+
+declare float @__builtin_inff()
+
+declare double @__builtin_infl()
+
+declare i32 @sigpause(i32 %0)
+
+declare i32 @killpg(i32 %0, i32 %1)
+
+declare i32 @sigblock(i32 %0)
+
+declare double @__builtin_fabs(double %0)
+
+declare ptr @__builtin___memcpy_chk(ptr %0, ptr %1, i64 %2, i64 %3)
+
+declare i32 @printf()
+
+declare i32 @raise(i32 %0)
+
+declare i32 @pthread_sigmask(i32 %0, ptr %1, ptr %2)
+
+declare float @__builtin_fabsf(float %0)
+
+declare i32 @sigwait(ptr %0, ptr %1)
+
+declare i32 @fprintf()
+
+declare void @exit()
+
+declare double @__builtin_fabsl(double %0)
+
+declare i32 @sigaction(i32 %0, ptr %1, ptr %2)
+
+declare i32 @sigprocmask(i32 %0, ptr %1, ptr %2)
+
+declare i32 @siginterrupt(i32 %0, i32 %1)
+
+declare i32 @sigaltstack(ptr %0, ptr %1)
+
+declare i32 @sigsetmask(i32 %0)
+
+declare i32 @sigrelse(i32 %0)
+
+declare i32 @sigemptyset(ptr %0)
+
+declare i32 @sigvec(i32 %0, ptr %1, ptr %2)
+
+declare i32 @sigdelset(ptr %0, i32 %1)
+
+declare i32 @sigsuspend(ptr %0)
+
+declare i32 @sigignore(i32 %0)
+
+declare i32 @sighold(i32 %0)
+
+declare void @psignal(i32 %0, ptr %1)
+
+declare double @__builtin_inf()
+
+declare i32 @pthread_kill(ptr %0, i32 %1)
+
+declare i32 @sigfillset(ptr %0)
+
+declare i32 @sigaddset(ptr %0, i32 %1)
+
+define i32 @__sigbits(i32 %0) {
+entry:
+  %__signo = alloca i32, align 4
+  store i32 %0, ptr %__signo, align 4
+  %__signo1 = load i32, ptr %__signo, align 4
+  %cmptmp = icmp sgt i32 %__signo1, 32
+  %cmp.int = zext i1 %cmptmp to i32
+  %ternaryCond = icmp ne i32 %cmp.int, 0
+  br i1 %ternaryCond, label %ternaryTrue, label %ternaryFalse
+
+ternaryTrue:                                      ; preds = %entry
+  br label %ternaryMerge
+
+ternaryFalse:                                     ; preds = %entry
+  %__signo2 = load i32, ptr %__signo, align 4
+  %subtmp = sub i32 %__signo2, 1
+  %shltmp = shl i32 1, %subtmp
+  br label %ternaryMerge
+
+ternaryMerge:                                     ; preds = %ternaryFalse, %ternaryTrue
+  %ternaryResult = phi i32 [ 0, %ternaryTrue ], [ %shltmp, %ternaryFalse ]
+  ret i32 %ternaryResult
+}
+
+define void @handler(i32 %0) {
+entry:
+  %sig = alloca i32, align 4
+  store i32 %0, ptr %sig, align 4
+  %sig1 = load i32, ptr %sig, align 4
+}
+
+define i32 @main() {
+entry:
+  %set = alloca i32, align 4
+  %act = alloca %sigaction, align 8
+  %init.field = getelementptr inbounds nuw %sigaction, ptr %act, i32 0, i32 0
+  call void @llvm.memset.p0.i64(ptr align 8 %init.field, i8 0, i64 16, i1 false)
+  %NULL = load ptr, ptr @NULL, align 8
+  %calltmp = call i32 @sigaction(i32 2, ptr %act, ptr %NULL)
+  ret i32 0
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }
+ EXPRESSION '&' (prefix)
+            IDENTIFIER act
+          IDENTIFIER NULL
+      RETURN
+        NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

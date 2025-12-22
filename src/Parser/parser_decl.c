@@ -17,6 +17,7 @@ typedef struct FunctionTypeParseResult {
     bool isVariadic;
 } FunctionTypeParseResult;
 
+static bool looksLikeIdentifierParamList(Parser* parser);
 static bool parseDeclaratorInternal(Parser* parser,
                                     ParsedType* type,
                                     ParsedDeclarator* decl,
@@ -25,6 +26,39 @@ static bool parseDeclaratorInternal(Parser* parser,
                                     bool topLevel);
 static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResult* out);
 static void freeFunctionTypeParseResult(FunctionTypeParseResult* out);
+
+// Probe-only helper: determines whether the token stream up to the next ')'
+// consists solely of identifiers separated by commas (K&R-style header).
+static bool looksLikeIdentifierParamList(Parser* parser) {
+    Parser probe = cloneParserWithFreshLexer(parser);
+    bool sawIdent = false;
+    while (probe.currentToken.type != TOKEN_RPAREN &&
+           probe.currentToken.type != TOKEN_EOF) {
+        if (probe.currentToken.type != TOKEN_IDENTIFIER) {
+            freeParserClone(&probe);
+            return false;
+        }
+        sawIdent = true;
+        advance(&probe);
+        if (probe.currentToken.type == TOKEN_COMMA) {
+            advance(&probe);
+            continue;
+        }
+        if (probe.currentToken.type != TOKEN_RPAREN) {
+            freeParserClone(&probe);
+            return false;
+        }
+    }
+    bool ok = sawIdent && probe.currentToken.type == TOKEN_RPAREN;
+    if (ok) {
+        Token after = peekNextToken(&probe);
+        if (after.type == TOKEN_SEMICOLON) {
+            ok = false;
+        }
+    }
+    freeParserClone(&probe);
+    return ok;
+}
 
 
 static void consumePointerQualifiers(Parser* parser, PointerDeclaratorLayer* layer) {
@@ -131,6 +165,26 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         return true;
     }
 
+    // K&R-style identifier-only parameter list: (a, b, c)
+    if (looksLikeIdentifierParamList(parser)) {
+        // Consume the identifiers and commas, leave count/params empty to
+        // represent an old-style, non-prototype function type.
+        while (parser->currentToken.type != TOKEN_RPAREN &&
+               parser->currentToken.type != TOKEN_EOF) {
+            if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+                advance(parser);
+                if (parser->currentToken.type == TOKEN_COMMA) {
+                    advance(parser);
+                } else if (parser->currentToken.type != TOKEN_RPAREN) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return parser->currentToken.type == TOKEN_RPAREN;
+    }
+
     while (parser->currentToken.type != TOKEN_RPAREN &&
            parser->currentToken.type != TOKEN_EOF) {
         if (parser->currentToken.type == TOKEN_ELLIPSIS) {
@@ -212,7 +266,8 @@ static bool parseFunctionSuffix(Parser* parser,
                                 ParsedType* type,
                                 ParsedDeclarator* decl,
                                 bool trackDirectFunction,
-                                bool topLevel) {
+                                bool topLevel,
+                                bool groupedDeclarator) {
     advance(parser); // consume '('
     FunctionTypeParseResult info = {0};
     if (!parseFunctionTypeParameterList(parser, &info)) {
@@ -227,17 +282,19 @@ static bool parseFunctionSuffix(Parser* parser,
     }
     advance(parser); // consume ')'
 
-    size_t derivBefore = type->derivationCount;
     bool appended = parsedTypeAppendFunction(type,
                                             info.params,
                                             info.count,
                                             info.isVariadic);
+    if (groupedDeclarator) {
+        parsedTypeSetFunctionPointer(type, info.count, info.params);
+    }
     freeFunctionTypeParseResult(&info);
     if (!appended) {
         printParseError("Failed to record function type", parser);
         return false;
     }
-    if (trackDirectFunction && topLevel && derivBefore == 0) {
+    if (trackDirectFunction && topLevel && !groupedDeclarator) {
         decl->declaresFunction = true;
     }
     return true;
@@ -257,11 +314,21 @@ static bool parseDeclaratorInternal(Parser* parser,
     applyPointerChainToType(type, &chain);
     pointerChainFree(&chain);
 
-    size_t midAttrCount = 0;
-    ASTAttribute** midAttrs = parserParseAttributeSpecifiers(parser, &midAttrCount);
-    parsedTypeAdoptAttributes(type, midAttrs, midAttrCount);
+    for (;;) {
+        size_t midAttrCount = 0;
+        ASTAttribute** midAttrs = parserParseAttributeSpecifiers(parser, &midAttrCount);
+        parsedTypeAdoptAttributes(type, midAttrs, midAttrCount);
+
+        if (parser->currentToken.type != TOKEN_ASTERISK) {
+            break;
+        }
+        PointerChain extra = parsePointerChain(parser);
+        applyPointerChainToType(type, &extra);
+        pointerChainFree(&extra);
+    }
 
     bool sawIdentifier = decl->identifier != NULL;
+    bool groupedDeclarator = false;
 
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         if (!decl->identifier) {
@@ -285,6 +352,7 @@ static bool parseDeclaratorInternal(Parser* parser,
             return false;
         }
         advance(parser);
+        groupedDeclarator = true;
     } else {
         if (requireIdentifier && !sawIdentifier) {
             printParseError("Expected identifier in declarator", parser);
@@ -301,13 +369,14 @@ static bool parseDeclaratorInternal(Parser* parser,
                 return false;
             }
         } else {
-            if (!parseFunctionSuffix(parser,
-                                     type,
-                                     decl,
-                                     trackDirectFunction,
-                                     topLevel)) {
-                return false;
-            }
+    if (!parseFunctionSuffix(parser,
+                             type,
+                             decl,
+                             trackDirectFunction,
+                             topLevel,
+                             groupedDeclarator)) {
+        return false;
+    }
         }
     }
 
@@ -391,6 +460,9 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
                               true,
                               true,
                               &probeDecl)) {
+        // Only treat declarators that spell a direct function type (first
+        // derivation == function) as function declarations/definitions. A
+        // pointer-to-function should be parsed as a variable.
         isFunctionDeclarator = probeDecl.declaresFunction;
         parserDeclaratorDestroy(&probeDecl);
     }
@@ -615,7 +687,8 @@ ASTNode* parseStructDefinition(Parser* parser) {
     advance(parser);  // consume '{'
 
     size_t fieldCount = 0;
-    ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount);
+    bool hasFlexible = false;
+    ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount, &hasFlexible);
 
     if (parser->currentToken.type != TOKEN_RBRACE) {
         printParseError("Expected '}' to close struct body", parser);
@@ -652,6 +725,7 @@ ASTNode* parseStructDefinition(Parser* parser) {
     if (def) {
         def->line = structLine;
         if (def->structDef.structName) def->structDef.structName->line = structLine;
+        def->structDef.hasFlexibleArray = hasFlexible;
         astNodeAppendAttributes(def, structAttrs, structAttrCount);
         astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
         structAttrs = NULL;
@@ -724,7 +798,8 @@ ASTNode* parseUnionDefinition(Parser* parser) {
     advance(parser);  // consume '{'
 
     size_t fieldCount = 0;
-    ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount);
+    bool hasFlexible = false;
+    ASTNode** fields = parseStructOrUnionFields(parser, &fieldCount, &hasFlexible);
 
     if (parser->currentToken.type != TOKEN_RBRACE) {
         printParseError("Expected '}' at end of union definition", parser);
@@ -747,6 +822,7 @@ ASTNode* parseUnionDefinition(Parser* parser) {
     if (def) {
         def->line = unionLine;
         if (def->structDef.structName) def->structDef.structName->line = unionLine;
+        def->structDef.hasFlexibleArray = hasFlexible;
         astNodeAppendAttributes(def, unionAttrs, unionAttrCount);
         astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
         unionAttrs = NULL;
@@ -765,10 +841,11 @@ ASTNode* parseUnionDefinition(Parser* parser) {
 
 
 
-ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
+ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount, bool* outHasFlexible) {
     ASTNode** fields = malloc(sizeof(ASTNode*) * 4);
     size_t count = 0;
     size_t capacity = 4;
+    bool hasFlexible = false;
 
     while (parser->currentToken.type != TOKEN_RBRACE &&
            parser->currentToken.type != TOKEN_EOF) {
@@ -841,6 +918,21 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
             }
 
             if (fieldDecl && fieldDecl->type == AST_VARIABLE_DECLARATION) {
+                ParsedType* fieldType = fieldDecl->varDecl.declaredTypes
+                    ? &fieldDecl->varDecl.declaredTypes[0]
+                    : &fieldDecl->varDecl.declaredType;
+                if (fieldType && fieldType->derivationCount > 0) {
+                    TypeDerivation* last = parsedTypeGetMutableArrayDerivation(fieldType,
+                                                                               fieldType->derivationCount - 1);
+                    if (last &&
+                        last->kind == TYPE_DERIVATION_ARRAY &&
+                        !last->as.array.isVLA &&
+                        !last->as.array.hasConstantSize &&
+                        last->as.array.sizeExpr == NULL) {
+                        last->as.array.isFlexible = true;
+                        hasFlexible = true;
+                    }
+                }
                 fieldDecl->varDecl.bitFieldWidth = bitFieldWidth;
             }
             if (fieldDecl) {
@@ -873,6 +965,9 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount) {
     }
 
 finish_fields:
+    if (outHasFlexible) {
+        *outHasFlexible = hasFlexible;
+    }
     *outCount = count;
     return fields;
 }

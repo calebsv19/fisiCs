@@ -1,7 +1,10 @@
 #include "Compiler/compiler_context.h"
+#include "Syntax/target_layout.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "Syntax/target_layout.h"
+#include "Utils/logging.h"
 
 #define CC_GROW_CAP(cap) ((cap) < 8 ? 8 : (cap) * 2)
 
@@ -134,6 +137,9 @@ CompilerContext* cc_create(void) {
     if (!c) return NULL;
     cc_builtins_init(&c->builtins);
     include_graph_init(&c->includeGraph);
+    c->dl_canary_front = 0xdeadbeefcafebabeULL;
+    c->dl_canary_back  = 0xabad1dea12345678ULL;
+    c->targetLayout = NULL;
     return c;
 }
 
@@ -149,6 +155,7 @@ void cc_destroy(CompilerContext* ctx) {
     cc_clear_symbols(ctx);
     cc_clear_includes(ctx);
     free(ctx->targetTriple);
+    free(ctx->targetLayout);
     free(ctx->dataLayout);
     // builtins are static literals; nothing to free.
     free(ctx);
@@ -165,6 +172,9 @@ void cc_seed_builtins(CompilerContext* ctx) {
         "uintptr_t",
         "ptrdiff_t",
         "bool",
+        "wchar_t",
+        "wint_t",
+        "sig_atomic_t",
     };
     for (size_t i = 0; i < sizeof(typedefs) / sizeof(typedefs[0]); ++i) {
         cc_add_typedef(ctx, typedefs[i]);
@@ -322,6 +332,9 @@ const IncludeGraph* cc_get_include_graph(const CompilerContext* ctx) {
 
 bool cc_set_target_triple(CompilerContext* ctx, const char* triple) {
     if (!ctx) return false;
+    if (ctx->dl_canary_front != 0xdeadbeefcafebabeULL || ctx->dl_canary_back != 0xabad1dea12345678ULL) {
+        LOG_WARN("compiler", "dataLayout canary tripped in cc_set_target_triple");
+    }
     free(ctx->targetTriple);
     ctx->targetTriple = triple ? strdup(triple) : NULL;
     return true;
@@ -331,8 +344,37 @@ const char* cc_get_target_triple(const CompilerContext* ctx) {
     return ctx ? ctx->targetTriple : NULL;
 }
 
+bool cc_set_target_layout(CompilerContext* ctx, const TargetLayout* layout) {
+    if (!ctx) return false;
+    if (ctx->dl_canary_front != 0xdeadbeefcafebabeULL || ctx->dl_canary_back != 0xabad1dea12345678ULL) {
+        LOG_WARN("compiler", "dataLayout canary tripped in cc_set_target_layout");
+    }
+    free(ctx->targetLayout);
+    if (layout) {
+        ctx->targetLayout = (TargetLayout*)malloc(sizeof(TargetLayout));
+        if (!ctx->targetLayout) return false;
+        memcpy(ctx->targetLayout, layout, sizeof(TargetLayout));
+    } else {
+        ctx->targetLayout = NULL;
+    }
+    return true;
+}
+
+const TargetLayout* cc_get_target_layout(const CompilerContext* ctx) {
+    return ctx ? ctx->targetLayout : NULL;
+}
+
 bool cc_set_data_layout(CompilerContext* ctx, const char* layout) {
     if (!ctx) return false;
+    if (ctx->dl_canary_front != 0xdeadbeefcafebabeULL || ctx->dl_canary_back != 0xabad1dea12345678ULL) {
+        LOG_WARN("compiler", "dataLayout canary tripped entering cc_set_data_layout");
+    }
+    if (layout && layout[0]) {
+        size_t len = strlen(layout);
+        LOG_WARN("compiler", "cc_set_data_layout called (len=%zu, starts='%c')", len, layout[0]);
+    } else {
+        LOG_WARN("compiler", "cc_set_data_layout called with null/empty layout");
+    }
     free(ctx->dataLayout);
     ctx->dataLayout = layout ? strdup(layout) : NULL;
     return true;

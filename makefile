@@ -230,6 +230,18 @@ semantic-struct-definition-only: $(BIN)
 semantic-vla-param-decay: $(BIN)
 	@./tests/syntax/run_semantic_vla_param_decay.sh ./$(BIN)
 
+semantic-flexible-array: $(BIN)
+	@./tests/syntax/run_semantic_flexible_array.sh ./$(BIN)
+
+semantic-knr-function: $(BIN)
+	@./tests/syntax/run_semantic_knr_function.sh ./$(BIN)
+
+semantic-unsequenced: $(BIN)
+	@./tests/syntax/run_semantic_unsequenced.sh ./$(BIN)
+
+semantic-restrict-alias: $(BIN)
+	@./tests/syntax/run_semantic_restrict_alias.sh ./$(BIN)
+
 compound-literal-lvalues: $(BIN)
 	@./tests/syntax/run_compound_literal_lvalues.sh ./$(BIN)
 
@@ -250,7 +262,8 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
               semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
               semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
               semantic-initializer-shapes semantic-flow semantic-vla-errors semantic-vla-block \
-              semantic-struct-definition-only semantic-vla-param-decay \
+              semantic-struct-definition-only semantic-vla-param-decay semantic-flexible-array \
+              semantic-knr-function semantic-unsequenced semantic-restrict-alias \
               compound-literal-lvalues
 
 codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff \

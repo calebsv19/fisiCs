@@ -1,0 +1,46 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER sum
+    PARAMETERS
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          UNARY EXPRESSION '*' (prefix)
+            IDENTIFIER a
+          UNARY EXPRESSION '*' (prefix)
+            IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = NUMBER_LITERAL 1
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER sum
+          ARGUMENTS
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER x
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER x
+
+
+Diagnostics:
+Warning at (7:0): Restrict parameters may alias the same object
+   Hint: x
+Semantic analysis: no issues found.
+

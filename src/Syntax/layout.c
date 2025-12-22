@@ -1,6 +1,8 @@
 #include "layout.h"
 #include "type_checker.h"
 #include "const_eval.h"
+#include "target_layout.h"
+#include "Compiler/compiler_context.h"
 #include <string.h>
 #include <ctype.h>
 
@@ -17,12 +19,21 @@ static void collectAttrLayout(ASTAttribute* const* attrs,
 
 static bool size_align_of_typeinfo(TypeInfo info, Scope* scope, size_t* sizeOut, size_t* alignOut);
 
+static bool isFlexibleArrayType(const ParsedType* type) {
+    if (!type || type->derivationCount == 0) return false;
+    const TypeDerivation* last = parsedTypeGetDerivation(type, type->derivationCount - 1);
+    return last &&
+           last->kind == TYPE_DERIVATION_ARRAY &&
+           last->as.array.isFlexible;
+}
+
 static bool size_align_of_array(TypeDerivation* arrayDeriv,
                                 ParsedType* fullType,
                                 Scope* scope,
                                 size_t* sizeOut,
                                 size_t* alignOut) {
     if (!arrayDeriv || !fullType) return false;
+    if (arrayDeriv->as.array.isFlexible) return false;
     if (arrayDeriv->as.array.isVLA) return false;
     long long len = -1;
     if (arrayDeriv->as.array.hasConstantSize) {
@@ -73,44 +84,7 @@ bool size_align_of_parsed_type(ParsedType* type,
     return true;
 }
 
-typedef struct {
-    size_t charBits, shortBits, intBits, longBits, longLongBits;
-    size_t floatBits, doubleBits, pointerBits;
-    size_t charAlign, shortAlign, intAlign, longAlign, longLongAlign;
-    size_t floatAlign, doubleAlign, pointerAlign;
-} AbiProfile;
-
-static const AbiProfile abi_lp64 = {
-    .charBits = 8,  .charAlign = 1,
-    .shortBits = 16, .shortAlign = 2,
-    .intBits = 32,  .intAlign = 4,
-    .longBits = 64, .longAlign = 8,
-    .longLongBits = 64, .longLongAlign = 8,
-    .floatBits = 32, .floatAlign = 4,
-    .doubleBits = 64, .doubleAlign = 8,
-    .pointerBits = 64, .pointerAlign = 8,
-};
-
-static const AbiProfile abi_llp64 = {
-    .charBits = 8,  .charAlign = 1,
-    .shortBits = 16, .shortAlign = 2,
-    .intBits = 32,  .intAlign = 4,
-    .longBits = 32, .longAlign = 4,
-    .longLongBits = 64, .longLongAlign = 8,
-    .floatBits = 32, .floatAlign = 4,
-    .doubleBits = 64, .doubleAlign = 8,
-    .pointerBits = 64, .pointerAlign = 8,
-};
-
-static const AbiProfile* currentAbi(void) {
-#ifdef TARGET_ABI_LLP64
-    return &abi_llp64;
-#else
-    return &abi_lp64;
-#endif
-}
-
-static void sizeAlignFromBits(const AbiProfile* abi,
+static void sizeAlignFromBits(const TargetLayout* tl,
                               size_t bits,
                               size_t suggestedAlign,
                               size_t* outSize,
@@ -118,12 +92,12 @@ static void sizeAlignFromBits(const AbiProfile* abi,
     size_t bytes = (bits + 7) / 8;
     if (bytes == 0) bytes = 1;
     size_t align = suggestedAlign;
-    if (align == 0) {
-        if (bits <= abi->charBits) align = abi->charAlign;
-        else if (bits <= abi->shortBits) align = abi->shortAlign;
-        else if (bits <= abi->intBits) align = abi->intAlign;
-        else if (bits <= abi->longBits) align = abi->longAlign;
-        else align = abi->longLongAlign;
+    if (align == 0 && tl) {
+        if (bits <= tl->charBits) align = tl->charAlign;
+        else if (bits <= tl->shortBits) align = tl->shortAlign;
+        else if (bits <= tl->intBits) align = tl->intAlign;
+        else if (bits <= tl->longBits) align = tl->longAlign;
+        else align = tl->longLongAlign;
     }
     if (outSize) *outSize = bytes;
     if (outAlign) *outAlign = align;
@@ -160,22 +134,27 @@ static void collectAttrLayout(ASTAttribute* const* attrs,
 }
 
 static bool size_align_of_typeinfo(TypeInfo info, Scope* scope, size_t* sizeOut, size_t* alignOut) {
-    const AbiProfile* abi = currentAbi();
+    const struct TargetLayout* tl = scope && scope->ctx ? cc_get_target_layout(scope->ctx) : tl_default();
+    if (!tl) tl = tl_default();
     switch (info.category) {
         case TYPEINFO_INTEGER:
         case TYPEINFO_ENUM: {
             size_t bits = info.bitWidth ? info.bitWidth : 32;
-            sizeAlignFromBits(abi, bits, 0, sizeOut, alignOut);
+            sizeAlignFromBits(tl, bits, 0, sizeOut, alignOut);
             return true;
         }
         case TYPEINFO_FLOAT: {
             size_t bits = info.bitWidth ? info.bitWidth : 32;
-            sizeAlignFromBits(abi, bits, 0, sizeOut, alignOut);
+            size_t align = 0;
+            if (info.bitWidth >= tl->longDoubleBits) {
+                align = tl->longDoubleAlign;
+            }
+            sizeAlignFromBits(tl, bits, align, sizeOut, alignOut);
             return true;
         }
         case TYPEINFO_POINTER: {
-            size_t bytes = abi->pointerBits / 8;
-            size_t align = abi->pointerAlign;
+            size_t bytes = tl->pointerBits / 8;
+            size_t align = tl->pointerAlign;
             if (sizeOut) *sizeOut = bytes;
             if (alignOut) *alignOut = align;
             return true;
@@ -271,16 +250,26 @@ static bool layout_struct_fields(ASTNode* def,
                 currentUnitSize = 0;
             }
 
+            bool flexible = isFlexibleArrayType(baseType);
             size_t fieldSize = 0, fieldAlign = 0;
-            bool ok = size_align_of_parsed_type(baseType, scope, &fieldSize, &fieldAlign);
-            if (!ok) return false;
+            if (flexible) {
+                ParsedType element = parsedTypeArrayElementType(baseType);
+                bool ok = size_align_of_parsed_type(&element, scope, &fieldSize, &fieldAlign);
+                parsedTypeFree(&element);
+                if (!ok) return false;
+            } else {
+                bool ok = size_align_of_parsed_type(baseType, scope, &fieldSize, &fieldAlign);
+                if (!ok) return false;
+            }
             if (fieldAlign == 0) fieldAlign = 1;
             if (fieldPacked) fieldAlign = 1;
             if (fieldAlignOverride > 0 && fieldAlignOverride > fieldAlign) {
                 fieldAlign = fieldAlignOverride;
             }
             offset = round_up(offset, fieldAlign);
-            offset += fieldSize;
+            if (!flexible) {
+                offset += fieldSize;
+            }
             if (fieldAlign > maxAlign) {
                 maxAlign = fieldAlign;
             }

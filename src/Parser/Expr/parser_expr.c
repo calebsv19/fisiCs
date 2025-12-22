@@ -441,6 +441,17 @@ ASTNode* parseCastExpression(Parser* parser) {
         return NULL;
     }
 
+    // Swallow abstract declarators (e.g., (*)(void), [N]) so casts can target
+    // pointer-to-function and other derived types. We reuse the declarator
+    // parser with `requireIdentifier=false` to build the derived type in place.
+    ParsedDeclarator abstractDecl;
+    if (parserParseDeclarator(parser, &castType, false, false, &abstractDecl)) {
+        ParsedType clone = parsedTypeClone(&abstractDecl.type);
+        parserDeclaratorDestroy(&abstractDecl);
+        parsedTypeFree(&castType);
+        castType = clone;
+    }
+
     // Match the closing ')'
     if (parser->currentToken.type != TOKEN_RPAREN) {
         printParseError("Expected ')' after cast type", parser);

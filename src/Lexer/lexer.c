@@ -38,6 +38,17 @@ static inline int lexer_compute_column(int position, int lineStart) {
     return (column < 1) ? 1 : column;
 }
 
+static void prepend_literal_prefix(Token* tok, const char* prefix) {
+    if (!tok || !tok->value || !prefix) return;
+    size_t plen = strlen(prefix);
+    size_t vlen = strlen(tok->value);
+    char* buf = (char*)malloc(plen + vlen + 1);
+    if (!buf) return;
+    memcpy(buf, prefix, plen);
+    memcpy(buf + plen, tok->value, vlen + 1);
+    free(tok->value);
+    tok->value = buf;
+}
 static inline LexerMark lexer_mark(const Lexer* lexer) {
     LexerMark mark = {0};
     if (lexer) {
@@ -213,6 +224,30 @@ Token getNextToken(Lexer* lexer) {
         return make_token(lexer, TOKEN_EOF, (char*)"EOF", start);
     }
 
+    int pos = lexer->position;
+    char c = lexer->source[pos];
+    char n = (pos + 1 < lexer->length) ? lexer->source[pos + 1] : '\0';
+    char n2 = (pos + 2 < lexer->length) ? lexer->source[pos + 2] : '\0';
+    // Wide/UTF-prefixed string/char literals
+    if (c == 'u' && n == '8' && n2 == '"') {
+        lexer->position += 2; // consume u8
+        Token t = handleStringLiteral(lexer);
+        prepend_literal_prefix(&t, "U8|");
+        return t;
+    }
+    if ((c == 'L' || c == 'u' || c == 'U') && n == '"') {
+        lexer->position += 1; // consume prefix
+        Token t = handleStringLiteral(lexer);
+        prepend_literal_prefix(&t, "W|");
+        return t;
+    }
+    if ((c == 'L' || c == 'u' || c == 'U') && n == '\'') {
+        lexer->position += 1; // consume prefix
+        Token t = handleCharLiteral(lexer);
+        prepend_literal_prefix(&t, "W|");
+        return t;
+    }
+
     if (isalpha(lexer->source[lexer->position]) || lexer->source[lexer->position] == '_') {
         return handleIdentifierOrKeyword(lexer);
     }
@@ -332,6 +367,12 @@ Token handleIdentifierOrKeyword(Lexer* lexer) {
     if (strcmp(text, "__asm") == 0 || strcmp(text, "__asm__") == 0) {
         return make_token(lexer, TOKEN_ASM, text, startMark);
     }
+    if (strcmp(text, "__complex") == 0 || strcmp(text, "__complex__") == 0) {
+        return make_token(lexer, TOKEN_COMPLEX, text, startMark);
+    }
+    if (strcmp(text, "__imaginary") == 0 || strcmp(text, "__imaginary__") == 0) {
+        return make_token(lexer, TOKEN_IMAGINARY, text, startMark);
+    }
 
     if (lexer_debug_enabled()){
     	LEXER_DEBUG_PRINTF("DEBUG: Classified as identifier: %s\n", text);
@@ -347,10 +388,12 @@ Token handleNumber(Lexer* lexer) {
     int startPos = lexer->position;
     TokenType type = TOKEN_NUMBER;
 
+    bool isHex = false;
     // Handle hexadecimal (0x...), binary (0b...), and octal (0...)
     if (lexer->source[startPos] == '0') {
         if (lexer->source[startPos + 1] == 'x' || lexer->source[startPos + 1] == 'X') {
             lexer->position += 2;
+            isHex = true;
             while (isxdigit(lexer->source[lexer->position])) lexer->position++;
             type = TOKEN_NUMBER; // Hex integer
         } else if (lexer->source[startPos + 1] == 'b' || lexer->source[startPos + 1] == 'B') {
@@ -365,18 +408,59 @@ Token handleNumber(Lexer* lexer) {
         while (isdigit(lexer->source[lexer->position])) lexer->position++;
     }
 
-    // Handle floating-point numbers (decimal point)
+    // Handle fractional part (.) and exponent (e/E)
+    bool sawExp = false;
     if (lexer->source[lexer->position] == '.') {
         lexer->position++;
         while (isdigit(lexer->source[lexer->position])) lexer->position++;
         type = TOKEN_FLOAT_LITERAL;
     }
-
-    // Handle numeric suffixes (e.g., `u`, `l`, `f`)
-    if (tolower(lexer->source[lexer->position]) == 'u' ||
-        tolower(lexer->source[lexer->position]) == 'l' ||
-        tolower(lexer->source[lexer->position]) == 'f') {
+    if (!sawExp && ((!isHex && (lexer->source[lexer->position] == 'e' || lexer->source[lexer->position] == 'E')) ||
+                    (isHex && (lexer->source[lexer->position] == 'p' || lexer->source[lexer->position] == 'P')))) {
+        sawExp = true;
         lexer->position++;
+        if (lexer->source[lexer->position] == '+' || lexer->source[lexer->position] == '-') {
+            lexer->position++;
+        }
+        bool hadDigit = false;
+        while (isdigit(lexer->source[lexer->position])) {
+            hadDigit = true;
+            lexer->position++;
+        }
+        if (hadDigit) {
+            type = TOKEN_FLOAT_LITERAL;
+        }
+    }
+
+    // Handle numeric suffixes (u/U, one or two l/L, f/F, and optional i/I/j/J for imaginary).
+    // We allow them in any order but cap repeats so tokens like 20ULL or 1ul parse as a single number.
+    bool seenU = false;
+    int lCount = 0;
+    while (1) {
+        char c = lexer->source[lexer->position];
+        if (c == 'u' || c == 'U') {
+            if (seenU) break;
+            seenU = true;
+            lexer->position++;
+            continue;
+        }
+        if (c == 'l' || c == 'L') {
+            if (lCount >= 2) break;
+            lCount++;
+            lexer->position++;
+            continue;
+        }
+        if (c == 'f' || c == 'F') {
+            type = TOKEN_FLOAT_LITERAL;
+            lexer->position++;
+            continue;
+        }
+        if (c == 'i' || c == 'I' || c == 'j' || c == 'J') {
+            type = TOKEN_FLOAT_LITERAL;
+            lexer->position++;
+            continue;
+        }
+        break;
     }
 
     return make_token(lexer, type, strndup(lexer->source + startPos, lexer->position - startPos), startMark);
@@ -423,7 +507,41 @@ Token handleCharLiteral(Lexer* lexer) {
             case 'v':  val = '\v'; break;
             case '\\': val = '\\'; break;
             case '\'': val = '\''; break;
-            case '\"': val = '\"'; break;
+        case '\"': val = '\"'; break;
+            case 'u': {
+                int hex = 0;
+                int count = 0;
+                for (int k = 0; k < 4; ++k) {
+                    char h = lexer->source[lexer->position++];
+                    int v = 0;
+                    if (h >= '0' && h <= '9') v = h - '0';
+                    else if (h >= 'a' && h <= 'f') v = h - 'a' + 10;
+                    else if (h >= 'A' && h <= 'F') v = h - 'A' + 10;
+                    else { lexer->position--; break; }
+                    hex = (hex << 4) | v;
+                    ++count;
+                }
+                if (count != 4) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\u escape", startMark);
+                val = hex;
+                break;
+            }
+            case 'U': {
+                int hex = 0;
+                int count = 0;
+                for (int k = 0; k < 8; ++k) {
+                    char h = lexer->source[lexer->position++];
+                    int v = 0;
+                    if (h >= '0' && h <= '9') v = h - '0';
+                    else if (h >= 'a' && h <= 'f') v = h - 'a' + 10;
+                    else if (h >= 'A' && h <= 'F') v = h - 'A' + 10;
+                    else { lexer->position--; break; }
+                    hex = (hex << 4) | v;
+                    ++count;
+                }
+                if (count != 8) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\U escape", startMark);
+                val = hex;
+                break;
+            }
 
             // \xHH… (1+ hex digits)
             case 'x': {
@@ -789,9 +907,11 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "char") == 0) return TOKEN_CHAR;
     if (strcmp(word, "float") == 0) return TOKEN_FLOAT;
     if (strcmp(word, "double") == 0) return TOKEN_DOUBLE;
-    if (strcmp(word, "bool") == 0) return TOKEN_BOOL;
+    if (strcmp(word, "bool") == 0 || strcmp(word, "_Bool") == 0) return TOKEN_BOOL;
     if (strcmp(word, "true") == 0) return TOKEN_TRUE;
     if (strcmp(word, "false") == 0) return TOKEN_FALSE;
+    if (strcmp(word, "_Complex") == 0 || strcmp(word, "__complex") == 0 || strcmp(word, "__complex__") == 0) return TOKEN_COMPLEX;
+    if (strcmp(word, "_Imaginary") == 0 || strcmp(word, "__imaginary") == 0 || strcmp(word, "__imaginary__") == 0) return TOKEN_IMAGINARY;
     if (strcmp(word, "long") == 0) return TOKEN_LONG;
     if (strcmp(word, "short") == 0) return TOKEN_SHORT;
     if (strcmp(word, "signed") == 0) return TOKEN_SIGNED;

@@ -1,0 +1,39 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER errno_t
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int*
+    IDENTIFIER __error
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          FUNCTION CALL
+            IDENTIFIER __error
+        NUMBER_LITERAL 22
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '=='
+            UNARY EXPRESSION '*' (prefix)
+              FUNCTION CALL
+                IDENTIFIER __error
+            NUMBER_LITERAL 22
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

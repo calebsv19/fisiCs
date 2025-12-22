@@ -23,7 +23,7 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
   - Flow-sensitive pass to ensure non-void functions return on every path, flag unreachable statements, and warn about fallthrough cases.
 
 - `analyze_expr.h` / `analyze_expr.c`
-  - Resolves identifiers, checks operands, enforces deep pointer qualifier compatibility, pointer arithmetic rules, and lvalue/decay. Function calls match argument counts/types, apply default promotions for varargs, and validate `va_start`. Switch cases require integer const-eval; duplicates/default uniqueness are checked. Unary/deref restore pointee categories for arrays/struct members.
+  - Resolves identifiers, checks operands, enforces deep pointer qualifier compatibility, pointer arithmetic rules, and lvalue/decay. Function calls match argument counts/types, apply default promotions for varargs, and validate `va_start`. Switch cases require integer const-eval; duplicates/default uniqueness are checked. Unary/deref restore pointee categories for arrays/struct members. Emits optional warnings for unsequenced modifications (e.g., `i = i++ + i`) and best-effort `restrict` aliasing violations on function calls.
 
 - `const_eval.h` / `const_eval.c`
   - Integer constant evaluator for literals, enum refs, sizeof/alignof (when complete), arithmetic/bitwise/logical/ternary, and casts. Drives enum folding, case labels, array sizes, and static initializers.
@@ -32,7 +32,7 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
   - Builds `TypeInfo` by replaying derivations; handles pointer/array/function equality and qualifier comparison across pointer chains. Exposes `typesAreEqual()` / `canAssignTypes()` / arithmetic conversions.
 
 - `layout.h` / `layout.c`
-  - Computes size/align for structs/unions/arrays via ABI profiles (LP64 default, LLP64 optional), honors packed/aligned attributes, and exposes helpers to semantics/codegen.
+  - Computes size/align for structs/unions/arrays via ABI profiles (LP64 default, LLP64 optional), honors packed/aligned attributes, and exposes helpers to semantics/codegen. VLAs are treated as runtime-sized (layout queries fail for them so sizeof is lowered dynamically).
 
 ## Supporting infrastructure
 

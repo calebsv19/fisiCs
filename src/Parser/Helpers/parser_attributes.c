@@ -71,6 +71,9 @@ static bool looksLikeFallbackAttribute(Parser* parser) {
         return false;
     }
     const char* name = parser->currentToken.value;
+    if (strncmp(name, "_LIBC_", 6) == 0 || strncmp(name, "__ptrcheck_", 11) == 0) {
+        return true;
+    }
     if (!(name[0] == '_' && name[1] == '_')) {
         return false;
     }
@@ -92,7 +95,10 @@ static bool looksLikeFallbackAttribute(Parser* parser) {
         "__deprecated_enum_msg",
         "__unavailable",
         "__counted_by",
+        "__counted_by_or_null",
         "__sized_by",
+        "__sized_by_or_null",
+        "__ended_by",
         "__null_terminated"
     };
     if (parser->nextToken.type == TOKEN_LPAREN) {

@@ -66,16 +66,19 @@ static LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         return NULL;
     }
     if (expr->type == AST_STRING_LITERAL) {
+        const char* payload = NULL;
+        ast_literal_encoding(expr->valueNode.value, &payload);
+        const char* text = payload ? payload : expr->valueNode.value;
         if (targetKind == LLVMPointerTypeKind) {
-            return cg_make_const_string_global(ctx, expr->valueNode.value, targetType);
+            return cg_make_const_string_global(ctx, text, targetType);
         }
         if (targetKind == LLVMArrayTypeKind) {
             LLVMTypeRef element = LLVMGetElementType(targetType);
             if (element && LLVMGetTypeKind(element) == LLVMIntegerTypeKind &&
                 LLVMGetIntTypeWidth(element) == 8) {
-                size_t len = strlen(expr->valueNode.value);
+                size_t len = text ? strlen(text) : 0;
                 LLVMValueRef strConst =
-                    LLVMConstStringInContext(ctx->llvmContext, expr->valueNode.value, (unsigned)len, 0);
+                    LLVMConstStringInContext(ctx->llvmContext, text ? text : "", (unsigned)len, 0);
                 return strConst;
             }
         }
@@ -476,14 +479,22 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
         if (isBuiltinConst) {
             LLVMSetLinkage(existing, LLVMInternalLinkage);
         }
+        const ParsedType* storedParsed = parsedType ? parsedType : &node->varDecl.declaredType;
+        if (storedParsed && storedParsed->kind == TYPE_NAMED) {
+            CGTypeCache* cache = cg_context_get_type_cache(ctx);
+            CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, storedParsed->userTypeName);
+            if (info) {
+                storedParsed = &info->parsedType;
+            }
+        }
         cg_scope_insert(ctx->currentScope,
                         name,
                         existing,
                         existingType,
                         true,
                         isArray,
-                            elementLLVM,
-                            parsedType ? parsedType : &node->varDecl.declaredType);
+                        elementLLVM,
+                        storedParsed);
             continue;
         }
 
@@ -504,6 +515,14 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
                 elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
             }
         }
+        const ParsedType* storedParsed = parsedType ? parsedType : &node->varDecl.declaredType;
+        if (storedParsed && storedParsed->kind == TYPE_NAMED) {
+            CGTypeCache* cache = cg_context_get_type_cache(ctx);
+            CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, storedParsed->userTypeName);
+            if (info) {
+                storedParsed = &info->parsedType;
+            }
+        }
         cg_scope_insert(ctx->currentScope,
                         name,
                         global,
@@ -511,7 +530,7 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
                         true,
                         isArray,
                         elementLLVM,
-                        parsedType ? parsedType : &node->varDecl.declaredType);
+                        storedParsed);
     }
 }
 
@@ -528,6 +547,9 @@ void predeclareGlobals(CodegenContext* ctx, ASTNode* program) {
                 if (!stmt) continue;
                 if (stmt->type == AST_STRUCT_DEFINITION || stmt->type == AST_UNION_DEFINITION) {
                     (void)codegenStructDefinition(ctx, stmt);
+                } else if (stmt->type == AST_TYPEDEF &&
+                           stmt->typedefStmt.baseType.inlineStructOrUnionDef) {
+                    (void)codegenStructDefinition(ctx, stmt->typedefStmt.baseType.inlineStructOrUnionDef);
                 }
             }
         }
@@ -550,6 +572,11 @@ void predeclareGlobals(CodegenContext* ctx, ASTNode* program) {
             case AST_STRUCT_DEFINITION:
             case AST_UNION_DEFINITION:
                 (void)codegenStructDefinition(ctx, stmt);
+                break;
+            case AST_TYPEDEF:
+                if (stmt->typedefStmt.baseType.inlineStructOrUnionDef) {
+                    (void)codegenStructDefinition(ctx, stmt->typedefStmt.baseType.inlineStructOrUnionDef);
+                }
                 break;
             default:
                 break;

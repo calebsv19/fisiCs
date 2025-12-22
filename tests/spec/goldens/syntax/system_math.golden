@@ -1,0 +1,2341 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: float
+        Alias:     IDENTIFIER float_t
+  TYPEDEF
+        TYPE: double
+        Alias:     IDENTIFIER double_t
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER __math_errhandling
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER __fpclassifyf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER __fpclassifyd
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER __fpclassifyl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isfinitef
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isfinited
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isfinitel
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isinff
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isinfd
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isinfl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnand
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnanl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnormalf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnormald
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnormall
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_signbitf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_signbitd
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_signbitl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isfinitef
+    PARAMETERS
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '&&'
+          BINARY EXPRESSION '=='
+            IDENTIFIER __x
+            IDENTIFIER __x
+          BINARY EXPRESSION '!='
+            FUNCTION CALL
+              IDENTIFIER __builtin_fabsf
+              ARGUMENTS
+                IDENTIFIER __x
+            FUNCTION CALL
+              IDENTIFIER __builtin_inff
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isfinited
+    PARAMETERS
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '&&'
+          BINARY EXPRESSION '=='
+            IDENTIFIER __x
+            IDENTIFIER __x
+          BINARY EXPRESSION '!='
+            FUNCTION CALL
+              IDENTIFIER __builtin_fabs
+              ARGUMENTS
+                IDENTIFIER __x
+            FUNCTION CALL
+              IDENTIFIER __builtin_inf
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isfinitel
+    PARAMETERS
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '&&'
+          BINARY EXPRESSION '=='
+            IDENTIFIER __x
+            IDENTIFIER __x
+          BINARY EXPRESSION '!='
+            FUNCTION CALL
+              IDENTIFIER __builtin_fabsl
+              ARGUMENTS
+                IDENTIFIER __x
+            FUNCTION CALL
+              IDENTIFIER __builtin_infl
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isinff
+    PARAMETERS
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '=='
+          FUNCTION CALL
+            IDENTIFIER __builtin_fabsf
+            ARGUMENTS
+              IDENTIFIER __x
+          FUNCTION CALL
+            IDENTIFIER __builtin_inff
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isinfd
+    PARAMETERS
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '=='
+          FUNCTION CALL
+            IDENTIFIER __builtin_fabs
+            ARGUMENTS
+              IDENTIFIER __x
+          FUNCTION CALL
+            IDENTIFIER __builtin_inf
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isinfl
+    PARAMETERS
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '=='
+          FUNCTION CALL
+            IDENTIFIER __builtin_fabsl
+            ARGUMENTS
+              IDENTIFIER __x
+          FUNCTION CALL
+            IDENTIFIER __builtin_infl
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnanf
+    PARAMETERS
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '!='
+          IDENTIFIER __x
+          IDENTIFIER __x
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnand
+    PARAMETERS
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '!='
+          IDENTIFIER __x
+          IDENTIFIER __x
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnanl
+    PARAMETERS
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '!='
+          IDENTIFIER __x
+          IDENTIFIER __x
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_signbitf
+    PARAMETERS
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+    BLOCK
+      VAR_DECL
+        TYPE: union __anon_union_206
+        IDENTIFIER __u
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          IDENTIFIER __u
+          FIELD __f
+        IDENTIFIER __x
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '>>'
+            DOT_ACCESS '.'
+              IDENTIFIER __u
+              FIELD __u
+            NUMBER_LITERAL 31
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_signbitd
+    PARAMETERS
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+    BLOCK
+      VAR_DECL
+        TYPE: union __anon_union_211
+        IDENTIFIER __u
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          IDENTIFIER __u
+          FIELD __f
+        IDENTIFIER __x
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '>>'
+            DOT_ACCESS '.'
+              IDENTIFIER __u
+              FIELD __u
+            NUMBER_LITERAL 63
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_signbitl
+    PARAMETERS
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __x
+    BLOCK
+      VAR_DECL
+        TYPE: union __anon_union_226
+        IDENTIFIER __u
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          IDENTIFIER __u
+          FIELD __f
+        IDENTIFIER __x
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '>>'
+            DOT_ACCESS '.'
+              IDENTIFIER __u
+              FIELD __u
+            NUMBER_LITERAL 63
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnormalf
+    PARAMETERS
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '&&'
+          FUNCTION CALL
+            IDENTIFIER __inline_isfinitef
+            ARGUMENTS
+              IDENTIFIER __x
+          BINARY EXPRESSION '>='
+            FUNCTION CALL
+              IDENTIFIER __builtin_fabsf
+              ARGUMENTS
+                IDENTIFIER __x
+            IDENTIFIER __FLT_MIN__
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnormald
+    PARAMETERS
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '&&'
+          FUNCTION CALL
+            IDENTIFIER __inline_isfinited
+            ARGUMENTS
+              IDENTIFIER __x
+          BINARY EXPRESSION '>='
+            FUNCTION CALL
+              IDENTIFIER __builtin_fabs
+              ARGUMENTS
+                IDENTIFIER __x
+            IDENTIFIER __DBL_MIN__
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline int
+    IDENTIFIER __inline_isnormall
+    PARAMETERS
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '&&'
+          FUNCTION CALL
+            IDENTIFIER __inline_isfinitel
+            ARGUMENTS
+              IDENTIFIER __x
+          BINARY EXPRESSION '>='
+            FUNCTION CALL
+              IDENTIFIER __builtin_fabsl
+              ARGUMENTS
+                IDENTIFIER __x
+            IDENTIFIER __LDBL_MIN__
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER acosf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER acos
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER acosl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER asinf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER asin
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER asinl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER atanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER atan
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER atanl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER atan2f
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER atan2
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER atan2l
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER cosf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER cos
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER cosl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER sinf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER sin
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER sinl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER tanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER tan
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER tanl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER acoshf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER acosh
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER acoshl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER asinhf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER asinh
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER asinhl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER atanhf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER atanh
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER atanhl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER coshf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER cosh
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER coshl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER sinhf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER sinh
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER sinhl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER tanhf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER tanh
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER tanhl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER expf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER exp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER expl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER exp2f
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER exp2
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER exp2l
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER expm1f
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER expm1
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER expm1l
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER logf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER log
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER logl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER log10f
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER log10
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER log10l
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER log2f
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER log2
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER log2l
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER log1pf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER log1p
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER log1pl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER logbf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER logb
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER logbl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER modff
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER modf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER modfl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER ldexpf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER ldexp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER ldexpl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER frexpf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER frexp
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER frexpl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER ilogbf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER ilogb
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER ilogbl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER scalbnf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER scalbn
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER scalbnl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER scalblnf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER scalbln
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER scalblnl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER fabsf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER fabs
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER fabsl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER cbrtf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER cbrt
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER cbrtl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER hypotf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER hypot
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER hypotl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER powf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER pow
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER powl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER sqrtf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER sqrt
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER sqrtl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER erff
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER erf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER erfl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER erfcf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER erfc
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER erfcl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER lgammaf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER lgamma
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER lgammal
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER tgammaf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER tgamma
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER tgammal
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER ceilf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER ceil
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER ceill
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER floorf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER floor
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER floorl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER nearbyintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER nearbyint
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER nearbyintl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER rintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER rint
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER rintl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER lrintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER lrint
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER lrintl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER roundf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER round
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER roundl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER lroundf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER lround
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER lroundl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER llrintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER llrint
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER llrintl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER llroundf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER llround
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long int
+    IDENTIFIER llroundl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER truncf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER trunc
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER truncl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER fmodf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER fmod
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER fmodl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER remainderf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER remainder
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER remainderl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER remquof
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER remquo
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER remquol
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER copysignf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER copysign
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER copysignl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER nanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER nan
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER nanl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER nextafterf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER nextafter
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER nextafterl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER nexttoward
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER nexttowardf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER nexttowardl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER fdimf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER fdim
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER fdiml
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER fmaxf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER fmax
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER fmaxl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER fminf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER fmin
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER fminl
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER fmaf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER fma
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: extern long double
+    IDENTIFIER fmal
+    PARAMETERS:
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: long double
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER __exp10f
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER __exp10
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline void
+    IDENTIFIER __sincosf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __sinp
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __cosp
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline void
+    IDENTIFIER __sincos
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __sinp
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __cosp
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER __cospif
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER __cospi
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER __sinpif
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER __sinpi
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern float
+    IDENTIFIER __tanpif
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER __tanpi
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __fabsf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __hypotf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __sqrtf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __ceilf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __floorf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __rintf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __roundf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __truncf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __copysignf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __nextafterf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __fmaxf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __fminf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern _Float16
+    IDENTIFIER __fmaf16
+    PARAMETERS:
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: _Float16
+        IDENTIFIER __unnamed_param2
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline void
+    IDENTIFIER __sincospif
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __sinp
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __cosp
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DECLARATION
+    RETURN TYPE: inline void
+    IDENTIFIER __sincospi
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __sinp
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __cosp
+  STRUCT
+        Name:     IDENTIFIER __float2
+    VAR_DECL
+      TYPE: float
+      IDENTIFIER __sinval
+    VAR_DECL
+      TYPE: float
+      IDENTIFIER __cosval
+  STRUCT
+        Name:     IDENTIFIER __double2
+    VAR_DECL
+      TYPE: double
+      IDENTIFIER __sinval
+    VAR_DECL
+      TYPE: double
+      IDENTIFIER __cosval
+  FUNCTION DECLARATION
+    RETURN TYPE: extern struct __float2
+    IDENTIFIER __sincosf_stret
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern struct __double2
+    IDENTIFIER __sincos_stret
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern struct __float2
+    IDENTIFIER __sincospif_stret
+    PARAMETERS:
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern struct __double2
+    IDENTIFIER __sincospi_stret
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline void
+    IDENTIFIER __sincosf
+    PARAMETERS
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __sinp
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __cosp
+    BLOCK
+      VAR_DECL
+        TYPE: const struct __float2
+        IDENTIFIER __stret
+          = 
+            FUNCTION CALL
+              IDENTIFIER __sincosf_stret
+              ARGUMENTS
+                IDENTIFIER __x
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER __sinp
+        DOT_ACCESS '.'
+          IDENTIFIER __stret
+          FIELD __sinval
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER __cosp
+        DOT_ACCESS '.'
+          IDENTIFIER __stret
+          FIELD __cosval
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline void
+    IDENTIFIER __sincos
+    PARAMETERS
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __sinp
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __cosp
+    BLOCK
+      VAR_DECL
+        TYPE: const struct __double2
+        IDENTIFIER __stret
+          = 
+            FUNCTION CALL
+              IDENTIFIER __sincos_stret
+              ARGUMENTS
+                IDENTIFIER __x
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER __sinp
+        DOT_ACCESS '.'
+          IDENTIFIER __stret
+          FIELD __sinval
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER __cosp
+        DOT_ACCESS '.'
+          IDENTIFIER __stret
+          FIELD __cosval
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline void
+    IDENTIFIER __sincospif
+    PARAMETERS
+      VAR_DECL
+        TYPE: float
+        IDENTIFIER __x
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __sinp
+      VAR_DECL
+        TYPE: float*
+        IDENTIFIER __cosp
+    BLOCK
+      VAR_DECL
+        TYPE: const struct __float2
+        IDENTIFIER __stret
+          = 
+            FUNCTION CALL
+              IDENTIFIER __sincospif_stret
+              ARGUMENTS
+                IDENTIFIER __x
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER __sinp
+        DOT_ACCESS '.'
+          IDENTIFIER __stret
+          FIELD __sinval
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER __cosp
+        DOT_ACCESS '.'
+          IDENTIFIER __stret
+          FIELD __cosval
+  ATTRIBUTE [GNU] __always_inline__
+  FUNCTION DEFINITION
+    RETURN TYPE: inline void
+    IDENTIFIER __sincospi
+    PARAMETERS
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __x
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __sinp
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER __cosp
+    BLOCK
+      VAR_DECL
+        TYPE: const struct __double2
+        IDENTIFIER __stret
+          = 
+            FUNCTION CALL
+              IDENTIFIER __sincospi_stret
+              ARGUMENTS
+                IDENTIFIER __x
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER __sinp
+        DOT_ACCESS '.'
+          IDENTIFIER __stret
+          FIELD __sinval
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER __cosp
+        DOT_ACCESS '.'
+          IDENTIFIER __stret
+          FIELD __cosval
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER j0
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER j1
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER jn
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER y0
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER y1
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER yn
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: extern double
+    IDENTIFIER scalb
+    PARAMETERS:
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER __unnamed_param1
+  VAR_DECL
+    TYPE: extern int
+    IDENTIFIER signgam
+  STRUCT
+        Name:     IDENTIFIER exception
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER type
+    VAR_DECL
+      TYPE: char*
+      IDENTIFIER name
+    VAR_DECL
+      TYPE: double
+      IDENTIFIER arg1
+    VAR_DECL
+      TYPE: double
+      IDENTIFIER arg2
+    VAR_DECL
+      TYPE: double
+      IDENTIFIER retval
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER x
+          = 
+            FUNCTION CALL
+              IDENTIFIER sin
+              ARGUMENTS
+                NUMBER_LITERAL 0.0
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER y
+          = NUMBER_LITERAL 3.14159265358979323846264338327950288
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '+'
+            IDENTIFIER x
+            IDENTIFIER y
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

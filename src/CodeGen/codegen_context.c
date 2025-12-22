@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 static CGScope* cg_scope_create(CGScope* parent);
 static void cg_scope_destroy(CGScope* scope);
@@ -56,7 +57,19 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
             }
             const char* layout = cc_get_data_layout(cctx);
             if (layout && layout[0]) {
-                LLVMSetDataLayout(ctx->module, layout);
+                bool printable = true;
+                size_t len = 0;
+                for (; layout[len]; ++len) {
+                    unsigned char ch = (unsigned char)layout[len];
+                    if (!isprint(ch)) { printable = false; break; }
+                    if (len > 256) { printable = false; break; }
+                }
+                if (printable && len > 0) {
+                    LOG_WARN("codegen", "Using data layout string: '%s'", layout);
+                    LLVMSetDataLayout(ctx->module, layout);
+                } else {
+                    LOG_WARN("codegen", "Ignoring invalid data layout string (len=%zu)", len);
+                }
             }
         }
     }
@@ -319,6 +332,13 @@ const SemanticModel* cg_context_get_semantic_model(CodegenContext* ctx) {
 
 CGTypeCache* cg_context_get_type_cache(CodegenContext* ctx) {
     return ctx ? ctx->typeCache : NULL;
+}
+
+const TargetLayout* cg_context_get_target_layout(CodegenContext* ctx) {
+    if (!ctx || !ctx->semanticModel) return NULL;
+    CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+    if (!cctx) return NULL;
+    return cc_get_target_layout(cctx);
 }
 
 LLVMTypeRef cg_context_lookup_named_type(CodegenContext* ctx, const char* name) {

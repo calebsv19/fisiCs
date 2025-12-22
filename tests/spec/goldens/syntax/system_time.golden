@@ -1,0 +1,655 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER __int8_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER __uint8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER __int16_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER __uint16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __int32_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __uint32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __int64_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __uint64_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_intptr_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_natural_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_ct_rune_t
+  TYPEDEF
+        TYPE: union __anon_union_70
+        Alias:     IDENTIFIER __mbstate_t
+  TYPEDEF
+        TYPE: __mbstate_t
+        Alias:     IDENTIFIER __darwin_mbstate_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ptrdiff_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_size_t
+  TYPEDEF
+        TYPE: __builtin_va_list
+        Alias:     IDENTIFIER __darwin_va_list
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wchar_t
+  TYPEDEF
+        TYPE: __darwin_wchar_t
+        Alias:     IDENTIFIER __darwin_rune_t
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wint_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_clock_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_socklen_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ssize_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_time_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_blkcnt_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_blksize_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_dev_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsblkcnt_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsfilcnt_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_gid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_id_t
+  TYPEDEF
+        TYPE: __uint64_t
+        Alias:     IDENTIFIER __darwin_ino64_t
+  TYPEDEF
+        TYPE: __darwin_ino64_t
+        Alias:     IDENTIFIER __darwin_ino_t
+  TYPEDEF
+        TYPE: __darwin_natural_t
+        Alias:     IDENTIFIER __darwin_mach_port_name_t
+  TYPEDEF
+        TYPE: __darwin_mach_port_name_t
+        Alias:     IDENTIFIER __darwin_mach_port_t
+  TYPEDEF
+        TYPE: __uint16_t
+        Alias:     IDENTIFIER __darwin_mode_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_off_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_pid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_sigset_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_suseconds_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_uid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_useconds_t
+  TYPEDEF
+        TYPE: unsigned char [NUMBER_LITERAL 16]
+        Alias:     IDENTIFIER __darwin_uuid_t
+  TYPEDEF
+        TYPE: char [NUMBER_LITERAL 37]
+        Alias:     IDENTIFIER __darwin_uuid_string_t
+  STRUCT
+        Name:     IDENTIFIER __darwin_pthread_handler_rec
+    VAR_DECL
+      TYPE: void (*)(void*) (void*)
+      IDENTIFIER __routine
+    VAR_DECL
+      TYPE: void*
+      IDENTIFIER __arg
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __next
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_attr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_cond_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 40]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_condattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutex_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutexattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_once_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlock_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 192]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlockattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 16]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __cleanup_stack
+    VAR_DECL
+      TYPE: char [NUMBER_LITERAL 8176]
+      IDENTIFIER __opaque
+  TYPEDEF
+        TYPE: struct _opaque_pthread_attr_t
+        Alias:     IDENTIFIER __darwin_pthread_attr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_cond_t
+        Alias:     IDENTIFIER __darwin_pthread_cond_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_condattr_t
+        Alias:     IDENTIFIER __darwin_pthread_condattr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_pthread_key_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutex_t
+        Alias:     IDENTIFIER __darwin_pthread_mutex_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutexattr_t
+        Alias:     IDENTIFIER __darwin_pthread_mutexattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_once_t
+        Alias:     IDENTIFIER __darwin_pthread_once_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlock_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlock_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlockattr_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlockattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_t*
+        Alias:     IDENTIFIER __darwin_pthread_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_nl_item
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_wctrans_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_wctype_t
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER int8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER int16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER int32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER int64_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER u_int8_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER u_int16_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER u_int32_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER u_int64_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER register_t
+  TYPEDEF
+        TYPE: __darwin_intptr_t
+        Alias:     IDENTIFIER intptr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER uintptr_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_addr_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_size_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_ssize_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_long_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_ulong_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_time_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_off_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER syscall_arg_t
+  TYPEDEF
+        TYPE: __darwin_clock_t
+        Alias:     IDENTIFIER clock_t
+  TYPEDEF
+        TYPE: __darwin_size_t
+        Alias:     IDENTIFIER size_t
+  TYPEDEF
+        TYPE: __darwin_time_t
+        Alias:     IDENTIFIER time_t
+  STRUCT
+        Name:     IDENTIFIER timespec
+    VAR_DECL
+      TYPE: __darwin_time_t
+      IDENTIFIER tv_sec
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER tv_nsec
+  STRUCT
+        Name:     IDENTIFIER tm
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_sec
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_min
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_hour
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_mday
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_mon
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_year
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_wday
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_yday
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tm_isdst
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER tm_gmtoff
+    VAR_DECL
+      TYPE: char*
+      IDENTIFIER tm_zone
+  VAR_DECL
+    TYPE: extern char* [?]
+    IDENTIFIER tzname
+  VAR_DECL
+    TYPE: extern int
+    IDENTIFIER getdate_err
+  VAR_DECL
+    TYPE: extern long int
+    IDENTIFIER timezone
+  VAR_DECL
+    TYPE: extern int
+    IDENTIFIER daylight
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER asctime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const struct tm*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: clock_t
+    IDENTIFIER clock
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER ctime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const time_t*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: double
+    IDENTIFIER difftime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: time_t
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: time_t
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: struct tm*
+    IDENTIFIER getdate
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: struct tm*
+    IDENTIFIER gmtime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const time_t*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: struct tm*
+    IDENTIFIER localtime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const time_t*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: time_t
+    IDENTIFIER mktime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: struct tm*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER strftime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __maxsize
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: const struct tm*
+        IDENTIFIER __unnamed_param2
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER strptime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: struct tm*
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: time_t
+    IDENTIFIER time
+    PARAMETERS:
+      VAR_DECL
+        TYPE: time_t*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER tzset
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER asctime_r
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const struct tm*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER ctime_r
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const time_t*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: struct tm*
+    IDENTIFIER gmtime_r
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const time_t*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: struct tm*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: struct tm*
+    IDENTIFIER localtime_r
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const time_t*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: struct tm*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: time_t
+    IDENTIFIER posix2time
+    PARAMETERS:
+      VAR_DECL
+        TYPE: time_t
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER tzsetwall
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: time_t
+    IDENTIFIER time2posix
+    PARAMETERS:
+      VAR_DECL
+        TYPE: time_t
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: time_t
+    IDENTIFIER timelocal
+    PARAMETERS:
+      VAR_DECL
+        TYPE: struct tm*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: time_t
+    IDENTIFIER timegm
+    PARAMETERS:
+      VAR_DECL
+        TYPE: struct tm*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER nanosleep
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const struct timespec*
+        IDENTIFIER __rqtp
+      VAR_DECL
+        TYPE: struct timespec*
+        IDENTIFIER __rmtp
+  TYPEDEF
+        TYPE: __anon_enum_156
+        Alias:     IDENTIFIER clockid_t
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER clock_getres
+    PARAMETERS:
+      VAR_DECL
+        TYPE: clockid_t
+        IDENTIFIER __clock_id
+      VAR_DECL
+        TYPE: struct timespec*
+        IDENTIFIER __res
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER clock_gettime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: clockid_t
+        IDENTIFIER __clock_id
+      VAR_DECL
+        TYPE: struct timespec*
+        IDENTIFIER __tp
+  FUNCTION DECLARATION
+    RETURN TYPE: __uint64_t
+    IDENTIFIER clock_gettime_nsec_np
+    PARAMETERS:
+      VAR_DECL
+        TYPE: clockid_t
+        IDENTIFIER __clock_id
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER clock_settime
+    PARAMETERS:
+      VAR_DECL
+        TYPE: clockid_t
+        IDENTIFIER __clock_id
+      VAR_DECL
+        TYPE: const struct timespec*
+        IDENTIFIER __tp
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER timespec_get
+    PARAMETERS:
+      VAR_DECL
+        TYPE: struct timespec*
+        IDENTIFIER ts
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER base
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct tm
+        IDENTIFIER tm
+            = NUMBER_LITERAL 0
+
+      VAR_DECL
+        TYPE: time_t
+        IDENTIFIER now
+          = 
+            FUNCTION CALL
+              IDENTIFIER time
+              ARGUMENTS
+                CAST_EXPRESSION
+                                    CAST TYPE: void*
+                  NUMBER_LITERAL 0
+      CAST_EXPRESSION
+                CAST TYPE: void
+        IDENTIFIER tm
+      CAST_EXPRESSION
+                CAST TYPE: void
+        IDENTIFIER now
+      RETURN
+        NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

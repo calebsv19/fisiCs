@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "Preprocessor/include_resolver.h"
 #include "Compiler/diagnostics.h"
+#include "Syntax/target_layout.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -130,8 +131,11 @@ typedef struct CompilerContext {
     CCTagTable tag_enum;        // enum tag metadata
     CCBuiltins  builtins;       // builtin type names (void,int,uint64_t,...)
     IncludeGraph includeGraph;  // dependency edges (parent -> child)
+    uint64_t dl_canary_front;   // guard against overwrite
     char* targetTriple;
+    TargetLayout* targetLayout;
     char* dataLayout;
+    uint64_t dl_canary_back;    // guard against overwrite
     CompilerDiagnostics diags;  // Diagnostics recorded during lex/parse/sema.
     CompilerTokenSpans tokenSpans;
     CompilerSymbols symbols;
@@ -179,6 +183,8 @@ const IncludeGraph* cc_get_include_graph(const CompilerContext* ctx);
 // Target recording (threaded to codegen/layout consumers)
 bool cc_set_target_triple(CompilerContext* ctx, const char* triple);
 const char* cc_get_target_triple(const CompilerContext* ctx);
+bool cc_set_target_layout(CompilerContext* ctx, const TargetLayout* layout);
+const TargetLayout* cc_get_target_layout(const CompilerContext* ctx);
 bool cc_set_data_layout(CompilerContext* ctx, const char* layout);
 const char* cc_get_data_layout(const CompilerContext* ctx);
 

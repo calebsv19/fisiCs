@@ -1,5 +1,6 @@
 #include "token_buffer.h"
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -58,6 +59,8 @@ const Token* token_buffer_peek(const TokenBuffer* buffer, size_t index) {
 
 bool token_buffer_fill_from_lexer(TokenBuffer* buffer, Lexer* lexer) {
     if (!buffer || !lexer) return false;
+    size_t safetyCounter = 0;
+    size_t safetyLimit = (lexer->length > 0) ? ((size_t)lexer->length + 1024) : 4096;
     while (1) {
         Token token = getNextToken(lexer);
         if (!token_buffer_append(buffer, token)) {
@@ -65,6 +68,10 @@ bool token_buffer_fill_from_lexer(TokenBuffer* buffer, Lexer* lexer) {
         }
         if (token.type == TOKEN_EOF) {
             break;
+        }
+        if (++safetyCounter > safetyLimit) {
+            fprintf(stderr, "lexer safety break triggered at position %d\n", lexer->position);
+            return false;
         }
     }
     return true;

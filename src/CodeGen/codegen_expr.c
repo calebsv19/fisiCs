@@ -1,16 +1,79 @@
 #include "codegen_private.h"
 
 #include "codegen_types.h"
+#include "Parser/Helpers/parsed_type.h"
+#include "literal_utils.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
+
+static LLVMValueRef ensureIntegerLike(CodegenContext* ctx, LLVMValueRef value) {
+    if (!value) return NULL;
+    LLVMTypeRef ty = LLVMTypeOf(value);
+    if (ty && LLVMGetTypeKind(ty) == LLVMIntegerTypeKind) {
+        return value;
+    }
+    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+    if (ty && LLVMGetTypeKind(ty) == LLVMPointerTypeKind) {
+        return LLVMBuildPtrToInt(ctx->builder, value, intptrTy, "vla.ptrtoint");
+    }
+    return LLVMBuildIntCast2(ctx->builder, value, intptrTy, 0, "vla.intcast");
+}
+
+static LLVMTypeRef vlaInnermostElementLLVM(CodegenContext* ctx, const ParsedType* type) {
+    if (!type) return LLVMInt32TypeInContext(ctx->llvmContext);
+    ParsedType base = parsedTypeClone(type);
+    while (parsedTypeIsDirectArray(&base)) {
+        ParsedType next = parsedTypeArrayElementType(&base);
+        parsedTypeFree(&base);
+        base = next;
+    }
+    LLVMTypeRef elem = cg_type_from_parsed(ctx, &base);
+    parsedTypeFree(&base);
+    if (!elem || LLVMGetTypeKind(elem) == LLVMVoidTypeKind) {
+        elem = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+    return elem;
+}
+
+static LLVMValueRef computeVLAElementCount(CodegenContext* ctx, const ParsedType* type) {
+    if (!ctx || !type) return NULL;
+    LLVMValueRef total = NULL;
+    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+        if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY) continue;
+
+        LLVMValueRef dimValue = NULL;
+        if (!deriv->as.array.isVLA && deriv->as.array.hasConstantSize && deriv->as.array.constantSize > 0) {
+            dimValue = LLVMConstInt(intptrTy, (unsigned long long)deriv->as.array.constantSize, 0);
+        } else if (deriv->as.array.sizeExpr) {
+            LLVMValueRef evaluated = codegenNode(ctx, deriv->as.array.sizeExpr);
+            dimValue = ensureIntegerLike(ctx, evaluated);
+        }
+        if (!dimValue) {
+            dimValue = LLVMConstInt(intptrTy, 1, 0);
+        }
+        if (!total) {
+            total = dimValue;
+        } else {
+            total = LLVMBuildMul(ctx->builder, total, dimValue, "vla.total");
+        }
+    }
+    return total ? total : LLVMConstInt(intptrTy, 1, 0);
+}
 
 static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
                                                  const ParsedType* type,
                                                  size_t fallbackArgCount,
                                                  LLVMValueRef* args) {
     if (!ctx || !type) {
+        return NULL;
+    }
+    if (!type->isFunctionPointer && type->fpParamCount == 0) {
         return NULL;
     }
 
@@ -285,6 +348,17 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
 
     if (strcmp(node->expr.op, "-") == 0) {
         return LLVMBuildNeg(ctx->builder, operand, "negtmp");
+    } else if (strcmp(node->expr.op, "~") == 0) {
+        LLVMTypeRef operandType = LLVMTypeOf(operand);
+        if (!operandType || LLVMGetTypeKind(operandType) != LLVMIntegerTypeKind) {
+            LLVMTypeRef intType = LLVMInt32TypeInContext(ctx->llvmContext);
+            operand = cg_cast_value(ctx, operand, intType, operandParsed, NULL, "bnot.cast");
+            if (!operand) {
+                fprintf(stderr, "Error: Failed to cast operand for bitwise not\n");
+                return NULL;
+            }
+        }
+        return LLVMBuildNot(ctx->builder, operand, "nottmp");
     } else if (strcmp(node->expr.op, "!") == 0) {
         LLVMValueRef boolVal = cg_build_truthy(ctx, operand, operandParsed, "lnot.bool");
         if (!boolVal) return NULL;
@@ -531,10 +605,55 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: Array access failed\n");
         return NULL;
     }
+    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+    const ParsedType* arrayParsed = cg_resolve_expression_type(ctx, node->arrayAccess.array);
+
+    if (arrayParsed && parsedTypeIsDirectArray(arrayParsed) && parsedTypeHasVLA(arrayParsed)) {
+        size_t arrayDims = 0;
+        for (size_t i = 0; i < arrayParsed->derivationCount; ++i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(arrayParsed, i);
+            if (deriv && deriv->kind == TYPE_DERIVATION_ARRAY) {
+                arrayDims++;
+            }
+        }
+        LLVMValueRef stride = LLVMConstInt(intptrTy, 1, 0);
+        for (size_t i = 1; i < arrayParsed->derivationCount; ++i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(arrayParsed, i);
+            if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY) continue;
+            LLVMValueRef dim = NULL;
+            if (!deriv->as.array.isVLA && deriv->as.array.hasConstantSize && deriv->as.array.constantSize > 0) {
+                dim = LLVMConstInt(intptrTy, (unsigned long long)deriv->as.array.constantSize, 0);
+            } else if (deriv->as.array.sizeExpr) {
+                LLVMValueRef evaluated = codegenNode(ctx, deriv->as.array.sizeExpr);
+                dim = ensureIntegerLike(ctx, evaluated);
+            }
+            if (!dim) continue;
+            stride = LLVMBuildMul(ctx->builder, stride, dim, "vla.stride");
+        }
+
+        LLVMValueRef offset = ensureIntegerLike(ctx, index);
+        if (!offset) return NULL;
+        if (arrayDims > 1) {
+            offset = LLVMBuildMul(ctx->builder, offset, stride, "vla.offset");
+        }
+
+        LLVMTypeRef elemType = vlaInnermostElementLLVM(ctx, arrayParsed);
+        LLVMTypeRef ptrToElem = LLVMPointerType(elemType, 0);
+        if (LLVMTypeOf(arrayPtr) != ptrToElem) {
+            arrayPtr = LLVMBuildBitCast(ctx->builder, arrayPtr, ptrToElem, "vla.elem.base");
+        }
+        LLVMValueRef elementPtr = LLVMBuildGEP2(ctx->builder, elemType, arrayPtr, &offset, 1, "vla.elem.ptr");
+
+        bool hasMoreDims = arrayDims > 1;
+        if (hasMoreDims) {
+            return elementPtr;
+        }
+        LLVMValueRef loadVal = LLVMBuildLoad2(ctx->builder, elemType, elementPtr, "arrayLoad");
+        return loadVal;
+    }
     char* arrTyStr = LLVMPrintTypeToString(LLVMTypeOf(arrayPtr));
     CG_DEBUG("[CG] Array access base type: %s\n", arrTyStr ? arrTyStr : "<null>");
     if (arrTyStr) LLVMDisposeMessage(arrTyStr);
-    const ParsedType* arrayParsed = cg_resolve_expression_type(ctx, node->arrayAccess.array);
     LLVMTypeRef aggregateHint = NULL;
     if (arrayParsed && parsedTypeIsDirectArray(arrayParsed)) {
         aggregateHint = cg_type_from_parsed(ctx, arrayParsed);
@@ -810,6 +929,32 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             }
         }
     }
+    if ((!calleeType || LLVMGetTypeKind(calleeType) != LLVMFunctionTypeKind) && calleeName && ctx) {
+        const SemanticModel* model = cg_context_get_semantic_model(ctx);
+        if (model) {
+            const Symbol* sym = semanticModelLookupGlobal(model, calleeName);
+            if (sym && sym->signature.paramCount >= 0) {
+                LLVMTypeRef retType = cg_type_from_parsed(ctx, &sym->type);
+                if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
+                    retType = LLVMVoidTypeInContext(ctx->llvmContext);
+                }
+                size_t paramCount = sym->signature.paramCount;
+                LLVMTypeRef* paramTypes = NULL;
+                if (paramCount > 0) {
+                    paramTypes = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
+                    if (!paramTypes) return NULL;
+                    for (size_t i = 0; i < paramCount; ++i) {
+                        paramTypes[i] = cg_type_from_parsed(ctx, &sym->signature.params[i]);
+                        if (!paramTypes[i] || LLVMGetTypeKind(paramTypes[i]) == LLVMVoidTypeKind) {
+                            paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
+                        }
+                    }
+                }
+                calleeType = LLVMFunctionType(retType, paramTypes, (unsigned)paramCount, sym->signature.isVariadic);
+                free(paramTypes);
+            }
+        }
+    }
     if (!calleeType || LLVMGetTypeKind(calleeType) != LLVMFunctionTypeKind) {
         fprintf(stderr, "Error: call target is not a function type\n");
         free(args);
@@ -916,8 +1061,18 @@ LLVMValueRef codegenCharLiteral(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    char value = node->valueNode.value[0];
-    return LLVMConstInt(LLVMInt8TypeInContext(ctx->llvmContext), value, 0);
+    const char* payload = NULL;
+    ast_literal_encoding(node->valueNode.value, &payload);
+    long long value = 0;
+    if (payload) {
+        char* endptr = NULL;
+        value = strtoll(payload, &endptr, 0);
+        if (endptr == payload) {
+            value = (unsigned char)payload[0];
+        }
+    }
+    LLVMTypeRef ty = LLVMInt32TypeInContext(ctx->llvmContext);
+    return LLVMConstInt(ty, (unsigned long long)value, 0);
 }
 
 
@@ -927,7 +1082,37 @@ LLVMValueRef codegenStringLiteral(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    return LLVMBuildGlobalStringPtr(ctx->builder, node->valueNode.value, "str");
+    const char* payload = NULL;
+    LiteralEncoding enc = ast_literal_encoding(node->valueNode.value, &payload);
+    if (enc == LIT_ENC_WIDE) {
+        const char* text = payload ? payload : node->valueNode.value;
+        return LLVMBuildGlobalStringPtr(ctx->builder, text ? text : "", "str");
+    }
+
+    char* decoded = NULL;
+    size_t decodedLen = 0;
+    LiteralDecodeResult res = decode_c_string_literal(payload ? payload : "", 8, &decoded, &decodedLen);
+    (void)res;
+    if (decoded) {
+        LLVMValueRef strConst = LLVMConstStringInContext(ctx->llvmContext, decoded, (unsigned)decodedLen, false);
+        LLVMTypeRef arrTy = LLVMTypeOf(strConst);
+        static unsigned counter = 0;
+        char name[32];
+        snprintf(name, sizeof(name), ".str.%u", counter++);
+        LLVMValueRef global = LLVMAddGlobal(ctx->module, arrTy, name);
+        LLVMSetLinkage(global, LLVMPrivateLinkage);
+        LLVMSetInitializer(global, strConst);
+        LLVMSetGlobalConstant(global, true);
+        LLVMSetUnnamedAddr(global, LLVMGlobalUnnamedAddr);
+        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+        LLVMValueRef indices[2] = { zero, zero };
+        LLVMValueRef gep = LLVMConstGEP2(arrTy, global, indices, 2);
+        free(decoded);
+        return gep;
+    }
+
+    const char* text = payload ? payload : node->valueNode.value;
+    return LLVMBuildGlobalStringPtr(ctx->builder, text ? text : "", "str");
 }
 
 
@@ -994,16 +1179,41 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    LLVMTypeRef type = LLVMInt32TypeInContext(ctx->llvmContext);
+    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+    const ParsedType* parsed = NULL;
     if (node->expr.left) {
         ASTNode* operand = node->expr.left;
         if (operand->type == AST_PARSED_TYPE) {
-            type = cg_type_from_parsed(ctx, &operand->parsedTypeNode.parsed);
+            parsed = &operand->parsedTypeNode.parsed;
         } else {
-            LLVMValueRef value = codegenNode(ctx, operand);
-            if (value) {
-                type = LLVMTypeOf(value);
-            }
+            parsed = cg_resolve_expression_type(ctx, operand);
+        }
+    }
+
+    if (parsed) {
+        if (parsedTypeHasVLA(parsed)) {
+            LLVMValueRef elementCount = computeVLAElementCount(ctx, parsed);
+            if (!elementCount) return NULL;
+            LLVMTypeRef elemType = vlaInnermostElementLLVM(ctx, parsed);
+            unsigned long long elemSize = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), elemType);
+            LLVMValueRef elemSizeVal = LLVMConstInt(intptrTy, elemSize, 0);
+            return LLVMBuildMul(ctx->builder, elementCount, elemSizeVal, "sizeof.vla");
+        }
+
+        LLVMTypeRef ty = cg_type_from_parsed(ctx, parsed);
+        if (!ty || LLVMGetTypeKind(ty) == LLVMVoidTypeKind) {
+            ty = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
+        unsigned long long abiSize = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), ty);
+        return LLVMConstInt(intptrTy, abiSize, 0);
+    }
+
+    LLVMTypeRef type = LLVMInt32TypeInContext(ctx->llvmContext);
+    if (node->expr.left) {
+        ASTNode* operand = node->expr.left;
+        LLVMValueRef value = codegenNode(ctx, operand);
+        if (value) {
+            type = LLVMTypeOf(value);
         }
     }
 

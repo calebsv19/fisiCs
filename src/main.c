@@ -6,6 +6,9 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <limits.h>
+#include <execinfo.h>
+
+#include <llvm-c/ErrorHandling.h>
 
 #include "Compiler/pipeline.h"
 #include "Compiler/object_emit.h"
@@ -61,6 +64,14 @@ static char* derive_object_path(const char* cPath) {
     out[baseLen] = '\0';
     strcat(out, ".o");
     return out;
+}
+
+static void llvm_fatal_handler(const char* reason) {
+    fprintf(stderr, "LLVM fatal error: %s\n", reason ? reason : "<null>");
+    void* frames[64];
+    int count = backtrace(frames, 64);
+    backtrace_symbols_fd(frames, count, fileno(stderr));
+    _exit(1);
 }
 
 static char* create_temp_object_path(const char* baseName) {
@@ -176,6 +187,8 @@ int main(int argc, char **argv) {
     if (!nanoEnv) {
         setenv("MallocNanoZone", "0", 0);
     }
+
+    LLVMInstallFatalErrorHandler(llvm_fatal_handler);
 
     const char *filename = NULL;
     bool preservePPNodes = false;

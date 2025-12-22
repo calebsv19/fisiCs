@@ -52,6 +52,9 @@ restrict
 inline
 sizeof
 asm
+_Bool
+_Complex
+_Imaginary
 pragma
 once
 %%

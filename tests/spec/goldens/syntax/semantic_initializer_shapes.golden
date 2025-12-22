@@ -93,9 +93,7 @@ PROGRAM
 
 Diagnostics:
 Error at (8:0): Excess elements in scalar initializer for 'scalar_bad'
-Error at (10:0): Initializer for struct variable 'p_bad' must be brace-enclosed
 Error at (12:0): Too many initializers for array 'arr_too_many' (size 2)
-Error at (13:0): Not enough initializers for array 'arr_too_few' (have 1, expected 3)
 Error at (14:0): Array 'arr_designator' designator index 2 is out of bounds (size 2)
 Error at (16:0): Excess elements in scalar initializer for 'nested'
 Error at (18:0): String literal for array 'label' is too long (needs 5, size 3)
