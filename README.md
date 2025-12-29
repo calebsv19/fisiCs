@@ -10,8 +10,8 @@ DSL-style annotations, physics-aware types, and IDE integration.
 - **Lexer** – Robust tokenization for C99-style syntax (keywords, identifiers, literals, operators).
 - **Preprocessor** – Runs before parsing: macro table + expansion engine (args, stringification, pasting, variadics), conditional stack for `#if/#elif/#else` with a dedicated PP expression evaluator, include resolver with project/system search paths, pragma-once/guard short-circuiting, and include-graph JSON emission (`--emit-deps-json` / `EMIT_DEPS_JSON`). `--preserve-pp` or `PRESERVE_PP_NODES=1` keeps directive AST stubs for tooling.
 - **Parser** – Handles expressions, declarations, control-flow, designated initialisers, and attributes (`__attribute__`, `[[gnu::...]]`, `__declspec`, …). Declarators are normalized into `ParsedType` derivations (pointer chains, array suffixes, function signatures). GNU statement expressions can be toggled via `ENABLE_GNU_STATEMENT_EXPRESSIONS=1`; panic-mode recovery keeps parsing after errors so later diagnostics still appear.
-- **Semantic Analysis** – Storage/linkage + tentative defs, deep pointer qualifiers, incomplete types, bitfields, integer const-eval (enums, case labels, array sizes, static initializers), switch diagnostics (duplicate cases, fallthrough warnings), varargs checks (default promotions, `va_start` validation), and strict layout inference (packed/aligned attributes, ABI profiles) feeding sizeof/alignof and codegen. Pointer arithmetic, lvalue/decay, and initializer-shape checks all replay the `ParsedType` derivations. Optional UB-focused warnings catch unsequenced modifications and obvious `restrict` aliasing violations.
-- **LLVM IR Codegen** – Ternary merge typing with PHI, short-circuiting, dense vs sparse switch lowering, pointer diff arithmetic, memcpy/memset for aggregates/zero-inits, and intptr width sourced from the LLVM module data layout. VLA accesses/`sizeof` use runtime extents. Types are rebuilt directly from `ParsedType` derivations; target triple and data layout propagate from CLI flags.
+- **Semantic Analysis** – Storage/linkage + tentative defs, deep pointer qualifiers, incomplete types, bitfields, integer const-eval (enums, case labels, array sizes, static initializers), switch diagnostics (duplicate cases, fallthrough warnings), varargs checks (default promotions, `va_start` validation), and strict layout inference (packed/aligned attributes, ABI profiles) feeding sizeof/alignof and codegen. Pointer arithmetic, lvalue/decay, and initializer-shape checks all replay the `ParsedType` derivations. Optional UB-focused warnings catch unsequenced modifications and obvious `restrict` aliasing violations. Interop attributes (`__stdcall`, `__fastcall`, `__declspec(dllexport/import)`) are parsed and gated per-target with configurable warn/error on ignore.
+- **LLVM IR Codegen** – Ternary merge typing with PHI, short-circuiting, dense vs sparse switch lowering, pointer diff arithmetic, memcpy/memset for aggregates/zero-inits, and intptr width sourced from the LLVM module data layout. VLA accesses/`sizeof` use runtime extents. Types are rebuilt directly from `ParsedType` derivations; target triple and data layout propagate from CLI flags. Calling conventions/DLL storage are applied when the target profile marks them as supported.
 - **H2 Generator** – Emits helper `.h2` metadata for IDE or tooling experiments.
 - **Debug Instrumentation** – Opt-in parser/codegen tracing toggled at build time via make variables.
 
@@ -90,7 +90,10 @@ cc -o compiler src/*.c -Iinclude $(llvm-config --cflags --ldflags --libs core)
 --dump-ast         print AST
 --dump-sema        print semantic model
 --dump-ir          print LLVM IR
---target/--data-layout  override target triple/data layout
+--dump-layout      print the active target layout (sizes/aligns/endianness) and exit
+--target/--data-layout  override target triple/data layout (defaults to LP64 + fp80 on this host)
+--no-warn-ignored-cc   silence warnings for unsupported stdcall/fastcall/dllimport/dllexport
+--error-ignored-cc     treat unsupported calling-convention or DLL storage attributes as errors
 ```
 
 ### GNU Statement Expressions (optional)

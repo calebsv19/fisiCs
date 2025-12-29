@@ -32,6 +32,7 @@ typedef struct {
 
 // ---- CompilerContext: shared across the whole translation unit ----
 struct ASTNode;
+struct CCTagFieldLayout;
 
 typedef struct {
     char* name;
@@ -42,6 +43,9 @@ typedef struct {
     size_t layoutSize;
     size_t layoutAlign;
     bool computingLayout;
+    struct CCTagFieldLayout* fieldLayouts;
+    size_t fieldLayoutCount;
+    size_t fieldLayoutCapacity;
 } CCTagRecord;
 
 typedef struct {
@@ -135,6 +139,8 @@ typedef struct CompilerContext {
     char* targetTriple;
     TargetLayout* targetLayout;
     char* dataLayout;
+    bool warnIgnoredInterop;
+    bool errorIgnoredInterop;
     uint64_t dl_canary_back;    // guard against overwrite
     CompilerDiagnostics diags;  // Diagnostics recorded during lex/parse/sema.
     CompilerTokenSpans tokenSpans;
@@ -172,6 +178,26 @@ bool cc_set_tag_layout(CompilerContext* ctx, CCTagKind kind, const char* name, s
 bool cc_get_tag_layout(const CompilerContext* ctx, CCTagKind kind, const char* name, size_t* sizeOut, size_t* alignOut);
 bool cc_tag_mark_computing(CompilerContext* ctx, CCTagKind kind, const char* name, bool computing);
 bool cc_tag_is_computing(const CompilerContext* ctx, CCTagKind kind, const char* name);
+typedef struct CCTagFieldLayout {
+    char* name;               // nullable for unnamed bitfields
+    size_t byteOffset;        // byte offset from struct base
+    size_t bitOffset;         // bit offset within storageUnitBytes (0-based, endianness-aware)
+    size_t widthBits;         // 0 for zero-width or non-bitfield
+    size_t storageUnitBytes;  // size of the storage unit for the bitfield (or field size for non-bitfield)
+    bool isBitfield;
+    bool isZeroWidth;
+    bool isSigned;
+} CCTagFieldLayout;
+bool cc_set_tag_field_layouts(CompilerContext* ctx,
+                              CCTagKind kind,
+                              const char* name,
+                              const CCTagFieldLayout* layouts,
+                              size_t count);
+bool cc_get_tag_field_layouts(const CompilerContext* ctx,
+                              CCTagKind kind,
+                              const char* name,
+                              const CCTagFieldLayout** layoutsOut,
+                              size_t* countOut);
 
 // ---- Builtins query ----
 bool cc_is_builtin_type(const CompilerContext* ctx, const char* name);
@@ -187,6 +213,9 @@ bool cc_set_target_layout(CompilerContext* ctx, const TargetLayout* layout);
 const TargetLayout* cc_get_target_layout(const CompilerContext* ctx);
 bool cc_set_data_layout(CompilerContext* ctx, const char* layout);
 const char* cc_get_data_layout(const CompilerContext* ctx);
+void cc_set_interop_diag(CompilerContext* ctx, bool warnIgnored, bool errorIgnored);
+bool cc_warn_ignored_interop(const CompilerContext* ctx);
+bool cc_error_ignored_interop(const CompilerContext* ctx);
 
 // Token span helpers
 bool cc_set_token_spans(CompilerContext* ctx, const FisicsTokenSpan* spans, size_t count);

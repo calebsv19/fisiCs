@@ -1,0 +1,27 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER g
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      SWITCH
+        IDENTIFIER x
+        CASE
+          BINARY EXPRESSION '+'
+            IDENTIFIER x
+            NUMBER_LITERAL 1
+          RETURN
+            NUMBER_LITERAL 1
+        CASE
+          DEFAULT
+          RETURN
+            NUMBER_LITERAL 0
+
+
+Diagnostics:
+Error at (4:0): Case label is not an integer constant expression
+

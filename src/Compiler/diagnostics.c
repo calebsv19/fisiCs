@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "Compiler/compiler_context.h"
+#include "Utils/logging.h"
 
 static CompilerDiagnostics* ctx_buffer(struct CompilerContext* ctx) {
     return ctx ? &ctx->diags : NULL;
@@ -61,6 +62,11 @@ bool compiler_report_diag(struct CompilerContext* ctx,
                           const char* hint,
                           const char* fmt,
                           ...) {
+    const char* debugEnv = getenv("FISICS_DEBUG_LAYOUT");
+    bool debugLayout = debugEnv && debugEnv[0] && debugEnv[0] != '0';
+    const char* dl_before = ctx ? ctx->dataLayout : NULL;
+    uint64_t canary_front = ctx ? ctx->dl_canary_front : 0;
+    uint64_t canary_back  = ctx ? ctx->dl_canary_back  : 0;
     CompilerDiagnostics* buf = ctx_buffer(ctx);
     if (!buf || !fmt) return false;
     if (!diag_buffer_reserve(buf, 1)) {
@@ -99,6 +105,24 @@ bool compiler_report_diag(struct CompilerContext* ctx,
     d->code = code;
     d->message = message;
     d->hint = hintCopy;
+    const char* dl_after = ctx ? ctx->dataLayout : NULL;
+    if (debugLayout &&
+        ctx &&
+        (dl_before != dl_after ||
+         canary_front != ctx->dl_canary_front ||
+         canary_back  != ctx->dl_canary_back)) {
+        LOG_WARN("codegen",
+                 "[compiler_report_diag] dataLayout changed %p->%p code=%d kind=%d line=%d canaries %llx/%llx -> %llx/%llx",
+                 (void*)dl_before,
+                 (void*)dl_after,
+                 code,
+                 kind,
+                 loc.start.line,
+                 (unsigned long long)canary_front,
+                 (unsigned long long)canary_back,
+                 (unsigned long long)ctx->dl_canary_front,
+                 (unsigned long long)ctx->dl_canary_back);
+    }
     return true;
 }
 

@@ -49,6 +49,17 @@ static ParsedType floatType(bool isDouble) {
     return t;
 }
 
+static ParsedType sizedIntType(unsigned bits, bool isUnsigned) {
+    if (bits >= 64) {
+        ParsedType t = longType(isUnsigned);
+        t.isLong = true;
+        return t;
+    }
+    ParsedType t = intType();
+    t.isUnsigned = isUnsigned;
+    return t;
+}
+
 static ParsedType pointerTo(ParsedType base) {
     parsedTypeAppendPointer(&base);
     return base;
@@ -157,7 +168,8 @@ void seedBuiltins(Scope* globalScope) {
     // Math-related builtins used in system headers
     ParsedType floatRet = floatType(false);
     ParsedType doubleRet = floatType(true);
-    ParsedType longDoubleRet = doubleRet; // treat long double as double for now
+    ParsedType longDoubleRet = floatType(true);
+    longDoubleRet.isLong = true;
 
     ParsedType floatArg[1] = { floatRet };
     ParsedType doubleArg[1] = { doubleRet };
@@ -178,15 +190,55 @@ void seedBuiltins(Scope* globalScope) {
         if (mathSyms[i]) addToScope(scope, mathSyms[i]);
     }
 
+    // Branch prediction hint
+    ParsedType expectArgs[2] = { longType(false), longType(false) };
+    Symbol* expectSym = makeBuiltinFunc("__builtin_expect", longType(false), 2, expectArgs);
+    if (expectSym) addToScope(scope, expectSym);
+
+    // Varargs helpers used by system headers/macros.
+    ParsedType voidRet = voidType();
+    Symbol* vaStart = makeBuiltinFunc("__builtin_va_start", voidRet, 0, NULL);
+    if (vaStart) {
+        vaStart->signature.isVariadic = true;
+        addToScope(scope, vaStart);
+    }
+    Symbol* vaEnd = makeBuiltinFunc("__builtin_va_end", voidRet, 0, NULL);
+    if (vaEnd) {
+        vaEnd->signature.isVariadic = true;
+        addToScope(scope, vaEnd);
+    }
+    Symbol* vaCopy = makeBuiltinFunc("__builtin_va_copy", voidRet, 0, NULL);
+    if (vaCopy) {
+        vaCopy->signature.isVariadic = true;
+        addToScope(scope, vaCopy);
+    }
+    ParsedType vaArgParams[2];
+    vaArgParams[0] = pointerTo(intType()); // loose pointer placeholder
+    vaArgParams[1] = intType();            // placeholder; real type comes from call site
+    Symbol* vaArgSym = makeBuiltinFunc("__builtin_va_arg", intType(), 2, vaArgParams);
+    if (vaArgSym) {
+        vaArgSym->signature.isVariadic = true;
+        addToScope(scope, vaArgSym);
+    }
+
     // Common typedefs for standalone builds without headers
-    Symbol* sz  = makeTypedef("size_t",    longType(true), scope->ctx);
-    Symbol* ssz = makeTypedef("ssize_t",   longType(false), scope->ctx);
-    Symbol* ip  = makeTypedef("intptr_t",  longType(false), scope->ctx);
-    Symbol* uip = makeTypedef("uintptr_t", longType(true), scope->ctx);
-    Symbol* pd  = makeTypedef("ptrdiff_t", longType(false), scope->ctx);
+    const TargetLayout* tl = scope && scope->ctx ? cc_get_target_layout(scope->ctx) : tl_default();
+    unsigned ptrBits = tl ? (unsigned)tl->pointerBits : 64;
+    ParsedType sizeLike = sizedIntType(ptrBits, true);
+    ParsedType ssizeLike = sizedIntType(ptrBits, false);
+    Symbol* sz  = makeTypedef("size_t",    sizeLike, scope->ctx);
+    Symbol* ssz = makeTypedef("ssize_t",   ssizeLike, scope->ctx);
+    Symbol* ip  = makeTypedef("intptr_t",  ssizeLike, scope->ctx);
+    Symbol* uip = makeTypedef("uintptr_t", sizeLike, scope->ctx);
+    Symbol* pd  = makeTypedef("ptrdiff_t", ssizeLike, scope->ctx);
     Symbol* wc  = makeTypedef("wchar_t",   intType(), scope->ctx);
     Symbol* wint = makeTypedef("wint_t",   intType(), scope->ctx);
     Symbol* sig = makeTypedef("sig_atomic_t", intType(), scope->ctx);
+    ParsedType maxAlignType = longDoubleRet;
+    if (tl && tl->longDoubleBits == 0) {
+        maxAlignType = longType(true);
+    }
+    Symbol* maxa = makeTypedef("max_align_t", maxAlignType, scope->ctx);
     if (sz)  addToScope(scope, sz);
     if (ssz) addToScope(scope, ssz);
     if (ip)  addToScope(scope, ip);
@@ -195,6 +247,7 @@ void seedBuiltins(Scope* globalScope) {
     if (wc)  addToScope(scope, wc);
     if (wint) addToScope(scope, wint);
     if (sig) addToScope(scope, sig);
+    if (maxa) addToScope(scope, maxa);
 
     // NULL as a weak builtin integer macro substitute
     Symbol* nullSym = makeBuiltin("NULL", SYMBOL_VARIABLE, voidPtrType(), NULL);
@@ -203,7 +256,7 @@ void seedBuiltins(Scope* globalScope) {
     // Floating-point limit constants commonly injected by compilers
     Symbol* fltMin = makeBuiltin("__FLT_MIN__", SYMBOL_VARIABLE, floatType(false), NULL);
     Symbol* dblMin = makeBuiltin("__DBL_MIN__", SYMBOL_VARIABLE, floatType(true), NULL);
-    Symbol* ldMin  = makeBuiltin("__LDBL_MIN__", SYMBOL_VARIABLE, floatType(true), NULL);
+    Symbol* ldMin  = makeBuiltin("__LDBL_MIN__", SYMBOL_VARIABLE, longDoubleRet, NULL);
     if (fltMin) addToScope(scope, fltMin);
     if (dblMin) addToScope(scope, dblMin);
     if (ldMin)  addToScope(scope, ldMin);

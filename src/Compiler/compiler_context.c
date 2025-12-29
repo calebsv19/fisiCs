@@ -45,6 +45,13 @@ static bool cc_stringset_add(CCStringSet* s, const char* key) {
 static void cc_tag_table_free(CCTagTable* table) {
     if (!table) return;
     for (size_t i = 0; i < table->count; ++i) {
+        if (table->records[i].fieldLayouts) {
+            for (size_t j = 0; j < table->records[i].fieldLayoutCount; ++j) {
+                free(table->records[i].fieldLayouts[j].name);
+            }
+            free(table->records[i].fieldLayouts);
+            table->records[i].fieldLayouts = NULL;
+        }
         free(table->records[i].name);
     }
     free(table->records);
@@ -95,6 +102,9 @@ static bool cc_tag_table_add(CCTagTable* table, const char* name) {
     rec->layoutSize = 0;
     rec->layoutAlign = 0;
     rec->computingLayout = false;
+    rec->fieldLayouts = NULL;
+    rec->fieldLayoutCount = 0;
+    rec->fieldLayoutCapacity = 0;
     return true;
 }
 
@@ -140,6 +150,8 @@ CompilerContext* cc_create(void) {
     c->dl_canary_front = 0xdeadbeefcafebabeULL;
     c->dl_canary_back  = 0xabad1dea12345678ULL;
     c->targetLayout = NULL;
+    c->warnIgnoredInterop = true;
+    c->errorIgnoredInterop = false;
     return c;
 }
 
@@ -268,6 +280,15 @@ CCTagDefineResult cc_define_tag(CompilerContext* ctx,
     rec->layoutSize = 0;
     rec->layoutAlign = 0;
     rec->computingLayout = false;
+    if (rec->fieldLayouts) {
+        for (size_t i = 0; i < rec->fieldLayoutCount; ++i) {
+            free(rec->fieldLayouts[i].name);
+        }
+        free(rec->fieldLayouts);
+        rec->fieldLayouts = NULL;
+        rec->fieldLayoutCount = 0;
+        rec->fieldLayoutCapacity = 0;
+    }
     return CC_TAGDEF_ADDED;
 }
 
@@ -313,6 +334,54 @@ bool cc_tag_is_computing(const CompilerContext* ctx, CCTagKind kind, const char*
     const CCTagTable* table = pick_tag_table_const(ctx, kind);
     const CCTagRecord* rec = cc_tag_lookup_const(table, name);
     return rec ? rec->computingLayout : false;
+}
+
+bool cc_set_tag_field_layouts(CompilerContext* ctx,
+                              CCTagKind kind,
+                              const char* name,
+                              const CCTagFieldLayout* layouts,
+                              size_t count) {
+    CCTagRecord* rec = cc_tag_lookup_mut_named(ctx, kind, name);
+    if (!rec) return false;
+    // Clear existing
+    if (rec->fieldLayouts) {
+        for (size_t i = 0; i < rec->fieldLayoutCount; ++i) {
+            free(rec->fieldLayouts[i].name);
+        }
+        free(rec->fieldLayouts);
+        rec->fieldLayouts = NULL;
+        rec->fieldLayoutCount = rec->fieldLayoutCapacity = 0;
+    }
+    if (count == 0 || !layouts) return true;
+    rec->fieldLayouts = (CCTagFieldLayout*)calloc(count, sizeof(CCTagFieldLayout));
+    if (!rec->fieldLayouts) return false;
+    rec->fieldLayoutCapacity = rec->fieldLayoutCount = count;
+    for (size_t i = 0; i < count; ++i) {
+        rec->fieldLayouts[i] = layouts[i];
+        if (layouts[i].name) {
+            rec->fieldLayouts[i].name = strdup(layouts[i].name);
+            if (!rec->fieldLayouts[i].name) {
+                rec->fieldLayoutCount = i;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool cc_get_tag_field_layouts(const CompilerContext* ctx,
+                              CCTagKind kind,
+                              const char* name,
+                              const CCTagFieldLayout** layoutsOut,
+                              size_t* countOut) {
+    if (layoutsOut) *layoutsOut = NULL;
+    if (countOut) *countOut = 0;
+    const CCTagTable* table = pick_tag_table_const(ctx, kind);
+    const CCTagRecord* rec = cc_tag_lookup_const(table, name);
+    if (!rec || !rec->fieldLayouts) return false;
+    if (layoutsOut) *layoutsOut = rec->fieldLayouts;
+    if (countOut) *countOut = rec->fieldLayoutCount;
+    return true;
 }
 
 bool cc_is_builtin_type(const CompilerContext* ctx, const char* name) {
@@ -382,6 +451,22 @@ bool cc_set_data_layout(CompilerContext* ctx, const char* layout) {
 
 const char* cc_get_data_layout(const CompilerContext* ctx) {
     return ctx ? ctx->dataLayout : NULL;
+}
+
+void cc_set_interop_diag(CompilerContext* ctx, bool warnIgnored, bool errorIgnored) {
+    if (!ctx) return;
+    ctx->warnIgnoredInterop = warnIgnored;
+    ctx->errorIgnoredInterop = errorIgnored;
+}
+
+bool cc_warn_ignored_interop(const CompilerContext* ctx) {
+    if (!ctx) return true;
+    return ctx->warnIgnoredInterop;
+}
+
+bool cc_error_ignored_interop(const CompilerContext* ctx) {
+    if (!ctx) return false;
+    return ctx->errorIgnoredInterop;
 }
 
 // ---- Token spans ----

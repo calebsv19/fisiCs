@@ -264,6 +264,7 @@ static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramC
     sym->signature.params = NULL;
     sym->signature.paramCount = 0;
     sym->signature.isVariadic = isVariadic;
+    sym->signature.callConv = CALLCONV_DEFAULT;
 
     if (!params || paramCount == 0) {
         return;
@@ -322,6 +323,105 @@ static bool tryEvaluateArrayLength(ASTNode* sizeExpr, Scope* scope, size_t* outL
 
 static bool scopeIsFileScope(Scope* scope) {
     return scope && scope->parent == NULL;
+}
+
+static int ascii_tolower(int c) {
+    if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
+    return c;
+}
+
+static void lower_inplace(char* s) {
+    if (!s) return;
+    for (char* p = s; *p; ++p) {
+        *p = (char)ascii_tolower((unsigned char)*p);
+    }
+}
+
+static void applyInteropAttributes(Symbol* sym, ASTNode* node, Scope* scope, bool allowWarn) {
+    if (!sym || !node || node->attributeCount == 0 || !node->attributes) return;
+    CompilerContext* ctx = scope ? scope->ctx : NULL;
+    const TargetLayout* tl = ctx ? cc_get_target_layout(ctx) : NULL;
+    bool warnIgnored = allowWarn && cc_warn_ignored_interop(ctx);
+    bool errorIgnored = cc_error_ignored_interop(ctx);
+    for (size_t i = 0; i < node->attributeCount; ++i) {
+        ASTAttribute* attr = node->attributes[i];
+        if (!attr || !attr->payload) continue;
+        char* tmp = strdup(attr->payload);
+        if (!tmp) continue;
+        lower_inplace(tmp);
+        bool isGnu = attr->syntax == AST_ATTRIBUTE_SYNTAX_GNU;
+        bool isDeclspec = attr->syntax == AST_ATTRIBUTE_SYNTAX_DECLSPEC;
+
+        if ((isGnu && (strstr(tmp, "stdcall") || strstr(tmp, "__stdcall"))) ||
+            (isDeclspec && strstr(tmp, "stdcall"))) {
+            bool supported = tl && tl->supportsStdcall;
+            if (!supported) {
+                if (errorIgnored) {
+                    addError(node->line, 0, "__stdcall ignored on this target", sym->name);
+                } else if (warnIgnored) {
+                    addWarning(node->line, 0, "__stdcall ignored on this target", sym->name);
+                }
+                free(tmp);
+                continue;
+            }
+            if (sym->signature.callConv != CALLCONV_DEFAULT &&
+                sym->signature.callConv != CALLCONV_STDCALL) {
+                addError(node->line, 0, "Conflicting calling convention on redeclaration", sym->name);
+            }
+            sym->signature.callConv = CALLCONV_STDCALL;
+        } else if ((isGnu && strstr(tmp, "fastcall")) || (isDeclspec && strstr(tmp, "fastcall"))) {
+            bool supported = tl && tl->supportsFastcall;
+            if (!supported) {
+                if (errorIgnored) {
+                    addError(node->line, 0, "__fastcall ignored on this target", sym->name);
+                } else if (warnIgnored) {
+                    addWarning(node->line, 0, "__fastcall ignored on this target", sym->name);
+                }
+                free(tmp);
+                continue;
+            }
+            if (sym->signature.callConv != CALLCONV_DEFAULT &&
+                sym->signature.callConv != CALLCONV_FASTCALL) {
+                addError(node->line, 0, "Conflicting calling convention on redeclaration", sym->name);
+            }
+            sym->signature.callConv = CALLCONV_FASTCALL;
+        } else if ((isGnu && strstr(tmp, "cdecl")) || (isDeclspec && strstr(tmp, "cdecl"))) {
+            sym->signature.callConv = CALLCONV_CDECL;
+        }
+
+        if (isDeclspec && strstr(tmp, "dllexport")) {
+            bool supported = tl && tl->supportsDllStorage;
+            if (!supported) {
+                if (errorIgnored) {
+                    addError(node->line, 0, "__declspec(dllexport) ignored on this target", sym->name);
+                } else if (warnIgnored) {
+                    addWarning(node->line, 0, "__declspec(dllexport) ignored on this target", sym->name);
+                }
+                free(tmp);
+                continue;
+            }
+            if (sym->dllStorage != DLL_STORAGE_NONE && sym->dllStorage != DLL_STORAGE_EXPORT) {
+                addError(node->line, 0, "Conflicting dllimport/dllexport on redeclaration", sym->name);
+            }
+            sym->dllStorage = DLL_STORAGE_EXPORT;
+        } else if (isDeclspec && strstr(tmp, "dllimport")) {
+            bool supported = tl && tl->supportsDllStorage;
+            if (!supported) {
+                if (errorIgnored) {
+                    addError(node->line, 0, "__declspec(dllimport) ignored on this target", sym->name);
+                } else if (warnIgnored) {
+                    addWarning(node->line, 0, "__declspec(dllimport) ignored on this target", sym->name);
+                }
+                free(tmp);
+                continue;
+            }
+            if (sym->dllStorage != DLL_STORAGE_NONE && sym->dllStorage != DLL_STORAGE_IMPORT) {
+                addError(node->line, 0, "Conflicting dllimport/dllexport on redeclaration", sym->name);
+            }
+            sym->dllStorage = DLL_STORAGE_IMPORT;
+        }
+        free(tmp);
+    }
 }
 
 static StorageClass deduceStorageClass(const ParsedType* type) {
@@ -470,6 +570,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     sym->isTentative = tentative;
                     sym->next = NULL;
                     resetFunctionSignature(sym);
+                    applyInteropAttributes(sym, node, scope, true);
 
                     if (!addToScope(scope, sym)) {
                         addErrorWithRanges(ident ? ident->location : node->location,
@@ -598,6 +699,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                             node->functionDef.isVariadic);
                     existing->hasDefinition = true;
                 }
+                applyInteropAttributes(existing, node, scope, true);
                 break;
             }
 
@@ -626,6 +728,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                         node->functionDecl.paramCount,
                                         node->functionDecl.isVariadic);
             }
+            applyInteropAttributes(sym, node, scope, true);
 
             if (!addToScope(scope, sym)) {
                 addErrorWithRanges(funcName ? funcName->location : node->location,
@@ -911,14 +1014,6 @@ static void validateVariableInitializer(ParsedType* type,
 
     if (init->expression && init->expression->type == AST_COMPOUND_LITERAL) {
         validateScalarCompoundLiteral(init->expression, nameNode, name);
-    }
-
-    if (staticStorage && init->expression && init->expression->type == AST_COMPOUND_LITERAL) {
-        char buffer[256];
-        snprintf(buffer, sizeof(buffer),
-                 "Compound literal at static storage must be constant");
-        addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
-        return;
     }
 
     if (staticStorage && init->expression && init->expression->type == AST_STRING_LITERAL) {

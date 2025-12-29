@@ -60,7 +60,7 @@ const Token* token_buffer_peek(const TokenBuffer* buffer, size_t index) {
 bool token_buffer_fill_from_lexer(TokenBuffer* buffer, Lexer* lexer) {
     if (!buffer || !lexer) return false;
     size_t safetyCounter = 0;
-    size_t safetyLimit = (lexer->length > 0) ? ((size_t)lexer->length + 1024) : 4096;
+    size_t safetyLimit = (lexer->length > 0) ? ((size_t)lexer->length * 4 + 4096) : 4096;
     while (1) {
         Token token = getNextToken(lexer);
         if (!token_buffer_append(buffer, token)) {

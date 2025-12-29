@@ -23,6 +23,8 @@ typedef struct {
     bool dumpIR;
     bool enableCodegen;
     bool enableTrigraphs;
+    bool warnIgnoredInterop;
+    bool errorIgnoredInterop;
 } CompileOptions;
 
 typedef struct {

@@ -34,7 +34,7 @@ static LLVMTypeRef makeIntegerType(CodegenContext* ctx, unsigned bits) {
         case 16: return LLVMInt16TypeInContext(llvmCtx);
         case 32: return LLVMInt32TypeInContext(llvmCtx);
         case 64: return LLVMInt64TypeInContext(llvmCtx);
-        default: return LLVMInt32TypeInContext(llvmCtx);
+        default: return LLVMIntTypeInContext(llvmCtx, bits ? bits : 32);
     }
 }
 
@@ -56,6 +56,19 @@ static LLVMTypeRef primitiveType(CodegenContext* ctx, const ParsedType* type) {
         case TOKEN_FLOAT:
             return LLVMFloatTypeInContext(llvmCtx);
         case TOKEN_DOUBLE:
+            if (type->isLong) {
+                const TargetLayout* tl = cg_context_get_target_layout(ctx);
+                if (tl && tl->longDoubleBits == 128) {
+                    return LLVMFP128TypeInContext(llvmCtx);
+                }
+                if (tl && tl->longDoubleBits == 64) {
+                    return LLVMDoubleTypeInContext(llvmCtx);
+                }
+                LLVMTypeRef fp80 = LLVMX86FP80TypeInContext(llvmCtx);
+                if (fp80 && (!tl || tl->longDoubleBits >= 80)) {
+                    return fp80;
+                }
+            }
             return LLVMDoubleTypeInContext(llvmCtx);
         case TOKEN_INT:
         case TOKEN_SIGNED:

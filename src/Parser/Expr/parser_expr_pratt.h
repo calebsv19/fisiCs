@@ -25,6 +25,7 @@ ASTNode* ledFunctionCall(Parser* parser, ASTNode* callee);
 ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee);
 ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen);
 ASTNode* parseSizeofExpressionPratt(Parser* parser);
+ASTNode* parseAlignofExpressionPratt(Parser* parser);
 ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen);
 
 

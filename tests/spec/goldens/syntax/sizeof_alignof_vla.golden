@@ -1,0 +1,35 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER f
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER n
+    BLOCK
+      VAR_DECL
+        TYPE: int [IDENTIFIER n]
+        IDENTIFIER vla
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            SIZEOF
+                            IDENTIFIER vla
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = 
+            ALIGNOF
+                            IDENTIFIER vla
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER a
+          IDENTIFIER b
+
+
+Diagnostics:
+Error at (4:0): sizeof applied to variable length array is not an integer constant expression
+Error at (5:0): alignof applied to variable length array is not an integer constant expression
+

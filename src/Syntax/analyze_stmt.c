@@ -145,7 +145,7 @@ static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* s
                 analyze(node->caseStmt.caseValue, scope);
                 ConstEvalResult res = constEval(node->caseStmt.caseValue, scope, true);
                 if (!res.isConst) {
-                    addError(node->caseStmt.caseValue->line, 0, "Case label is not a constant expression", NULL);
+                    addError(node->caseStmt.caseValue->line, 0, "Case label is not an integer constant expression", NULL);
                 } else if (switchStack && switchStack->depth > 0) {
                     SwitchFrame* frame = &switchStack->frames[switchStack->depth - 1];
                     if (!switchFrameRecordValue(frame, res.value, node->caseStmt.caseValue->location)) {

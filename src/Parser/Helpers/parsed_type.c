@@ -89,6 +89,8 @@ static ParsedType parsedTypeDefault(void) {
     t.kind = TYPE_INVALID;
     t.tag = TAG_NONE;
     t.primitiveType = TOKEN_VOID;
+    t.alignOverride = 0;
+    t.hasAlignOverride = false;
     return t;
 }
 
@@ -477,6 +479,44 @@ static void consumeTypeAttributes(Parser* parser, ParsedType* type) {
     parsedTypeAdoptAttributes(type, attrs, attrCount);
 }
 
+static bool isAlignasToken(const Token* tok) {
+    if (!tok || tok->type != TOKEN_IDENTIFIER || !tok->value) return false;
+    return strcmp(tok->value, "_Alignas") == 0 || strcmp(tok->value, "alignas") == 0;
+}
+
+static void consumeAlignasSpecifiers(Parser* parser, ParsedType* type) {
+    if (!parser || !type) return;
+    while (isAlignasToken(&parser->currentToken)) {
+        advance(parser); /* consume keyword */
+        if (parser->currentToken.type != TOKEN_LPAREN) {
+            printParseError("Expected '(' after alignas", parser);
+            return;
+        }
+        advance(parser); /* consume '(' */
+        ASTNode* expr = parseAssignmentExpression(parser);
+        if (!expr) {
+            printParseError("Invalid alignas argument", parser);
+            return;
+        }
+        if (parser->currentToken.type != TOKEN_RPAREN) {
+            printParseError("Expected ')' to close alignas", parser);
+            return;
+        }
+        advance(parser); /* consume ')' */
+        if (expr->type == AST_NUMBER_LITERAL && expr->valueNode.value) {
+            char* endp = NULL;
+            long long val = strtoll(expr->valueNode.value, &endp, 0);
+            if (endp != expr->valueNode.value && val > 0) {
+                size_t asSize = (size_t)val;
+                if (!type->hasAlignOverride || asSize > type->alignOverride) {
+                    type->alignOverride = asSize;
+                }
+                type->hasAlignOverride = true;
+            }
+        }
+    }
+}
+
 static bool parseInlineEnumBody(Parser* parser,
                                 ASTNode*** outMembers,
                                 ASTNode*** outValues,
@@ -564,6 +604,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         return type;
     }
     consumeTypeAttributes(parser, &type);
+    consumeAlignasSpecifiers(parser, &type);
 
     // Storage class specifiers
     for (;;) {
@@ -576,6 +617,8 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             default: break;
         }
         consumeTypeAttributes(parser, &type);
+        consumeAlignasSpecifiers(parser, &type);
+        consumeAlignasSpecifiers(parser, &type);
         break;
     }
 
@@ -595,6 +638,8 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             default: break;
         }
         consumeTypeAttributes(parser, &type);
+        consumeAlignasSpecifiers(parser, &type);
+        consumeAlignasSpecifiers(parser, &type);
         break;
     }
 
@@ -648,6 +693,34 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
 
             size_t trailingAttrCount = 0;
             ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
+            if (type.hasAlignOverride && type.alignOverride > 0) {
+                char buf[32];
+                snprintf(buf, sizeof(buf), "aligned(%zu)", type.alignOverride);
+                ASTAttribute* alignAttr = astAttributeCreate(AST_ATTRIBUTE_SYNTAX_GNU, buf);
+                if (alignAttr) {
+                    ASTAttribute** list = (ASTAttribute**)malloc(sizeof(ASTAttribute*));
+                    if (list) {
+                        list[0] = alignAttr;
+                        astAttributeListAppend(&trailingAttrs, &trailingAttrCount, list, 1);
+                    } else {
+                        astAttributeDestroy(alignAttr);
+                    }
+                }
+            }
+            if (type.hasAlignOverride && type.alignOverride > 0) {
+                char buf[32];
+                snprintf(buf, sizeof(buf), "aligned(%zu)", type.alignOverride);
+                ASTAttribute* alignAttr = astAttributeCreate(AST_ATTRIBUTE_SYNTAX_GNU, buf);
+                if (alignAttr) {
+                    ASTAttribute** list = (ASTAttribute**)malloc(sizeof(ASTAttribute*));
+                    if (list) {
+                        list[0] = alignAttr;
+                        astAttributeListAppend(&trailingAttrs, &trailingAttrCount, list, 1);
+                    } else {
+                        astAttributeDestroy(alignAttr);
+                    }
+                }
+            }
 
             if (!tagName) {
                 char buffer[64];
@@ -687,6 +760,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
                            tagName);
             }
             consumeTypeAttributes(parser, &type);
+            consumeAlignasSpecifiers(parser, &type);
         } else if (hasEnumBody) {
             ASTNode** members = NULL;
             ASTNode** values = NULL;
@@ -725,6 +799,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
                 cc_add_tag(parser->ctx, CC_TAG_ENUM, tagName);
             }
             consumeTypeAttributes(parser, &type);
+            consumeAlignasSpecifiers(parser, &type);
         } else {
             if (!tagName) {
                 if (ctx == TYPECTX_Declaration) {
@@ -824,6 +899,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         return parsedTypeDefault();
     }
     consumeTypeAttributes(parser, &type);
+    consumeAlignasSpecifiers(parser, &type);
 
     return type;
 }

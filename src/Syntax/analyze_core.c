@@ -151,6 +151,7 @@ void analyze(ASTNode* node, Scope* scope) {
     case AST_CHAR_LITERAL:
     case AST_STRING_LITERAL:
     case AST_SIZEOF:
+    case AST_ALIGNOF:
         (void)analyzeExpression(node, scope);
         break;
 

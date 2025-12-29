@@ -31,7 +31,20 @@ typedef struct FunctionSignature {
     ParsedType* params;
     size_t paramCount;
     bool isVariadic;
+    /* Optional interop metadata */
+    enum {
+        CALLCONV_DEFAULT = 0,
+        CALLCONV_STDCALL,
+        CALLCONV_FASTCALL,
+        CALLCONV_CDECL
+    } callConv;
 } FunctionSignature;
+
+typedef enum {
+    DLL_STORAGE_NONE = 0,
+    DLL_STORAGE_IMPORT,
+    DLL_STORAGE_EXPORT
+} DllStorageClass;
 
 typedef struct Symbol {
     char* name;
@@ -41,6 +54,7 @@ typedef struct Symbol {
     FunctionSignature signature;
     StorageClass storage;
     SymbolLinkage linkage;
+    DllStorageClass dllStorage;
     bool hasDefinition;
     bool isTentative;
     bool hasConstValue;

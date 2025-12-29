@@ -2,6 +2,12 @@
 #include "Parser/Helpers/parser_helpers.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 #include "parser_decl.h"
+#include <string.h>
+
+static bool isAlignasToken(const Token* tok) {
+    if (!tok || tok->type != TOKEN_IDENTIFIER || !tok->value) return false;
+    return strcmp(tok->value, "alignas") == 0 || strcmp(tok->value, "_Alignas") == 0;
+}
 
 void printParserState(const char* label, Parser* parser) {
     printf("\n=== PARSER STATE: %s ===\n", label);
@@ -20,6 +26,9 @@ void printParserState(const char* label, Parser* parser) {
 bool looksLikeTypeDeclaration(Parser* parser) {
     if (parser->currentToken.type == TOKEN_TYPEDEF) {
         return false; // handled explicitly via parseTypedef
+    }
+    if (isAlignasToken(&parser->currentToken)) {
+        return true;
     }
 
     // Fast path: obvious type-start tokens

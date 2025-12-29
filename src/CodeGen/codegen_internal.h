@@ -22,6 +22,7 @@ const TargetLayout* cg_context_get_target_layout(CodegenContext* ctx);
 
 LLVMTypeRef cg_context_lookup_named_type(CodegenContext* ctx, const char* name);
 void cg_context_cache_named_type(CodegenContext* ctx, const char* name, LLVMTypeRef type);
+LLVMTypeRef cg_dereference_ptr_type(CodegenContext* ctx, LLVMTypeRef ptrType, const char* ctxMsg);
 
 #ifdef __cplusplus
 }

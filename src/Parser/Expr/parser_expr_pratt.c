@@ -10,6 +10,7 @@
 #include "Compiler/diagnostics.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 
 #include <stdio.h>
@@ -258,6 +259,9 @@ static ASTNode* nud(Parser* parser, Token token) {
         case TOKEN_SIZEOF: {
             // TODO: implement sizeof type vs expr
             return parseSizeofExpressionPratt(parser);
+        }
+        case TOKEN_ALIGNOF: {
+            return parseAlignofExpressionPratt(parser);
         }
 
         default:
@@ -584,6 +588,11 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
     }
     advance(parser); // Consume '('
 
+    const char* calleeName = (callee && callee->type == AST_IDENTIFIER) ? callee->valueNode.value : NULL;
+    bool isBuiltinVaArg = calleeName &&
+                          (strcmp(calleeName, "__builtin_va_arg") == 0 ||
+                           strcmp(calleeName, "va_arg") == 0);
+
     size_t argCapacity = 4;
     size_t argCount = 0;
     ASTNode** argList = malloc(argCapacity * sizeof(ASTNode*));
@@ -595,11 +604,17 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
 
     if (parser->currentToken.type != TOKEN_RPAREN) {
         while (1) {
-            ASTNode* arg = parseExpressionPratt(parser, 0);
-            if (!arg) {
-                printf("Error: Invalid function argument at line %d\n", parser->currentToken.line);
-                free(argList);
-                return NULL;
+            ASTNode* arg = NULL;
+            if (isBuiltinVaArg && argCount == 1 && looksLikeTypeDeclaration(parser)) {
+                ParsedType ty = parseType(parser);
+                arg = createParsedTypeNode(ty);
+            } else {
+                arg = parseExpressionPratt(parser, 0);
+                if (!arg) {
+                    printf("Error: Invalid function argument at line %d\n", parser->currentToken.line);
+                    free(argList);
+                    return NULL;
+                }
             }
 
             if (argCount >= argCapacity) {
@@ -866,4 +881,41 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
         return NULL;
     }
     return createSizeofNode(operand);
+}
+
+ASTNode* parseAlignofExpressionPratt(Parser* parser) {
+    if (parser->currentToken.type == TOKEN_LPAREN) {
+        Parser temp = cloneParserWithFreshLexer(parser);
+        advance(&temp); // '('
+        ParsedType probeType = parseTypeCtx(&temp, TYPECTX_Strict);
+        bool looksLikeType = (probeType.kind != TYPE_INVALID);
+        if (looksLikeType) {
+            consumeAbstractDeclarator(&temp);
+            looksLikeType = (temp.currentToken.type == TOKEN_RPAREN);
+        }
+        freeParserClone(&temp);
+
+        if (looksLikeType) {
+            advance(parser); // '('
+            ParsedType realType = parseTypeCtx(parser, TYPECTX_Strict);
+            if (realType.kind == TYPE_INVALID) {
+                printParseError("Invalid type in alignof(type)", parser);
+                return NULL;
+            }
+            consumeAbstractDeclarator(parser);
+            if (parser->currentToken.type != TOKEN_RPAREN) {
+                printParseError("Expected ')' after alignof(type)", parser);
+                return NULL;
+            }
+            advance(parser); // ')'
+            return createAlignofNode(createParsedTypeNode(realType));
+        }
+    }
+
+    ASTNode* operand = parseExpressionPratt(parser, 11);
+    if (!operand) {
+        printParseError("Invalid operand for alignof", parser);
+        return NULL;
+    }
+    return createAlignofNode(operand);
 }

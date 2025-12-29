@@ -1,0 +1,117 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER BF
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER a
+        BITFIELD : NUMBER_LITERAL 3
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER b
+        BITFIELD : NUMBER_LITERAL 10
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER c
+        BITFIELD : NUMBER_LITERAL 3
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER d
+        BITFIELD : NUMBER_LITERAL 16
+  STRUCT
+        Name:     IDENTIFIER ZW
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER a
+        BITFIELD : NUMBER_LITERAL 4
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER <unnamed>
+        BITFIELD : NUMBER_LITERAL 0
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER b
+        BITFIELD : NUMBER_LITERAL 4
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr0
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr1
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr2
+  VAR_DECL
+    TYPE: int [(Unrecognized for inline: type 18)]
+    IDENTIFIER arr3
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct BF
+        IDENTIFIER bf
+            .a = NUMBER_LITERAL 1
+
+            .b = NUMBER_LITERAL 2
+
+            .c = NUMBER_LITERAL 3
+
+            .d = NUMBER_LITERAL 4
+
+      VAR_DECL
+        TYPE: struct ZW
+        IDENTIFIER zw
+            .a = NUMBER_LITERAL 5
+
+            .b = NUMBER_LITERAL 6
+
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '+'
+              BINARY EXPRESSION '+'
+                BINARY EXPRESSION '+'
+                  BINARY EXPRESSION '+'
+                    BINARY EXPRESSION '+'
+                      BINARY EXPRESSION '+'
+                        BINARY EXPRESSION '+'
+                          DOT_ACCESS '.'
+                            IDENTIFIER bf
+                            FIELD a
+                          DOT_ACCESS '.'
+                            IDENTIFIER bf
+                            FIELD b
+                        DOT_ACCESS '.'
+                          IDENTIFIER bf
+                          FIELD c
+                      DOT_ACCESS '.'
+                        IDENTIFIER bf
+                        FIELD d
+                    DOT_ACCESS '.'
+                      IDENTIFIER zw
+                      FIELD a
+                  DOT_ACCESS '.'
+                    IDENTIFIER zw
+                    FIELD b
+                ARRAY_ACCESS
+                  IDENTIFIER arr0
+                  NUMBER_LITERAL 0
+              ARRAY_ACCESS
+                IDENTIFIER arr1
+                NUMBER_LITERAL 0
+            ARRAY_ACCESS
+              IDENTIFIER arr2
+              NUMBER_LITERAL 0
+          ARRAY_ACCESS
+            IDENTIFIER arr3
+            NUMBER_LITERAL 0
+
+
+Diagnostics:
+Error at (15:0): Variable-length array 'arr0' is not allowed at static storage duration
+

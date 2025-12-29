@@ -28,6 +28,9 @@
 #define CG_TRACE(...) ((void)0)
 #endif
 
+/* Emit a soft error during codegen; currently routes through logging. */
+#define CG_ERROR(...) LOG_ERROR("codegen", __VA_ARGS__)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,6 +76,14 @@ typedef struct StructInfo {
     bool isUnion;
     LLVMTypeRef llvmType;
 } StructInfo;
+
+typedef struct CGLValueInfo {
+    bool isBitfield;
+    CCTagFieldLayout layout;
+    LLVMValueRef storagePtr;
+    LLVMTypeRef storageType;
+    const ParsedType* fieldParsed;
+} CGLValueInfo;
 
 typedef struct CGParamInfo {
     ASTNode* declaration;
@@ -176,6 +187,14 @@ bool cg_size_align_of_parsed(CodegenContext* ctx,
                              const ParsedType* parsed,
                              uint64_t* outSize,
                              uint32_t* outAlign);
+// Computes ABI size/align preferring our semantic layout; falls back to LLVM ABI
+// if unavailable. When FISICS_DEBUG_LAYOUT is set, logs mismatches between the
+// two calculations to help catch layout drift.
+bool cg_size_align_for_type(CodegenContext* ctx,
+                            const ParsedType* parsed,
+                            LLVMTypeRef llvmHint,
+                            uint64_t* outSize,
+                            uint32_t* outAlign);
 LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
                                          const ParsedType* pointerParsed,
                                          LLVMTypeRef pointerLLVM);
@@ -216,7 +235,8 @@ bool codegenLValue(CodegenContext* ctx,
                    ASTNode* target,
                    LLVMValueRef* outPtr,
                    LLVMTypeRef* outType,
-                   const ParsedType** outParsedType);
+                   const ParsedType** outParsedType,
+                   struct CGLValueInfo* outInfo);
 LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
                                      LLVMValueRef basePtr,
                                      LLVMTypeRef aggregateTypeHint,
@@ -239,7 +259,8 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
                             const char* name,
                             const ParsedType* returnType,
                             size_t paramCount,
-                            LLVMTypeRef* paramTypes);
+                            LLVMTypeRef* paramTypes,
+                            const Symbol* symHint);
 void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node);
 void declareGlobalVariable(CodegenContext* ctx, ASTNode* node);
 void predeclareGlobals(CodegenContext* ctx, ASTNode* program);
@@ -268,6 +289,7 @@ LLVMValueRef codegenTypedef(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenEnumDefinition(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenCastExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenCompoundLiteral(CodegenContext* ctx, ASTNode* node);
+LLVMValueRef cg_emit_compound_literal_pointer(CodegenContext* ctx, ASTNode* node, LLVMTypeRef* outType);
 LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenBreak(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenContinue(CodegenContext* ctx, ASTNode* node);
@@ -276,6 +298,7 @@ LLVMValueRef codegenCharLiteral(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenStringLiteral(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node);
+LLVMValueRef codegenAlignof(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenStatementExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node);
 LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node);
@@ -283,6 +306,11 @@ LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenHeapAllocation(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenLabel(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenGoto(CodegenContext* ctx, ASTNode* node);
+
+LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
+                                        ASTNode* expr,
+                                        LLVMTypeRef targetType,
+                                        const ParsedType* parsedType);
 
 #ifdef __cplusplus
 }

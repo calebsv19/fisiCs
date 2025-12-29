@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef enum {
     TL_ENDIAN_LITTLE = 0,
@@ -33,10 +34,19 @@ typedef struct TargetLayout {
 
     TargetEndianness endianness;
     TargetLongDoubleKind longDoubleKind;
+
+    /* Target calling convention / DLL storage support */
+    bool supportsStdcall;
+    bool supportsFastcall;
+    bool supportsDllStorage;
 } TargetLayout;
 
 /* Returns a pointer to an internal static layout. Do not free. */
 const TargetLayout* tl_default(void);
 const TargetLayout* tl_from_triple(const char* triple);
+/* Build an LLVM data layout string from a TargetLayout.
+ * Caller owns the returned buffer (malloc). Returns NULL on failure. */
+char* tl_to_llvm_datalayout(const TargetLayout* tl);
+void tl_dump(const TargetLayout* tl, FILE* out);
 
 #endif /* TARGET_LAYOUT_H */

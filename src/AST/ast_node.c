@@ -362,6 +362,15 @@ ASTNode* createSizeofNode(ASTNode* target) {
     return node;
 }
 
+ASTNode* createAlignofNode(ASTNode* target) {
+    ASTNode* node = new_node(AST_ALIGNOF);
+    if (!node) return NULL;
+    node->expr.left = target;
+    node->expr.right = NULL;
+    inherit_line_from_node(node, target);
+    return node;
+}
+
 // Number literal
 ASTNode* createNumberLiteralNode(const char* value) {
     ASTNode* node = new_node(AST_NUMBER_LITERAL);

@@ -3,6 +3,7 @@
 
 #include "Lexer/tokens.h"  // Required for TokenType
 #include <stdbool.h>
+#include <stddef.h>
 #include "AST/ast_attribute.h"
 
 struct Parser;
@@ -111,6 +112,10 @@ typedef struct ParsedType {
 
     ASTAttribute** attributes;
     size_t attributeCount;
+
+    /* Optional explicit alignment from _Alignas/alignas */
+    size_t alignOverride;
+    bool hasAlignOverride;
 } ParsedType;
 
 

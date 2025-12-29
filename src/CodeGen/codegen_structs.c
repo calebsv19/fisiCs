@@ -1,10 +1,37 @@
 #include "codegen_private.h"
+#include "Compiler/compiler_context.h"
+#include "Syntax/layout.h"
 
 #include "codegen_types.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static const CCTagFieldLayout* cg_lookup_field_layout(CodegenContext* ctx,
+                                                      const ParsedType* aggregateParsed,
+                                                      const char* fieldName) {
+    if (!ctx || !aggregateParsed || !fieldName) return NULL;
+    if (aggregateParsed->tag != TAG_STRUCT && aggregateParsed->tag != TAG_UNION) return NULL;
+    CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+    if (!cctx) return NULL;
+    const CCTagFieldLayout* layouts = NULL;
+    size_t count = 0;
+    CCTagKind kind = (aggregateParsed->tag == TAG_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    if (!cc_get_tag_field_layouts(cctx, kind, aggregateParsed->userTypeName, &layouts, &count)) {
+        Scope* globalScope = semanticModelGetGlobalScope(ctx->semanticModel);
+        layout_struct_union(cctx, globalScope, kind, aggregateParsed->userTypeName, NULL, NULL);
+        cc_get_tag_field_layouts(cctx, kind, aggregateParsed->userTypeName, &layouts, &count);
+    }
+    for (size_t i = 0; i < count; ++i) {
+        const CCTagFieldLayout* lay = &layouts[i];
+        if (!lay->name) continue;
+        if (strcmp(lay->name, fieldName) == 0) {
+            return lay;
+        }
+    }
+    return NULL;
+}
 
 static void recordStructInfo(CodegenContext* ctx,
                              const char* name,
@@ -104,96 +131,80 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     if (!valueType) return NULL;
 
     LLVMValueRef basePtr = arrayPtr;
-    LLVMTypeRef ptrType = valueType;
     LLVMTypeKind valueKind = LLVMGetTypeKind(valueType);
 
+    /* Decay raw array values into an addressable pointer. */
     if (valueKind == LLVMArrayTypeKind) {
-        LLVMValueRef temp = LLVMBuildAlloca(ctx->builder, valueType, "array.decay.tmp");
-        LLVMBuildStore(ctx->builder, arrayPtr, temp);
-        basePtr = temp;
-        ptrType = LLVMTypeOf(basePtr);
-        aggregateTypeHint = aggregateTypeHint ? aggregateTypeHint : valueType;
-        valueKind = LLVMGetTypeKind(ptrType);
+        LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, valueType, "array.decay.tmp");
+        LLVMBuildStore(ctx->builder, arrayPtr, tmp);
+        basePtr = tmp;
+        valueType = LLVMTypeOf(basePtr);
+        valueKind = LLVMGetTypeKind(valueType);
     }
 
+    /* Wrap non-pointers into an alloca to take the address. */
     if (valueKind != LLVMPointerTypeKind) {
-        LLVMValueRef temp = LLVMBuildAlloca(ctx->builder, valueType, "array.ptr.wrap");
-        LLVMBuildStore(ctx->builder, arrayPtr, temp);
-        basePtr = temp;
-        ptrType = LLVMTypeOf(basePtr);
-        valueKind = LLVMGetTypeKind(ptrType);
+        LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, valueType, "array.ptr.wrap");
+        LLVMBuildStore(ctx->builder, arrayPtr, tmp);
+        basePtr = tmp;
+        valueType = LLVMTypeOf(basePtr);
+        valueKind = LLVMGetTypeKind(valueType);
     }
-
-    if (!ptrType || valueKind != LLVMPointerTypeKind) {
+    if (valueKind != LLVMPointerTypeKind) {
         return NULL;
     }
 
-    unsigned pointerAddrSpace = LLVMGetPointerAddressSpace(ptrType);
-    /* Defensive: LLVM requires address spaces to fit in 24 bits; log and clamp if
-     * we see garbage (e.g., uninitialized address space flowing in). */
-    if (pointerAddrSpace > 0xFFFFFF) {
-        char* tyStr = LLVMPrintTypeToString(ptrType);
-        LOG_WARN("codegen", "Invalid pointer address space (%u); type=%s. Clamping to 0.",
-                 pointerAddrSpace,
-                 tyStr ? tyStr : "<unknown>");
-        if (tyStr) LLVMDisposeMessage(tyStr);
-        pointerAddrSpace = 0;
-    }
-
-    LLVMTypeRef aggregateType = aggregateTypeHint;
-    if (!aggregateType && baseParsedHint) {
-        if (parsedTypeIsDirectArray(baseParsedHint)) {
-            aggregateType = cg_type_from_parsed(ctx, baseParsedHint);
-        } else {
-            ParsedType pointed = parsedTypePointerTargetType(baseParsedHint);
-            if (parsedTypeIsDirectArray(&pointed)) {
-                aggregateType = cg_type_from_parsed(ctx, &pointed);
-            }
-            parsedTypeFree(&pointed);
-        }
-    }
-
-    LLVMTypeRef i32Type = LLVMInt32TypeInContext(ctx->llvmContext);
-    LLVMValueRef idx = index;
-    LLVMTypeRef idxType = LLVMTypeOf(idx);
-    if (!idxType || LLVMGetTypeKind(idxType) != LLVMIntegerTypeKind || LLVMGetIntTypeWidth(idxType) != 32) {
-        idx = LLVMBuildIntCast2(ctx->builder, idx, i32Type, 0, "array.idx.cast");
-    }
-
+    /* Resolve element type. */
     LLVMTypeRef elementType = elementTypeHint;
-    if (aggregateType && LLVMGetTypeKind(aggregateType) == LLVMArrayTypeKind) {
-        LLVMValueRef zero = LLVMConstInt(i32Type, 0, 0);
-        LLVMValueRef indices[2] = { zero, idx };
-        LLVMTypeRef ptrToAggregate = LLVMPointerType(aggregateType, pointerAddrSpace);
-        LLVMValueRef aggregatePtr = basePtr;
-        if (LLVMTypeOf(aggregatePtr) != ptrToAggregate) {
-            aggregatePtr = LLVMBuildBitCast(ctx->builder, basePtr, ptrToAggregate, "array.aggregate.cast");
-        }
-        if (!elementType) {
-            elementType = LLVMGetElementType(aggregateType);
-        }
-        if (outElementType && elementType) {
-            *outElementType = elementType;
-        }
-        return LLVMBuildGEP2(ctx->builder, aggregateType, aggregatePtr, indices, 2, "arrayElemPtr");
-    }
-
     if (!elementType) {
-        elementType = cg_element_type_from_pointer(ctx, baseParsedHint, ptrType);
+        elementType = cg_element_type_from_pointer(ctx, baseParsedHint, valueType);
     }
     if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
-        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+        elementType = LLVMInt8TypeInContext(ctx->llvmContext);
     }
 
-    LLVMTypeRef expectedPtrType = LLVMPointerType(elementType, pointerAddrSpace);
-    if (LLVMTypeOf(basePtr) != expectedPtrType) {
-        basePtr = LLVMBuildBitCast(ctx->builder, basePtr, expectedPtrType, "array.elem.base.cast");
+    /* Determine element size for byte-wise addressing. */
+    uint64_t elemSize = 0;
+    uint32_t elemAlign = 0;
+    const ParsedType* elemParsed = NULL;
+    if (baseParsedHint) {
+        if (parsedTypeIsDirectArray(baseParsedHint)) {
+            static ParsedType tmp;
+            parsedTypeFree(&tmp);
+            tmp = parsedTypeArrayElementType(baseParsedHint);
+            elemParsed = &tmp;
+        } else {
+            static ParsedType tmpPtr;
+            parsedTypeFree(&tmpPtr);
+            tmpPtr = parsedTypePointerTargetType(baseParsedHint);
+            if (tmpPtr.kind != TYPE_INVALID) {
+                elemParsed = &tmpPtr;
+            }
+        }
+    }
+    if (!cg_size_align_for_type(ctx, elemParsed, elementType, &elemSize, &elemAlign) || elemSize == 0) {
+        elemSize = 1;
     }
 
+    LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
+    LLVMValueRef baseI8 = LLVMBuildPointerCast(ctx->builder, basePtr, LLVMPointerType(i8Type, 0), "array.byte.base");
+
+    LLVMTypeRef i64Type = LLVMInt64TypeInContext(ctx->llvmContext);
+    LLVMValueRef idx64 = index;
+    LLVMTypeRef idxType = LLVMTypeOf(idx64);
+    if (!idxType || LLVMGetTypeKind(idxType) != LLVMIntegerTypeKind || LLVMGetIntTypeWidth(idxType) < 64) {
+        idx64 = LLVMBuildSExt(ctx->builder, idx64, i64Type, "array.idx64");
+    }
+    LLVMValueRef elemSizeVal = LLVMConstInt(i64Type, elemSize, 0);
+    LLVMValueRef byteOffset = LLVMBuildMul(ctx->builder, idx64, elemSizeVal, "array.byte.offset");
+    LLVMValueRef gepByte = LLVMBuildGEP2(ctx->builder, i8Type, baseI8, &byteOffset, 1, "arrayElemPtr.byte");
+    if (!gepByte) return NULL;
+
+    /* Return the byte pointer; callers can cast if needed. */
     if (outElementType) {
         *outElementType = elementType;
     }
-    return LLVMBuildGEP2(ctx->builder, elementType, basePtr, &idx, 1, "arrayElemPtr");
+    return gepByte;
 }
 
 static CGStructLLVMInfo* findStructInfoForAggregate(CodegenContext* ctx,
@@ -244,7 +255,7 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
 
     LLVMTypeRef aggregateType = aggregateTypeHint;
     if (!aggregateType) {
-        aggregateType = LLVMGetElementType(ptrType);
+        aggregateType = cg_dereference_ptr_type(ctx, ptrType, "struct field access");
     }
     if ((!aggregateType || LLVMGetTypeKind(aggregateType) == LLVMVoidTypeKind) && LLVMIsAAllocaInst(basePtr)) {
         LLVMTypeRef allocated = LLVMGetAllocatedType(basePtr);
@@ -319,10 +330,14 @@ bool codegenLValue(CodegenContext* ctx,
                    ASTNode* target,
                    LLVMValueRef* outPtr,
                    LLVMTypeRef* outType,
-                   const ParsedType** outParsedType) {
+                   const ParsedType** outParsedType,
+                   CGLValueInfo* outInfo) {
     if (!ctx || !target || !outPtr || !outType) return false;
     if (outParsedType) {
         *outParsedType = NULL;
+    }
+    if (outInfo) {
+        memset(outInfo, 0, sizeof(*outInfo));
     }
 
     switch (target->type) {
@@ -355,7 +370,7 @@ bool codegenLValue(CodegenContext* ctx,
                 }
                 return true;
             }
-            *outType = entry->type ? entry->type : LLVMGetElementType(LLVMTypeOf(entry->value));
+            *outType = entry->type ? entry->type : cg_dereference_ptr_type(ctx, LLVMTypeOf(entry->value), "cached lvalue");
             if (outParsedType) {
                 *outParsedType = entry->parsedType;
             }
@@ -381,12 +396,18 @@ bool codegenLValue(CodegenContext* ctx,
             if (!elementPtr) return false;
             *outPtr = elementPtr;
             if (!elementType) {
-                elementType = LLVMGetElementType(LLVMTypeOf(elementPtr));
-                if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
-                    elementType = LLVMInt32TypeInContext(ctx->llvmContext);
-                }
+                elementType = cg_dereference_ptr_type(ctx, LLVMTypeOf(elementPtr), "array element load");
             }
             *outType = elementType;
+            if (outParsedType) {
+                const ParsedType* elemParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
+                if (elemParsed && parsedTypeIsDirectArray(elemParsed)) {
+                    static ParsedType tmp;
+                    parsedTypeFree(&tmp);
+                    tmp = parsedTypeArrayElementType(elemParsed);
+                    *outParsedType = &tmp;
+                }
+            }
             return true;
         }
         case AST_UNARY_EXPRESSION: {
@@ -420,12 +441,12 @@ bool codegenLValue(CodegenContext* ctx,
             LLVMValueRef basePtr = NULL;
             LLVMTypeRef baseType = NULL;
             const ParsedType* baseParsed = NULL;
-            if (!codegenLValue(ctx, target->memberAccess.base, &basePtr, &baseType, &baseParsed)) {
+            if (!codegenLValue(ctx, target->memberAccess.base, &basePtr, &baseType, &baseParsed, NULL)) {
                 LLVMValueRef baseVal = codegenNode(ctx, target->memberAccess.base);
                 if (!baseVal) return false;
                 if (LLVMGetTypeKind(LLVMTypeOf(baseVal)) == LLVMPointerTypeKind) {
                     basePtr = baseVal;
-                    baseType = LLVMGetElementType(LLVMTypeOf(baseVal));
+                    baseType = cg_dereference_ptr_type(ctx, LLVMTypeOf(baseVal), "dot access");
                 } else {
                     LLVMValueRef tmpAlloca = LLVMBuildAlloca(ctx->builder, LLVMTypeOf(baseVal), "dot_tmp_lhs");
                     LLVMBuildStore(ctx->builder, baseVal, tmpAlloca);
@@ -444,6 +465,35 @@ bool codegenLValue(CodegenContext* ctx,
 
             LLVMTypeRef fieldType = NULL;
             const ParsedType* fieldParsed = NULL;
+            const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, baseParsed, target->memberAccess.field);
+            if (lay && lay->isBitfield && lay->widthBits > 0 && outInfo) {
+                unsigned storageBits = (unsigned)(lay->storageUnitBytes ? lay->storageUnitBytes * 8 : 32);
+                LLVMTypeRef storageTy = LLVMIntTypeInContext(ctx->llvmContext, storageBits);
+                LLVMValueRef baseI8 = LLVMBuildBitCast(ctx->builder,
+                                                       basePtr,
+                                                       LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0),
+                                                       "bf.base");
+                LLVMValueRef offsetVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), lay->byteOffset, 0);
+                LLVMValueRef ptrI8 = LLVMBuildGEP2(ctx->builder,
+                                                   LLVMInt8TypeInContext(ctx->llvmContext),
+                                                   baseI8,
+                                                   &offsetVal,
+                                                   1,
+                                                   "bf.gep");
+                LLVMValueRef storagePtr = LLVMBuildBitCast(ctx->builder,
+                                                           ptrI8,
+                                                           LLVMPointerType(storageTy, 0),
+                                                           "bf.ptr");
+                *outPtr = storagePtr;
+                *outType = storageTy;
+                if (outParsedType) *outParsedType = fieldParsed;
+                outInfo->isBitfield = true;
+                outInfo->layout = *lay;
+                outInfo->storagePtr = storagePtr;
+                outInfo->storageType = storageTy;
+                outInfo->fieldParsed = fieldParsed;
+                return true;
+            }
             LLVMValueRef fieldPtr = buildStructFieldPointer(ctx,
                                                             basePtr,
                                                             baseType,
@@ -471,9 +521,7 @@ bool codegenLValue(CodegenContext* ctx,
                 return false;
             }
             LLVMValueRef basePtr = baseValue;
-            LLVMTypeRef baseType = LLVMGetElementType(LLVMTypeOf(baseValue));
-            LLVMTypeRef fieldType = NULL;
-            const ParsedType* fieldParsed = NULL;
+            LLVMTypeRef baseType = cg_dereference_ptr_type(ctx, LLVMTypeOf(baseValue), "pointer member access");
             const ParsedType* baseParsed = cg_resolve_expression_type(ctx, target->memberAccess.base);
             ParsedType pointed = parsedTypePointerTargetType(baseParsed);
             const ParsedType* structHint = (pointed.kind != TYPE_INVALID) ? &pointed : baseParsed;
@@ -481,6 +529,39 @@ bool codegenLValue(CodegenContext* ctx,
             if (baseType && LLVMGetTypeKind(baseType) == LLVMStructTypeKind) {
                 nameHint = LLVMGetStructName(baseType);
             }
+            const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, structHint, target->memberAccess.field);
+            if (lay && lay->isBitfield && lay->widthBits > 0 && outInfo) {
+                unsigned storageBits = (unsigned)(lay->storageUnitBytes ? lay->storageUnitBytes * 8 : 32);
+                LLVMTypeRef storageTy = LLVMIntTypeInContext(ctx->llvmContext, storageBits);
+                LLVMValueRef baseI8 = LLVMBuildBitCast(ctx->builder,
+                                                       basePtr,
+                                                       LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0),
+                                                       "bf.base");
+                LLVMValueRef offsetVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), lay->byteOffset, 0);
+                LLVMValueRef ptrI8 = LLVMBuildGEP2(ctx->builder,
+                                                   LLVMInt8TypeInContext(ctx->llvmContext),
+                                                   baseI8,
+                                                   &offsetVal,
+                                                   1,
+                                                   "bf.gep");
+                LLVMValueRef storagePtr = LLVMBuildBitCast(ctx->builder,
+                                                           ptrI8,
+                                                           LLVMPointerType(storageTy, 0),
+                                                           "bf.ptr");
+                *outPtr = storagePtr;
+                *outType = storageTy;
+                outInfo->isBitfield = true;
+                outInfo->layout = *lay;
+                outInfo->storagePtr = storagePtr;
+                outInfo->storageType = storageTy;
+                outInfo->fieldParsed = NULL;
+                if (structHint == &pointed) {
+                    parsedTypeFree(&pointed);
+                }
+                return true;
+            }
+            LLVMTypeRef fieldType = NULL;
+            const ParsedType* fieldParsed = NULL;
             LLVMValueRef fieldPtr = buildStructFieldPointer(ctx,
                                                             basePtr,
                                                             baseType,
@@ -489,7 +570,10 @@ bool codegenLValue(CodegenContext* ctx,
                                                             structHint,
                                                             &fieldType,
                                                             &fieldParsed);
-            if (!fieldPtr) return false;
+            if (!fieldPtr) {
+                if (structHint == &pointed) parsedTypeFree(&pointed);
+                return false;
+            }
             *outPtr = fieldPtr;
             *outType = fieldType ? fieldType : LLVMInt32TypeInContext(ctx->llvmContext);
             if (outParsedType) {
@@ -497,6 +581,19 @@ bool codegenLValue(CodegenContext* ctx,
             }
             if (structHint == &pointed) {
                 parsedTypeFree(&pointed);
+            }
+            return true;
+        }
+        case AST_COMPOUND_LITERAL: {
+            LLVMTypeRef litType = NULL;
+            LLVMValueRef ptr = cg_emit_compound_literal_pointer(ctx, target, &litType);
+            if (!ptr) {
+                return false;
+            }
+            *outPtr = ptr;
+            *outType = litType ? litType : LLVMInt32TypeInContext(ctx->llvmContext);
+            if (outParsedType) {
+                *outParsedType = &target->compoundLiteral.literalType;
             }
             return true;
         }
@@ -632,7 +729,7 @@ LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node) {
     LLVMValueRef structPtr = NULL;
     LLVMTypeRef baseType = NULL;
     const ParsedType* baseParsed = NULL;
-    if (!codegenLValue(ctx, node->structFieldAccess.structInstance, &structPtr, &baseType, &baseParsed)) {
+    if (!codegenLValue(ctx, node->structFieldAccess.structInstance, &structPtr, &baseType, &baseParsed, NULL)) {
         structPtr = codegenNode(ctx, node->structFieldAccess.structInstance);
         if (!structPtr) {
             fprintf(stderr, "Error: Failed to generate struct instance\n");
@@ -640,7 +737,7 @@ LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node) {
         }
         baseType = LLVMTypeOf(structPtr);
         if (LLVMGetTypeKind(baseType) == LLVMPointerTypeKind) {
-            baseType = LLVMGetElementType(baseType);
+            baseType = cg_dereference_ptr_type(ctx, baseType, "struct field access");
         }
         if (!baseParsed) {
             baseParsed = cg_resolve_expression_type(ctx, node->structFieldAccess.structInstance);

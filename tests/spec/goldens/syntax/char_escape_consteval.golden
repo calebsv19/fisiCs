@@ -1,0 +1,24 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER a
+      = CHAR_LITERAL '10'
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER b
+      = CHAR_LITERAL '127'
+  VAR_DECL
+    TYPE: wchar_t
+    IDENTIFIER good
+      = CHAR_LITERAL '169'
+  VAR_DECL
+    TYPE: wchar_t
+    IDENTIFIER bad
+      = CHAR_LITERAL '1114112'
+
+
+Diagnostics:
+Error at (5:0): Character literal value is out of range
+Error at (5:0): Initializer for static variable 'bad' is not a constant expression
+

@@ -1,0 +1,24 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER E
+        Member:   IDENTIFIER SHIFT_OK
+            Value:  TERNARY_EXPRESSION
+    BINARY EXPRESSION '=='
+      BINARY EXPRESSION '>>'
+        CAST_EXPRESSION
+                    CAST TYPE: unsigned int
+          NUMBER_LITERAL 0x80000000u
+        NUMBER_LITERAL 1
+      NUMBER_LITERAL 0x40000000u
+    NUMBER_LITERAL 1
+    UNARY EXPRESSION '-' (prefix)
+      NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: int [IDENTIFIER SHIFT_OK]
+    IDENTIFIER arr
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

@@ -139,6 +139,17 @@ static bool flush_chunk(Preprocessor* pp,
     return ok;
 }
 
+static bool debug_layout_enabled(void) {
+    static int initialized = 0;
+    static bool enabled = false;
+    if (!initialized) {
+        const char* env = getenv("FISICS_DEBUG_LAYOUT");
+        enabled = (env && env[0] && env[0] != '0');
+        initialized = 1;
+    }
+    return enabled;
+}
+
 bool preprocess_tokens(Preprocessor* pp,
                        const TokenBuffer* input,
                        PPTokenBuffer* output,
@@ -167,7 +178,7 @@ bool preprocess_tokens(Preprocessor* pp,
     size_t condCap = 0;
 
     for (size_t i = 0; i < input->count; ++i) {
-        if (ctx) {
+        if (ctx && debug_layout_enabled()) {
             const char* curLayout = cc_get_data_layout(ctx);
             if (curLayout != baselineLayout) {
                 const Token* t = &input->tokens[i];

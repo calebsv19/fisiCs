@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 struct Scope;
+struct CCTagFieldLayout;
 
 typedef enum {
     TYPEINFO_INVALID = 0,
@@ -53,6 +54,8 @@ typedef struct TypeInfo {
     bool isLValue;
     bool isComplete;
     const ParsedType* originalType;
+    bool isBitfield;
+    const struct CCTagFieldLayout* bitfieldLayout;
 } TypeInfo;
 
 typedef enum {
@@ -64,7 +67,7 @@ typedef enum {
 TypeInfo makeInvalidType(void);
 TypeInfo makeBoolType(void);
 TypeInfo makeIntegerType(unsigned bitWidth, bool isSigned, TokenType primitive);
-TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex);
+TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex, struct Scope* scope);
 TypeInfo typeInfoFromParsedType(const ParsedType* type, struct Scope* scope);
 
 bool typeInfoIsInteger(const TypeInfo* info);

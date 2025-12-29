@@ -78,6 +78,8 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
             return codegenIdentifier(ctx, node);
         case AST_SIZEOF:
             return codegenSizeof(ctx, node);
+        case AST_ALIGNOF:
+            return codegenAlignof(ctx, node);
         case AST_STATEMENT_EXPRESSION:
             return codegenStatementExpression(ctx, node);
         case AST_PARSED_TYPE:

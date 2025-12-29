@@ -30,9 +30,9 @@ ASTNode* parseCastExpression(Parser* parser);
 ASTNode* parsePostfixExpression(Parser* parser);
 ASTNode* parsePrimary(Parser* parser);
 ASTNode* parseSizeofExpression(Parser* parser);
+ASTNode* parseAlignofExpression(Parser* parser);
 
 // Statement-level expression routing
 ASTNode* handleExpressionOrAssignment(Parser* parser);
 
 #endif // _PARSER_EXPR_H
-

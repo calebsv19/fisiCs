@@ -12,6 +12,7 @@
 
 #include "Compiler/pipeline.h"
 #include "Compiler/object_emit.h"
+#include "Syntax/target_layout.h"
 
 typedef struct {
     char** items;
@@ -201,7 +202,10 @@ int main(int argc, char **argv) {
     bool dumpAst = false;
     bool dumpSemantic = false;
     bool dumpIR = false;
+    bool dumpLayout = false;
     bool enableTrigraphs = false;
+    bool warnIgnoredInterop = true;
+    bool errorIgnoredInterop = false;
     StringList includePaths = {0};
     StringList inputCFiles = {0};
     StringList inputOFiles = {0};
@@ -267,6 +271,8 @@ int main(int argc, char **argv) {
             targetTriple = argv[++i];
         } else if (strcmp(argv[i], "--data-layout") == 0 && i + 1 < argc) {
             dataLayout = argv[++i];
+        } else if (strcmp(argv[i], "--dump-layout") == 0) {
+            dumpLayout = true;
         } else if (strcmp(argv[i], "--dump-ast") == 0) {
             dumpAst = true;
         } else if (strcmp(argv[i], "--dump-sema") == 0) {
@@ -302,6 +308,10 @@ int main(int argc, char **argv) {
             if (!string_list_push(&linkerLibs, lib)) { fprintf(stderr, "OOM: -l name\n"); goto fail; }
         } else if (strncmp(argv[i], "--linker=", 9) == 0) {
             linkerPath = argv[i] + 9;
+        } else if (strcmp(argv[i], "--no-warn-ignored-cc") == 0) {
+            warnIgnoredInterop = false;
+        } else if (strcmp(argv[i], "--error-ignored-cc") == 0) {
+            errorIgnoredInterop = true;
         } else if (argv[i][0] != '-' && !filename) {
             filename = argv[i];
             if (has_extension(filename, ".c")) {
@@ -344,6 +354,20 @@ int main(int argc, char **argv) {
     const char* depsEnv = getenv("EMIT_DEPS_JSON");
     if (!depsJsonPath && depsEnv && depsEnv[0] != '\0') {
         depsJsonPath = depsEnv;
+    }
+    const char* warnInteropEnv = getenv("WARN_IGNORED_CC");
+    if (warnInteropEnv && warnInteropEnv[0] != '\0') {
+        warnIgnoredInterop = warnInteropEnv[0] != '0';
+    }
+    const char* errInteropEnv = getenv("ERROR_IGNORED_CC");
+    if (errInteropEnv && errInteropEnv[0] != '\0' && errInteropEnv[0] != '0') {
+        errorIgnoredInterop = true;
+    }
+
+    if (dumpLayout) {
+        const TargetLayout* tl = tl_from_triple(targetTriple);
+        tl_dump(tl, stdout);
+        return 0;
     }
 
     bool driverMode = compileOnly || outputName || inputOFiles.count > 0 ||
@@ -388,7 +412,9 @@ int main(int argc, char **argv) {
                     .dumpAst = dumpAst,
                     .dumpSemantic = dumpSemantic,
                     .dumpIR = dumpIR,
-                    .enableCodegen = enableCodegen
+                    .enableCodegen = enableCodegen,
+                    .warnIgnoredInterop = warnIgnoredInterop,
+                    .errorIgnoredInterop = errorIgnoredInterop
                 };
 
                 CompileResult result;
@@ -456,7 +482,9 @@ int main(int argc, char **argv) {
                     .dumpAst = dumpAst,
                     .dumpSemantic = dumpSemantic,
                     .dumpIR = dumpIR,
-                    .enableCodegen = enableCodegen
+                    .enableCodegen = enableCodegen,
+                    .warnIgnoredInterop = warnIgnoredInterop,
+                    .errorIgnoredInterop = errorIgnoredInterop
                 };
 
                 CompileResult result;
@@ -626,7 +654,9 @@ int main(int argc, char **argv) {
         .dumpAst = dumpAst || ENABLE_AST_PRINT,
         .dumpSemantic = dumpSemantic || ENABLE_SYNTAX_CHECK,
         .dumpIR = dumpIR || (enableCodegen && ENABLE_CODEGEN),
-        .enableCodegen = enableCodegen
+        .enableCodegen = enableCodegen,
+        .warnIgnoredInterop = warnIgnoredInterop,
+        .errorIgnoredInterop = errorIgnoredInterop
     };
 
     CompileResult result;

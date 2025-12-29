@@ -3,8 +3,32 @@
 #include "codegen_types.h"
 #include "Syntax/layout.h"
 
+#include <llvm-c/Core.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+LLVMTypeRef cg_dereference_ptr_type(CodegenContext* ctx, LLVMTypeRef ptrType, const char* ctxMsg) {
+    (void)ctx;
+    if (!ptrType || LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
+        if (ctxMsg) {
+            CG_ERROR("Cannot dereference non-pointer in %s", ctxMsg);
+        } else {
+            CG_ERROR("Cannot dereference non-pointer");
+        }
+        return NULL;
+    }
+    LLVMTypeRef elem = LLVMGetElementType(ptrType);
+    if (!elem) {
+        if (ctxMsg) {
+            CG_ERROR("Opaque pointer encountered in %s", ctxMsg);
+        } else {
+            CG_ERROR("Opaque pointer encountered");
+        }
+        return NULL;
+    }
+    return elem;
+}
 
 static const ParsedType* cg_builtin_signed_int_type(void) {
     static ParsedType type = {
@@ -202,6 +226,49 @@ bool cg_size_align_of_parsed(CodegenContext* ctx,
     return true;
 }
 
+bool cg_size_align_for_type(CodegenContext* ctx,
+                            const ParsedType* parsed,
+                            LLVMTypeRef llvmHint,
+                            uint64_t* outSize,
+                            uint32_t* outAlign) {
+    uint64_t sz = 0;
+    uint32_t al = 0;
+    bool haveSemantic = cg_size_align_of_parsed(ctx, parsed, &sz, &al);
+
+    LLVMTargetDataRef tdata = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+    bool haveLLVM = false;
+    uint64_t llvmSize = 0;
+    uint32_t llvmAlign = 0;
+    if (tdata && llvmHint) {
+        llvmSize = LLVMABISizeOfType(tdata, llvmHint);
+        llvmAlign = (uint32_t)LLVMABIAlignmentOfType(tdata, llvmHint);
+        haveLLVM = true;
+    }
+
+    if (haveSemantic) {
+        if (haveLLVM && getenv("FISICS_DEBUG_LAYOUT")) {
+            if (sz != llvmSize || (al && llvmAlign && al != llvmAlign)) {
+                fprintf(stderr,
+                        "[layout] semantic vs LLVM mismatch: sz=%llu(%llu) align=%u(%u)\n",
+                        (unsigned long long)sz,
+                        (unsigned long long)llvmSize,
+                        al,
+                        llvmAlign);
+            }
+        }
+        if (outSize) *outSize = sz;
+        if (outAlign) *outAlign = al ? al : (haveLLVM ? llvmAlign : 1);
+        return true;
+    }
+
+    if (haveLLVM) {
+        if (outSize) *outSize = llvmSize;
+        if (outAlign) *outAlign = llvmAlign ? llvmAlign : 1;
+        return true;
+    }
+    return false;
+}
+
 LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
                                          const ParsedType* pointerParsed,
                                          LLVMTypeRef pointerLLVM) {
@@ -217,14 +284,12 @@ LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
             parsedTypeFree(&element);
         }
     }
-    if (pointerLLVM && LLVMGetTypeKind(pointerLLVM) == LLVMPointerTypeKind) {
-        LLVMTypeRef elem = LLVMGetElementType(pointerLLVM);
-        if (elem && LLVMGetTypeKind(elem) == LLVMArrayTypeKind) {
-            elem = LLVMGetElementType(elem);
-        }
-        if (elem && LLVMGetTypeKind(elem) != LLVMVoidTypeKind) {
-            return elem;
-        }
+    LLVMTypeRef elem = cg_dereference_ptr_type(ctx, pointerLLVM, "element type lookup");
+    if (elem && LLVMGetTypeKind(elem) == LLVMArrayTypeKind) {
+        elem = LLVMGetElementType(elem);
+    }
+    if (elem && LLVMGetTypeKind(elem) != LLVMVoidTypeKind) {
+        return elem;
     }
     return LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
 }
@@ -373,6 +438,7 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
         case AST_CHAR_LITERAL:
             return cg_builtin_signed_int_type();
         case AST_SIZEOF:
+        case AST_ALIGNOF:
             return cg_builtin_unsigned_int_type();
         case AST_CAST_EXPRESSION:
             return &node->castExpr.castType;

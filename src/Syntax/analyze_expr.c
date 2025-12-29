@@ -4,6 +4,7 @@
 #include "symbol_table.h"
 #include "Parser/Helpers/designated_init.h"
 #include "literal_utils.h"
+#include "Compiler/compiler_context.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
@@ -333,7 +334,7 @@ static TypeInfo typeFromLiteral(const char* text) {
         bool isFloat = coreLen > 0 && (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F');
         bool isLongDouble = coreLen > 0 && (text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L');
         FloatKind fk = isFloat ? FLOAT_KIND_FLOAT : (isLongDouble ? FLOAT_KIND_LONG_DOUBLE : FLOAT_KIND_DOUBLE);
-        TypeInfo info = makeFloatTypeInfo(fk, hasImag);
+        TypeInfo info = makeFloatTypeInfo(fk, hasImag, NULL);
         info.isImaginary = hasImag;
         info.isLValue = false;
         return info;
@@ -518,6 +519,29 @@ static const ParsedType* lookupFieldType(const TypeInfo* base,
     return NULL;
 }
 
+static const CCTagFieldLayout* lookupFieldLayout(const TypeInfo* base,
+                                                 const char* fieldName,
+                                                 Scope* scope) {
+    if (!base || !fieldName || !scope || !scope->ctx) return NULL;
+    if (base->category != TYPEINFO_STRUCT && base->category != TYPEINFO_UNION) {
+        return NULL;
+    }
+    const CCTagFieldLayout* layouts = NULL;
+    size_t count = 0;
+    CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    if (!cc_get_tag_field_layouts(scope->ctx, kind, base->userTypeName, &layouts, &count) || !layouts) {
+        return NULL;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        const CCTagFieldLayout* lay = &layouts[i];
+        if (!lay->name) continue;
+        if (strcmp(lay->name, fieldName) == 0) {
+            return lay;
+        }
+    }
+    return NULL;
+}
+
 TypeInfo decayToRValue(TypeInfo info) {
     if (!info.isLValue) {
         return info;
@@ -531,6 +555,10 @@ TypeInfo decayToRValue(TypeInfo info) {
         info.category = TYPEINFO_POINTER;
         typeInfoPrependPointerLevel(&info, (PointerQualifier){0});
         info.isFunction = false;
+    }
+    if (info.isBitfield) {
+        info.isBitfield = false;
+        info.bitfieldLayout = NULL;
     }
     info.isLValue = false;
     return info;
@@ -766,6 +794,10 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     reportOperandError(node, "lvalue operand", "&");
                     return makeInvalidType();
                 }
+                if (operand.isBitfield) {
+                    reportOperandError(node, "non-bitfield lvalue operand", "&");
+                    return makeInvalidType();
+                }
                 ASTNode* target = node->expr.left;
                 if (target && target->type == AST_IDENTIFIER) {
                     Symbol* sym = resolveInScopeChain(scope, target->valueNode.value);
@@ -871,6 +903,17 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             }
 
             TypeInfo result = makeInvalidType();
+            if (calleeName &&
+                (strcmp(calleeName, "__builtin_va_arg") == 0 ||
+                 strcmp(calleeName, "va_arg") == 0)) {
+                if (argCount == 2 &&
+                    node->functionCall.arguments[1] &&
+                    node->functionCall.arguments[1]->type == AST_PARSED_TYPE) {
+                    result = typeInfoFromParsedType(&node->functionCall.arguments[1]->parsedTypeNode.parsed, scope);
+                    result.isLValue = false;
+                    return result;
+                }
+            }
             if (calleeName && strcmp(calleeName, "va_start") == 0) {
                 if (!scope || !scope->inFunction) {
                     addError(node->line, 0, "va_start can only appear inside a function", NULL);
@@ -998,6 +1041,11 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, scope);
                 fieldInfo.isLValue = true;
                 fieldInfo.isConst = base.isConst || fieldInfo.isConst;
+                const CCTagFieldLayout* lay = lookupFieldLayout(&base, node->memberAccess.field, scope);
+                if (lay && lay->isBitfield && !lay->isZeroWidth) {
+                    fieldInfo.isBitfield = true;
+                    fieldInfo.bitfieldLayout = lay;
+                }
                 return fieldInfo;
             }
 
@@ -1034,6 +1082,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 analyzeDesignatedInitializerExpr(node->compoundLiteral.entries[i], scope);
             }
             TypeInfo info = typeInfoFromParsedType(&node->compoundLiteral.literalType, scope);
+            node->compoundLiteral.isStaticStorage = scope ? (scope->depth == 0) : false;
             info.isLValue = true;
             return info;
         }
@@ -1069,15 +1118,54 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             TypeInfo trueInfo = analyzeExpression(node->ternaryExpr.trueExpr, scope);
             TypeInfo falseInfo = analyzeExpression(node->ternaryExpr.falseExpr, scope);
             bool ok = true;
-            TypeInfo merged = usualArithmeticConversion(trueInfo, falseInfo, &ok);
-            if (!ok) {
-                if (typeInfoIsKnown(&trueInfo) || typeInfoIsKnown(&falseInfo)) {
-                    reportOperandError(node, "compatible operands", "?:");
+            bool truePtr = typeInfoIsPointerLike(&trueInfo);
+            bool falsePtr = typeInfoIsPointerLike(&falseInfo);
+            bool trueNull = typeInfoIsInteger(&trueInfo) && trueInfo.bitWidth == 0;
+            bool falseNull = typeInfoIsInteger(&falseInfo) && falseInfo.bitWidth == 0;
+
+            if (typeInfoIsArithmetic(&trueInfo) && typeInfoIsArithmetic(&falseInfo)) {
+                TypeInfo merged = usualArithmeticConversion(trueInfo, falseInfo, &ok);
+                if (!ok) {
+                    if (typeInfoIsKnown(&trueInfo) || typeInfoIsKnown(&falseInfo)) {
+                        reportOperandError(node, "compatible operands", "?:");
+                    }
+                    return makeInvalidType();
                 }
-                return makeInvalidType();
+                merged.isLValue = false;
+                return merged;
             }
-            merged.isLValue = false;
-            return merged;
+
+            if (truePtr && falsePtr) {
+                /* void* dominates; otherwise require compatibility. */
+                if ((trueInfo.primitive == TOKEN_VOID && trueInfo.pointerDepth == falseInfo.pointerDepth) ||
+                    (falseInfo.primitive == TOKEN_VOID && trueInfo.pointerDepth == falseInfo.pointerDepth)) {
+                    TypeInfo v = (trueInfo.primitive == TOKEN_VOID) ? trueInfo : falseInfo;
+                    v.isConst = trueInfo.isConst || falseInfo.isConst;
+                    v.isVolatile = trueInfo.isVolatile || falseInfo.isVolatile;
+                    v.isRestrict = trueInfo.isRestrict || falseInfo.isRestrict;
+                    v.isLValue = false;
+                    return v;
+                }
+                if (typesAreEqual(&trueInfo, &falseInfo)) {
+                    trueInfo.isConst = trueInfo.isConst || falseInfo.isConst;
+                    trueInfo.isVolatile = trueInfo.isVolatile || falseInfo.isVolatile;
+                    trueInfo.isRestrict = trueInfo.isRestrict || falseInfo.isRestrict;
+                    trueInfo.isLValue = false;
+                    return trueInfo;
+                }
+            }
+
+            if (truePtr && falseNull) {
+                trueInfo.isLValue = false;
+                return trueInfo;
+            }
+            if (falsePtr && trueNull) {
+                falseInfo.isLValue = false;
+                return falseInfo;
+            }
+
+            addError(node->line, 0, "Incompatible types in ternary expression", NULL);
+            return makeInvalidType();
         }
 
         case AST_SIZEOF:
@@ -1086,6 +1174,21 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 if ((target.category == TYPEINFO_STRUCT || target.category == TYPEINFO_UNION) && !target.isComplete) {
                     addError(node->line, 0, "sizeof applied to incomplete type", NULL);
                     return makeInvalidType();
+                }
+                if (target.isVLA) {
+                    addError(node->line, 0, "sizeof applied to variable length array is not an integer constant expression", NULL);
+                }
+            }
+            return makeIntegerType(64, false, TOKEN_UNSIGNED);
+        case AST_ALIGNOF:
+            if (node->expr.left) {
+                TypeInfo target = analyzeExpression(node->expr.left, scope);
+                if ((target.category == TYPEINFO_STRUCT || target.category == TYPEINFO_UNION) && !target.isComplete) {
+                    addError(node->line, 0, "alignof applied to incomplete type", NULL);
+                    return makeInvalidType();
+                }
+                if (target.isVLA) {
+                    addError(node->line, 0, "alignof applied to variable length array is not an integer constant expression", NULL);
                 }
             }
             return makeIntegerType(64, false, TOKEN_UNSIGNED);

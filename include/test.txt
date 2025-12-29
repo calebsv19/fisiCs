@@ -1,6 +1,20 @@
-#include <errno.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <complex.h>
+
+/* K&R style definition */
+int knrf(a, b) int a; double b; { return a + (int)b; }
+
+struct WidePack {
+    wchar_t lead;
+    _Complex double z;
+};
 
 int main(void) {
-    errno = EINVAL;
-    return errno == EINVAL ? 0 : 1;
+    struct WidePack w = { L'A', 2.0 + 3.0i };
+    int base = knrf(4, 2.5);
+    const wchar_t s[] = L"hi";
+    ptrdiff_t diff = (ptrdiff_t)(&s[1] - &s[0]);
+    int zsum = (int)creal(w.z) + (int)cimag(w.z);
+    return (base == 6 && diff == 1 && zsum == 5 && w.lead == L'A') ? 0 : 1;
 }

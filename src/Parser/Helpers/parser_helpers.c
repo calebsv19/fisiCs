@@ -226,5 +226,6 @@ bool isValidExpressionStart(TokenType type) {
         type == TOKEN_DECREMENT ||
         type == TOKEN_ASTERISK ||     // for pointer dereference
 	type == TOKEN_BITWISE_AND ||   // address-of
-        type == TOKEN_SIZEOF;
+        type == TOKEN_SIZEOF ||
+        type == TOKEN_ALIGNOF;
 }

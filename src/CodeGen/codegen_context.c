@@ -56,6 +56,12 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
                 LLVMSetTarget(ctx->module, triple);
             }
             const char* layout = cc_get_data_layout(cctx);
+            char* generatedLayout = NULL;
+            if (!layout || !layout[0]) {
+                const TargetLayout* tl = cc_get_target_layout(cctx);
+                generatedLayout = tl_to_llvm_datalayout(tl ? tl : tl_default());
+                layout = generatedLayout;
+            }
             if (layout && layout[0]) {
                 bool printable = true;
                 size_t len = 0;
@@ -65,12 +71,12 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
                     if (len > 256) { printable = false; break; }
                 }
                 if (printable && len > 0) {
-                    LOG_WARN("codegen", "Using data layout string: '%s'", layout);
                     LLVMSetDataLayout(ctx->module, layout);
                 } else {
                     LOG_WARN("codegen", "Ignoring invalid data layout string (len=%zu)", len);
                 }
             }
+            free(generatedLayout);
         }
     }
 

@@ -568,6 +568,9 @@ ASTNode* parsePrimary(Parser* parser) {
     if (parser->currentToken.type == TOKEN_SIZEOF) {
         return parseSizeofExpression(parser);
     }
+    if (parser->currentToken.type == TOKEN_ALIGNOF) {
+        return parseAlignofExpression(parser);
+    }
      
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         ASTNode* node = createIdentifierNode(parser->currentToken.value);
@@ -634,6 +637,40 @@ ASTNode* parseSizeofExpression(Parser* parser) {
     advance(parser);  // Consume ')'
     
     return createSizeofNode(target);
+}
+
+ASTNode* parseAlignofExpression(Parser* parser) {
+    if (parser->currentToken.type != TOKEN_ALIGNOF) {
+        return NULL;
+    }
+    advance(parser); // consume alignof
+
+    if (parser->currentToken.type != TOKEN_LPAREN) {
+        printParseError("Expected '(' after 'alignof'", parser);
+        return NULL;
+    }
+    advance(parser); // consume '('
+
+    ASTNode* target = NULL;
+    ParsedType type = parseTypeCtx(parser, TYPECTX_Strict);
+    if (type.kind != TYPE_INVALID) {
+        target = createParsedTypeNode(type);
+    } else if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        target = createIdentifierNode(parser->currentToken.value);
+        if (target) target->line = parser->currentToken.line;
+        advance(parser);
+    } else {
+        printParseError("Invalid operand for 'alignof'", parser);
+        return NULL;
+    }
+
+    if (parser->currentToken.type != TOKEN_RPAREN) {
+        printParseError("Expected ')' after alignof operand", parser);
+        return NULL;
+    }
+    advance(parser); // consume ')'
+
+    return createAlignofNode(target);
 }
 
 

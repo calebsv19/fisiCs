@@ -113,13 +113,13 @@ static unsigned targetLongDoubleBits(Scope* scope) {
     return (unsigned)tl->longDoubleBits;
 }
 
-TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex) {
+TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex, Scope* scope) {
     TypeInfo info = makeBaseInvalid();
     info.category = TYPEINFO_FLOAT;
     switch (kind) {
         case FLOAT_KIND_LONG_DOUBLE:
             info.primitive = TOKEN_DOUBLE;
-            info.bitWidth = 128;
+            info.bitWidth = targetLongDoubleBits(scope);
             break;
         case FLOAT_KIND_DOUBLE:
             info.primitive = TOKEN_DOUBLE;
@@ -169,11 +169,11 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
                     return info;
                 }
                 case TOKEN_COMPLEX: {
-                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, true);
+                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, true, scope);
                     return info;
                 }
                 case TOKEN_IMAGINARY: {
-                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, true);
+                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, true, scope);
                     info.isImaginary = true;
                     return info;
                 }
@@ -197,7 +197,7 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
                     return info;
                 }
                 case TOKEN_FLOAT: {
-                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_FLOAT, type->isComplex || type->isImaginary);
+                    TypeInfo info = makeFloatTypeInfo(FLOAT_KIND_FLOAT, type->isComplex || type->isImaginary, scope);
                     info.isImaginary = type->isImaginary;
                     return info;
                 }
@@ -206,11 +206,7 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
                     if (type->isLong) {
                         fk = FLOAT_KIND_LONG_DOUBLE;
                     }
-                    TypeInfo info = makeFloatTypeInfo(fk, type->isComplex || type->isImaginary);
-                    if (fk == FLOAT_KIND_LONG_DOUBLE) {
-                        unsigned bits = targetLongDoubleBits(scope);
-                        info.bitWidth = bits;
-                    }
+                    TypeInfo info = makeFloatTypeInfo(fk, type->isComplex || type->isImaginary, scope);
                     info.isImaginary = type->isImaginary;
                     return info;
                 }
@@ -445,7 +441,7 @@ TypeInfo defaultArgumentPromotion(TypeInfo info) {
         return info;
     }
     if (typeInfoIsFloating(&info) && info.bitWidth < 64) {
-        TypeInfo promoted = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, info.isComplex);
+        TypeInfo promoted = makeFloatTypeInfo(FLOAT_KIND_DOUBLE, info.isComplex, NULL);
         promoted.isImaginary = info.isImaginary && !info.isComplex;
         promoted.isLValue = false;
         return promoted;
@@ -456,13 +452,13 @@ TypeInfo defaultArgumentPromotion(TypeInfo info) {
 
 static int integerRank(const TypeInfo* info) {
     if (!info || !typeInfoIsInteger(info)) return -1;
-    switch (info->bitWidth) {
-        case 8:  return 1;
-        case 16: return 2;
-        case 32: return 3;
-        case 64: return 4;
-        default: return 0;
-    }
+    unsigned bits = info->bitWidth ? info->bitWidth : 32;
+    if (bits <= 8) return 1;
+    if (bits <= 16) return 2;
+    if (bits <= 32) return 3;
+    if (bits <= 64) return 4;
+    if (bits <= 128) return 5;
+    return 6;
 }
 
 static TypeInfo pickIntegerResult(TypeInfo a, TypeInfo b) {
@@ -487,6 +483,8 @@ TypeInfo usualArithmeticConversion(TypeInfo left, TypeInfo right, bool* ok) {
         return makeInvalidType();
     }
 
+    /* Floating / complex rules: choose the widest FP kind among operands,
+       preserving complex/imag flags. */
     if (typeInfoIsFloating(&left) || typeInfoIsFloating(&right)) {
         FloatKind fk = FLOAT_KIND_FLOAT;
         bool isComplex = left.isComplex || right.isComplex || left.isImaginary || right.isImaginary;
@@ -497,11 +495,12 @@ TypeInfo usualArithmeticConversion(TypeInfo left, TypeInfo right, bool* ok) {
         } else if (maxBits >= 64) {
             fk = FLOAT_KIND_DOUBLE;
         }
-        TypeInfo r = makeFloatTypeInfo(fk, isComplex);
+        TypeInfo r = makeFloatTypeInfo(fk, isComplex, NULL);
         r.isImaginary = isImag && !isComplex;
         return r;
     }
 
+    /* Integer path: promote then pick rank/unsigned following C usual conversions. */
     TypeInfo a = integerPromote(left);
     TypeInfo b = integerPromote(right);
     return pickIntegerResult(a, b);

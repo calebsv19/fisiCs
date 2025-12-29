@@ -5,6 +5,7 @@
 #include "Parser/Helpers/parser_lookahead.h"
 #include "Parser/Expr/parser_expr.h"
 #include "parser_decl.h"
+#include "Parser/Helpers/parser_attributes.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -329,29 +330,51 @@ ASTNode* parseStatement(Parser* parser) {
     PARSER_DEBUG_PRINTF("DEBUG: Current Token: %s at line %d\n",
            parser->currentToken.value, parser->currentToken.line);
 
+    size_t stmtAttrCount = 0;
+    ASTAttribute** stmtAttrs = parserParseAttributeSpecifiers(parser, &stmtAttrCount);
+    ASTNode* parsed = NULL;
+
     // --- Block Statement ---
     if (parser->currentToken.type == TOKEN_LBRACE) {
-        return parseBlock(parser);
+        parsed = parseBlock(parser);
+        goto attach_attrs;
     }
 
     // --- Control Flow (if, for, while, return, etc.) ---
     ASTNode* controlStmt = handleControlStatements(parser);
-    if (controlStmt) return controlStmt;
+    if (controlStmt) {
+        parsed = controlStmt;
+        goto attach_attrs;
+    }
 
     // --- Label ---
     if (parser->currentToken.type == TOKEN_IDENTIFIER &&
         peekNextToken(parser).type == TOKEN_COLON) {
-        return parseLabel(parser);
+        parsed = parseLabel(parser);
+        goto attach_attrs;
     }
 
     // --- Type-based Declaration (function/variable) ---
     if (parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
         looksLikeTypeDeclaration(parser)) {
         PARSER_DEBUG_PRINTF("DEBUG: Detected type-based declaration\n");
-        ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
-        if (decl) return decl;
+        parsed = handleTypeOrFunctionDeclaration(parser);
+        if (parsed) goto attach_attrs;
     }
 
     // --- Expression or Assignment ---
-    return handleExpressionOrAssignment(parser);
+    parsed = handleExpressionOrAssignment(parser);
+
+attach_attrs:
+    if (stmtAttrCount > 0) {
+        if (parsed) {
+            astNodeAppendAttributes(parsed, stmtAttrs, stmtAttrCount);
+        } else {
+            astAttributeListDestroy(stmtAttrs, stmtAttrCount);
+            free(stmtAttrs);
+        }
+    } else {
+        free(stmtAttrs);
+    }
+    return parsed;
 }

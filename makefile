@@ -175,6 +175,97 @@ else
 	@./tests/codegen/run_compound_literal_pointer_decay.sh ./$(BIN)
 endif
 
+codegen-bitfield: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-bitfield (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_bitfield.sh ./$(BIN)
+endif
+
+codegen-alignas: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-alignas (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_alignas.sh ./$(BIN)
+endif
+
+codegen-flex-memset: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-flex-memset (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_flex_memset.sh ./$(BIN)
+endif
+
+codegen-ternary-merge: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-ternary-merge (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_ternary_merge.sh ./$(BIN)
+endif
+
+codegen-shift: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-shift (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_shift.sh ./$(BIN)
+endif
+
+codegen-varargs-call: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-varargs-call (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_varargs_call.sh ./$(BIN)
+endif
+
+codegen-opaque-pointer: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-opaque-pointer (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_opaque_pointer_diag.sh ./$(BIN)
+endif
+
+codegen-const-globals: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-const-globals (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_const_globals.sh ./$(BIN)
+endif
+
+codegen-callconv-declspec: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-callconv-declspec (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_callconv_declspec.sh ./$(BIN)
+endif
+
+codegen-switch-dense: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-switch-dense (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_switch_dense.sh ./$(BIN)
+endif
+
+codegen-switch-sparse: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-switch-sparse (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_switch_sparse.sh ./$(BIN)
+endif
+
+codegen-compound-literal-storage: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-compound-literal-storage (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_compound_literal_storage.sh ./$(BIN)
+endif
+
+codegen-builtin-expect: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-builtin-expect (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_builtin_expect.sh ./$(BIN)
+endif
+
 statement-expr-codegen: $(BIN)
 ifeq ($(DISABLE_CODEGEN),1)
 	@echo "Skipping statement-expr-codegen (codegen disabled)"
@@ -242,6 +333,33 @@ semantic-unsequenced: $(BIN)
 semantic-restrict-alias: $(BIN)
 	@./tests/syntax/run_semantic_restrict_alias.sh ./$(BIN)
 
+semantic-alignas: $(BIN)
+	@./tests/syntax/run_semantic_alignas.sh ./$(BIN)
+
+semantic-bitfield-layout: $(BIN)
+	@./tests/syntax/run_semantic_bitfield_layout.sh ./$(BIN)
+
+semantic-long-double-layout: $(BIN)
+	@./tests/syntax/run_semantic_long_double_layout.sh ./$(BIN)
+
+semantic-flexible-array-layout: $(BIN)
+	@./tests/syntax/run_semantic_flexible_array_layout.sh ./$(BIN)
+
+semantic-sizeof-alignof-vla: $(BIN)
+	@./tests/syntax/run_sizeof_alignof_vla.sh ./$(BIN)
+
+semantic-case-non-ice: $(BIN)
+	@./tests/syntax/run_case_non_ice.sh ./$(BIN)
+
+semantic-char-escape-consteval: $(BIN)
+	@./tests/syntax/run_char_escape_consteval.sh ./$(BIN)
+
+semantic-ternary-merge-ptr: $(BIN)
+	@./tests/syntax/run_ternary_merge_ptr.sh ./$(BIN)
+
+semantic-shift-unsigned: $(BIN)
+	@./tests/syntax/run_shift_unsigned.sh ./$(BIN)
+
 compound-literal-lvalues: $(BIN)
 	@./tests/syntax/run_compound_literal_lvalues.sh ./$(BIN)
 
@@ -252,7 +370,7 @@ statement-expr-disabled: $(BIN)
 	@./tests/parser/run_statement_expr_disabled.sh ./$(BIN)
 
 spec-tests: $(BIN)
-	@./tests/spec/run_ast_golden.sh ./$(BIN)
+	@DISABLE_CODEGEN=1 ./tests/spec/run_ast_golden.sh ./$(BIN)
 
 parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \
               cast-grouped for_typedef function-pointer switch-flow goto-flow \
@@ -264,10 +382,20 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
               semantic-initializer-shapes semantic-flow semantic-vla-errors semantic-vla-block \
               semantic-struct-definition-only semantic-vla-param-decay semantic-flexible-array \
               semantic-knr-function semantic-unsequenced semantic-restrict-alias \
+              semantic-alignas semantic-bitfield-layout semantic-long-double-layout \
+              semantic-flexible-array-layout \
+              semantic-sizeof-alignof-vla \
+              semantic-case-non-ice semantic-char-escape-consteval \
+              semantic-ternary-merge-ptr semantic-shift-unsigned \
               compound-literal-lvalues
 
 codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff \
                codegen-function-pointer-call codegen-compound-literal-pointer-decay \
+               codegen-bitfield codegen-alignas codegen-flex-memset \
+               codegen-ternary-merge codegen-shift codegen-varargs-call \
+codegen-callconv-declspec codegen-switch-dense codegen-switch-sparse \
+               codegen-opaque-pointer codegen-const-globals \
+               codegen-compound-literal-storage codegen-builtin-expect \
                statement-expr-codegen
 
 test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests
@@ -326,6 +454,7 @@ tests: test frontend-api-test
         semantic-vla-param-decay codegen-pointer-deref codegen-pointer-diff \
         compound-literal-lvalues \
         codegen-function-pointer-call codegen-compound-literal-pointer-decay \
+        codegen-bitfield \
         statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
-        statement-expr-codegen \
-        parser-tests syntax-tests codegen-tests spec-tests test tests
+        statement-expr-codegen codegen-bitfield \
+        parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas

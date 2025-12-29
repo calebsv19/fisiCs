@@ -54,10 +54,7 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
     if (expr->type == AST_NUMBER_LITERAL && expr->valueNode.value && strcmp(expr->valueNode.value, "0") == 0) {
         uint64_t bytes = 0;
         uint32_t align = 0;
-        if (!cg_size_align_of_parsed(ctx, destParsed, &bytes, &align)) {
-            bytes = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), storeType);
-            align = (uint32_t)LLVMABIAlignmentOfType(LLVMGetModuleDataLayout(ctx->module), storeType);
-        }
+        cg_size_align_for_type(ctx, destParsed, storeType, &bytes, &align);
         LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
         LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, destPtr, i8Ptr, "init.zero.dst");
         LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);

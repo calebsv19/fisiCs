@@ -75,6 +75,7 @@ typedef enum {
     AST_ASSIGNMENT,
 
     AST_IF_STATEMENT,
+    AST_ALIGNOF,
     AST_SEQUENCE,
     AST_WHILE_LOOP,
     AST_FOR_LOOP,
@@ -315,6 +316,7 @@ struct ASTNode {
 	    ParsedType literalType;  
 	    struct DesignatedInit** entries;
 	    size_t entryCount;
+            bool isStaticStorage;   // true when the literal has static storage duration (file scope)
 	} compoundLiteral;
 
 
@@ -405,6 +407,7 @@ ASTNode *createBasicTypeNode(const char *name);
 ASTNode *createIdentifierNode(const char *name);
 ASTNode* createAsmNode(const char* asmText);
 ASTNode *createSizeofNode(ASTNode* target);
+ASTNode *createAlignofNode(ASTNode* target);
 ASTNode *createNumberLiteralNode(const char *value);
 ASTNode *createCharLiteralNode(const char *value);
 ASTNode *createStringLiteralNode(const char *value);

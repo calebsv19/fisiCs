@@ -222,8 +222,19 @@ void compiler_free_include_paths(char** paths, size_t count) {
     free(paths);
 }
 
+static bool debug_layout_enabled(void) {
+    static int initialized = 0;
+    static bool enabled = false;
+    if (!initialized) {
+        const char* env = getenv("FISICS_DEBUG_LAYOUT");
+        enabled = (env && env[0] && env[0] != '0');
+        initialized = 1;
+    }
+    return enabled;
+}
+
 static void log_layout_state(CompilerContext* ctx, const char* stage) {
-    if (!ctx) return;
+    if (!ctx || !debug_layout_enabled()) return;
     LOG_WARN("codegen", "[%s] dataLayout=%p canaries=%llx/%llx",
              stage,
              (void*)cc_get_data_layout(ctx),
@@ -248,13 +259,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            SemanticModel** outModel,
                                            size_t* outSemanticErrors) {
     (void)ctx; // ctx is valid for logging below
-    #define LOG_LAYOUT(stage) \
-        LOG_WARN("codegen", "[%s] dataLayout=%p canaries=%llx/%llx", \
-                 stage, \
-                 (void*)cc_get_data_layout(ctx), \
-                 (unsigned long long)ctx->dl_canary_front, \
-                 (unsigned long long)ctx->dl_canary_back)
-    LOG_LAYOUT("frontend entry");
+    log_layout_state(ctx, "frontend entry");
     const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
     bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
 
@@ -334,7 +339,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     const char* debugPP = getenv("DEBUG_PP_COUNT");
     if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
         fprintf(stderr, "DEBUG: raw tokens=%zu\n", tokenBuffer.count);
-        for (size_t i = 0; i < tokenBuffer.count && i < 16; ++i) {
+        for (size_t i = 0; i < tokenBuffer.count && i < 128; ++i) {
             const char* val = tokenBuffer.tokens[i].value ? tokenBuffer.tokens[i].value : "<null>";
             fprintf(stderr, "  RAW[%zu]: type=%d value=%s loc=%s:%d:%d\n",
                     i,
@@ -494,10 +499,12 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         fprintf(stderr, "OOM: CompilerContext\n");
         return 1;
     }
-    LOG_WARN("codegen", "ctx dataLayout initially %p canaries=%llx/%llx",
-             (void*)cc_get_data_layout(ctx),
-             (unsigned long long)ctx->dl_canary_front,
-             (unsigned long long)ctx->dl_canary_back);
+    if (debug_layout_enabled()) {
+        LOG_WARN("codegen", "ctx dataLayout initially %p canaries=%llx/%llx",
+                 (void*)cc_get_data_layout(ctx),
+                 (unsigned long long)ctx->dl_canary_front,
+                 (unsigned long long)ctx->dl_canary_back);
+    }
     result.compilerCtx = ctx;
     cc_seed_builtins(ctx);
 
@@ -506,6 +513,9 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     }
     const TargetLayout* tl = tl_from_triple(options->targetTriple);
     cc_set_target_layout(ctx, tl);
+    cc_set_interop_diag(ctx,
+                        options->warnIgnoredInterop,
+                        options->errorIgnoredInterop);
     if (options->dataLayout) {
         cc_set_data_layout(ctx, options->dataLayout);
     }
@@ -533,10 +543,12 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         pipeline_print_diagnostics(ctx);
         goto cleanup;
     }
-    LOG_WARN("codegen", "ctx dataLayout after frontend %p canaries=%llx/%llx",
-             (void*)cc_get_data_layout(ctx),
-             (unsigned long long)ctx->dl_canary_front,
-             (unsigned long long)ctx->dl_canary_back);
+    if (debug_layout_enabled()) {
+        LOG_WARN("codegen", "ctx dataLayout after frontend %p canaries=%llx/%llx",
+                 (void*)cc_get_data_layout(ctx),
+                 (unsigned long long)ctx->dl_canary_front,
+                 (unsigned long long)ctx->dl_canary_back);
+    }
 
     result.ast = ast;
     result.semanticModel = model;
@@ -555,10 +567,12 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         } else {
             len = (size_t)(uintptr_t)strayLayout;
         }
-        LOG_WARN("codegen", "Unexpected data layout present (len=%zu, bytes=%02x %02x); clearing before codegen. Canaries=%llx/%llx",
-                 len, b0, b1,
-                 (unsigned long long)ctx->dl_canary_front,
-                 (unsigned long long)ctx->dl_canary_back);
+        if (debug_layout_enabled()) {
+            LOG_WARN("codegen", "Unexpected data layout present (len=%zu, bytes=%02x %02x); clearing before codegen. Canaries=%llx/%llx",
+                     len, b0, b1,
+                     (unsigned long long)ctx->dl_canary_front,
+                     (unsigned long long)ctx->dl_canary_back);
+        }
         cc_set_data_layout(ctx, NULL);
     }
 

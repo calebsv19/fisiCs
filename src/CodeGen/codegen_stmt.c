@@ -347,6 +347,12 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                             NULL,
                             storedParsed);
         }
+        const ParsedType* alignParsed = varParsed ? varParsed : &node->varDecl.declaredType;
+        uint64_t szDummy = 0;
+        uint32_t alignVal = 0;
+        if (cg_size_align_for_type(ctx, alignParsed, storageType, &szDummy, &alignVal) && alignVal > 0) {
+            LLVMSetAlignment(storage, alignVal);
+        }
 
         DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
         if (init && init->expression) {
@@ -613,7 +619,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     if (function) {
         // If a prototype already exists, reuse it; otherwise fall back to a fresh function.
         // Best-effort type nudge: replace the function's type if it mismatches.
-        LLVMTypeRef existingType = LLVMGetElementType(LLVMTypeOf(function));
+        LLVMTypeRef existingType = cg_dereference_ptr_type(ctx, LLVMTypeOf(function), "function redeclaration");
         if (existingType != funcType) {
             LLVMDeleteFunction(function);
             function = NULL;
@@ -808,6 +814,17 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
     LLVMBasicBlockRef switchEnd = LLVMAppendBasicBlock(func, "switch.end");
     LLVMBasicBlockRef defaultBB = LLVMAppendBasicBlock(func, "switch.default");
     LLVMTypeRef conditionType = LLVMTypeOf(condition);
+    bool conditionIsInteger = LLVMGetTypeKind(conditionType) == LLVMIntegerTypeKind;
+    if (!conditionIsInteger) {
+        // Fallback: avoid jump-table lowering; compare as intptr_t.
+        LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+        if (LLVMGetTypeKind(conditionType) == LLVMPointerTypeKind) {
+            condition = LLVMBuildPtrToInt(ctx->builder, condition, intptrTy, "switch.ptrtoint");
+        } else {
+            condition = LLVMBuildBitCast(ctx->builder, condition, intptrTy, "switch.to.int");
+        }
+        conditionType = LLVMTypeOf(condition);
+    }
 
     size_t caseCount = node->switchStmt.caseListSize;
     CGCaseEntry* entries = calloc(caseCount, sizeof(CGCaseEntry));
@@ -845,7 +862,7 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
     bool dense = false;
     if (realCases > 0) {
         long long span = maxVal - minVal + 1;
-        dense = span > 0 && span <= (long long)(realCases * 2);
+        dense = conditionIsInteger && span > 0 && span <= (long long)(realCases * 2);
     }
 
     cg_loop_push(ctx, switchEnd, NULL);

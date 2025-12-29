@@ -759,6 +759,17 @@ void printAST(ASTNode* node, int depth) {
             }
              
             break;
+        case AST_ALIGNOF:
+            printf("ALIGNOF\n");
+            for (int i = 0; i < depth + 1; i++) printf("  ");
+            if (node->expr.left->type == AST_BASIC_TYPE) {
+                ParsedType pt = node->expr.left->parsedTypeNode.parsed;
+                for (int i = 0; i < depth + 1; i++) printf("  ");
+                printParsedType(&pt);
+            } else {
+                printAST(node->expr.left, depth + 1);
+            }
+            break;
 
 
         case AST_NUMBER_LITERAL:

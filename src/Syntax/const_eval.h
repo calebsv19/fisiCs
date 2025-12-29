@@ -11,6 +11,8 @@ struct Scope;
 typedef struct {
     bool isConst;
     long long value;
+    unsigned bitWidth;
+    bool isUnsigned;
 } ConstEvalResult;
 
 // Evaluate an integer constant expression in a semantic (non-codegen) context.

@@ -1,0 +1,28 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      ATTRIBUTE [GNU] cold
+      IF_STATEMENT
+        NUMBER_LITERAL 0
+        RETURN
+          NUMBER_LITERAL 1
+      ATTRIBUTE [CXX] maybe_unused
+      WHILE_LOOP
+        NUMBER_LITERAL 0
+        BLOCK
+          BREAK
+      ATTRIBUTE [GNU] unused
+      RETURN
+        NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

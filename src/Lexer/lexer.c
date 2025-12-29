@@ -945,6 +945,7 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "restrict") == 0 || strcmp(word, "__restrict") == 0 || strcmp(word, "__restrict__") == 0) return TOKEN_RESTRICT;
     if (strcmp(word, "inline") == 0) return TOKEN_INLINE;
     if (strcmp(word, "sizeof") == 0) return TOKEN_SIZEOF;
+    if (strcmp(word, "_Alignof") == 0 || strcmp(word, "alignof") == 0) return TOKEN_ALIGNOF;
     if (strcmp(word, "asm") == 0) return TOKEN_ASM;
     if (strcmp(word, "pragma") == 0) return TOKEN_PRAGMA;
     if (strcmp(word, "once") == 0) return TOKEN_ONCE;
