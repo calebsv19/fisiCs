@@ -33,6 +33,23 @@ static const CCTagFieldLayout* cg_lookup_field_layout(CodegenContext* ctx,
     return NULL;
 }
 
+static bool cg_parsed_is_flexible_array(const ParsedType* t) {
+    if (!t) return false;
+    if (!parsedTypeIsDirectArray(t)) return false;
+    const TypeDerivation* last = NULL;
+    size_t idx = 0;
+    while (1) {
+        const TypeDerivation* d = parsedTypeGetDerivation(t, idx);
+        if (!d) break;
+        last = d;
+        idx++;
+    }
+    if (last && last->kind == TYPE_DERIVATION_ARRAY && last->as.array.isFlexible) {
+        return true;
+    }
+    return false;
+}
+
 static void recordStructInfo(CodegenContext* ctx,
                              const char* name,
                              bool isUnion,
@@ -126,12 +143,19 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
                                       LLVMTypeRef elementTypeHint,
                                       LLVMTypeRef* outElementType) {
     if (!ctx || !arrayPtr || !index) return NULL;
+    (void)aggregateTypeHint;
 
     LLVMTypeRef valueType = LLVMTypeOf(arrayPtr);
     if (!valueType) return NULL;
 
     LLVMValueRef basePtr = arrayPtr;
     LLVMTypeKind valueKind = LLVMGetTypeKind(valueType);
+    const char* dbg = getenv("DEBUG_FLEX");
+    if (dbg) {
+        char* tstr = LLVMPrintTypeToString(valueType);
+        fprintf(stderr, "[DBG] arrayPtr type=%s\n", tstr ? tstr : "<null>");
+        if (tstr) LLVMDisposeMessage(tstr);
+    }
 
     /* Decay raw array values into an addressable pointer. */
     if (valueKind == LLVMArrayTypeKind) {
@@ -158,6 +182,9 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     LLVMTypeRef elementType = elementTypeHint;
     if (!elementType) {
         elementType = cg_element_type_from_pointer(ctx, baseParsedHint, valueType);
+    }
+    if (elementType && LLVMGetTypeKind(elementType) == LLVMArrayTypeKind && LLVMGetArrayLength(elementType) == 0) {
+        elementType = LLVMGetElementType(elementType);
     }
     if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
         elementType = LLVMInt8TypeInContext(ctx->llvmContext);
@@ -186,25 +213,25 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         elemSize = 1;
     }
 
-    LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
-    LLVMValueRef baseI8 = LLVMBuildPointerCast(ctx->builder, basePtr, LLVMPointerType(i8Type, 0), "array.byte.base");
-
     LLVMTypeRef i64Type = LLVMInt64TypeInContext(ctx->llvmContext);
     LLVMValueRef idx64 = index;
     LLVMTypeRef idxType = LLVMTypeOf(idx64);
     if (!idxType || LLVMGetTypeKind(idxType) != LLVMIntegerTypeKind || LLVMGetIntTypeWidth(idxType) < 64) {
         idx64 = LLVMBuildSExt(ctx->builder, idx64, i64Type, "array.idx64");
     }
+
+    /* Opaque-pointer friendly: compute byte offset then optionally view as elementType. */
+    LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
+    LLVMValueRef baseI8 = LLVMBuildPointerCast(ctx->builder, basePtr, LLVMPointerType(i8Type, 0), "array.byte.base");
     LLVMValueRef elemSizeVal = LLVMConstInt(i64Type, elemSize, 0);
     LLVMValueRef byteOffset = LLVMBuildMul(ctx->builder, idx64, elemSizeVal, "array.byte.offset");
-    LLVMValueRef gepByte = LLVMBuildGEP2(ctx->builder, i8Type, baseI8, &byteOffset, 1, "arrayElemPtr.byte");
-    if (!gepByte) return NULL;
+    LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, i8Type, baseI8, &byteOffset, 1, "arrayElemPtr.byte");
+    if (!gep) return NULL;
 
-    /* Return the byte pointer; callers can cast if needed. */
     if (outElementType) {
-        *outElementType = elementType;
+        *outElementType = elementType ? elementType : LLVMInt8TypeInContext(ctx->llvmContext);
     }
-    return gepByte;
+    return gep;
 }
 
 static CGStructLLVMInfo* findStructInfoForAggregate(CodegenContext* ctx,
@@ -257,6 +284,22 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
     if (!aggregateType) {
         aggregateType = cg_dereference_ptr_type(ctx, ptrType, "struct field access");
     }
+    ParsedType pointedScratch;
+    bool havePointedScratch = false;
+    const ParsedType* structHint = structParsedHint;
+    if (structHint && (structHint->pointerDepth > 0 || structHint->isFunctionPointer)) {
+        pointedScratch = parsedTypePointerTargetType(structHint);
+        if (pointedScratch.kind != TYPE_INVALID) {
+            structHint = &pointedScratch;
+            havePointedScratch = true;
+        }
+    }
+    if ((!aggregateType || LLVMGetTypeKind(aggregateType) != LLVMStructTypeKind) && structHint) {
+        aggregateType = cg_type_from_parsed(ctx, structHint);
+    }
+    if (!aggregateType && structHint && structHint->userTypeName) {
+        aggregateType = ensureStructLLVMTypeByName(ctx, structHint->userTypeName, structHint->tag == TAG_UNION);
+    }
     if ((!aggregateType || LLVMGetTypeKind(aggregateType) == LLVMVoidTypeKind) && LLVMIsAAllocaInst(basePtr)) {
         LLVMTypeRef allocated = LLVMGetAllocatedType(basePtr);
         if (allocated) {
@@ -264,10 +307,19 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
         }
     }
     if (!aggregateType || LLVMGetTypeKind(aggregateType) != LLVMStructTypeKind) {
+        if (havePointedScratch) {
+            parsedTypeFree(&pointedScratch);
+        }
         return NULL;
     }
 
-    const char* structNameHint = structName ? structName : LLVMGetStructName(aggregateType);
+    const char* structNameHint = structName ? structName : NULL;
+    if (!structNameHint && structHint && structHint->userTypeName) {
+        structNameHint = structHint->userTypeName;
+    }
+    if (!structNameHint) {
+        structNameHint = LLVMGetStructName(aggregateType);
+    }
     unsigned fieldIndex = 0;
     LLVMTypeRef fieldLLVMType = NULL;
     bool found = false;
@@ -319,11 +371,60 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
         fieldLLVMType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
+    bool isFlexArrayField = false;
+    if (outFieldParsedType && *outFieldParsedType) {
+        isFlexArrayField = cg_parsed_is_flexible_array(*outFieldParsedType);
+    }
+    if (!isFlexArrayField && fieldLLVMType && LLVMGetTypeKind(fieldLLVMType) == LLVMArrayTypeKind &&
+        LLVMGetArrayLength(fieldLLVMType) == 0) {
+        isFlexArrayField = true;
+    }
+
+    LLVMValueRef ptr = LLVMBuildStructGEP2(ctx->builder, aggregateType, basePtr, fieldIndex, "fieldPtr");
+    if (!ptr) {
+        if (havePointedScratch) parsedTypeFree(&pointedScratch);
+        return NULL;
+    }
+    if (isFlexArrayField && fieldLLVMType && LLVMGetTypeKind(fieldLLVMType) == LLVMArrayTypeKind) {
+        LLVMTypeRef elemTy = LLVMGetElementType(fieldLLVMType);
+        if (!elemTy || LLVMGetTypeKind(elemTy) == LLVMVoidTypeKind) {
+            elemTy = LLVMInt8TypeInContext(ctx->llvmContext);
+        }
+        /* Re-materialize the flexible member as a byte-based pointer to its first element
+           rather than a pointer to a zero-length array, so downstream GEPs/bitcasts stay
+           well-typed and avoid ASan-poisoned casts. */
+        LLVMTypeRef i8Ty = LLVMInt8TypeInContext(ctx->llvmContext);
+        LLVMValueRef baseI8 = LLVMBuildBitCast(ctx->builder, basePtr, LLVMPointerType(i8Ty, 0), "flex.base");
+
+        uint64_t byteOffset = 0;
+        const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, structHint, fieldName);
+        if (lay) {
+            byteOffset = lay->byteOffset;
+        }
+        LLVMValueRef offsetVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), byteOffset, 0);
+        LLVMValueRef ptrI8 = LLVMBuildGEP2(ctx->builder, i8Ty, baseI8, &offsetVal, 1, "flex.byteptr");
+        LLVMValueRef elemPtr = LLVMBuildBitCast(ctx->builder, ptrI8, LLVMPointerType(elemTy, 0), "flex.ptr");
+
+        if (outFieldType) {
+            *outFieldType = elemTy;
+        }
+        /* Keep parsed type as-is (flexible array) so downstream size/element
+           queries can use the array metadata. */
+        if (havePointedScratch) {
+            parsedTypeFree(&pointedScratch);
+        }
+        return elemPtr;
+    }
+
     if (outFieldType) {
         *outFieldType = fieldLLVMType;
     }
 
-    return LLVMBuildStructGEP2(ctx->builder, aggregateType, basePtr, fieldIndex, "fieldPtr");
+    if (havePointedScratch) {
+        parsedTypeFree(&pointedScratch);
+    }
+
+    return ptr;
 }
 
 bool codegenLValue(CodegenContext* ctx,
@@ -377,9 +478,18 @@ bool codegenLValue(CodegenContext* ctx,
             return true;
         }
         case AST_ARRAY_ACCESS: {
-            LLVMValueRef arrayPtr = codegenNode(ctx, target->arrayAccess.array);
+            LLVMValueRef arrayPtr = NULL;
+            LLVMTypeRef baseType = NULL;
+            const ParsedType* baseParsed = NULL;
+            CGLValueInfo baseInfo;
+            bool haveBasePtr =
+                codegenLValue(ctx, target->arrayAccess.array, &arrayPtr, &baseType, &baseParsed, &baseInfo);
+            if (!haveBasePtr) {
+                arrayPtr = codegenNode(ctx, target->arrayAccess.array);
+                baseParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
+            }
+            if (!arrayPtr) return false;
             LLVMValueRef index = codegenNode(ctx, target->arrayAccess.index);
-            const ParsedType* baseParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
             LLVMTypeRef aggregateHint = NULL;
             if (baseParsed && parsedTypeIsDirectArray(baseParsed)) {
                 aggregateHint = cg_type_from_parsed(ctx, baseParsed);
@@ -394,11 +504,36 @@ bool codegenLValue(CodegenContext* ctx,
                                                                elementHint,
                                                                &elementType);
             if (!elementPtr) return false;
-            *outPtr = elementPtr;
             if (!elementType) {
                 elementType = cg_dereference_ptr_type(ctx, LLVMTypeOf(elementPtr), "array element load");
             }
-            *outType = elementType;
+            if (outInfo) {
+                outInfo->isFlexElement = baseInfo.isFlexBase || baseInfo.isFlexElement;
+                outInfo->flexElemSize = baseInfo.flexElemSize;
+                if (outInfo->isFlexElement && outInfo->flexElemSize == 0) {
+                    uint64_t sz = 0;
+                    uint32_t al = 0;
+                    cg_size_align_for_type(ctx, baseParsed, elementType, &sz, &al);
+                    if (sz == 0 && baseParsed && parsedTypeIsDirectArray(baseParsed)) {
+                        ParsedType elem = parsedTypeArrayElementType(baseParsed);
+                        cg_size_align_for_type(ctx, &elem, elementType, &sz, &al);
+                        parsedTypeFree(&elem);
+                    }
+                    outInfo->flexElemSize = sz ? sz : 1;
+                }
+                if (!outInfo->isFlexElement && baseParsed && parsedTypeIsDirectArray(baseParsed)) {
+                    const TypeDerivation* d = parsedTypeGetDerivation(baseParsed, baseParsed->derivationCount - 1);
+                    if (d && d->kind == TYPE_DERIVATION_ARRAY && d->as.array.isFlexible) {
+                        outInfo->isFlexElement = true;
+                        uint64_t sz = 0;
+                        uint32_t al = 0;
+                        cg_size_align_for_type(ctx, baseParsed, elementType, &sz, &al);
+                        outInfo->flexElemSize = sz ? sz : 1;
+                    }
+                }
+            }
+            *outPtr = elementPtr;
+            *outType = elementType ? elementType : LLVMInt8TypeInContext(ctx->llvmContext);
             if (outParsedType) {
                 const ParsedType* elemParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
                 if (elemParsed && parsedTypeIsDirectArray(elemParsed)) {
@@ -511,6 +646,32 @@ bool codegenLValue(CodegenContext* ctx,
             if (outParsedType) {
                 *outParsedType = fieldParsed;
             }
+            if (outInfo && fieldParsed && parsedTypeIsDirectArray(fieldParsed)) {
+                const TypeDerivation* d = parsedTypeGetDerivation(fieldParsed, fieldParsed->derivationCount - 1);
+                if (d && d->kind == TYPE_DERIVATION_ARRAY && d->as.array.isFlexible) {
+                    outInfo->isFlexBase = true;
+                    uint64_t size = 0;
+                    uint32_t al = 0;
+                    ParsedType elem = parsedTypeArrayElementType(fieldParsed);
+                    cg_size_align_for_type(ctx, &elem, fieldType, &size, &al);
+                    parsedTypeFree(&elem);
+                    outInfo->flexElemSize = size ? size : 1;
+                }
+            }
+            if (outInfo && !outInfo->isFlexBase && lay && !lay->isBitfield && lay->storageUnitBytes == 0) {
+                outInfo->isFlexBase = true;
+                uint64_t size = 0;
+                uint32_t al = 0;
+                if (fieldParsed && parsedTypeIsDirectArray(fieldParsed)) {
+                    ParsedType elem = parsedTypeArrayElementType(fieldParsed);
+                    cg_size_align_for_type(ctx, &elem, fieldType, &size, &al);
+                    parsedTypeFree(&elem);
+                }
+                if (size == 0) {
+                    cg_size_align_for_type(ctx, NULL, fieldType, &size, &al);
+                }
+                outInfo->flexElemSize = size ? size : 1;
+            }
             return true;
         }
         case AST_POINTER_ACCESS: {
@@ -578,6 +739,32 @@ bool codegenLValue(CodegenContext* ctx,
             *outType = fieldType ? fieldType : LLVMInt32TypeInContext(ctx->llvmContext);
             if (outParsedType) {
                 *outParsedType = fieldParsed;
+            }
+            if (outInfo && fieldParsed && parsedTypeIsDirectArray(fieldParsed)) {
+                const TypeDerivation* d = parsedTypeGetDerivation(fieldParsed, fieldParsed->derivationCount - 1);
+                if (d && d->kind == TYPE_DERIVATION_ARRAY && d->as.array.isFlexible) {
+                    outInfo->isFlexBase = true;
+                    uint64_t size = 0;
+                    uint32_t al = 0;
+                    ParsedType elem = parsedTypeArrayElementType(fieldParsed);
+                    cg_size_align_for_type(ctx, &elem, fieldType, &size, &al);
+                    parsedTypeFree(&elem);
+                    outInfo->flexElemSize = size ? size : 1;
+                }
+            }
+            if (outInfo && !outInfo->isFlexBase && lay && !lay->isBitfield && lay->storageUnitBytes == 0) {
+                outInfo->isFlexBase = true;
+                uint64_t size = 0;
+                uint32_t al = 0;
+                if (fieldParsed && parsedTypeIsDirectArray(fieldParsed)) {
+                    ParsedType elem = parsedTypeArrayElementType(fieldParsed);
+                    cg_size_align_for_type(ctx, &elem, fieldType, &size, &al);
+                    parsedTypeFree(&elem);
+                }
+                if (size == 0) {
+                    cg_size_align_for_type(ctx, NULL, fieldType, &size, &al);
+                }
+                outInfo->flexElemSize = size ? size : 1;
             }
             if (structHint == &pointed) {
                 parsedTypeFree(&pointed);

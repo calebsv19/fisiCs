@@ -1143,14 +1143,6 @@ ASTNode* parseTypedef(Parser* parser) {
 
 
 ASTNode* handleStructStatements(Parser* parser) {
-    // Obvious struct definition patterns: struct S { ... }; or struct { ... };
-    Token nextTok = peekNextToken(parser);
-    Token afterTok = peekTwoTokensAhead(parser);
-    if ((nextTok.type == TOKEN_IDENTIFIER && afterTok.type == TOKEN_LBRACE) ||
-        nextTok.type == TOKEN_LBRACE) {
-        return parseStructDefinition(parser);
-    }
-
     // Allow bare struct/union definitions at file scope: `struct S { ... };`
     Parser defProbe = cloneParserWithFreshLexer(parser);
     ParsedType defProbeType = parseType(&defProbe);
@@ -1252,11 +1244,6 @@ ASTNode* handleStructStatements(Parser* parser) {
         return NULL;
     }
      
-    // Case 5: Anonymous struct definition
-    if (next.type == TOKEN_LBRACE) {
-        return parseStructDefinition(parser);
-    }
-    
-    // Fallback: treat as a normal declaration
+    // Fallback: treat as a normal declaration (covers inline definitions with declarators)
     return handleTypeOrFunctionDeclaration(parser);
 }

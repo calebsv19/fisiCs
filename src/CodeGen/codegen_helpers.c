@@ -286,7 +286,13 @@ LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
     }
     LLVMTypeRef elem = cg_dereference_ptr_type(ctx, pointerLLVM, "element type lookup");
     if (elem && LLVMGetTypeKind(elem) == LLVMArrayTypeKind) {
-        elem = LLVMGetElementType(elem);
+        unsigned len = LLVMGetArrayLength(elem);
+        LLVMTypeRef inner = LLVMGetElementType(elem);
+        if (len == 0 && inner) {
+            elem = inner;
+        } else {
+            elem = inner;
+        }
     }
     if (elem && LLVMGetTypeKind(elem) != LLVMVoidTypeKind) {
         return elem;
@@ -371,24 +377,22 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
         return NULL;
     }
 
-    if (lhsType != rhsType) {
-        rhsPtr = LLVMBuildBitCast(ctx->builder, rhsPtr, lhsType, "ptr.diff.cast");
-    }
-
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
     LLVMValueRef lhsInt = LLVMBuildPtrToInt(ctx->builder, lhsPtr, intptrTy, "ptr.diff.lhs");
     LLVMValueRef rhsInt = LLVMBuildPtrToInt(ctx->builder, rhsPtr, intptrTy, "ptr.diff.rhs");
     LLVMValueRef byteDiff = LLVMBuildSub(ctx->builder, lhsInt, rhsInt, "ptr.diff.bytes");
 
-    LLVMTypeRef elementType = cg_element_type_from_pointer(ctx, lhsParsed, lhsType);
-    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
-        elementType = LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
+    /* Determine element size without relying on pointer element types (opaque-pointer safe). */
+    uint64_t elemBytes = 1;
+    if (lhsParsed) {
+        LLVMTypeRef hinted = cg_element_type_hint_from_parsed(ctx, lhsParsed);
+        uint64_t sz = 0;
+        uint32_t al = 0;
+        if (cg_size_align_for_type(ctx, lhsParsed, hinted, &sz, &al) && sz > 0) {
+            elemBytes = sz;
+        }
     }
-
-    LLVMValueRef offsetIdx = LLVMConstInt(intptrTy, 1, 0);
-    LLVMValueRef nextPtr = LLVMBuildGEP2(ctx->builder, elementType, lhsPtr, &offsetIdx, 1, "ptr.diff.next");
-    LLVMValueRef nextInt = LLVMBuildPtrToInt(ctx->builder, nextPtr, intptrTy, "ptr.diff.nextint");
-    LLVMValueRef elementSize = LLVMBuildSub(ctx->builder, nextInt, lhsInt, "ptr.diff.elembytes");
+    LLVMValueRef elementSize = LLVMConstInt(intptrTy, elemBytes, 0);
     return LLVMBuildSDiv(ctx->builder, byteDiff, elementSize, "ptr.diff");
 }
 

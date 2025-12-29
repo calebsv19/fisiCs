@@ -694,6 +694,7 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
 
     if (!sym->isTentative) {
         DesignatedInit* init = cg_find_initializer_for_symbol(sym);
+        const char* skipConst = getenv("FISICS_NO_CONST_GLOBALS");
         const char* dbg = getenv("FISICS_DEBUG_CONST");
         if (dbg) {
             if (!init) {
@@ -702,7 +703,7 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
                 fprintf(stderr, "[const-init] no expression for %s\n", sym->name);
             }
         }
-        if (init && init->expression && !parsedTypeHasVLA(&sym->type)) {
+        if (!skipConst && init && init->expression && !parsedTypeHasVLA(&sym->type)) {
             LLVMTypeRef elementType = LLVMGlobalGetValueType(existing);
             if (dbg) {
                 fprintf(stderr,

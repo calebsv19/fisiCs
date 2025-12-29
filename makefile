@@ -196,6 +196,20 @@ else
 	@./tests/codegen/run_codegen_flex_memset.sh ./$(BIN)
 endif
 
+codegen-flex-lvalue: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-flex-lvalue (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_flex_lvalue.sh ./$(BIN)
+endif
+
+codegen-flex-struct-array: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-flex-struct-array (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_flex_struct_array.sh ./$(BIN)
+endif
+
 codegen-ternary-merge: $(BIN)
 ifeq ($(DISABLE_CODEGEN),1)
 	@echo "Skipping codegen-ternary-merge (codegen disabled)"
@@ -318,6 +332,9 @@ semantic-vla-block: $(BIN)
 semantic-struct-definition-only: $(BIN)
 	@./tests/syntax/run_semantic_struct_definition_only.sh ./$(BIN)
 
+semantic-struct-inline-declarator: $(BIN)
+	@./tests/syntax/run_semantic_struct_inline_declarator.sh ./$(BIN)
+
 semantic-vla-param-decay: $(BIN)
 	@./tests/syntax/run_semantic_vla_param_decay.sh ./$(BIN)
 
@@ -344,6 +361,9 @@ semantic-long-double-layout: $(BIN)
 
 semantic-flexible-array-layout: $(BIN)
 	@./tests/syntax/run_semantic_flexible_array_layout.sh ./$(BIN)
+
+semantic-union-anon-member: $(BIN)
+	@./tests/syntax/run_semantic_union_anon_member.sh ./$(BIN)
 
 semantic-sizeof-alignof-vla: $(BIN)
 	@./tests/syntax/run_sizeof_alignof_vla.sh ./$(BIN)
@@ -380,10 +400,11 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
               semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
               semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
               semantic-initializer-shapes semantic-flow semantic-vla-errors semantic-vla-block \
-              semantic-struct-definition-only semantic-vla-param-decay semantic-flexible-array \
+              semantic-struct-definition-only semantic-struct-inline-declarator \
+              semantic-vla-param-decay semantic-flexible-array \
               semantic-knr-function semantic-unsequenced semantic-restrict-alias \
               semantic-alignas semantic-bitfield-layout semantic-long-double-layout \
-              semantic-flexible-array-layout \
+              semantic-flexible-array-layout semantic-union-anon-member \
               semantic-sizeof-alignof-vla \
               semantic-case-non-ice semantic-char-escape-consteval \
               semantic-ternary-merge-ptr semantic-shift-unsigned \
@@ -391,7 +412,8 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
 
 codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff \
                codegen-function-pointer-call codegen-compound-literal-pointer-decay \
-               codegen-bitfield codegen-alignas codegen-flex-memset \
+               codegen-bitfield codegen-alignas codegen-flex-memset codegen-flex-lvalue \
+               codegen-flex-struct-array \
                codegen-ternary-merge codegen-shift codegen-varargs-call \
 codegen-callconv-declspec codegen-switch-dense codegen-switch-sparse \
                codegen-opaque-pointer codegen-const-globals \
@@ -457,4 +479,4 @@ tests: test frontend-api-test
         codegen-bitfield \
         statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
         statement-expr-codegen codegen-bitfield \
-        parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas
+        parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array

@@ -83,6 +83,9 @@ typedef struct CGLValueInfo {
     LLVMValueRef storagePtr;
     LLVMTypeRef storageType;
     const ParsedType* fieldParsed;
+    bool isFlexBase;
+    bool isFlexElement;
+    uint64_t flexElemSize;
 } CGLValueInfo;
 
 typedef struct CGParamInfo {

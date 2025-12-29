@@ -581,9 +581,19 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
     LLVMTypeRef targetType = NULL;
     const ParsedType* targetParsed = NULL;
     CGLValueInfo lvalInfo;
+    LLVMValueRef srcPtr = NULL;
+    LLVMTypeRef srcType = NULL;
+    const ParsedType* srcParsed = NULL;
     if (!codegenLValue(ctx, target, &targetPtr, &targetType, &targetParsed, &lvalInfo)) {
         fprintf(stderr, "Error: Unsupported assignment target type %d\n", target ? target->type : -1);
         return NULL;
+    }
+    if (getenv("DEBUG_FLEX_ASSIGN")) {
+        fprintf(stderr,
+                "[DBG] assign flex flags: isFlexElement=%d size=%llu isBitfield=%d\n",
+                lvalInfo.isFlexElement,
+                (unsigned long long)lvalInfo.flexElemSize,
+                lvalInfo.isBitfield);
     }
 
     LLVMValueRef value = codegenNode(ctx, node->assignment.value);
@@ -596,9 +606,6 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
     bool destIsAggregate = targetType && (LLVMGetTypeKind(targetType) == LLVMStructTypeKind ||
                                           LLVMGetTypeKind(targetType) == LLVMArrayTypeKind);
     if (destIsAggregate) {
-        LLVMValueRef srcPtr = NULL;
-        LLVMTypeRef srcType = NULL;
-        const ParsedType* srcParsed = NULL;
         if (!codegenLValue(ctx, node->assignment.value, &srcPtr, &srcType, &srcParsed, NULL)) {
             LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, targetType, "agg.tmp");
             LLVMBuildStore(ctx->builder, value, tmp);
@@ -635,6 +642,12 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
     }
     if (!storeType || LLVMGetTypeKind(storeType) == LLVMVoidTypeKind) {
         storeType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+    if (lvalInfo.isFlexElement && lvalInfo.flexElemSize > 0) {
+        unsigned bits = (unsigned)(lvalInfo.flexElemSize * 8);
+        if (bits == 0) bits = 8;
+        if (bits > 64) bits = 64;
+        storeType = LLVMIntTypeInContext(ctx->llvmContext, bits);
     }
 
     LLVMValueRef storedValue = value;
@@ -707,6 +720,34 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         if (!cg_store_bitfield(ctx, &lvalInfo, storedValue)) {
             return NULL;
         }
+        return storedValue;
+    }
+    if (lvalInfo.isFlexElement && lvalInfo.flexElemSize > 0) {
+        if (getenv("DEBUG_FLEX_ASSIGN")) {
+            char* tstr = storeType ? LLVMPrintTypeToString(storeType) : NULL;
+            fprintf(stderr, "[DBG] flex store type=%s size=%llu\n", tstr ? tstr : "<null>",
+                    (unsigned long long)lvalInfo.flexElemSize);
+            if (tstr) LLVMDisposeMessage(tstr);
+        }
+        LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+        LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, targetPtr, i8Ptr, "flex.dst");
+        LLVMValueRef srcCast = NULL;
+        ASTNode* rhs = node->assignment.value;
+        bool rhsIsLValue = rhs &&
+                           (rhs->type == AST_IDENTIFIER || rhs->type == AST_ARRAY_ACCESS ||
+                            rhs->type == AST_POINTER_ACCESS || rhs->type == AST_DOT_ACCESS ||
+                            rhs->type == AST_COMPOUND_LITERAL);
+        if (rhsIsLValue &&
+            codegenLValue(ctx, rhs, &srcPtr, &srcType, &srcParsed, NULL)) {
+            srcCast = LLVMBuildBitCast(ctx->builder, srcPtr, i8Ptr, "flex.src");
+        } else {
+            LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, storeType, "flex.tmp");
+            LLVMBuildStore(ctx->builder, storedValue, tmp);
+            srcCast = LLVMBuildBitCast(ctx->builder, tmp, i8Ptr, "flex.src.tmp");
+        }
+        LLVMValueRef sizeVal =
+            LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), lvalInfo.flexElemSize, 0);
+        LLVMBuildMemCpy(ctx->builder, dstCast, 1, srcCast, 1, sizeVal);
         return storedValue;
     }
     return LLVMBuildStore(ctx->builder, storedValue, targetPtr);
@@ -807,6 +848,10 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         LLVMGetTypeKind(LLVMTypeOf(typedElementPtr)) != LLVMPointerTypeKind) {
         fprintf(stderr, "Error: invalid pointer for array load\n");
         return NULL;
+    }
+    LLVMTypeRef desiredPtrTy = LLVMPointerType(loadTy, 0);
+    if (LLVMTypeOf(typedElementPtr) != desiredPtrTy) {
+        typedElementPtr = LLVMBuildBitCast(ctx->builder, typedElementPtr, desiredPtrTy, "array.elem.typed");
     }
     LLVMValueRef loadVal = LLVMBuildLoad2(ctx->builder, loadTy, typedElementPtr, "arrayLoad");
     CG_DEBUG("[CG] Array element load complete\n");

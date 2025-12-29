@@ -3,6 +3,9 @@
 #include "codegen_internal.h"
 #include "codegen_type_cache.h"
 
+/* Forward declaration to materialize inline struct/union definitions. */
+LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node);
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -276,6 +279,14 @@ static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* i
 static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type) {
     const char* typeName = (type && type->userTypeName) ? type->userTypeName : "<anon>";
     CG_TRACE("[TRACE] structOrUnionType name=%s kind=%d\n", typeName, type ? type->kind : -1);
+
+    /* If we have the defining AST handy (inline def), force materialization before fallback. */
+    if (ctx && type && type->inlineStructOrUnionDef) {
+        LLVMTypeRef forced = codegenStructDefinition(ctx, type->inlineStructOrUnionDef);
+        if (forced) {
+            return forced;
+        }
+    }
 
     if (!ctx || !type || !type->userTypeName) {
         LLVMTypeRef fallback = LLVMPointerType(LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx)), 0);

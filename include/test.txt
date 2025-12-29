@@ -1,20 +1,65 @@
 #include <stdint.h>
 #include <stddef.h>
-#include <complex.h>
 
-/* K&R style definition */
-int knrf(a, b) int a; double b; { return a + (int)b; }
+typedef struct Node {
+    struct Node* next;
+    int value;
+} Node;
 
-struct WidePack {
-    wchar_t lead;
-    _Complex double z;
+static int sum_list(Node* head) {
+    int total = 0;
+    for (Node* it = head; it; it = it->next) {
+        total += it->value;
+    }
+    return total;
+}
+
+typedef struct Vec {
+    size_t len;
+    int data[];
+} Vec;
+
+static int sum_vec(Vec* v) {
+    int acc = 0;
+    for (size_t i = 0; i < v->len; ++i) {
+        acc += v->data[i];
+    }
+    return acc;
+}
+
+union Split {
+    uint16_t raw;
+    struct { uint8_t lo; uint8_t hi; } bytes;
 };
 
+static int run(void) {
+    Node a = {.next = NULL, .value = 10};
+    Node b = {.next = &a, .value = 20};
+    Node c = {.next = &b, .value = 30};
+    int list_sum = sum_list(&c); /* 60 */
+
+    /* Build a flex array instance on the stack */
+    unsigned char buf[sizeof(Vec) + 3 * sizeof(int)];
+    Vec* v = (Vec*)buf;
+    v->len = 3;
+    v->data[0] = 5;
+    v->data[1] = 6;
+    v->data[2] = 7;
+    int vec_sum = sum_vec(v); /* 18 */
+
+    union Split u = {.raw = 0x5A3C};
+    uint8_t mix = (uint8_t)(u.bytes.lo + u.bytes.hi);
+
+    struct Pair { double x; double y; } pair = {.x = 2.0, .y = 3.5};
+    double prod = pair.x * pair.y; /* 7.0 */
+
+    int ok = (list_sum == 60) &&
+             (vec_sum == 18) &&
+             (mix != 0) &&
+             ((int)prod == 7);
+    return ok ? 0 : 1;
+}
+
 int main(void) {
-    struct WidePack w = { L'A', 2.0 + 3.0i };
-    int base = knrf(4, 2.5);
-    const wchar_t s[] = L"hi";
-    ptrdiff_t diff = (ptrdiff_t)(&s[1] - &s[0]);
-    int zsum = (int)creal(w.z) + (int)cimag(w.z);
-    return (base == 6 && diff == 1 && zsum == 5 && w.lead == L'A') ? 0 : 1;
+    return run();
 }

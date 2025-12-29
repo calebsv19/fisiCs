@@ -1319,10 +1319,27 @@ PROGRAM
         TYPE: void
         IDENTIFIER __unnamed_param0
     BLOCK
-  RETURN
-    NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: struct Pair
+        IDENTIFIER p
+            .a = NUMBER_LITERAL 1
+
+            .b = NUMBER_LITERAL 2
+
+      FUNCTION CALL
+        IDENTIFIER printf
+        ARGUMENTS
+          STRING_LITERAL pair: %d %d\n
+          DOT_ACCESS '.'
+            IDENTIFIER p
+            FIELD a
+          DOT_ACCESS '.'
+            IDENTIFIER p
+            FIELD b
+      RETURN
+        NUMBER_LITERAL 0
 
 
 Diagnostics:
-Error at (3:0): Control reaches end of non-void function 'main'
+Semantic analysis: no issues found.
 
