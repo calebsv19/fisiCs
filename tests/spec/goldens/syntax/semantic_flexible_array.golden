@@ -63,8 +63,4 @@ Error at (0:0): Flexible array member must be the last field in a struct
    Hint: data
 Error at (0:0): Flexible array members are not allowed in unions
    Hint: data
-Error at (12:19): Variable has incomplete type
-   Hint: local
-   Spelling: tests/syntax/semantic_flexible_array.c:12:19
-Error at (0:0): sizeof applied to incomplete type
 

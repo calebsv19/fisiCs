@@ -20,13 +20,32 @@ LLVMTypeRef cg_dereference_ptr_type(CodegenContext* ctx, LLVMTypeRef ptrType, co
     }
     LLVMTypeRef elem = LLVMGetElementType(ptrType);
     if (!elem) {
-        if (ctxMsg) {
-            CG_ERROR("Opaque pointer encountered in %s", ctxMsg);
-        } else {
-            CG_ERROR("Opaque pointer encountered");
-        }
+        /* Opaque pointer: let caller decide; treat as i8 for resilience. */
+        return LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
+    }
+    return elem;
+}
+
+LLVMTypeRef cg_element_type_from_pointer_parsed(CodegenContext* ctx, const ParsedType* parsed) {
+    if (!parsed || parsed->pointerDepth <= 0) {
         return NULL;
     }
+    ParsedType base = parsedTypeClone(parsed);
+    if (base.pointerDepth > 0) {
+        base.pointerDepth -= 1;
+    }
+    /* Remove the last pointer derivation if present to keep derivations consistent. */
+    for (ssize_t i = (ssize_t)base.derivationCount - 1; i >= 0; --i) {
+        if (base.derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            for (size_t j = (size_t)i; j + 1 < base.derivationCount; ++j) {
+                base.derivations[j] = base.derivations[j + 1];
+            }
+            base.derivationCount -= 1;
+            break;
+        }
+    }
+    LLVMTypeRef elem = cg_type_from_parsed(ctx, &base);
+    parsedTypeFree(&base);
     return elem;
 }
 
@@ -335,8 +354,27 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
 
     LLVMTypeRef ptrType = LLVMTypeOf(basePtr);
     if (!ptrType || LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
-        fprintf(stderr, "Error: pointer arithmetic requires pointer base\n");
+        if (getenv("DEBUG_PTR_ARITH")) {
+            fprintf(stderr, "Error: pointer arithmetic requires pointer base\n");
+        }
         return NULL;
+    }
+    /* If we got a pointer-to-array (e.g., the name of an array variable), decay
+       to the element pointer before computing offsets. */
+    const ParsedType* elemParsed = pointerParsed;
+    if (pointerParsed && parsedTypeIsDirectArray(pointerParsed)) {
+        static ParsedType tmpElem;
+        parsedTypeFree(&tmpElem);
+        tmpElem = parsedTypeArrayElementType(pointerParsed);
+        elemParsed = &tmpElem;
+
+        LLVMTypeRef arrTy = cg_dereference_ptr_type(ctx, ptrType, "pointer arithmetic decay");
+        if (arrTy && LLVMGetTypeKind(arrTy) == LLVMArrayTypeKind) {
+            LLVMValueRef zero32 = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+            LLVMValueRef idxs[2] = { zero32, zero32 };
+            basePtr = LLVMBuildGEP2(ctx->builder, arrTy, basePtr, idxs, 2, "ptr.arith.decay");
+            ptrType = LLVMTypeOf(basePtr);
+        }
     }
 
     LLVMValueRef index = offsetValue;
@@ -347,10 +385,14 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
             index = LLVMBuildIntCast2(ctx->builder, offsetValue, intptrTy, 0, "ptr.idx.cast");
         }
     } else if (LLVMGetTypeKind(offsetType) == LLVMPointerTypeKind) {
-        fprintf(stderr, "Error: pointer arithmetic with pointer offset unsupported\n");
+        if (getenv("DEBUG_PTR_ARITH")) {
+            fprintf(stderr, "Error: pointer arithmetic with pointer offset unsupported\n");
+        }
         return NULL;
     } else {
-        fprintf(stderr, "Error: pointer arithmetic offset must be integer\n");
+        if (getenv("DEBUG_PTR_ARITH")) {
+            fprintf(stderr, "Error: pointer arithmetic offset must be integer\n");
+        }
         return NULL;
     }
 
@@ -358,9 +400,29 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
         index = LLVMBuildNeg(ctx->builder, index, "ptr.idx.neg");
     }
 
-    LLVMTypeRef elementType = cg_element_type_from_pointer(ctx, pointerParsed, ptrType);
+    /* Determine element size; prefer semantic info, fall back to LLVM sizes, then 1 byte. */
+    LLVMTypeRef elementType = cg_element_type_from_pointer(ctx, elemParsed, ptrType);
+    uint64_t elemSize = 0;
+    uint32_t elemAlign = 0;
+    if (!cg_size_align_for_type(ctx, elemParsed, elementType, &elemSize, &elemAlign) || elemSize == 0) {
+        LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+        if (td && elementType) {
+            elemSize = LLVMABISizeOfType(td, elementType);
+        }
+    }
+    if (elemSize == 0) elemSize = 1;
 
-    return LLVMBuildGEP2(ctx->builder, elementType, basePtr, &index, 1, "ptr.arith");
+    LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
+    LLVMTypeRef bytePtrTy = LLVMPointerType(i8Type, 0);
+    LLVMValueRef baseI8 = LLVMBuildPointerCast(ctx->builder, basePtr, bytePtrTy, "ptr.byte.base");
+    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+    LLVMValueRef elemSizeVal = LLVMConstInt(intptrTy, elemSize, 0);
+    LLVMValueRef byteOffset = LLVMBuildMul(ctx->builder, index, elemSizeVal, "ptr.byte.offset");
+    LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, i8Type, baseI8, &byteOffset, 1, "ptr.arith");
+    if (!gep) return NULL;
+
+    /* Return byte-addressed pointer; caller can cast if a concrete element type is required. */
+    return gep;
 }
 
 LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
@@ -377,20 +439,32 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
         return NULL;
     }
 
+    LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
+    LLVMTypeRef bytePtrTy = LLVMPointerType(i8Type, 0);
+    LLVMValueRef lhsByte = LLVMBuildPointerCast(ctx->builder, lhsPtr, bytePtrTy, "ptr.diff.lhs.byte");
+    LLVMValueRef rhsByte = LLVMBuildPointerCast(ctx->builder, rhsPtr, bytePtrTy, "ptr.diff.rhs.byte");
+
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
-    LLVMValueRef lhsInt = LLVMBuildPtrToInt(ctx->builder, lhsPtr, intptrTy, "ptr.diff.lhs");
-    LLVMValueRef rhsInt = LLVMBuildPtrToInt(ctx->builder, rhsPtr, intptrTy, "ptr.diff.rhs");
+    LLVMValueRef lhsInt = LLVMBuildPtrToInt(ctx->builder, lhsByte, intptrTy, "ptr.diff.lhs");
+    LLVMValueRef rhsInt = LLVMBuildPtrToInt(ctx->builder, rhsByte, intptrTy, "ptr.diff.rhs");
     LLVMValueRef byteDiff = LLVMBuildSub(ctx->builder, lhsInt, rhsInt, "ptr.diff.bytes");
 
     /* Determine element size without relying on pointer element types (opaque-pointer safe). */
-    uint64_t elemBytes = 1;
+    uint64_t elemBytes = 0;
+    LLVMTypeRef elemHint = cg_element_type_hint_from_parsed(ctx, lhsParsed);
     if (lhsParsed) {
-        LLVMTypeRef hinted = cg_element_type_hint_from_parsed(ctx, lhsParsed);
-        uint64_t sz = 0;
         uint32_t al = 0;
-        if (cg_size_align_for_type(ctx, lhsParsed, hinted, &sz, &al) && sz > 0) {
-            elemBytes = sz;
+        cg_size_align_for_type(ctx, lhsParsed, elemHint, &elemBytes, &al);
+    }
+    if (elemBytes == 0 && elemHint) {
+        LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+        if (td) {
+            elemBytes = LLVMABISizeOfType(td, elemHint);
         }
+    }
+    if (elemBytes == 0) {
+        CG_ERROR("Cannot compute element size for pointer difference");
+        return NULL;
     }
     LLVMValueRef elementSize = LLVMConstInt(intptrTy, elemBytes, 0);
     return LLVMBuildSDiv(ctx->builder, byteDiff, elementSize, "ptr.diff");
@@ -485,10 +559,34 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
         case AST_COMPOUND_LITERAL:
             return &node->compoundLiteral.literalType;
         case AST_UNARY_EXPRESSION: {
-            if (!node->expr.op || strcmp(node->expr.op, "!") != 0) {
-                return cg_resolve_expression_type(ctx, node->expr.left);
+            const char* op = node->expr.op;
+            if (!op) return cg_resolve_expression_type(ctx, node->expr.left);
+            if (strcmp(op, "!") == 0) {
+                return cg_builtin_signed_int_type();
             }
-            return cg_builtin_signed_int_type();
+            if (strcmp(op, "*") == 0) {
+                const ParsedType* operand = cg_resolve_expression_type(ctx, node->expr.left);
+                static ParsedType pointed;
+                parsedTypeFree(&pointed);
+                pointed = parsedTypePointerTargetType(operand);
+                if (pointed.kind != TYPE_INVALID) {
+                    return &pointed;
+                }
+                parsedTypeFree(&pointed);
+                return operand;
+            }
+            if (strcmp(op, "&") == 0) {
+                const ParsedType* operand = cg_resolve_expression_type(ctx, node->expr.left);
+                static ParsedType addrType;
+                parsedTypeFree(&addrType);
+                addrType = parsedTypeClone(operand);
+                if (addrType.kind != TYPE_INVALID) {
+                    parsedTypeAddPointerDepth(&addrType, 1);
+                    return &addrType;
+                }
+                return operand;
+            }
+            return cg_resolve_expression_type(ctx, node->expr.left);
         }
         case AST_POINTER_ACCESS:
         case AST_POINTER_DEREFERENCE:

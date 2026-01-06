@@ -266,7 +266,10 @@ ASTNode* parseProgram(Parser* parser) {
                parser->currentToken.value, parser->currentToken.line);
 
         if (!stmt) {
-            fprintf(stderr, "Error: invalid statement at line %d\n", parser->currentToken.line);
+            fprintf(stderr,
+                    "Error: invalid statement at line %d (token=%s)\n",
+                    parser->currentToken.line,
+                    parser->currentToken.value ? parser->currentToken.value : "<null>");
             parserSyncToStatementEnd(parser);
             continue;
         }

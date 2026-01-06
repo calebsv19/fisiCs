@@ -741,6 +741,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
                 def->line = tagLine;
                 if (def->structDef.structName) def->structDef.structName->line = tagLine;
                 def->structDef.hasFlexibleArray = hasFlexible;
+                astNodeCloneTypeAttributes(def, &type);
                 astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
                 trailingAttrs = NULL;
                 trailingAttrCount = 0;

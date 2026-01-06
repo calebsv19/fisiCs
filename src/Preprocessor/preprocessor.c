@@ -79,6 +79,21 @@ static void define_builtin_object(Preprocessor* pp, const char* name, const char
     free(tok.value);
 }
 
+// Define a macro that expands to nothing for both object-like and variadic function-like
+// forms (to swallow attribute-style uses with parentheses/arguments).
+static void define_builtin_empty_macro(Preprocessor* pp, const char* name) {
+    define_builtin_object(pp, name, "");
+    macro_table_define_function(pp->table,
+                                name,
+                                NULL,
+                                0,
+                                true,   // variadic to accept any arg list
+                                false,
+                                NULL,
+                                0,
+                                (SourceRange){0});
+}
+
 static bool flush_chunk(Preprocessor* pp,
                         PPTokenBuffer* chunk,
                         PPTokenBuffer* output) {
@@ -529,6 +544,56 @@ bool preprocessor_init(Preprocessor* pp,
     define_builtin_object(pp, "__GNUC_PATCHLEVEL__", "1");
     define_builtin_object(pp, "__STDC_HOSTED__", "1");
     define_builtin_object(pp, "__STDC_VERSION__", "199901L");
+
+    // Apple bounds-safety annotation shims: treat as no-ops so newer SDK headers parse.
+    // Many appear as attributes or markers; empty object-like macros are enough to erase them.
+    const char* libc_bounds_macros[] = {
+        "_LIBC_SINGLE_BY_DEFAULT",
+        "_LIBC_PTRCHECK_REPLACED",
+        "_LIBC_COUNT",
+        "_LIBC_COUNT_OR_NULL",
+        "_LIBC_SIZE",
+        "_LIBC_SIZE_OR_NULL",
+        "_LIBC_ENDED_BY",
+        "_LIBC_SINGLE",
+        "_LIBC_UNSAFE_INDEXABLE",
+        "_LIBC_CSTR",
+        "_LIBC_NULL_TERMINATED",
+        "_LIBC_FLEX_COUNT",
+        NULL};
+    for (size_t i = 0; libc_bounds_macros[i]; ++i) {
+        define_builtin_empty_macro(pp, libc_bounds_macros[i]);
+    }
+
+    // Availability/visibility stubs (Apple/Clang) — treat as no-ops.
+    const char* availability_macros[] = {
+        "__API_AVAILABLE",
+        "__API_DEPRECATED",
+        "__API_DEPRECATED_WITH_REPLACEMENT",
+        "__API_UNAVAILABLE",
+        "__API_AVAILABLE_BEGIN",
+        "__API_AVAILABLE_END",
+        "__OSX_AVAILABLE_STARTING",
+        "__OSX_AVAILABLE_BUT_DEPRECATED",
+        "__OSX_DEPRECATED",
+        "__IOS_AVAILABLE",
+        "__IOS_DEPRECATED",
+        "__IOS_UNAVAILABLE",
+        "__TVOS_AVAILABLE",
+        "__TVOS_DEPRECATED",
+        "__TVOS_UNAVAILABLE",
+        "__WATCHOS_AVAILABLE",
+        "__WATCHOS_DEPRECATED",
+        "__WATCHOS_UNAVAILABLE",
+        "__WATCHOS_PROHIBITED",
+        "__TVOS_PROHIBITED",
+        "__IOS_PROHIBITED",
+        "__MAC_OS_X_VERSION_MIN_REQUIRED",
+        "__MAC_OS_X_VERSION_MAX_ALLOWED",
+        NULL};
+    for (size_t i = 0; availability_macros[i]; ++i) {
+        define_builtin_empty_macro(pp, availability_macros[i]);
+    }
 
     for (size_t i = 0; i < macroDefineCount; ++i) {
         const char* def = macroDefines ? macroDefines[i] : NULL;

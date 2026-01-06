@@ -7,6 +7,8 @@
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 #include "Parser/Helpers/parser_attributes.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "Compiler/compiler_context.h" // make sure this is visible via include path
 #include <string.h>
@@ -666,6 +668,10 @@ ASTNode* parseStructDefinition(Parser* parser) {
     advance(parser);  // consume 'struct'
     size_t structAttrCount = 0;
     ASTAttribute** structAttrs = parserParseAttributeSpecifiers(parser, &structAttrCount);
+    const char* dbgAttrs = getenv("FISICS_DEBUG_LAYOUT");
+    if (dbgAttrs) {
+        fprintf(stderr, "[parse] struct leading attrs=%zu\n", structAttrCount);
+    }
 
     char* structName = NULL;
     int structLine = 0;
@@ -1083,6 +1089,13 @@ ASTNode* parseTypedef(Parser* parser) {
     ParsedType baseType = parseType(parser);
     ParsedDeclarator decl;
     if (!parserParseDeclarator(parser, &baseType, false, true, &decl)) {
+        const char* dbgFail = getenv("DEBUG_TYPEDEF_FAIL");
+        if (dbgFail) {
+            fprintf(stderr,
+                    "[typedef] declarator parse failed at line %d token=%s\n",
+                    parser->currentToken.line,
+                    parser->currentToken.value ? parser->currentToken.value : "<null>");
+        }
         if (parser->currentToken.type == TOKEN_SEMICOLON &&
             parser->tokenBuffer && parser->cursor > 0) {
             const Token* prev = token_buffer_peek(parser->tokenBuffer, parser->cursor - 1);

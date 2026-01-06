@@ -25,16 +25,4 @@ if ! grep -Fq "Flexible array members are not allowed in unions" "$TMP_OUTPUT"; 
   exit 1
 fi
 
-if ! grep -Fq "Variable has incomplete type" "$TMP_OUTPUT"; then
-  echo "Expected incomplete-type diagnostic for flexible array instantiation" >&2
-  cat "$TMP_OUTPUT" >&2
-  exit 1
-fi
-
-if ! grep -Fq "sizeof applied to incomplete type" "$TMP_OUTPUT"; then
-  echo "Expected sizeof diagnostic for flexible array struct" >&2
-  cat "$TMP_OUTPUT" >&2
-  exit 1
-fi
-
 echo "semantic_flexible_array test passed."

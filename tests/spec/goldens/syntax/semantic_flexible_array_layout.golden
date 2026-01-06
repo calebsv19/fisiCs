@@ -42,10 +42,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (10:13): Variable has incomplete type
-   Hint: f
-   Spelling: tests/syntax/semantic_flexible_array_layout.c:10:13
-Error at (13:12): Undeclared identifier
-   Hint: f
-   Spelling: tests/syntax/semantic_flexible_array_layout.c:13:12
+Semantic analysis: no issues found.
 

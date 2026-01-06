@@ -5,6 +5,8 @@
 #include "Compiler/compiler_context.h"
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 static size_t round_up(size_t value, size_t align) {
     if (align == 0) return value;
@@ -215,6 +217,7 @@ static bool layout_struct_fields(ASTNode* def,
                                  size_t* sizeOut,
                                  size_t* alignOut,
                                  FieldLayoutVec* layouts) {
+    const char* dbgLayout = getenv("FISICS_DEBUG_LAYOUT");
     size_t offset = 0;
     size_t maxAlign = 1;
     size_t bitOffset = 0;       // bit position within current storage unit
@@ -224,6 +227,10 @@ static bool layout_struct_fields(ASTNode* def,
     bool packed = false;
     size_t structAlignOverride = 0;
     collectAttrLayout(def->attributes, def->attributeCount, &packed, &structAlignOverride);
+    if (dbgLayout) {
+        fprintf(stderr, "[layout] struct attrs count=%zu packed=%d alignOverride=%zu\n",
+                def->attributeCount, (int)packed, structAlignOverride);
+    }
     for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
         ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
         if (!field || field->type != AST_VARIABLE_DECLARATION) {
@@ -555,6 +562,12 @@ bool layout_struct_union(CompilerContext* ctx,
     if (ok) {
         cc_set_tag_layout(ctx, kind, name, sz, al);
         cc_set_tag_field_layouts(ctx, kind, name, layouts.items, layouts.count);
+        const char* dbg = getenv("FISICS_DEBUG_LAYOUT");
+        if (dbg) {
+            fprintf(stderr, "[layout] %s %s size=%zu align=%zu\n",
+                    (kind == CC_TAG_STRUCT ? "struct" : (kind == CC_TAG_UNION ? "union" : "enum")),
+                    name, sz, al);
+        }
         if (sizeOut) *sizeOut = sz;
         if (alignOut) *alignOut = al;
     }

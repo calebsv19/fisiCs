@@ -161,6 +161,13 @@ else
 	@./tests/codegen/run_codegen_pointer_diff_long.sh ./$(BIN)
 endif
 
+codegen-pointer-diff-decay: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-pointer-diff-decay (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_pointer_diff_decay.sh ./$(BIN)
+endif
+
 codegen-function-pointer-call: $(BIN)
 ifeq ($(DISABLE_CODEGEN),1)
 	@echo "Skipping codegen-function-pointer-call (codegen disabled)"
@@ -410,12 +417,12 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
               semantic-ternary-merge-ptr semantic-shift-unsigned \
               compound-literal-lvalues
 
-codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff \
+codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff codegen-pointer-diff-decay \
                codegen-function-pointer-call codegen-compound-literal-pointer-decay \
                codegen-bitfield codegen-alignas codegen-flex-memset codegen-flex-lvalue \
                codegen-flex-struct-array \
                codegen-ternary-merge codegen-shift codegen-varargs-call \
-codegen-callconv-declspec codegen-switch-dense codegen-switch-sparse \
+               codegen-callconv-declspec codegen-switch-dense codegen-switch-sparse \
                codegen-opaque-pointer codegen-const-globals \
                codegen-compound-literal-storage codegen-builtin-expect \
                statement-expr-codegen

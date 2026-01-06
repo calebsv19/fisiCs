@@ -130,7 +130,11 @@ static bool looksLikeFallbackAttribute(Parser* parser) {
         "__nullable",
         "__noreturn",
         "__always_inline",
-        "__noinline"
+        "__noinline",
+        "__WATCHOS_PROHIBITED",
+        "__TVOS_PROHIBITED",
+        "__OSX_PROHIBITED",
+        "__IOS_PROHIBITED"
     };
     for (size_t i = 0; i < sizeof(kNoParenAttrs) / sizeof(kNoParenAttrs[0]); ++i) {
         if (strcmp(name, kNoParenAttrs[i]) == 0) {

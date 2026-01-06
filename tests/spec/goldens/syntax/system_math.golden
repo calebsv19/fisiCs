@@ -2019,78 +2019,6 @@ PROGRAM
         TYPE: _Float16
         IDENTIFIER __unnamed_param2
   ATTRIBUTE [GNU] __always_inline__
-  FUNCTION DECLARATION
-    RETURN TYPE: inline void
-    IDENTIFIER __sincospif
-    PARAMETERS:
-      VAR_DECL
-        TYPE: float
-        IDENTIFIER __x
-      VAR_DECL
-        TYPE: float*
-        IDENTIFIER __sinp
-      VAR_DECL
-        TYPE: float*
-        IDENTIFIER __cosp
-  ATTRIBUTE [GNU] __always_inline__
-  FUNCTION DECLARATION
-    RETURN TYPE: inline void
-    IDENTIFIER __sincospi
-    PARAMETERS:
-      VAR_DECL
-        TYPE: double
-        IDENTIFIER __x
-      VAR_DECL
-        TYPE: double*
-        IDENTIFIER __sinp
-      VAR_DECL
-        TYPE: double*
-        IDENTIFIER __cosp
-  STRUCT
-        Name:     IDENTIFIER __float2
-    VAR_DECL
-      TYPE: float
-      IDENTIFIER __sinval
-    VAR_DECL
-      TYPE: float
-      IDENTIFIER __cosval
-  STRUCT
-        Name:     IDENTIFIER __double2
-    VAR_DECL
-      TYPE: double
-      IDENTIFIER __sinval
-    VAR_DECL
-      TYPE: double
-      IDENTIFIER __cosval
-  FUNCTION DECLARATION
-    RETURN TYPE: extern struct __float2
-    IDENTIFIER __sincosf_stret
-    PARAMETERS:
-      VAR_DECL
-        TYPE: float
-        IDENTIFIER __unnamed_param0
-  FUNCTION DECLARATION
-    RETURN TYPE: extern struct __double2
-    IDENTIFIER __sincos_stret
-    PARAMETERS:
-      VAR_DECL
-        TYPE: double
-        IDENTIFIER __unnamed_param0
-  FUNCTION DECLARATION
-    RETURN TYPE: extern struct __float2
-    IDENTIFIER __sincospif_stret
-    PARAMETERS:
-      VAR_DECL
-        TYPE: float
-        IDENTIFIER __unnamed_param0
-  FUNCTION DECLARATION
-    RETURN TYPE: extern struct __double2
-    IDENTIFIER __sincospi_stret
-    PARAMETERS:
-      VAR_DECL
-        TYPE: double
-        IDENTIFIER __unnamed_param0
-  ATTRIBUTE [GNU] __always_inline__
   FUNCTION DEFINITION
     RETURN TYPE: inline void
     IDENTIFIER __sincosf
@@ -2105,26 +2033,20 @@ PROGRAM
         TYPE: float*
         IDENTIFIER __cosp
     BLOCK
-      VAR_DECL
-        TYPE: const struct __float2
-        IDENTIFIER __stret
-          = 
-            FUNCTION CALL
-              IDENTIFIER __sincosf_stret
-              ARGUMENTS
-                IDENTIFIER __x
       ASSIGNMENT (=)
         UNARY EXPRESSION '*' (prefix)
           IDENTIFIER __sinp
-        DOT_ACCESS '.'
-          IDENTIFIER __stret
-          FIELD __sinval
+        FUNCTION CALL
+          IDENTIFIER sinf
+          ARGUMENTS
+            IDENTIFIER __x
       ASSIGNMENT (=)
         UNARY EXPRESSION '*' (prefix)
           IDENTIFIER __cosp
-        DOT_ACCESS '.'
-          IDENTIFIER __stret
-          FIELD __cosval
+        FUNCTION CALL
+          IDENTIFIER cosf
+          ARGUMENTS
+            IDENTIFIER __x
   ATTRIBUTE [GNU] __always_inline__
   FUNCTION DEFINITION
     RETURN TYPE: inline void
@@ -2140,96 +2062,20 @@ PROGRAM
         TYPE: double*
         IDENTIFIER __cosp
     BLOCK
-      VAR_DECL
-        TYPE: const struct __double2
-        IDENTIFIER __stret
-          = 
-            FUNCTION CALL
-              IDENTIFIER __sincos_stret
-              ARGUMENTS
-                IDENTIFIER __x
       ASSIGNMENT (=)
         UNARY EXPRESSION '*' (prefix)
           IDENTIFIER __sinp
-        DOT_ACCESS '.'
-          IDENTIFIER __stret
-          FIELD __sinval
+        FUNCTION CALL
+          IDENTIFIER sin
+          ARGUMENTS
+            IDENTIFIER __x
       ASSIGNMENT (=)
         UNARY EXPRESSION '*' (prefix)
           IDENTIFIER __cosp
-        DOT_ACCESS '.'
-          IDENTIFIER __stret
-          FIELD __cosval
-  ATTRIBUTE [GNU] __always_inline__
-  FUNCTION DEFINITION
-    RETURN TYPE: inline void
-    IDENTIFIER __sincospif
-    PARAMETERS
-      VAR_DECL
-        TYPE: float
-        IDENTIFIER __x
-      VAR_DECL
-        TYPE: float*
-        IDENTIFIER __sinp
-      VAR_DECL
-        TYPE: float*
-        IDENTIFIER __cosp
-    BLOCK
-      VAR_DECL
-        TYPE: const struct __float2
-        IDENTIFIER __stret
-          = 
-            FUNCTION CALL
-              IDENTIFIER __sincospif_stret
-              ARGUMENTS
-                IDENTIFIER __x
-      ASSIGNMENT (=)
-        UNARY EXPRESSION '*' (prefix)
-          IDENTIFIER __sinp
-        DOT_ACCESS '.'
-          IDENTIFIER __stret
-          FIELD __sinval
-      ASSIGNMENT (=)
-        UNARY EXPRESSION '*' (prefix)
-          IDENTIFIER __cosp
-        DOT_ACCESS '.'
-          IDENTIFIER __stret
-          FIELD __cosval
-  ATTRIBUTE [GNU] __always_inline__
-  FUNCTION DEFINITION
-    RETURN TYPE: inline void
-    IDENTIFIER __sincospi
-    PARAMETERS
-      VAR_DECL
-        TYPE: double
-        IDENTIFIER __x
-      VAR_DECL
-        TYPE: double*
-        IDENTIFIER __sinp
-      VAR_DECL
-        TYPE: double*
-        IDENTIFIER __cosp
-    BLOCK
-      VAR_DECL
-        TYPE: const struct __double2
-        IDENTIFIER __stret
-          = 
-            FUNCTION CALL
-              IDENTIFIER __sincospi_stret
-              ARGUMENTS
-                IDENTIFIER __x
-      ASSIGNMENT (=)
-        UNARY EXPRESSION '*' (prefix)
-          IDENTIFIER __sinp
-        DOT_ACCESS '.'
-          IDENTIFIER __stret
-          FIELD __sinval
-      ASSIGNMENT (=)
-        UNARY EXPRESSION '*' (prefix)
-          IDENTIFIER __cosp
-        DOT_ACCESS '.'
-          IDENTIFIER __stret
-          FIELD __cosval
+        FUNCTION CALL
+          IDENTIFIER cos
+          ARGUMENTS
+            IDENTIFIER __x
   FUNCTION DECLARATION
     RETURN TYPE: extern double
     IDENTIFIER j0

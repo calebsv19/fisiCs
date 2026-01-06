@@ -12,7 +12,7 @@ struct ZW {
     unsigned b : 4;
 };
 
-int arr0[sizeof(struct BF) == 8 ? 1 : -1];
+int arr0[sizeof(struct BF) == 4 ? 1 : -1];
 int arr1[_Alignof(struct BF) == 4 ? 1 : -1];
 int arr2[sizeof(struct ZW) == 8 ? 1 : -1];
 int arr3[_Alignof(struct ZW) == 4 ? 1 : -1];

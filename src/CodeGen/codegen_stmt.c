@@ -338,13 +338,14 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                     storedParsed = &info->parsedType;
                 }
             }
+            LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedParsed);
             cg_scope_insert(ctx->currentScope,
                             varNameNode->valueNode.value,
                             storage,
                             varType,
                             false,
                             false,
-                            NULL,
+                            elementLLVM,
                             storedParsed);
         }
         const ParsedType* alignParsed = varParsed ? varParsed : &node->varDecl.declaredType;
@@ -419,7 +420,6 @@ static LLVMValueRef ensureIntegerLLVMValue(CodegenContext* ctx, LLVMValueRef val
                             LLVMInt32TypeInContext(ctx->llvmContext),
                             "vla.intcast");
 }
-
 static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType* type) {
     if (!ctx || !type) return NULL;
     LLVMValueRef total = NULL;
@@ -582,6 +582,14 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
+    const char* dbgRun = getenv("DEBUG_RUN");
+    const char* fnLabel = (node->functionDef.funcName && node->functionDef.funcName->valueNode.value)
+        ? node->functionDef.funcName->valueNode.value
+        : "<anon>";
+    if (dbgRun) {
+        fprintf(stderr, "[CG] enter function %s\n", fnLabel);
+    }
+
     CG_DEBUG("[CG] Function definition paramCount=%zu\n", node->functionDef.paramCount);
     LLVMTypeRef returnType = cg_type_from_parsed(ctx, &node->functionDef.returnType);
     if (!returnType) {
@@ -644,24 +652,27 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
         const char* label =
             (nameNode && nameNode->type == AST_IDENTIFIER && nameNode->valueNode.value)
                 ? nameNode->valueNode.value
-                : "param";
+            : "param";
         LLVMTypeRef paramType = paramTypes ? paramTypes[i] : LLVMInt32TypeInContext(ctx->llvmContext);
         LLVMValueRef allocaInst = LLVMBuildAlloca(ctx->builder, paramType, label);
         LLVMBuildStore(ctx->builder, LLVMGetParam(function, (unsigned)i), allocaInst);
         const ParsedType* storedType = info->parsedType
             ? info->parsedType
             : &info->declaration->varDecl.declaredType;
+        LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedType);
         cg_scope_insert(ctx->currentScope,
                         label,
                         allocaInst,
                         paramType,
                         false,
-                        false,
-                        NULL,
+                        elementLLVM != NULL /* addressOnly */ ? false : false,
+                        elementLLVM,
                         storedType);
     }
 
+    if (dbgRun) fprintf(stderr, "[CG] body begin %s\n", fnLabel);
     codegenNode(ctx, node->functionDef.body);
+    if (dbgRun) fprintf(stderr, "[CG] body end %s\n", fnLabel);
 
     cg_scope_pop(ctx);
     ctx->currentFunctionReturnType = previousReturnType;
@@ -674,6 +685,9 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                         ? node->functionDef.funcName->valueNode.value
                         : "<anonymous>");
         }
+    }
+    if (dbgRun) {
+        fprintf(stderr, "[CG] exit function %s\n", fnLabel);
     }
     return function;
 }

@@ -64,6 +64,16 @@ for src in "${TEST_SOURCES[@]}"; do
     exit 1
   fi
 
+  # Optional strict mode: fail fast if any diagnostics appear in raw output.
+  # Enable by setting STRICT_RAW_ERRORS=1 when regenerating goldens to catch
+  # unexpected parse/lex errors that might be filtered out.
+  if [ "${STRICT_RAW_ERRORS:-0}" = "1" ] && grep -q "Error:" "$tmp_output"; then
+    echo "Diagnostics produced for $src; refusing to update/compare golden (STRICT_RAW_ERRORS)." >&2
+    cat "$tmp_output" >&2
+    rm -f "$tmp_output" "$filtered_output"
+    exit 1
+  fi
+
   extract_sections "$tmp_output" "$filtered_output"
 
   if [ ! -s "$filtered_output" ]; then

@@ -225,7 +225,33 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     pointerChainFree(&chain);
 
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-        printf("Error: expected function name at line %d\n", parser->currentToken.line);
+        /* Gracefully consume complex declarators like
+         *   void (*bsd_signal(int, void (*)(int)))(int);
+         * so we stay in sync instead of erroring. */
+        ParsedDeclarator fallbackDecl;
+        ParsedType base = parsedTypeClone(&returnType);
+        Parser probe = cloneParserWithFreshLexer(parser);
+        bool ok = parserParseDeclarator(&probe, &base, true, true, &fallbackDecl);
+        if (ok) {
+            /* Advance the real parser to where the successful probe ended. */
+            while (parser->cursor < probe.cursor) {
+                advance(parser);
+            }
+            parserDeclaratorDestroy(&fallbackDecl);
+        } else {
+            /* Skip tokens conservatively to next ';' or '{'. */
+            while (parser->currentToken.type != TOKEN_SEMICOLON &&
+                   parser->currentToken.type != TOKEN_LBRACE &&
+                   parser->currentToken.type != TOKEN_EOF) {
+                advance(parser);
+            }
+            if (parser->currentToken.type == TOKEN_SEMICOLON ||
+                parser->currentToken.type == TOKEN_LBRACE) {
+                advance(parser);
+            }
+        }
+        parsedTypeFree(&base);
+        freeParserClone(&probe);
         return NULL;
     }
 

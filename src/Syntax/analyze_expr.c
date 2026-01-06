@@ -728,6 +728,11 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 if (typeInfoIsPointerLike(&left) && typeInfoIsPointerLike(&right)) {
                     return makeBoolType();
                 }
+                // Permit pointer comparisons against integer constants/null (common in headers).
+                if ((typeInfoIsPointerLike(&left) && typeInfoIsInteger(&right)) ||
+                    (typeInfoIsPointerLike(&right) && typeInfoIsInteger(&left))) {
+                    return makeBoolType();
+                }
                 bool ok = true;
                 (void)usualArithmeticConversion(left, right, &ok);
                 if (!ok) {

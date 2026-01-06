@@ -187,6 +187,7 @@ void cc_seed_builtins(CompilerContext* ctx) {
         "wchar_t",
         "wint_t",
         "sig_atomic_t",
+        "locale_t",
     };
     for (size_t i = 0; i < sizeof(typedefs) / sizeof(typedefs[0]); ++i) {
         cc_add_typedef(ctx, typedefs[i]);

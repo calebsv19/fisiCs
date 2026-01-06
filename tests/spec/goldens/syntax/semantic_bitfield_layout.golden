@@ -113,5 +113,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (15:0): Variable-length array 'arr0' is not allowed at static storage duration
+Semantic analysis: no issues found.
 

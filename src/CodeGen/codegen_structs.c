@@ -144,6 +144,8 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
                                       LLVMTypeRef* outElementType) {
     if (!ctx || !arrayPtr || !index) return NULL;
     (void)aggregateTypeHint;
+    const char* dbgRun = getenv("DEBUG_RUN");
+    if (dbgRun) fprintf(stderr, "[CG] buildArrayElementPointer begin\n");
 
     LLVMTypeRef valueType = LLVMTypeOf(arrayPtr);
     if (!valueType) return NULL;
@@ -155,6 +157,12 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         char* tstr = LLVMPrintTypeToString(valueType);
         fprintf(stderr, "[DBG] arrayPtr type=%s\n", tstr ? tstr : "<null>");
         if (tstr) LLVMDisposeMessage(tstr);
+        LLVMTypeRef pt = LLVMGetElementType(valueType);
+        if (pt) {
+            char* pstr = LLVMPrintTypeToString(pt);
+            fprintf(stderr, "[DBG] pointee=%s\n", pstr ? pstr : "<null>");
+            if (pstr) LLVMDisposeMessage(pstr);
+        }
     }
 
     /* Decay raw array values into an addressable pointer. */
@@ -183,34 +191,34 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     if (!elementType) {
         elementType = cg_element_type_from_pointer(ctx, baseParsedHint, valueType);
     }
+    LLVMTypeRef pointee = LLVMGetElementType(valueType);
+    if (!pointee && elementType) {
+        /* Opaque pointer with an element hint; accept the hint. */
+        pointee = NULL;
+    }
+    if (pointee && LLVMGetTypeKind(pointee) == LLVMArrayTypeKind) {
+        if (!elementType) {
+            elementType = LLVMGetElementType(pointee);
+        }
+    }
     if (elementType && LLVMGetTypeKind(elementType) == LLVMArrayTypeKind && LLVMGetArrayLength(elementType) == 0) {
         elementType = LLVMGetElementType(elementType);
     }
-    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
-        elementType = LLVMInt8TypeInContext(ctx->llvmContext);
+    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind ||
+        LLVMGetTypeKind(elementType) == LLVMHalfTypeKind) {
+        /* Default to a 32-bit element for unknown/opaque pointers to avoid bogus half-element GEPs. */
+        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
-
-    /* Determine element size for byte-wise addressing. */
-    uint64_t elemSize = 0;
-    uint32_t elemAlign = 0;
-    const ParsedType* elemParsed = NULL;
-    if (baseParsedHint) {
-        if (parsedTypeIsDirectArray(baseParsedHint)) {
-            static ParsedType tmp;
-            parsedTypeFree(&tmp);
-            tmp = parsedTypeArrayElementType(baseParsedHint);
-            elemParsed = &tmp;
-        } else {
-            static ParsedType tmpPtr;
-            parsedTypeFree(&tmpPtr);
-            tmpPtr = parsedTypePointerTargetType(baseParsedHint);
-            if (tmpPtr.kind != TYPE_INVALID) {
-                elemParsed = &tmpPtr;
-            }
-        }
+    if (pointee && (LLVMGetTypeKind(pointee) == LLVMHalfTypeKind || LLVMGetTypeKind(pointee) == LLVMFloatTypeKind)) {
+        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
-    if (!cg_size_align_for_type(ctx, elemParsed, elementType, &elemSize, &elemAlign) || elemSize == 0) {
-        elemSize = 1;
+    /* If the base is an opaque pointer and we still have a non-integer element (e.g., mis-inferred),
+       fall back to a sane integer element type to avoid LLVM APIs hanging on odd element kinds. */
+    if (LLVMGetTypeKind(valueType) == LLVMPointerTypeKind &&
+        LLVMGetElementType(valueType) == NULL &&
+        elementType &&
+        LLVMGetTypeKind(elementType) != LLVMIntegerTypeKind) {
+        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
     LLVMTypeRef i64Type = LLVMInt64TypeInContext(ctx->llvmContext);
@@ -220,17 +228,61 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         idx64 = LLVMBuildSExt(ctx->builder, idx64, i64Type, "array.idx64");
     }
 
-    /* Opaque-pointer friendly: compute byte offset then optionally view as elementType. */
-    LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
-    LLVMValueRef baseI8 = LLVMBuildPointerCast(ctx->builder, basePtr, LLVMPointerType(i8Type, 0), "array.byte.base");
-    LLVMValueRef elemSizeVal = LLVMConstInt(i64Type, elemSize, 0);
-    LLVMValueRef byteOffset = LLVMBuildMul(ctx->builder, idx64, elemSizeVal, "array.byte.offset");
-    LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, i8Type, baseI8, &byteOffset, 1, "arrayElemPtr.byte");
-    if (!gep) return NULL;
-
-    if (outElementType) {
-        *outElementType = elementType ? elementType : LLVMInt8TypeInContext(ctx->llvmContext);
+    /* Prefer typed GEPs to avoid opaque-pointer crashes. */
+    LLVMValueRef indices[2];
+    unsigned indexCount = 0;
+    if (pointee && LLVMGetTypeKind(pointee) == LLVMArrayTypeKind) {
+        if (dbg) {
+            char* bstr = LLVMPrintTypeToString(LLVMTypeOf(basePtr));
+            char* pstr = LLVMPrintTypeToString(pointee);
+            fprintf(stderr, "[DBG] array branch baseTy=%s pointee=%s\n", bstr ? bstr : "<null>", pstr ? pstr : "<null>");
+            if (bstr) LLVMDisposeMessage(bstr);
+            if (pstr) LLVMDisposeMessage(pstr);
+        }
+        LLVMValueRef zero = LLVMConstInt(i64Type, 0, 0);
+        indices[0] = zero;
+        indices[1] = idx64;
+        indexCount = 2;
+        LLVMTypeRef baseElem = NULL;
+        if (LLVMGetTypeKind(LLVMTypeOf(basePtr)) == LLVMPointerTypeKind) {
+            baseElem = LLVMGetElementType(LLVMTypeOf(basePtr));
+        }
+    if (baseElem && baseElem != pointee) {
+        return NULL;
     }
+    LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, pointee, basePtr, indices, indexCount, "arrayElemPtr");
+    if (outElementType) *outElementType = elementType;
+    if (dbgRun) fprintf(stderr, "[CG] buildArrayElementPointer array branch end\n");
+    return gep;
+    }
+
+    indices[0] = idx64;
+    indexCount = 1;
+    LLVMValueRef baseCasted = basePtr;
+    if (dbg) {
+        char* bstr = LLVMPrintTypeToString(LLVMTypeOf(basePtr));
+        char* estr = LLVMPrintTypeToString(elementType);
+        fprintf(stderr, "[DBG] elem branch baseTy=%s elem=%s\n", bstr ? bstr : "<null>", estr ? estr : "<null>");
+        if (bstr) LLVMDisposeMessage(bstr);
+        if (estr) LLVMDisposeMessage(estr);
+    }
+    LLVMTypeRef baseElem = NULL;
+    if (LLVMGetTypeKind(LLVMTypeOf(baseCasted)) == LLVMPointerTypeKind) {
+        baseElem = LLVMGetElementType(LLVMTypeOf(baseCasted));
+    }
+    if (!baseElem && !elementType) {
+        fprintf(stderr, "Error: opaque pointer array base without element type\n");
+        return NULL;
+    }
+    LLVMTypeRef geptype = baseElem ? baseElem : elementType;
+    if (geptype && LLVMGetTypeKind(geptype) == LLVMHalfTypeKind) {
+        geptype = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+    LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, geptype, baseCasted, indices, indexCount, "arrayElemPtr");
+    if (outElementType) {
+        *outElementType = elementType ? elementType : geptype;
+    }
+    if (dbgRun) fprintf(stderr, "[CG] buildArrayElementPointer element branch end\n");
     return gep;
 }
 
@@ -489,6 +541,20 @@ bool codegenLValue(CodegenContext* ctx,
                 baseParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
             }
             if (!arrayPtr) return false;
+            /* If the base is a pointer variable (not an actual array object), load the pointer
+               value so we index the pointee rather than the stack slot. */
+            if (haveBasePtr && (!baseParsed || !parsedTypeIsDirectArray(baseParsed))) {
+                LLVMTypeRef loadTy = baseType;
+                if (!loadTy) {
+                    LLVMTypeRef elem = NULL;
+                    if (arrayPtr && LLVMGetTypeKind(LLVMTypeOf(arrayPtr)) == LLVMPointerTypeKind) {
+                        elem = LLVMGetElementType(LLVMTypeOf(arrayPtr));
+                    }
+                    loadTy = elem ? elem : LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+                }
+                arrayPtr = LLVMBuildLoad2(ctx->builder, loadTy, arrayPtr, "array.ptr.load");
+                baseType = loadTy;
+            }
             LLVMValueRef index = codegenNode(ctx, target->arrayAccess.index);
             LLVMTypeRef aggregateHint = NULL;
             if (baseParsed && parsedTypeIsDirectArray(baseParsed)) {

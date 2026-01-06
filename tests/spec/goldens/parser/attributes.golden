@@ -4,6 +4,7 @@ PROGRAM
   VAR_DECL
     TYPE: int
     IDENTIFIER global_value
+  ATTRIBUTE [GNU] packed
   STRUCT
         Name:     IDENTIFIER Example
     ATTRIBUTE [DECLSPEC] dllexport

@@ -239,14 +239,6 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
             if (scope && scope->ctx && type->userTypeName) {
                 CCTagKind k = (type->kind == TYPE_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
                 info.isComplete = cc_tag_is_defined(scope->ctx, k, type->userTypeName);
-                if (info.isComplete) {
-                    ASTNode* def = cc_tag_definition(scope->ctx, k, type->userTypeName);
-                    if (def &&
-                        def->type == AST_STRUCT_DEFINITION &&
-                        def->structDef.hasFlexibleArray) {
-                        info.isComplete = false;
-                    }
-                }
             }
             return info;
         }

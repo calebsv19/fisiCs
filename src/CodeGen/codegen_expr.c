@@ -237,13 +237,12 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: Failed to generate RHS for binary expression\n");
         return NULL;
     }
-
     const ParsedType* lhsParsed = cg_resolve_expression_type(ctx, node->expr.left);
     const ParsedType* rhsParsed = cg_resolve_expression_type(ctx, node->expr.right);
     LLVMTypeRef lhsType = LLVMTypeOf(L);
     LLVMTypeRef rhsType = LLVMTypeOf(R);
-    bool lhsIsPointer = LLVMGetTypeKind(lhsType) == LLVMPointerTypeKind;
-    bool rhsIsPointer = LLVMGetTypeKind(rhsType) == LLVMPointerTypeKind;
+    bool lhsIsPointer = lhsType && LLVMGetTypeKind(lhsType) == LLVMPointerTypeKind;
+    bool rhsIsPointer = rhsType && LLVMGetTypeKind(rhsType) == LLVMPointerTypeKind;
     bool preferUnsigned = cg_expression_is_unsigned(ctx, node->expr.left) ||
                           cg_expression_is_unsigned(ctx, node->expr.right);
 
@@ -253,10 +252,20 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
             return NULL;
         }
         if (lhsIsPointer) {
-            return cg_build_pointer_offset(ctx, L, R, lhsParsed, rhsParsed, false);
+            LLVMValueRef res = cg_build_pointer_offset(ctx, L, R, lhsParsed, rhsParsed, false);
+            if (!res) return NULL;
+            if (lhsType && LLVMGetTypeKind(lhsType) == LLVMPointerTypeKind) {
+                res = LLVMBuildPointerCast(ctx->builder, res, lhsType, "ptr.arith.cast");
+            }
+            return res;
         }
         if (rhsIsPointer) {
-            return cg_build_pointer_offset(ctx, R, L, rhsParsed, lhsParsed, false);
+            LLVMValueRef res = cg_build_pointer_offset(ctx, R, L, rhsParsed, lhsParsed, false);
+            if (!res) return NULL;
+            if (rhsType && LLVMGetTypeKind(rhsType) == LLVMPointerTypeKind) {
+                res = LLVMBuildPointerCast(ctx->builder, res, rhsType, "ptr.arith.cast");
+            }
+            return res;
         }
         if (lhsType != rhsType) {
             R = cg_cast_value(ctx, R, lhsType, rhsParsed, lhsParsed, "add.cast");
@@ -477,7 +486,7 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
             return NULL;
         }
         LLVMTypeRef elemType = cg_element_type_from_pointer(ctx, operandParsed, ptrType);
-        if (!elemType || LLVMGetTypeKind(elemType) == LLVMVoidTypeKind) {
+        if (!elemType || LLVMGetTypeKind(elemType) == LLVMVoidTypeKind || LLVMGetTypeKind(elemType) == LLVMPointerTypeKind) {
             elemType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
         return LLVMBuildLoad2(ctx->builder, elemType, operand, "loadtmp");
@@ -759,15 +768,55 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: Invalid node type for codegenArrayAccess\n");
         return NULL;
     }
+    const char* dbgRun = getenv("DEBUG_RUN");
+    if (dbgRun) fprintf(stderr, "[CG] array access begin\n");
 
-    LLVMValueRef arrayPtr = codegenNode(ctx, node->arrayAccess.array);
+    LLVMValueRef arrayPtr = NULL;
+    LLVMTypeRef arrayType = NULL;
+    const ParsedType* arrayParsed = NULL;
+    CGLValueInfo arrLValInfo;
+    bool haveLVal =
+        codegenLValue(ctx, node->arrayAccess.array, &arrayPtr, &arrayType, &arrayParsed, &arrLValInfo);
+    if (!haveLVal) {
+        arrayPtr = codegenNode(ctx, node->arrayAccess.array);
+    }
+    /* For pointer variables (not true arrays), arrayPtr currently holds the address of the
+       pointer object (e.g., an alloca of `int*`). Load the pointer value so we index the
+       pointee rather than the stack slot. */
+    if (haveLVal && arrayPtr && (!arrayParsed || !parsedTypeIsDirectArray(arrayParsed))) {
+        LLVMTypeRef loadTy = arrayType;
+        if (!loadTy) {
+            LLVMTypeRef elem = NULL;
+            if (arrayPtr && LLVMGetTypeKind(LLVMTypeOf(arrayPtr)) == LLVMPointerTypeKind) {
+                elem = LLVMGetElementType(LLVMTypeOf(arrayPtr));
+            }
+            loadTy = elem ? elem : LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+        }
+        arrayPtr = LLVMBuildLoad2(ctx->builder, loadTy, arrayPtr, "array.ptr.load");
+        arrayType = loadTy;
+    }
     LLVMValueRef index = codegenNode(ctx, node->arrayAccess.index);
     if (!arrayPtr || !index) {
         fprintf(stderr, "Error: Array access failed\n");
         return NULL;
     }
+    if (dbgRun) {
+        char* atStr = LLVMPrintTypeToString(LLVMTypeOf(arrayPtr));
+        fprintf(stderr, "[CG] arrayPtr LLVM type=%s\n", atStr ? atStr : "<null>");
+        if (atStr) LLVMDisposeMessage(atStr);
+    }
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
-    const ParsedType* arrayParsed = cg_resolve_expression_type(ctx, node->arrayAccess.array);
+    if (!arrayParsed) {
+        arrayParsed = cg_resolve_expression_type(ctx, node->arrayAccess.array);
+    }
+    if (dbgRun && arrayParsed) {
+        fprintf(stderr, "[CG] array parsed kind=%d prim=%d name=%s ptrDepth=%d derivs=%zu\n",
+                arrayParsed->kind,
+                arrayParsed->primitiveType,
+                arrayParsed->userTypeName ? arrayParsed->userTypeName : "<none>",
+                arrayParsed->pointerDepth,
+                arrayParsed->derivationCount);
+    }
 
     if (arrayParsed && parsedTypeIsDirectArray(arrayParsed) && parsedTypeHasVLA(arrayParsed)) {
         size_t arrayDims = 0;
@@ -799,10 +848,6 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         }
 
         LLVMTypeRef elemType = vlaInnermostElementLLVM(ctx, arrayParsed);
-        LLVMTypeRef ptrToElem = LLVMPointerType(elemType, 0);
-        if (LLVMTypeOf(arrayPtr) != ptrToElem) {
-            arrayPtr = LLVMBuildBitCast(ctx->builder, arrayPtr, ptrToElem, "vla.elem.base");
-        }
         LLVMValueRef elementPtr = LLVMBuildGEP2(ctx->builder, elemType, arrayPtr, &offset, 1, "vla.elem.ptr");
 
         bool hasMoreDims = arrayDims > 1;
@@ -820,6 +865,12 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         aggregateHint = cg_type_from_parsed(ctx, arrayParsed);
     }
     LLVMTypeRef elementHint = cg_element_type_hint_from_parsed(ctx, arrayParsed);
+    if (!elementHint && arrayType && LLVMGetTypeKind(arrayType) == LLVMPointerTypeKind) {
+        LLVMTypeRef elem = LLVMGetElementType(arrayType);
+        if (elem) {
+            elementHint = elem;
+        }
+    }
     LLVMTypeRef derivedElementType = NULL;
     LLVMValueRef elementPtr = buildArrayElementPointer(ctx,
                                                        arrayPtr,
@@ -837,10 +888,31 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     char* ptrElemStr = ptrToElemType ? LLVMPrintTypeToString(ptrToElemType) : NULL;
     CG_DEBUG("[CG] Array element pointer LLVM type=%s\n", ptrElemStr ? ptrElemStr : "<null>");
     if (ptrElemStr) LLVMDisposeMessage(ptrElemStr);
+    if (dbgRun) {
+        char* hintStr = elementHint ? LLVMPrintTypeToString(elementHint) : NULL;
+        char* derivedStr = derivedElementType ? LLVMPrintTypeToString(derivedElementType) : NULL;
+        fprintf(stderr, "[CG] elementHint=%s derived=%s\n",
+                hintStr ? hintStr : "<null>",
+                derivedStr ? derivedStr : "<null>");
+        if (hintStr) LLVMDisposeMessage(hintStr);
+        if (derivedStr) LLVMDisposeMessage(derivedStr);
+    }
 
-    LLVMTypeRef elementType = derivedElementType;
+    LLVMTypeRef elementType = derivedElementType ? derivedElementType : elementHint;
     if (!elementType) {
         elementType = cg_dereference_ptr_type(ctx, ptrToElemType, "array access");
+    }
+    if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind) {
+        if (LLVMGetTypeKind(ptrToElemType) == LLVMPointerTypeKind && LLVMGetElementType(ptrToElemType) == NULL) {
+            fprintf(stderr, "Error: opaque pointer array access without element hint\n");
+            return NULL;
+        }
+        elementType = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+    if (dbgRun) {
+        char* etStr = LLVMPrintTypeToString(elementType);
+        fprintf(stderr, "[CG] array elem type %s\n", etStr ? etStr : "<null>");
+        if (etStr) LLVMDisposeMessage(etStr);
     }
     LLVMValueRef typedElementPtr = elementPtr;
     LLVMTypeRef loadTy = elementType ? elementType : LLVMInt8TypeInContext(ctx->llvmContext);
@@ -849,12 +921,14 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: invalid pointer for array load\n");
         return NULL;
     }
-    LLVMTypeRef desiredPtrTy = LLVMPointerType(loadTy, 0);
-    if (LLVMTypeOf(typedElementPtr) != desiredPtrTy) {
-        typedElementPtr = LLVMBuildBitCast(ctx->builder, typedElementPtr, desiredPtrTy, "array.elem.typed");
+    if (dbgRun) fprintf(stderr, "[CG] array load begin\n");
+    LLVMTypeRef expectedPtrTy = LLVMPointerType(loadTy, 0);
+    if (LLVMTypeOf(typedElementPtr) != expectedPtrTy) {
+        typedElementPtr = LLVMBuildBitCast(ctx->builder, typedElementPtr, expectedPtrTy, "array.elem.cast");
     }
     LLVMValueRef loadVal = LLVMBuildLoad2(ctx->builder, loadTy, typedElementPtr, "arrayLoad");
     CG_DEBUG("[CG] Array element load complete\n");
+    if (dbgRun) fprintf(stderr, "[CG] array access end\n");
     return loadVal;
 }
 
@@ -924,7 +998,45 @@ LLVMValueRef codegenPointerDereference(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: Failed to generate pointer dereference\n");
         return NULL;
     }
-    LLVMTypeRef elemType = cg_dereference_ptr_type(ctx, LLVMTypeOf(pointer), "pointer dereference");
+    LLVMTypeRef elemType = NULL;
+    /* Prefer semantic type information if available. */
+    const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, node->pointerDeref.pointer);
+    if (ptrParsed && ptrParsed->pointerDepth > 0) {
+        elemType = cg_element_type_from_pointer_parsed(ctx, ptrParsed);
+        if (elemType && LLVMGetTypeKind(elemType) == LLVMPointerTypeKind) {
+            ParsedType base = parsedTypeClone(ptrParsed);
+            if (base.pointerDepth > 0) {
+                base.pointerDepth -= 1;
+            }
+            for (ssize_t i = (ssize_t)base.derivationCount - 1; i >= 0; --i) {
+                if (base.derivations[i].kind == TYPE_DERIVATION_POINTER) {
+                    for (size_t j = (size_t)i; j + 1 < base.derivationCount; ++j) {
+                        base.derivations[j] = base.derivations[j + 1];
+                    }
+                    base.derivationCount -= 1;
+                    break;
+                }
+            }
+            LLVMTypeRef forced = cg_type_from_parsed(ctx, &base);
+            parsedTypeFree(&base);
+            if (forced && LLVMGetTypeKind(forced) != LLVMPointerTypeKind && LLVMGetTypeKind(forced) != LLVMVoidTypeKind) {
+                elemType = forced;
+            }
+        }
+    }
+    /* If the operand is an identifier, try to use its stored element type to avoid opaque-pointer ambiguity. */
+    if (!elemType && node->pointerDeref.pointer && node->pointerDeref.pointer->type == AST_IDENTIFIER) {
+        const char* name = node->pointerDeref.pointer->valueNode.value;
+        NamedValue* entry = cg_scope_lookup(ctx->currentScope, name);
+        if (entry && entry->elementType) {
+            elemType = entry->elementType;
+        } else if (entry && entry->parsedType && entry->parsedType->pointerDepth > 0) {
+            elemType = cg_element_type_from_pointer_parsed(ctx, entry->parsedType);
+        }
+    }
+    if (!elemType) {
+        elemType = cg_dereference_ptr_type(ctx, LLVMTypeOf(pointer), "pointer dereference");
+    }
     if (!elemType || LLVMGetTypeKind(elemType) == LLVMVoidTypeKind) {
         elemType = LLVMInt32TypeInContext(ctx->llvmContext);
     }

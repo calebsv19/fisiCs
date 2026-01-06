@@ -2286,6 +2286,9 @@ PROGRAM
       VAR_DECL
         TYPE: int
         IDENTIFIER __base
+  ATTRIBUTE [GNU] __IOS_PROHIBITED
+  ATTRIBUTE [GNU] __WATCHOS_PROHIBITED
+  ATTRIBUTE [GNU] __TVOS_PROHIBITED
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -2762,17 +2765,6 @@ PROGRAM
       VAR_DECL
         TYPE: char**
         IDENTIFIER __unnamed_param2
-  ATTRIBUTE [GNU] "_""x"
-  FUNCTION DECLARATION
-    RETURN TYPE: int
-    IDENTIFIER daemon
-    PARAMETERS:
-      VAR_DECL
-        TYPE: int
-        IDENTIFIER __unnamed_param0
-      VAR_DECL
-        TYPE: int
-        IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: char*
     IDENTIFIER devname

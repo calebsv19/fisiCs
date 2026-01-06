@@ -1,65 +1,8 @@
-#include <stdint.h>
-#include <stddef.h>
-
-typedef struct Node {
-    struct Node* next;
-    int value;
-} Node;
-
-static int sum_list(Node* head) {
-    int total = 0;
-    for (Node* it = head; it; it = it->next) {
-        total += it->value;
-    }
-    return total;
-}
-
-typedef struct Vec {
-    size_t len;
-    int data[];
-} Vec;
-
-static int sum_vec(Vec* v) {
-    int acc = 0;
-    for (size_t i = 0; i < v->len; ++i) {
-        acc += v->data[i];
-    }
-    return acc;
-}
-
-union Split {
-    uint16_t raw;
-    struct { uint8_t lo; uint8_t hi; } bytes;
-};
-
-static int run(void) {
-    Node a = {.next = NULL, .value = 10};
-    Node b = {.next = &a, .value = 20};
-    Node c = {.next = &b, .value = 30};
-    int list_sum = sum_list(&c); /* 60 */
-
-    /* Build a flex array instance on the stack */
-    unsigned char buf[sizeof(Vec) + 3 * sizeof(int)];
-    Vec* v = (Vec*)buf;
-    v->len = 3;
-    v->data[0] = 5;
-    v->data[1] = 6;
-    v->data[2] = 7;
-    int vec_sum = sum_vec(v); /* 18 */
-
-    union Split u = {.raw = 0x5A3C};
-    uint8_t mix = (uint8_t)(u.bytes.lo + u.bytes.hi);
-
-    struct Pair { double x; double y; } pair = {.x = 2.0, .y = 3.5};
-    double prod = pair.x * pair.y; /* 7.0 */
-
-    int ok = (list_sum == 60) &&
-             (vec_sum == 18) &&
-             (mix != 0) &&
-             ((int)prod == 7);
-    return ok ? 0 : 1;
+int sum(int *restrict a, int *restrict b) {
+    return *a + *b;
 }
 
 int main(void) {
-    return run();
+    int x = 1;
+    return sum(&x, &x);
 }

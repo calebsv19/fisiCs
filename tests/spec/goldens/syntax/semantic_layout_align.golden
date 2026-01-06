@@ -1,10 +1,12 @@
 AST:
 PROGRAM
+  ATTRIBUTE [GNU] aligned(16)
   STRUCT
         Name:     IDENTIFIER A
     VAR_DECL
       TYPE: int
       IDENTIFIER x
+  ATTRIBUTE [GNU] packed
   STRUCT
         Name:     IDENTIFIER B
     VAR_DECL
@@ -38,6 +40,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (10:0): Variable-length array 'arr1' is not allowed at static storage duration
-Error at (11:0): Variable-length array 'arr2' is not allowed at static storage duration
+Semantic analysis: no issues found.
 
