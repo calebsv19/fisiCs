@@ -347,10 +347,48 @@ bool process_include(Preprocessor* pp,
     }
     char* name = NULL;
     bool isSystem = false;
-    if (!parse_include_operand(tokens, count, cursor, &name, &isSystem)) {
+    size_t lineStart = *cursor;
+    int directiveLine = tokens && count > 0 ? tokens[lineStart].line : 0;
+    size_t lineEnd = lineStart + 1;
+    while (lineEnd < count && tokens[lineEnd].type != TOKEN_EOF && tokens[lineEnd].line == directiveLine) {
+        lineEnd++;
+    }
+
+    PPTokenBuffer expanded = {0};
+    size_t span = (lineEnd > lineStart + 1) ? (lineEnd - (lineStart + 1)) : 0;
+    if (!macro_expander_expand(&pp->expander, tokens + lineStart + 1, span, &expanded)) {
+        pp_token_buffer_destroy(&expanded);
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "failed to expand #include operand");
+        return false;
+    }
+
+    size_t tempCount = expanded.count + 2;
+    Token* tempTokens = (Token*)calloc(tempCount, sizeof(Token));
+    if (!tempTokens) {
+        pp_token_buffer_destroy(&expanded);
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "out of memory parsing #include");
+        return false;
+    }
+    tempTokens[0] = tokens[*cursor];
+    for (size_t i = 0; i < expanded.count; ++i) {
+        tempTokens[i + 1] = expanded.tokens[i];
+        tempTokens[i + 1].line = directiveLine;
+        tempTokens[i + 1].location.start.line = directiveLine;
+        tempTokens[i + 1].location.end.line = directiveLine;
+    }
+    tempTokens[tempCount - 1].type = TOKEN_EOF;
+    tempTokens[tempCount - 1].line = directiveLine;
+
+    size_t tempCursor = 0;
+    if (!parse_include_operand(tempTokens, tempCount, &tempCursor, &name, &isSystem)) {
+        free(tempTokens);
+        pp_token_buffer_destroy(&expanded);
         pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "invalid #include operand");
         return false;
     }
+    free(tempTokens);
+    pp_token_buffer_destroy(&expanded);
+    *cursor = (lineEnd == 0) ? 0 : lineEnd - 1;
 
     const char* parentFile = token_file(&tokens[*cursor]);
     IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;

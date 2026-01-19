@@ -726,6 +726,11 @@ bool preprocessor_run(Preprocessor* pp,
         pushed = pp_include_stack_push(pp, rootPath, origin, originIndex);
     }
     bool ok = preprocess_tokens(pp, input, output, true);
+    if (!ok && output && output->count > 0) {
+        Token eof = {0};
+        eof.type = TOKEN_EOF;
+        pp_token_buffer_append_token(output, eof);
+    }
     if (pushed) {
         pp_include_stack_pop(pp);
     }

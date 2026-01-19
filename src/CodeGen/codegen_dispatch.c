@@ -21,6 +21,8 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
             return codegenUnaryExpression(ctx, node);
         case AST_TERNARY_EXPRESSION:
             return codegenTernaryExpression(ctx, node);
+        case AST_COMMA_EXPRESSION:
+            return codegenCommaExpression(ctx, node);
         case AST_ASSIGNMENT:
             return codegenAssignment(ctx, node);
         case AST_CAST_EXPRESSION:
@@ -94,6 +96,8 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
             return codegenStructFieldAccess(ctx, node);
         case AST_HEAP_ALLOCATION:
             return codegenHeapAllocation(ctx, node);
+        case AST_ASM:
+            return NULL; // inline asm is parsed but not lowered yet
         default:
             fprintf(stderr, "Error: Unhandled AST node type %d\n", node->type);
             return NULL;

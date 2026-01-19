@@ -671,10 +671,10 @@ PROGRAM
         TYPE: __darwin_pthread_t
         Alias:     IDENTIFIER pthread_t
   VAR_DECL
-    TYPE: extern const char* [NUMBER_LITERAL 32]
+    TYPE: extern const char* const [NUMBER_LITERAL 32]
     IDENTIFIER sys_signame
   VAR_DECL
-    TYPE: extern const char* [NUMBER_LITERAL 32]
+    TYPE: extern const char* const [NUMBER_LITERAL 32]
     IDENTIFIER sys_siglist
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -737,10 +737,10 @@ PROGRAM
         TYPE: int
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const struct sigaction*
+        TYPE: const struct sigaction* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: struct sigaction*
+        TYPE: struct sigaction* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -760,10 +760,10 @@ PROGRAM
     IDENTIFIER sigaltstack
     PARAMETERS:
       VAR_DECL
-        TYPE: const stack_t*
+        TYPE: const stack_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: stack_t*
+        TYPE: stack_t* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -846,10 +846,10 @@ PROGRAM
         TYPE: int
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const sigset_t*
+        TYPE: const sigset_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: sigset_t*
+        TYPE: sigset_t* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -872,10 +872,10 @@ PROGRAM
     IDENTIFIER sigwait
     PARAMETERS:
       VAR_DECL
-        TYPE: const sigset_t*
+        TYPE: const sigset_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: int*
+        TYPE: int* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: void
@@ -961,6 +961,23 @@ PROGRAM
         IDENTIFIER act
             = NUMBER_LITERAL 0
 
+      BLOCK
+        ASSIGNMENT (=)
+          UNARY EXPRESSION '*' (prefix)
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER set
+          NUMBER_LITERAL 0
+        NUMBER_LITERAL 0
+      BLOCK
+        ASSIGNMENT (|=)
+          UNARY EXPRESSION '*' (prefix)
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER set
+          FUNCTION CALL
+            IDENTIFIER __sigbits
+            ARGUMENTS
+              NUMBER_LITERAL 2
+        NUMBER_LITERAL 0
       FUNCTION CALL
         IDENTIFIER sigaction
         ARGUMENTS

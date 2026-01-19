@@ -389,7 +389,7 @@ PROGRAM
     IDENTIFIER printf
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
     VARIADIC: yes
   TYPEDEF
@@ -462,7 +462,7 @@ PROGRAM
     IDENTIFIER fgetpos
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: fpos_t*
@@ -472,7 +472,7 @@ PROGRAM
     IDENTIFIER fgets
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: int
@@ -486,10 +486,10 @@ PROGRAM
     IDENTIFIER fopen
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __filename
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __mode
   ATTRIBUTE [GNU] __format__(__printf__,2,3)
   FUNCTION DECLARATION
@@ -497,10 +497,10 @@ PROGRAM
     IDENTIFIER fprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -519,17 +519,17 @@ PROGRAM
     IDENTIFIER fputs
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: size_t
     IDENTIFIER fread
     PARAMETERS:
       VAR_DECL
-        TYPE: void*
+        TYPE: void* restrict
         IDENTIFIER __ptr
       VAR_DECL
         TYPE: size_t
@@ -538,7 +538,7 @@ PROGRAM
         TYPE: size_t
         IDENTIFIER __nitems
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __stream
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION
@@ -546,13 +546,13 @@ PROGRAM
     IDENTIFIER freopen
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param2
   ATTRIBUTE [GNU] __format__(__scanf__,2,3)
   FUNCTION DECLARATION
@@ -560,10 +560,10 @@ PROGRAM
     IDENTIFIER fscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -602,7 +602,7 @@ PROGRAM
     IDENTIFIER fwrite
     PARAMETERS:
       VAR_DECL
-        TYPE: const void*
+        TYPE: const void* restrict
         IDENTIFIER __ptr
       VAR_DECL
         TYPE: size_t
@@ -611,7 +611,7 @@ PROGRAM
         TYPE: size_t
         IDENTIFIER __nitems
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __stream
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -696,7 +696,7 @@ PROGRAM
     IDENTIFIER scanf
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -704,20 +704,20 @@ PROGRAM
     IDENTIFIER setbuf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: int
     IDENTIFIER setvbuf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: int
@@ -732,10 +732,10 @@ PROGRAM
     IDENTIFIER sprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   ATTRIBUTE [GNU] __format__(__scanf__,2,3)
@@ -744,10 +744,10 @@ PROGRAM
     IDENTIFIER sscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -781,10 +781,10 @@ PROGRAM
     IDENTIFIER vfprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: va_list
@@ -795,7 +795,7 @@ PROGRAM
     IDENTIFIER vprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: va_list
@@ -807,10 +807,10 @@ PROGRAM
     IDENTIFIER vsprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: va_list
@@ -999,13 +999,13 @@ PROGRAM
     IDENTIFIER snprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __str
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __size
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __format
     VARIADIC: yes
   ATTRIBUTE [GNU] __format__(__scanf__,2,0)
@@ -1014,10 +1014,10 @@ PROGRAM
     IDENTIFIER vfscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __stream
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __format
       VAR_DECL
         TYPE: va_list
@@ -1028,7 +1028,7 @@ PROGRAM
     IDENTIFIER vscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __format
       VAR_DECL
         TYPE: va_list
@@ -1039,13 +1039,13 @@ PROGRAM
     IDENTIFIER vsnprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __str
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __size
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __format
       VAR_DECL
         TYPE: va_list
@@ -1056,10 +1056,10 @@ PROGRAM
     IDENTIFIER vsscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __str
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __format
       VAR_DECL
         TYPE: va_list
@@ -1076,7 +1076,7 @@ PROGRAM
         TYPE: int
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   ATTRIBUTE [GNU] __format__(__printf__,2,0)
@@ -1088,7 +1088,7 @@ PROGRAM
         TYPE: int
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: va_list
@@ -1098,42 +1098,42 @@ PROGRAM
     IDENTIFIER getdelim
     PARAMETERS:
       VAR_DECL
-        TYPE: char**
+        TYPE: char** restrict
         IDENTIFIER __linep
       VAR_DECL
-        TYPE: size_t*
+        TYPE: size_t* restrict
         IDENTIFIER __linecapp
       VAR_DECL
         TYPE: int
         IDENTIFIER __delimiter
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __stream
   FUNCTION DECLARATION
     RETURN TYPE: ssize_t
     IDENTIFIER getline
     PARAMETERS:
       VAR_DECL
-        TYPE: char**
+        TYPE: char** restrict
         IDENTIFIER __linep
       VAR_DECL
-        TYPE: size_t*
+        TYPE: size_t* restrict
         IDENTIFIER __linecapp
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __stream
   FUNCTION DECLARATION
     RETURN TYPE: FILE*
     IDENTIFIER fmemopen
     PARAMETERS:
       VAR_DECL
-        TYPE: void*
+        TYPE: void* restrict
         IDENTIFIER __buf
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __size
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __mode
   FUNCTION DECLARATION
     RETURN TYPE: FILE*
@@ -1149,7 +1149,7 @@ PROGRAM
     TYPE: extern const int
     IDENTIFIER sys_nerr
   VAR_DECL
-    TYPE: extern const char* [?]
+    TYPE: extern const char* const [?]
     IDENTIFIER sys_errlist
   ATTRIBUTE [GNU] __format__(__printf__,2,3)
   FUNCTION DECLARATION
@@ -1157,10 +1157,10 @@ PROGRAM
     IDENTIFIER asprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: char**
+        TYPE: char** restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -1224,10 +1224,10 @@ PROGRAM
     IDENTIFIER vasprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: char**
+        TYPE: char** restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: va_list
@@ -1256,7 +1256,7 @@ PROGRAM
     IDENTIFIER __sprintf_chk
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: int
@@ -1265,7 +1265,7 @@ PROGRAM
         TYPE: size_t
         IDENTIFIER __unnamed_param2
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param3
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -1273,7 +1273,7 @@ PROGRAM
     IDENTIFIER __snprintf_chk
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t
@@ -1285,7 +1285,7 @@ PROGRAM
         TYPE: size_t
         IDENTIFIER __unnamed_param2
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param3
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -1293,7 +1293,7 @@ PROGRAM
     IDENTIFIER __vsprintf_chk
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: int
@@ -1302,7 +1302,7 @@ PROGRAM
         TYPE: size_t
         IDENTIFIER __unnamed_param2
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param3
       VAR_DECL
         TYPE: va_list
@@ -1312,7 +1312,7 @@ PROGRAM
     IDENTIFIER __vsnprintf_chk
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t
@@ -1324,7 +1324,7 @@ PROGRAM
         TYPE: size_t
         IDENTIFIER __unnamed_param2
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param3
       VAR_DECL
         TYPE: va_list
@@ -1457,16 +1457,16 @@ PROGRAM
     IDENTIFIER strftime
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __maxsize
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: const struct tm*
+        TYPE: const struct tm* restrict
         IDENTIFIER __unnamed_param2
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION
@@ -1474,13 +1474,13 @@ PROGRAM
     IDENTIFIER strptime
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: time_t
@@ -1501,10 +1501,10 @@ PROGRAM
     IDENTIFIER asctime_r
     PARAMETERS:
       VAR_DECL
-        TYPE: const struct tm*
+        TYPE: const struct tm* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: char*
@@ -1521,20 +1521,20 @@ PROGRAM
     IDENTIFIER gmtime_r
     PARAMETERS:
       VAR_DECL
-        TYPE: const time_t*
+        TYPE: const time_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: struct tm*
     IDENTIFIER localtime_r
     PARAMETERS:
       VAR_DECL
-        TYPE: const time_t*
+        TYPE: const time_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: time_t
@@ -1562,14 +1562,14 @@ PROGRAM
     IDENTIFIER timelocal
     PARAMETERS:
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* const
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
     RETURN TYPE: time_t
     IDENTIFIER timegm
     PARAMETERS:
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* const
         IDENTIFIER __unnamed_param0
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION
@@ -2365,13 +2365,13 @@ PROGRAM
     IDENTIFIER fgetws
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: int
         IDENTIFIER __n
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: wint_t
@@ -2388,10 +2388,10 @@ PROGRAM
     IDENTIFIER fputws
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -2408,10 +2408,10 @@ PROGRAM
     IDENTIFIER fwprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -2419,10 +2419,10 @@ PROGRAM
     IDENTIFIER fwscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -2444,29 +2444,29 @@ PROGRAM
     IDENTIFIER mbrlen
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __n
       VAR_DECL
-        TYPE: mbstate_t*
+        TYPE: mbstate_t* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: size_t
     IDENTIFIER mbrtowc
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __n
       VAR_DECL
-        TYPE: mbstate_t*
+        TYPE: mbstate_t* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -2480,16 +2480,16 @@ PROGRAM
     IDENTIFIER mbsrtowcs
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char**
+        TYPE: const char** restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __len
       VAR_DECL
-        TYPE: mbstate_t*
+        TYPE: mbstate_t* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: wint_t
@@ -2513,13 +2513,13 @@ PROGRAM
     IDENTIFIER swprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __maxlen
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -2527,10 +2527,10 @@ PROGRAM
     IDENTIFIER swscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -2548,10 +2548,10 @@ PROGRAM
     IDENTIFIER vfwprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: __darwin_va_list
@@ -2561,13 +2561,13 @@ PROGRAM
     IDENTIFIER vswprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __maxlen
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: __darwin_va_list
@@ -2577,7 +2577,7 @@ PROGRAM
     IDENTIFIER vwprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: __darwin_va_list
@@ -2587,23 +2587,23 @@ PROGRAM
     IDENTIFIER wcrtomb
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: wchar_t
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: mbstate_t*
+        TYPE: mbstate_t* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: wchar_t*
     IDENTIFIER wcscat
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: wchar_t*
@@ -2640,10 +2640,10 @@ PROGRAM
     IDENTIFIER wcscpy
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: size_t
@@ -2661,16 +2661,16 @@ PROGRAM
     IDENTIFIER wcsftime
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __maxlen
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: const struct tm*
+        TYPE: const struct tm* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: size_t
@@ -2684,10 +2684,10 @@ PROGRAM
     IDENTIFIER wcsncat
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -2710,10 +2710,10 @@ PROGRAM
     IDENTIFIER wcsncpy
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -2743,16 +2743,16 @@ PROGRAM
     IDENTIFIER wcsrtombs
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t**
+        TYPE: const wchar_t** restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __len
       VAR_DECL
-        TYPE: mbstate_t*
+        TYPE: mbstate_t* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: size_t
@@ -2769,20 +2769,20 @@ PROGRAM
     IDENTIFIER wcsstr
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: size_t
     IDENTIFIER wcsxfrm
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -2799,33 +2799,33 @@ PROGRAM
     IDENTIFIER wcstod
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: wchar_t**
+        TYPE: wchar_t** restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: wchar_t*
     IDENTIFIER wcstok
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: wchar_t**
+        TYPE: wchar_t** restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: long int
     IDENTIFIER wcstol
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: wchar_t**
+        TYPE: wchar_t** restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: int
@@ -2835,10 +2835,10 @@ PROGRAM
     IDENTIFIER wcstoul
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: wchar_t**
+        TYPE: wchar_t** restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: int
@@ -2874,10 +2874,10 @@ PROGRAM
     IDENTIFIER wmemcpy
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -2913,7 +2913,7 @@ PROGRAM
     IDENTIFIER wprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -2921,7 +2921,7 @@ PROGRAM
     IDENTIFIER wscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
     VARIADIC: yes
   FUNCTION DECLARATION
@@ -2946,10 +2946,10 @@ PROGRAM
     IDENTIFIER vfwscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: __darwin_va_list
@@ -2959,10 +2959,10 @@ PROGRAM
     IDENTIFIER vswscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: __darwin_va_list
@@ -2972,7 +2972,7 @@ PROGRAM
     IDENTIFIER vwscanf
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: __darwin_va_list
@@ -2982,30 +2982,30 @@ PROGRAM
     IDENTIFIER wcstof
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: wchar_t**
+        TYPE: wchar_t** restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: long double
     IDENTIFIER wcstold
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: wchar_t**
+        TYPE: wchar_t** restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: long int
     IDENTIFIER wcstoll
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: wchar_t**
+        TYPE: wchar_t** restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: int
@@ -3015,10 +3015,10 @@ PROGRAM
     IDENTIFIER wcstoull
     PARAMETERS:
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: wchar_t**
+        TYPE: wchar_t** restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: int
@@ -3028,10 +3028,10 @@ PROGRAM
     IDENTIFIER mbsnrtowcs
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char**
+        TYPE: const char** restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -3040,27 +3040,27 @@ PROGRAM
         TYPE: size_t
         IDENTIFIER __len
       VAR_DECL
-        TYPE: mbstate_t*
+        TYPE: mbstate_t* restrict
         IDENTIFIER __unnamed_param3
   FUNCTION DECLARATION
     RETURN TYPE: wchar_t*
     IDENTIFIER wcpcpy
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: wchar_t*
     IDENTIFIER wcpncpy
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -3110,10 +3110,10 @@ PROGRAM
     IDENTIFIER wcsnrtombs
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t**
+        TYPE: const wchar_t** restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -3122,7 +3122,7 @@ PROGRAM
         TYPE: size_t
         IDENTIFIER __len
       VAR_DECL
-        TYPE: mbstate_t*
+        TYPE: mbstate_t* restrict
         IDENTIFIER __unnamed_param3
   FUNCTION DECLARATION
     RETURN TYPE: FILE*
@@ -3139,7 +3139,7 @@ PROGRAM
     IDENTIFIER fgetwln
     PARAMETERS:
       VAR_DECL
-        TYPE: FILE*
+        TYPE: FILE* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t*

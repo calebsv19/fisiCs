@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 typedef struct {
     bool ok;         // false when an escape/universal sequence is malformed
@@ -23,3 +24,8 @@ LiteralDecodeResult decode_c_string_literal(const char* raw,
                                             int charBitWidth,
                                             char** outBytes,
                                             size_t* outByteLen);
+
+LiteralDecodeResult decode_c_string_literal_wide(const char* raw,
+                                                 int charBitWidth,
+                                                 uint32_t** outCodepoints,
+                                                 size_t* outLen);

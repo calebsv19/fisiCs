@@ -176,3 +176,66 @@ LiteralDecodeResult decode_c_string_literal(const char* raw,
 
     return res;
 }
+
+LiteralDecodeResult decode_c_string_literal_wide(const char* raw,
+                                                 int charBitWidth,
+                                                 uint32_t** outCodepoints,
+                                                 size_t* outLen) {
+    LiteralDecodeResult res = {.ok = true, .overflow = false, .length = 0};
+    if (outCodepoints) *outCodepoints = NULL;
+    if (outLen) *outLen = 0;
+    if (!raw) return res;
+
+    size_t len = strlen(raw);
+    uint64_t maxVal;
+    if (charBitWidth <= 0) {
+        maxVal = UINT64_MAX;
+    } else if (charBitWidth >= 63) {
+        maxVal = UINT64_MAX;
+    } else {
+        maxVal = (1ULL << charBitWidth) - 1ULL;
+    }
+
+    uint32_t* buf = NULL;
+    if (outCodepoints) {
+        buf = (uint32_t*)malloc((len + 1) * sizeof(uint32_t));
+        if (!buf) {
+            res.ok = false;
+            return res;
+        }
+    }
+
+    size_t outIdx = 0;
+    for (size_t i = 0; i < len;) {
+        uint32_t value = 0;
+        size_t consumed = 1;
+        if (raw[i] == '\\') {
+            if (!decodeEscape(raw, len, i + 1, &consumed, &value)) {
+                res.ok = false;
+                break;
+            }
+            consumed += 1; // account for the leading '\'
+        } else {
+            value = (unsigned char)raw[i];
+        }
+
+        if (value > 0x10FFFF || (value >= 0xD800 && value <= 0xDFFF)) {
+            res.ok = false;
+        }
+        if ((uint64_t)value > maxVal) {
+            res.overflow = true;
+        }
+        if (buf) {
+            buf[outIdx++] = value;
+        }
+        res.length += 1;
+        i += consumed;
+    }
+
+    if (buf) {
+        if (outCodepoints) *outCodepoints = buf;
+        if (outLen) *outLen = outIdx;
+    }
+
+    return res;
+}

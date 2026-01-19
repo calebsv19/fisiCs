@@ -819,10 +819,10 @@ PROGRAM
     IDENTIFIER swab
     PARAMETERS:
       VAR_DECL
-        TYPE: const void*
+        TYPE: const void* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: void*
+        TYPE: void* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: ssize_t

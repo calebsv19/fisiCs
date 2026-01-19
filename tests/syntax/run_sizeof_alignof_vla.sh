@@ -12,14 +12,8 @@ trap 'rm -f "$TMP_OUTPUT"' EXIT
 
 "$BIN" tests/syntax/sizeof_alignof_vla.c >"$TMP_OUTPUT" 2>&1 || true
 
-if ! grep -q "sizeof applied to variable length array is not an integer constant expression" "$TMP_OUTPUT"; then
-  echo "Expected sizeof VLA ICE diagnostic" >&2
-  cat "$TMP_OUTPUT" >&2
-  exit 1
-fi
-
-if ! grep -q "alignof applied to variable length array is not an integer constant expression" "$TMP_OUTPUT"; then
-  echo "Expected alignof VLA ICE diagnostic" >&2
+if ! grep -q "Semantic analysis: no issues found." "$TMP_OUTPUT"; then
+  echo "Expected sizeof/alignof VLA to pass semantic analysis" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi

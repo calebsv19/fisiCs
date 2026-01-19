@@ -66,7 +66,21 @@ static void printParsedType_inner(const ParsedType* pt) {
     if (pt->isFunctionPointer) {
         /* Render as: <base> ( <stars> )(param, ...) */
         printf(" (");
-        if (pt->pointerDepth > 0) {
+        if (pt->derivationCount > 0) {
+            bool sawPointer = false;
+            for (size_t i = 0; i < pt->derivationCount; ++i) {
+                const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i);
+                if (!deriv || deriv->kind != TYPE_DERIVATION_POINTER) {
+                    continue;
+                }
+                sawPointer = true;
+                printf("*");
+                if (deriv->as.pointer.isConst) printf(" const");
+                if (deriv->as.pointer.isVolatile) printf(" volatile");
+                if (deriv->as.pointer.isRestrict) printf(" restrict");
+            }
+            if (!sawPointer) printf("*");
+        } else if (pt->pointerDepth > 0) {
             for (int i = 0; i < pt->pointerDepth; i++) printf("*");
         } else {
             /* function pointers should always have at least one star,
@@ -80,7 +94,20 @@ static void printParsedType_inner(const ParsedType* pt) {
         }
         printf(")");
     } else {
-        for (int i = 0; i < pt->pointerDepth; i++) printf("*");
+        if (pt->derivationCount > 0) {
+            for (size_t i = 0; i < pt->derivationCount; ++i) {
+                const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i);
+                if (!deriv || deriv->kind != TYPE_DERIVATION_POINTER) {
+                    continue;
+                }
+                printf("*");
+                if (deriv->as.pointer.isConst) printf(" const");
+                if (deriv->as.pointer.isVolatile) printf(" volatile");
+                if (deriv->as.pointer.isRestrict) printf(" restrict");
+            }
+        } else {
+            for (int i = 0; i < pt->pointerDepth; i++) printf("*");
+        }
     }
 
     for (size_t i = 0; i < pt->derivationCount; ++i) {

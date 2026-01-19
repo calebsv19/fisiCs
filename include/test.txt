@@ -1,8 +1,8 @@
-int sum(int *restrict a, int *restrict b) {
-    return *a + *b;
-}
-
 int main(void) {
-    int x = 1;
-    return sum(&x, &x);
+    int n = 3;
+    int a[n];
+    int sz_arr = (int)sizeof a;
+    int (*p)[n] = &a;
+    int sz_ptr = (int)sizeof *p;
+    return sz_arr + sz_ptr;
 }

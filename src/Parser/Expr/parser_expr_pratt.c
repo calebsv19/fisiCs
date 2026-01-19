@@ -28,6 +28,7 @@ static ASTNode* parseGNUStatementExpression(Parser* parser);
 // Base left-precedence values
 int getTokenPrecedence(TokenType type) {
     switch (type) {
+        case TOKEN_COMMA: return 0;
         case TOKEN_LOGICAL_OR: return 1;
         case TOKEN_LOGICAL_AND: return 2;
         case TOKEN_BITWISE_OR: return 3;
@@ -164,17 +165,48 @@ static ASTNode* nud(Parser* parser, Token token) {
             return lit;
         }
 
-        case TOKEN_TRUE:
-        case TOKEN_FALSE: {
-            const char* boolValue = (token.type == TOKEN_TRUE) ? "1" : "0";
-            ASTNode* lit = createNumberLiteralNode(boolValue);
-            astNodeSetProvenance(lit, &token);
-            return lit;
-        }
-
         case TOKEN_STRING: {
-            ASTNode* lit = createStringLiteralNode(token.value);
+            size_t cap = 0;
+            size_t len = 0;
+            char* buf = NULL;
+            const char* first = token.value ? token.value : "";
+            size_t firstLen = strlen(first);
+            if (firstLen + 1 > cap) {
+                size_t newCap = 64;
+                while (newCap < firstLen + 1) newCap *= 2;
+                buf = realloc(buf, newCap);
+                cap = newCap;
+            }
+            if (buf) {
+                memcpy(buf + len, first, firstLen);
+                len += firstLen;
+                buf[len] = '\0';
+            }
+            while (parser->currentToken.type == TOKEN_STRING) {
+                const char* text = parser->currentToken.value ? parser->currentToken.value : "";
+                size_t tlen = strlen(text);
+                if (len + tlen + 1 > cap) {
+                    size_t newCap = cap ? cap * 2 : 64;
+                    while (newCap < len + tlen + 1) newCap *= 2;
+                    char* next = realloc(buf, newCap);
+                    if (!next) {
+                        free(buf);
+                        return NULL;
+                    }
+                    buf = next;
+                    cap = newCap;
+                }
+                memcpy(buf + len, text, tlen);
+                len += tlen;
+                buf[len] = '\0';
+                advance(parser);
+            }
+            if (!buf) {
+                buf = strdup("");
+            }
+            ASTNode* lit = createStringLiteralNode(buf);
             astNodeSetProvenance(lit, &token);
+            free(buf);
             return lit;
         }
 

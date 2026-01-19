@@ -30,6 +30,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (4:0): sizeof applied to variable length array is not an integer constant expression
-Error at (5:0): alignof applied to variable length array is not an integer constant expression
+Semantic analysis: no issues found.
 

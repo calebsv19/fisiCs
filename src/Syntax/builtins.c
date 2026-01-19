@@ -261,7 +261,4 @@ void seedBuiltins(Scope* globalScope) {
     if (dblMin) addToScope(scope, dblMin);
     if (ldMin)  addToScope(scope, ldMin);
 
-    if (scope->ctx) {
-        cc_add_typedef(scope->ctx, "bool");
-    }
 }

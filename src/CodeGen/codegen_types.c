@@ -45,6 +45,35 @@ static LLVMTypeRef primitiveType(CodegenContext* ctx, const ParsedType* type) {
     LLVMContextRef llvmCtx = cg_context_get_llvm_context(ctx);
     TokenType tok = type->primitiveType;
 
+    if (type->isComplex || type->isImaginary) {
+        LLVMTypeRef base = NULL;
+        switch (tok) {
+            case TOKEN_FLOAT:
+                base = LLVMFloatTypeInContext(llvmCtx);
+                break;
+            case TOKEN_DOUBLE:
+            default:
+                if (type->isLong) {
+                    const TargetLayout* tl = cg_context_get_target_layout(ctx);
+                    if (tl && tl->longDoubleBits == 128) {
+                        base = LLVMFP128TypeInContext(llvmCtx);
+                    } else if (tl && tl->longDoubleBits == 64) {
+                        base = LLVMDoubleTypeInContext(llvmCtx);
+                    } else {
+                        base = LLVMX86FP80TypeInContext(llvmCtx);
+                    }
+                } else {
+                    base = LLVMDoubleTypeInContext(llvmCtx);
+                }
+                break;
+        }
+        if (!base) {
+            base = LLVMDoubleTypeInContext(llvmCtx);
+        }
+        LLVMTypeRef parts[2] = { base, base };
+        return LLVMStructTypeInContext(llvmCtx, parts, 2, false);
+    }
+
     switch (tok) {
         case TOKEN_VOID:
             return LLVMVoidTypeInContext(llvmCtx);

@@ -2,12 +2,26 @@
 
 #include "Syntax/const_eval.h"
 #include "codegen_types.h"
+#include "literal_utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static int g_const_string_counter = 0;
+
+static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const ParsedType* type) {
+    if (!ctx || !type || type->kind != TYPE_NAMED || !type->userTypeName) {
+        return type;
+    }
+    CGTypeCache* cache = cg_context_get_type_cache(ctx);
+    if (!cache) return type;
+    CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, type->userTypeName);
+    if (info) {
+        return &info->parsedType;
+    }
+    return type;
+}
 
 LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                                         ASTNode* expr,
@@ -34,6 +48,48 @@ static LLVMValueRef cg_make_const_string_global(CodegenContext* ctx,
 
     LLVMTypeRef defaultPtr = LLVMPointerType(i8, 0);
     LLVMValueRef basePtr = LLVMConstBitCast(global, defaultPtr);
+    if (LLVMTypeOf(basePtr) == targetPtrType) {
+        return basePtr;
+    }
+    return LLVMConstBitCast(basePtr, targetPtrType);
+}
+
+static LLVMValueRef cg_make_const_wstring_global(CodegenContext* ctx,
+                                                 const char* payload,
+                                                 LLVMTypeRef targetPtrType) {
+    if (!ctx || !targetPtrType) return NULL;
+    uint32_t* codepoints = NULL;
+    size_t count = 0;
+    LiteralDecodeResult res = decode_c_string_literal_wide(payload ? payload : "",
+                                                           32,
+                                                           &codepoints,
+                                                           &count);
+    (void)res;
+
+    LLVMTypeRef elemTy = LLVMInt32TypeInContext(ctx->llvmContext);
+    LLVMTypeRef arrayTy = LLVMArrayType(elemTy, (unsigned)(count + 1));
+    LLVMValueRef* values = (LLVMValueRef*)calloc(count + 1, sizeof(LLVMValueRef));
+    if (!values) {
+        free(codepoints);
+        return NULL;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        values[i] = LLVMConstInt(elemTy, codepoints ? codepoints[i] : 0, 0);
+    }
+    values[count] = LLVMConstInt(elemTy, 0, 0);
+
+    char name[64];
+    snprintf(name, sizeof(name), ".wstr.%d", g_const_string_counter++);
+    LLVMValueRef global = LLVMAddGlobal(ctx->module, arrayTy, name);
+    LLVMSetLinkage(global, LLVMPrivateLinkage);
+    LLVMSetGlobalConstant(global, 1);
+    LLVMSetUnnamedAddr(global, LLVMGlobalUnnamedAddr);
+    LLVMSetInitializer(global, LLVMConstArray(elemTy, values, (unsigned)(count + 1)));
+
+    LLVMTypeRef defaultPtr = LLVMPointerType(elemTy, 0);
+    LLVMValueRef basePtr = LLVMConstBitCast(global, defaultPtr);
+    free(values);
+    free(codepoints);
     if (LLVMTypeOf(basePtr) == targetPtrType) {
         return basePtr;
     }
@@ -331,11 +387,39 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
 
     if (targetKind == LLVMArrayTypeKind && expr->type == AST_STRING_LITERAL) {
         const char* payload = NULL;
-        ast_literal_encoding(expr->valueNode.value, &payload);
+        LiteralEncoding enc = ast_literal_encoding(expr->valueNode.value, &payload);
         const char* text = payload ? payload : expr->valueNode.value;
         unsigned len = LLVMGetArrayLength(targetType);
         LLVMTypeRef elem = LLVMGetElementType(targetType);
-        if (!elem || LLVMGetTypeKind(elem) != LLVMIntegerTypeKind || LLVMGetIntTypeWidth(elem) != 8) {
+        if (!elem || LLVMGetTypeKind(elem) != LLVMIntegerTypeKind) {
+            return NULL;
+        }
+        unsigned elemBits = LLVMGetIntTypeWidth(elem);
+        if (enc == LIT_ENC_WIDE && elemBits > 8) {
+            uint32_t* codepoints = NULL;
+            size_t count = 0;
+            decode_c_string_literal_wide(text ? text : "", (int)elemBits, &codepoints, &count);
+            LLVMValueRef* chars = (LLVMValueRef*)calloc(len, sizeof(LLVMValueRef));
+            if (!chars) {
+                free(codepoints);
+                return NULL;
+            }
+            for (unsigned i = 0; i < len; ++i) {
+                uint32_t c = 0;
+                if (i < count) {
+                    c = codepoints[i];
+                } else if (i == count) {
+                    c = 0;
+                }
+                chars[i] = LLVMConstInt(elem, c, 0);
+            }
+            LLVMValueRef arr = LLVMConstArray(elem, chars, len);
+            free(chars);
+            free(codepoints);
+            return arr;
+        }
+
+        if (elemBits != 8) {
             return NULL;
         }
         LLVMValueRef* chars = (LLVMValueRef*)calloc(len, sizeof(LLVMValueRef));
@@ -357,8 +441,11 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
 
     if (targetKind == LLVMPointerTypeKind && expr->type == AST_STRING_LITERAL) {
         const char* payload = NULL;
-        ast_literal_encoding(expr->valueNode.value, &payload);
+        LiteralEncoding enc = ast_literal_encoding(expr->valueNode.value, &payload);
         const char* text = payload ? payload : expr->valueNode.value;
+        if (enc == LIT_ENC_WIDE) {
+            return cg_make_const_wstring_global(ctx, text, targetType);
+        }
         return cg_make_const_string_global(ctx, text ? text : "", targetType);
     }
 
@@ -814,12 +901,17 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
         const char* name = varNameNode->valueNode.value;
         if (!name) continue;
         const ParsedType* parsedType = astVarDeclTypeAt(node, i);
-        LLVMTypeRef varType = cg_type_from_parsed(ctx, parsedType);
+        const ParsedType* effectiveParsed = parsedType ? parsedType : &node->varDecl.declaredType;
+        const ParsedType* resolvedParsed = cg_resolve_typedef_parsed(ctx, effectiveParsed);
+        const ParsedType* arrayParsed = (resolvedParsed && parsedTypeIsDirectArray(resolvedParsed))
+            ? resolvedParsed
+            : effectiveParsed;
+        LLVMTypeRef varType = cg_type_from_parsed(ctx, effectiveParsed);
         if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
             varType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
 
-        bool isArray = parsedType ? parsedTypeIsDirectArray(parsedType) : false;
+        bool isArray = arrayParsed ? parsedTypeIsDirectArray(arrayParsed) : false;
         LLVMValueRef existing = LLVMGetNamedGlobal(ctx->module, name);
         if (existing) {
             LLVMTypeRef existingType = cg_dereference_ptr_type(ctx, LLVMTypeOf(existing), "global variable");
@@ -828,7 +920,7 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
             }
             LLVMTypeRef elementLLVM = NULL;
             if (isArray) {
-                ParsedType element = parsedTypeArrayElementType(parsedType ? parsedType : &node->varDecl.declaredType);
+                ParsedType element = parsedTypeArrayElementType(arrayParsed);
                 elementLLVM = cg_type_from_parsed(ctx, &element);
                 parsedTypeFree(&element);
                 if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
@@ -870,7 +962,7 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
         LLVMSetInitializer(global, LLVMConstNull(varType));
         LLVMTypeRef elementLLVM = NULL;
         if (isArray) {
-            ParsedType element = parsedTypeArrayElementType(parsedType ? parsedType : &node->varDecl.declaredType);
+            ParsedType element = parsedTypeArrayElementType(arrayParsed);
             elementLLVM = cg_type_from_parsed(ctx, &element);
             parsedTypeFree(&element);
             if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {

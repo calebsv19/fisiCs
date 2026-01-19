@@ -23,9 +23,16 @@ PROGRAM
         TYPE: int
         IDENTIFIER v
     BLOCK
-      LABEL: v
-        RETURN
-          NUMBER_LITERAL 1
+      SWITCH
+        IDENTIFIER v
+        CASE
+          IDENTIFIER v
+          RETURN
+            NUMBER_LITERAL 1
+        CASE
+          DEFAULT
+          RETURN
+            NUMBER_LITERAL 0
 
 
 Diagnostics:
@@ -33,4 +40,5 @@ Error at (2:0): Initializer for static variable 'static_bad' is not a constant e
 Error at (6:5): Enumerator value is not a constant expression
    Hint: BAD
    Spelling: tests/syntax/semantic_constexpr_errors.c:6:5
+Error at (12:0): Case label is not an integer constant expression
 

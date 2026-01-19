@@ -24,7 +24,7 @@ PROGRAM
             = NUMBER_LITERAL 2
 
       VAR_DECL
-        TYPE: bool
+        TYPE: _Bool
         IDENTIFIER flag
           = NUMBER_LITERAL 1
       VAR_DECL

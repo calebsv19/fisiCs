@@ -1,6 +1,7 @@
 #include "codegen_private.h"
 
 #include "codegen_types.h"
+#include "Compiler/compiler_context.h"
 #include "Syntax/layout.h"
 
 #include <llvm-c/Core.h>
@@ -69,6 +70,58 @@ static const ParsedType* cg_builtin_unsigned_int_type(void) {
     return &type;
 }
 
+static bool cg_literal_looks_float(const char* text) {
+    if (!text) return false;
+    bool isHex = text[0] == '0' && (text[1] == 'x' || text[1] == 'X');
+    for (const char* p = text; *p; ++p) {
+        if (*p == '.') {
+            return true;
+        }
+        if (!isHex && (*p == 'e' || *p == 'E')) {
+            return true;
+        }
+        if (isHex && (*p == 'p' || *p == 'P')) {
+            return true;
+        }
+    }
+    size_t len = strlen(text);
+    if (len > 0) {
+        char last = text[len - 1];
+        if (last == 'f' || last == 'F' || last == 'l' || last == 'L' ||
+            last == 'i' || last == 'I' || last == 'j' || last == 'J') {
+            return true;
+        }
+    }
+    return false;
+}
+
+static ParsedType cg_make_float_literal_type(const char* text) {
+    ParsedType t;
+    memset(&t, 0, sizeof(t));
+    t.kind = TYPE_PRIMITIVE;
+    t.primitiveType = TOKEN_DOUBLE;
+    size_t len = text ? strlen(text) : 0;
+    bool hasImag = len > 0 &&
+                   (text[len - 1] == 'i' || text[len - 1] == 'I' ||
+                    text[len - 1] == 'j' || text[len - 1] == 'J');
+    size_t coreLen = hasImag && len > 0 ? len - 1 : len;
+    bool isFloat = coreLen > 0 &&
+                   (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F');
+    bool isLong = coreLen > 0 &&
+                  (text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L');
+    if (isFloat) {
+        t.primitiveType = TOKEN_FLOAT;
+    } else {
+        t.primitiveType = TOKEN_DOUBLE;
+        if (isLong) {
+            t.isLong = true;
+        }
+    }
+    t.isComplex = hasImag;
+    t.isImaginary = hasImag;
+    return t;
+}
+
 static bool cg_binary_op_is_comparison(const char* op) {
     return op &&
            (strcmp(op, "==") == 0 ||
@@ -83,6 +136,62 @@ static bool cg_parsed_type_is_pointer(const ParsedType* type) {
     if (!type) return false;
     if (type->isFunctionPointer) return true;
     return type->pointerDepth > 0;
+}
+
+static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const ParsedType* type) {
+    if (!ctx || !type || type->kind != TYPE_NAMED || !type->userTypeName) {
+        return type;
+    }
+    CGTypeCache* cache = cg_context_get_type_cache(ctx);
+    if (!cache) return type;
+    CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, type->userTypeName);
+    if (info) {
+        return &info->parsedType;
+    }
+    return type;
+}
+
+static bool cg_parsed_type_is_complex(const ParsedType* type) {
+    return type && (type->isComplex || type->isImaginary);
+}
+
+static LLVMTypeRef cg_complex_element_type(CodegenContext* ctx, const ParsedType* type) {
+    LLVMContextRef llvmCtx = cg_context_get_llvm_context(ctx);
+    if (!type) {
+        return LLVMDoubleTypeInContext(llvmCtx);
+    }
+    switch (type->primitiveType) {
+        case TOKEN_FLOAT:
+            return LLVMFloatTypeInContext(llvmCtx);
+        case TOKEN_DOUBLE:
+        default:
+            if (type->isLong) {
+                const TargetLayout* tl = cg_context_get_target_layout(ctx);
+                if (tl && tl->longDoubleBits == 128) {
+                    return LLVMFP128TypeInContext(llvmCtx);
+                }
+                if (tl && tl->longDoubleBits == 64) {
+                    return LLVMDoubleTypeInContext(llvmCtx);
+                }
+                LLVMTypeRef fp80 = LLVMX86FP80TypeInContext(llvmCtx);
+                if (fp80) {
+                    return fp80;
+                }
+            }
+            return LLVMDoubleTypeInContext(llvmCtx);
+    }
+}
+
+static LLVMValueRef cg_build_complex(CodegenContext* ctx,
+                                     LLVMValueRef real,
+                                     LLVMValueRef imag,
+                                     LLVMTypeRef complexType,
+                                     const char* nameHint) {
+    if (!ctx || !complexType) return NULL;
+    LLVMValueRef tmp = LLVMGetUndef(complexType);
+    tmp = LLVMBuildInsertValue(ctx->builder, tmp, real, 0, nameHint ? nameHint : "complex.r");
+    tmp = LLVMBuildInsertValue(ctx->builder, tmp, imag, 1, nameHint ? nameHint : "complex.i");
+    return tmp;
 }
 
 static CGValueCategory cg_classify_parsed_type(const ParsedType* type) {
@@ -214,6 +323,29 @@ LLVMTypeRef cg_merge_types_for_phi(CodegenContext* ctx,
     if (!a && !b) return NULL;
     if (!a) return LLVMTypeOf(bVal);
     if (!b) return LLVMTypeOf(aVal);
+    if (aVal && bVal) {
+        LLVMTypeRef aTy = LLVMTypeOf(aVal);
+        LLVMTypeRef bTy = LLVMTypeOf(bVal);
+        LLVMTypeKind aKind = aTy ? LLVMGetTypeKind(aTy) : LLVMVoidTypeKind;
+        LLVMTypeKind bKind = bTy ? LLVMGetTypeKind(bTy) : LLVMVoidTypeKind;
+        bool aFloat = cg_kind_is_float(aKind);
+        bool bFloat = cg_kind_is_float(bKind);
+        if (aFloat || bFloat) {
+            unsigned aRank = cg_float_rank(aKind);
+            unsigned bRank = cg_float_rank(bKind);
+            if (aRank >= bRank) {
+                return aTy ? aTy : bTy;
+            }
+            return bTy ? bTy : aTy;
+        }
+        if (aTy && bTy &&
+            aKind == LLVMIntegerTypeKind &&
+            bKind == LLVMIntegerTypeKind) {
+            unsigned aBits = LLVMGetIntTypeWidth(aTy);
+            unsigned bBits = LLVMGetIntTypeWidth(bTy);
+            return (aBits >= bBits) ? aTy : bTy;
+        }
+    }
     CGValueCategory aCat = cg_classify_parsed_type(a);
     CGValueCategory bCat = cg_classify_parsed_type(b);
     if (cg_is_unsigned_category(aCat) && !cg_is_unsigned_category(bCat)) {
@@ -451,10 +583,25 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
 
     /* Determine element size without relying on pointer element types (opaque-pointer safe). */
     uint64_t elemBytes = 0;
+    ParsedType elemParsed = {0};
+    bool haveElemParsed = false;
     LLVMTypeRef elemHint = cg_element_type_hint_from_parsed(ctx, lhsParsed);
     if (lhsParsed) {
+        if (parsedTypeIsDirectArray(lhsParsed)) {
+            elemParsed = parsedTypeArrayElementType(lhsParsed);
+            haveElemParsed = true;
+        } else {
+            elemParsed = parsedTypePointerTargetType(lhsParsed);
+            haveElemParsed = elemParsed.kind != TYPE_INVALID;
+            if (!haveElemParsed) {
+                parsedTypeFree(&elemParsed);
+            }
+        }
+    }
+    if (haveElemParsed) {
         uint32_t al = 0;
-        cg_size_align_for_type(ctx, lhsParsed, elemHint, &elemBytes, &al);
+        cg_size_align_for_type(ctx, &elemParsed, elemHint, &elemBytes, &al);
+        parsedTypeFree(&elemParsed);
     }
     if (elemBytes == 0 && elemHint) {
         LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
@@ -513,6 +660,16 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             return NULL;
         }
         case AST_NUMBER_LITERAL:
+            if (cg_literal_looks_float(node->valueNode.value)) {
+                static ParsedType litTypes[4];
+                static int litIndex = 0;
+                ParsedType* slot = &litTypes[litIndex];
+                litIndex = (litIndex + 1) % 4;
+                parsedTypeFree(slot);
+                *slot = cg_make_float_literal_type(node->valueNode.value);
+                return slot;
+            }
+            return cg_builtin_signed_int_type();
         case AST_CHAR_LITERAL:
             return cg_builtin_signed_int_type();
         case AST_SIZEOF:
@@ -566,9 +723,11 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             }
             if (strcmp(op, "*") == 0) {
                 const ParsedType* operand = cg_resolve_expression_type(ctx, node->expr.left);
+                ParsedType operandCopy = parsedTypeClone(operand);
                 static ParsedType pointed;
                 parsedTypeFree(&pointed);
-                pointed = parsedTypePointerTargetType(operand);
+                pointed = parsedTypePointerTargetType(&operandCopy);
+                parsedTypeFree(&operandCopy);
                 if (pointed.kind != TYPE_INVALID) {
                     return &pointed;
                 }
@@ -589,9 +748,62 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             return cg_resolve_expression_type(ctx, node->expr.left);
         }
         case AST_POINTER_ACCESS:
-        case AST_POINTER_DEREFERENCE:
         case AST_DOT_ACCESS:
-        case AST_STRUCT_FIELD_ACCESS:
+        case AST_STRUCT_FIELD_ACCESS: {
+            const ParsedType* base = cg_resolve_expression_type(ctx, node->memberAccess.base);
+            if (!base) return NULL;
+            ParsedType baseCopy = parsedTypeClone(base);
+            if (node->type == AST_POINTER_ACCESS) {
+                ParsedType target = parsedTypePointerTargetType(&baseCopy);
+                parsedTypeFree(&baseCopy);
+                baseCopy = target;
+            }
+            const ParsedType* structParsed = &baseCopy;
+            if (baseCopy.kind == TYPE_NAMED) {
+                structParsed = cg_resolve_typedef_parsed(ctx, &baseCopy);
+            }
+            if (structParsed &&
+                (structParsed->kind == TYPE_STRUCT || structParsed->kind == TYPE_UNION) &&
+                structParsed->userTypeName) {
+                CGTypeCache* cache = cg_context_get_type_cache(ctx);
+                CGStructLLVMInfo* info = cache
+                    ? cg_type_cache_get_struct_info(cache, structParsed->userTypeName)
+                    : NULL;
+                if (info && node->memberAccess.field) {
+                    for (size_t i = 0; i < info->fieldCount; ++i) {
+                        if (info->fields[i].name &&
+                            strcmp(info->fields[i].name, node->memberAccess.field) == 0) {
+                            parsedTypeFree(&baseCopy);
+                            return &info->fields[i].parsedType;
+                        }
+                    }
+                }
+                if (ctx && ctx->semanticModel && node->memberAccess.field) {
+                    CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+                    CCTagKind tagKind = (structParsed->kind == TYPE_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+                    ASTNode* def = cctx ? cc_tag_definition(cctx, tagKind, structParsed->userTypeName) : NULL;
+                    if (def && (def->type == AST_STRUCT_DEFINITION || def->type == AST_UNION_DEFINITION)) {
+                        for (size_t f = 0; f < def->structDef.fieldCount; ++f) {
+                            ASTNode* fieldDecl = def->structDef.fields ? def->structDef.fields[f] : NULL;
+                            if (!fieldDecl || fieldDecl->type != AST_VARIABLE_DECLARATION) continue;
+                            for (size_t v = 0; v < fieldDecl->varDecl.varCount; ++v) {
+                                ASTNode* nameNode = fieldDecl->varDecl.varNames[v];
+                                const char* fieldName = (nameNode && nameNode->type == AST_IDENTIFIER)
+                                    ? nameNode->valueNode.value
+                                    : NULL;
+                                if (fieldName && strcmp(fieldName, node->memberAccess.field) == 0) {
+                                    parsedTypeFree(&baseCopy);
+                                    return astVarDeclTypeAt(fieldDecl, v);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            parsedTypeFree(&baseCopy);
+            return base;
+        }
+        case AST_POINTER_DEREFERENCE:
             return cg_resolve_expression_type(ctx, node->memberAccess.base);
         case AST_FUNCTION_CALL: {
             ASTNode* callee = node->functionCall.callee;
@@ -732,6 +944,40 @@ LLVMValueRef cg_cast_value(CodegenContext* ctx,
 
     bool srcUnsigned = cg_should_treat_as_unsigned(fromParsed, sourceType);
     bool dstUnsigned = cg_should_treat_as_unsigned(toParsed, targetType);
+
+    if (cg_parsed_type_is_complex(toParsed)) {
+        LLVMTypeRef elemTy = cg_complex_element_type(ctx, toParsed);
+        LLVMValueRef realVal = NULL;
+        LLVMValueRef imagVal = NULL;
+        if (cg_parsed_type_is_complex(fromParsed) && srcKind == LLVMStructTypeKind) {
+            LLVMValueRef realPart = LLVMBuildExtractValue(ctx->builder, value, 0, "complex.real");
+            LLVMValueRef imagPart = LLVMBuildExtractValue(ctx->builder, value, 1, "complex.imag");
+            realVal = cg_cast_value(ctx, realPart, elemTy, fromParsed, NULL, "complex.r.cast");
+            imagVal = cg_cast_value(ctx, imagPart, elemTy, fromParsed, NULL, "complex.i.cast");
+        } else {
+            LLVMValueRef casted = value;
+            if (LLVMGetTypeKind(LLVMTypeOf(value)) != LLVMGetTypeKind(elemTy) ||
+                LLVMTypeOf(value) != elemTy) {
+                casted = cg_cast_value(ctx, value, elemTy, fromParsed, NULL, "complex.cast");
+            }
+            if (fromParsed && fromParsed->isImaginary) {
+                realVal = LLVMConstNull(elemTy);
+                imagVal = casted;
+            } else {
+                realVal = casted;
+                imagVal = LLVMConstNull(elemTy);
+            }
+        }
+        return cg_build_complex(ctx, realVal, imagVal, targetType, "complex.pack");
+    }
+
+    if (cg_parsed_type_is_complex(fromParsed) && srcKind == LLVMStructTypeKind) {
+        LLVMValueRef realPart = LLVMBuildExtractValue(ctx->builder, value, 0, "complex.real");
+        if (fromParsed && fromParsed->isImaginary) {
+            realPart = LLVMBuildExtractValue(ctx->builder, value, 1, "complex.imag");
+        }
+        return cg_cast_value(ctx, realPart, targetType, NULL, toParsed, "complex.to.scalar");
+    }
 
     if (srcKind == LLVMIntegerTypeKind && dstKind == LLVMIntegerTypeKind) {
         unsigned srcBits = LLVMGetIntTypeWidth(sourceType);

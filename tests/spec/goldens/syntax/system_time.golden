@@ -442,16 +442,16 @@ PROGRAM
     IDENTIFIER strftime
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: size_t
         IDENTIFIER __maxsize
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: const struct tm*
+        TYPE: const struct tm* restrict
         IDENTIFIER __unnamed_param2
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION
@@ -459,13 +459,13 @@ PROGRAM
     IDENTIFIER strptime
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* restrict
         IDENTIFIER __unnamed_param2
   FUNCTION DECLARATION
     RETURN TYPE: time_t
@@ -486,10 +486,10 @@ PROGRAM
     IDENTIFIER asctime_r
     PARAMETERS:
       VAR_DECL
-        TYPE: const struct tm*
+        TYPE: const struct tm* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: char*
@@ -506,20 +506,20 @@ PROGRAM
     IDENTIFIER gmtime_r
     PARAMETERS:
       VAR_DECL
-        TYPE: const time_t*
+        TYPE: const time_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: struct tm*
     IDENTIFIER localtime_r
     PARAMETERS:
       VAR_DECL
-        TYPE: const time_t*
+        TYPE: const time_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: time_t
@@ -547,14 +547,14 @@ PROGRAM
     IDENTIFIER timelocal
     PARAMETERS:
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* const
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
     RETURN TYPE: time_t
     IDENTIFIER timegm
     PARAMETERS:
       VAR_DECL
-        TYPE: struct tm*
+        TYPE: struct tm* const
         IDENTIFIER __unnamed_param0
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION

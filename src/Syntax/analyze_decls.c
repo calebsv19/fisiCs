@@ -303,6 +303,30 @@ static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramC
     sym->signature.paramCount = idx;
 }
 
+static bool functionSignaturesCompatible(const FunctionSignature* lhs, const FunctionSignature* rhs) {
+    if (!lhs || !rhs) return true;
+    if ((lhs->paramCount == 0 && !lhs->params && lhs->isVariadic) ||
+        (rhs->paramCount == 0 && !rhs->params && rhs->isVariadic)) {
+        return true;
+    }
+    if ((lhs->paramCount > 0 && !lhs->params) ||
+        (rhs->paramCount > 0 && !rhs->params)) {
+        return true;
+    }
+    if ((lhs->paramCount == 0 && !lhs->isVariadic) ||
+        (rhs->paramCount == 0 && !rhs->isVariadic)) {
+        return true;
+    }
+    if (lhs->paramCount != rhs->paramCount) return false;
+    if (lhs->isVariadic != rhs->isVariadic) return false;
+    for (size_t i = 0; i < lhs->paramCount; ++i) {
+        if (!parsedTypesStructurallyEqual(&lhs->params[i], &rhs->params[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static const char* safeIdentifierName(ASTNode* node) {
     if (node && node->type == AST_IDENTIFIER && node->valueNode.value) {
         return node->valueNode.value;
@@ -319,6 +343,38 @@ static bool tryEvaluateArrayLength(ASTNode* sizeExpr, Scope* scope, size_t* outL
     }
     *outLen = (size_t)value;
     return true;
+}
+
+static const ParsedType* resolveTypedefInScope(const ParsedType* type, Scope* scope) {
+    if (!type || !scope || type->kind != TYPE_NAMED || !type->userTypeName) {
+        return type;
+    }
+    for (Scope* current = scope; current; current = current->parent) {
+        Symbol* sym = lookupSymbol(&current->table, type->userTypeName);
+        if (sym && sym->kind == SYMBOL_TYPEDEF) {
+            return &sym->type;
+        }
+    }
+    return type;
+}
+
+static void evaluateArrayDerivations(ParsedType* type, Scope* scope) {
+    if (!type || !parsedTypeIsDirectArray(type)) return;
+    for (size_t d = 0; d < type->derivationCount; ++d) {
+        TypeDerivation* deriv = parsedTypeGetMutableArrayDerivation(type, d);
+        if (!deriv) break;
+        if (deriv->as.array.sizeExpr) {
+            size_t len = 0;
+            if (tryEvaluateArrayLength(deriv->as.array.sizeExpr, scope, &len)) {
+                deriv->as.array.hasConstantSize = true;
+                deriv->as.array.constantSize = (long long)len;
+                deriv->as.array.isVLA = false;
+            } else {
+                deriv->as.array.isVLA = true;
+                type->isVLA = true;
+            }
+        }
+    }
 }
 
 static bool scopeIsFileScope(Scope* scope) {
@@ -491,7 +547,16 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                   linkage == LINKAGE_EXTERNAL &&
                                   storage != STORAGE_EXTERN &&
                                   !hasInitializer;
-                bool newDefinition = !tentative || hasInitializer || storage == STORAGE_STATIC || !fileScope;
+                bool newDefinition = false;
+                if (storage == STORAGE_EXTERN) {
+                    newDefinition = hasInitializer;
+                } else if (!fileScope) {
+                    newDefinition = true;
+                } else if (storage == STORAGE_STATIC) {
+                    newDefinition = true;
+                } else {
+                    newDefinition = !tentative || hasInitializer;
+                }
 
                 if ((varInfo.category == TYPEINFO_STRUCT || varInfo.category == TYPEINFO_UNION) && !varInfo.isComplete) {
                     addErrorWithRanges(ident ? ident->location : node->location,
@@ -586,23 +651,16 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
 
                 bool staticStorage = scopeIsFileScope(scope) ||
                                      (varType && (varType->isStatic || varType->isExtern));
-                bool isArrayVar = varType && parsedTypeIsDirectArray(varType);
+                if (varType && parsedTypeIsDirectArray(varType)) {
+                    evaluateArrayDerivations(varType, scope);
+                }
+                const ParsedType* resolvedVar = resolveTypedefInScope(varType, scope);
+                const ParsedType* arrayType = (resolvedVar && parsedTypeIsDirectArray(resolvedVar))
+                    ? resolvedVar
+                    : varType;
+                bool isArrayVar = arrayType && parsedTypeIsDirectArray(arrayType);
                 if (isArrayVar) {
-                    for (size_t d = 0; d < varType->derivationCount; ++d) {
-                        TypeDerivation* deriv = parsedTypeGetMutableArrayDerivation(varType, d);
-                        if (!deriv) break;
-                        if (deriv->as.array.sizeExpr) {
-                            size_t len = 0;
-                            if (tryEvaluateArrayLength(deriv->as.array.sizeExpr, scope, &len)) {
-                                deriv->as.array.hasConstantSize = true;
-                                deriv->as.array.constantSize = (long long)len;
-                                deriv->as.array.isVLA = false;
-                            } else {
-                                deriv->as.array.isVLA = true;
-                            }
-                        }
-                    }
-                    if (parsedTypeHasVLA(varType) && staticStorage) {
+                    if (parsedTypeHasVLA(arrayType) && staticStorage) {
                         char buffer[256];
                         snprintf(buffer,
                                  sizeof(buffer),
@@ -615,8 +673,8 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 if (i < node->varDecl.varCount && node->varDecl.initializers) {
                     DesignatedInit* init = node->varDecl.initializers[i];
                     analyzeDesignatedInitializer(init, scope);
-                    if (parsedTypeIsDirectArray(varType)) {
-                        validateVariableArrayInitializer(varType, init, ident, scope);
+                    if (isArrayVar) {
+                        validateVariableArrayInitializer((ParsedType*)arrayType, init, ident, scope);
                     } else {
                         validateVariableInitializer(varType, init, ident, scope, staticStorage);
                     }
@@ -678,6 +736,32 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                        "Conflicting types for function",
                                        funcName ? funcName->valueNode.value : NULL);
                     break;
+                }
+
+                {
+                    Symbol tmp = {0};
+                    resetFunctionSignature(&tmp);
+                    if (node->type == AST_FUNCTION_DEFINITION) {
+                        assignFunctionSignature(&tmp,
+                                                node->functionDef.parameters,
+                                                node->functionDef.paramCount,
+                                                node->functionDef.isVariadic);
+                    } else {
+                        assignFunctionSignature(&tmp,
+                                                node->functionDecl.parameters,
+                                                node->functionDecl.paramCount,
+                                                node->functionDecl.isVariadic);
+                    }
+                    if (!functionSignaturesCompatible(&existing->signature, &tmp.signature)) {
+                        addErrorWithRanges(funcName ? funcName->location : node->location,
+                                           funcName ? funcName->macroCallSite : node->macroCallSite,
+                                           funcName ? funcName->macroDefinition : node->macroDefinition,
+                                           "Conflicting types for function",
+                                           funcName ? funcName->valueNode.value : NULL);
+                        free(tmp.signature.params);
+                        break;
+                    }
+                    free(tmp.signature.params);
                 }
 
                 if (existing->hasDefinition && isDefinition) {
@@ -743,6 +827,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
         case AST_TYPEDEF: {
             analyzeInlineAggregateDefinition(&node->typedefStmt.baseType, scope);
             const char* aliasName = node->typedefStmt.alias->valueNode.value;
+            evaluateArrayDerivations(&node->typedefStmt.baseType, scope);
             Symbol* existing = lookupSymbol(&scope->table, aliasName);
             if (existing && existing->kind == SYMBOL_TYPEDEF) {
                 if (parsedTypesStructurallyEqual(&existing->type, &node->typedefStmt.baseType)) {

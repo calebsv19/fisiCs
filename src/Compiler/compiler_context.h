@@ -79,6 +79,19 @@ typedef struct {
     FisicsTokenKind kind;
 } FisicsTokenSpan;
 
+typedef enum {
+    FISICS_SYMBOL_UNKNOWN = 0,
+    FISICS_SYMBOL_FUNCTION,
+    FISICS_SYMBOL_STRUCT,
+    FISICS_SYMBOL_UNION,
+    FISICS_SYMBOL_ENUM,
+    FISICS_SYMBOL_TYPEDEF,
+    FISICS_SYMBOL_VARIABLE,
+    FISICS_SYMBOL_FIELD,
+    FISICS_SYMBOL_ENUM_MEMBER,
+    FISICS_SYMBOL_MACRO
+} FisicsSymbolKind;
+
 typedef struct {
     const char* name;
     const char* file_path;
@@ -86,6 +99,15 @@ typedef struct {
     int start_col;
     int end_line;
     int end_col;
+    FisicsSymbolKind kind;
+    const char* parent_name;
+    FisicsSymbolKind parent_kind;
+    bool is_definition;
+    bool is_variadic;
+    const char* return_type;
+    const char** param_types;
+    const char** param_names;
+    size_t param_count;
 } FisicsSymbol;
 
 typedef struct {

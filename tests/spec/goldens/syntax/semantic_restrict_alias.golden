@@ -5,10 +5,10 @@ PROGRAM
     IDENTIFIER sum
     PARAMETERS
       VAR_DECL
-        TYPE: int*
+        TYPE: int* restrict
         IDENTIFIER a
       VAR_DECL
-        TYPE: int*
+        TYPE: int* restrict
         IDENTIFIER b
     BLOCK
       RETURN

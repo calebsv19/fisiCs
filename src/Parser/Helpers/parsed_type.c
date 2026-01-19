@@ -18,7 +18,7 @@ const char* getTokenTypeName(TokenType type) {
         case TOKEN_FLOAT: return "float";
         case TOKEN_DOUBLE: return "double";
         case TOKEN_CHAR: return "char";
-        case TOKEN_BOOL: return "bool";
+        case TOKEN_BOOL: return "_Bool";
         case TOKEN_VOID: return "void";
         case TOKEN_SHORT: return "short";
         case TOKEN_LONG: return "long";
@@ -295,6 +295,9 @@ ParsedType parsedTypePointerTargetType(const ParsedType* t) {
                     (copy.derivationCount - i - 1) * sizeof(TypeDerivation));
         }
         copy.derivationCount--;
+        if (copy.pointerDepth > 0) {
+            copy.pointerDepth -= 1;
+        }
         removed = true;
         break;
     }
@@ -464,12 +467,27 @@ static bool tagIsKnown(Parser* parser, TagKind tag, const char* name) {
     }
 }
 
-static void consumePointerQualifiers(Parser* parser) {
+typedef struct PointerQuals {
+    bool isConst;
+    bool isVolatile;
+    bool isRestrict;
+} PointerQuals;
+
+static PointerQuals consumePointerQualifiers(Parser* parser) {
+    PointerQuals quals = {0};
     while (parser->currentToken.type == TOKEN_CONST ||
            parser->currentToken.type == TOKEN_VOLATILE ||
            parser->currentToken.type == TOKEN_RESTRICT) {
+        if (parser->currentToken.type == TOKEN_CONST) {
+            quals.isConst = true;
+        } else if (parser->currentToken.type == TOKEN_VOLATILE) {
+            quals.isVolatile = true;
+        } else if (parser->currentToken.type == TOKEN_RESTRICT) {
+            quals.isRestrict = true;
+        }
         advance(parser);
     }
+    return quals;
 }
 
 static void consumeTypeAttributes(Parser* parser, ParsedType* type) {
@@ -890,9 +908,17 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
     // Pointer qualifiers (only consumed eagerly outside declaration contexts)
     if (ctx != TYPECTX_Declaration) {
         while (parser->currentToken.type == TOKEN_ASTERISK) {
-            type.pointerDepth += 1;
             advance(parser);
-            consumePointerQualifiers(parser);
+            PointerQuals quals = consumePointerQualifiers(parser);
+            if (!parsedTypeAppendPointer(&type)) {
+                return parsedTypeDefault();
+            }
+            if (type.derivationCount > 0) {
+                TypeDerivation* slot = &type.derivations[type.derivationCount - 1];
+                slot->as.pointer.isConst = quals.isConst;
+                slot->as.pointer.isVolatile = quals.isVolatile;
+                slot->as.pointer.isRestrict = quals.isRestrict;
+            }
         }
     }
 

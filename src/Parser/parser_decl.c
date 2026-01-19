@@ -312,9 +312,18 @@ static bool parseDeclaratorInternal(Parser* parser,
     ASTAttribute** leadingAttrs = parserParseAttributeSpecifiers(parser, &leadingAttrCount);
     parsedTypeAdoptAttributes(type, leadingAttrs, leadingAttrCount);
 
-    PointerChain chain = parsePointerChain(parser);
-    applyPointerChainToType(type, &chain);
-    pointerChainFree(&chain);
+    PointerChain chain = {0};
+    PointerChain leading = parsePointerChain(parser);
+    if (leading.count > 0) {
+        PointerDeclaratorLayer* grown =
+            realloc(chain.layers, (chain.count + leading.count) * sizeof(PointerDeclaratorLayer));
+        if (grown) {
+            chain.layers = grown;
+            memcpy(chain.layers + chain.count, leading.layers, leading.count * sizeof(PointerDeclaratorLayer));
+            chain.count += leading.count;
+        }
+    }
+    pointerChainFree(&leading);
 
     for (;;) {
         size_t midAttrCount = 0;
@@ -325,7 +334,15 @@ static bool parseDeclaratorInternal(Parser* parser,
             break;
         }
         PointerChain extra = parsePointerChain(parser);
-        applyPointerChainToType(type, &extra);
+        if (extra.count > 0) {
+            PointerDeclaratorLayer* grown =
+                realloc(chain.layers, (chain.count + extra.count) * sizeof(PointerDeclaratorLayer));
+            if (grown) {
+                chain.layers = grown;
+                memcpy(chain.layers + chain.count, extra.layers, extra.count * sizeof(PointerDeclaratorLayer));
+                chain.count += extra.count;
+            }
+        }
         pointerChainFree(&extra);
     }
 
@@ -385,6 +402,9 @@ static bool parseDeclaratorInternal(Parser* parser,
     size_t suffixAttrCount = 0;
     ASTAttribute** suffixAttrs = parserParseAttributeSpecifiers(parser, &suffixAttrCount);
     parsedTypeAdoptAttributes(type, suffixAttrs, suffixAttrCount);
+
+    applyPointerChainToType(type, &chain);
+    pointerChainFree(&chain);
 
     if (requireIdentifier && !decl->identifier) {
         printParseError("Expected identifier in declarator", parser);

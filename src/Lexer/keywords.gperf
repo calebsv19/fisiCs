@@ -22,9 +22,6 @@ long
 short
 signed
 unsigned
-bool
-true
-false
 enum
 union
 struct
@@ -53,8 +50,8 @@ inline
 sizeof
 _Alignof
 alignof
-asm
 _Bool
+asm
 _Complex
 _Imaginary
 pragma

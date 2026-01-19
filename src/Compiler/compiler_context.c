@@ -218,19 +218,6 @@ static const CCTagTable* pick_tag_table_const(const CompilerContext* ctx, CCTagK
     }
 }
 
-static bool cc_tag_exists_other_kind(const CompilerContext* ctx, CCTagKind kind, const char* name) {
-    if (!ctx || !name) return false;
-    CCTagKind kinds[] = { CC_TAG_STRUCT, CC_TAG_UNION, CC_TAG_ENUM };
-    for (size_t i = 0; i < sizeof(kinds)/sizeof(kinds[0]); ++i) {
-        if (kinds[i] == kind) continue;
-        const CCTagTable* table = pick_tag_table_const(ctx, kinds[i]);
-        if (table && cc_tag_lookup_const(table, name)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool cc_has_tag(const CompilerContext* ctx, CCTagKind kind, const char* name) {
     const CCTagTable* table = pick_tag_table_const(ctx, kind);
     return table ? (cc_tag_lookup_const(table, name) != NULL) : false;
@@ -242,9 +229,6 @@ static CCTagRecord* cc_tag_lookup_mut_named(CompilerContext* ctx, CCTagKind kind
 }
 
 bool cc_add_tag(CompilerContext* ctx, CCTagKind kind, const char* name) {
-    if (cc_tag_exists_other_kind(ctx, kind, name)) {
-        return false;
-    }
     CCTagTable* table = pick_tag_table(ctx, kind);
     return table ? cc_tag_table_add(table, name) : false;
 }
@@ -255,9 +239,6 @@ CCTagDefineResult cc_define_tag(CompilerContext* ctx,
                                 uint64_t fingerprint,
                                 struct ASTNode* definition) {
     if (!ctx || !name) return CC_TAGDEF_CONFLICT;
-    if (cc_tag_exists_other_kind(ctx, kind, name)) {
-        return CC_TAGDEF_CONFLICT;
-    }
     if (!cc_add_tag(ctx, kind, name)) {
         return CC_TAGDEF_CONFLICT;
     }
@@ -533,11 +514,63 @@ static void cc_symbols_free(CompilerSymbols* symbols) {
     for (size_t i = 0; i < symbols->count; ++i) {
         free((char*)symbols->items[i].name);
         free((char*)symbols->items[i].file_path);
+        free((char*)symbols->items[i].parent_name);
+        free((char*)symbols->items[i].return_type);
+        if (symbols->items[i].param_types) {
+            for (size_t p = 0; p < symbols->items[i].param_count; ++p) {
+                free((char*)symbols->items[i].param_types[p]);
+            }
+            free(symbols->items[i].param_types);
+        }
+        if (symbols->items[i].param_names) {
+            for (size_t p = 0; p < symbols->items[i].param_count; ++p) {
+                free((char*)symbols->items[i].param_names[p]);
+            }
+            free(symbols->items[i].param_names);
+        }
     }
     free(symbols->items);
     symbols->items = NULL;
     symbols->count = 0;
     symbols->capacity = 0;
+}
+
+static bool cc_symbol_clone(FisicsSymbol* dst, const FisicsSymbol* src) {
+    if (!dst || !src) return false;
+    *dst = *src;
+    dst->name = src->name ? cc_strdup(src->name) : NULL;
+    if (src->name && !dst->name) return false;
+    dst->file_path = src->file_path ? cc_strdup(src->file_path) : NULL;
+    if (src->file_path && !dst->file_path) return false;
+    dst->parent_name = src->parent_name ? cc_strdup(src->parent_name) : NULL;
+    if (src->parent_name && !dst->parent_name) return false;
+    dst->return_type = src->return_type ? cc_strdup(src->return_type) : NULL;
+    if (src->return_type && !dst->return_type) return false;
+
+    dst->param_types = NULL;
+    dst->param_count = src->param_count;
+    if (src->param_types && src->param_count > 0) {
+        dst->param_types = (const char**)calloc(src->param_count, sizeof(char*));
+        if (!dst->param_types) return false;
+        for (size_t i = 0; i < src->param_count; ++i) {
+            if (src->param_types[i]) {
+                ((char**)dst->param_types)[i] = cc_strdup(src->param_types[i]);
+                if (!dst->param_types[i]) return false;
+            }
+        }
+    }
+    dst->param_names = NULL;
+    if (src->param_names && src->param_count > 0) {
+        dst->param_names = (const char**)calloc(src->param_count, sizeof(char*));
+        if (!dst->param_names) return false;
+        for (size_t i = 0; i < src->param_count; ++i) {
+            if (src->param_names[i]) {
+                ((char**)dst->param_names)[i] = cc_strdup(src->param_names[i]);
+                if (!dst->param_names[i]) return false;
+            }
+        }
+    }
+    return true;
 }
 
 bool cc_set_symbols(CompilerContext* ctx, const FisicsSymbol* symbols, size_t count) {
@@ -549,20 +582,9 @@ bool cc_set_symbols(CompilerContext* ctx, const FisicsSymbol* symbols, size_t co
     FisicsSymbol* copy = (FisicsSymbol*)calloc(count, sizeof(FisicsSymbol));
     if (!copy) return false;
     for (size_t i = 0; i < count; ++i) {
-        copy[i] = symbols[i];
-        if (symbols[i].name) {
-            copy[i].name = cc_strdup(symbols[i].name);
-            if (!copy[i].name) {
-                cc_symbols_free(&(CompilerSymbols){ .items = copy, .count = i, .capacity = count });
-                return false;
-            }
-        }
-        if (symbols[i].file_path) {
-            copy[i].file_path = cc_strdup(symbols[i].file_path);
-            if (!copy[i].file_path) {
-                cc_symbols_free(&(CompilerSymbols){ .items = copy, .count = i + 1, .capacity = count });
-                return false;
-            }
+        if (!cc_symbol_clone(&copy[i], &symbols[i])) {
+            cc_symbols_free(&(CompilerSymbols){ .items = copy, .count = i + 1, .capacity = count });
+            return false;
         }
     }
     ctx->symbols.items = copy;

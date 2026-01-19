@@ -61,9 +61,6 @@ PROGRAM
 
 
 Diagnostics:
-Error at (6:12): Redefinition of variable
-   Hint: ext1
-   Spelling: tests/syntax/semantic_storage.c:6:12
 Error at (15:12): Redefinition of variable
    Hint: s
    Spelling: tests/syntax/semantic_storage.c:15:12

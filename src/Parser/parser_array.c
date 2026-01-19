@@ -5,6 +5,14 @@
 
 
 DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* outCount) {
+    if (parser->currentToken.type == TOKEN_LBRACE) {
+        if (parser->nextToken.type == TOKEN_DOT) {
+            return parseStructInitializer(parser, type, outCount);
+        }
+        if (parser->nextToken.type == TOKEN_LBRACKET) {
+            return parseArrayInitializer(parser, type, outCount);
+        }
+    }
     if (type.kind == TYPE_STRUCT || type.kind == TYPE_UNION || type.kind == TYPE_NAMED) {
         // Struct initializer with known parent type
         return parseStructInitializer(parser, type, outCount);

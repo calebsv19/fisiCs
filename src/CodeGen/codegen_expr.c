@@ -9,6 +9,181 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+static bool cg_parsed_type_is_pointerish(const ParsedType* t) {
+    if (!t) return false;
+    if (t->isFunctionPointer) return true;
+    if (t->pointerDepth > 0) return true;
+    for (size_t i = 0; i < t->derivationCount; ++i) {
+        if (t->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool cg_parsed_type_is_complex_value(const ParsedType* t) {
+    return t && (t->isComplex || t->isImaginary);
+}
+
+static LLVMTypeRef cg_complex_element_type(CodegenContext* ctx, const ParsedType* type) {
+    if (!type) {
+        return LLVMDoubleTypeInContext(ctx->llvmContext);
+    }
+    switch (type->primitiveType) {
+        case TOKEN_FLOAT:
+            return LLVMFloatTypeInContext(ctx->llvmContext);
+        case TOKEN_DOUBLE:
+        default:
+            if (type->isLong) {
+                const TargetLayout* tl = cg_context_get_target_layout(ctx);
+                if (tl && tl->longDoubleBits == 128) {
+                    return LLVMFP128TypeInContext(ctx->llvmContext);
+                }
+                if (tl && tl->longDoubleBits == 64) {
+                    return LLVMDoubleTypeInContext(ctx->llvmContext);
+                }
+                LLVMTypeRef fp80 = LLVMX86FP80TypeInContext(ctx->llvmContext);
+                if (fp80) {
+                    return fp80;
+                }
+            }
+            return LLVMDoubleTypeInContext(ctx->llvmContext);
+    }
+}
+
+static LLVMValueRef cg_build_complex_value(CodegenContext* ctx,
+                                           LLVMValueRef real,
+                                           LLVMValueRef imag,
+                                           LLVMTypeRef complexType,
+                                           const char* nameHint) {
+    LLVMValueRef tmp = LLVMGetUndef(complexType);
+    tmp = LLVMBuildInsertValue(ctx->builder, tmp, real, 0, nameHint ? nameHint : "complex.r");
+    tmp = LLVMBuildInsertValue(ctx->builder, tmp, imag, 1, nameHint ? nameHint : "complex.i");
+    return tmp;
+}
+
+static LLVMValueRef cg_promote_to_complex(CodegenContext* ctx,
+                                          LLVMValueRef value,
+                                          const ParsedType* parsed,
+                                          LLVMTypeRef complexType,
+                                          LLVMTypeRef elemType) {
+    if (LLVMGetTypeKind(LLVMTypeOf(value)) == LLVMStructTypeKind) {
+        return value;
+    }
+    LLVMValueRef casted = value;
+    if (LLVMTypeOf(value) != elemType) {
+        casted = cg_cast_value(ctx, value, elemType, parsed, NULL, "complex.scalar.cast");
+    }
+    if (parsed && parsed->isImaginary) {
+        return cg_build_complex_value(ctx,
+                                      LLVMConstNull(elemType),
+                                      casted,
+                                      complexType,
+                                      "complex.imag");
+    }
+    return cg_build_complex_value(ctx,
+                                  casted,
+                                  LLVMConstNull(elemType),
+                                  complexType,
+                                  "complex.real");
+}
+
+static void cg_promote_integer_operands(CodegenContext* ctx,
+                                        LLVMValueRef* lhsValue,
+                                        LLVMValueRef* rhsValue,
+                                        LLVMTypeRef* lhsType,
+                                        LLVMTypeRef* rhsType,
+                                        bool lhsUnsigned,
+                                        bool rhsUnsigned) {
+    if (!ctx || !lhsValue || !rhsValue || !lhsType || !rhsType) return;
+    if (!*lhsType || !*rhsType) return;
+    if (LLVMGetTypeKind(*lhsType) != LLVMIntegerTypeKind ||
+        LLVMGetTypeKind(*rhsType) != LLVMIntegerTypeKind) {
+        return;
+    }
+
+    unsigned lhsBits = LLVMGetIntTypeWidth(*lhsType);
+    unsigned rhsBits = LLVMGetIntTypeWidth(*rhsType);
+    unsigned targetBits = lhsBits < 32 ? 32 : lhsBits;
+    if (rhsBits > targetBits) {
+        targetBits = rhsBits;
+    }
+    if (targetBits < 32) {
+        targetBits = 32;
+    }
+
+    if (lhsBits == targetBits && rhsBits == targetBits) {
+        return;
+    }
+
+    LLVMTypeRef targetType = LLVMIntTypeInContext(ctx->llvmContext, targetBits);
+    if (lhsBits != targetBits) {
+        *lhsValue = LLVMBuildIntCast2(ctx->builder, *lhsValue, targetType, lhsUnsigned, "int.promote.l");
+        *lhsType = targetType;
+    }
+    if (rhsBits != targetBits) {
+        *rhsValue = LLVMBuildIntCast2(ctx->builder, *rhsValue, targetType, rhsUnsigned, "int.promote.r");
+        *rhsType = targetType;
+    }
+}
+
+static bool cg_is_unsigned_parsed(const ParsedType* type, LLVMTypeRef llvmType) {
+    if (type) {
+        if (type->kind == TYPE_ENUM) {
+            return false;
+        }
+        if (type->kind == TYPE_PRIMITIVE) {
+            if (type->primitiveType == TOKEN_BOOL) {
+                return true;
+            }
+            return type->isUnsigned;
+        }
+        if (type->kind == TYPE_NAMED) {
+            return type->isUnsigned;
+        }
+    }
+    if (llvmType && LLVMGetTypeKind(llvmType) == LLVMIntegerTypeKind &&
+        LLVMGetIntTypeWidth(llvmType) == 1) {
+        return true;
+    }
+    return false;
+}
+
+static LLVMValueRef cg_build_complex_addsub(CodegenContext* ctx,
+                                            LLVMValueRef lhs,
+                                            LLVMValueRef rhs,
+                                            LLVMTypeRef complexType,
+                                            bool isSub) {
+    LLVMValueRef lhsReal = LLVMBuildExtractValue(ctx->builder, lhs, 0, "complex.lhs.r");
+    LLVMValueRef lhsImag = LLVMBuildExtractValue(ctx->builder, lhs, 1, "complex.lhs.i");
+    LLVMValueRef rhsReal = LLVMBuildExtractValue(ctx->builder, rhs, 0, "complex.rhs.r");
+    LLVMValueRef rhsImag = LLVMBuildExtractValue(ctx->builder, rhs, 1, "complex.rhs.i");
+    LLVMValueRef real = isSub
+        ? LLVMBuildFSub(ctx->builder, lhsReal, rhsReal, "complex.sub.r")
+        : LLVMBuildFAdd(ctx->builder, lhsReal, rhsReal, "complex.add.r");
+    LLVMValueRef imag = isSub
+        ? LLVMBuildFSub(ctx->builder, lhsImag, rhsImag, "complex.sub.i")
+        : LLVMBuildFAdd(ctx->builder, lhsImag, rhsImag, "complex.add.i");
+    return cg_build_complex_value(ctx, real, imag, complexType, "complex.addsub");
+}
+
+static LLVMValueRef cg_build_complex_eq(CodegenContext* ctx,
+                                        LLVMValueRef lhs,
+                                        LLVMValueRef rhs,
+                                        bool isNotEqual) {
+    LLVMValueRef lhsReal = LLVMBuildExtractValue(ctx->builder, lhs, 0, "complex.lhs.r");
+    LLVMValueRef lhsImag = LLVMBuildExtractValue(ctx->builder, lhs, 1, "complex.lhs.i");
+    LLVMValueRef rhsReal = LLVMBuildExtractValue(ctx->builder, rhs, 0, "complex.rhs.r");
+    LLVMValueRef rhsImag = LLVMBuildExtractValue(ctx->builder, rhs, 1, "complex.rhs.i");
+    LLVMValueRef realCmp = LLVMBuildFCmp(ctx->builder, LLVMRealOEQ, lhsReal, rhsReal, "complex.eq.r");
+    LLVMValueRef imagCmp = LLVMBuildFCmp(ctx->builder, LLVMRealOEQ, lhsImag, rhsImag, "complex.eq.i");
+    LLVMValueRef both = LLVMBuildAnd(ctx->builder, realCmp, imagCmp, "complex.eq.and");
+    if (isNotEqual) {
+        both = LLVMBuildNot(ctx->builder, both, "complex.ne");
+    }
+    return cg_widen_bool_to_int(ctx, both, "complex.eq.int");
+}
+
 static LLVMValueRef cg_build_bitfield_mask(CodegenContext* ctx, LLVMTypeRef storageTy, unsigned width) {
     (void)ctx;
     unsigned storageBits = LLVMGetIntTypeWidth(storageTy);
@@ -151,12 +326,38 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
     if (!ctx || !type) {
         return NULL;
     }
-    if (!type->isFunctionPointer && type->fpParamCount == 0) {
-        return NULL;
+    const ParsedType* resolved = type;
+    if (type->kind == TYPE_NAMED && ctx->typeCache && type->userTypeName) {
+        CGNamedLLVMType* info = cg_type_cache_get_typedef_info(ctx->typeCache, type->userTypeName);
+        if (info && info->parsedType.kind != TYPE_INVALID) {
+            resolved = &info->parsedType;
+        }
+    }
+
+    const ParsedType* paramList = NULL;
+    size_t paramCount = 0;
+    bool isVariadic = resolved->isVariadicFunction;
+
+    if (resolved->isFunctionPointer || resolved->fpParamCount > 0) {
+        paramList = resolved->fpParams;
+        paramCount = resolved->fpParamCount;
+    } else {
+        for (size_t i = 0; i < resolved->derivationCount; ++i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(resolved, i);
+            if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
+                paramList = deriv->as.function.params;
+                paramCount = deriv->as.function.paramCount;
+                isVariadic = deriv->as.function.isVariadic;
+                break;
+            }
+        }
+        if (!paramList && paramCount == 0) {
+            return NULL;
+        }
     }
 
     LLVMTypeRef returnType = NULL;
-    switch (type->primitiveType) {
+    switch (resolved->primitiveType) {
         case TOKEN_INT:    returnType = LLVMInt32TypeInContext(ctx->llvmContext); break;
         case TOKEN_CHAR:   returnType = LLVMInt8TypeInContext(ctx->llvmContext);  break;
         case TOKEN_BOOL:   returnType = LLVMInt1TypeInContext(ctx->llvmContext);  break;
@@ -164,7 +365,7 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
         default: break;
     }
     if (!returnType) {
-        ParsedType retClone = parsedTypeClone(type);
+        ParsedType retClone = parsedTypeClone(resolved);
         retClone.isFunctionPointer = false;
         retClone.fpParamCount = 0;
         retClone.fpParams = NULL;
@@ -179,30 +380,20 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
         returnType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
-    size_t count = type->fpParamCount ? type->fpParamCount : fallbackArgCount;
-    bool isVariadic = type->isVariadicFunction;
+    size_t count = paramCount ? paramCount : fallbackArgCount;
     LLVMTypeRef* params = NULL;
     if (count > 0) {
         params = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * count);
         if (!params) return NULL;
         for (size_t i = 0; i < count; ++i) {
-            if (type->fpParamCount > 0 && type->fpParams) {
-                params[i] = cg_type_from_parsed(ctx, &type->fpParams[i]);
+            if (paramCount > 0 && paramList) {
+                params[i] = cg_type_from_parsed(ctx, &paramList[i]);
             } else if (args && i < fallbackArgCount) {
                 params[i] = args[i] ? LLVMTypeOf(args[i]) : NULL;
             }
             if (!params[i]) {
                 params[i] = LLVMInt32TypeInContext(ctx->llvmContext);
             }
-        }
-    }
-
-    // If the type carries derivations, prefer the function derivation's variadic flag.
-    for (size_t i = 0; i < type->derivationCount; ++i) {
-        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
-        if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
-            isVariadic = deriv->as.function.isVariadic;
-            break;
         }
     }
 
@@ -243,8 +434,44 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
     LLVMTypeRef rhsType = LLVMTypeOf(R);
     bool lhsIsPointer = lhsType && LLVMGetTypeKind(lhsType) == LLVMPointerTypeKind;
     bool rhsIsPointer = rhsType && LLVMGetTypeKind(rhsType) == LLVMPointerTypeKind;
-    bool preferUnsigned = cg_expression_is_unsigned(ctx, node->expr.left) ||
-                          cg_expression_is_unsigned(ctx, node->expr.right);
+    bool lhsUnsigned = cg_is_unsigned_parsed(lhsParsed, lhsType);
+    bool rhsUnsigned = cg_is_unsigned_parsed(rhsParsed, rhsType);
+    bool preferUnsigned = lhsUnsigned || rhsUnsigned;
+    bool lhsComplex = cg_parsed_type_is_complex_value(lhsParsed);
+    bool rhsComplex = cg_parsed_type_is_complex_value(rhsParsed);
+
+    if (lhsComplex || rhsComplex) {
+        const ParsedType* complexParsed = lhsComplex ? lhsParsed : rhsParsed;
+        LLVMTypeRef complexType = cg_type_from_parsed(ctx, complexParsed);
+        LLVMTypeRef elemType = cg_complex_element_type(ctx, complexParsed);
+        LLVMValueRef lhsC = cg_promote_to_complex(ctx, L, lhsParsed, complexType, elemType);
+        LLVMValueRef rhsC = cg_promote_to_complex(ctx, R, rhsParsed, complexType, elemType);
+
+        if (strcmp(op, "+") == 0) {
+            return cg_build_complex_addsub(ctx, lhsC, rhsC, complexType, false);
+        }
+        if (strcmp(op, "-") == 0) {
+            return cg_build_complex_addsub(ctx, lhsC, rhsC, complexType, true);
+        }
+        if (strcmp(op, "==") == 0) {
+            return cg_build_complex_eq(ctx, lhsC, rhsC, false);
+        }
+        if (strcmp(op, "!=") == 0) {
+            return cg_build_complex_eq(ctx, lhsC, rhsC, true);
+        }
+        fprintf(stderr, "Error: Unsupported complex operator %s\n", op);
+        return NULL;
+    }
+
+    if (!lhsIsPointer && !rhsIsPointer) {
+        cg_promote_integer_operands(ctx,
+                                    &L,
+                                    &R,
+                                    &lhsType,
+                                    &rhsType,
+                                    lhsUnsigned,
+                                    rhsUnsigned);
+    }
 
     if (strcmp(op, "+") == 0) {
         if (lhsIsPointer && rhsIsPointer) {
@@ -440,10 +667,34 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (node->expr.op && strcmp(node->expr.op, "&") == 0) {
+        if (node->expr.left && node->expr.left->type == AST_IDENTIFIER) {
+            const SemanticModel* model = cg_context_get_semantic_model(ctx);
+            if (model) {
+                const Symbol* sym = semanticModelLookupGlobal(model, node->expr.left->valueNode.value);
+                if (sym && sym->kind == SYMBOL_FUNCTION) {
+                    LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, node->expr.left->valueNode.value);
+                    if (fn) {
+                        return fn;
+                    }
+                }
+            }
+        }
         LLVMValueRef addrPtr = NULL;
         LLVMTypeRef addrType = NULL;
         CGLValueInfo tmp;
         if (!codegenLValue(ctx, node->expr.left, &addrPtr, &addrType, NULL, &tmp)) {
+            if (node->expr.left && node->expr.left->type == AST_IDENTIFIER) {
+                const SemanticModel* model = cg_context_get_semantic_model(ctx);
+                if (model) {
+                    const Symbol* sym = semanticModelLookupGlobal(model, node->expr.left->valueNode.value);
+                    if (sym && sym->kind == SYMBOL_FUNCTION) {
+                        LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, node->expr.left->valueNode.value);
+                        if (fn) {
+                            return fn;
+                        }
+                    }
+                }
+            }
             fprintf(stderr, "Error: Address-of requires an lvalue\n");
             return NULL;
         }
@@ -455,43 +706,118 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
     }
 
     const ParsedType* operandParsed = cg_resolve_expression_type(ctx, node->expr.left);
+    ParsedType operandParsedCopy = parsedTypeClone(operandParsed);
+    ParsedType derivedPointerParsed = parsedTypeClone(NULL);
+    bool hasDerivedPointerParsed = false;
+    const ParsedType* stableParsed = operandParsedCopy.kind != TYPE_INVALID ? &operandParsedCopy : operandParsed;
     LLVMValueRef operand = codegenNode(ctx, node->expr.left);
     if (!operand) {
+        parsedTypeFree(&operandParsedCopy);
         fprintf(stderr, "Error: Failed to generate operand for unary expression\n");
         return NULL;
     }
 
     if (strcmp(node->expr.op, "-") == 0) {
+        if (cg_parsed_type_is_complex_value(stableParsed) &&
+            LLVMGetTypeKind(LLVMTypeOf(operand)) == LLVMStructTypeKind) {
+            LLVMTypeRef complexType = LLVMTypeOf(operand);
+            LLVMValueRef realPart = LLVMBuildExtractValue(ctx->builder, operand, 0, "complex.neg.r");
+            LLVMValueRef imagPart = LLVMBuildExtractValue(ctx->builder, operand, 1, "complex.neg.i");
+            LLVMValueRef realNeg = LLVMBuildFNeg(ctx->builder, realPart, "complex.neg.rn");
+            LLVMValueRef imagNeg = LLVMBuildFNeg(ctx->builder, imagPart, "complex.neg.in");
+            parsedTypeFree(&operandParsedCopy);
+            if (hasDerivedPointerParsed) parsedTypeFree(&derivedPointerParsed);
+            return cg_build_complex_value(ctx, realNeg, imagNeg, complexType, "complex.neg");
+        }
         return LLVMBuildNeg(ctx->builder, operand, "negtmp");
     } else if (strcmp(node->expr.op, "~") == 0) {
         LLVMTypeRef operandType = LLVMTypeOf(operand);
         if (!operandType || LLVMGetTypeKind(operandType) != LLVMIntegerTypeKind) {
             LLVMTypeRef intType = LLVMInt32TypeInContext(ctx->llvmContext);
-            operand = cg_cast_value(ctx, operand, intType, operandParsed, NULL, "bnot.cast");
+            operand = cg_cast_value(ctx, operand, intType, stableParsed, NULL, "bnot.cast");
             if (!operand) {
+                parsedTypeFree(&operandParsedCopy);
                 fprintf(stderr, "Error: Failed to cast operand for bitwise not\n");
                 return NULL;
             }
         }
+        parsedTypeFree(&operandParsedCopy);
         return LLVMBuildNot(ctx->builder, operand, "nottmp");
     } else if (strcmp(node->expr.op, "!") == 0) {
-        LLVMValueRef boolVal = cg_build_truthy(ctx, operand, operandParsed, "lnot.bool");
+        LLVMValueRef boolVal = cg_build_truthy(ctx, operand, stableParsed, "lnot.bool");
+        parsedTypeFree(&operandParsedCopy);
         if (!boolVal) return NULL;
         LLVMValueRef inverted = LLVMBuildNot(ctx->builder, boolVal, "lnot.tmp");
         return cg_widen_bool_to_int(ctx, inverted, "lnot.int");
     } else if (strcmp(node->expr.op, "*") == 0) {
+        if (!cg_parsed_type_is_pointerish(stableParsed) &&
+            node->expr.left &&
+            node->expr.left->type == AST_UNARY_EXPRESSION &&
+            node->expr.left->expr.op &&
+            strcmp(node->expr.left->expr.op, "*") == 0) {
+            const ParsedType* innerOperand = cg_resolve_expression_type(ctx, node->expr.left->expr.left);
+            ParsedType innerOperandCopy = parsedTypeClone(innerOperand);
+            derivedPointerParsed = parsedTypePointerTargetType(&innerOperandCopy);
+            parsedTypeFree(&innerOperandCopy);
+            if (derivedPointerParsed.kind != TYPE_INVALID) {
+                stableParsed = &derivedPointerParsed;
+                hasDerivedPointerParsed = true;
+            }
+        }
         LLVMTypeRef ptrType = LLVMTypeOf(operand);
         if (!ptrType || LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
+            parsedTypeFree(&operandParsedCopy);
+            if (hasDerivedPointerParsed) parsedTypeFree(&derivedPointerParsed);
             fprintf(stderr, "Error: Cannot dereference non-pointer value\n");
             return NULL;
         }
-        LLVMTypeRef elemType = cg_element_type_from_pointer(ctx, operandParsed, ptrType);
-        if (!elemType || LLVMGetTypeKind(elemType) == LLVMVoidTypeKind || LLVMGetTypeKind(elemType) == LLVMPointerTypeKind) {
+        LLVMTypeRef elemType = NULL;
+        ASTNode* baseExpr = node->expr.left;
+        size_t derefCount = 1;
+        while (baseExpr &&
+               baseExpr->type == AST_UNARY_EXPRESSION &&
+               baseExpr->expr.op &&
+               strcmp(baseExpr->expr.op, "*") == 0) {
+            derefCount++;
+            baseExpr = baseExpr->expr.left;
+        }
+        if (baseExpr) {
+            const ParsedType* baseType = NULL;
+            if (baseExpr->type == AST_IDENTIFIER && ctx && ctx->currentScope) {
+                NamedValue* entry = cg_scope_lookup(ctx->currentScope, baseExpr->valueNode.value);
+                if (entry && entry->parsedType) {
+                    baseType = entry->parsedType;
+                }
+            }
+            if (!baseType) {
+                baseType = cg_resolve_expression_type(ctx, baseExpr);
+            }
+            ParsedType chain = parsedTypeClone(baseType);
+            bool ok = chain.kind != TYPE_INVALID;
+            for (size_t i = 0; i < derefCount && ok; ++i) {
+                ParsedType next = parsedTypePointerTargetType(&chain);
+                parsedTypeFree(&chain);
+                chain = next;
+                ok = chain.kind != TYPE_INVALID;
+            }
+            if (ok) {
+                elemType = cg_type_from_parsed(ctx, &chain);
+            }
+            parsedTypeFree(&chain);
+        }
+        if (!elemType) {
+            elemType = cg_element_type_from_pointer(ctx, stableParsed, ptrType);
+        }
+        if (!elemType || LLVMGetTypeKind(elemType) == LLVMVoidTypeKind) {
             elemType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
+        parsedTypeFree(&operandParsedCopy);
+        if (hasDerivedPointerParsed) parsedTypeFree(&derivedPointerParsed);
         return LLVMBuildLoad2(ctx->builder, elemType, operand, "loadtmp");
     }
 
+    parsedTypeFree(&operandParsedCopy);
+    if (hasDerivedPointerParsed) parsedTypeFree(&derivedPointerParsed);
     fprintf(stderr, "Error: Unsupported unary operator %s\n", node->expr.op);
     return NULL;
 }
@@ -577,6 +903,23 @@ LLVMValueRef codegenTernaryExpression(CodegenContext* ctx, ASTNode* node) {
     return phi;
 }
 
+LLVMValueRef codegenCommaExpression(CodegenContext* ctx, ASTNode* node) {
+    if (node->type != AST_COMMA_EXPRESSION) {
+        fprintf(stderr, "Error: Invalid node type for codegenCommaExpression\n");
+        return NULL;
+    }
+
+    LLVMValueRef lastValue = NULL;
+    for (size_t i = 0; i < node->commaExpr.exprCount; ++i) {
+        ASTNode* expr = node->commaExpr.expressions ? node->commaExpr.expressions[i] : NULL;
+        if (!expr) {
+            continue;
+        }
+        lastValue = codegenNode(ctx, expr);
+    }
+    return lastValue;
+}
+
 
 LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_ASSIGNMENT) {
@@ -636,7 +979,7 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
                         srcCast,
                         alignVal,
                         sizeVal);
-        return targetPtr;
+        return value ? value : targetPtr;
     }
 
     const char* op = node->assignment.op ? node->assignment.op : "=";
@@ -759,7 +1102,8 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         LLVMBuildMemCpy(ctx->builder, dstCast, 1, srcCast, 1, sizeVal);
         return storedValue;
     }
-    return LLVMBuildStore(ctx->builder, storedValue, targetPtr);
+    LLVMBuildStore(ctx->builder, storedValue, targetPtr);
+    return storedValue;
 }
 
 
@@ -1081,26 +1425,30 @@ LLVMValueRef codegenLogicalAndOr(CodegenContext* ctx,
         return NULL;
     }
     LLVMBasicBlockRef rhsEvalBB = LLVMGetInsertBlock(ctx->builder);
-    LLVMBuildBr(ctx->builder, mergeBB);
+    bool rhsBranched = false;
+    if (!LLVMGetBasicBlockTerminator(rhsEvalBB)) {
+        LLVMBuildBr(ctx->builder, mergeBB);
+        rhsBranched = true;
+    }
 
     LLVMPositionBuilderAtEnd(ctx->builder, mergeBB);
     LLVMValueRef phi = LLVMBuildPhi(ctx->builder, LLVMInt1TypeInContext(ctx->llvmContext),
                                     isAnd ? "land.result" : "lor.result");
     LLVMValueRef incomingVals[2];
     LLVMBasicBlockRef incomingBlocks[2];
+    unsigned incomingCount = 0;
 
-    if (isAnd) {
-        incomingVals[0] = LLVMConstInt(LLVMInt1TypeInContext(ctx->llvmContext), 0, 0);
-        incomingBlocks[0] = lhsBlock;
-        incomingVals[1] = rhsBool;
-        incomingBlocks[1] = rhsEvalBB;
-    } else {
-        incomingVals[0] = LLVMConstInt(LLVMInt1TypeInContext(ctx->llvmContext), 1, 0);
-        incomingBlocks[0] = lhsBlock;
-        incomingVals[1] = rhsBool;
-        incomingBlocks[1] = rhsEvalBB;
+    incomingVals[incomingCount] = LLVMConstInt(LLVMInt1TypeInContext(ctx->llvmContext),
+                                               isAnd ? 0 : 1,
+                                               0);
+    incomingBlocks[incomingCount] = lhsBlock;
+    incomingCount++;
+    if (rhsBranched) {
+        incomingVals[incomingCount] = rhsBool;
+        incomingBlocks[incomingCount] = rhsEvalBB;
+        incomingCount++;
     }
-    LLVMAddIncoming(phi, incomingVals, incomingBlocks, 2);
+    LLVMAddIncoming(phi, incomingVals, incomingBlocks, incomingCount);
     return cg_widen_bool_to_int(ctx, phi, isAnd ? "land.int" : "lor.int");
 }
 
@@ -1381,24 +1729,8 @@ LLVMValueRef codegenCastExpression(CodegenContext* ctx, ASTNode* node) {
         return value;
     }
 
-    if (LLVMGetTypeKind(target) == LLVMPointerTypeKind && LLVMGetTypeKind(valueType) == LLVMPointerTypeKind) {
-        return LLVMBuildBitCast(ctx->builder, value, target, "ptrcast");
-    }
-
-    if (LLVMGetTypeKind(target) == LLVMIntegerTypeKind && LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
-        unsigned valueBits = LLVMGetIntTypeWidth(valueType);
-        unsigned targetBits = LLVMGetIntTypeWidth(target);
-        if (valueBits == targetBits) {
-            return LLVMBuildBitCast(ctx->builder, value, target, "intcast");
-        } else if (valueBits < targetBits) {
-            return LLVMBuildSExt(ctx->builder, value, target, "extcast");
-        } else {
-            return LLVMBuildTrunc(ctx->builder, value, target, "truncast");
-        }
-    }
-
-    /* Fallback: rely on bitcast even if the types differ (TODO: semantic-driven casts). */
-    return LLVMBuildBitCast(ctx->builder, value, target, "casttmp");
+    const ParsedType* fromParsed = cg_resolve_expression_type(ctx, node->castExpr.expression);
+    return cg_cast_value(ctx, value, target, fromParsed, &node->castExpr.castType, "casttmp");
 }
 
 static LLVMValueRef cg_materialize_compound_literal(CodegenContext* ctx,
@@ -1477,7 +1809,34 @@ LLVMValueRef codegenNumberLiteral(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    int value = atoi(node->valueNode.value);
+    const ParsedType* parsed = cg_resolve_expression_type(ctx, node);
+    if (parsed && parsed->kind == TYPE_PRIMITIVE &&
+        (parsed->primitiveType == TOKEN_FLOAT || parsed->primitiveType == TOKEN_DOUBLE)) {
+        const char* text = node->valueNode.value ? node->valueNode.value : "0";
+        char buf[128];
+        size_t len = strlen(text);
+        size_t outLen = 0;
+        for (size_t i = 0; i < len && outLen + 1 < sizeof(buf); ++i) {
+            char c = text[i];
+            if (c == 'i' || c == 'I' || c == 'j' || c == 'J' ||
+                c == 'f' || c == 'F' || c == 'l' || c == 'L') {
+                continue;
+            }
+            buf[outLen++] = c;
+        }
+        buf[outLen] = '\0';
+        double value = strtod(buf, NULL);
+        LLVMTypeRef floatTy = cg_type_from_parsed(ctx, parsed);
+        if (floatTy && LLVMGetTypeKind(floatTy) == LLVMStructTypeKind) {
+            floatTy = LLVMDoubleTypeInContext(ctx->llvmContext);
+        }
+        if (!floatTy || LLVMGetTypeKind(floatTy) == LLVMVoidTypeKind) {
+            floatTy = LLVMDoubleTypeInContext(ctx->llvmContext);
+        }
+        return LLVMConstReal(floatTy, value);
+    }
+
+    int value = atoi(node->valueNode.value ? node->valueNode.value : "0");
     return LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), value, 0);
 }
 
@@ -1502,6 +1861,45 @@ LLVMValueRef codegenCharLiteral(CodegenContext* ctx, ASTNode* node) {
     return LLVMConstInt(ty, (unsigned long long)value, 0);
 }
 
+static LLVMValueRef cg_build_wide_string_global(CodegenContext* ctx,
+                                                const char* rawPayload) {
+    if (!ctx) return NULL;
+    uint32_t* codepoints = NULL;
+    size_t count = 0;
+    LiteralDecodeResult res = decode_c_string_literal_wide(rawPayload ? rawPayload : "",
+                                                           32,
+                                                           &codepoints,
+                                                           &count);
+    (void)res;
+    LLVMTypeRef elemTy = LLVMInt32TypeInContext(ctx->llvmContext);
+    LLVMTypeRef arrayTy = LLVMArrayType(elemTy, (unsigned)(count + 1));
+    LLVMValueRef* values = (LLVMValueRef*)calloc(count + 1, sizeof(LLVMValueRef));
+    if (!values) {
+        free(codepoints);
+        return NULL;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        values[i] = LLVMConstInt(elemTy, codepoints ? codepoints[i] : 0, 0);
+    }
+    values[count] = LLVMConstInt(elemTy, 0, 0);
+
+    static unsigned counter = 0;
+    char name[32];
+    snprintf(name, sizeof(name), ".wstr.%u", counter++);
+    LLVMValueRef global = LLVMAddGlobal(ctx->module, arrayTy, name);
+    LLVMSetLinkage(global, LLVMPrivateLinkage);
+    LLVMSetInitializer(global, LLVMConstArray(elemTy, values, (unsigned)(count + 1)));
+    LLVMSetGlobalConstant(global, true);
+    LLVMSetUnnamedAddr(global, LLVMGlobalUnnamedAddr);
+
+    LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+    LLVMValueRef indices[2] = { zero, zero };
+    LLVMValueRef gep = LLVMConstGEP2(arrayTy, global, indices, 2);
+
+    free(values);
+    free(codepoints);
+    return gep;
+}
 
 LLVMValueRef codegenStringLiteral(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_STRING_LITERAL) {
@@ -1512,8 +1910,7 @@ LLVMValueRef codegenStringLiteral(CodegenContext* ctx, ASTNode* node) {
     const char* payload = NULL;
     LiteralEncoding enc = ast_literal_encoding(node->valueNode.value, &payload);
     if (enc == LIT_ENC_WIDE) {
-        const char* text = payload ? payload : node->valueNode.value;
-        return LLVMBuildGlobalStringPtr(ctx->builder, text ? text : "", "str");
+        return cg_build_wide_string_global(ctx, payload ? payload : "");
     }
 
     char* decoded = NULL;
@@ -1566,6 +1963,18 @@ LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
         return loaded;
     }
 
+    const SemanticModel* model = cg_context_get_semantic_model(ctx);
+    if (model) {
+        const Symbol* sym = semanticModelLookupGlobal(model, node->valueNode.value);
+        if (sym && sym->kind == SYMBOL_ENUM && sym->hasConstValue) {
+            LLVMTypeRef enumType = cg_type_from_parsed(ctx, &sym->type);
+            if (!enumType || LLVMGetTypeKind(enumType) != LLVMIntegerTypeKind) {
+                enumType = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+            return LLVMConstInt(enumType, (unsigned long long)sym->constValue, 1);
+        }
+    }
+
     LLVMValueRef global = LLVMGetNamedGlobal(ctx->module, node->valueNode.value);
     if (!global) {
         LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, node->valueNode.value);
@@ -1581,7 +1990,6 @@ LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
         loadType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
     const ParsedType* parsedType = NULL;
-    const SemanticModel* model = cg_context_get_semantic_model(ctx);
     if (model) {
         const Symbol* sym = semanticModelLookupGlobal(model, node->valueNode.value);
         if (sym) {
@@ -1630,6 +2038,10 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node) {
         LLVMTypeRef ty = cg_type_from_parsed(ctx, parsed);
         if (!ty || LLVMGetTypeKind(ty) == LLVMVoidTypeKind) {
             ty = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
+        uint64_t semanticSize = 0;
+        if (cg_size_align_for_type(ctx, parsed, ty, &semanticSize, NULL) && semanticSize > 0) {
+            return LLVMConstInt(intptrTy, semanticSize, 0);
         }
         unsigned long long abiSize = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), ty);
         return LLVMConstInt(intptrTy, abiSize, 0);

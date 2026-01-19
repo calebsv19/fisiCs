@@ -24,6 +24,9 @@ typedef struct {
     size_t include_count;
 } FisicsAnalysisResult;
 
+// Ownership: all arrays/strings in FisicsAnalysisResult are allocated by the
+// frontend and must be released with fisics_free_analysis_result.
+
 typedef struct {
     // Array of include search paths (equivalent to -I). Optional; pass NULL/0 to use defaults.
     const char* const* include_paths;
@@ -36,6 +39,9 @@ typedef struct {
     // Lenient mode toggle: 0 = default (lenient), >0 = force lenient, <0 = force strict.
     // Lenient is recommended for IDE usage to continue after missing headers/malformed macros.
     int lenient_mode;
+
+    // When false, only symbols defined in the analyzed file are emitted.
+    bool include_system_symbols;
 } FisicsFrontendOptions;
 
 bool fisics_analyze_buffer(const char* file_path,

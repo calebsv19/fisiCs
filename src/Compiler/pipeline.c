@@ -18,6 +18,7 @@
 #include "Syntax/semantic_model.h"
 #include "Syntax/semantic_model_printer.h"
 #include "Syntax/semantic_pass.h"
+#include "Parser/Helpers/parsed_type_format.h"
 #include "Utils/utils.h"
 #include "Compiler/diagnostics.h"
 
@@ -84,19 +85,31 @@ static void collect_top_symbols(ASTNode* root, CompilerContext* ctx) {
         if (!stmt) continue;
 
         const char* name = NULL;
+        FisicsSymbolKind kind = FISICS_SYMBOL_UNKNOWN;
+        bool isDefinition = true;
         switch (stmt->type) {
             case AST_FUNCTION_DEFINITION:
                 name = identifier_name(stmt->functionDef.funcName);
+                kind = FISICS_SYMBOL_FUNCTION;
+                isDefinition = true;
                 break;
             case AST_FUNCTION_DECLARATION:
                 name = identifier_name(stmt->functionDecl.funcName);
+                kind = FISICS_SYMBOL_FUNCTION;
+                isDefinition = false;
                 break;
             case AST_STRUCT_DEFINITION:
             case AST_UNION_DEFINITION:
                 name = identifier_name(stmt->structDef.structName);
+                kind = (stmt->type == AST_STRUCT_DEFINITION) ? FISICS_SYMBOL_STRUCT : FISICS_SYMBOL_UNION;
                 break;
             case AST_ENUM_DEFINITION:
                 name = identifier_name(stmt->enumDef.enumName);
+                kind = FISICS_SYMBOL_ENUM;
+                break;
+            case AST_TYPEDEF:
+                name = identifier_name(stmt->typedefStmt.alias);
+                kind = FISICS_SYMBOL_TYPEDEF;
                 break;
             default:
                 break;
@@ -112,6 +125,8 @@ static void collect_top_symbols(ASTNode* root, CompilerContext* ctx) {
         sym.start_col = stmt->location.start.column;
         sym.end_line = stmt->location.end.line ? stmt->location.end.line : sym.start_line;
         sym.end_col = stmt->location.end.column ? stmt->location.end.column : sym.start_col;
+        sym.kind = kind;
+        sym.is_definition = isDefinition;
         symbuf_append(&buf, &sym);
     }
 
@@ -121,6 +136,310 @@ static void collect_top_symbols(ASTNode* root, CompilerContext* ctx) {
         cc_clear_symbols(ctx);
     }
     free(buf.items);
+}
+
+static FisicsSymbolKind map_symbol_kind(SymbolKind kind) {
+    switch (kind) {
+        case SYMBOL_FUNCTION: return FISICS_SYMBOL_FUNCTION;
+        case SYMBOL_STRUCT: return FISICS_SYMBOL_STRUCT;
+        case SYMBOL_ENUM: return FISICS_SYMBOL_ENUM;
+        case SYMBOL_TYPEDEF: return FISICS_SYMBOL_TYPEDEF;
+        case SYMBOL_VARIABLE: return FISICS_SYMBOL_VARIABLE;
+        default: return FISICS_SYMBOL_UNKNOWN;
+    }
+}
+
+static FisicsSymbolKind map_definition_kind(const Symbol* sym) {
+    if (!sym || !sym->definition) return map_symbol_kind(sym ? sym->kind : SYMBOL_VARIABLE);
+    switch (sym->definition->type) {
+        case AST_STRUCT_DEFINITION: return FISICS_SYMBOL_STRUCT;
+        case AST_UNION_DEFINITION: return FISICS_SYMBOL_UNION;
+        case AST_ENUM_DEFINITION: return FISICS_SYMBOL_ENUM;
+        default: return map_symbol_kind(sym->kind);
+    }
+}
+
+static const ASTNode* symbol_identifier_node(const Symbol* sym) {
+    if (!sym || !sym->definition) return NULL;
+    const ASTNode* def = sym->definition;
+    switch (def->type) {
+        case AST_FUNCTION_DEFINITION:
+            return def->functionDef.funcName;
+        case AST_FUNCTION_DECLARATION:
+            return def->functionDecl.funcName;
+        case AST_STRUCT_DEFINITION:
+        case AST_UNION_DEFINITION:
+            return def->structDef.structName;
+        case AST_ENUM_DEFINITION:
+            return def->enumDef.enumName;
+        case AST_TYPEDEF:
+            return def->typedefStmt.alias;
+        case AST_VARIABLE_DECLARATION: {
+            if (def->varDecl.varNames && def->varDecl.varCount > 0) {
+                for (size_t i = 0; i < def->varDecl.varCount; ++i) {
+                    const char* name = identifier_name(def->varDecl.varNames[i]);
+                    if (name && sym->name && strcmp(name, sym->name) == 0) {
+                        return def->varDecl.varNames[i];
+                    }
+                }
+                return def->varDecl.varNames[0];
+            }
+            return NULL;
+        }
+        default:
+            return NULL;
+    }
+}
+
+static const char* param_decl_name(const ASTNode* paramDecl) {
+    if (!paramDecl || paramDecl->type != AST_VARIABLE_DECLARATION) return NULL;
+    if (!paramDecl->varDecl.varNames || paramDecl->varDecl.varCount == 0) return NULL;
+    return identifier_name(paramDecl->varDecl.varNames[0]);
+}
+
+static void append_struct_field_symbols(SymbolBuffer* buf, const Symbol* sym, const ASTNode* def) {
+    if (!buf || !sym || !def) return;
+    if (def->type != AST_STRUCT_DEFINITION && def->type != AST_UNION_DEFINITION) return;
+
+    const FisicsSymbolKind parentKind = (def->type == AST_UNION_DEFINITION)
+        ? FISICS_SYMBOL_UNION
+        : FISICS_SYMBOL_STRUCT;
+
+    for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
+        ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
+        if (!field || field->type != AST_VARIABLE_DECLARATION) continue;
+        size_t varCount = field->varDecl.varCount;
+        for (size_t v = 0; v < varCount; ++v) {
+            ASTNode* nameNode = field->varDecl.varNames ? field->varDecl.varNames[v] : NULL;
+            const char* name = identifier_name(nameNode);
+            if (!name || !name[0]) continue;
+
+            const ParsedType* fieldType = NULL;
+            if (field->varDecl.declaredTypes && v < field->varDecl.varCount) {
+                fieldType = &field->varDecl.declaredTypes[v];
+            } else {
+                fieldType = &field->varDecl.declaredType;
+            }
+
+            const ASTNode* locNode = nameNode ? nameNode : field;
+
+            FisicsSymbol child = {0};
+            child.name = name;
+            child.file_path = locNode->location.start.file;
+            child.start_line = locNode->location.start.line;
+            child.start_col = locNode->location.start.column;
+            child.end_line = locNode->location.end.line ? locNode->location.end.line : child.start_line;
+            child.end_col = locNode->location.end.column ? locNode->location.end.column : child.start_col;
+            child.kind = FISICS_SYMBOL_FIELD;
+            child.parent_name = sym->name;
+            child.parent_kind = parentKind;
+            child.is_definition = true;
+            if (fieldType) {
+                child.return_type = parsed_type_to_string(fieldType);
+            }
+            symbuf_append(buf, &child);
+        }
+    }
+}
+
+static void append_enum_member_symbols(SymbolBuffer* buf, const Symbol* sym, const ASTNode* def) {
+    if (!buf || !sym || !def || def->type != AST_ENUM_DEFINITION) return;
+    for (size_t i = 0; i < def->enumDef.memberCount; ++i) {
+        ASTNode* member = def->enumDef.members ? def->enumDef.members[i] : NULL;
+        const char* name = identifier_name(member);
+        if (!name || !name[0]) continue;
+
+        const ASTNode* locNode = member ? member : def;
+        FisicsSymbol child = {0};
+        child.name = name;
+        child.file_path = locNode->location.start.file;
+        child.start_line = locNode->location.start.line;
+        child.start_col = locNode->location.start.column;
+        child.end_line = locNode->location.end.line ? locNode->location.end.line : child.start_line;
+        child.end_col = locNode->location.end.column ? locNode->location.end.column : child.start_col;
+        child.kind = FISICS_SYMBOL_ENUM_MEMBER;
+        child.parent_name = sym->name;
+        child.parent_kind = FISICS_SYMBOL_ENUM;
+        child.is_definition = true;
+        symbuf_append(buf, &child);
+    }
+}
+
+static void append_macro_symbols(SymbolBuffer* buf,
+                                 const MacroTable* table,
+                                 const char* file_path,
+                                 bool include_system_symbols) {
+    if (!buf || !table) return;
+    for (size_t i = 0; i < table->macroCount; ++i) {
+        const MacroDefinition* def = &table->macros[i];
+        if (!def || !def->name || !def->name[0]) continue;
+
+        const char* defPath = def->definitionRange.start.file;
+        if (!include_system_symbols) {
+            if (!defPath || !file_path || strcmp(defPath, file_path) != 0) {
+                continue;
+            }
+        } else if (!defPath || !defPath[0]) {
+            continue;
+        }
+
+        FisicsSymbol sym = {0};
+        sym.name = def->name;
+        sym.kind = FISICS_SYMBOL_MACRO;
+        sym.is_definition = true;
+        sym.is_variadic = def->params.variadic;
+        sym.file_path = defPath;
+        sym.start_line = def->definitionRange.start.line;
+        sym.start_col = def->definitionRange.start.column;
+        sym.end_line = def->definitionRange.end.line ? def->definitionRange.end.line : sym.start_line;
+        sym.end_col = def->definitionRange.end.column ? def->definitionRange.end.column : sym.start_col;
+
+        if (def->kind == MACRO_FUNCTION && def->params.count > 0) {
+            sym.param_count = def->params.count;
+            sym.param_names = (const char**)calloc(sym.param_count, sizeof(char*));
+            if (sym.param_names) {
+                for (size_t p = 0; p < sym.param_count; ++p) {
+                    sym.param_names[p] = def->params.names[p];
+                }
+            }
+        }
+
+        symbuf_append(buf, &sym);
+    }
+}
+
+static void free_symbol_buffer(SymbolBuffer* buf) {
+    if (!buf || !buf->items) return;
+    for (size_t i = 0; i < buf->count; ++i) {
+        free((char*)buf->items[i].return_type);
+        if (buf->items[i].param_types) {
+            for (size_t p = 0; p < buf->items[i].param_count; ++p) {
+                free((char*)buf->items[i].param_types[p]);
+            }
+            free(buf->items[i].param_types);
+        }
+        free((char*)buf->items[i].param_names);
+    }
+    free(buf->items);
+    buf->items = NULL;
+    buf->count = 0;
+    buf->capacity = 0;
+}
+
+typedef struct {
+    SymbolBuffer* buf;
+    const char* file_path;
+    bool include_system_symbols;
+} SymbolCollectCtx;
+
+static void collect_symbol_cb(const Symbol* sym, void* userData) {
+    SymbolCollectCtx* ctx = (SymbolCollectCtx*)userData;
+    if (!ctx || !ctx->buf || !sym || !sym->name) return;
+
+    const ASTNode* ident = NULL;
+    const ASTNode* locNode = NULL;
+    if (!ctx->include_system_symbols) {
+        if (!sym->definition) return;
+        ident = symbol_identifier_node(sym);
+        locNode = ident ? ident : sym->definition;
+        const char* defPath = locNode->location.start.file;
+        if (!defPath || !ctx->file_path || strcmp(defPath, ctx->file_path) != 0) {
+            return;
+        }
+    }
+
+    FisicsSymbol out = {0};
+    out.name = sym->name;
+    out.kind = map_definition_kind(sym);
+    out.is_definition = sym->hasDefinition;
+    out.is_variadic = sym->signature.isVariadic;
+
+    if (sym->kind == SYMBOL_FUNCTION) {
+        out.return_type = parsed_type_to_string(&sym->type);
+        size_t sigCount = sym->signature.paramCount;
+        out.param_count = sigCount;
+        if (sym->signature.params && sigCount > 0) {
+            out.param_types = (const char**)calloc(sigCount, sizeof(char*));
+            if (out.param_types) {
+                for (size_t i = 0; i < sigCount; ++i) {
+                    out.param_types[i] = parsed_type_to_string(&sym->signature.params[i]);
+                }
+            }
+        }
+    }
+
+    if (sym->definition) {
+        if (!locNode) {
+            ident = symbol_identifier_node(sym);
+            locNode = ident ? ident : sym->definition;
+        }
+        out.file_path = locNode->location.start.file;
+        out.start_line = locNode->location.start.line;
+        out.start_col = locNode->location.start.column;
+        out.end_line = locNode->location.end.line ? locNode->location.end.line : out.start_line;
+        out.end_col = locNode->location.end.column ? locNode->location.end.column : out.start_col;
+
+        if (sym->kind == SYMBOL_FUNCTION) {
+            const ASTNode* def = sym->definition;
+            const ASTNode** params = NULL;
+            size_t paramCount = 0;
+            if (def->type == AST_FUNCTION_DEFINITION) {
+                params = (const ASTNode**)def->functionDef.parameters;
+                paramCount = def->functionDef.paramCount;
+            } else if (def->type == AST_FUNCTION_DECLARATION) {
+                params = (const ASTNode**)def->functionDecl.parameters;
+                paramCount = def->functionDecl.paramCount;
+            }
+            if (params && paramCount > 0) {
+                size_t sigCount = out.param_count;
+                if (sigCount == 0) {
+                    sigCount = paramCount;
+                    out.param_count = sigCount;
+                }
+                size_t nameCount = paramCount < sigCount ? paramCount : sigCount;
+                out.param_names = (const char**)calloc(sigCount, sizeof(char*));
+                if (out.param_names) {
+                    for (size_t i = 0; i < nameCount; ++i) {
+                        out.param_names[i] = param_decl_name(params[i]);
+                    }
+                }
+            }
+        }
+    }
+
+    symbuf_append(ctx->buf, &out);
+
+    if (sym->definition) {
+        const ASTNode* def = sym->definition;
+        if (def->type == AST_STRUCT_DEFINITION || def->type == AST_UNION_DEFINITION) {
+            append_struct_field_symbols(ctx->buf, sym, def);
+        } else if (def->type == AST_ENUM_DEFINITION) {
+            append_enum_member_symbols(ctx->buf, sym, def);
+        }
+    }
+}
+
+static void collect_semantic_symbols(const SemanticModel* model,
+                                     CompilerContext* ctx,
+                                     const char* file_path,
+                                     bool include_system_symbols,
+                                     const MacroTable* macros) {
+    if (!model || !ctx) return;
+    SymbolBuffer buf = {0};
+    SymbolCollectCtx collectCtx = {
+        .buf = &buf,
+        .file_path = file_path,
+        .include_system_symbols = include_system_symbols
+    };
+    semanticModelForEachGlobal(model, collect_symbol_cb, &collectCtx);
+    append_macro_symbols(&buf, macros, file_path, include_system_symbols);
+
+    if (buf.count > 0) {
+        cc_set_symbols(ctx, buf.items, buf.count);
+    } else {
+        cc_clear_symbols(ctx);
+    }
+    free_symbol_buffer(&buf);
 }
 
 static FisicsTokenKind map_token_kind(TokenType t) {
@@ -141,7 +460,7 @@ static FisicsTokenKind map_token_kind(TokenType t) {
         case TOKEN_DO: case TOKEN_SWITCH: case TOKEN_CASE: case TOKEN_DEFAULT: case TOKEN_RETURN: case TOKEN_GOTO:
         case TOKEN_BREAK: case TOKEN_CONTINUE: case TOKEN_EXTERN: case TOKEN_STATIC: case TOKEN_AUTO:
         case TOKEN_REGISTER: case TOKEN_CONST: case TOKEN_VOLATILE: case TOKEN_RESTRICT: case TOKEN_INLINE:
-        case TOKEN_NULL: case TOKEN_SIZEOF: case TOKEN_TRUE: case TOKEN_FALSE: case TOKEN_ASM:
+        case TOKEN_NULL: case TOKEN_SIZEOF: case TOKEN_ASM:
             return FISICS_TOK_KEYWORD;
         case TOKEN_LPAREN: case TOKEN_RPAREN: case TOKEN_LBRACE: case TOKEN_RBRACE:
         case TOKEN_LBRACKET: case TOKEN_RBRACKET: case TOKEN_SEMICOLON: case TOKEN_COMMA:
@@ -253,6 +572,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            const char* const* macroDefines,
                                            size_t macroDefineCount,
                                            bool lenientIncludes,
+                                           bool includeSystemSymbols,
                                            bool dumpAst,
                                            bool dumpSemantic,
                                            ASTNode** outAst,
@@ -352,10 +672,16 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     }
 
     if (debugProgress) fprintf(stderr, "[pipeline] preprocessing\n");
-    if (!preprocessor_run(&preprocessor, &tokenBuffer, &preprocessed)) {
+    bool ppOk = preprocessor_run(&preprocessor, &tokenBuffer, &preprocessed);
+    if (!ppOk) {
         fprintf(stderr, "Error: preprocessing failed\n");
         pipeline_print_diagnostics(ctx);
-        goto cleanup;
+        if (!lenientIncludes || preprocessed.count == 0) {
+            goto cleanup;
+        }
+        if (debugProgress) {
+            fprintf(stderr, "[pipeline] preprocessing failed; continuing with partial tokens\n");
+        }
     }
     log_layout_state(ctx, "after preprocessor_run");
 
@@ -413,6 +739,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     if (!semanticModel) {
         goto cleanup;
     }
+    collect_semantic_symbols(semanticModel, ctx, file_path, includeSystemSymbols, macroSnapshot);
     log_layout_state(ctx, "after semantic");
 
     size_t semanticErrors = semanticModelGetErrorCount(semanticModel);
@@ -455,6 +782,7 @@ bool compiler_run_frontend(CompilerContext* ctx,
                            const char* const* macroDefines,
                            size_t macroDefineCount,
                            bool lenientIncludes,
+                           bool includeSystemSymbols,
                            bool dumpAst,
                            bool dumpSemantic,
                            ASTNode** outAst,
@@ -475,11 +803,12 @@ bool compiler_run_frontend(CompilerContext* ctx,
                                           macroDefines,
                                           macroDefineCount,
                                           lenientIncludes,
+                                          includeSystemSymbols,
                                           dumpAst,
                                           dumpSemantic,
                                           outAst,
                                           outModel,
-                                         outSemanticErrors);
+                                          outSemanticErrors);
 }
 
 int compile_translation_unit(const CompileOptions* options, CompileResult* outResult) {
@@ -535,6 +864,7 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
                                         NULL,
                                         0,
                                         false, // lenientIncludes disabled for CLI path
+                                        true,
                                         options->dumpAst,
                                         options->dumpSemantic,
                                         &ast,

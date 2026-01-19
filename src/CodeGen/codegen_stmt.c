@@ -9,6 +9,19 @@
 static LLVMValueRef ensureIntegerLLVMValue(CodegenContext* ctx, LLVMValueRef value);
 static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType* type);
 
+static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const ParsedType* type) {
+    if (!ctx || !type || type->kind != TYPE_NAMED || !type->userTypeName) {
+        return type;
+    }
+    CGTypeCache* cache = cg_context_get_type_cache(ctx);
+    if (!cache) return type;
+    CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, type->userTypeName);
+    if (info) {
+        return &info->parsedType;
+    }
+    return type;
+}
+
 static bool cg_parsed_type_is_pointer_like(const ParsedType* type) {
     if (!type) return false;
     if (type->isFunctionPointer || type->pointerDepth > 0) return true;
@@ -259,8 +272,14 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
     for (size_t i = 0; i < node->varDecl.varCount; i++) {
         ASTNode* varNameNode = node->varDecl.varNames[i];
         const ParsedType* varParsed = astVarDeclTypeAt(node, i);
-        bool isArray = varParsed ? parsedTypeIsDirectArray(varParsed) : false;
-        bool hasVLA = varParsed ? parsedTypeHasVLA(varParsed) : false;
+        const ParsedType* effectiveParsed = varParsed ? varParsed : &node->varDecl.declaredType;
+        const ParsedType* resolvedParsed = cg_resolve_typedef_parsed(ctx, effectiveParsed);
+        const ParsedType* arrayParsed = (resolvedParsed && parsedTypeIsDirectArray(resolvedParsed))
+            ? resolvedParsed
+            : effectiveParsed;
+        bool isArray = arrayParsed ? parsedTypeIsDirectArray(arrayParsed) : false;
+        bool hasVLA = arrayParsed ? parsedTypeHasVLA(arrayParsed) : false;
+        bool isStaticStorage = effectiveParsed && effectiveParsed->isStatic;
 
         // Inline struct/union definitions need layouts before emitting storage/initializers
         if (varParsed && varParsed->inlineStructOrUnionDef) {
@@ -271,14 +290,81 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         LLVMTypeRef storageType = NULL;
         LLVMTypeRef elementLLVM = NULL;
 
+        if (isStaticStorage) {
+            const char* varName = (varNameNode && varNameNode->type == AST_IDENTIFIER)
+                ? varNameNode->valueNode.value
+                : "static";
+            char globalName[256];
+            static unsigned staticCounter = 0;
+            const char* fnName = ctx->currentFunctionName ? ctx->currentFunctionName : "anon";
+            snprintf(globalName, sizeof(globalName), ".static.%s.%s.%u", fnName, varName, staticCounter++);
+
+            LLVMTypeRef varType = cg_type_from_parsed(ctx, effectiveParsed);
+            if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
+                varType = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+            LLVMValueRef global = LLVMAddGlobal(ctx->module, varType, globalName);
+            LLVMSetLinkage(global, LLVMInternalLinkage);
+            LLVMSetInitializer(global, LLVMConstNull(varType));
+
+            LLVMTypeRef elementLLVM = NULL;
+            if (isArray) {
+                ParsedType element = parsedTypeArrayElementType(arrayParsed);
+                elementLLVM = cg_type_from_parsed(ctx, &element);
+                parsedTypeFree(&element);
+                if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
+                    elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+            }
+            const ParsedType* storedParsed = effectiveParsed;
+            if (storedParsed && storedParsed->kind == TYPE_NAMED) {
+                CGTypeCache* cache = cg_context_get_type_cache(ctx);
+                CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, storedParsed->userTypeName);
+                if (info) {
+                    storedParsed = &info->parsedType;
+                }
+            }
+            cg_scope_insert(ctx->currentScope,
+                            varName,
+                            global,
+                            varType,
+                            true,
+                            isArray,
+                            elementLLVM,
+                            storedParsed);
+
+            uint64_t szDummy = 0;
+            uint32_t alignVal = 0;
+            if (cg_size_align_for_type(ctx, storedParsed, varType, &szDummy, &alignVal) && alignVal > 0) {
+                LLVMSetAlignment(global, alignVal);
+            }
+
+            DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
+            if (init && init->expression) {
+                LLVMValueRef constInit = cg_build_const_initializer(ctx,
+                                                                    init->expression,
+                                                                    varType,
+                                                                    storedParsed);
+                if (constInit) {
+                    LLVMSetInitializer(global, constInit);
+                    if (storedParsed && storedParsed->isConst) {
+                        LLVMSetUnnamedAddr(global, LLVMGlobalUnnamedAddr);
+                    }
+                } else {
+                    fprintf(stderr, "Error: static local initializer is not a constant expression\n");
+                }
+            }
+            continue;
+        }
+
         if (isArray) {
             if (hasVLA) {
-                LLVMValueRef elementCount = codegenVLAElementCount(ctx, varParsed ? varParsed : &node->varDecl.declaredType);
+                LLVMValueRef elementCount = codegenVLAElementCount(ctx, arrayParsed);
                 if (!elementCount) {
                     fprintf(stderr, "Error: Failed to compute VLA length for '%s'\n", varNameNode->valueNode.value);
                     continue;
                 }
-                ParsedType base = parsedTypeClone(varParsed ? varParsed : &node->varDecl.declaredType);
+                ParsedType base = parsedTypeClone(arrayParsed);
                 while (parsedTypeIsDirectArray(&base)) {
                     ParsedType next = parsedTypeArrayElementType(&base);
                     parsedTypeFree(&base);
@@ -295,8 +381,8 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                                                varNameNode->valueNode.value);
                 storageType = LLVMTypeOf(storage);
             } else {
-                storageType = cg_type_from_parsed(ctx, varParsed ? varParsed : &node->varDecl.declaredType);
-                ParsedType element = parsedTypeArrayElementType(varParsed ? varParsed : &node->varDecl.declaredType);
+                storageType = cg_type_from_parsed(ctx, effectiveParsed);
+                ParsedType element = parsedTypeArrayElementType(arrayParsed);
                 elementLLVM = cg_type_from_parsed(ctx, &element);
                 parsedTypeFree(&element);
                 if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
@@ -365,14 +451,14 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 if (!isArray && cg_init_pointer_from_compound_literal(ctx,
                                                                       storage,
                                                                       valueType,
-                                                                      varParsed ? varParsed : &node->varDecl.declaredType,
+                                                                      effectiveParsed,
                                                                       init->expression)) {
                     continue;
                 }
                 if (!cg_store_compound_literal_into_ptr(ctx,
                                                         storage,
                                                         valueType,
-                                                        varParsed ? varParsed : &node->varDecl.declaredType,
+                                                        isArray ? arrayParsed : effectiveParsed,
                                                         init->expression)) {
                     fprintf(stderr, "Error: Failed to emit initializer for variable\n");
                 }
@@ -384,7 +470,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                                                             initValue,
                                                             valueType,
                                                             NULL,
-                                                            varParsed ? varParsed : &node->varDecl.declaredType,
+                                                            effectiveParsed,
                                                             "init.store");
                         LLVMBuildStore(ctx->builder, casted, storage);
                     }
@@ -392,7 +478,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                     if (!cg_store_initializer_expression(ctx,
                                                          storage,
                                                          valueType,
-                                                         varParsed ? varParsed : &node->varDecl.declaredType,
+                                                         arrayParsed,
                                                          init->expression)) {
                         fprintf(stderr, "Error: Failed to emit initializer for array variable\n");
                     }
@@ -643,6 +729,8 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
 
     const ParsedType* previousReturnType = ctx->currentFunctionReturnType;
     ctx->currentFunctionReturnType = &node->functionDef.returnType;
+    const char* previousFunctionName = ctx->currentFunctionName;
+    ctx->currentFunctionName = fnName;
 
     cg_scope_push(ctx);
 
@@ -676,6 +764,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
 
     cg_scope_pop(ctx);
     ctx->currentFunctionReturnType = previousReturnType;
+    ctx->currentFunctionName = previousFunctionName;
     cg_free_param_infos(paramInfos);
     free(paramTypes);
     if (ctx->verifyFunctions && function) {
@@ -843,12 +932,12 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
     size_t caseCount = node->switchStmt.caseListSize;
     CGCaseEntry* entries = calloc(caseCount, sizeof(CGCaseEntry));
     size_t realCases = 0;
-    bool defaultHandled = false;
+    ASTNode* defaultCase = NULL;
     for (size_t i = 0; i < caseCount; ++i) {
         ASTNode* caseNode = node->switchStmt.caseList[i];
         if (!caseNode || caseNode->type != AST_CASE) continue;
         if (!caseNode->caseStmt.caseValue) {
-            defaultHandled = true;
+            defaultCase = caseNode;
             continue;
         }
         LLVMValueRef caseValue = codegenNode(ctx, caseNode->caseStmt.caseValue);
@@ -944,15 +1033,18 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
 
     if (pendingFallthrough) {
         LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
-        LLVMBuildBr(ctx->builder, switchEnd);
+        LLVMBuildBr(ctx->builder, defaultCase ? defaultBB : switchEnd);
         pendingFallthrough = NULL;
     }
 
-    if (!defaultHandled) {
-        LLVMPositionBuilderAtEnd(ctx->builder, defaultBB);
-        if (!LLVMGetBasicBlockTerminator(defaultBB)) {
-            LLVMBuildBr(ctx->builder, switchEnd);
+    LLVMPositionBuilderAtEnd(ctx->builder, defaultBB);
+    if (defaultCase) {
+        for (size_t stmtIdx = 0; stmtIdx < defaultCase->caseStmt.caseBodySize; ++stmtIdx) {
+            codegenNode(ctx, defaultCase->caseStmt.caseBody[stmtIdx]);
         }
+    }
+    if (!LLVMGetBasicBlockTerminator(defaultBB)) {
+        LLVMBuildBr(ctx->builder, switchEnd);
     }
 
     LLVMPositionBuilderAtEnd(ctx->builder, switchEnd);

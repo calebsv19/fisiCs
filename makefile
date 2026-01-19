@@ -168,6 +168,20 @@ else
 	@./tests/codegen/run_codegen_pointer_diff_decay.sh ./$(BIN)
 endif
 
+codegen-pointer-to-array: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-pointer-to-array (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_pointer_to_array.sh ./$(BIN)
+endif
+
+codegen-logical-short-circuit: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-logical-short-circuit (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_logical_short_circuit.sh ./$(BIN)
+endif
+
 codegen-function-pointer-call: $(BIN)
 ifeq ($(DISABLE_CODEGEN),1)
 	@echo "Skipping codegen-function-pointer-call (codegen disabled)"
@@ -418,6 +432,7 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
               compound-literal-lvalues
 
 codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff codegen-pointer-diff-decay \
+               codegen-pointer-to-array codegen-logical-short-circuit \
                codegen-function-pointer-call codegen-compound-literal-pointer-decay \
                codegen-bitfield codegen-alignas codegen-flex-memset codegen-flex-lvalue \
                codegen-flex-struct-array \
@@ -481,6 +496,7 @@ tests: test frontend-api-test
         semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
         semantic-initializer-shapes semantic-flow semantic-struct-definition-only \
         semantic-vla-param-decay codegen-pointer-deref codegen-pointer-diff \
+        codegen-pointer-to-array codegen-logical-short-circuit \
         compound-literal-lvalues \
         codegen-function-pointer-call codegen-compound-literal-pointer-decay \
         codegen-bitfield \

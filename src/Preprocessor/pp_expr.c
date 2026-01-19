@@ -122,12 +122,6 @@ static int32_t parse_primary(PPExprParser* parser, bool eval) {
             }
             return value;
         }
-        case TOKEN_TRUE:
-            parser_advance(parser);
-            return eval ? 1 : 0;
-        case TOKEN_FALSE:
-            parser_advance(parser);
-            return 0;
         case TOKEN_IDENTIFIER:
             parser_advance(parser);
             return 0;

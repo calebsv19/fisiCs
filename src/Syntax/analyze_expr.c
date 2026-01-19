@@ -3,6 +3,7 @@
 #include "syntax_errors.h"
 #include "symbol_table.h"
 #include "Parser/Helpers/designated_init.h"
+#include "Parser/Helpers/parsed_type.h"
 #include "literal_utils.h"
 #include "Compiler/compiler_context.h"
 #include <ctype.h>
@@ -543,18 +544,23 @@ static const CCTagFieldLayout* lookupFieldLayout(const TypeInfo* base,
 }
 
 TypeInfo decayToRValue(TypeInfo info) {
-    if (!info.isLValue) {
-        return info;
-    }
     if (info.isArray) {
         info.category = TYPEINFO_POINTER;
         PointerQualifier q = { info.isConst, info.isVolatile, info.isRestrict };
         typeInfoPrependPointerLevel(&info, q);
         info.isArray = false;
-    } else if (info.category == TYPEINFO_FUNCTION || info.isFunction) {
+        info.isLValue = false;
+        return info;
+    }
+    if (info.category == TYPEINFO_FUNCTION || info.isFunction) {
         info.category = TYPEINFO_POINTER;
         typeInfoPrependPointerLevel(&info, (PointerQualifier){0});
         info.isFunction = false;
+        info.isLValue = false;
+        return info;
+    }
+    if (!info.isLValue) {
+        return info;
     }
     if (info.isBitfield) {
         info.isBitfield = false;
@@ -795,7 +801,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             }
 
             if (strcmp(op, "&") == 0) {
-                if (!operand.isLValue) {
+                bool isFuncDesignator = (operand.category == TYPEINFO_FUNCTION || operand.isFunction);
+                if (!operand.isLValue && !isFuncDesignator) {
                     reportOperandError(node, "lvalue operand", "&");
                     return makeInvalidType();
                 }
@@ -814,8 +821,14 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                                            target->valueNode.value);
                     }
                 }
-                operand.category = TYPEINFO_POINTER;
                 PointerQualifier q = { operand.isConst, operand.isVolatile, operand.isRestrict };
+                if (isFuncDesignator) {
+                    q.isConst = false;
+                    q.isVolatile = false;
+                    q.isRestrict = false;
+                    operand.isFunction = false;
+                }
+                operand.category = TYPEINFO_POINTER;
                 typeInfoPrependPointerLevel(&operand, q);
                 operand.isArray = false;
                 operand.isLValue = false;
@@ -826,6 +839,16 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
             if (strcmp(op, "*") == 0) {
                 if (operand.category == TYPEINFO_POINTER && operand.pointerDepth > 0) {
+                    if (operand.originalType) {
+                        ParsedType targetParsed = parsedTypePointerTargetType(operand.originalType);
+                        if (targetParsed.kind != TYPE_INVALID) {
+                            TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
+                            targetInfo.isLValue = true;
+                            parsedTypeFree(&targetParsed);
+                            return targetInfo;
+                        }
+                        parsedTypeFree(&targetParsed);
+                    }
                     typeInfoDropPointerLevel(&operand);
                     if (operand.pointerDepth == 0) {
                         restoreBaseCategory(&operand);
@@ -1010,6 +1033,16 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_POINTER_DEREFERENCE: {
             TypeInfo base = analyzeExpression(node->pointerDeref.pointer, scope);
             if (base.category == TYPEINFO_POINTER && base.pointerDepth > 0) {
+                if (base.originalType) {
+                    ParsedType targetParsed = parsedTypePointerTargetType(base.originalType);
+                    if (targetParsed.kind != TYPE_INVALID) {
+                        TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
+                        targetInfo.isLValue = true;
+                        parsedTypeFree(&targetParsed);
+                        return targetInfo;
+                    }
+                    parsedTypeFree(&targetParsed);
+                }
                 typeInfoDropPointerLevel(&base);
                 if (base.pointerDepth == 0) {
                     restoreBaseCategory(&base);
@@ -1067,6 +1100,16 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 arrayInfo = decayToRValue(arrayInfo);
             }
             if (arrayInfo.category == TYPEINFO_POINTER && arrayInfo.pointerDepth > 0) {
+                if (arrayInfo.originalType) {
+                    ParsedType targetParsed = parsedTypePointerTargetType(arrayInfo.originalType);
+                    if (targetParsed.kind != TYPE_INVALID) {
+                        TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
+                        parsedTypeFree(&targetParsed);
+                        targetInfo.isLValue = true;
+                        return targetInfo;
+                    }
+                    parsedTypeFree(&targetParsed);
+                }
                 typeInfoDropPointerLevel(&arrayInfo);
                 if (arrayInfo.pointerDepth == 0) {
                     restoreBaseCategory(&arrayInfo);
@@ -1176,12 +1219,13 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_SIZEOF:
             if (node->expr.left) {
                 TypeInfo target = analyzeExpression(node->expr.left, scope);
+                if (target.category == TYPEINFO_FUNCTION || target.isFunction) {
+                    addError(node->line, 0, "sizeof applied to function type", NULL);
+                    return makeInvalidType();
+                }
                 if ((target.category == TYPEINFO_STRUCT || target.category == TYPEINFO_UNION) && !target.isComplete) {
                     addError(node->line, 0, "sizeof applied to incomplete type", NULL);
                     return makeInvalidType();
-                }
-                if (target.isVLA) {
-                    addError(node->line, 0, "sizeof applied to variable length array is not an integer constant expression", NULL);
                 }
             }
             return makeIntegerType(64, false, TOKEN_UNSIGNED);
@@ -1191,9 +1235,6 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 if ((target.category == TYPEINFO_STRUCT || target.category == TYPEINFO_UNION) && !target.isComplete) {
                     addError(node->line, 0, "alignof applied to incomplete type", NULL);
                     return makeInvalidType();
-                }
-                if (target.isVLA) {
-                    addError(node->line, 0, "alignof applied to variable length array is not an integer constant expression", NULL);
                 }
             }
             return makeIntegerType(64, false, TOKEN_UNSIGNED);

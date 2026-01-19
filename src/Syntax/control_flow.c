@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
     bool inLoop;
@@ -61,13 +62,29 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
     FlowContext caseCtx = ctx;
     caseCtx.inSwitch = true;
 
+    size_t caseCount = node->switchStmt.caseListSize;
+    FlowResult* caseFlows = NULL;
+    bool* isDefault = NULL;
+    FlowResult* chainFlows = NULL;
+    if (caseCount > 0) {
+        caseFlows = (FlowResult*)calloc(caseCount, sizeof(FlowResult));
+        isDefault = (bool*)calloc(caseCount, sizeof(bool));
+        chainFlows = (FlowResult*)calloc(caseCount, sizeof(FlowResult));
+        if (!caseFlows || !isDefault || !chainFlows) {
+            free(caseFlows);
+            free(isDefault);
+            free(chainFlows);
+            return result;
+        }
+    }
+
     bool sawDefault = false;
-    bool allReturn = true;
-    bool allStop = true;
-    bool anyReachable = false;
-    for (size_t i = 0; i < node->switchStmt.caseListSize; ++i) {
+    for (size_t i = 0; i < caseCount; ++i) {
         ASTNode* caseNode = node->switchStmt.caseList[i];
-        if (!caseNode) continue;
+        if (!caseNode) {
+            caseFlows[i] = makeFlow(false, false);
+            continue;
+        }
 
         bool caseReachable = ctx.reachable;
         if (!caseReachable && !caseCtx.suppressUnreachable) {
@@ -79,18 +96,14 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
         thisCtx.suppressUnreachable = !caseReachable;
 
         FlowResult caseFlow = checkCaseBody(caseNode, scope, thisCtx);
+        caseFlows[i] = caseFlow;
 
         if (!caseNode->caseStmt.caseValue) {
             sawDefault = true;
+            if (isDefault) isDefault[i] = true;
         }
 
-        if (caseReachable) {
-            anyReachable = true;
-            allReturn = allReturn && caseFlow.returns;
-            allStop = allStop && caseFlow.stops;
-        }
-
-        bool fallsThrough = caseReachable && !caseFlow.stops && (i + 1 < node->switchStmt.caseListSize);
+        bool fallsThrough = caseReachable && !caseFlow.stops && (i + 1 < caseCount);
         if (fallsThrough) {
             addWarning(safeLine(caseNode), 0, "Switch case may fall through", NULL);
         }
@@ -100,8 +113,36 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
         }
     }
 
-    result.stops = sawDefault && ctx.reachable && anyReachable && allStop;
+    if (caseCount > 0 && chainFlows && caseFlows) {
+        FlowResult nextChain = makeFlow(false, false);
+        for (size_t idx = caseCount; idx-- > 0;) {
+            FlowResult flow = caseFlows[idx];
+            if (!flow.stops) {
+                flow = nextChain;
+            }
+            chainFlows[idx] = flow;
+            nextChain = flow;
+        }
+    }
+
+    bool allReturn = true;
+    bool anyReachable = ctx.reachable && caseCount > 0;
+    if (!anyReachable) {
+        allReturn = false;
+    } else {
+        for (size_t i = 0; i < caseCount; ++i) {
+            if (!chainFlows[i].returns) {
+                allReturn = false;
+                break;
+            }
+        }
+    }
+
+    result.stops = sawDefault && ctx.reachable && anyReachable && allReturn;
     result.returns = sawDefault && ctx.reachable && anyReachable && allReturn;
+    free(caseFlows);
+    free(isDefault);
+    free(chainFlows);
     return result;
 }
 

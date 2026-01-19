@@ -2143,10 +2143,10 @@ PROGRAM
     IDENTIFIER mbstowcs
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -2156,10 +2156,10 @@ PROGRAM
     IDENTIFIER mbtowc
     PARAMETERS:
       VAR_DECL
-        TYPE: wchar_t*
+        TYPE: wchar_t* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -2302,10 +2302,10 @@ PROGRAM
     IDENTIFIER wcstombs
     PARAMETERS:
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: const wchar_t*
+        TYPE: const wchar_t* restrict
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: size_t
@@ -2353,10 +2353,10 @@ PROGRAM
         TYPE: int
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: int*
+        TYPE: int* restrict
         IDENTIFIER __unnamed_param2
       VAR_DECL
-        TYPE: int*
+        TYPE: int* restrict
         IDENTIFIER __unnamed_param3
   FUNCTION DECLARATION
     RETURN TYPE: double
@@ -2376,10 +2376,10 @@ PROGRAM
         TYPE: int
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: int*
+        TYPE: int* restrict
         IDENTIFIER __unnamed_param2
       VAR_DECL
-        TYPE: int*
+        TYPE: int* restrict
         IDENTIFIER __unnamed_param3
   FUNCTION DECLARATION
     RETURN TYPE: char*
@@ -2402,7 +2402,7 @@ PROGRAM
         TYPE: char**
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: char**
+        TYPE: char* const*
         IDENTIFIER __unnamed_param1
       VAR_DECL
         TYPE: char**
@@ -2539,10 +2539,10 @@ PROGRAM
     IDENTIFIER realpath
     PARAMETERS:
       VAR_DECL
-        TYPE: const char*
+        TYPE: const char* restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: char*
+        TYPE: char* restrict
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
     RETURN TYPE: unsigned short int*

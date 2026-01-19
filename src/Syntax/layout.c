@@ -259,6 +259,12 @@ static bool layout_struct_fields(ASTNode* def,
                 return false;
             }
             if (fieldSize == 0) return false;
+            if (dbgLayout) {
+                fprintf(stderr,
+                        "[layout] bitfield %s size=%zu align=%zu width=%lld\n",
+                        fieldName ? fieldName : "<unnamed>",
+                        fieldSize, fieldAlign, widthVal);
+            }
             size_t unitBits = fieldSize * 8;
             size_t unitAlign = fieldAlign;
             if (tl && tl->bitfieldUnitBits > 0 && unitBits < tl->bitfieldUnitBits) {

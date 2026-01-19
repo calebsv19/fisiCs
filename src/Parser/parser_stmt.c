@@ -41,8 +41,34 @@ ASTNode* handleControlStatements(Parser* parser) {
         freeParserClone(&defProbe);
         return handleTypeOrFunctionDeclaration(parser);
     }
-    if (parser->currentToken.type == TOKEN_ENUM)
-        return parseEnumDefinition(parser);
+    if (parser->currentToken.type == TOKEN_ENUM) {
+        Parser defProbe = cloneParserWithFreshLexer(parser);
+        ParsedType defProbeType = parseType(&defProbe);
+        if (defProbeType.inlineEnumDef &&
+            defProbe.currentToken.type == TOKEN_SEMICOLON) {
+            parsedTypeFree(&defProbeType);
+            freeParserClone(&defProbe);
+
+            ParsedType realType = parseType(parser);
+            ASTNode* def = realType.inlineEnumDef;
+            if (!def) {
+                parsedTypeFree(&realType);
+                printParseError("Invalid enum definition", parser);
+                return NULL;
+            }
+            if (parser->currentToken.type != TOKEN_SEMICOLON) {
+                parsedTypeFree(&realType);
+                printParseError("Expected ';' after enum definition", parser);
+                return NULL;
+            }
+            advance(parser); // consume ';'
+            parsedTypeFree(&realType);
+            return def;
+        }
+        parsedTypeFree(&defProbeType);
+        freeParserClone(&defProbe);
+        return handleTypeOrFunctionDeclaration(parser);
+    }
     if (parser->currentToken.type == TOKEN_TYPEDEF)
         return parseTypedef(parser);
     
@@ -331,7 +357,7 @@ ASTNode* parseForLoopInitializer(Parser* parser) {
         if (looksLikeTypeDeclaration(parser)) {
             init = parseDeclarationForLoop(parser);
         } else {
-            init = parseAssignmentExpression(parser);  // Use assignment-only for single expression
+            init = parseCommaExpression(parser);  // Allow comma operator in init clause
         }
          
         if (!init) {
@@ -518,19 +544,44 @@ ASTNode* parseLabel(Parser* parser) {
 
 ASTNode* parseAsmStatement(Parser* parser) {
     advance(parser); // consume 'asm'
-    
-    if (parser->currentToken.type != TOKEN_STRING) {
-        printParseError("Expected string literal after 'asm'", parser);
+
+    if (parser->currentToken.type == TOKEN_VOLATILE ||
+        parser->currentToken.type == TOKEN_INLINE) {
+        advance(parser);
+    }
+
+    char* asmText = NULL;
+    if (parser->currentToken.type == TOKEN_LPAREN) {
+        int depth = 0;
+        while (parser->currentToken.type != TOKEN_EOF) {
+            if (parser->currentToken.type == TOKEN_LPAREN) {
+                depth++;
+            } else if (parser->currentToken.type == TOKEN_RPAREN) {
+                depth--;
+                if (depth == 0) {
+                    advance(parser);
+                    break;
+                }
+            } else if (!asmText && parser->currentToken.type == TOKEN_STRING) {
+                asmText = strdup(parser->currentToken.value);
+            }
+            advance(parser);
+        }
+    } else if (parser->currentToken.type == TOKEN_STRING) {
+        asmText = strdup(parser->currentToken.value);
+        advance(parser);
+    } else {
+        printParseError("Expected asm(\"...\") or string literal after 'asm'", parser);
         return NULL;
     }
-     
-    char* asmText = strdup(parser->currentToken.value);  // Copy string content
-    advance(parser);  // consume string
-    
-    if (parser->currentToken.type == TOKEN_SEMICOLON) {
-        advance(parser);  // consume semicolon
+
+    if (parser->currentToken.type != TOKEN_SEMICOLON) {
+        printParseError("Expected ';' after asm statement", parser);
+        free(asmText);
+        return NULL;
     }
-     
+    advance(parser);
+
     return createAsmNode(asmText);
 }
 

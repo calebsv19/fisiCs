@@ -74,6 +74,4 @@ Error at (24:5): Redefinition of enum constant
 Error at (25:5): Redefinition of enum constant
    Hint: SHADE_BLUE
    Spelling: tests/syntax/semantic_tag_conflicts.c:25:5
-Error at (30:0): Conflicting definition of union 'TagX'
-Error at (31:0): Conflicting definition of enum 'TagX'
 

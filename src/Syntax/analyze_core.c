@@ -102,6 +102,7 @@ void analyze(ASTNode* node, Scope* scope) {
         }
 
         // 4) Analyze the function body under the function scope
+        validateGotoScopes(node->functionDef.body);
         analyze(node->functionDef.body, fscope);
 
         destroyScope(fscope);

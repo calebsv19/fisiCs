@@ -127,6 +127,7 @@ struct CodegenContext {
     const SemanticModel* semanticModel;
     CGTypeCache* typeCache;
     const ParsedType* currentFunctionReturnType;
+    const char* currentFunctionName;
     bool verifyFunctions;
 };
 
@@ -277,6 +278,7 @@ LLVMValueRef codegenBlock(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenTernaryExpression(CodegenContext* ctx, ASTNode* node);
+LLVMValueRef codegenCommaExpression(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node);
 LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node);

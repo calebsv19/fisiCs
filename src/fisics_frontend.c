@@ -108,6 +108,37 @@ static bool copy_symbols(const CompilerContext* ctx, FisicsAnalysisResult* out) 
             dst[i].file_path = dupstr(src[i].file_path);
             if (!dst[i].file_path) { out->symbol_count = i + 1; fisics_free_analysis_result(out); return false; }
         }
+        if (src[i].parent_name) {
+            dst[i].parent_name = dupstr(src[i].parent_name);
+            if (!dst[i].parent_name) { out->symbol_count = i + 1; fisics_free_analysis_result(out); return false; }
+        }
+        if (src[i].return_type) {
+            dst[i].return_type = dupstr(src[i].return_type);
+            if (!dst[i].return_type) { out->symbol_count = i + 1; fisics_free_analysis_result(out); return false; }
+        }
+        dst[i].param_types = NULL;
+        dst[i].param_count = src[i].param_count;
+        if (src[i].param_types && src[i].param_count > 0) {
+            dst[i].param_types = (const char**)calloc(src[i].param_count, sizeof(char*));
+            if (!dst[i].param_types) { out->symbol_count = i + 1; fisics_free_analysis_result(out); return false; }
+            for (size_t p = 0; p < src[i].param_count; ++p) {
+                if (src[i].param_types[p]) {
+                    ((char**)dst[i].param_types)[p] = dupstr(src[i].param_types[p]);
+                    if (!dst[i].param_types[p]) { out->symbol_count = i + 1; fisics_free_analysis_result(out); return false; }
+                }
+            }
+        }
+        dst[i].param_names = NULL;
+        if (src[i].param_names && src[i].param_count > 0) {
+            dst[i].param_names = (const char**)calloc(src[i].param_count, sizeof(char*));
+            if (!dst[i].param_names) { out->symbol_count = i + 1; fisics_free_analysis_result(out); return false; }
+            for (size_t p = 0; p < src[i].param_count; ++p) {
+                if (src[i].param_names[p]) {
+                    ((char**)dst[i].param_names)[p] = dupstr(src[i].param_names[p]);
+                    if (!dst[i].param_names[p]) { out->symbol_count = i + 1; fisics_free_analysis_result(out); return false; }
+                }
+            }
+        }
     }
     out->symbols = dst;
     out->symbol_count = count;
@@ -161,6 +192,7 @@ bool fisics_analyze_buffer(const char* file_path,
         if (opts->lenient_mode < 0) lenient = false;
         else if (opts->lenient_mode > 0) lenient = true;
     }
+    bool includeSystemSymbols = opts && opts->include_system_symbols;
 
     bool ok = compiler_run_frontend(ctx,
                                     file_path,
@@ -173,6 +205,7 @@ bool fisics_analyze_buffer(const char* file_path,
                                     opts ? opts->macro_defines : NULL,
                                     opts ? opts->macro_define_count : 0,
                                     lenient,
+                                    includeSystemSymbols,
                                     false,
                                     false,
                                     &ast,
@@ -216,6 +249,20 @@ void fisics_free_analysis_result(FisicsAnalysisResult* result) {
         for (size_t i = 0; i < result->symbol_count; ++i) {
             free((char*)result->symbols[i].name);
             free((char*)result->symbols[i].file_path);
+            free((char*)result->symbols[i].parent_name);
+            free((char*)result->symbols[i].return_type);
+            if (result->symbols[i].param_types) {
+                for (size_t p = 0; p < result->symbols[i].param_count; ++p) {
+                    free((char*)result->symbols[i].param_types[p]);
+                }
+                free(result->symbols[i].param_types);
+            }
+            if (result->symbols[i].param_names) {
+                for (size_t p = 0; p < result->symbols[i].param_count; ++p) {
+                    free((char*)result->symbols[i].param_names[p]);
+                }
+                free(result->symbols[i].param_names);
+            }
         }
         free(result->symbols);
     }

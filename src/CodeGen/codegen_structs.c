@@ -209,7 +209,9 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         /* Default to a 32-bit element for unknown/opaque pointers to avoid bogus half-element GEPs. */
         elementType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
-    if (pointee && (LLVMGetTypeKind(pointee) == LLVMHalfTypeKind || LLVMGetTypeKind(pointee) == LLVMFloatTypeKind)) {
+    if (pointee &&
+        (LLVMGetTypeKind(pointee) == LLVMHalfTypeKind || LLVMGetTypeKind(pointee) == LLVMFloatTypeKind) &&
+        (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind)) {
         elementType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
     /* If the base is an opaque pointer and we still have a non-integer element (e.g., mis-inferred),
@@ -217,7 +219,8 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     if (LLVMGetTypeKind(valueType) == LLVMPointerTypeKind &&
         LLVMGetElementType(valueType) == NULL &&
         elementType &&
-        LLVMGetTypeKind(elementType) != LLVMIntegerTypeKind) {
+        LLVMGetTypeKind(elementType) != LLVMIntegerTypeKind &&
+        LLVMGetTypeKind(elementType) != LLVMPointerTypeKind) {
         elementType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
@@ -274,7 +277,7 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         fprintf(stderr, "Error: opaque pointer array base without element type\n");
         return NULL;
     }
-    LLVMTypeRef geptype = baseElem ? baseElem : elementType;
+    LLVMTypeRef geptype = elementType ? elementType : baseElem;
     if (geptype && LLVMGetTypeKind(geptype) == LLVMHalfTypeKind) {
         geptype = LLVMInt32TypeInContext(ctx->llvmContext);
     }
@@ -624,6 +627,14 @@ bool codegenLValue(CodegenContext* ctx,
             }
             *outPtr = pointerValue;
             *outType = elemType;
+            if (outParsedType && ptrParsed) {
+                static ParsedType tmp;
+                parsedTypeFree(&tmp);
+                tmp = parsedTypePointerTargetType(ptrParsed);
+                if (tmp.kind != TYPE_INVALID) {
+                    *outParsedType = &tmp;
+                }
+            }
             return true;
         }
         case AST_POINTER_DEREFERENCE: {
@@ -636,6 +647,14 @@ bool codegenLValue(CodegenContext* ctx,
             }
             *outPtr = pointerValue;
             *outType = elemType;
+            if (outParsedType && ptrParsed) {
+                static ParsedType tmp;
+                parsedTypeFree(&tmp);
+                tmp = parsedTypePointerTargetType(ptrParsed);
+                if (tmp.kind != TYPE_INVALID) {
+                    *outParsedType = &tmp;
+                }
+            }
             return true;
         }
         case AST_DOT_ACCESS: {

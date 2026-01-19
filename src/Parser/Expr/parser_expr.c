@@ -18,7 +18,7 @@ ASTNode* parseExpression(Parser* parser) {
 
 ASTNode* parseCommaExpression(Parser* parser) {
     if (parser->mode == PARSER_MODE_PRATT) {
-        return parseExpressionPratt(parser, 0);  // Pratt handles comma internally
+        return parseExpressionPratt(parser, -1);  // Allow comma (lowest precedence)
     }
     return parseCommaExpressionRecursive(parser);  // fallback to your original
 }
@@ -57,6 +57,10 @@ ASTNode* parseCommaExpressionRecursive(Parser* parser) {
 
 
 ASTNode* parseAssignmentExpression(Parser* parser) {
+    if (parser->mode == PARSER_MODE_PRATT) {
+        // Assignment-expression excludes the comma operator (lower precedence).
+        return parseExpressionPratt(parser, 0);
+    }
     ASTNode* left = parseTernaryExpression(parser);
     if (!left) {
         printf("Error: Invalid left-hand side in assignment at line %d\n", 
@@ -552,19 +556,41 @@ ASTNode* parsePrimary(Parser* parser) {
      
     // String literal
     if (parser->currentToken.type == TOKEN_STRING) {
-        ASTNode* node = createStringLiteralNode(parser->currentToken.value);
-        astNodeSetProvenance(node, &parser->currentToken);
-        advance(parser);
+        Token firstToken = parser->currentToken;
+        size_t cap = 0;
+        size_t len = 0;
+        char* buf = NULL;
+        while (parser->currentToken.type == TOKEN_STRING) {
+            const char* text = parser->currentToken.value ? parser->currentToken.value : "";
+            size_t tlen = strlen(text);
+            if (len + tlen + 1 > cap) {
+                size_t newCap = cap ? cap * 2 : 64;
+                while (newCap < len + tlen + 1) newCap *= 2;
+                char* next = realloc(buf, newCap);
+                if (!next) {
+                    free(buf);
+                    printf("Error: OOM concatenating string literal at line %d\n", parser->currentToken.line);
+                    return NULL;
+                }
+                buf = next;
+                cap = newCap;
+            }
+            memcpy(buf + len, text, tlen);
+            len += tlen;
+            buf[len] = '\0';
+            advance(parser);
+        }
+        if (!buf) {
+            buf = strdup("");
+        }
+        ASTNode* node = createStringLiteralNode(buf);
+        if (node) {
+            astNodeSetProvenance(node, &firstToken);
+        }
+        free(buf);
         return node;
     }
 
-    if (parser->currentToken.type == TOKEN_TRUE || parser->currentToken.type == TOKEN_FALSE) {
-        ASTNode* node = createNumberLiteralNode(parser->currentToken.type == TOKEN_TRUE ? "1" : "0");
-        astNodeSetProvenance(node, &parser->currentToken);
-        advance(parser);
-        return node;
-    }
-     
     if (parser->currentToken.type == TOKEN_SIZEOF) {
         return parseSizeofExpression(parser);
     }

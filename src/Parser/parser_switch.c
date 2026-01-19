@@ -43,7 +43,7 @@ ASTNode* parseSwitchStatement(Parser* parser) {
             ASTNode* caseValue = NULL;
             if (parser->currentToken.type == TOKEN_CASE) {
                 advance(parser);
-                caseValue = parsePrimary(parser);
+                caseValue = parseExpression(parser);
                 if (!caseValue) {
                     printf("Error: Invalid case value at line %d\n", parser->currentToken.line);
                     return NULL;

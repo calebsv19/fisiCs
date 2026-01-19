@@ -907,9 +907,7 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "char") == 0) return TOKEN_CHAR;
     if (strcmp(word, "float") == 0) return TOKEN_FLOAT;
     if (strcmp(word, "double") == 0) return TOKEN_DOUBLE;
-    if (strcmp(word, "bool") == 0 || strcmp(word, "_Bool") == 0) return TOKEN_BOOL;
-    if (strcmp(word, "true") == 0) return TOKEN_TRUE;
-    if (strcmp(word, "false") == 0) return TOKEN_FALSE;
+    if (strcmp(word, "_Bool") == 0) return TOKEN_BOOL;
     if (strcmp(word, "_Complex") == 0 || strcmp(word, "__complex") == 0 || strcmp(word, "__complex__") == 0) return TOKEN_COMPLEX;
     if (strcmp(word, "_Imaginary") == 0 || strcmp(word, "__imaginary") == 0 || strcmp(word, "__imaginary__") == 0) return TOKEN_IMAGINARY;
     if (strcmp(word, "long") == 0) return TOKEN_LONG;

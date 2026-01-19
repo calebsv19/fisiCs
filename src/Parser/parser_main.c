@@ -222,7 +222,9 @@ ASTNode* parseProgram(Parser* parser) {
 
         if (parser->currentToken.type == TOKEN_ENUM) {
             Token n = peekNextToken(parser);
-            if ((n.type == TOKEN_IDENTIFIER || n.type == TOKEN_LBRACE)) {
+            Token a = peekTwoTokensAhead(parser);
+            if (n.type == TOKEN_LBRACE ||
+                (n.type == TOKEN_IDENTIFIER && a.type == TOKEN_LBRACE)) {
                 ASTNode* def = parseEnumDefinition(parser);
                 if (def) {
                     if (count >= capacity) {
@@ -332,6 +334,10 @@ ASTNode* parseBlock(Parser* parser) {
 ASTNode* parseStatement(Parser* parser) {
     PARSER_DEBUG_PRINTF("DEBUG: Current Token: %s at line %d\n",
            parser->currentToken.value, parser->currentToken.line);
+
+    if (parser->currentToken.type == TOKEN_ASM) {
+        return parseAsmStatement(parser);
+    }
 
     size_t stmtAttrCount = 0;
     ASTAttribute** stmtAttrs = parserParseAttributeSpecifiers(parser, &stmtAttrCount);
