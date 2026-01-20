@@ -494,7 +494,7 @@ static const char* token_text(const Token* tok) {
 static bool append_stringified_argument(PPTokenBuffer* dest,
                                         const MacroArg* arg,
                                         SourceRange origin) {
-    size_t totalLen = 2; // quotes
+    size_t totalLen = 0;
     if (arg) {
         for (size_t i = 0; i < arg->raw.count; ++i) {
             const char* text = token_text(&arg->raw.tokens[i]);
@@ -516,7 +516,6 @@ static bool append_stringified_argument(PPTokenBuffer* dest,
         return false;
     }
     char* ptr = buffer;
-    *ptr++ = '"';
     if (arg) {
         for (size_t i = 0; i < arg->raw.count; ++i) {
             if (i > 0) {
@@ -531,7 +530,6 @@ static bool append_stringified_argument(PPTokenBuffer* dest,
             }
         }
     }
-    *ptr++ = '"';
     *ptr = '\0';
 
     Token stringTok = make_simple_token(TOKEN_STRING, buffer, origin);

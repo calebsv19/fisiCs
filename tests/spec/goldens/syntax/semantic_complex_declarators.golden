@@ -1,0 +1,117 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int*
+    IDENTIFIER retptr
+    PARAMETERS
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+    BLOCK
+      RETURN
+        IDENTIFIER p
+  FUNCTION DEFINITION
+    RETURN TYPE: int* [NUMBER_LITERAL 3]
+    IDENTIFIER make
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: static int [NUMBER_LITERAL 3]
+        IDENTIFIER arr
+            = NUMBER_LITERAL 1
+
+            = NUMBER_LITERAL 2
+
+            = NUMBER_LITERAL 3
+
+      RETURN
+        UNARY EXPRESSION '&' (prefix)
+          IDENTIFIER arr
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 2] [NUMBER_LITERAL 3]
+        IDENTIFIER a
+            = 
+              = NUMBER_LITERAL 1
+
+              = NUMBER_LITERAL 2
+
+              = NUMBER_LITERAL 3
+
+            = 
+              = NUMBER_LITERAL 4
+
+              = NUMBER_LITERAL 5
+
+              = NUMBER_LITERAL 6
+
+      VAR_DECL
+        TYPE: int* [NUMBER_LITERAL 2] [NUMBER_LITERAL 3]
+        IDENTIFIER p
+            = &(Unrecognized for inline: type 14)            = &(Unrecognized for inline: type 14)      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = NUMBER_LITERAL 3
+      VAR_DECL
+        TYPE: int (**)(int*) (int*)
+        IDENTIFIER fp
+          = IDENTIFIER retptr
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER ok
+          = 
+            BINARY EXPRESSION '=='
+              ARRAY_ACCESS
+                UNARY EXPRESSION '*' (prefix)
+                  ARRAY_ACCESS
+                    IDENTIFIER p
+                    NUMBER_LITERAL 0
+                NUMBER_LITERAL 1
+              NUMBER_LITERAL 2
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER ok2
+          = 
+            BINARY EXPRESSION '=='
+              UNARY EXPRESSION '*' (prefix)
+                FUNCTION CALL
+                  IDENTIFIER fp
+                  ARGUMENTS
+                    UNARY EXPRESSION '&' (prefix)
+                      IDENTIFIER x
+              NUMBER_LITERAL 3
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER ok3
+          = 
+            BINARY EXPRESSION '=='
+              ARRAY_ACCESS
+                UNARY EXPRESSION '*' (prefix)
+                  FUNCTION CALL
+                    IDENTIFIER make
+                NUMBER_LITERAL 1
+              NUMBER_LITERAL 2
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '&&'
+            BINARY EXPRESSION '&&'
+              IDENTIFIER ok
+              IDENTIFIER ok2
+            IDENTIFIER ok3
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

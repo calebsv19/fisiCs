@@ -359,10 +359,12 @@ static const ParsedType* resolveTypedefInScope(const ParsedType* type, Scope* sc
 }
 
 static void evaluateArrayDerivations(ParsedType* type, Scope* scope) {
-    if (!type || !parsedTypeIsDirectArray(type)) return;
+    if (!type) return;
     for (size_t d = 0; d < type->derivationCount; ++d) {
-        TypeDerivation* deriv = parsedTypeGetMutableArrayDerivation(type, d);
-        if (!deriv) break;
+        TypeDerivation* deriv = &type->derivations[d];
+        if (deriv->kind != TYPE_DERIVATION_ARRAY) {
+            continue;
+        }
         if (deriv->as.array.sizeExpr) {
             size_t len = 0;
             if (tryEvaluateArrayLength(deriv->as.array.sizeExpr, scope, &len)) {
@@ -651,7 +653,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
 
                 bool staticStorage = scopeIsFileScope(scope) ||
                                      (varType && (varType->isStatic || varType->isExtern));
-                if (varType && parsedTypeIsDirectArray(varType)) {
+                if (varType) {
                     evaluateArrayDerivations(varType, scope);
                 }
                 const ParsedType* resolvedVar = resolveTypedefInScope(varType, scope);
@@ -1078,8 +1080,13 @@ static void validateVariableInitializer(ParsedType* type,
     const char* name = safeIdentifierName(nameNode);
     TypeInfo info = typeInfoFromParsedType(type, scope);
     if (init->expression &&
-        init->expression->type == AST_COMPOUND_LITERAL &&
-        typeInfoIsPointerLike(&info)) {
+        typeInfoIsPointerLike(&info) &&
+        (init->expression->type == AST_COMPOUND_LITERAL ||
+         (init->expression->type == AST_UNARY_EXPRESSION &&
+          init->expression->expr.op &&
+          strcmp(init->expression->expr.op, "&") == 0 &&
+          init->expression->expr.left &&
+          init->expression->expr.left->type == AST_COMPOUND_LITERAL))) {
         // Allow pointer initialized from any compound literal (array decays; struct becomes pointer to first field unsupported but not here).
         return;
     }
@@ -1162,11 +1169,15 @@ static void validateArrayInitializerEntries(ParsedType* type,
     }
 
     TypeInfo elementInfo = typeInfoFromParsedType(type, scope);
+    ParsedType elementParsed = parsedTypeClone(type);
     if (parsedTypeIsDirectArray(type)) {
         ParsedType elementType = parsedTypeArrayElementType(type);
+        parsedTypeFree(&elementParsed);
+        elementParsed = parsedTypeClone(&elementType);
         elementInfo = typeInfoFromParsedType(&elementType, scope);
         parsedTypeFree(&elementType);
     }
+    bool elementIsArray = parsedTypeIsDirectArray(&elementParsed);
     bool treatAsChar = typeInfoIsCharLike(&elementInfo);
     bool treatAsWideChar = elementInfo.category == TYPEINFO_INTEGER && elementInfo.bitWidth > 8;
 
@@ -1254,10 +1265,22 @@ static void validateArrayInitializerEntries(ParsedType* type,
             sawAny = true;
         }
 
-        if (init->expression && init->expression->type == AST_COMPOUND_LITERAL && !typeInfoIsStructLike(&elementInfo)) {
-            validateScalarCompoundLiteral(init->expression, contextNode, arrayName);
+        if (init->expression && init->expression->type == AST_COMPOUND_LITERAL) {
+            if (elementIsArray) {
+                validateArrayInitializerEntries(&elementParsed,
+                                                arrayName,
+                                                init->expression->compoundLiteral.entries,
+                                                init->expression->compoundLiteral.entryCount,
+                                                scope,
+                                                contextNode,
+                                                NULL);
+            } else if (!typeInfoIsStructLike(&elementInfo)) {
+                validateScalarCompoundLiteral(init->expression, contextNode, arrayName);
+            }
         }
     }
+
+    parsedTypeFree(&elementParsed);
 
 
     if (!hasDeclaredLen && outInferredLength && sawAny) {

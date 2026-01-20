@@ -25,6 +25,7 @@ static bool parseDeclaratorInternal(Parser* parser,
                                     ParsedDeclarator* decl,
                                     bool trackDirectFunction,
                                     bool requireIdentifier,
+                                    bool captureFunctionParams,
                                     bool topLevel);
 static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResult* out);
 static void freeFunctionTypeParseResult(FunctionTypeParseResult* out);
@@ -125,8 +126,9 @@ void applyPointerChainToType(ParsedType* type, const PointerChain* chain) {
 bool parserConsumeArraySuffixes(Parser* parser, ParsedType* type) {
     if (!parser || !type) return false;
     while (parser->currentToken.type == TOKEN_LBRACKET) {
-        ASTNode* sizeExpr = parseArraySize(parser);
-        if (!parsedTypeAppendArray(type, sizeExpr, false)) {
+        bool isVLA = false;
+        ASTNode* sizeExpr = parseArraySize(parser, &isVLA);
+        if (!parsedTypeAppendArray(type, sizeExpr, isVLA)) {
             return false;
         }
     }
@@ -213,7 +215,7 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         }
 
         ParsedDeclarator paramDecl;
-        if (!parserParseDeclarator(parser, &baseType, false, false, &paramDecl)) {
+        if (!parserParseDeclarator(parser, &baseType, false, false, false, &paramDecl)) {
             parsedTypeFree(&baseType);
             parsedTypeAdoptAttributes(NULL, leadingAttrs, leadingAttrCount);
             return false;
@@ -264,24 +266,75 @@ static void freeFunctionTypeParseResult(FunctionTypeParseResult* out) {
     out->isVariadic = false;
 }
 
+static ParsedType* buildParamTypesFromDecls(ASTNode** params, size_t paramCount) {
+    if (!params || paramCount == 0) {
+        return NULL;
+    }
+    ParsedType* types = malloc(paramCount * sizeof(ParsedType));
+    if (!types) {
+        return NULL;
+    }
+    for (size_t i = 0; i < paramCount; ++i) {
+        const ParsedType* paramType = astVarDeclTypeAt(params[i], 0);
+        if (!paramType) {
+            memset(&types[i], 0, sizeof(ParsedType));
+            types[i].kind = TYPE_INVALID;
+            types[i].tag = TAG_NONE;
+        } else {
+            types[i] = parsedTypeClone(paramType);
+        }
+    }
+    return types;
+}
+
 static bool parseFunctionSuffix(Parser* parser,
                                 ParsedType* type,
                                 ParsedDeclarator* decl,
                                 bool trackDirectFunction,
+                                bool captureFunctionParams,
                                 bool topLevel,
                                 bool groupedDeclarator) {
     advance(parser); // consume '('
     FunctionTypeParseResult info = {0};
-    if (!parseFunctionTypeParameterList(parser, &info)) {
-        freeFunctionTypeParseResult(&info);
-        printParseError("Invalid function parameter list", parser);
-        return false;
+    ASTNode** paramList = NULL;
+    size_t paramCount = 0;
+    bool isVariadic = false;
+    ParsedType* paramTypes = NULL;
+
+    if (captureFunctionParams) {
+        paramList = parseParameterList(parser, &paramCount, &isVariadic);
+        if (!paramList && paramCount == 0) {
+            printParseError("Invalid function parameter list", parser);
+            return false;
+        }
+        if (parser->currentToken.type != TOKEN_RPAREN) {
+            printParseError("Expected ')' after parameter list", parser);
+            return false;
+        }
+        paramTypes = buildParamTypesFromDecls(paramList, paramCount);
+        if (paramCount > 0 && !paramTypes) {
+            printParseError("Out of memory building function parameter types", parser);
+            return false;
+        }
+        info.params = paramTypes;
+        info.count = paramCount;
+        info.isVariadic = isVariadic;
+        decl->functionParameters = paramList;
+        decl->functionParamCount = paramCount;
+        decl->functionIsVariadic = isVariadic;
+    } else {
+        if (!parseFunctionTypeParameterList(parser, &info)) {
+            freeFunctionTypeParseResult(&info);
+            printParseError("Invalid function parameter list", parser);
+            return false;
+        }
+        if (parser->currentToken.type != TOKEN_RPAREN) {
+            freeFunctionTypeParseResult(&info);
+            printParseError("Expected ')' after parameter list", parser);
+            return false;
+        }
     }
-    if (parser->currentToken.type != TOKEN_RPAREN) {
-        freeFunctionTypeParseResult(&info);
-        printParseError("Expected ')' after parameter list", parser);
-        return false;
-    }
+
     advance(parser); // consume ')'
 
     bool appended = parsedTypeAppendFunction(type,
@@ -291,7 +344,11 @@ static bool parseFunctionSuffix(Parser* parser,
     if (groupedDeclarator) {
         parsedTypeSetFunctionPointer(type, info.count, info.params);
     }
-    freeFunctionTypeParseResult(&info);
+    if (captureFunctionParams) {
+        free(paramTypes);
+    } else {
+        freeFunctionTypeParseResult(&info);
+    }
     if (!appended) {
         printParseError("Failed to record function type", parser);
         return false;
@@ -307,6 +364,7 @@ static bool parseDeclaratorInternal(Parser* parser,
                                     ParsedDeclarator* decl,
                                     bool trackDirectFunction,
                                     bool requireIdentifier,
+                                    bool captureFunctionParams,
                                     bool topLevel) {
     size_t leadingAttrCount = 0;
     ASTAttribute** leadingAttrs = parserParseAttributeSpecifiers(parser, &leadingAttrCount);
@@ -363,6 +421,7 @@ static bool parseDeclaratorInternal(Parser* parser,
                                      decl,
                                      trackDirectFunction,
                                      requireIdentifier,
+                                     captureFunctionParams,
                                      topLevel)) {
             return false;
         }
@@ -382,8 +441,9 @@ static bool parseDeclaratorInternal(Parser* parser,
     while (parser->currentToken.type == TOKEN_LBRACKET ||
            parser->currentToken.type == TOKEN_LPAREN) {
         if (parser->currentToken.type == TOKEN_LBRACKET) {
-            ASTNode* sizeExpr = parseArraySize(parser);
-            if (!parsedTypeAppendArray(type, sizeExpr, false)) {
+            bool isVLA = false;
+            ASTNode* sizeExpr = parseArraySize(parser, &isVLA);
+            if (!parsedTypeAppendArray(type, sizeExpr, isVLA)) {
                 printParseError("Failed to parse array suffix", parser);
                 return false;
             }
@@ -392,6 +452,7 @@ static bool parseDeclaratorInternal(Parser* parser,
                              type,
                              decl,
                              trackDirectFunction,
+                             captureFunctionParams,
                              topLevel,
                              groupedDeclarator)) {
         return false;
@@ -405,6 +466,7 @@ static bool parseDeclaratorInternal(Parser* parser,
 
     applyPointerChainToType(type, &chain);
     pointerChainFree(&chain);
+    parsedTypeNormalizeFunctionPointer(type);
 
     if (requireIdentifier && !decl->identifier) {
         printParseError("Expected identifier in declarator", parser);
@@ -417,6 +479,7 @@ bool parserParseDeclarator(Parser* parser,
                            const ParsedType* baseType,
                            bool trackDirectFunction,
                            bool requireIdentifier,
+                           bool captureFunctionParams,
                            ParsedDeclarator* out) {
     if (!parser || !baseType || !out) {
         return false;
@@ -432,6 +495,7 @@ bool parserParseDeclarator(Parser* parser,
                                  out,
                                  trackDirectFunction,
                                  requireIdentifier,
+                                 captureFunctionParams,
                                  true)) {
         parserDeclaratorDestroy(out);
         return false;
@@ -481,6 +545,7 @@ ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
                               &parsedType,
                               true,
                               true,
+                              false,
                               &probeDecl)) {
         // Only treat declarators that spell a direct function type (first
         // derivation == function) as function declarations/definitions. A
@@ -528,6 +593,7 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
                                    &declaredType,
                                    false,
                                    true,
+                                   false,
                                    &decl)) {
             printParseError("invalid declarator", parser);
             free(varNames);
@@ -634,7 +700,7 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
     }       
          
     ParsedDeclarator decl;
-    if (!parserParseDeclarator(parser, &parsedType, false, true, &decl)) {
+    if (!parserParseDeclarator(parser, &parsedType, false, true, false, &decl)) {
         printParseError("invalid declarator in for-loop", parser);
         return NULL;
     }
@@ -909,7 +975,7 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount, bool* outHa
 
         for (;;) {
             ParsedDeclarator decl;
-            if (!parserParseDeclarator(parser, &type, false, false, &decl)) {
+            if (!parserParseDeclarator(parser, &type, false, false, false, &decl)) {
                 printParseError("Invalid field declarator", parser);
                 goto finish_fields;
             }
@@ -1108,7 +1174,7 @@ ASTNode* parseTypedef(Parser* parser) {
     // Parse the base type (handles 'struct/union/enum' as needed)
     ParsedType baseType = parseType(parser);
     ParsedDeclarator decl;
-    if (!parserParseDeclarator(parser, &baseType, false, true, &decl)) {
+    if (!parserParseDeclarator(parser, &baseType, false, true, false, &decl)) {
         const char* dbgFail = getenv("DEBUG_TYPEDEF_FAIL");
         if (dbgFail) {
             fprintf(stderr,
@@ -1215,6 +1281,7 @@ ASTNode* handleStructStatements(Parser* parser) {
                                   &probeType,
                                   true,
                                   true,
+                                  false,
                                   &probeDecl)) {
             parserDeclaratorDestroy(&probeDecl);
             parsedTypeFree(&probeType);

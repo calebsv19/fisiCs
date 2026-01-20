@@ -667,6 +667,13 @@ PROGRAM
     VAR_DECL
       TYPE: int
       IDENTIFIER ss_onstack
+  FUNCTION DECLARATION
+    RETURN TYPE: void (*)(int) (int)
+    IDENTIFIER signal
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
   TYPEDEF
         TYPE: __darwin_pthread_t
         Alias:     IDENTIFIER pthread_t
@@ -679,6 +686,13 @@ PROGRAM
   FUNCTION DECLARATION
     RETURN TYPE: int
     IDENTIFIER raise
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: void (*)(int) (int)
+    IDENTIFIER bsd_signal
     PARAMETERS:
       VAR_DECL
         TYPE: int
@@ -854,6 +868,13 @@ PROGRAM
   FUNCTION DECLARATION
     RETURN TYPE: int
     IDENTIFIER sigrelse
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: void (*)(int) (int)
+    IDENTIFIER sigset
     PARAMETERS:
       VAR_DECL
         TYPE: int

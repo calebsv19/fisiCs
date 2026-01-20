@@ -134,6 +134,18 @@ static bool collect_macro_body(const Token* tokens,
     return true;
 }
 
+static void strip_include_spaces(char* name) {
+    if (!name) return;
+    char* out = name;
+    for (char* p = name; *p; ++p) {
+        if (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') {
+            continue;
+        }
+        *out++ = *p;
+    }
+    *out = '\0';
+}
+
 static bool parse_include_operand(const Token* tokens,
                                   size_t count,
                                   size_t* cursor,
@@ -148,6 +160,7 @@ static bool parse_include_operand(const Token* tokens,
         *outName = pp_strdup_local(tok->value);
         *outIsSystem = false;
         if (!*outName) return false;
+        strip_include_spaces(*outName);
         i++;
     } else if (tok->type == TOKEN_LESS) {
         char buffer[1024];
@@ -174,6 +187,7 @@ static bool parse_include_operand(const Token* tokens,
         *outName = pp_strdup_local(buffer);
         *outIsSystem = true;
         if (!*outName) return false;
+        strip_include_spaces(*outName);
     } else {
         return false;
     }

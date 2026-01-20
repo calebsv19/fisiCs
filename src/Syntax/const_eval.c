@@ -2,6 +2,7 @@
 
 #include "analyze_expr.h"
 #include "layout.h"
+#include "literal_utils.h"
 #include "scope.h"
 #include "symbol_table.h"
 #include "type_checker.h"
@@ -341,6 +342,42 @@ static bool evalSizeof(ASTNode* target, Scope* scope, long long* out) {
 
     if (target->type == AST_PARSED_TYPE) {
         return sizeFromParsedType(&target->parsedTypeNode.parsed, scope, out);
+    }
+
+    if (target->type == AST_COMPOUND_LITERAL) {
+        return sizeFromParsedType(&target->compoundLiteral.literalType, scope, out);
+    }
+
+    if (target->type == AST_STRING_LITERAL) {
+        const char* payload = NULL;
+        LiteralEncoding enc = ast_literal_encoding(target->valueNode.value, &payload);
+        const TargetLayout* tl = currentLayout(scope);
+        unsigned charBits = (unsigned)((tl && tl->charBits) ? tl->charBits : 8);
+        if (enc == LIT_ENC_WIDE) {
+            TypeInfo wcharInfo = lookupWCharType(scope);
+            unsigned wcharBits = wcharInfo.bitWidth ? wcharInfo.bitWidth : defaultIntBits(scope);
+            LiteralDecodeResult res = decode_c_string_literal_wide(payload ? payload : "",
+                                                                   (int)wcharBits,
+                                                                   NULL,
+                                                                   NULL);
+            if (!res.ok) return false;
+            long long wcharSize = 0;
+            if (!sizeFromTypeInfo(&wcharInfo, scope, &wcharSize)) {
+                wcharSize = (long long)((wcharBits + 7) / 8);
+            }
+            *out = (long long)(res.length + 1) * wcharSize;
+            return true;
+        }
+
+        LiteralDecodeResult res = decode_c_string_literal(payload ? payload : "",
+                                                          (int)charBits,
+                                                          NULL,
+                                                          NULL);
+        if (!res.ok) return false;
+        long long charSize = (long long)((charBits + 7) / 8);
+        if (charSize == 0) charSize = 1;
+        *out = (long long)(res.length + 1) * charSize;
+        return true;
     }
 
     if (target->type == AST_IDENTIFIER) {

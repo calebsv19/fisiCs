@@ -357,26 +357,48 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
     }
 
     LLVMTypeRef returnType = NULL;
-    switch (resolved->primitiveType) {
-        case TOKEN_INT:    returnType = LLVMInt32TypeInContext(ctx->llvmContext); break;
-        case TOKEN_CHAR:   returnType = LLVMInt8TypeInContext(ctx->llvmContext);  break;
-        case TOKEN_BOOL:   returnType = LLVMInt1TypeInContext(ctx->llvmContext);  break;
-        case TOKEN_VOID:   returnType = LLVMVoidTypeInContext(ctx->llvmContext);  break;
-        default: break;
+    size_t funcIndex = (size_t)-1;
+    if (resolved) {
+        for (size_t i = 0; i < resolved->derivationCount; ++i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(resolved, i);
+            if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
+                funcIndex = i;
+                break;
+            }
+        }
     }
-    if (!returnType) {
-        ParsedType retClone = parsedTypeClone(resolved);
-        retClone.isFunctionPointer = false;
-        retClone.fpParamCount = 0;
-        retClone.fpParams = NULL;
-        retClone.derivationCount = 0;
-        retClone.pointerDepth = 0;
+    if (funcIndex != (size_t)-1) {
+        ParsedType retParsed = parsedTypeClone(resolved);
+        if (funcIndex + 1 < retParsed.derivationCount) {
+            memmove(retParsed.derivations,
+                    retParsed.derivations + funcIndex + 1,
+                    (retParsed.derivationCount - funcIndex - 1) * sizeof(TypeDerivation));
+        }
+        retParsed.derivationCount -= (funcIndex + 1);
+        if (retParsed.derivationCount == 0 && retParsed.derivations) {
+            free(retParsed.derivations);
+            retParsed.derivations = NULL;
+        }
+        retParsed.pointerDepth = 0;
+        retParsed.isFunctionPointer = false;
+        retParsed.fpParamCount = 0;
+        retParsed.fpParams = NULL;
+        if (retParsed.kind != TYPE_INVALID) {
+            returnType = cg_type_from_parsed(ctx, &retParsed);
+        }
+        parsedTypeFree(&retParsed);
+    }
 
-        returnType = cg_type_from_parsed(ctx, &retClone);
-        parsedTypeFree(&retClone);
+    if (!returnType) {
+        switch (resolved->primitiveType) {
+            case TOKEN_INT:    returnType = LLVMInt32TypeInContext(ctx->llvmContext); break;
+            case TOKEN_CHAR:   returnType = LLVMInt8TypeInContext(ctx->llvmContext);  break;
+            case TOKEN_BOOL:   returnType = LLVMInt1TypeInContext(ctx->llvmContext);  break;
+            case TOKEN_VOID:   returnType = LLVMVoidTypeInContext(ctx->llvmContext);  break;
+            default: break;
+        }
     }
-    if (!returnType || LLVMGetTypeKind(returnType) == LLVMVoidTypeKind ||
-        LLVMGetTypeKind(returnType) == LLVMPointerTypeKind) {
+    if (!returnType || LLVMGetTypeKind(returnType) == LLVMVoidTypeKind) {
         returnType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
@@ -2018,6 +2040,45 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node) {
     const ParsedType* parsed = NULL;
     if (node->expr.left) {
         ASTNode* operand = node->expr.left;
+        if (operand->type == AST_STRING_LITERAL) {
+            const char* payload = NULL;
+            LiteralEncoding enc = ast_literal_encoding(operand->valueNode.value, &payload);
+            const TargetLayout* tl = cg_context_get_target_layout(ctx);
+            uint64_t elemSize = 1;
+            unsigned charBits = (unsigned)((tl && tl->charBits) ? tl->charBits : 8);
+            if (enc == LIT_ENC_WIDE) {
+                unsigned wcharBits = charBits;
+                const SemanticModel* model = cg_context_get_semantic_model(ctx);
+                const Symbol* sym = model ? semanticModelLookupGlobal(model, "wchar_t") : NULL;
+                if (sym && sym->kind == SYMBOL_TYPEDEF) {
+                    LLVMTypeRef wcharTy = cg_type_from_parsed(ctx, &sym->type);
+                    uint64_t sz = 0;
+                    if (cg_size_align_for_type(ctx, &sym->type, wcharTy, &sz, NULL) && sz > 0) {
+                        elemSize = sz;
+                        wcharBits = (unsigned)(elemSize * 8);
+                    }
+                } else {
+                    elemSize = (uint64_t)((charBits + 7) / 8);
+                    wcharBits = (unsigned)(elemSize * 8);
+                }
+
+                LiteralDecodeResult res = decode_c_string_literal_wide(payload ? payload : "",
+                                                                       (int)wcharBits,
+                                                                       NULL,
+                                                                       NULL);
+                if (!res.ok) return NULL;
+                return LLVMConstInt(intptrTy, (res.length + 1) * elemSize, 0);
+            }
+
+            LiteralDecodeResult res = decode_c_string_literal(payload ? payload : "",
+                                                              (int)charBits,
+                                                              NULL,
+                                                              NULL);
+            if (!res.ok) return NULL;
+            elemSize = (uint64_t)((charBits + 7) / 8);
+            if (!elemSize) elemSize = 1;
+            return LLVMConstInt(intptrTy, (res.length + 1) * elemSize, 0);
+        }
         if (operand->type == AST_PARSED_TYPE) {
             parsed = &operand->parsedTypeNode.parsed;
         } else {

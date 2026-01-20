@@ -20,6 +20,12 @@ static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const Pa
     if (info) {
         return &info->parsedType;
     }
+    if (ctx->semanticModel) {
+        const Symbol* sym = semanticModelLookupGlobal(ctx->semanticModel, type->userTypeName);
+        if (sym && sym->kind == SYMBOL_TYPEDEF) {
+            return &sym->type;
+        }
+    }
     return type;
 }
 
@@ -225,8 +231,10 @@ static LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
     if (!ctx || !structType || LLVMGetTypeKind(structType) != LLVMStructTypeKind) return NULL;
     const char* dbg = getenv("FISICS_DEBUG_CONST");
 
-    bool isUnion = parsedType && parsedType->kind == TYPE_UNION;
-    CGStructLLVMInfo* info = cg_find_struct_info(ctx, structType, parsedType);
+    const ParsedType* resolvedType = parsedType ? cg_resolve_typedef_parsed(ctx, parsedType) : parsedType;
+    const ParsedType* lookupType = resolvedType ? resolvedType : parsedType;
+    bool isUnion = lookupType && lookupType->kind == TYPE_UNION;
+    CGStructLLVMInfo* info = cg_find_struct_info(ctx, structType, lookupType);
     if (info && info->isUnion) {
         isUnion = true;
     }
@@ -254,6 +262,18 @@ static LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
             fieldCount = LLVMCountStructElementTypes(structType);
         }
     }
+    if (!info && lookupType && lookupType->userTypeName && ctx->semanticModel) {
+        CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+        if (cctx) {
+            CCTagKind kind = (lookupType->kind == TYPE_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+            ASTNode* def = cc_tag_definition(cctx, kind, lookupType->userTypeName);
+            if (def) {
+                (void)codegenStructDefinition(ctx, def);
+                info = cg_find_struct_info(ctx, structType, lookupType);
+            }
+        }
+    }
+
     if (fieldCount == 0 && parsedType && parsedType->userTypeName && ctx->semanticModel) {
         CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
         if (cctx) {
@@ -294,11 +314,57 @@ static LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
     if (isUnion) {
         if (entryCount > 0 && entries[0] && entries[0]->expression) {
             LLVMTypeRef firstType = LLVMStructGetTypeAtIndex(structType, 0);
-            const ParsedType* firstParsed = NULL;
+            const ParsedType* fieldParsed = NULL;
+            LLVMTypeRef fieldType = firstType;
             if (info && info->fieldCount > 0) {
-                firstParsed = &info->fields[0].parsedType;
+                fieldParsed = &info->fields[0].parsedType;
             }
-            LLVMValueRef val = cg_build_const_initializer(ctx, entries[0]->expression, firstType, firstParsed);
+            if (entries[0]->fieldName && info) {
+                for (size_t f = 0; f < info->fieldCount; ++f) {
+                    const char* fname = info->fields[f].name;
+                    if (fname && strcmp(fname, entries[0]->fieldName) == 0) {
+                        fieldParsed = &info->fields[f].parsedType;
+                        fieldType = cg_type_from_parsed(ctx, fieldParsed);
+                        if (!fieldType) {
+                            fieldType = firstType;
+                        }
+                        break;
+                    }
+                }
+            }
+            if (entries[0]->fieldName && !info && lookupType && lookupType->userTypeName && ctx->semanticModel) {
+                CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+                if (cctx) {
+                    CCTagKind kind = (lookupType->kind == TYPE_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+                    ASTNode* def = cc_tag_definition(cctx, kind, lookupType->userTypeName);
+                    if (def && (def->type == AST_UNION_DEFINITION || def->type == AST_STRUCT_DEFINITION)) {
+                        for (size_t f = 0; f < def->structDef.fieldCount; ++f) {
+                            ASTNode* fieldDecl = def->structDef.fields[f];
+                            if (!fieldDecl || fieldDecl->type != AST_VARIABLE_DECLARATION) continue;
+                            for (size_t v = 0; v < fieldDecl->varDecl.varCount; ++v) {
+                                ASTNode* nameNode = fieldDecl->varDecl.varNames[v];
+                                const char* fname = (nameNode && nameNode->type == AST_IDENTIFIER)
+                                    ? nameNode->valueNode.value
+                                    : NULL;
+                                if (fname && strcmp(fname, entries[0]->fieldName) == 0) {
+                                    const ParsedType* parsed = astVarDeclTypeAt(fieldDecl, v);
+                                    fieldParsed = parsed ? parsed : &fieldDecl->varDecl.declaredType;
+                                    fieldType = cg_type_from_parsed(ctx, fieldParsed);
+                                    if (!fieldType) {
+                                        fieldType = firstType;
+                                    }
+                                    f = def->structDef.fieldCount;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            LLVMValueRef val = cg_build_const_initializer(ctx, entries[0]->expression, fieldType, fieldParsed);
+            if (val && LLVMTypeOf(val) != firstType) {
+                val = LLVMConstBitCast(val, firstType);
+            }
             if (val) {
                 fields[0] = val;
             }
@@ -383,6 +449,27 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                                      effectiveParsed,
                                      expr->compoundLiteral.entries,
                                      expr->compoundLiteral.entryCount);
+    }
+
+    if (expr->type == AST_COMPOUND_LITERAL && targetKind == LLVMPointerTypeKind) {
+        LLVMTypeRef literalType = NULL;
+        LLVMValueRef literalPtr = cg_emit_compound_literal_pointer(ctx, expr, &literalType);
+        if (!literalPtr || !literalType) {
+            return NULL;
+        }
+        LLVMValueRef result = literalPtr;
+        if (LLVMGetTypeKind(literalType) == LLVMArrayTypeKind) {
+            LLVMTypeRef i32Ty = LLVMInt32TypeInContext(ctx->llvmContext);
+            LLVMValueRef indices[2] = {
+                LLVMConstInt(i32Ty, 0, 0),
+                LLVMConstInt(i32Ty, 0, 0)
+            };
+            result = LLVMConstGEP2(literalType, literalPtr, indices, 2);
+        }
+        if (LLVMTypeOf(result) != targetType) {
+            result = LLVMConstBitCast(result, targetType);
+        }
+        return result;
     }
 
     if (targetKind == LLVMArrayTypeKind && expr->type == AST_STRING_LITERAL) {

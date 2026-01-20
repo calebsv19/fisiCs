@@ -136,6 +136,8 @@ void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count
 bool parsedTypeIsDirectArray(const ParsedType* t);
 ParsedType parsedTypeArrayElementType(const ParsedType* t);
 ParsedType parsedTypePointerTargetType(const ParsedType* t);
+ParsedType parsedTypeFunctionReturnType(const ParsedType* t);
+void parsedTypeNormalizeFunctionPointer(ParsedType* t);
 bool parsedTypesStructurallyEqual(const ParsedType* a, const ParsedType* b);
 const TypeDerivation* parsedTypeGetDerivation(const ParsedType* t, size_t index);
 const TypeDerivation* parsedTypeGetArrayDerivation(const ParsedType* t, size_t dimensionIndex);

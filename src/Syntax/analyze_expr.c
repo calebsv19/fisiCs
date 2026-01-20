@@ -4,6 +4,7 @@
 #include "symbol_table.h"
 #include "Parser/Helpers/designated_init.h"
 #include "Parser/Helpers/parsed_type.h"
+#include "const_eval.h"
 #include "literal_utils.h"
 #include "Compiler/compiler_context.h"
 #include <ctype.h>
@@ -12,6 +13,8 @@
 #include <stdlib.h>
 
 static void analyzeDesignatedInitializerExpr(DesignatedInit* init, Scope* scope);
+static bool tryEvaluateArrayLengthExpr(ASTNode* sizeExpr, Scope* scope, size_t* outLen);
+static void inferCompoundLiteralArrayLength(ASTNode* node, Scope* scope);
 static bool isArithmeticOperator(const char* op);
 static bool isComparisonOperator(const char* op);
 static bool isLogicalOperator(const char* op);
@@ -269,6 +272,88 @@ static void analyzeDesignatedInitializerExpr(DesignatedInit* init, Scope* scope)
     }
 }
 
+static bool tryEvaluateArrayLengthExpr(ASTNode* sizeExpr, Scope* scope, size_t* outLen) {
+    if (!sizeExpr || !outLen) return false;
+    long long value = 0;
+    bool ok = constEvalInteger(sizeExpr, scope, &value, true);
+    if (!ok || value < 0) {
+        return false;
+    }
+    *outLen = (size_t)value;
+    return true;
+}
+
+static void inferCompoundLiteralArrayLength(ASTNode* node, Scope* scope) {
+    if (!node || node->type != AST_COMPOUND_LITERAL) return;
+    ParsedType* type = &node->compoundLiteral.literalType;
+    if (!parsedTypeIsDirectArray(type)) return;
+
+    TypeDerivation* topArray = parsedTypeGetMutableArrayDerivation(type, 0);
+    if (!topArray) return;
+    if (topArray->as.array.hasConstantSize || topArray->as.array.isVLA || topArray->as.array.isFlexible) {
+        return;
+    }
+
+    if (topArray->as.array.sizeExpr) {
+        size_t len = 0;
+        if (tryEvaluateArrayLengthExpr(topArray->as.array.sizeExpr, scope, &len)) {
+            topArray->as.array.hasConstantSize = true;
+            topArray->as.array.constantSize = (long long)len;
+            topArray->as.array.isVLA = false;
+        } else {
+            topArray->as.array.isVLA = true;
+            type->isVLA = true;
+        }
+        return;
+    }
+
+    size_t sequentialCount = 0;
+    size_t highestIndex = 0;
+    bool sawAny = false;
+    const char* arrayName = "<compound literal>";
+    for (size_t i = 0; i < node->compoundLiteral.entryCount; ++i) {
+        DesignatedInit* init = node->compoundLiteral.entries[i];
+        if (!init) continue;
+        if (init->indexExpr) {
+            long long idx = 0;
+            if (!constEvalInteger(init->indexExpr, scope, &idx, true)) {
+                char buffer[256];
+                snprintf(buffer, sizeof(buffer),
+                         "Array '%s' designator index must be a constant expression",
+                         arrayName);
+                addError(node->line, 0, buffer, NULL);
+                continue;
+            }
+            if (idx < 0) {
+                char buffer[256];
+                snprintf(buffer, sizeof(buffer),
+                         "Array '%s' designator index %lld is negative",
+                         arrayName,
+                         idx);
+                addError(node->line, 0, buffer, NULL);
+                continue;
+            }
+            sequentialCount = (size_t)idx + 1;
+            if (sequentialCount > highestIndex) {
+                highestIndex = sequentialCount;
+            }
+            sawAny = true;
+        } else {
+            sequentialCount++;
+            if (sequentialCount > highestIndex) {
+                highestIndex = sequentialCount;
+            }
+            sawAny = true;
+        }
+    }
+
+    if (sawAny) {
+        topArray->as.array.hasConstantSize = true;
+        topArray->as.array.constantSize = (long long)highestIndex;
+        topArray->as.array.isVLA = false;
+    }
+}
+
 static bool isArithmeticOperator(const char* op) {
     if (!op) return false;
     return strcmp(op, "+") == 0 ||
@@ -520,6 +605,37 @@ static const ParsedType* lookupFieldType(const TypeInfo* base,
     return NULL;
 }
 
+static bool lookupFieldIsBitfield(const TypeInfo* base,
+                                  const char* fieldName,
+                                  Scope* scope) {
+    if (!base || !fieldName || !scope || !scope->ctx) {
+        return false;
+    }
+    if (base->category != TYPEINFO_STRUCT && base->category != TYPEINFO_UNION) {
+        return false;
+    }
+    CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    ASTNode* def = cc_tag_definition(scope->ctx, kind, base->userTypeName);
+    if (!def || (def->type != AST_STRUCT_DEFINITION && def->type != AST_UNION_DEFINITION)) {
+        return false;
+    }
+    for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
+        ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
+        if (!field || field->type != AST_VARIABLE_DECLARATION) {
+            continue;
+        }
+        for (size_t k = 0; k < field->varDecl.varCount; ++k) {
+            ASTNode* name = field->varDecl.varNames ? field->varDecl.varNames[k] : NULL;
+            const char* nameValue = name ? name->valueNode.value : NULL;
+            if (!nameValue || strcmp(nameValue, fieldName) != 0) {
+                continue;
+            }
+            return field->varDecl.bitFieldWidth != NULL;
+        }
+    }
+    return false;
+}
+
 static const CCTagFieldLayout* lookupFieldLayout(const TypeInfo* base,
                                                  const char* fieldName,
                                                  Scope* scope) {
@@ -575,9 +691,6 @@ static bool isModifiableLValue(const TypeInfo* info) {
         return false;
     }
     if (info->isConst || info->isArray || info->category == TYPEINFO_FUNCTION || info->category == TYPEINFO_VOID) {
-        return false;
-    }
-    if (info->isVLA) {
         return false;
     }
     return true;
@@ -681,6 +794,10 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
                 if (strcmp(op, "+") == 0) {
                     if (leftPtr && typeInfoIsInteger(&right)) {
+                        if (left.primitive == TOKEN_VOID) {
+                            reportOperandError(node, "pointer arithmetic on void*", op);
+                            return makeInvalidType();
+                        }
                         left.isLValue = false;
                         left.isArray = false;
                         left.category = TYPEINFO_POINTER;
@@ -688,6 +805,10 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                         return left;
                     }
                     if (rightPtr && typeInfoIsInteger(&left)) {
+                        if (right.primitive == TOKEN_VOID) {
+                            reportOperandError(node, "pointer arithmetic on void*", op);
+                            return makeInvalidType();
+                        }
                         right.isLValue = false;
                         right.isArray = false;
                         right.category = TYPEINFO_POINTER;
@@ -700,6 +821,10 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     }
                 } else if (strcmp(op, "-") == 0) {
                     if (leftPtr && typeInfoIsInteger(&right)) {
+                        if (left.primitive == TOKEN_VOID) {
+                            reportOperandError(node, "pointer arithmetic on void*", op);
+                            return makeInvalidType();
+                        }
                         left.isLValue = false;
                         left.isArray = false;
                         left.category = TYPEINFO_POINTER;
@@ -707,6 +832,10 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                         return left;
                     }
                     if (leftPtr && rightPtr) {
+                        if (left.primitive == TOKEN_VOID || right.primitive == TOKEN_VOID) {
+                            reportOperandError(node, "pointer arithmetic on void*", op);
+                            return makeInvalidType();
+                        }
                         // Allow pointer difference if both are pointer-like; target equality is relaxed.
                         TypeInfo diff = makeIntegerType(64, true, TOKEN_LONG);
                         diff.isLValue = false;
@@ -839,12 +968,49 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
             if (strcmp(op, "*") == 0) {
                 if (operand.category == TYPEINFO_POINTER && operand.pointerDepth > 0) {
+                    if (getenv("DEBUG_DEREF")) {
+                        fprintf(stderr,
+                                "[deref] cat=%d ptrDepth=%d orig=%p\n",
+                                operand.category,
+                                operand.pointerDepth,
+                                (void*)operand.originalType);
+                        if (operand.originalType) {
+                            fprintf(stderr, "[deref] derivations=");
+                            for (size_t i = 0; i < operand.originalType->derivationCount; ++i) {
+                                const TypeDerivation* d = parsedTypeGetDerivation(operand.originalType, i);
+                                const char* k = d ? (d->kind == TYPE_DERIVATION_POINTER ? "ptr" :
+                                                     d->kind == TYPE_DERIVATION_ARRAY ? "arr" : "fn") : "?";
+                                fprintf(stderr, "%s%s", i ? "," : "", k);
+                            }
+                            fprintf(stderr, "\n");
+                        }
+                    }
                     if (operand.originalType) {
-                        ParsedType targetParsed = parsedTypePointerTargetType(operand.originalType);
+                        ParsedType targetParsed = parsedTypeIsDirectArray(operand.originalType)
+                            ? parsedTypeArrayElementType(operand.originalType)
+                            : parsedTypePointerTargetType(operand.originalType);
+                        if (getenv("DEBUG_DEREF")) {
+                            fprintf(stderr,
+                                    "[deref] target kind=%d derivations=%zu\n",
+                                    targetParsed.kind,
+                                    targetParsed.derivationCount);
+                        }
                         if (targetParsed.kind != TYPE_INVALID) {
                             TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
+                            ParsedType* owned = malloc(sizeof(ParsedType));
+                            if (owned) {
+                                *owned = targetParsed;
+                                targetInfo.originalType = owned;
+                            } else {
+                                targetInfo.originalType = NULL;
+                                parsedTypeFree(&targetParsed);
+                                targetInfo.isLValue = true;
+                                return targetInfo;
+                            }
                             targetInfo.isLValue = true;
-                            parsedTypeFree(&targetParsed);
+                            if (!owned) {
+                                parsedTypeFree(&targetParsed);
+                            }
                             return targetInfo;
                         }
                         parsedTypeFree(&targetParsed);
@@ -907,7 +1073,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         }
 
         case AST_FUNCTION_CALL: {
-            (void)analyzeExpression(node->functionCall.callee, scope);
+            TypeInfo calleeInfo = analyzeExpression(node->functionCall.callee, scope);
 
             size_t argCount = node->functionCall.argumentCount;
             TypeInfo* argInfos = NULL;
@@ -1019,6 +1185,30 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 free(argBases);
             }
 
+            if (result.category == TYPEINFO_INVALID && calleeInfo.originalType) {
+                ParsedType fnTarget;
+                memset(&fnTarget, 0, sizeof(fnTarget));
+                fnTarget.kind = TYPE_INVALID;
+                bool haveTarget = false;
+                if (calleeInfo.category == TYPEINFO_POINTER && calleeInfo.pointerDepth > 0) {
+                    fnTarget = parsedTypePointerTargetType(calleeInfo.originalType);
+                    haveTarget = fnTarget.kind != TYPE_INVALID;
+                } else if (calleeInfo.category == TYPEINFO_FUNCTION || calleeInfo.isFunction) {
+                    fnTarget = parsedTypeClone(calleeInfo.originalType);
+                    haveTarget = fnTarget.kind != TYPE_INVALID;
+                }
+                if (haveTarget) {
+                    ParsedType retParsed = parsedTypeFunctionReturnType(&fnTarget);
+                    if (retParsed.kind != TYPE_INVALID) {
+                        result = typeInfoFromParsedType(&retParsed, scope);
+                    }
+                    parsedTypeFree(&retParsed);
+                }
+                if (haveTarget) {
+                    parsedTypeFree(&fnTarget);
+                }
+            }
+
             if (argInfos) {
                 free(argInfos);
             }
@@ -1096,6 +1286,20 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_ARRAY_ACCESS: {
             TypeInfo arrayInfo = analyzeExpression(node->arrayAccess.array, scope);
             analyzeExpression(node->arrayAccess.index, scope);
+            if (arrayInfo.originalType && parsedTypeIsDirectArray(arrayInfo.originalType)) {
+                ParsedType elementParsed = parsedTypeArrayElementType(arrayInfo.originalType);
+                TypeInfo elementInfo = typeInfoFromParsedType(&elementParsed, scope);
+                ParsedType* owned = malloc(sizeof(ParsedType));
+                if (owned) {
+                    *owned = elementParsed;
+                    elementInfo.originalType = owned;
+                } else {
+                    parsedTypeFree(&elementParsed);
+                    elementInfo.originalType = NULL;
+                }
+                elementInfo.isLValue = true;
+                return elementInfo;
+            }
             if (arrayInfo.isArray) {
                 arrayInfo = decayToRValue(arrayInfo);
             }
@@ -1129,6 +1333,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             for (size_t i = 0; i < node->compoundLiteral.entryCount; ++i) {
                 analyzeDesignatedInitializerExpr(node->compoundLiteral.entries[i], scope);
             }
+            inferCompoundLiteralArrayLength(node, scope);
             TypeInfo info = typeInfoFromParsedType(&node->compoundLiteral.literalType, scope);
             node->compoundLiteral.isStaticStorage = scope ? (scope->depth == 0) : false;
             info.isLValue = true;
@@ -1183,6 +1388,16 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 return merged;
             }
 
+            if ((trueInfo.category == TYPEINFO_STRUCT || trueInfo.category == TYPEINFO_UNION) &&
+                (falseInfo.category == TYPEINFO_STRUCT || falseInfo.category == TYPEINFO_UNION) &&
+                typesAreEqual(&trueInfo, &falseInfo)) {
+                trueInfo.isConst = trueInfo.isConst || falseInfo.isConst;
+                trueInfo.isVolatile = trueInfo.isVolatile || falseInfo.isVolatile;
+                trueInfo.isRestrict = trueInfo.isRestrict || falseInfo.isRestrict;
+                trueInfo.isLValue = false;
+                return trueInfo;
+            }
+
             if (truePtr && falsePtr) {
                 /* void* dominates; otherwise require compatibility. */
                 if ((trueInfo.primitive == TOKEN_VOID && trueInfo.pointerDepth == falseInfo.pointerDepth) ||
@@ -1222,6 +1437,27 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 if (target.category == TYPEINFO_FUNCTION || target.isFunction) {
                     addError(node->line, 0, "sizeof applied to function type", NULL);
                     return makeInvalidType();
+                }
+                if (target.isBitfield) {
+                    addError(node->line, 0, "sizeof applied to bitfield", NULL);
+                    return makeInvalidType();
+                }
+                if (node->expr.left->type == AST_DOT_ACCESS ||
+                    node->expr.left->type == AST_POINTER_ACCESS) {
+                    ASTNode* baseNode = node->expr.left->memberAccess.base;
+                    TypeInfo baseInfo = analyzeExpression(baseNode, scope);
+                    if (node->expr.left->type == AST_POINTER_ACCESS) {
+                        if (baseInfo.category == TYPEINFO_POINTER && baseInfo.pointerDepth > 0) {
+                            typeInfoDropPointerLevel(&baseInfo);
+                            if (baseInfo.pointerDepth == 0) {
+                                restoreBaseCategory(&baseInfo);
+                            }
+                        }
+                    }
+                    if (lookupFieldIsBitfield(&baseInfo, node->expr.left->memberAccess.field, scope)) {
+                        addError(node->line, 0, "sizeof applied to bitfield", NULL);
+                        return makeInvalidType();
+                    }
                 }
                 if ((target.category == TYPEINFO_STRUCT || target.category == TYPEINFO_UNION) && !target.isComplete) {
                     addError(node->line, 0, "sizeof applied to incomplete type", NULL);

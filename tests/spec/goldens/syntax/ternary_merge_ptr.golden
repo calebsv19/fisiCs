@@ -53,5 +53,4 @@ PROGRAM
 
 Diagnostics:
 Error at (4:0): Incompatible types in ternary expression
-Error at (5:0): Incompatible types in ternary expression
 

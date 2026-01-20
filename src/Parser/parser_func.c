@@ -98,7 +98,7 @@ static bool parseOldStyleParamDeclarations(Parser* parser, KNRParam* params, siz
         bool sawAny = false;
         while (1) {
             ParsedDeclarator decl;
-            if (!parserParseDeclarator(parser, &base, false, true, &decl)) {
+            if (!parserParseDeclarator(parser, &base, false, true, false, &decl)) {
                 parsedTypeFree(&base);
                 printParseError("Invalid parameter declarator", parser);
                 return false;
@@ -219,6 +219,78 @@ static bool currentListIsKNR(Parser* parser) {
 
 
 ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
+    if (parser->currentToken.type == TOKEN_LPAREN) {
+        ParsedDeclarator decl;
+        if (!parserParseDeclarator(parser, &returnType, true, true, true, &decl)) {
+            printParseError("Invalid function declarator", parser);
+            return NULL;
+        }
+        if (!decl.declaresFunction || !decl.identifier) {
+            printParseError("Expected function declarator", parser);
+            parsedTypeFree(&decl.type);
+            return NULL;
+        }
+        ParsedType funcReturnType = parsedTypeFunctionReturnType(&decl.type);
+        ASTNode* funcName = decl.identifier;
+        ASTNode** paramList = decl.functionParameters;
+        size_t paramCount = decl.functionParamCount;
+        bool isVariadic = decl.functionIsVariadic;
+        size_t funcAttrCount = 0;
+        ASTAttribute** funcAttrs = parserParseAttributeSpecifiers(parser, &funcAttrCount);
+
+        if (parser->currentToken.type == TOKEN_SEMICOLON) {
+            advance(parser);
+            ASTNode* declNode = createFunctionDeclarationNode(funcReturnType,
+                                                              funcName,
+                                                              paramList,
+                                                              paramCount,
+                                                              isVariadic);
+            if (declNode) {
+                astNodeCloneTypeAttributes(declNode, &funcReturnType);
+                astNodeAppendAttributes(declNode, funcAttrs, funcAttrCount);
+                funcAttrs = NULL;
+                funcAttrCount = 0;
+            }
+            parsedTypeFree(&decl.type);
+            astAttributeListDestroy(funcAttrs, funcAttrCount);
+            free(funcAttrs);
+            return declNode;
+        }
+
+        if (parser->currentToken.type == TOKEN_LBRACE) {
+            ASTNode* body = parseBlock(parser);
+            if (!body) {
+                printf("Error: Failed to parse function body at line %d\n", parser->currentToken.line);
+                parsedTypeFree(&decl.type);
+                astAttributeListDestroy(funcAttrs, funcAttrCount);
+                free(funcAttrs);
+                return NULL;
+            }
+            ASTNode* def = createFunctionDefinitionNode(funcReturnType,
+                                                        funcName,
+                                                        paramList,
+                                                        body,
+                                                        paramCount,
+                                                        isVariadic);
+            if (def) {
+                astNodeCloneTypeAttributes(def, &funcReturnType);
+                astNodeAppendAttributes(def, funcAttrs, funcAttrCount);
+                funcAttrs = NULL;
+                funcAttrCount = 0;
+            }
+            parsedTypeFree(&decl.type);
+            astAttributeListDestroy(funcAttrs, funcAttrCount);
+            free(funcAttrs);
+            return def;
+        }
+
+        printParseError("Expected ';' or '{' after function declaration", parser);
+        parsedTypeFree(&decl.type);
+        astAttributeListDestroy(funcAttrs, funcAttrCount);
+        free(funcAttrs);
+        return NULL;
+    }
+
     ParsedType funcReturnType = parsedTypeClone(&returnType);
     PointerChain chain = parsePointerChain(parser);
     applyPointerChainToType(&funcReturnType, &chain);
@@ -231,7 +303,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
         ParsedDeclarator fallbackDecl;
         ParsedType base = parsedTypeClone(&returnType);
         Parser probe = cloneParserWithFreshLexer(parser);
-        bool ok = parserParseDeclarator(&probe, &base, true, true, &fallbackDecl);
+        bool ok = parserParseDeclarator(&probe, &base, true, true, false, &fallbackDecl);
         if (ok) {
             /* Advance the real parser to where the successful probe ended. */
             while (parser->cursor < probe.cursor) {
@@ -390,6 +462,7 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
         ParsedDeclarator decl;
         if (!parserParseDeclarator(parser,
                                    &paramBase,
+                                   false,
                                    false,
                                    false,
                                    &decl)) {

@@ -673,6 +673,13 @@ PROGRAM
     VAR_DECL
       TYPE: int
       IDENTIFIER ss_onstack
+  FUNCTION DECLARATION
+    RETURN TYPE: void (*)(int) (int)
+    IDENTIFIER signal
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
   TYPEDEF
         TYPE: unsigned char
         Alias:     IDENTIFIER uint8_t

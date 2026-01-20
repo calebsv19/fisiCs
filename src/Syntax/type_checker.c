@@ -510,10 +510,23 @@ static bool pointerTargetsEqual(const TypeInfo* a, const TypeInfo* b) {
            sameString(a->userTypeName, b->userTypeName);
 }
 
+static bool parsedTypeIsPointerish(const ParsedType* t) {
+    if (!t) return false;
+    if (t->pointerDepth > 0) return true;
+    for (size_t i = 0; i < t->derivationCount; ++i) {
+        if (t->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
     if (!a || !b) return false;
     if (typeInfoIsPointerLike(a) && typeInfoIsPointerLike(b)) {
-        if (a->originalType && b->originalType) {
+        if (a->originalType && b->originalType &&
+            parsedTypeIsPointerish(a->originalType) &&
+            parsedTypeIsPointerish(b->originalType)) {
             return parsedTypesStructurallyEqual(a->originalType, b->originalType);
         }
         if (a->pointerDepth != b->pointerDepth) return false;

@@ -169,7 +169,16 @@ static ASTNode* nud(Parser* parser, Token token) {
             size_t cap = 0;
             size_t len = 0;
             char* buf = NULL;
-            const char* first = token.value ? token.value : "";
+            bool sawWide = false;
+            bool sawUtf8 = false;
+            const char* firstPayload = NULL;
+            LiteralEncoding firstEnc = ast_literal_encoding(token.value ? token.value : "", &firstPayload);
+            if (firstEnc == LIT_ENC_WIDE) {
+                sawWide = true;
+            } else if (firstEnc == LIT_ENC_UTF8) {
+                sawUtf8 = true;
+            }
+            const char* first = firstPayload ? firstPayload : "";
             size_t firstLen = strlen(first);
             if (firstLen + 1 > cap) {
                 size_t newCap = 64;
@@ -184,7 +193,15 @@ static ASTNode* nud(Parser* parser, Token token) {
             }
             while (parser->currentToken.type == TOKEN_STRING) {
                 const char* text = parser->currentToken.value ? parser->currentToken.value : "";
-                size_t tlen = strlen(text);
+                const char* payload = NULL;
+                LiteralEncoding enc = ast_literal_encoding(text, &payload);
+                if (enc == LIT_ENC_WIDE) {
+                    sawWide = true;
+                } else if (enc == LIT_ENC_UTF8) {
+                    sawUtf8 = true;
+                }
+                const char* piece = payload ? payload : "";
+                size_t tlen = strlen(piece);
                 if (len + tlen + 1 > cap) {
                     size_t newCap = cap ? cap * 2 : 64;
                     while (newCap < len + tlen + 1) newCap *= 2;
@@ -196,13 +213,27 @@ static ASTNode* nud(Parser* parser, Token token) {
                     buf = next;
                     cap = newCap;
                 }
-                memcpy(buf + len, text, tlen);
+                memcpy(buf + len, piece, tlen);
                 len += tlen;
                 buf[len] = '\0';
                 advance(parser);
             }
             if (!buf) {
                 buf = strdup("");
+            }
+            if (sawWide || sawUtf8) {
+                const char* prefix = sawWide ? "W|" : "U8|";
+                size_t plen = strlen(prefix);
+                size_t total = plen + len + 1;
+                char* merged = (char*)malloc(total);
+                if (!merged) {
+                    free(buf);
+                    return NULL;
+                }
+                memcpy(merged, prefix, plen);
+                memcpy(merged + plen, buf, len + 1);
+                free(buf);
+                buf = merged;
             }
             ASTNode* lit = createStringLiteralNode(buf);
             astNodeSetProvenance(lit, &token);
@@ -702,7 +733,7 @@ ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen) {
 
     // Accept abstract declarators after the base type: (*)(...), [N], (...)
     ParsedDeclarator abstractDecl;
-    if (parserParseDeclarator(parser, &castType, false, false, &abstractDecl)) {
+    if (parserParseDeclarator(parser, &castType, false, false, false, &abstractDecl)) {
         ParsedType clone = parsedTypeClone(&abstractDecl.type);
         parserDeclaratorDestroy(&abstractDecl);
         parsedTypeFree(&castType);
@@ -746,7 +777,7 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
 
     // allow things like int[], int(*)(void), etc., and record them on the type
     ParsedDeclarator abstractDecl;
-    if (parserParseDeclarator(parser, &literalType, false, false, &abstractDecl)) {
+    if (parserParseDeclarator(parser, &literalType, false, false, false, &abstractDecl)) {
         ParsedType clone = parsedTypeClone(&abstractDecl.type);
         parserDeclaratorDestroy(&abstractDecl);
         parsedTypeFree(&literalType);

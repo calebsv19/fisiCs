@@ -18,8 +18,12 @@ These items compiled with no semantic or codegen errors during iterative `make r
 - Integer promotions applied for small integer arithmetic (e.g., `unsigned char + short` promotes to `int`).
 - Numeric casts between floating-point and integer types (e.g., `(int)3.25`, `(int)f`).
 - `sizeof` on types and expressions, including runtime `sizeof` on direct VLA objects.
+- `sizeof` on dereferenced pointer-to-VLA uses runtime VLA size (e.g., `int (*p)[n]; sizeof *p`).
+- `sizeof` on string literals returns the literal size (e.g., `sizeof("hi")` is 3).
+- `sizeof` on array compound literals uses the inferred array size (e.g., `sizeof((int[]){1,2,3})`).
 - `sizeof` on struct member access via pointer (e.g., `sizeof(((struct S*)0)->b)`) uses field size.
 - `sizeof` applied to function types is rejected (diagnostic emitted).
+- `sizeof` on bitfield members is rejected (e.g., `sizeof(((struct S*)0)->a)` for a bitfield).
 - Basic types and qualifiers: `const`, `volatile`, `register`, `static`, `inline`, `_Bool`.
 - Pointer qualifiers on pointer levels preserved in output/types (`int *const`, `int *restrict`, `int *volatile`).
 - Static local variables emit internal globals with constant initializers (persist across calls).
@@ -32,13 +36,16 @@ These items compiled with no semantic or codegen errors during iterative `make r
 - Pointer difference uses element-size scaling (e.g., `q - p` for `int*` divides by 4).
 - Pointer comparisons (including ordering) and casts between pointers and integers.
 - Pointer typedef aliases resolve correctly (e.g., `typedef int *intptr;`).
+- Void pointer arithmetic is rejected (e.g., `void *p; p = p + 1;`).
 - Typedef’d array types preserve array semantics in codegen/initialization (e.g., `typedef int arr3[3]; arr3 a = {1,2,3};`).
 - Array declarators: arrays of pointers (`int *arr[N]`).
+- Array declarators: arrays of pointers to arrays with deref indexing (e.g., `int (*p[2])[3]; return (*p[0])[1];`).
 - Structs/unions: definitions, aggregate init, member access `.` and `->`, return-by-value.
 - Tag namespaces: `struct`/`union`/`enum` tags can reuse the same identifier without conflicts (e.g., `struct T` and `enum T`).
 - Struct return-by-value from locals, compound literals, and pointer dereferences compiles.
 - Structs/unions: nested aggregates with aggregate init.
 - Designated array initializers inside nested aggregates parse and lower (e.g., `.a = { [1] = 4, [0] = 3 }`).
+- Chained array+field designators parse and lower (e.g., `struct S a[2] = { [1].b = 5, [1].a = 3 };`).
 - Flexible array member syntax parses and codegen is emitted.
 - Struct assignment between compatible struct types.
 - Struct arguments passed by value compile and are accessed correctly.
@@ -47,10 +54,16 @@ These items compiled with no semantic or codegen errors during iterative `make r
 - Zero-width bitfields parse and codegen.
 - Bitfield read-modify-write uses masking for single-field updates.
 - Designated initializers (struct + array) and compound literals.
+- File-scope compound literals used in pointer initializers lower to static storage (e.g., `int *p = (int[]){1,2,3};`).
+- File-scope pointer initialized from a compound literal address is accepted (e.g., `struct S *p = &(struct S){7};`).
+- Multi-dimensional array initializers accept nested braces (e.g., `int a[2][3] = {{1,2,3},{4,5,6}};`).
+- Union designated initializers store the selected field type (e.g., `.f = 1.5f` for `union { int i; float f; }`).
 - String literal array initialization (`char s[N] = "..."`) compiles.
 - Global initializers with constant expressions (e.g., `int g = 1 + 2;`) compile; non-constant ones are rejected.
 - Global initializers with ternary and `sizeof` constant expressions compile.
 - Ternary merges mixed arithmetic types using floating-point when needed (e.g., `int` vs `double`).
+- Ternary with pointer operands of the same type (e.g., `x ? (int*)0 : &x`).
+- Ternary with struct/union operands of the same type (e.g., `cond ? a : b` for `struct S`).
 - VLAs (variable length arrays) with runtime sizing.
 - Function pointers (single function pointer calls).
 - Function-to-pointer decay works in argument passing, including typedef'd function types; `&function` yields a function pointer.
@@ -58,11 +71,15 @@ These items compiled with no semantic or codegen errors during iterative `make r
 - `va_list` usage compiles (`va_start`, `va_arg`, `va_end`).
 - Old-style (K&R) function definitions parse and compile.
 - Function prototypes with parameter names omitted (types-only prototypes) resolve correctly.
+- Array parameters accept bracket qualifiers and `static` size (e.g., `int f(int a[static 3], int b[const 2])`).
+- Array parameters accept `[*]` VLA size (e.g., `void g(int a[*])`).
 - Functions returning pointer types compile and can be called/dereferenced.
+- Functions returning pointer-to-array types compile and can be called/dereferenced.
 - Function returning array types are rejected at parse time (invalid in C99).
 - Arrays of function pointers with initializer (e.g., `int (*funcs[2])(int) = {inc, dec};`).
 - Inline asm statements parse and type-check (currently lowered as no-op in codegen).
-- Adjacent string literal concatenation (e.g., `"ab" "cd"`).
+- Adjacent string literal concatenation for narrow strings (e.g., `"ab" "cd"`).
+- Adjacent wide string literal concatenation (e.g., `L"hi" L"!"`) yields a single `wchar_t` array.
 - Wide string literals (`L"..."`) lower to `wchar_t` arrays in codegen.
 - String literal escape sequences (`\n`, `\t`, `\"`) parse and codegen.
 - Complex/imaginary literals and basic ops (`_Complex double`, `2.0i`, `+`, `-`, `==`).
@@ -71,6 +88,7 @@ These items compiled with no semantic or codegen errors during iterative `make r
 - Preprocessor: nested macro expansion and `#undef`/redefine.
 - Preprocessor: macro arguments containing commas/parentheses; `#line` directive accepted.
 - Preprocessor: macro-expanded `#include` operands (e.g., `#define HDR "shadow.h"` then `#include HDR`).
+- Preprocessor: stringized `#include` operands with tokenized headers (e.g., `#define HDR shadow.h` + `#define STR(x) STR2(x)` + `#include STR(HDR)`).
 - Preprocessor: include guards (re-including `shadow.h` preserves `SHADOW_VAL`).
 - Preprocessor: `#error` triggers an error (surfaced in semantic diagnostics).
 - `_Bool`/`bool` size is 1 (`sizeof(_Bool)`, `sizeof(bool)`).

@@ -56,6 +56,7 @@ bool parserParseDeclarator(Parser* parser,
                            const ParsedType* baseType,
                            bool allowFunctionDeclarator,
                            bool requireIdentifier,
+                           bool captureFunctionParams,
                            ParsedDeclarator* out);
 void parserDeclaratorDestroy(ParsedDeclarator* decl);
 

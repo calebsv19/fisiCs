@@ -1,7 +1,8 @@
 #include "parser_array.h"
 #include "Parser/Helpers/parser_helpers.h"
 #include "Parser/Expr/parser_expr.h"
-#include "Parser/Expr/parser_expr_pratt.h" 
+#include "Parser/Expr/parser_expr_pratt.h"
+#include <string.h>
 
 
 DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* outCount) {
@@ -16,24 +17,42 @@ DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* o
     if (type.kind == TYPE_STRUCT || type.kind == TYPE_UNION || type.kind == TYPE_NAMED) {
         // Struct initializer with known parent type
         return parseStructInitializer(parser, type, outCount);
-    } else if (type.kind == TYPE_PRIMITIVE && type.pointerDepth == 0) {
+    } else if (parsedTypeIsDirectArray(&type) || type.kind == TYPE_PRIMITIVE) {
         // Array initializer — pass parent type as fallback
         return parseArrayInitializer(parser, type, outCount);
     } else {
         // Unknown or fallback — assume array style
-        printf("Warning: Unknown initializer context; assuming array style\n");
         return parseArrayInitializer(parser, type, outCount);
     }
 }
  
  
 // Array parsing
-ASTNode* parseArraySize(Parser* parser) {
+ASTNode* parseArraySize(Parser* parser, bool* outIsVLA) {
     if (parser->currentToken.type == TOKEN_LBRACKET) { //  Check for `[`
         advance(parser); // Consume `[`
-        
+
+        while (parser->currentToken.type == TOKEN_STATIC ||
+               parser->currentToken.type == TOKEN_CONST ||
+               parser->currentToken.type == TOKEN_VOLATILE ||
+               parser->currentToken.type == TOKEN_RESTRICT) {
+            advance(parser);
+        }
+
+        if (parser->currentToken.type == TOKEN_ASTERISK) {
+            advance(parser);
+            if (parser->currentToken.type != TOKEN_RBRACKET) {
+                printf("Error: expected ']' after '*' array size at line %d\n", parser->currentToken.line);
+                return NULL;
+            }
+            advance(parser);
+            if (outIsVLA) *outIsVLA = true;
+            return NULL;
+        }
+
         if (parser->currentToken.type == TOKEN_RBRACKET) {
             advance(parser); // consume `]`
+            if (outIsVLA) *outIsVLA = false;
             return NULL; // This means: array size is unspecified
         }
          
@@ -47,6 +66,7 @@ ASTNode* parseArraySize(Parser* parser) {
             return NULL;
         }
         advance(parser); //  Consume `]`
+        if (outIsVLA) *outIsVLA = false;
         return size;
     }
     return NULL;
@@ -131,27 +151,70 @@ DesignatedInit** parseArrayInitializer(Parser* parser, ParsedType parentType, si
                 return NULL; 
             }
             advance(parser); // consume `]`
-            
-            if (parser->currentToken.type != TOKEN_ASSIGN) {
-                printf("Error: expected '=' after [index] at line %d\n", parser->currentToken.line);
-                free(values);
-                return NULL; 
-            }
-            advance(parser); // consume '='
-           ASTNode* valueExpr = NULL;
-            
-            if (parser->currentToken.type == TOKEN_LBRACE) {
-                size_t nestedCount = 0;
-                DesignatedInit** nested = parseInitializerList(parser, parentType, &nestedCount);
-                if (!nested) {
-                    printf("Error: Invalid compound initializer after [index] = at line %d\n",
-                                parser->currentToken.line);
+
+            ASTNode* valueExpr = NULL;
+
+            if (parser->currentToken.type == TOKEN_DOT) {
+                advance(parser);
+                if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+                    printParseError("Expected field name after '.' in array designator", parser);
+                    free(values);
+                    return NULL;
+                }
+                char* fieldName = strdup(parser->currentToken.value);
+                advance(parser);
+                if (parser->currentToken.type != TOKEN_ASSIGN) {
+                    printParseError("Expected '=' after field name in array designator", parser);
+                    free(values);
+                    return NULL;
+                }
+                advance(parser);
+                if (parser->currentToken.type == TOKEN_LBRACE) {
+                    size_t nestedCount = 0;
+                    DesignatedInit** nested = parseInitializerList(parser, parentType, &nestedCount);
+                    if (!nested) {
+                        printParseError("Invalid compound initializer after [index].field =", parser);
+                        free(values);
+                        return NULL;
+                    }
+                    valueExpr = createCompoundInit(nested, nestedCount);
+                } else {
+                    valueExpr = parseAssignmentExpression(parser);
+                }
+                if (!valueExpr) {
+                    printf("Error: Invalid value expression at line %d\n", parser->currentToken.line);
+                    free(values);
+                    return NULL;
+                }
+                DesignatedInit* fieldInit = createDesignatedInit(fieldName, valueExpr);
+                DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
+                if (!nestedEntries) {
+                    free(values);
+                    return NULL;
+                }
+                nestedEntries[0] = fieldInit;
+                valueExpr = createCompoundInit(nestedEntries, 1);
+            } else {
+                if (parser->currentToken.type != TOKEN_ASSIGN) {
+                    printf("Error: expected '=' after [index] at line %d\n", parser->currentToken.line);
                     free(values);
                     return NULL; 
                 }
-                valueExpr = createCompoundInit(nested, nestedCount);
-            } else {
-                valueExpr = parseAssignmentExpression(parser);
+                advance(parser); // consume '='
+            
+                if (parser->currentToken.type == TOKEN_LBRACE) {
+                    size_t nestedCount = 0;
+                    DesignatedInit** nested = parseInitializerList(parser, parentType, &nestedCount);
+                    if (!nested) {
+                        printf("Error: Invalid compound initializer after [index] = at line %d\n",
+                                    parser->currentToken.line);
+                        free(values);
+                        return NULL; 
+                    }
+                    valueExpr = createCompoundInit(nested, nestedCount);
+                } else {
+                    valueExpr = parseAssignmentExpression(parser);
+                }
             }
              
             if (!valueExpr) {

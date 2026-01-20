@@ -20,8 +20,9 @@ if ! grep -Fq "myfunc" "$TMP_OUTPUT"; then
   exit 1
 fi
 
-if ! grep -Fq "\"NAME ( token )\"" "$TMP_OUTPUT"; then
-  echo "Expected stringified literal \"NAME ( token )\" in AST output" >&2
+if ! grep -Fq "STRING_LITERAL \"NAME ( token )\"" "$TMP_OUTPUT" &&
+   ! grep -Fq "STRING_LITERAL NAME ( token )" "$TMP_OUTPUT"; then
+  echo "Expected stringified literal NAME ( token ) in AST output" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi

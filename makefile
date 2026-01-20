@@ -404,6 +404,9 @@ semantic-shift-unsigned: $(BIN)
 compound-literal-lvalues: $(BIN)
 	@./tests/syntax/run_compound_literal_lvalues.sh ./$(BIN)
 
+semantic-complex-declarators: $(BIN)
+	@./tests/syntax/run_semantic_complex_declarators.sh ./$(BIN)
+
 statement-expr-enabled: $(BIN)
 	@./tests/parser/run_statement_expr_enabled.sh ./$(BIN)
 
@@ -429,7 +432,8 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
               semantic-sizeof-alignof-vla \
               semantic-case-non-ice semantic-char-escape-consteval \
               semantic-ternary-merge-ptr semantic-shift-unsigned \
-              compound-literal-lvalues
+              compound-literal-lvalues \
+              semantic-complex-declarators
 
 codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff codegen-pointer-diff-decay \
                codegen-pointer-to-array codegen-logical-short-circuit \
@@ -449,6 +453,7 @@ preprocessor-tests: $(BIN)
 	@./tests/preprocessor/run_pp_expr.sh
 	@./tests/preprocessor/run_pp_if.sh
 	@./tests/preprocessor/run_pp_nested.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_include_stringize.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_include_basic.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_include_search.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_include_next.sh ./$(BIN)

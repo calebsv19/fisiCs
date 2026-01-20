@@ -313,6 +313,107 @@ ParsedType parsedTypePointerTargetType(const ParsedType* t) {
     return copy;
 }
 
+ParsedType parsedTypeFunctionReturnType(const ParsedType* t) {
+    ParsedType copy = parsedTypeClone(t);
+    if (!t) {
+        copy.kind = TYPE_INVALID;
+        return copy;
+    }
+    if (copy.derivationCount == 0) {
+        copy.kind = TYPE_INVALID;
+        return copy;
+    }
+    size_t funcIndex = (size_t)-1;
+    size_t removedPointers = 0;
+    for (size_t i = 0; i < copy.derivationCount; ++i) {
+        if (copy.derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            removedPointers++;
+        }
+        if (copy.derivations[i].kind == TYPE_DERIVATION_FUNCTION) {
+            funcIndex = i;
+            break;
+        }
+    }
+    if (funcIndex == (size_t)-1) {
+        copy.kind = TYPE_INVALID;
+        return copy;
+    }
+    if (funcIndex + 1 < copy.derivationCount) {
+        memmove(copy.derivations,
+                copy.derivations + funcIndex + 1,
+                (copy.derivationCount - funcIndex - 1) * sizeof(TypeDerivation));
+    }
+    copy.derivationCount -= (funcIndex + 1);
+    if (copy.derivationCount == 0 && copy.derivations) {
+        free(copy.derivations);
+        copy.derivations = NULL;
+    }
+    if (removedPointers > 0 && copy.pointerDepth > 0) {
+        int dec = (int)removedPointers;
+        copy.pointerDepth = copy.pointerDepth > dec ? (copy.pointerDepth - dec) : 0;
+    }
+    if (t->isFunctionPointer && copy.pointerDepth > 0) {
+        copy.pointerDepth -= 1;
+    }
+    return copy;
+}
+
+void parsedTypeNormalizeFunctionPointer(ParsedType* t) {
+    if (!t || !t->isFunctionPointer || t->derivationCount < 2 || !t->derivations) {
+        return;
+    }
+    size_t funcIndex = (size_t)-1;
+    for (size_t i = 0; i < t->derivationCount; ++i) {
+        if (t->derivations[i].kind == TYPE_DERIVATION_FUNCTION) {
+            funcIndex = i;
+            break;
+        }
+    }
+    if (funcIndex == (size_t)-1) {
+        return;
+    }
+
+    for (size_t i = 0; i < funcIndex; ++i) {
+        if (t->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            return;
+        }
+    }
+
+    size_t pointerAfterCount = 0;
+    for (size_t i = funcIndex + 1; i < t->derivationCount; ++i) {
+        if (t->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            pointerAfterCount++;
+        }
+    }
+    if (pointerAfterCount == 0) {
+        return;
+    }
+
+    TypeDerivation* reordered = (TypeDerivation*)malloc(t->derivationCount * sizeof(TypeDerivation));
+    if (!reordered) {
+        return;
+    }
+
+    size_t out = 0;
+    for (size_t i = 0; i < funcIndex; ++i) {
+        reordered[out++] = t->derivations[i];
+    }
+    for (size_t i = funcIndex + 1; i < t->derivationCount; ++i) {
+        if (t->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            reordered[out++] = t->derivations[i];
+        }
+    }
+    reordered[out++] = t->derivations[funcIndex];
+    for (size_t i = funcIndex + 1; i < t->derivationCount; ++i) {
+        if (t->derivations[i].kind != TYPE_DERIVATION_POINTER) {
+            reordered[out++] = t->derivations[i];
+        }
+    }
+
+    memcpy(t->derivations, reordered, t->derivationCount * sizeof(TypeDerivation));
+    free(reordered);
+}
+
 static bool namesEqual(const char* a, const char* b) {
     if (a == b) return true;
     if (!a || !b) return false;
