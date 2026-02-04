@@ -12,8 +12,14 @@ fail=0
 
 for SRC in tests/preprocessor/macro_recursion_self.c tests/preprocessor/macro_recursion_mutual.c; do
   TMP_OUTPUT=$(mktemp)
-  if "$BIN" "$SRC" >"$TMP_OUTPUT" 2>&1; then
-    echo "expected recursion failure for $SRC but compilation succeeded" >&2
+  "$BIN" "$SRC" >"$TMP_OUTPUT" 2>&1 || true
+  if ! rg -q "Undeclared identifier" "$TMP_OUTPUT"; then
+    echo "expected undeclared identifier diagnostic for $SRC" >&2
+    cat "$TMP_OUTPUT" >&2
+    fail=1
+  fi
+  if rg -q "macro recursion" "$TMP_OUTPUT"; then
+    echo "unexpected macro recursion diagnostic for $SRC" >&2
     cat "$TMP_OUTPUT" >&2
     fail=1
   fi
@@ -24,4 +30,4 @@ if [ "$fail" -ne 0 ]; then
   exit 1
 fi
 
-echo "preprocessor macro recursion detection tests passed."
+echo "preprocessor macro recursion tests passed."

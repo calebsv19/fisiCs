@@ -586,6 +586,9 @@ ASTNode* parseAsmStatement(Parser* parser) {
 }
 
 static bool currentTokenStartsDeclaration(Parser* parser) {
+    if (parser->currentToken.type == TOKEN_TYPEDEF) {
+        return true;
+    }
     return looksLikeTypeDeclaration(parser);
 }
 

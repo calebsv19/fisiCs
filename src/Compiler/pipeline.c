@@ -76,6 +76,170 @@ static const char* identifier_name(const ASTNode* node) {
     return NULL;
 }
 
+static const char* token_type_name(TokenType type) {
+    switch (type) {
+        case TOKEN_INT: return "TOKEN_INT";
+        case TOKEN_FLOAT: return "TOKEN_FLOAT";
+        case TOKEN_CHAR: return "TOKEN_CHAR";
+        case TOKEN_DOUBLE: return "TOKEN_DOUBLE";
+        case TOKEN_LONG: return "TOKEN_LONG";
+        case TOKEN_SHORT: return "TOKEN_SHORT";
+        case TOKEN_SIGNED: return "TOKEN_SIGNED";
+        case TOKEN_UNSIGNED: return "TOKEN_UNSIGNED";
+        case TOKEN_VOID: return "TOKEN_VOID";
+        case TOKEN_BOOL: return "TOKEN_BOOL";
+        case TOKEN_ENUM: return "TOKEN_ENUM";
+        case TOKEN_UNION: return "TOKEN_UNION";
+        case TOKEN_STRUCT: return "TOKEN_STRUCT";
+        case TOKEN_TYPEDEF: return "TOKEN_TYPEDEF";
+        case TOKEN_IF: return "TOKEN_IF";
+        case TOKEN_ELSE: return "TOKEN_ELSE";
+        case TOKEN_WHILE: return "TOKEN_WHILE";
+        case TOKEN_FOR: return "TOKEN_FOR";
+        case TOKEN_DO: return "TOKEN_DO";
+        case TOKEN_SWITCH: return "TOKEN_SWITCH";
+        case TOKEN_CASE: return "TOKEN_CASE";
+        case TOKEN_DEFAULT: return "TOKEN_DEFAULT";
+        case TOKEN_RETURN: return "TOKEN_RETURN";
+        case TOKEN_GOTO: return "TOKEN_GOTO";
+        case TOKEN_BREAK: return "TOKEN_BREAK";
+        case TOKEN_CONTINUE: return "TOKEN_CONTINUE";
+        case TOKEN_EXTERN: return "TOKEN_EXTERN";
+        case TOKEN_STATIC: return "TOKEN_STATIC";
+        case TOKEN_AUTO: return "TOKEN_AUTO";
+        case TOKEN_REGISTER: return "TOKEN_REGISTER";
+        case TOKEN_CONST: return "TOKEN_CONST";
+        case TOKEN_VOLATILE: return "TOKEN_VOLATILE";
+        case TOKEN_RESTRICT: return "TOKEN_RESTRICT";
+        case TOKEN_INLINE: return "TOKEN_INLINE";
+        case TOKEN_COMPLEX: return "TOKEN_COMPLEX";
+        case TOKEN_IMAGINARY: return "TOKEN_IMAGINARY";
+        case TOKEN_NULL: return "TOKEN_NULL";
+        case TOKEN_SIZEOF: return "TOKEN_SIZEOF";
+        case TOKEN_ALIGNOF: return "TOKEN_ALIGNOF";
+        case TOKEN_IDENTIFIER: return "TOKEN_IDENTIFIER";
+        case TOKEN_INCLUDE: return "TOKEN_INCLUDE";
+        case TOKEN_INCLUDE_NEXT: return "TOKEN_INCLUDE_NEXT";
+        case TOKEN_DEFINE: return "TOKEN_DEFINE";
+        case TOKEN_UNDEF: return "TOKEN_UNDEF";
+        case TOKEN_IFDEF: return "TOKEN_IFDEF";
+        case TOKEN_IFNDEF: return "TOKEN_IFNDEF";
+        case TOKEN_ENDIF: return "TOKEN_ENDIF";
+        case TOKEN_PRAGMA: return "TOKEN_PRAGMA";
+        case TOKEN_ONCE: return "TOKEN_ONCE";
+        case TOKEN_PREPROCESSOR_OTHER: return "TOKEN_PREPROCESSOR_OTHER";
+        case TOKEN_PP_IF: return "TOKEN_PP_IF";
+        case TOKEN_PP_ELIF: return "TOKEN_PP_ELIF";
+        case TOKEN_PP_ELSE: return "TOKEN_PP_ELSE";
+        case TOKEN_NUMBER: return "TOKEN_NUMBER";
+        case TOKEN_FLOAT_LITERAL: return "TOKEN_FLOAT_LITERAL";
+        case TOKEN_STRING: return "TOKEN_STRING";
+        case TOKEN_CHAR_LITERAL: return "TOKEN_CHAR_LITERAL";
+        case TOKEN_ASSIGN: return "TOKEN_ASSIGN";
+        case TOKEN_PLUS_ASSIGN: return "TOKEN_PLUS_ASSIGN";
+        case TOKEN_MINUS_ASSIGN: return "TOKEN_MINUS_ASSIGN";
+        case TOKEN_MULT_ASSIGN: return "TOKEN_MULT_ASSIGN";
+        case TOKEN_DIV_ASSIGN: return "TOKEN_DIV_ASSIGN";
+        case TOKEN_MOD_ASSIGN: return "TOKEN_MOD_ASSIGN";
+        case TOKEN_PLUS: return "TOKEN_PLUS";
+        case TOKEN_MINUS: return "TOKEN_MINUS";
+        case TOKEN_ASTERISK: return "TOKEN_ASTERISK";
+        case TOKEN_DIVIDE: return "TOKEN_DIVIDE";
+        case TOKEN_MODULO: return "TOKEN_MODULO";
+        case TOKEN_INCREMENT: return "TOKEN_INCREMENT";
+        case TOKEN_DECREMENT: return "TOKEN_DECREMENT";
+        case TOKEN_EQUAL: return "TOKEN_EQUAL";
+        case TOKEN_NOT_EQUAL: return "TOKEN_NOT_EQUAL";
+        case TOKEN_LESS: return "TOKEN_LESS";
+        case TOKEN_LESS_EQUAL: return "TOKEN_LESS_EQUAL";
+        case TOKEN_GREATER: return "TOKEN_GREATER";
+        case TOKEN_GREATER_EQUAL: return "TOKEN_GREATER_EQUAL";
+        case TOKEN_LOGICAL_AND: return "TOKEN_LOGICAL_AND";
+        case TOKEN_LOGICAL_OR: return "TOKEN_LOGICAL_OR";
+        case TOKEN_LOGICAL_NOT: return "TOKEN_LOGICAL_NOT";
+        case TOKEN_BITWISE_AND: return "TOKEN_BITWISE_AND";
+        case TOKEN_BITWISE_OR: return "TOKEN_BITWISE_OR";
+        case TOKEN_BITWISE_XOR: return "TOKEN_BITWISE_XOR";
+        case TOKEN_BITWISE_NOT: return "TOKEN_BITWISE_NOT";
+        case TOKEN_LEFT_SHIFT: return "TOKEN_LEFT_SHIFT";
+        case TOKEN_RIGHT_SHIFT: return "TOKEN_RIGHT_SHIFT";
+        case TOKEN_BITWISE_AND_ASSIGN: return "TOKEN_BITWISE_AND_ASSIGN";
+        case TOKEN_BITWISE_OR_ASSIGN: return "TOKEN_BITWISE_OR_ASSIGN";
+        case TOKEN_BITWISE_XOR_ASSIGN: return "TOKEN_BITWISE_XOR_ASSIGN";
+        case TOKEN_LEFT_SHIFT_ASSIGN: return "TOKEN_LEFT_SHIFT_ASSIGN";
+        case TOKEN_RIGHT_SHIFT_ASSIGN: return "TOKEN_RIGHT_SHIFT_ASSIGN";
+        case TOKEN_SEMICOLON: return "TOKEN_SEMICOLON";
+        case TOKEN_COLON: return "TOKEN_COLON";
+        case TOKEN_COMMA: return "TOKEN_COMMA";
+        case TOKEN_DOT: return "TOKEN_DOT";
+        case TOKEN_ELLIPSIS: return "TOKEN_ELLIPSIS";
+        case TOKEN_QUESTION: return "TOKEN_QUESTION";
+        case TOKEN_HASH: return "TOKEN_HASH";
+        case TOKEN_DOUBLE_HASH: return "TOKEN_DOUBLE_HASH";
+        case TOKEN_LPAREN: return "TOKEN_LPAREN";
+        case TOKEN_RPAREN: return "TOKEN_RPAREN";
+        case TOKEN_LBRACE: return "TOKEN_LBRACE";
+        case TOKEN_RBRACE: return "TOKEN_RBRACE";
+        case TOKEN_LBRACKET: return "TOKEN_LBRACKET";
+        case TOKEN_RBRACKET: return "TOKEN_RBRACKET";
+        case TOKEN_ARROW: return "TOKEN_ARROW";
+        case TOKEN_LINE_COMMENT: return "TOKEN_LINE_COMMENT";
+        case TOKEN_BLOCK_COMMENT: return "TOKEN_BLOCK_COMMENT";
+        case TOKEN_ASM: return "TOKEN_ASM";
+        case TOKEN_EOF: return "TOKEN_EOF";
+        case TOKEN_UNKNOWN: return "TOKEN_UNKNOWN";
+        default: return "TOKEN_UNKNOWN";
+    }
+}
+
+static char* escape_token_text(const char* text) {
+    if (!text) return strdup("<null>");
+    size_t len = 0;
+    for (const unsigned char* p = (const unsigned char*)text; *p; ++p) {
+        switch (*p) {
+            case '\n':
+            case '\r':
+            case '\t':
+            case '\\':
+            case '"':
+                len += 2;
+                break;
+            default:
+                if (*p < 32 || *p == 127) {
+                    len += 4;
+                } else {
+                    len += 1;
+                }
+                break;
+        }
+    }
+    char* out = (char*)malloc(len + 1);
+    if (!out) return NULL;
+    char* w = out;
+    for (const unsigned char* p = (const unsigned char*)text; *p; ++p) {
+        switch (*p) {
+            case '\n': *w++ = '\\'; *w++ = 'n'; break;
+            case '\r': *w++ = '\\'; *w++ = 'r'; break;
+            case '\t': *w++ = '\\'; *w++ = 't'; break;
+            case '\\': *w++ = '\\'; *w++ = '\\'; break;
+            case '"': *w++ = '\\'; *w++ = '"'; break;
+            default:
+                if (*p < 32 || *p == 127) {
+                    static const char hex[] = "0123456789ABCDEF";
+                    *w++ = '\\';
+                    *w++ = 'x';
+                    *w++ = hex[(*p >> 4) & 0xF];
+                    *w++ = hex[*p & 0xF];
+                } else {
+                    *w++ = (char)*p;
+                }
+                break;
+        }
+    }
+    *w = '\0';
+    return out;
+}
+
 static void collect_top_symbols(ASTNode* root, CompilerContext* ctx) {
     if (!root || root->type != AST_PROGRAM || !ctx) return;
     SymbolBuffer buf = {0};
@@ -575,6 +739,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            bool includeSystemSymbols,
                                            bool dumpAst,
                                            bool dumpSemantic,
+                                           bool dumpTokens,
                                            ASTNode** outAst,
                                            SemanticModel** outModel,
                                            size_t* outSemanticErrors) {
@@ -687,6 +852,27 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
 
     capture_token_spans(ctx, &preprocessed);
 
+    if (dumpTokens) {
+        printf("Token Stream:\n");
+        for (size_t i = 0; i < preprocessed.count; ++i) {
+            const Token* tok = &preprocessed.tokens[i];
+            const char* file = tok->location.start.file ? tok->location.start.file : "<unknown>";
+            const char* typeName = token_type_name(tok->type);
+            const char* rawText = tok->value ? tok->value : "<null>";
+            char* escaped = escape_token_text(rawText);
+            const char* text = escaped ? escaped : "<oom>";
+            printf("%zu %s %s %s:%d:%d\n",
+                   i,
+                   typeName,
+                   text,
+                   file,
+                   tok->location.start.line,
+                   tok->location.start.column);
+            free(escaped);
+        }
+        printf("\n");
+    }
+
     if (debugPP && debugPP[0] != '\0' && debugPP[0] != '0') {
         fprintf(stderr, "DEBUG: preprocessed tokens=%zu\n", preprocessed.count);
         for (size_t i = 0; i < preprocessed.count; ++i) {
@@ -785,6 +971,7 @@ bool compiler_run_frontend(CompilerContext* ctx,
                            bool includeSystemSymbols,
                            bool dumpAst,
                            bool dumpSemantic,
+                           bool dumpTokens,
                            ASTNode** outAst,
                            SemanticModel** outModel,
                            size_t* outSemanticErrors) {
@@ -806,6 +993,7 @@ bool compiler_run_frontend(CompilerContext* ctx,
                                           includeSystemSymbols,
                                           dumpAst,
                                           dumpSemantic,
+                                          dumpTokens,
                                           outAst,
                                           outModel,
                                           outSemanticErrors);
@@ -867,6 +1055,7 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
                                         true,
                                         options->dumpAst,
                                         options->dumpSemantic,
+                                        options->dumpTokens,
                                         &ast,
                                         &model,
                                         &semaErrors)) {

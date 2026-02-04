@@ -1,0 +1,30 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER x
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
+          = 
+            CAST_EXPRESSION
+                            CAST TYPE: int
+              UNARY EXPRESSION '*' (prefix)
+                IDENTIFIER p
+      RETURN
+        IDENTIFIER y

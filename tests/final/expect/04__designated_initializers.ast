@@ -1,0 +1,23 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Pair
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER y
+  VAR_DECL
+    TYPE: int [NUMBER_LITERAL 5]
+    IDENTIFIER arr
+        [NUMBER_LITERAL 2] = NUMBER_LITERAL 7
+
+        [NUMBER_LITERAL 4] = NUMBER_LITERAL 9
+
+  VAR_DECL
+    TYPE: struct Pair
+    IDENTIFIER p
+        .y = NUMBER_LITERAL 2
+
+        .x = NUMBER_LITERAL 1

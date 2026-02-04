@@ -37,41 +37,41 @@ static inline void log_emit(LogLevel level, const char* component, const char* f
     va_end(args);
 }
 
-#define LOG(level, component, fmt, ...)                                              \
+#define LOG(level, component, ...)                                                   \
     do {                                                                             \
         if ((level) <= LOG_LEVEL_GLOBAL) {                                           \
-            log_emit((LogLevel)(level), component, fmt, ##__VA_ARGS__);              \
+            log_emit((LogLevel)(level), component, __VA_ARGS__);                     \
         }                                                                            \
     } while (0)
 
 #if LOG_LEVEL_GLOBAL >= LOG_LEVEL_ERROR
-#define LOG_ERROR(component, fmt, ...) log_emit(LOG_LEVEL_ERROR, component, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(component, ...) log_emit(LOG_LEVEL_ERROR, component, __VA_ARGS__)
 #else
-#define LOG_ERROR(component, fmt, ...) ((void)0)
+#define LOG_ERROR(component, ...) ((void)0)
 #endif
 
 #if LOG_LEVEL_GLOBAL >= LOG_LEVEL_WARN
-#define LOG_WARN(component, fmt, ...) log_emit(LOG_LEVEL_WARN, component, fmt, ##__VA_ARGS__)
+#define LOG_WARN(component, ...) log_emit(LOG_LEVEL_WARN, component, __VA_ARGS__)
 #else
-#define LOG_WARN(component, fmt, ...) ((void)0)
+#define LOG_WARN(component, ...) ((void)0)
 #endif
 
 #if LOG_LEVEL_GLOBAL >= LOG_LEVEL_INFO
-#define LOG_INFO(component, fmt, ...) log_emit(LOG_LEVEL_INFO, component, fmt, ##__VA_ARGS__)
+#define LOG_INFO(component, ...) log_emit(LOG_LEVEL_INFO, component, __VA_ARGS__)
 #else
-#define LOG_INFO(component, fmt, ...) ((void)0)
+#define LOG_INFO(component, ...) ((void)0)
 #endif
 
 #if LOG_LEVEL_GLOBAL >= LOG_LEVEL_DEBUG
-#define LOG_DEBUG(component, fmt, ...) log_emit(LOG_LEVEL_DEBUG, component, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(component, ...) log_emit(LOG_LEVEL_DEBUG, component, __VA_ARGS__)
 #else
-#define LOG_DEBUG(component, fmt, ...) ((void)0)
+#define LOG_DEBUG(component, ...) ((void)0)
 #endif
 
 #if LOG_LEVEL_GLOBAL >= LOG_LEVEL_TRACE
-#define LOG_TRACE(component, fmt, ...) log_emit(LOG_LEVEL_TRACE, component, fmt, ##__VA_ARGS__)
+#define LOG_TRACE(component, ...) log_emit(LOG_LEVEL_TRACE, component, __VA_ARGS__)
 #else
-#define LOG_TRACE(component, fmt, ...) ((void)0)
+#define LOG_TRACE(component, ...) ((void)0)
 #endif
 
 #endif // LOGGING_H

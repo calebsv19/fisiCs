@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:12): Redefinition of variable
+   Hint: x
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/10__multiple_static_defs.c:2:12

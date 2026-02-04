@@ -1,0 +1,55 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Bits
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER a
+        BITFIELD : NUMBER_LITERAL 3
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Bits
+        IDENTIFIER b
+            = NUMBER_LITERAL 0
+
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              DOT_ACCESS '.'
+                IDENTIFIER b
+                FIELD a
+      VAR_DECL
+        TYPE: register int
+        IDENTIFIER r
+          = NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER q
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER r
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER t
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              BINARY EXPRESSION '+'
+                NUMBER_LITERAL 1
+                NUMBER_LITERAL 2
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '!='
+            IDENTIFIER p
+            IDENTIFIER q
+          BINARY EXPRESSION '!='
+            IDENTIFIER t
+            NUMBER_LITERAL 0

@@ -1,0 +1,18 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: extern int
+    IDENTIFIER x
+  VAR_DECL
+    TYPE: extern float
+    IDENTIFIER x
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        NUMBER_LITERAL 0

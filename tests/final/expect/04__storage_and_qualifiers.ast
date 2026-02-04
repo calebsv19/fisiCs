@@ -1,0 +1,20 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: const unsigned long int
+        Alias:     IDENTIFIER ulong_t
+  VAR_DECL
+    TYPE: static volatile int
+    IDENTIFIER counter
+  VAR_DECL
+    TYPE: extern int
+    IDENTIFIER shared
+  VAR_DECL
+    TYPE: register int
+    IDENTIFIER reg
+  VAR_DECL
+    TYPE: restrict int*
+    IDENTIFIER rp
+  VAR_DECL
+    TYPE: ulong_t
+    IDENTIFIER value

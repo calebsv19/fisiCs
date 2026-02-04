@@ -30,6 +30,7 @@ typedef struct Parser {
     ParserMode mode;
     bool enableStatementExpressions;
     bool preserveDirectives;
+    bool suppressErrors;
     CompilerContext* ctx;
 } Parser;
 

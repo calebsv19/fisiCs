@@ -3211,8 +3211,6 @@ PROGRAM
 
 
 Diagnostics:
-Error at (0:0): Redefinition of typedef
-   Hint: va_list
 Error at (6:0): Invalid escape sequence in string literal
 Error at (6:0): Invalid escape sequence in string literal for array 'overflow_wide'
 Error at (7:0): String literal contains code point not representable in target character type

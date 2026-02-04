@@ -1,0 +1,57 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER S
+    VAR_DECL
+      TYPE: int (*)(int) (int)
+      IDENTIFIER fn
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER add1
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct S
+        IDENTIFIER s
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          IDENTIFIER s
+          FIELD fn
+        IDENTIFIER add1
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          IDENTIFIER s
+          FIELD value
+        NUMBER_LITERAL 5
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER out
+          = 
+            FUNCTION CALL
+              DOT_ACCESS '.'
+                IDENTIFIER s
+                FIELD fn
+              ARGUMENTS
+                DOT_ACCESS '.'
+                  IDENTIFIER s
+                  FIELD value
+      RETURN
+        IDENTIFIER out

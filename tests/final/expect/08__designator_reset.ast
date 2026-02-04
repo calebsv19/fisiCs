@@ -1,0 +1,26 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER S
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER a
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER b
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER c
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER d
+  VAR_DECL
+    TYPE: struct S
+    IDENTIFIER s
+        .c = NUMBER_LITERAL 3
+
+        .a = NUMBER_LITERAL 1
+
+        = NUMBER_LITERAL 2
+
+        .d = NUMBER_LITERAL 4

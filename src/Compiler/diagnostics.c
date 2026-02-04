@@ -55,6 +55,26 @@ static char* fmt_message(const char* fmt, va_list args) {
     return out;
 }
 
+static bool str_eq(const char* a, const char* b) {
+    if (a == b) return true;
+    if (!a || !b) return false;
+    return strcmp(a, b) == 0;
+}
+
+static bool diag_matches(const FisicsDiagnostic* d,
+                         SourceRange loc,
+                         DiagKind kind,
+                         int code,
+                         const char* hint,
+                         const char* message) {
+    if (!d || d->kind != kind || d->code != code) return false;
+    if (d->line != loc.start.line || d->column != loc.start.column) return false;
+    if (!str_eq(d->file_path, loc.start.file)) return false;
+    if (!str_eq(d->message, message)) return false;
+    if (!str_eq(d->hint, hint)) return false;
+    return true;
+}
+
 bool compiler_report_diag(struct CompilerContext* ctx,
                           SourceRange loc,
                           DiagKind kind,
@@ -69,9 +89,6 @@ bool compiler_report_diag(struct CompilerContext* ctx,
     uint64_t canary_back  = ctx ? ctx->dl_canary_back  : 0;
     CompilerDiagnostics* buf = ctx_buffer(ctx);
     if (!buf || !fmt) return false;
-    if (!diag_buffer_reserve(buf, 1)) {
-        return false;
-    }
 
     va_list args;
     va_start(args, fmt);
@@ -85,6 +102,20 @@ bool compiler_report_diag(struct CompilerContext* ctx,
             free(message);
             return false;
         }
+    }
+
+    for (size_t i = 0; i < buf->count; ++i) {
+        if (diag_matches(&buf->items[i], loc, kind, code, hintCopy, message)) {
+            free(message);
+            free(hintCopy);
+            return true;
+        }
+    }
+
+    if (!diag_buffer_reserve(buf, 1)) {
+        free(message);
+        free(hintCopy);
+        return false;
     }
 
     FisicsDiagnostic* d = &buf->items[buf->count++];

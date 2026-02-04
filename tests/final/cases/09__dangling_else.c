@@ -1,0 +1,7 @@
+int main(void) {
+    int x = 0;
+    if (x)
+        if (x) x = 1;
+        else x = 2;
+    return x;
+}

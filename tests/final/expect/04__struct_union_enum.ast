@@ -1,0 +1,25 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Node
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+    VAR_DECL
+      TYPE: struct Node*
+      IDENTIFIER next
+  UNION
+        Name:     IDENTIFIER Value
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER i
+    VAR_DECL
+      TYPE: float
+      IDENTIFIER f
+  ENUM
+        Name:     IDENTIFIER Color
+        Member:   IDENTIFIER RED
+            Value:  NUMBER_LITERAL 1
+        Member:   IDENTIFIER GREEN
+        Member:   IDENTIFIER BLUE
+            Value:  NUMBER_LITERAL 5

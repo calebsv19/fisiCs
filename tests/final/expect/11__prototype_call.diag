@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (5:0): Too few arguments in call to 'add' (expected 2, got 1)

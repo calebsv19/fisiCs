@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (0:0): Non-void function must return a value
+Warning at (6:0): Unreachable statement

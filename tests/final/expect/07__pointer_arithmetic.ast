@@ -1,0 +1,37 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 5]
+        IDENTIFIER arr
+            = NUMBER_LITERAL 0
+
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+          = IDENTIFIER arr
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER q
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER p
+              NUMBER_LITERAL 2
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER diff
+          = 
+            CAST_EXPRESSION
+                            CAST TYPE: int
+              BINARY EXPRESSION '-'
+                IDENTIFIER q
+                IDENTIFIER p
+      RETURN
+        IDENTIFIER diff

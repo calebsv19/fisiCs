@@ -15,6 +15,37 @@
 static const uint64_t FNV_OFFSET = 1469598103934665603ULL;
 static const uint64_t FNV_PRIME  = 1099511628211ULL;
 
+static const ParsedType* resolveTypedefBase(Scope* scope, const ParsedType* type, int depth) {
+    if (!scope || !type || depth > 16) {
+        return type;
+    }
+    if (type->kind != TYPE_NAMED || !type->userTypeName) {
+        return type;
+    }
+    Symbol* sym = resolveInScopeChain(scope, type->userTypeName);
+    if (!sym || sym->kind != SYMBOL_TYPEDEF) {
+        return type;
+    }
+    return resolveTypedefBase(scope, &sym->type, depth + 1);
+}
+
+static bool typedefChainContainsName(Scope* scope, const ParsedType* type, const char* name, int depth) {
+    if (!scope || !type || !name || depth > 16) {
+        return false;
+    }
+    if (type->kind != TYPE_NAMED || !type->userTypeName) {
+        return false;
+    }
+    if (strcmp(type->userTypeName, name) == 0) {
+        return true;
+    }
+    Symbol* sym = resolveInScopeChain(scope, type->userTypeName);
+    if (!sym || sym->kind != SYMBOL_TYPEDEF) {
+        return false;
+    }
+    return typedefChainContainsName(scope, &sym->type, name, depth + 1);
+}
+
 static void hash_bytes(uint64_t* hash, const void* data, size_t len) {
     if (!hash || !data) return;
     const unsigned char* bytes = (const unsigned char*)data;
@@ -834,6 +865,17 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             if (existing && existing->kind == SYMBOL_TYPEDEF) {
                 if (parsedTypesStructurallyEqual(&existing->type, &node->typedefStmt.baseType)) {
                     // Compatible redeclaration — permitted by C; keep the first definition.
+                    break;
+                }
+                const ParsedType* existingBase = resolveTypedefBase(scope, &existing->type, 0);
+                const ParsedType* newBase = resolveTypedefBase(scope, &node->typedefStmt.baseType, 0);
+                if (parsedTypesStructurallyEqual(existingBase, newBase)) {
+                    // Allow typedef chains that resolve to the same base type (e.g. va_list).
+                    break;
+                }
+                if (typedefChainContainsName(scope, &existing->type, aliasName, 0) &&
+                    typedefChainContainsName(scope, &node->typedefStmt.baseType, aliasName, 0)) {
+                    // Allow mutually-referential typedef chains (common in system headers).
                     break;
                 }
                 if (existing->definition == NULL) {

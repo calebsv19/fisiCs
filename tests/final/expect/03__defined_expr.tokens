@@ -1,0 +1,17 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:3:1
+1 TOKEN_IDENTIFIER ok /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:3:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:3:8
+3 TOKEN_NUMBER 1 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:3:10
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:3:11
+5 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:1
+6 TOKEN_IDENTIFIER main /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:5
+7 TOKEN_LPAREN ( /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:9
+8 TOKEN_VOID void /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:10
+9 TOKEN_RPAREN ) /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:14
+10 TOKEN_LBRACE { /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:16
+11 TOKEN_RETURN return /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:18
+12 TOKEN_IDENTIFIER ok /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:25
+13 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:27
+14 TOKEN_RBRACE } /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__defined_expr.c:8:29
+15 TOKEN_EOF <null> <unknown>:0:0

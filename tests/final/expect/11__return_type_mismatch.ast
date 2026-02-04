@@ -1,0 +1,63 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER f
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int*
+    IDENTIFIER g
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        NUMBER_LITERAL 0
+  FUNCTION DEFINITION
+    RETURN TYPE: int*
+    IDENTIFIER h
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+          = 
+            FUNCTION CALL
+              IDENTIFIER g
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER q
+          = 
+            FUNCTION CALL
+              IDENTIFIER h
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '!='
+              IDENTIFIER p
+              NUMBER_LITERAL 0
+            BINARY EXPRESSION '!='
+              IDENTIFIER q
+              NUMBER_LITERAL 0
+          FUNCTION CALL
+            IDENTIFIER f

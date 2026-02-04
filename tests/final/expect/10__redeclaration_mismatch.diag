@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:5): Conflicting types for function
+   Hint: f
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/10__redeclaration_mismatch.c:2:5

@@ -1,0 +1,6 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: char [NUMBER_LITERAL 2]
+    IDENTIFIER a
+      = STRING_LITERAL "abc"

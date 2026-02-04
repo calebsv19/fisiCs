@@ -1,0 +1,20 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: static int
+    IDENTIFIER x
+      = NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: static int
+    IDENTIFIER x
+      = NUMBER_LITERAL 2
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        IDENTIFIER x

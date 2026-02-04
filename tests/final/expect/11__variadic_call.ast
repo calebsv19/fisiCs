@@ -1,0 +1,54 @@
+AST:
+PROGRAM
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sum
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER count
+    VARIADIC: yes
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER sum
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER count
+    VARIADIC: yes
+    BLOCK
+      RETURN
+        IDENTIFIER count
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            FUNCTION CALL
+              IDENTIFIER sum
+              ARGUMENTS
+                NUMBER_LITERAL 2
+                NUMBER_LITERAL 1
+                NUMBER_LITERAL 2
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = 
+            FUNCTION CALL
+              IDENTIFIER sum
+              ARGUMENTS
+                NUMBER_LITERAL 3
+                NUMBER_LITERAL 1
+                NUMBER_LITERAL 2
+                NUMBER_LITERAL 3
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER a
+          IDENTIFIER b

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (0:0): goto jumps into scope of initialized variable
+   Hint: skip

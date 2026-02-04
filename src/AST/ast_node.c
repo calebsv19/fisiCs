@@ -53,7 +53,7 @@ static SourceRange empty_range(void) {
 
 void astNodeSetProvenance(ASTNode* node, const Token* tok) {
     if (!node || !tok) return;
-    node->line = tok->line;
+    node->line = tok->location.start.line ? tok->location.start.line : tok->line;
     node->location = tok->location;
     node->macroCallSite = tok->macroCallSite.start.file ? tok->macroCallSite : empty_range();
     node->macroDefinition = tok->macroDefinition.start.file ? tok->macroDefinition : empty_range();

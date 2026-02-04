@@ -1,0 +1,17 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int*
+    IDENTIFIER p
+  VAR_DECL
+    TYPE: int (*)(int, char) (int, char)
+    IDENTIFIER fp
+  VAR_DECL
+    TYPE: int (*)() [NUMBER_LITERAL 3] ()
+    IDENTIFIER ap
+  VAR_DECL
+    TYPE: int (**)(int, char*) (int, char*)
+    IDENTIFIER fpa
+  VAR_DECL
+    TYPE: int (**)(char*) (int) (char*)
+    IDENTIFIER fn

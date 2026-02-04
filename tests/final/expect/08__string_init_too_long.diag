@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (1:0): String literal for array 'a' is too long (needs 4, size 2)

@@ -1,0 +1,22 @@
+Tokens:
+0 TOKEN_CONST const /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:2:1
+1 TOKEN_CHAR char /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:2:7
+2 TOKEN_ASTERISK * /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:2:11
+3 TOKEN_IDENTIFIER s /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:2:13
+4 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:2:15
+5 TOKEN_STRING a + b /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:2:17
+6 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:2:27
+7 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:1
+8 TOKEN_IDENTIFIER main /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:5
+9 TOKEN_LPAREN ( /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:9
+10 TOKEN_VOID void /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:10
+11 TOKEN_RPAREN ) /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:14
+12 TOKEN_LBRACE { /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:16
+13 TOKEN_RETURN return /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:18
+14 TOKEN_IDENTIFIER s /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:25
+15 TOKEN_LBRACKET [ /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:26
+16 TOKEN_NUMBER 0 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:27
+17 TOKEN_RBRACKET ] /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:28
+18 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:29
+19 TOKEN_RBRACE } /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__stringize_spacing.c:3:31
+20 TOKEN_EOF <null> <unknown>:0:0

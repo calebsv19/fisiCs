@@ -849,8 +849,10 @@ bool macro_expander_expand(MacroExpander* expander,
         if (tok->type == TOKEN_IDENTIFIER && expander && expander->table) {
             const MacroDefinition* def = macro_table_lookup(expander->table, tok->value);
             if (def && macro_table_is_expanding(expander->table, tok->value)) {
-                expander->table->lastError = MT_ERR_RECURSION;
-                return false;
+                if (!pp_token_buffer_append_clone(outTokens, tok)) {
+                    return false;
+                }
+                continue;
             }
             if (def && !macro_table_is_expanding(expander->table, tok->value)) {
                 SourceRange callRange = tok->location;

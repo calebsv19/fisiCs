@@ -1,0 +1,26 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER s
+          = STRING_LITERAL "hi"
+      ASSIGNMENT (=)
+        ARRAY_ACCESS
+          IDENTIFIER s
+          NUMBER_LITERAL 0
+        CHAR_LITERAL 72
+      ASSIGNMENT (=)
+        ARRAY_ACCESS
+          STRING_LITERAL hi
+          NUMBER_LITERAL 0
+        CHAR_LITERAL 72
+      RETURN
+        NUMBER_LITERAL 0

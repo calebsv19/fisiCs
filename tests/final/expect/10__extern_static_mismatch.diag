@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:12): Conflicting linkage for variable
+   Hint: x
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/10__extern_static_mismatch.c:2:12

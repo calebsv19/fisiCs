@@ -21,6 +21,7 @@ typedef struct {
     bool dumpAst;
     bool dumpSemantic;
     bool dumpIR;
+    bool dumpTokens;
     bool enableCodegen;
     bool enableTrigraphs;
     bool warnIgnoredInterop;
@@ -50,8 +51,9 @@ bool compiler_run_frontend(struct CompilerContext* ctx,
                            size_t macroDefineCount,
                            bool lenientIncludes,
                            bool includeSystemSymbols,
-                           bool dumpAst,
+                            bool dumpAst,
                            bool dumpSemantic,
+                           bool dumpTokens,
                            struct ASTNode** outAst,
                            struct SemanticModel** outModel,
                            size_t* outSemanticErrors);

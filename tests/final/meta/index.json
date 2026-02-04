@@ -1,0 +1,1824 @@
+{
+  "version": 1,
+  "suite": "final",
+  "tests": [
+    {
+      "id": "01__macro_changes_parse_shape",
+      "bucket": "translation-phases",
+      "input": "cases/01__macro_changes_parse_shape.c",
+      "expects": [
+        "expect/01__macro_changes_parse_shape.ast"
+      ],
+      "tags": [
+        "macro",
+        "parse-shape"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_diag_location",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_diag_location.c",
+      "expects": [
+        "expect/01__line_directive_diag_location.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_macro_filename",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_macro_filename.c",
+      "expects": [
+        "expect/01__line_directive_macro_filename.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "macro",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__macro_expansion_line_map",
+      "bucket": "translation-phases",
+      "input": "cases/01__macro_expansion_line_map.c",
+      "expects": [
+        "expect/01__macro_expansion_line_map.diag"
+      ],
+      "tags": [
+        "macro",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__include_boundary_diag_file",
+      "bucket": "translation-phases",
+      "input": "cases/01__include_boundary_diag_file.c",
+      "expects": [
+        "expect/01__include_boundary_diag_file.diag"
+      ],
+      "tags": [
+        "include",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__deterministic_ast_output",
+      "bucket": "translation-phases",
+      "input": "cases/01__deterministic_ast_output.c",
+      "expects": [
+        "expect/01__deterministic_ast_output.ast",
+        "expect/01__deterministic_ast_output.ir"
+      ],
+      "tags": [
+        "determinism",
+        "ast"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__macro_expansion_order",
+      "bucket": "translation-phases",
+      "input": "cases/01__macro_expansion_order.c",
+      "expects": [
+        "expect/01__macro_expansion_order.tokens"
+      ],
+      "tags": [
+        "macro",
+        "rescan"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__int_literals",
+      "bucket": "lexer",
+      "input": "cases/02__int_literals.c",
+      "expects": [
+        "expect/02__int_literals.tokens"
+      ],
+      "tags": [
+        "literals",
+        "integer"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__float_literals",
+      "bucket": "lexer",
+      "input": "cases/02__float_literals.c",
+      "expects": [
+        "expect/02__float_literals.tokens"
+      ],
+      "tags": [
+        "literals",
+        "float"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__char_literals",
+      "bucket": "lexer",
+      "input": "cases/02__char_literals.c",
+      "expects": [
+        "expect/02__char_literals.tokens"
+      ],
+      "tags": [
+        "literals",
+        "char"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__string_concat",
+      "bucket": "lexer",
+      "input": "cases/02__string_concat.c",
+      "expects": [
+        "expect/02__string_concat.tokens"
+      ],
+      "tags": [
+        "string",
+        "concat"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__operator_edges",
+      "bucket": "lexer",
+      "input": "cases/02__operator_edges.c",
+      "expects": [
+        "expect/02__operator_edges.tokens"
+      ],
+      "tags": [
+        "operators"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__int_suffix_order",
+      "bucket": "lexer",
+      "input": "cases/02__int_suffix_order.c",
+      "expects": [
+        "expect/02__int_suffix_order.tokens"
+      ],
+      "tags": [
+        "literals",
+        "integer"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__float_exponent_forms",
+      "bucket": "lexer",
+      "input": "cases/02__float_exponent_forms.c",
+      "expects": [
+        "expect/02__float_exponent_forms.tokens"
+      ],
+      "tags": [
+        "literals",
+        "float"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__char_unicode_escapes",
+      "bucket": "lexer",
+      "input": "cases/02__char_unicode_escapes.c",
+      "expects": [
+        "expect/02__char_unicode_escapes.tokens"
+      ],
+      "tags": [
+        "literals",
+        "char"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__object_like_macro",
+      "bucket": "preprocessor",
+      "input": "cases/03__object_like_macro.c",
+      "expects": [
+        "expect/03__object_like_macro.tokens"
+      ],
+      "tags": [
+        "macro"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__function_like_macro",
+      "bucket": "preprocessor",
+      "input": "cases/03__function_like_macro.c",
+      "expects": [
+        "expect/03__function_like_macro.tokens"
+      ],
+      "tags": [
+        "macro",
+        "function-like"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__stringify_and_paste",
+      "bucket": "preprocessor",
+      "input": "cases/03__stringify_and_paste.c",
+      "expects": [
+        "expect/03__stringify_and_paste.tokens"
+      ],
+      "tags": [
+        "stringify",
+        "paste"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__variadic_macro",
+      "bucket": "preprocessor",
+      "input": "cases/03__variadic_macro.c",
+      "expects": [
+        "expect/03__variadic_macro.tokens"
+      ],
+      "tags": [
+        "variadic"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__defined_expr",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_expr.c",
+      "expects": [
+        "expect/03__defined_expr.tokens"
+      ],
+      "tags": [
+        "defined",
+        "if"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_basic",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_basic.c",
+      "expects": [
+        "expect/03__include_basic.tokens"
+      ],
+      "tags": [
+        "include"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_guard",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_guard.c",
+      "expects": [
+        "expect/03__include_guard.tokens"
+      ],
+      "tags": [
+        "include",
+        "guard"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_arith",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_arith.c",
+      "expects": [
+        "expect/03__pp_if_arith.tokens"
+      ],
+      "tags": [
+        "if",
+        "arith"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "04__nested_declarators",
+      "bucket": "declarations",
+      "input": "cases/04__nested_declarators.c",
+      "expects": [
+        "expect/04__nested_declarators.ast",
+        "expect/04__nested_declarators.diag"
+      ],
+      "tags": [
+        "declarators"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage_and_qualifiers",
+      "bucket": "declarations",
+      "input": "cases/04__storage_and_qualifiers.c",
+      "expects": [
+        "expect/04__storage_and_qualifiers.ast",
+        "expect/04__storage_and_qualifiers.diag"
+      ],
+      "tags": [
+        "storage",
+        "qualifiers"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct_union_enum",
+      "bucket": "declarations",
+      "input": "cases/04__struct_union_enum.c",
+      "expects": [
+        "expect/04__struct_union_enum.ast",
+        "expect/04__struct_union_enum.diag"
+      ],
+      "tags": [
+        "struct",
+        "union",
+        "enum"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__designated_initializers",
+      "bucket": "declarations",
+      "input": "cases/04__designated_initializers.c",
+      "expects": [
+        "expect/04__designated_initializers.ast",
+        "expect/04__designated_initializers.diag"
+      ],
+      "tags": [
+        "designated-init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfields_flex",
+      "bucket": "declarations",
+      "input": "cases/04__bitfields_flex.c",
+      "expects": [
+        "expect/04__bitfields_flex.ast",
+        "expect/04__bitfields_flex.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "flex"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__precedence_basic",
+      "bucket": "expressions",
+      "input": "cases/05__precedence_basic.c",
+      "expects": [
+        "expect/05__precedence_basic.ast",
+        "expect/05__precedence_basic.diag"
+      ],
+      "tags": [
+        "precedence"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__ternary_assoc",
+      "bucket": "expressions",
+      "input": "cases/05__ternary_assoc.c",
+      "expects": [
+        "expect/05__ternary_assoc.ast",
+        "expect/05__ternary_assoc.diag"
+      ],
+      "tags": [
+        "ternary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__comma_operator",
+      "bucket": "expressions",
+      "input": "cases/05__comma_operator.c",
+      "expects": [
+        "expect/05__comma_operator.ast",
+        "expect/05__comma_operator.diag"
+      ],
+      "tags": [
+        "comma"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__cast_vs_group",
+      "bucket": "expressions",
+      "input": "cases/05__cast_vs_group.c",
+      "expects": [
+        "expect/05__cast_vs_group.ast",
+        "expect/05__cast_vs_group.diag"
+      ],
+      "tags": [
+        "cast"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__member_call_chain",
+      "bucket": "expressions",
+      "input": "cases/05__member_call_chain.c",
+      "expects": [
+        "expect/05__member_call_chain.ast",
+        "expect/05__member_call_chain.diag"
+      ],
+      "tags": [
+        "member",
+        "call"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__assignability_errors",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__assignability_errors.c",
+      "expects": [
+        "expect/06__assignability_errors.ast",
+        "expect/06__assignability_errors.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "assign"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__address_of_restrictions",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__address_of_restrictions.c",
+      "expects": [
+        "expect/06__address_of_restrictions.ast",
+        "expect/06__address_of_restrictions.diag"
+      ],
+      "tags": [
+        "address-of"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__array_function_decay",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__array_function_decay.c",
+      "expects": [
+        "expect/06__array_function_decay.ast",
+        "expect/06__array_function_decay.diag"
+      ],
+      "tags": [
+        "decay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__string_literal_mutability",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__string_literal_mutability.c",
+      "expects": [
+        "expect/06__string_literal_mutability.ast",
+        "expect/06__string_literal_mutability.diag"
+      ],
+      "tags": [
+        "string",
+        "lvalue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__integer_promotions",
+      "bucket": "types-conversions",
+      "input": "cases/07__integer_promotions.c",
+      "expects": [
+        "expect/07__integer_promotions.ast",
+        "expect/07__integer_promotions.diag"
+      ],
+      "tags": [
+        "promotions"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__usual_arith_conversions",
+      "bucket": "types-conversions",
+      "input": "cases/07__usual_arith_conversions.c",
+      "expects": [
+        "expect/07__usual_arith_conversions.ast",
+        "expect/07__usual_arith_conversions.diag"
+      ],
+      "tags": [
+        "arith"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__pointer_arithmetic",
+      "bucket": "types-conversions",
+      "input": "cases/07__pointer_arithmetic.c",
+      "expects": [
+        "expect/07__pointer_arithmetic.ast",
+        "expect/07__pointer_arithmetic.diag"
+      ],
+      "tags": [
+        "pointer",
+        "arith"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__pointer_comparisons",
+      "bucket": "types-conversions",
+      "input": "cases/07__pointer_comparisons.c",
+      "expects": [
+        "expect/07__pointer_comparisons.ast",
+        "expect/07__pointer_comparisons.diag"
+      ],
+      "tags": [
+        "pointer",
+        "compare"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__scalar_initializers",
+      "bucket": "initializers-layout",
+      "input": "cases/08__scalar_initializers.c",
+      "expects": [
+        "expect/08__scalar_initializers.ast",
+        "expect/08__scalar_initializers.diag"
+      ],
+      "tags": [
+        "scalar"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__aggregate_brace_elision",
+      "bucket": "initializers-layout",
+      "input": "cases/08__aggregate_brace_elision.c",
+      "expects": [
+        "expect/08__aggregate_brace_elision.ast",
+        "expect/08__aggregate_brace_elision.diag"
+      ],
+      "tags": [
+        "aggregate",
+        "braces"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__designator_reset",
+      "bucket": "initializers-layout",
+      "input": "cases/08__designator_reset.c",
+      "expects": [
+        "expect/08__designator_reset.ast",
+        "expect/08__designator_reset.diag"
+      ],
+      "tags": [
+        "designator"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__static_constexpr",
+      "bucket": "initializers-layout",
+      "input": "cases/08__static_constexpr.c",
+      "expects": [
+        "expect/08__static_constexpr.ast",
+        "expect/08__static_constexpr.diag"
+      ],
+      "tags": [
+        "static",
+        "constexpr"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__array_string_init",
+      "bucket": "initializers-layout",
+      "input": "cases/08__array_string_init.c",
+      "expects": [
+        "expect/08__array_string_init.ast",
+        "expect/08__array_string_init.diag"
+      ],
+      "tags": [
+        "array",
+        "string"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__dangling_else",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__dangling_else.c",
+      "expects": [
+        "expect/09__dangling_else.ast",
+        "expect/09__dangling_else.diag"
+      ],
+      "tags": [
+        "if",
+        "else"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_rules",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_rules.c",
+      "expects": [
+        "expect/09__switch_rules.ast",
+        "expect/09__switch_rules.diag"
+      ],
+      "tags": [
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__for_decl_scope",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__for_decl_scope.c",
+      "expects": [
+        "expect/09__for_decl_scope.ast",
+        "expect/09__for_decl_scope.diag"
+      ],
+      "tags": [
+        "for"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__break_continue_errors",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__break_continue_errors.c",
+      "expects": [
+        "expect/09__break_continue_errors.ast",
+        "expect/09__break_continue_errors.diag"
+      ],
+      "tags": [
+        "break",
+        "continue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__goto_labels",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__goto_labels.c",
+      "expects": [
+        "expect/09__goto_labels.ast",
+        "expect/09__goto_labels.diag"
+      ],
+      "tags": [
+        "goto"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__shadowing_rules",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__shadowing_rules.c",
+      "expects": [
+        "expect/10__shadowing_rules.ast",
+        "expect/10__shadowing_rules.diag"
+      ],
+      "tags": [
+        "shadow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__typedef_tag_namespace",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__typedef_tag_namespace.c",
+      "expects": [
+        "expect/10__typedef_tag_namespace.ast",
+        "expect/10__typedef_tag_namespace.diag"
+      ],
+      "tags": [
+        "typedef",
+        "tag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__tentative_definition",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__tentative_definition.c",
+      "expects": [
+        "expect/10__tentative_definition.ast",
+        "expect/10__tentative_definition.diag"
+      ],
+      "tags": [
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__redeclaration_mismatch",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__redeclaration_mismatch.c",
+      "expects": [
+        "expect/10__redeclaration_mismatch.ast",
+        "expect/10__redeclaration_mismatch.diag"
+      ],
+      "tags": [
+        "redeclaration"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__prototype_call",
+      "bucket": "functions-calls",
+      "input": "cases/11__prototype_call.c",
+      "expects": [
+        "expect/11__prototype_call.ast",
+        "expect/11__prototype_call.diag"
+      ],
+      "tags": [
+        "prototype"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__variadic_call",
+      "bucket": "functions-calls",
+      "input": "cases/11__variadic_call.c",
+      "expects": [
+        "expect/11__variadic_call.ast",
+        "expect/11__variadic_call.diag"
+      ],
+      "tags": [
+        "variadic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__param_decay",
+      "bucket": "functions-calls",
+      "input": "cases/11__param_decay.c",
+      "expects": [
+        "expect/11__param_decay.ast",
+        "expect/11__param_decay.diag"
+      ],
+      "tags": [
+        "param",
+        "decay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__return_type_mismatch",
+      "bucket": "functions-calls",
+      "input": "cases/11__return_type_mismatch.c",
+      "expects": [
+        "expect/11__return_type_mismatch.ast",
+        "expect/11__return_type_mismatch.diag"
+      ],
+      "tags": [
+        "return"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__missing_semicolon",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__missing_semicolon.c",
+      "expects": [
+        "expect/12__missing_semicolon.ast",
+        "expect/12__missing_semicolon.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__bad_paren_expr",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__bad_paren_expr.c",
+      "expects": [
+        "expect/12__bad_paren_expr.ast",
+        "expect/12__bad_paren_expr.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__bad_decl_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__bad_decl_recovery.c",
+      "expects": [
+        "expect/12__bad_decl_recovery.ast",
+        "expect/12__bad_decl_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__bad_stmt_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__bad_stmt_recovery.c",
+      "expects": [
+        "expect/12__bad_stmt_recovery.ast",
+        "expect/12__bad_stmt_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_basic_arith",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_basic_arith.c",
+      "expects": [
+        "expect/13__ir_basic_arith.ast",
+        "expect/13__ir_basic_arith.diag",
+        "expect/13__ir_basic_arith.ir"
+      ],
+      "tags": [
+        "ir",
+        "arith"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_short_circuit",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_short_circuit.c",
+      "expects": [
+        "expect/13__ir_short_circuit.ast",
+        "expect/13__ir_short_circuit.diag",
+        "expect/13__ir_short_circuit.ir"
+      ],
+      "tags": [
+        "ir",
+        "short-circuit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ternary",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ternary.c",
+      "expects": [
+        "expect/13__ir_ternary.ast",
+        "expect/13__ir_ternary.diag",
+        "expect/13__ir_ternary.ir"
+      ],
+      "tags": [
+        "ir",
+        "ternary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_switch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_switch.c",
+      "expects": [
+        "expect/13__ir_switch.ast",
+        "expect/13__ir_switch.diag",
+        "expect/13__ir_switch.ir"
+      ],
+      "tags": [
+        "ir",
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__header_stdbool",
+      "bucket": "runtime-surface",
+      "input": "cases/14__header_stdbool.c",
+      "expects": [
+        "expect/14__header_stdbool.ast",
+        "expect/14__header_stdbool.diag"
+      ],
+      "tags": [
+        "header",
+        "stdbool"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__header_stdint",
+      "bucket": "runtime-surface",
+      "input": "cases/14__header_stdint.c",
+      "expects": [
+        "expect/14__header_stdint.ast",
+        "expect/14__header_stdint.diag"
+      ],
+      "tags": [
+        "header",
+        "stdint"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__header_stddef",
+      "bucket": "runtime-surface",
+      "input": "cases/14__header_stddef.c",
+      "expects": [
+        "expect/14__header_stddef.ast",
+        "expect/14__header_stddef.diag"
+      ],
+      "tags": [
+        "header",
+        "stddef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__header_limits",
+      "bucket": "runtime-surface",
+      "input": "cases/14__header_limits.c",
+      "expects": [
+        "expect/14__header_limits.ast",
+        "expect/14__header_limits.diag"
+      ],
+      "tags": [
+        "header",
+        "limits"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__invalid_escape_char",
+      "bucket": "lexer",
+      "input": "cases/02__invalid_escape_char.c",
+      "expects": [
+        "expect/02__invalid_escape_char.tokens"
+      ],
+      "tags": [
+        "char",
+        "escape"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_redefinition",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_redefinition.c",
+      "expects": [
+        "expect/03__macro_redefinition.tokens"
+      ],
+      "tags": [
+        "macro",
+        "redef"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "05__logical_precedence",
+      "bucket": "expressions",
+      "input": "cases/05__logical_precedence.c",
+      "expects": [
+        "expect/05__logical_precedence.ast",
+        "expect/05__logical_precedence.diag"
+      ],
+      "tags": [
+        "logical",
+        "precedence"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__nested_designators",
+      "bucket": "initializers-layout",
+      "input": "cases/08__nested_designators.c",
+      "expects": [
+        "expect/08__nested_designators.ast",
+        "expect/08__nested_designators.diag"
+      ],
+      "tags": [
+        "designator"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__binary_literals",
+      "bucket": "lexer",
+      "input": "cases/02__binary_literals.c",
+      "expects": [
+        "expect/02__binary_literals.tokens"
+      ],
+      "tags": [
+        "literals",
+        "binary"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_macro_expansion",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_macro_expansion.c",
+      "expects": [
+        "expect/03__nested_macro_expansion.tokens"
+      ],
+      "tags": [
+        "macro",
+        "nested"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "06__increment_non_lvalue",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__increment_non_lvalue.c",
+      "expects": [
+        "expect/06__increment_non_lvalue.ast",
+        "expect/06__increment_non_lvalue.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "inc"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__zero_init_aggregate",
+      "bucket": "initializers-layout",
+      "input": "cases/08__zero_init_aggregate.c",
+      "expects": [
+        "expect/08__zero_init_aggregate.ast",
+        "expect/08__zero_init_aggregate.diag"
+      ],
+      "tags": [
+        "aggregate",
+        "zero-init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_duplicate_case",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_duplicate_case.c",
+      "expects": [
+        "expect/09__switch_duplicate_case.ast",
+        "expect/09__switch_duplicate_case.diag"
+      ],
+      "tags": [
+        "switch",
+        "duplicate"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__extern_static_mismatch",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__extern_static_mismatch.c",
+      "expects": [
+        "expect/10__extern_static_mismatch.ast",
+        "expect/10__extern_static_mismatch.diag"
+      ],
+      "tags": [
+        "linkage",
+        "storage"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_arg_commas",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_arg_commas.c",
+      "expects": [
+        "expect/03__macro_arg_commas.tokens"
+      ],
+      "tags": [
+        "macro",
+        "args"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__if_defined_paren",
+      "bucket": "preprocessor",
+      "input": "cases/03__if_defined_paren.c",
+      "expects": [
+        "expect/03__if_defined_paren.tokens"
+      ],
+      "tags": [
+        "defined",
+        "if"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__stringize_spacing",
+      "bucket": "preprocessor",
+      "input": "cases/03__stringize_spacing.c",
+      "expects": [
+        "expect/03__stringize_spacing.tokens"
+      ],
+      "tags": [
+        "stringize"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "05__cast_function_style",
+      "bucket": "expressions",
+      "input": "cases/05__cast_function_style.c",
+      "expects": [
+        "expect/05__cast_function_style.ast",
+        "expect/05__cast_function_style.diag"
+      ],
+      "tags": [
+        "cast"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__sizeof_ambiguity",
+      "bucket": "expressions",
+      "input": "cases/05__sizeof_ambiguity.c",
+      "expects": [
+        "expect/05__sizeof_ambiguity.ast",
+        "expect/05__sizeof_ambiguity.diag"
+      ],
+      "tags": [
+        "sizeof"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ptr_arith",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ptr_arith.c",
+      "expects": [
+        "expect/13__ir_ptr_arith.ast",
+        "expect/13__ir_ptr_arith.diag",
+        "expect/13__ir_ptr_arith.ir"
+      ],
+      "tags": [
+        "ir",
+        "pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_struct_access",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_struct_access.c",
+      "expects": [
+        "expect/13__ir_struct_access.ast",
+        "expect/13__ir_struct_access.diag",
+        "expect/13__ir_struct_access.ir"
+      ],
+      "tags": [
+        "ir",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__token_paste_numbers",
+      "bucket": "preprocessor",
+      "input": "cases/03__token_paste_numbers.c",
+      "expects": [
+        "expect/03__token_paste_numbers.tokens"
+      ],
+      "tags": [
+        "paste"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__variadic_empty",
+      "bucket": "preprocessor",
+      "input": "cases/03__variadic_empty.c",
+      "expects": [
+        "expect/03__variadic_empty.tokens"
+      ],
+      "tags": [
+        "variadic"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__if_elif_chain",
+      "bucket": "preprocessor",
+      "input": "cases/03__if_elif_chain.c",
+      "expects": [
+        "expect/03__if_elif_chain.tokens"
+      ],
+      "tags": [
+        "if"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "05__postfix_chain",
+      "bucket": "expressions",
+      "input": "cases/05__postfix_chain.c",
+      "expects": [
+        "expect/05__postfix_chain.ast",
+        "expect/05__postfix_chain.diag"
+      ],
+      "tags": [
+        "postfix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__unary_precedence",
+      "bucket": "expressions",
+      "input": "cases/05__unary_precedence.c",
+      "expects": [
+        "expect/05__unary_precedence.ast",
+        "expect/05__unary_precedence.diag"
+      ],
+      "tags": [
+        "unary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_logical_not",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_logical_not.c",
+      "expects": [
+        "expect/13__ir_logical_not.ast",
+        "expect/13__ir_logical_not.diag",
+        "expect/13__ir_logical_not.ir"
+      ],
+      "tags": [
+        "ir",
+        "logical"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_bitwise",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_bitwise.c",
+      "expects": [
+        "expect/13__ir_bitwise.ast",
+        "expect/13__ir_bitwise.diag",
+        "expect/13__ir_bitwise.ir"
+      ],
+      "tags": [
+        "ir",
+        "bitwise"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__undef_defined",
+      "bucket": "preprocessor",
+      "input": "cases/03__undef_defined.c",
+      "expects": [
+        "expect/03__undef_defined.tokens"
+      ],
+      "tags": [
+        "undef",
+        "defined"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_paste_expand",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_paste_expand.c",
+      "expects": [
+        "expect/03__macro_paste_expand.tokens"
+      ],
+      "tags": [
+        "paste",
+        "expand"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "05__sizeof_typedef",
+      "bucket": "expressions",
+      "input": "cases/05__sizeof_typedef.c",
+      "expects": [
+        "expect/05__sizeof_typedef.ast",
+        "expect/05__sizeof_typedef.diag"
+      ],
+      "tags": [
+        "sizeof",
+        "typedef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__cast_deref_precedence",
+      "bucket": "expressions",
+      "input": "cases/05__cast_deref_precedence.c",
+      "expects": [
+        "expect/05__cast_deref_precedence.ast",
+        "expect/05__cast_deref_precedence.diag"
+      ],
+      "tags": [
+        "cast",
+        "deref"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_short_circuit_side_effect",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_short_circuit_side_effect.c",
+      "expects": [
+        "expect/13__ir_short_circuit_side_effect.ast",
+        "expect/13__ir_short_circuit_side_effect.diag",
+        "expect/13__ir_short_circuit_side_effect.ir"
+      ],
+      "tags": [
+        "ir",
+        "short-circuit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_compare_branch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_compare_branch.c",
+      "expects": [
+        "expect/13__ir_compare_branch.ast",
+        "expect/13__ir_compare_branch.diag",
+        "expect/13__ir_compare_branch.ir"
+      ],
+      "tags": [
+        "ir",
+        "compare"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__extra_paren_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__extra_paren_recovery.c",
+      "expects": [
+        "expect/12__extra_paren_recovery.ast",
+        "expect/12__extra_paren_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__missing_rbrace_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__missing_rbrace_recovery.c",
+      "expects": [
+        "expect/12__missing_rbrace_recovery.ast",
+        "expect/12__missing_rbrace_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__conflicting_extern_definition",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__conflicting_extern_definition.c",
+      "expects": [
+        "expect/10__conflicting_extern_definition.ast",
+        "expect/10__conflicting_extern_definition.diag"
+      ],
+      "tags": [
+        "linkage",
+        "extern"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__multiple_static_defs",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__multiple_static_defs.c",
+      "expects": [
+        "expect/10__multiple_static_defs.ast",
+        "expect/10__multiple_static_defs.diag"
+      ],
+      "tags": [
+        "linkage",
+        "static"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__cascading_errors",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__cascading_errors.c",
+      "expects": [
+        "expect/12__cascading_errors.ast",
+        "expect/12__cascading_errors.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__typedef_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__typedef_recovery.c",
+      "expects": [
+        "expect/12__typedef_recovery.ast",
+        "expect/12__typedef_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "typedef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__extern_type_mismatch",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__extern_type_mismatch.c",
+      "expects": [
+        "expect/10__extern_type_mismatch.ast",
+        "expect/10__extern_type_mismatch.diag"
+      ],
+      "tags": [
+        "linkage",
+        "extern"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__function_redecl_conflict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__function_redecl_conflict.c",
+      "expects": [
+        "expect/10__function_redecl_conflict.ast",
+        "expect/10__function_redecl_conflict.diag"
+      ],
+      "tags": [
+        "linkage",
+        "function"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__stray_else_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__stray_else_recovery.c",
+      "expects": [
+        "expect/12__stray_else_recovery.ast",
+        "expect/12__stray_else_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__for_missing_paren",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__for_missing_paren.c",
+      "expects": [
+        "expect/12__for_missing_paren.ast",
+        "expect/12__for_missing_paren.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__tentative_static_conflict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__tentative_static_conflict.c",
+      "expects": [
+        "expect/10__tentative_static_conflict.ast",
+        "expect/10__tentative_static_conflict.diag"
+      ],
+      "tags": [
+        "linkage",
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__extern_array_mismatch",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__extern_array_mismatch.c",
+      "expects": [
+        "expect/10__extern_array_mismatch.ast",
+        "expect/10__extern_array_mismatch.diag"
+      ],
+      "tags": [
+        "linkage",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__mixed_signed_unsigned_compare",
+      "bucket": "types-conversions",
+      "input": "cases/07__mixed_signed_unsigned_compare.c",
+      "expects": [
+        "expect/07__mixed_signed_unsigned_compare.ast",
+        "expect/07__mixed_signed_unsigned_compare.diag"
+      ],
+      "tags": [
+        "compare",
+        "signed"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__string_init_too_long",
+      "bucket": "initializers-layout",
+      "input": "cases/08__string_init_too_long.c",
+      "expects": [
+        "expect/08__string_init_too_long.ast",
+        "expect/08__string_init_too_long.diag"
+      ],
+      "tags": [
+        "string",
+        "init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__void_return_value",
+      "bucket": "functions-calls",
+      "input": "cases/11__void_return_value.c",
+      "expects": [
+        "expect/11__void_return_value.ast",
+        "expect/11__void_return_value.diag"
+      ],
+      "tags": [
+        "return",
+        "void"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_global_init",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_global_init.c",
+      "expects": [
+        "expect/13__ir_global_init.ast",
+        "expect/13__ir_global_init.diag",
+        "expect/13__ir_global_init.ir"
+      ],
+      "tags": [
+        "ir",
+        "global"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_include",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_include.c",
+      "expects": [
+        "expect/01__line_directive_include.ast",
+        "expect/01__line_directive_include.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "include"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__float_hex_no_exponent",
+      "bucket": "lexer",
+      "input": "cases/02__float_hex_no_exponent.c",
+      "expects": [
+        "expect/02__float_hex_no_exponent.tokens"
+      ],
+      "tags": [
+        "float",
+        "hex"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "09__goto_cross_init",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__goto_cross_init.c",
+      "expects": [
+        "expect/09__goto_cross_init.ast",
+        "expect/09__goto_cross_init.diag"
+      ],
+      "tags": [
+        "goto",
+        "init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__nested_block_realloc",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__nested_block_realloc.c",
+      "expects": [
+        "expect/09__nested_block_realloc.diag"
+      ],
+      "tags": [
+        "blocks",
+        "analysis"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

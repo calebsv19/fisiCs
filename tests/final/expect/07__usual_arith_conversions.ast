@@ -1,0 +1,56 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER u
+          = NUMBER_LITERAL 1u
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER l
+          = 
+            UNARY EXPRESSION '-' (prefix)
+              NUMBER_LITERAL 2
+      VAR_DECL
+        TYPE: unsigned long int
+        IDENTIFIER ul
+          = NUMBER_LITERAL 3ul
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER ll
+          = 
+            UNARY EXPRESSION '-' (prefix)
+              NUMBER_LITERAL 4
+      VAR_DECL
+        TYPE: unsigned long int
+        IDENTIFIER ull
+          = NUMBER_LITERAL 5ull
+      VAR_DECL
+        TYPE: unsigned long int
+        IDENTIFIER mix1
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER u
+              IDENTIFIER l
+      VAR_DECL
+        TYPE: unsigned long int
+        IDENTIFIER mix2
+          = 
+            BINARY EXPRESSION '+'
+              BINARY EXPRESSION '+'
+                IDENTIFIER ul
+                IDENTIFIER ll
+              IDENTIFIER ull
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '+'
+            IDENTIFIER mix1
+            IDENTIFIER mix2

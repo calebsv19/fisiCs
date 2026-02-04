@@ -16,6 +16,7 @@ void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerCo
     parser->nextNextNextToken = *token_buffer_peek(buffer, 3);
     parser->ctx = ctx;
     parser->preserveDirectives = preserveDirectives;
+    parser->suppressErrors = false;
     const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
     parser->enableStatementExpressions =
         (gnuEnv && gnuEnv[0] != '\0' && gnuEnv[0] != '0');
@@ -40,6 +41,7 @@ void advanceClone(Parser* p) {
 Parser cloneParserWithFreshLexer(Parser* original) {
     Parser clone = *original;
     // Keep context so typedef/tag lookups remain accurate during speculative parses.
+    clone.suppressErrors = true;
     return clone;
 }
 
@@ -61,6 +63,7 @@ static bool isSystemHeaderPath(const char* file) {
 
 void printParseError(const char* expected, Parser* parser) {
     if (!parser) return;
+    if (parser->suppressErrors) return;
     const Token* tok = &parser->currentToken;
     const char* got = tok && tok->value ? tok->value : "<eof>";
     const char* file = tok && tok->location.start.file ? tok->location.start.file : "<unknown>";

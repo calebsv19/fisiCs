@@ -30,8 +30,17 @@ static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* 
 static const char* fallbackFunctionName(const char* name);
 static bool isExpressionNodeType(ASTNodeType type);
 
+static char* dupString(const char* s) {
+    if (!s) return NULL;
+    size_t len = strlen(s) + 1;
+    char* out = malloc(len);
+    if (!out) return NULL;
+    memcpy(out, s, len);
+    return out;
+}
+
 typedef struct {
-    const char* name;
+    char* name;
     bool read;
     bool write;
 } AccessEntry;
@@ -44,18 +53,26 @@ typedef struct {
 
 static void accessSetFree(AccessSet* set) {
     if (!set) return;
+    for (size_t i = 0; i < set->count; ++i) {
+        free(set->entries[i].name);
+        set->entries[i].name = NULL;
+    }
     free(set->entries);
     set->entries = NULL;
     set->count = 0;
     set->capacity = 0;
 }
 
-static void accessSetAdd(AccessSet* set, const char* name, bool asRead, bool asWrite) {
-    if (!set || !name || (!asRead && !asWrite)) return;
+static void accessSetAddOwned(AccessSet* set, char* name, bool asRead, bool asWrite) {
+    if (!set || !name || (!asRead && !asWrite)) {
+        free(name);
+        return;
+    }
     for (size_t i = 0; i < set->count; ++i) {
         if (set->entries[i].name == name || (set->entries[i].name && name && strcmp(set->entries[i].name, name) == 0)) {
             set->entries[i].read |= asRead;
             set->entries[i].write |= asWrite;
+            free(name);
             return;
         }
     }
@@ -72,10 +89,17 @@ static void accessSetAdd(AccessSet* set, const char* name, bool asRead, bool asW
     set->count++;
 }
 
+static void accessSetAddCopy(AccessSet* set, const char* name, bool asRead, bool asWrite) {
+    if (!name) return;
+    char* copy = dupString(name);
+    if (!copy) return;
+    accessSetAddOwned(set, copy, asRead, asWrite);
+}
+
 static void accessSetMerge(AccessSet* dst, const AccessSet* src) {
     if (!dst || !src) return;
     for (size_t i = 0; i < src->count; ++i) {
-        accessSetAdd(dst, src->entries[i].name, src->entries[i].read, src->entries[i].write);
+        accessSetAddCopy(dst, src->entries[i].name, src->entries[i].read, src->entries[i].write);
     }
 }
 
@@ -83,7 +107,13 @@ static void warnUnsequenced(const ASTNode* atNode, const char* name) {
     if (!name) return;
     char buf[160];
     snprintf(buf, sizeof(buf), "Unsequenced modification and access of '%s'", name);
-    addWarning(atNode ? atNode->line : 0, 0, buf, NULL);
+    int line = atNode ? atNode->line : 0;
+    int column = 0;
+    if (atNode) {
+        line = atNode->location.start.line ? atNode->location.start.line : line;
+        column = atNode->location.start.column;
+    }
+    addWarning(line, column, buf, NULL);
 }
 
 static void mergeUnsequenced(const ASTNode* atNode, AccessSet* accum, const AccessSet* other) {
@@ -126,6 +156,54 @@ static const char* baseIdentifierName(ASTNode* node) {
     }
 }
 
+static char* accessPath(ASTNode* node) {
+    if (!node) return NULL;
+    switch (node->type) {
+        case AST_IDENTIFIER:
+            return node->valueNode.value ? dupString(node->valueNode.value) : NULL;
+        case AST_POINTER_ACCESS:
+        case AST_DOT_ACCESS: {
+            char* base = accessPath(node->memberAccess.base);
+            if (!base || !node->memberAccess.field) {
+                free(base);
+                return NULL;
+            }
+            const char* sep = (node->type == AST_POINTER_ACCESS) ? "->" : ".";
+            size_t len = strlen(base) + strlen(sep) + strlen(node->memberAccess.field) + 1;
+            char* merged = malloc(len);
+            if (!merged) {
+                free(base);
+                return NULL;
+            }
+            snprintf(merged, len, "%s%s%s", base, sep, node->memberAccess.field);
+            free(base);
+            return merged;
+        }
+        case AST_ARRAY_ACCESS:
+            return accessPath(node->arrayAccess.array);
+        case AST_POINTER_DEREFERENCE: {
+            char* base = accessPath(node->pointerDeref.pointer);
+            if (!base) return NULL;
+            size_t len = strlen(base) + 2;
+            char* merged = malloc(len);
+            if (!merged) {
+                free(base);
+                return NULL;
+            }
+            snprintf(merged, len, "*%s", base);
+            free(base);
+            return merged;
+        }
+        case AST_UNARY_EXPRESSION:
+            if (node->expr.op && strcmp(node->expr.op, "&") == 0) {
+                return accessPath(node->expr.left);
+            }
+            return NULL;
+        default:
+            return NULL;
+    }
+}
+
 static AccessSet analyzeEffects(ASTNode* node, Scope* scope, bool asRead, bool asWrite);
 
 static AccessSet analyzeEffectsBinary(ASTNode* node, Scope* scope) {
@@ -150,7 +228,7 @@ static AccessSet analyzeEffects(ASTNode* node, Scope* scope, bool asRead, bool a
 
     switch (node->type) {
         case AST_IDENTIFIER: {
-            accessSetAdd(&set, node->valueNode.value, asRead, asWrite);
+            accessSetAddOwned(&set, accessPath(node), asRead, asWrite);
             break;
         }
         case AST_NUMBER_LITERAL:
@@ -200,7 +278,7 @@ static AccessSet analyzeEffects(ASTNode* node, Scope* scope, bool asRead, bool a
             break;
         }
         case AST_ARRAY_ACCESS: {
-            AccessSet base = analyzeEffects(node->arrayAccess.array, scope, true, false);
+            AccessSet base = analyzeEffects(node->arrayAccess.array, scope, false, false);
             AccessSet idx = analyzeEffects(node->arrayAccess.index, scope, true, false);
             mergeUnsequenced(node, &base, &idx);
             set = base;
@@ -209,7 +287,7 @@ static AccessSet analyzeEffects(ASTNode* node, Scope* scope, bool asRead, bool a
         }
         case AST_POINTER_ACCESS:
         case AST_DOT_ACCESS: {
-            AccessSet base = analyzeEffects(node->memberAccess.base, scope, true, false);
+            AccessSet base = analyzeEffects(node->memberAccess.base, scope, false, false);
             accessSetMerge(&set, &base);
             accessSetFree(&base);
             break;
@@ -246,10 +324,7 @@ static AccessSet analyzeEffects(ASTNode* node, Scope* scope, bool asRead, bool a
     }
 
     // Mark base object access if this node is being treated as a read/write lvalue directly.
-    const char* baseName = baseIdentifierName(node);
-    if (baseName) {
-        accessSetAdd(&set, baseName, asRead, asWrite);
-    }
+    accessSetAddOwned(&set, accessPath(node), asRead, asWrite);
     return set;
 }
 
@@ -690,7 +765,14 @@ static bool isModifiableLValue(const TypeInfo* info) {
     if (!info || !info->isLValue) {
         return false;
     }
-    if (info->isConst || info->isArray || info->category == TYPEINFO_FUNCTION || info->category == TYPEINFO_VOID) {
+    bool isConstObject = info->isConst;
+    if (info->category == TYPEINFO_POINTER && info->originalType) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(info->originalType, 0);
+        if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
+            isConstObject = deriv->as.pointer.isConst;
+        }
+    }
+    if (isConstObject || info->isArray || info->category == TYPEINFO_FUNCTION || info->category == TYPEINFO_VOID) {
         return false;
     }
     return true;
@@ -1268,6 +1350,14 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             if (fieldType) {
                 TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, scope);
                 fieldInfo.isLValue = true;
+                if (fieldInfo.category == TYPEINFO_POINTER) {
+                    const TypeDerivation* deriv = parsedTypeGetDerivation(fieldType, 0);
+                    if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
+                        fieldInfo.isConst = deriv->as.pointer.isConst;
+                        fieldInfo.isVolatile = deriv->as.pointer.isVolatile;
+                        fieldInfo.isRestrict = deriv->as.pointer.isRestrict;
+                    }
+                }
                 fieldInfo.isConst = base.isConst || fieldInfo.isConst;
                 const CCTagFieldLayout* lay = lookupFieldLayout(&base, node->memberAccess.field, scope);
                 if (lay && lay->isBitfield && !lay->isZeroWidth) {

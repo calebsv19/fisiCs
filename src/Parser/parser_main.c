@@ -240,6 +240,23 @@ ASTNode* parseProgram(Parser* parser) {
             }
         }
 
+        if (parser->currentToken.type == TOKEN_TYPEDEF) {
+            ASTNode* def = parseTypedef(parser);
+            if (def) {
+                if (count >= capacity) {
+                    size_t new_cap = capacity * 2;
+                    ASTNode** tmp = realloc(statements, new_cap * sizeof(*tmp));
+                    if (!tmp) { free(statements); return NULL; }
+                    statements = tmp;
+                    capacity = new_cap;
+                }
+                statements[count++] = def;
+            } else {
+                parserSyncToDeclarationStart(parser);
+            }
+            continue;
+        }
+
         if (looksLikeTypeDeclaration(parser)) {
             ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
             if (!decl) { 

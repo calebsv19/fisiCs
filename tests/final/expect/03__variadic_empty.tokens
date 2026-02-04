@@ -1,0 +1,17 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:2:1
+1 TOKEN_IDENTIFIER main /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:2:5
+2 TOKEN_LPAREN ( /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:2:9
+3 TOKEN_VOID void /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:2:10
+4 TOKEN_RPAREN ) /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:2:14
+5 TOKEN_LBRACE { /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:2:16
+6 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:3:5
+7 TOKEN_IDENTIFIER x /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:3:9
+8 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:3:11
+9 TOKEN_NUMBER 1 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:3:17
+10 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:3:19
+11 TOKEN_RETURN return /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:4:5
+12 TOKEN_IDENTIFIER x /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:4:12
+13 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:4:13
+14 TOKEN_RBRACE } /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_empty.c:5:1
+15 TOKEN_EOF <null> <unknown>:0:0

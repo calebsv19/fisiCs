@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:14): Conflicting types for variable
+   Hint: x
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/10__extern_type_mismatch.c:2:14

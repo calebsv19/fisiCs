@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: char [?]
+    IDENTIFIER s
+      = STRING_LITERAL "hello"
+  VAR_DECL
+    TYPE: char [NUMBER_LITERAL 3]
+    IDENTIFIER t
+      = STRING_LITERAL "hi"

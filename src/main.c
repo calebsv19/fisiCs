@@ -202,6 +202,7 @@ int main(int argc, char **argv) {
     bool dumpAst = false;
     bool dumpSemantic = false;
     bool dumpIR = false;
+    bool dumpTokens = false;
     bool dumpLayout = false;
     bool enableTrigraphs = false;
     bool warnIgnoredInterop = true;
@@ -279,6 +280,8 @@ int main(int argc, char **argv) {
             dumpSemantic = true;
         } else if (strcmp(argv[i], "--dump-ir") == 0) {
             dumpIR = true;
+        } else if (strcmp(argv[i], "--dump-tokens") == 0) {
+            dumpTokens = true;
         } else if (strcmp(argv[i], "--trigraphs") == 0) {
             enableTrigraphs = true;
         } else if (strcmp(argv[i], "-c") == 0) {
@@ -412,6 +415,7 @@ int main(int argc, char **argv) {
                     .dumpAst = dumpAst,
                     .dumpSemantic = dumpSemantic,
                     .dumpIR = dumpIR,
+                    .dumpTokens = dumpTokens,
                     .enableCodegen = enableCodegen,
                     .warnIgnoredInterop = warnIgnoredInterop,
                     .errorIgnoredInterop = errorIgnoredInterop
@@ -482,6 +486,7 @@ int main(int argc, char **argv) {
                     .dumpAst = dumpAst,
                     .dumpSemantic = dumpSemantic,
                     .dumpIR = dumpIR,
+                    .dumpTokens = dumpTokens,
                     .enableCodegen = enableCodegen,
                     .warnIgnoredInterop = warnIgnoredInterop,
                     .errorIgnoredInterop = errorIgnoredInterop
@@ -654,6 +659,7 @@ int main(int argc, char **argv) {
         .dumpAst = dumpAst || ENABLE_AST_PRINT,
         .dumpSemantic = dumpSemantic || ENABLE_SYNTAX_CHECK,
         .dumpIR = dumpIR || (enableCodegen && ENABLE_CODEGEN),
+        .dumpTokens = dumpTokens,
         .enableCodegen = enableCodegen,
         .warnIgnoredInterop = warnIgnoredInterop,
         .errorIgnoredInterop = errorIgnoredInterop

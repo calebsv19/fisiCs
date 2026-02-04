@@ -22,6 +22,15 @@ static ParsedType intType(void) {
     return t;
 }
 
+static ParsedType charType(bool isUnsigned) {
+    ParsedType t;
+    memset(&t, 0, sizeof(t));
+    t.kind = TYPE_PRIMITIVE;
+    t.primitiveType = TOKEN_CHAR;
+    t.isUnsigned = isUnsigned;
+    return t;
+}
+
 static ParsedType longType(bool isUnsigned) {
     ParsedType t;
     memset(&t, 0, sizeof(t));
@@ -73,6 +82,17 @@ static ParsedType constVoidPtrType(void) {
 
 static ParsedType voidPtrType(void) {
     ParsedType t = voidType();
+    return pointerTo(t);
+}
+
+static ParsedType charPtrType(void) {
+    ParsedType t = charType(false);
+    return pointerTo(t);
+}
+
+static ParsedType constCharPtrType(void) {
+    ParsedType t = charType(false);
+    t.isConst = true;
     return pointerTo(t);
 }
 
@@ -145,6 +165,47 @@ void seedBuiltins(Scope* globalScope) {
             memcpyChkSym->signature.params[3] = longType(true);
         }
         addToScope(scope, memcpyChkSym);
+    }
+
+    Symbol* memsetChkSym = makeBuiltin("__builtin___memset_chk", SYMBOL_FUNCTION, voidPtrType(), NULL);
+    if (memsetChkSym) {
+        memsetChkSym->signature.paramCount = 4;
+        memsetChkSym->signature.params = (ParsedType*)calloc(4, sizeof(ParsedType));
+        if (memsetChkSym->signature.params) {
+            memsetChkSym->signature.params[0] = voidPtrType();
+            memsetChkSym->signature.params[1] = intType();
+            memsetChkSym->signature.params[2] = longType(true);
+            memsetChkSym->signature.params[3] = longType(true);
+        }
+        addToScope(scope, memsetChkSym);
+    }
+
+    Symbol* strncpyChkSym = makeBuiltin("__builtin___strncpy_chk", SYMBOL_FUNCTION, charPtrType(), NULL);
+    if (strncpyChkSym) {
+        strncpyChkSym->signature.paramCount = 4;
+        strncpyChkSym->signature.params = (ParsedType*)calloc(4, sizeof(ParsedType));
+        if (strncpyChkSym->signature.params) {
+            strncpyChkSym->signature.params[0] = charPtrType();
+            strncpyChkSym->signature.params[1] = constCharPtrType();
+            strncpyChkSym->signature.params[2] = longType(true);
+            strncpyChkSym->signature.params[3] = longType(true);
+        }
+        addToScope(scope, strncpyChkSym);
+    }
+
+    Symbol* snprintfChkSym = makeBuiltin("__builtin___snprintf_chk", SYMBOL_FUNCTION, intType(), NULL);
+    if (snprintfChkSym) {
+        snprintfChkSym->signature.isVariadic = true;
+        snprintfChkSym->signature.paramCount = 5;
+        snprintfChkSym->signature.params = (ParsedType*)calloc(5, sizeof(ParsedType));
+        if (snprintfChkSym->signature.params) {
+            snprintfChkSym->signature.params[0] = charPtrType();
+            snprintfChkSym->signature.params[1] = longType(true);
+            snprintfChkSym->signature.params[2] = intType();
+            snprintfChkSym->signature.params[3] = longType(true);
+            snprintfChkSym->signature.params[4] = constCharPtrType();
+        }
+        addToScope(scope, snprintfChkSym);
     }
 
     Symbol* trueSym = (Symbol*)calloc(1, sizeof(Symbol));

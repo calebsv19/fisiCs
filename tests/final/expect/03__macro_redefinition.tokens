@@ -1,0 +1,12 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:1
+1 TOKEN_IDENTIFIER main /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:5
+2 TOKEN_LPAREN ( /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:9
+3 TOKEN_VOID void /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:10
+4 TOKEN_RPAREN ) /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:14
+5 TOKEN_LBRACE { /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:16
+6 TOKEN_RETURN return /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:18
+7 TOKEN_NUMBER 2 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:2:11
+8 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:26
+9 TOKEN_RBRACE } /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_redefinition.c:3:28
+10 TOKEN_EOF <null> <unknown>:0:0

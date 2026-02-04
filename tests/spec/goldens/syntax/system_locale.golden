@@ -328,9 +328,9 @@ PROGRAM
     VAR_DECL
       TYPE: char
       IDENTIFIER int_n_sign_posn
-  VAR_DECL
-    TYPE: struct _xlocale*
-    IDENTIFIER locale_t
+  TYPEDEF
+        TYPE: struct _xlocale*
+        Alias:     IDENTIFIER locale_t
   FUNCTION DECLARATION
     RETURN TYPE: locale_t
     IDENTIFIER duplocale

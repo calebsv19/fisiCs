@@ -1,0 +1,26 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER ok
+          = 
+            BINARY EXPRESSION '&&'
+              BINARY EXPRESSION '>'
+                NUMBER_LITERAL 2147483647
+                NUMBER_LITERAL 0
+              BINARY EXPRESSION '=='
+                NUMBER_LITERAL 8
+                NUMBER_LITERAL 8
+      RETURN
+        TERNARY_EXPRESSION
+          IDENTIFIER ok
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1

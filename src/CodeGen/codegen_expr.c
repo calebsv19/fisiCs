@@ -1318,6 +1318,11 @@ LLVMValueRef codegenPointerAccess(CodegenContext* ctx, ASTNode* node) {
         LLVMTypeRef resultTy = LLVMIntTypeInContext(ctx->llvmContext, width);
         return cg_load_bitfield(ctx, &info, resultTy);
     }
+    if (fieldType && LLVMGetTypeKind(fieldType) == LLVMArrayTypeKind) {
+        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+        LLVMValueRef idxs[2] = { zero, zero };
+        return LLVMBuildGEP2(ctx->builder, fieldType, fieldPtr, idxs, 2, "ptr_field_decay");
+    }
     if (!fieldType || LLVMGetTypeKind(fieldType) == LLVMVoidTypeKind) {
         fieldType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
@@ -1345,6 +1350,11 @@ LLVMValueRef codegenDotAccess(CodegenContext* ctx, ASTNode* node) {
         LLVMValueRef result = cg_load_bitfield(ctx, &info, resultTy);
         CG_DEBUG("[CG] Dot access bitfield load complete\n");
         return result;
+    }
+    if (fieldType && LLVMGetTypeKind(fieldType) == LLVMArrayTypeKind) {
+        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+        LLVMValueRef idxs[2] = { zero, zero };
+        return LLVMBuildGEP2(ctx->builder, fieldType, fieldPtr, idxs, 2, "dot_field_decay");
     }
     if (!fieldType || LLVMGetTypeKind(fieldType) == LLVMVoidTypeKind) {
         fieldType = LLVMInt32TypeInContext(ctx->llvmContext);

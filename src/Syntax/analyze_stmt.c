@@ -187,11 +187,13 @@ static void collectGotoInfoFromBlock(ASTNode* block,
                                      size_t* gotoCapacity) {
     if (!block || block->type != AST_BLOCK) return;
     BlockInitInfo* blockInfo = blockInitInfoAdd(blocks, blockCount, blockCapacity, block, parentBlock);
+    if (!blockInfo) return;
+    size_t blockIndex = (*blockCount) - 1;
     for (size_t i = 0; i < block->block.statementCount; ++i) {
         ASTNode* stmt = block->block.statements[i];
         if (!stmt) continue;
         if (stmt->type == AST_VARIABLE_DECLARATION && varDeclHasInitOrVLA(stmt)) {
-            blockInitInfoAddIndex(blockInfo, i);
+            blockInitInfoAddIndex(&(*blocks)[blockIndex], i);
         }
         if (stmt->type == AST_LABEL_DECLARATION && stmt->label.labelName) {
             labelInfoAdd(labels, labelCount, labelCapacity, stmt->label.labelName, block, i, stmt->line);

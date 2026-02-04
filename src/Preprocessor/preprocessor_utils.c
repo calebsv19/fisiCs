@@ -100,6 +100,7 @@ Token pp_token_clone_remap(Preprocessor* pp, const Token* tok) {
             if (clone.location.end.line < 1) clone.location.end.line = 1;
         }
     }
+    clone.line = clone.location.start.line;
     return clone;
 }
 

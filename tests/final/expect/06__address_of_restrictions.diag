@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (6:15): Cannot take address of register object
+   Hint: r
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__address_of_restrictions.c:6:15
+Error at (7:16): Operator '&' requires lvalue operand
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__address_of_restrictions.c:7:16

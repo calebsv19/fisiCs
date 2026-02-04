@@ -99,9 +99,17 @@ integration-compile-link: $(BIN)
 
 integration: integration-compile-only integration-compile-link
 
+# Final C99 behavior suite
+.PHONY: final final-update
+final: $(BIN)
+	@python3 tests/final/run_final.py ./$(BIN)
+
+final-update: $(BIN)
+	@UPDATE_FINAL=1 python3 tests/final/run_final.py ./$(BIN)
+
 # === Run the compiled binary ===
 run: src/Lexer/keyword_lookup.c $(BIN)
-	@./$(BIN)
+	@MallocNanoZone=0 ./$(BIN)
 
 union-decl: $(BIN)
 	@./tests/parser/run_union_decl.sh ./$(BIN)
@@ -414,7 +422,7 @@ statement-expr-disabled: $(BIN)
 	@./tests/parser/run_statement_expr_disabled.sh ./$(BIN)
 
 spec-tests: $(BIN)
-	@DISABLE_CODEGEN=1 ./tests/spec/run_ast_golden.sh ./$(BIN)
+	@MallocNanoZone=0 DISABLE_CODEGEN=1 ./tests/spec/run_ast_golden.sh ./$(BIN)
 
 parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \
               cast-grouped for_typedef function-pointer switch-flow goto-flow \
@@ -448,18 +456,18 @@ codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff codegen-
 
 test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests
 preprocessor-tests: $(BIN)
-	@./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_expr.sh
-	@./tests/preprocessor/run_pp_if.sh
-	@./tests/preprocessor/run_pp_nested.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_include_stringize.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_include_basic.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_include_search.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_include_next.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_include_pragma_once.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_preserve.sh ./$(BIN)
-	@./tests/preprocessor/run_pp_deps.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_expr.sh
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_if.sh
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_nested.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_include_stringize.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_include_basic.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_include_search.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_include_next.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_include_pragma_once.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_preserve.sh ./$(BIN)
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_deps.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_macro_adjacent.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_builtins.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_trigraph_digraph.sh ./$(BIN)

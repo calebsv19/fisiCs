@@ -1,0 +1,12 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:1:1
+1 TOKEN_IDENTIFIER a /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:1:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:1:7
+3 TOKEN_CHAR_LITERAL 65 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:1:9
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:1:17
+5 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:2:1
+6 TOKEN_IDENTIFIER b /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:2:5
+7 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:2:7
+8 TOKEN_CHAR_LITERAL 65 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:2:9
+9 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_unicode_escapes.c:2:21
+10 TOKEN_EOF <null> <unknown>:0:0

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (4:12): Undeclared identifier
+   Hint: y
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__bad_paren_expr.c:4:12

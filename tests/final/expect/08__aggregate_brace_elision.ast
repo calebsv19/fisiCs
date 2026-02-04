@@ -1,0 +1,43 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Inner
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER y
+  STRUCT
+        Name:     IDENTIFIER Outer
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER a
+    VAR_DECL
+      TYPE: struct Inner
+      IDENTIFIER b
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER c
+  VAR_DECL
+    TYPE: struct Outer
+    IDENTIFIER o
+        = NUMBER_LITERAL 1
+
+        = 
+          = NUMBER_LITERAL 2
+
+          = NUMBER_LITERAL 3
+
+        = NUMBER_LITERAL 4
+
+  VAR_DECL
+    TYPE: struct Outer
+    IDENTIFIER p
+        = NUMBER_LITERAL 5
+
+        = NUMBER_LITERAL 6
+
+        = NUMBER_LITERAL 7
+
+        = NUMBER_LITERAL 8

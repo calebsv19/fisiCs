@@ -1,0 +1,17 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:4:1
+1 TOKEN_IDENTIFIER v /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:4:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:4:7
+3 TOKEN_NUMBER 1 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:4:9
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:4:10
+5 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:1
+6 TOKEN_IDENTIFIER main /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:5
+7 TOKEN_LPAREN ( /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:9
+8 TOKEN_VOID void /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:10
+9 TOKEN_RPAREN ) /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:14
+10 TOKEN_LBRACE { /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:16
+11 TOKEN_RETURN return /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:18
+12 TOKEN_IDENTIFIER v /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:25
+13 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:26
+14 TOKEN_RBRACE } /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__if_elif_chain.c:8:28
+15 TOKEN_EOF <null> <unknown>:0:0

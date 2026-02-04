@@ -7,12 +7,169 @@
 #include "Compiler/diagnostics.h"
 #include "Compiler/pipeline.h"
 
+typedef struct {
+    char** items;
+    size_t count;
+    size_t capacity;
+} DiagKeyCache;
+
+static bool diag_cache_enabled(void) {
+    static int cached = -1;
+    if (cached >= 0) return cached != 0;
+    const char* env = getenv("FISICS_DIAG_DEDUP_GLOBAL");
+    cached = (env && env[0] && env[0] != '0') ? 1 : 0;
+    return cached != 0;
+}
+
+static void diag_cache_clear(DiagKeyCache* cache) {
+    if (!cache || !cache->items) return;
+    for (size_t i = 0; i < cache->count; ++i) {
+        free(cache->items[i]);
+    }
+    free(cache->items);
+    cache->items = NULL;
+    cache->count = 0;
+    cache->capacity = 0;
+}
+
+static bool diag_cache_contains(const DiagKeyCache* cache, const char* key) {
+    if (!cache || !key) return false;
+    for (size_t i = 0; i < cache->count; ++i) {
+        if (cache->items[i] && strcmp(cache->items[i], key) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool diag_cache_add(DiagKeyCache* cache, char* key) {
+    if (!cache || !key) return false;
+    if (cache->count == cache->capacity) {
+        size_t newCap = cache->capacity ? cache->capacity * 2 : 64;
+        char** grown = (char**)realloc(cache->items, newCap * sizeof(char*));
+        if (!grown) return false;
+        cache->items = grown;
+        cache->capacity = newCap;
+    }
+    cache->items[cache->count++] = key;
+    return true;
+}
+
+static char* diag_key(const FisicsDiagnostic* d) {
+    const char* path = d && d->file_path ? d->file_path : "<unknown>";
+    const char* msg = d && d->message ? d->message : "<unknown>";
+    const char* hint = d && d->hint ? d->hint : "";
+    int line = d ? d->line : 0;
+    int col = d ? d->column : 0;
+    int kind = d ? (int)d->kind : 0;
+    int needed = snprintf(NULL, 0, "%s:%d:%d:%d:%s:%s", path, line, col, kind, msg, hint);
+    if (needed <= 0) return NULL;
+    char* key = (char*)malloc((size_t)needed + 1);
+    if (!key) return NULL;
+    snprintf(key, (size_t)needed + 1, "%s:%d:%d:%d:%s:%s", path, line, col, kind, msg, hint);
+    return key;
+}
+
+static bool copy_diagnostics_filtered(const CompilerContext* ctx,
+                                      const char* callerFilePath,
+                                      FisicsAnalysisResult* out) {
+    static DiagKeyCache cache = {0};
+    const size_t maxKeys = 4096;
+
+    size_t count = 0;
+    const FisicsDiagnostic* src = compiler_diagnostics_data(ctx, &count);
+    if (count == 0) {
+        out->diagnostics = NULL;
+        out->diag_count = 0;
+        return true;
+    }
+
+    FisicsDiagnostic* dst = (FisicsDiagnostic*)calloc(count, sizeof(FisicsDiagnostic));
+    if (!dst) return false;
+    size_t kept = 0;
+    for (size_t i = 0; i < count; ++i) {
+        char* key = diag_key(&src[i]);
+        if (!key) {
+            continue;
+        }
+        if (diag_cache_contains(&cache, key)) {
+            free(key);
+            continue;
+        }
+        if (!diag_cache_add(&cache, key)) {
+            free(key);
+            continue;
+        }
+        if (cache.count > maxKeys) {
+            diag_cache_clear(&cache);
+        }
+
+        dst[kept] = src[i];
+        dst[kept].file_path = NULL;
+        dst[kept].message = NULL;
+        dst[kept].hint = NULL;
+
+        const char* chosenPath = src[i].file_path ? src[i].file_path : callerFilePath;
+        if (chosenPath) {
+            dst[kept].file_path = strdup(chosenPath);
+            if (!dst[kept].file_path) {
+                for (size_t j = 0; j <= kept; ++j) {
+                    free((char*)dst[j].file_path);
+                    free(dst[j].message);
+                    free(dst[j].hint);
+                }
+                free(dst);
+                return false;
+            }
+        }
+        if (src[i].message) {
+            dst[kept].message = strdup(src[i].message);
+            if (!dst[kept].message) {
+                for (size_t j = 0; j <= kept; ++j) {
+                    free((char*)dst[j].file_path);
+                    free(dst[j].message);
+                    free(dst[j].hint);
+                }
+                free(dst);
+                return false;
+            }
+        }
+        if (src[i].hint) {
+            dst[kept].hint = strdup(src[i].hint);
+            if (!dst[kept].hint) {
+                for (size_t j = 0; j <= kept; ++j) {
+                    free((char*)dst[j].file_path);
+                    free(dst[j].message);
+                    free(dst[j].hint);
+                }
+                free(dst);
+                return false;
+            }
+        }
+        kept++;
+    }
+
+    if (kept == 0) {
+        free(dst);
+        out->diagnostics = NULL;
+        out->diag_count = 0;
+        return true;
+    }
+
+    out->diagnostics = dst;
+    out->diag_count = kept;
+    return true;
+}
+
 // Copy diagnostics out of the compiler context. We purposefully override the
 // file_path with the caller's file_path to avoid dangling pointers from the
 // preprocessor/include resolver teardown.
 static bool copy_diagnostics(const CompilerContext* ctx,
                              const char* callerFilePath,
                              FisicsAnalysisResult* out) {
+    if (diag_cache_enabled()) {
+        return copy_diagnostics_filtered(ctx, callerFilePath, out);
+    }
     size_t count = 0;
     const FisicsDiagnostic* src = compiler_diagnostics_data(ctx, &count);
     if (count == 0) {
@@ -206,6 +363,7 @@ bool fisics_analyze_buffer(const char* file_path,
                                     opts ? opts->macro_define_count : 0,
                                     lenient,
                                     includeSystemSymbols,
+                                    false,
                                     false,
                                     false,
                                     &ast,

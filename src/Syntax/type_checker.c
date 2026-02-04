@@ -139,6 +139,10 @@ TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex, Scope* scope) {
 
 static void applyQualifiers(TypeInfo* info, const ParsedType* type) {
     if (!info || !type) return;
+    if (info->category == TYPEINFO_POINTER) {
+        // Base qualifiers on a pointer type apply to the pointee, not the pointer itself.
+        return;
+    }
     info->isConst    |= type->isConst;
     info->isVolatile |= type->isVolatile;
     info->isRestrict |= type->isRestrict;
@@ -558,10 +562,39 @@ bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
     }
 }
 
+static bool typeInfoIsFunctionPointer(const TypeInfo* info) {
+    return info && info->originalType && info->originalType->isFunctionPointer;
+}
+
+static bool typeInfoIsVoidPointer(const TypeInfo* info) {
+    if (!info || info->category != TYPEINFO_POINTER) return false;
+    if (info->pointerDepth != 1) return false;
+    if (info->originalType) {
+        ParsedType target = parsedTypePointerTargetType(info->originalType);
+        bool isVoid = target.kind == TYPE_PRIMITIVE && target.primitiveType == TOKEN_VOID;
+        parsedTypeFree(&target);
+        if (isVoid) return true;
+    }
+    return info->primitive == TOKEN_VOID;
+}
+
 AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) {
     if (!dest || !src) return ASSIGN_INCOMPATIBLE;
 
     if (typeInfoIsPointerLike(dest) && typeInfoIsPointerLike(src)) {
+        bool destVoidPtr = typeInfoIsVoidPointer(dest);
+        bool srcVoidPtr = typeInfoIsVoidPointer(src);
+        if ((destVoidPtr && !typeInfoIsFunctionPointer(src)) ||
+            (srcVoidPtr && !typeInfoIsFunctionPointer(dest))) {
+            PointerQualifier s = { 0 };
+            PointerQualifier d = { 0 };
+            if (src->pointerDepth > 0) s = src->pointerLevels[0];
+            if (dest->pointerDepth > 0) d = dest->pointerLevels[0];
+            if (s.isConst && !d.isConst) return ASSIGN_QUALIFIER_LOSS;
+            if (s.isVolatile && !d.isVolatile) return ASSIGN_QUALIFIER_LOSS;
+            if (s.isRestrict && !d.isRestrict) return ASSIGN_QUALIFIER_LOSS;
+            return ASSIGN_OK;
+        }
         if (dest->pointerDepth != src->pointerDepth) {
             return ASSIGN_INCOMPATIBLE;
         }

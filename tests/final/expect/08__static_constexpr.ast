@@ -1,0 +1,13 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER x
+      = NUMBER_LITERAL 3
+  VAR_DECL
+    TYPE: static int
+    IDENTIFIER y
+      = 
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          NUMBER_LITERAL 1

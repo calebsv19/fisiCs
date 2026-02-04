@@ -1,0 +1,22 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: _Bool
+        Alias:     IDENTIFIER bool
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: bool
+        IDENTIFIER ok
+          = NUMBER_LITERAL 1
+      RETURN
+        TERNARY_EXPRESSION
+          IDENTIFIER ok
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1

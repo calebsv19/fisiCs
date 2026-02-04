@@ -54,8 +54,7 @@ PROGRAM
 
 
 Diagnostics:
-Warning at (5:0): Unsequenced modification and access of 'i'
-Warning at (5:0): Unsequenced modification and access of 'i'
-Warning at (6:0): Unsequenced modification and access of 'i'
+Warning at (5:9): Unsequenced modification and access of 'i'
+Warning at (6:13): Unsequenced modification and access of 'i'
 Semantic analysis: no issues found.
 

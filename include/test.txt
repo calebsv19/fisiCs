@@ -1,5 +1,7 @@
+#define HDR "virtual_file.h"
+#line 123 HDR
+
 int main(void) {
-    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
-    int (*p[2])[3] = {&a[0], &a[1]};
-    return (*p[0])[1] == 2 ? 0 : 1;
+    int x = ;
+    return x;
 }

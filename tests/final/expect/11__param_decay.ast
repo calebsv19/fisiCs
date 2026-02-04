@@ -1,0 +1,64 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER takes_arr
+    PARAMETERS
+      VAR_DECL
+        TYPE: int [?]
+        IDENTIFIER a
+    BLOCK
+      RETURN
+        ARRAY_ACCESS
+          IDENTIFIER a
+          NUMBER_LITERAL 0
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER takes_fn
+    PARAMETERS
+      VAR_DECL
+        TYPE: int (*)(int) (int)
+        IDENTIFIER fn
+    BLOCK
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER fn
+          ARGUMENTS
+            NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER inc
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int [NUMBER_LITERAL 2]
+        IDENTIFIER arr
+            = NUMBER_LITERAL 1
+
+            = NUMBER_LITERAL 2
+
+      RETURN
+        BINARY EXPRESSION '+'
+          FUNCTION CALL
+            IDENTIFIER takes_arr
+            ARGUMENTS
+              IDENTIFIER arr
+          FUNCTION CALL
+            IDENTIFIER takes_fn
+            ARGUMENTS
+              IDENTIFIER inc

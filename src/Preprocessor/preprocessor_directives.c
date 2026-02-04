@@ -573,29 +573,53 @@ bool process_line_directive(Preprocessor* pp,
                             size_t* cursor) {
     size_t i = *cursor;
     int directiveLine = tokens[i].line;
-    i++; // move past "line"
-    if (i >= count || tokens[i].type != TOKEN_NUMBER) {
-        pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected line number after #line");
+    size_t lineStart = i;
+    size_t lineEnd = lineStart + 1;
+    while (lineEnd < count && tokens[lineEnd].type != TOKEN_EOF && tokens[lineEnd].line == directiveLine) {
+        lineEnd++;
+    }
+    size_t span = (lineEnd > lineStart + 1) ? (lineEnd - (lineStart + 1)) : 0;
+
+    PPTokenBuffer expanded = {0};
+    if (!macro_expander_expand(&pp->expander, tokens + lineStart + 1, span, &expanded)) {
+        pp_token_buffer_destroy(&expanded);
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,
+                       "failed to expand #line directive");
         return false;
     }
-    long newLine = strtol(tokens[i].value ? tokens[i].value : "0", NULL, 10);
-    if (newLine < 1) newLine = 1;
-    const char* newFile = NULL;
-    if ((i + 1) < count &&
-        tokens[i + 1].line == directiveLine &&
-        tokens[i + 1].type == TOKEN_STRING) {
-        newFile = tokens[i + 1].value;
-        i++;
+
+    size_t cursorExp = 0;
+    while (cursorExp < expanded.count && expanded.tokens[cursorExp].type == TOKEN_EOF) {
+        cursorExp++;
     }
+    if (cursorExp >= expanded.count || expanded.tokens[cursorExp].type != TOKEN_NUMBER) {
+        pp_token_buffer_destroy(&expanded);
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,
+                       "expected line number after #line");
+        return false;
+    }
+    long newLine = strtol(expanded.tokens[cursorExp].value ? expanded.tokens[cursorExp].value : "0", NULL, 10);
+    if (newLine < 1) newLine = 1;
+    cursorExp++;
+
+    const char* newFile = NULL;
+    while (cursorExp < expanded.count && expanded.tokens[cursorExp].type == TOKEN_EOF) {
+        cursorExp++;
+    }
+    if (cursorExp < expanded.count && expanded.tokens[cursorExp].type == TOKEN_STRING) {
+        newFile = expanded.tokens[cursorExp].value;
+        cursorExp++;
+    }
+
     int nextPhysical = directiveLine + 1;
     pp->lineOffset = (int)newLine - nextPhysical;
     pp->lineRemapActive = true;
     if (newFile && newFile[0]) {
         pp_set_logical_file(pp, newFile);
     }
-    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
-        i++;
-    }
-    *cursor = (i == 0) ? 0 : i - 1;
+
+    pp_token_buffer_destroy(&expanded);
+
+    *cursor = (lineEnd == 0) ? 0 : lineEnd - 1;
     return true;
 }

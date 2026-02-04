@@ -1,0 +1,6 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER ok
+      = NUMBER_LITERAL 1

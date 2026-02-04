@@ -1,0 +1,12 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:1
+1 TOKEN_IDENTIFIER main /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:5
+2 TOKEN_LPAREN ( /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:9
+3 TOKEN_VOID void /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:10
+4 TOKEN_RPAREN ) /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:14
+5 TOKEN_LBRACE { /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:16
+6 TOKEN_RETURN return /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:18
+7 TOKEN_NUMBER 7 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:3:11
+8 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:26
+9 TOKEN_RBRACE } /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_macro_expansion.c:4:28
+10 TOKEN_EOF <null> <unknown>:0:0

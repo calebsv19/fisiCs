@@ -1,0 +1,20 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Bits
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER a
+        BITFIELD : NUMBER_LITERAL 3
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER b
+        BITFIELD : NUMBER_LITERAL 5
+  STRUCT
+        Name:     IDENTIFIER Flex
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER len
+    VAR_DECL
+      TYPE: int [flex]
+      IDENTIFIER data

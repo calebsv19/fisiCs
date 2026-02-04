@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (3:0): Control reaches end of non-void function 'main'

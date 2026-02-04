@@ -1,0 +1,50 @@
+ AST Output:
+PROGRAM
+  TYPEDEF
+        TYPE: struct EffectsManager
+        Alias:     IDENTIFIER EffectsManager
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER x
+
+ Semantic Analysis:
+Semantic analysis: no issues found.
+
+ Semantic Model Dump:
+SemanticModel: 0 error(s)
+Scope depth 0
+  - typedef: EffectsManager
+  - typedef: ptrdiff_t
+  - function: __builtin_object_size
+  - typedef: size_t
+  - function: __builtin_inff
+  - variable: x
+  - function: __builtin_va_start
+  - variable: __LDBL_MIN__
+  - function: __builtin_infl
+  - typedef: max_align_t
+  - function: __builtin_va_copy
+  - typedef: wchar_t
+  - function: __builtin_fabs
+  - function: __builtin___memcpy_chk
+  - function: printf
+  - typedef: intptr_t
+  - function: __builtin_fabsf
+  - function: fprintf
+  - function: exit
+  - variable: NULL
+  - function: __builtin_fabsl
+  - variable: __FLT_MIN__
+  - typedef: uintptr_t
+  - typedef: wint_t
+  - function: __builtin_expect
+  - variable: true
+  - typedef: ssize_t
+  - function: __builtin_va_end
+  - function: __builtin_va_arg
+  - variable: false
+  - variable: __DBL_MIN__
+  - function: __builtin_inf
+  - typedef: sig_atomic_t
+
+️ LLVM Code Generation:

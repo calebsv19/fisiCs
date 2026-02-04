@@ -510,6 +510,10 @@ bool parserParseDeclarator(Parser* parser,
 ASTNode* handleTypeOrFunctionDeclaration(Parser* parser) {
     PARSER_DEBUG_PRINTF("DEBUG: Entered handleTypeOrFunctionDeclaration()\n");
 
+    if (parser->currentToken.type == TOKEN_TYPEDEF) {
+        return parseTypedef(parser);
+    }
+
     // Parse the leading type (handles storage/specifiers)
     ParsedType parsedType = parseType(parser);
     if (parsedType.kind == TYPE_INVALID) {
