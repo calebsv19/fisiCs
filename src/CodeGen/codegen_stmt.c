@@ -472,7 +472,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                                                             NULL,
                                                             effectiveParsed,
                                                             "init.store");
-                        LLVMBuildStore(ctx->builder, casted, storage);
+                        cg_build_store(ctx, casted, storage, effectiveParsed);
                     }
                 } else {
                     if (!cg_store_initializer_expression(ctx,
@@ -713,8 +713,40 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     if (function) {
         // If a prototype already exists, reuse it; otherwise fall back to a fresh function.
         // Best-effort type nudge: replace the function's type if it mismatches.
-        LLVMTypeRef existingType = cg_dereference_ptr_type(ctx, LLVMTypeOf(function), "function redeclaration");
-        if (existingType != funcType) {
+        LLVMTypeRef existingType = NULL;
+        LLVMTypeRef valueType = LLVMTypeOf(function);
+        if (valueType && LLVMGetTypeKind(valueType) == LLVMFunctionTypeKind) {
+            existingType = valueType;
+        } else {
+            existingType = cg_dereference_ptr_type(ctx, valueType, "function redeclaration");
+        }
+        bool opaqueFallback = false;
+        if (valueType && LLVMGetTypeKind(valueType) == LLVMPointerTypeKind) {
+            opaqueFallback = true;
+        }
+        if (existingType &&
+            LLVMGetTypeKind(existingType) == LLVMIntegerTypeKind &&
+            LLVMGetIntTypeWidth(existingType) == 8) {
+            opaqueFallback = true;
+        }
+        if (existingType != funcType && !opaqueFallback) {
+            if (getenv("FISICS_DEBUG_CONST")) {
+                char* valueStr = valueType ? LLVMPrintTypeToString(valueType) : NULL;
+                char* existStr = existingType ? LLVMPrintTypeToString(existingType) : NULL;
+                char* funcStr = LLVMPrintTypeToString(funcType);
+                char* fnValStr = LLVMPrintValueToString(function);
+                fprintf(stderr,
+                        "[fn] deleting prototype for %s due to signature mismatch (value=%s, existing=%s, new=%s)\n",
+                        fnName,
+                        valueStr ? valueStr : "<null>",
+                        existStr ? existStr : "<null>",
+                        funcStr ? funcStr : "<null>");
+                fprintf(stderr, "[fn] existing value: %s\n", fnValStr ? fnValStr : "<null>");
+                if (valueStr) LLVMDisposeMessage(valueStr);
+                if (existStr) LLVMDisposeMessage(existStr);
+                if (funcStr) LLVMDisposeMessage(funcStr);
+                if (fnValStr) LLVMDisposeMessage(fnValStr);
+            }
             LLVMDeleteFunction(function);
             function = NULL;
         }
@@ -1077,9 +1109,6 @@ LLVMValueRef codegenLabel(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    if (binding->defined) {
-        fprintf(stderr, "Warning: label '%s' redefined\n", name);
-    }
     binding->defined = true;
 
     if (insertBlock && insertBlock != block && !LLVMGetBasicBlockTerminator(insertBlock)) {

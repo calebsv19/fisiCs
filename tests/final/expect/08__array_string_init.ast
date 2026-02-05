@@ -5,6 +5,6 @@ PROGRAM
     IDENTIFIER s
       = STRING_LITERAL "hello"
   VAR_DECL
-    TYPE: char [NUMBER_LITERAL 3]
+    TYPE: char [3]
     IDENTIFIER t
       = STRING_LITERAL "hi"

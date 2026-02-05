@@ -6,7 +6,7 @@ Statement grammar, scoping, and control flow legality.
 ## Validate
 - Dangling-else binding and switch semantics.
 - for-declarations (C99), break/continue legality.
-- goto and label restrictions.
+- goto and label restrictions (including redefinition).
 
 ## Acceptance Checklist
 - Dangling else binds to the nearest if.
@@ -30,6 +30,8 @@ Statement grammar, scoping, and control flow legality.
    - Duplicate case label diagnostics.
 7) `09__goto_cross_init`
    - goto crossing initialization boundaries.
+8) `09__label_redefinition`
+   - duplicate label warning.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for statement structure and errors.

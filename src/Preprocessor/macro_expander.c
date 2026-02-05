@@ -365,11 +365,24 @@ static bool handle_builtin_identifier(MacroExpander* expander,
         : &tok->location;
     if (strcmp(name, "__FILE__") == 0) {
         const char* file = loc->start.file ? loc->start.file : expander->builtins.baseFile;
+        if (expander->builtins.lineRemapActive &&
+            *expander->builtins.lineRemapActive &&
+            expander->builtins.logicalFile &&
+            *expander->builtins.logicalFile) {
+            file = *expander->builtins.logicalFile;
+        }
         return emit_builtin_literal(out, tok, TOKEN_STRING, file ? file : "");
     }
     if (strcmp(name, "__LINE__") == 0) {
         char buffer[32];
-        snprintf(buffer, sizeof(buffer), "%d", loc->start.line);
+        int line = loc->start.line;
+        if (expander->builtins.lineRemapActive &&
+            *expander->builtins.lineRemapActive &&
+            expander->builtins.lineOffset) {
+            line += *expander->builtins.lineOffset;
+            if (line < 1) line = 1;
+        }
+        snprintf(buffer, sizeof(buffer), "%d", line);
         return emit_builtin_literal(out, tok, TOKEN_NUMBER, buffer);
     }
     if (strcmp(name, "__BASE_FILE__") == 0) {
@@ -819,6 +832,9 @@ void macro_expander_init(MacroExpander* expander, MacroTable* table) {
     expander->builtins.dateString = NULL;
     expander->builtins.timeString = NULL;
     expander->builtins.counter = NULL;
+    expander->builtins.logicalFile = NULL;
+    expander->builtins.lineOffset = NULL;
+    expander->builtins.lineRemapActive = NULL;
 }
 
 void macro_expander_reset(MacroExpander* expander) {

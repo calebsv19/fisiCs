@@ -1,538 +1,630 @@
 {
-  "01__macro_changes_parse_shape": {
-    "bucket": "translation-phases",
-    "tags": [
-      "macro",
-      "parse-shape"
-    ],
-    "status": "ok"
-  },
-  "01__line_directive_diag_location": {
-    "bucket": "translation-phases",
-    "tags": [
-      "line-directive",
-      "diagnostics"
-    ],
-    "status": "ok"
-  },
-  "01__macro_expansion_line_map": {
-    "bucket": "translation-phases",
-    "tags": [
-      "macro",
-      "diagnostics"
-    ],
-    "status": "ok"
-  },
-  "01__include_boundary_diag_file": {
-    "bucket": "translation-phases",
-    "tags": [
-      "include",
-      "diagnostics"
-    ],
-    "status": "ok"
-  },
   "01__deterministic_ast_output": {
     "bucket": "translation-phases",
+    "status": "ok",
     "tags": [
       "determinism",
       "ast"
-    ],
-    "status": "ok"
+    ]
+  },
+  "01__include_boundary_diag_file": {
+    "bucket": "translation-phases",
+    "status": "ok",
+    "tags": [
+      "include",
+      "diagnostics"
+    ]
+  },
+  "01__line_directive_diag_location": {
+    "bucket": "translation-phases",
+    "status": "ok",
+    "tags": [
+      "line-directive",
+      "diagnostics"
+    ]
+  },
+  "01__macro_changes_parse_shape": {
+    "bucket": "translation-phases",
+    "status": "ok",
+    "tags": [
+      "macro",
+      "parse-shape"
+    ]
+  },
+  "01__macro_expansion_line_map": {
+    "bucket": "translation-phases",
+    "status": "ok",
+    "tags": [
+      "macro",
+      "diagnostics"
+    ]
   },
   "01__macro_expansion_order": {
     "bucket": "translation-phases",
+    "status": "ok",
     "tags": [
       "macro",
       "rescan"
-    ],
-    "status": "ok"
-  },
-  "02__int_literals": {
-    "bucket": "lexer",
-    "tags": [
-      "literals",
-      "integer"
-    ],
-    "status": "ok"
-  },
-  "02__float_literals": {
-    "bucket": "lexer",
-    "tags": [
-      "literals",
-      "float"
-    ],
-    "status": "ok"
+    ]
   },
   "02__char_literals": {
     "bucket": "lexer",
+    "status": "ok",
     "tags": [
       "literals",
       "char"
-    ],
-    "status": "ok"
-  },
-  "02__string_concat": {
-    "bucket": "lexer",
-    "tags": [
-      "string",
-      "concat"
-    ],
-    "status": "ok"
-  },
-  "02__operator_edges": {
-    "bucket": "lexer",
-    "tags": [
-      "operators"
-    ],
-    "status": "ok"
-  },
-  "02__int_suffix_order": {
-    "bucket": "lexer",
-    "tags": [
-      "literals",
-      "integer"
-    ],
-    "status": "ok"
-  },
-  "02__float_exponent_forms": {
-    "bucket": "lexer",
-    "tags": [
-      "literals",
-      "float"
-    ],
-    "status": "ok"
+    ]
   },
   "02__char_unicode_escapes": {
     "bucket": "lexer",
+    "status": "ok",
     "tags": [
       "literals",
       "char"
-    ],
-    "status": "ok"
+    ]
   },
-  "03__object_like_macro": {
-    "bucket": "preprocessor",
+  "02__float_exponent_forms": {
+    "bucket": "lexer",
+    "status": "ok",
     "tags": [
-      "macro"
-    ],
-    "status": "ok"
+      "literals",
+      "float"
+    ]
   },
-  "03__function_like_macro": {
-    "bucket": "preprocessor",
+  "02__float_literals": {
+    "bucket": "lexer",
+    "status": "ok",
     "tags": [
-      "macro",
-      "function-like"
-    ],
-    "status": "ok"
+      "literals",
+      "float"
+    ]
   },
-  "03__stringify_and_paste": {
-    "bucket": "preprocessor",
+  "02__int_literals": {
+    "bucket": "lexer",
+    "status": "ok",
     "tags": [
-      "stringify",
-      "paste"
-    ],
-    "status": "ok"
+      "literals",
+      "integer"
+    ]
   },
-  "03__variadic_macro": {
-    "bucket": "preprocessor",
+  "02__int_suffix_order": {
+    "bucket": "lexer",
+    "status": "ok",
     "tags": [
-      "variadic"
-    ],
-    "status": "ok"
+      "literals",
+      "integer"
+    ]
+  },
+  "02__operator_edges": {
+    "bucket": "lexer",
+    "status": "ok",
+    "tags": [
+      "operators"
+    ]
+  },
+  "02__string_concat": {
+    "bucket": "lexer",
+    "status": "ok",
+    "tags": [
+      "string",
+      "concat"
+    ]
   },
   "03__defined_expr": {
     "bucket": "preprocessor",
+    "status": "ok",
     "tags": [
       "defined",
       "if"
-    ],
-    "status": "ok"
+    ]
+  },
+  "03__function_like_macro": {
+    "bucket": "preprocessor",
+    "status": "ok",
+    "tags": [
+      "macro",
+      "function-like"
+    ]
   },
   "03__include_basic": {
     "bucket": "preprocessor",
+    "status": "ok",
     "tags": [
       "include"
-    ],
-    "status": "ok"
+    ]
   },
   "03__include_guard": {
     "bucket": "preprocessor",
+    "status": "ok",
     "tags": [
       "include",
       "guard"
-    ],
-    "status": "ok"
+    ]
+  },
+  "03__object_like_macro": {
+    "bucket": "preprocessor",
+    "status": "ok",
+    "tags": [
+      "macro"
+    ]
   },
   "03__pp_if_arith": {
     "bucket": "preprocessor",
+    "status": "ok",
     "tags": [
       "if",
       "arith"
-    ],
-    "status": "ok"
+    ]
+  },
+  "03__stringify_and_paste": {
+    "bucket": "preprocessor",
+    "status": "ok",
+    "tags": [
+      "stringify",
+      "paste"
+    ]
+  },
+  "03__variadic_macro": {
+    "bucket": "preprocessor",
+    "status": "ok",
+    "tags": [
+      "variadic"
+    ]
+  },
+  "04__bitfields_flex": {
+    "bucket": "declarations",
+    "status": "ok",
+    "tags": [
+      "bitfields",
+      "flex"
+    ]
+  },
+  "04__designated_initializers": {
+    "bucket": "declarations",
+    "status": "ok",
+    "tags": [
+      "designated-init"
+    ]
   },
   "04__nested_declarators": {
     "bucket": "declarations",
+    "status": "ok",
     "tags": [
       "declarators"
-    ],
-    "status": "ok"
+    ]
   },
   "04__storage_and_qualifiers": {
     "bucket": "declarations",
+    "status": "ok",
     "tags": [
       "storage",
       "qualifiers"
-    ],
-    "status": "ok"
+    ]
   },
   "04__struct_union_enum": {
     "bucket": "declarations",
+    "status": "ok",
     "tags": [
       "struct",
       "union",
       "enum"
-    ],
-    "status": "ok"
-  },
-  "04__designated_initializers": {
-    "bucket": "declarations",
-    "tags": [
-      "designated-init"
-    ],
-    "status": "ok"
-  },
-  "04__bitfields_flex": {
-    "bucket": "declarations",
-    "tags": [
-      "bitfields",
-      "flex"
-    ],
-    "status": "ok"
-  },
-  "05__precedence_basic": {
-    "bucket": "expressions",
-    "tags": [
-      "precedence"
-    ],
-    "status": "ok"
-  },
-  "05__ternary_assoc": {
-    "bucket": "expressions",
-    "tags": [
-      "ternary"
-    ],
-    "status": "ok"
-  },
-  "05__comma_operator": {
-    "bucket": "expressions",
-    "tags": [
-      "comma"
-    ],
-    "status": "ok"
+    ]
   },
   "05__cast_vs_group": {
     "bucket": "expressions",
+    "status": "ok",
     "tags": [
       "cast"
-    ],
-    "status": "ok"
+    ]
+  },
+  "05__comma_operator": {
+    "bucket": "expressions",
+    "status": "ok",
+    "tags": [
+      "comma"
+    ]
   },
   "05__member_call_chain": {
     "bucket": "expressions",
+    "status": "ok",
     "tags": [
       "member",
       "call"
-    ],
-    "status": "ok"
+    ]
   },
-  "06__assignability_errors": {
-    "bucket": "lvalues-rvalues",
+  "05__precedence_basic": {
+    "bucket": "expressions",
+    "status": "ok",
     "tags": [
-      "lvalue",
-      "assign"
-    ],
-    "status": "ok"
+      "precedence"
+    ]
+  },
+  "05__sizeof_array_type": {
+    "bucket": "expressions",
+    "status": "ok",
+    "tags": [
+      "sizeof",
+      "array"
+    ]
+  },
+  "05__ternary_assoc": {
+    "bucket": "expressions",
+    "status": "ok",
+    "tags": [
+      "ternary"
+    ]
+  },
+  "05__ternary_comma_true": {
+    "bucket": "expressions",
+    "status": "ok",
+    "tags": [
+      "ternary",
+      "comma"
+    ]
   },
   "06__address_of_restrictions": {
     "bucket": "lvalues-rvalues",
+    "status": "ok",
     "tags": [
       "address-of"
-    ],
-    "status": "ok"
+    ]
   },
   "06__array_function_decay": {
     "bucket": "lvalues-rvalues",
+    "status": "ok",
     "tags": [
       "decay"
-    ],
-    "status": "ok"
+    ]
+  },
+  "06__assignability_errors": {
+    "bucket": "lvalues-rvalues",
+    "status": "ok",
+    "tags": [
+      "lvalue",
+      "assign"
+    ]
+  },
+  "06__lvalue_edge_cases": {
+    "bucket": "lvalues-rvalues",
+    "status": "ok",
+    "tags": [
+      "lvalue",
+      "address-of",
+      "compare",
+      "arith"
+    ]
   },
   "06__string_literal_mutability": {
     "bucket": "lvalues-rvalues",
+    "status": "ok",
     "tags": [
       "string",
       "lvalue"
-    ],
-    "status": "ok"
+    ]
   },
   "07__integer_promotions": {
     "bucket": "types-conversions",
+    "status": "ok",
     "tags": [
       "promotions"
-    ],
-    "status": "ok"
-  },
-  "07__usual_arith_conversions": {
-    "bucket": "types-conversions",
-    "tags": [
-      "arith"
-    ],
-    "status": "ok"
+    ]
   },
   "07__pointer_arithmetic": {
     "bucket": "types-conversions",
+    "status": "ok",
     "tags": [
       "pointer",
       "arith"
-    ],
-    "status": "ok"
+    ]
   },
   "07__pointer_comparisons": {
     "bucket": "types-conversions",
+    "status": "ok",
     "tags": [
       "pointer",
       "compare"
-    ],
-    "status": "ok"
+    ]
   },
-  "08__scalar_initializers": {
-    "bucket": "initializers-layout",
+  "07__usual_arith_conversions": {
+    "bucket": "types-conversions",
+    "status": "ok",
     "tags": [
-      "scalar"
-    ],
-    "status": "ok"
+      "arith"
+    ]
   },
   "08__aggregate_brace_elision": {
     "bucket": "initializers-layout",
+    "status": "ok",
     "tags": [
       "aggregate",
       "braces"
-    ],
-    "status": "ok"
-  },
-  "08__designator_reset": {
-    "bucket": "initializers-layout",
-    "tags": [
-      "designator"
-    ],
-    "status": "ok"
-  },
-  "08__static_constexpr": {
-    "bucket": "initializers-layout",
-    "tags": [
-      "static",
-      "constexpr"
-    ],
-    "status": "ok"
+    ]
   },
   "08__array_string_init": {
     "bucket": "initializers-layout",
+    "status": "ok",
     "tags": [
       "array",
       "string"
-    ],
-    "status": "ok"
+    ]
   },
-  "09__dangling_else": {
-    "bucket": "statements-controlflow",
+  "08__designator_reset": {
+    "bucket": "initializers-layout",
+    "status": "ok",
     "tags": [
-      "if",
-      "else"
-    ],
-    "status": "ok"
+      "designator"
+    ]
   },
-  "09__switch_rules": {
-    "bucket": "statements-controlflow",
+  "08__scalar_initializers": {
+    "bucket": "initializers-layout",
+    "status": "ok",
     "tags": [
-      "switch"
-    ],
-    "status": "ok"
+      "scalar"
+    ]
   },
-  "09__for_decl_scope": {
-    "bucket": "statements-controlflow",
+  "08__static_constexpr": {
+    "bucket": "initializers-layout",
+    "status": "ok",
     "tags": [
-      "for"
-    ],
-    "status": "ok"
+      "static",
+      "constexpr"
+    ]
+  },
+  "08__layout_offsets": {
+    "bucket": "initializers-layout",
+    "status": "ok",
+    "tags": [
+      "layout",
+      "offsets"
+    ]
   },
   "09__break_continue_errors": {
     "bucket": "statements-controlflow",
+    "status": "ok",
     "tags": [
       "break",
       "continue"
-    ],
-    "status": "ok"
+    ]
+  },
+  "09__dangling_else": {
+    "bucket": "statements-controlflow",
+    "status": "ok",
+    "tags": [
+      "if",
+      "else"
+    ]
+  },
+  "09__for_decl_scope": {
+    "bucket": "statements-controlflow",
+    "status": "ok",
+    "tags": [
+      "for"
+    ]
   },
   "09__goto_labels": {
     "bucket": "statements-controlflow",
+    "status": "ok",
     "tags": [
       "goto"
-    ],
-    "status": "ok"
+    ]
   },
-  "10__shadowing_rules": {
-    "bucket": "scopes-linkage",
+  "09__label_redefinition": {
+    "bucket": "statements-controlflow",
+    "status": "ok",
     "tags": [
-      "shadow"
-    ],
-    "status": "ok"
+      "label",
+      "diagnostics"
+    ]
   },
-  "10__typedef_tag_namespace": {
-    "bucket": "scopes-linkage",
+  "09__switch_rules": {
+    "bucket": "statements-controlflow",
+    "status": "ok",
     "tags": [
-      "typedef",
-      "tag"
-    ],
-    "status": "ok"
-  },
-  "10__tentative_definition": {
-    "bucket": "scopes-linkage",
-    "tags": [
-      "tentative"
-    ],
-    "status": "ok"
+      "switch"
+    ]
   },
   "10__redeclaration_mismatch": {
     "bucket": "scopes-linkage",
+    "status": "ok",
     "tags": [
       "redeclaration"
-    ],
-    "status": "ok"
+    ]
   },
-  "11__prototype_call": {
-    "bucket": "functions-calls",
+  "10__shadowing_rules": {
+    "bucket": "scopes-linkage",
+    "status": "ok",
     "tags": [
-      "prototype"
-    ],
-    "status": "ok"
+      "shadow"
+    ]
   },
-  "11__variadic_call": {
-    "bucket": "functions-calls",
+  "10__tentative_definition": {
+    "bucket": "scopes-linkage",
+    "status": "ok",
     "tags": [
-      "variadic"
-    ],
-    "status": "ok"
+      "tentative"
+    ]
+  },
+  "10__typedef_tag_namespace": {
+    "bucket": "scopes-linkage",
+    "status": "ok",
+    "tags": [
+      "typedef",
+      "tag"
+    ]
   },
   "11__param_decay": {
     "bucket": "functions-calls",
+    "status": "ok",
     "tags": [
       "param",
       "decay"
-    ],
-    "status": "ok"
+    ]
+  },
+  "11__prototype_call": {
+    "bucket": "functions-calls",
+    "status": "ok",
+    "tags": [
+      "prototype"
+    ]
+  },
+  "11__no_prototype_call": {
+    "bucket": "functions-calls",
+    "status": "ok",
+    "tags": [
+      "prototype",
+      "promotion"
+    ]
+  },
+  "11__function_pointer_assign": {
+    "bucket": "functions-calls",
+    "status": "ok",
+    "tags": [
+      "function-pointer",
+      "assignment"
+    ]
   },
   "11__return_type_mismatch": {
     "bucket": "functions-calls",
+    "status": "ok",
     "tags": [
       "return"
-    ],
-    "status": "ok"
+    ]
   },
-  "12__missing_semicolon": {
-    "bucket": "diagnostics-recovery",
+  "11__variadic_call": {
+    "bucket": "functions-calls",
+    "status": "ok",
     "tags": [
-      "diag",
-      "recover"
-    ],
-    "status": "ok"
-  },
-  "12__bad_paren_expr": {
-    "bucket": "diagnostics-recovery",
-    "tags": [
-      "diag",
-      "recover"
-    ],
-    "status": "ok"
+      "variadic"
+    ]
   },
   "12__bad_decl_recovery": {
     "bucket": "diagnostics-recovery",
+    "status": "ok",
     "tags": [
       "diag",
       "recover"
-    ],
-    "status": "ok"
+    ]
+  },
+  "12__bad_paren_expr": {
+    "bucket": "diagnostics-recovery",
+    "status": "ok",
+    "tags": [
+      "diag",
+      "recover"
+    ]
   },
   "12__bad_stmt_recovery": {
     "bucket": "diagnostics-recovery",
+    "status": "ok",
     "tags": [
       "diag",
       "recover"
-    ],
-    "status": "ok"
+    ]
+  },
+  "12__missing_semicolon": {
+    "bucket": "diagnostics-recovery",
+    "status": "ok",
+    "tags": [
+      "diag",
+      "recover"
+    ]
   },
   "13__ir_basic_arith": {
     "bucket": "codegen-ir",
+    "status": "ok",
     "tags": [
       "ir",
       "arith"
-    ],
-    "status": "ok"
+    ]
   },
   "13__ir_short_circuit": {
     "bucket": "codegen-ir",
+    "status": "ok",
     "tags": [
       "ir",
       "short-circuit"
-    ],
-    "status": "ok"
-  },
-  "13__ir_ternary": {
-    "bucket": "codegen-ir",
-    "tags": [
-      "ir",
-      "ternary"
-    ],
-    "status": "ok"
+    ]
   },
   "13__ir_switch": {
     "bucket": "codegen-ir",
+    "status": "ok",
     "tags": [
       "ir",
       "switch"
-    ],
-    "status": "ok"
+    ]
   },
-  "14__header_stdbool": {
-    "bucket": "runtime-surface",
+  "13__ir_volatile": {
+    "bucket": "codegen-ir",
+    "status": "ok",
     "tags": [
-      "header",
-      "stdbool"
-    ],
-    "status": "ok"
+      "ir",
+      "volatile"
+    ]
   },
-  "14__header_stdint": {
-    "bucket": "runtime-surface",
+  "13__ir_ternary": {
+    "bucket": "codegen-ir",
+    "status": "ok",
     "tags": [
-      "header",
-      "stdint"
-    ],
-    "status": "ok"
-  },
-  "14__header_stddef": {
-    "bucket": "runtime-surface",
-    "tags": [
-      "header",
-      "stddef"
-    ],
-    "status": "ok"
+      "ir",
+      "ternary"
+    ]
   },
   "14__header_limits": {
     "bucket": "runtime-surface",
+    "status": "ok",
     "tags": [
       "header",
       "limits"
-    ],
-    "status": "ok"
+    ]
+  },
+  "14__offsetof": {
+    "bucket": "runtime-surface",
+    "status": "ok",
+    "tags": [
+      "offsetof",
+      "builtin"
+    ]
+  },
+  "14__header_stdbool": {
+    "bucket": "runtime-surface",
+    "status": "ok",
+    "tags": [
+      "header",
+      "stdbool"
+    ]
+  },
+  "14__header_stddef": {
+    "bucket": "runtime-surface",
+    "status": "ok",
+    "tags": [
+      "header",
+      "stddef"
+    ]
+  },
+  "14__header_stdint": {
+    "bucket": "runtime-surface",
+    "status": "ok",
+    "tags": [
+      "header",
+      "stdint"
+    ]
+  },
+  "12__decl_init_recovery": {
+    "bucket": "diagnostics-recovery",
+    "status": "ok",
+    "tags": [
+      "diag",
+      "recover",
+      "decl-init"
+    ]
+  },
+  "12__macro_callsite_dedup": {
+    "bucket": "diagnostics-recovery",
+    "status": "ok",
+    "tags": [
+      "diag",
+      "macro",
+      "dedup"
+    ]
   }
 }

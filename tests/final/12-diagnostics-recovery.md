@@ -34,6 +34,10 @@ Recovery points and diagnostic quality for IDE usability.
    - Stray else recovers to following statement.
 10) `12__for_missing_paren`
    - for missing ')' recovers.
+11) `12__decl_init_recovery`
+   - Missing initializer recovers and subsequent declaration remains visible.
+12) `12__macro_callsite_dedup`
+   - Macro expansion diagnostics point to call site and de-dup identical errors.
 
 ## Expected Outputs
 - Diagnostics expectations (`.diag`) for error cases.

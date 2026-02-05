@@ -26,13 +26,9 @@ void analyze(ASTNode* node, Scope* scope) {
         analyzeChildren(node->block.statements, node->block.statementCount, scope);
         break;
 
-    case AST_BLOCK: {
-        // New lexical scope for every compound statement
-        Scope* inner = createScope(scope);
-        analyzeChildren(node->block.statements, node->block.statementCount, inner);
-        destroyScope(inner);
+    case AST_BLOCK:
+        analyzeStatement(node, scope);
         break;
-    }
 
     case AST_FUNCTION_DEFINITION: {
         // 1) Ensure the function symbol exists (let decl logic register it)

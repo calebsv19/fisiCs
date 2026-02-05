@@ -486,7 +486,17 @@ build/tests/%: tests/unit/%.c $(LIB_FRONTEND)
 
 frontend-api-test: $(LIB_FRONTEND) $(FRONTEND_TEST_BINS)
 	@echo "Running frontend API tests..."
-	@for t in $(FRONTEND_TEST_BINS); do echo "==> $$t"; $$t; done
+	@for t in $(FRONTEND_TEST_BINS); do \
+		out=$$(mktemp); \
+		if ! $$t >$$out 2>&1; then \
+			echo "FAIL $$t"; \
+			cat $$out; \
+			rm -f $$out; \
+			exit 1; \
+		fi; \
+		rm -f $$out; \
+	done; \
+	echo "Frontend API tests: PASS"
 
 HARNESS_SRC := tests/harness/frontend_harness.c
 HARNESS_BIN := build/tests/frontend_harness

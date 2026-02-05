@@ -8,7 +8,7 @@ PROGRAM
         TYPE: int
         IDENTIFIER n
       VAR_DECL
-        TYPE: int [IDENTIFIER n]
+        TYPE: int*
         IDENTIFIER a
     BLOCK
       RETURN

@@ -310,6 +310,38 @@
       "status": "ok"
     },
     {
+      "id": "03__defined_macro_expansion",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_macro_expansion.c",
+      "expects": [
+        "expect/03__defined_macro_expansion.tokens"
+      ],
+      "tags": [
+        "defined",
+        "macro"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_builtin",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_builtin.c",
+      "expects": [
+        "expect/03__line_directive_builtin.tokens"
+      ],
+      "tags": [
+        "line-directive",
+        "builtin"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
       "id": "03__include_basic",
       "bucket": "preprocessor",
       "input": "cases/03__include_basic.c",
@@ -381,6 +413,21 @@
       "tags": [
         "storage",
         "qualifiers"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__array_param_qualifiers",
+      "bucket": "declarations",
+      "input": "cases/04__array_param_qualifiers.c",
+      "expects": [
+        "expect/04__array_param_qualifiers.diag"
+      ],
+      "tags": [
+        "array-param",
+        "qualifiers",
+        "static"
       ],
       "requires": [],
       "status": "ok"
@@ -526,6 +573,23 @@
       ],
       "tags": [
         "address-of"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__lvalue_edge_cases",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__lvalue_edge_cases.c",
+      "expects": [
+        "expect/06__lvalue_edge_cases.ast",
+        "expect/06__lvalue_edge_cases.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "address-of",
+        "compare",
+        "arith"
       ],
       "requires": [],
       "status": "ok"
@@ -806,6 +870,24 @@
       "status": "ok"
     },
     {
+      "id": "10__tentative_definition_multi_tu",
+      "bucket": "scopes-linkage",
+      "inputs": [
+        "cases/10__tentative_definition_multi_a.c",
+        "cases/10__tentative_definition_multi_b.c"
+      ],
+      "expects": [
+        "expect/10__tentative_definition_multi_tu.diag"
+      ],
+      "tags": [
+        "tentative",
+        "linkage",
+        "multi-tu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
       "id": "10__redeclaration_mismatch",
       "bucket": "scopes-linkage",
       "input": "cases/10__redeclaration_mismatch.c",
@@ -829,6 +911,37 @@
       ],
       "tags": [
         "prototype"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__no_prototype_call",
+      "bucket": "functions-calls",
+      "input": "cases/11__no_prototype_call.c",
+      "expects": [
+        "expect/11__no_prototype_call.ast",
+        "expect/11__no_prototype_call.diag",
+        "expect/11__no_prototype_call.ir"
+      ],
+      "tags": [
+        "prototype",
+        "promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__function_pointer_assign",
+      "bucket": "functions-calls",
+      "input": "cases/11__function_pointer_assign.c",
+      "expects": [
+        "expect/11__function_pointer_assign.ast",
+        "expect/11__function_pointer_assign.diag"
+      ],
+      "tags": [
+        "function-pointer",
+        "assignment"
       ],
       "requires": [],
       "status": "ok"
@@ -1001,6 +1114,22 @@
       "status": "ok"
     },
     {
+      "id": "13__ir_volatile",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_volatile.c",
+      "expects": [
+        "expect/13__ir_volatile.ast",
+        "expect/13__ir_volatile.diag",
+        "expect/13__ir_volatile.ir"
+      ],
+      "tags": [
+        "ir",
+        "volatile"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
       "id": "14__header_stdbool",
       "bucket": "runtime-surface",
       "input": "cases/14__header_stdbool.c",
@@ -1056,6 +1185,22 @@
       "tags": [
         "header",
         "limits"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__offsetof",
+      "bucket": "runtime-surface",
+      "input": "cases/14__offsetof.c",
+      "expects": [
+        "expect/14__offsetof.ast",
+        "expect/14__offsetof.diag",
+        "expect/14__offsetof.ir"
+      ],
+      "tags": [
+        "offsetof",
+        "builtin"
       ],
       "requires": [],
       "status": "ok"
@@ -1730,6 +1875,22 @@
       "status": "ok"
     },
     {
+      "id": "08__layout_offsets",
+      "bucket": "initializers-layout",
+      "input": "cases/08__layout_offsets.c",
+      "expects": [
+        "expect/08__layout_offsets.ast",
+        "expect/08__layout_offsets.diag",
+        "expect/08__layout_offsets.ir"
+      ],
+      "tags": [
+        "layout",
+        "offsets"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
       "id": "11__void_return_value",
       "bucket": "functions-calls",
       "input": "cases/11__void_return_value.c",
@@ -1792,6 +1953,34 @@
       "status": "ok"
     },
     {
+      "id": "02__literal_semantics",
+      "bucket": "lexer",
+      "input": "cases/02__literal_semantics.c",
+      "expects": [
+        "expect/02__literal_semantics.diag"
+      ],
+      "tags": [
+        "literals",
+        "semantics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__int_overflow_diag",
+      "bucket": "lexer",
+      "input": "cases/02__int_overflow_diag.c",
+      "expects": [
+        "expect/02__int_overflow_diag.diag"
+      ],
+      "tags": [
+        "literals",
+        "overflow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
       "id": "09__goto_cross_init",
       "bucket": "statements-controlflow",
       "input": "cases/09__goto_cross_init.c",
@@ -1816,6 +2005,84 @@
       "tags": [
         "blocks",
         "analysis"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__ternary_comma_true",
+      "bucket": "expressions",
+      "input": "cases/05__ternary_comma_true.c",
+      "expects": [
+        "expect/05__ternary_comma_true.ast",
+        "expect/05__ternary_comma_true.diag"
+      ],
+      "tags": [
+        "ternary",
+        "comma"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__sizeof_array_type",
+      "bucket": "expressions",
+      "input": "cases/05__sizeof_array_type.c",
+      "expects": [
+        "expect/05__sizeof_array_type.ast",
+        "expect/05__sizeof_array_type.diag",
+        "expect/05__sizeof_array_type.ir"
+      ],
+      "tags": [
+        "sizeof",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__label_redefinition",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__label_redefinition.c",
+      "expects": [
+        "expect/09__label_redefinition.ast",
+        "expect/09__label_redefinition.diag"
+      ],
+      "tags": [
+        "label",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__decl_init_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__decl_init_recovery.c",
+      "expects": [
+        "expect/12__decl_init_recovery.ast",
+        "expect/12__decl_init_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "decl-init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__macro_callsite_dedup",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__macro_callsite_dedup.c",
+      "expects": [
+        "expect/12__macro_callsite_dedup.ast",
+        "expect/12__macro_callsite_dedup.diag"
+      ],
+      "tags": [
+        "diag",
+        "macro",
+        "dedup"
       ],
       "requires": [],
       "status": "ok"

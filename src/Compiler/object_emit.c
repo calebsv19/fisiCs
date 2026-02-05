@@ -85,11 +85,22 @@ bool compiler_emit_object_file(LLVMModuleRef module,
     }
     if (targetErr) LLVMDisposeMessage(targetErr);
 
-    LLVMCodeGenOptLevel optLevel = LLVMCodeGenLevelDefault;
+    LLVMCodeGenOptLevel optLevel = LLVMCodeGenLevelNone;
     LLVMRelocMode reloc = LLVMRelocDefault;
     LLVMCodeModel codeModel = LLVMCodeModelDefault;
     const char* cpu = "";
     const char* features = "";
+    const char* optEnv = getenv("FISICS_LLVM_OPT_LEVEL");
+    if (optEnv && optEnv[0]) {
+        int level = atoi(optEnv);
+        switch (level) {
+            case 0: optLevel = LLVMCodeGenLevelNone; break;
+            case 1: optLevel = LLVMCodeGenLevelLess; break;
+            case 2: optLevel = LLVMCodeGenLevelDefault; break;
+            case 3: optLevel = LLVMCodeGenLevelAggressive; break;
+            default: break;
+        }
+    }
 
     LLVMTargetMachineRef tm = LLVMCreateTargetMachine(target,
                                                       triple,

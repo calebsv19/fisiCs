@@ -14,7 +14,7 @@
 DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* outCount);
 
 // Array declaration helpers
-ASTNode* parseArraySize(Parser* parser, bool* outIsVLA);
+ASTNode* parseArraySize(Parser* parser, bool* outIsVLA, ParsedArrayInfo* outInfo);
 DesignatedInit** parseArrayInitializer(Parser* parser, ParsedType parentType, size_t* valueCount);
 DesignatedInit** parseStructInitializer(Parser* parser, ParsedType parentType, size_t* outCount);
 

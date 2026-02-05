@@ -22,5 +22,6 @@ Tokens:
 20 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_literals.c:5:1
 21 TOKEN_IDENTIFIER e /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_literals.c:5:5
 22 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_literals.c:5:7
-23 TOKEN_IDENTIFIER b /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_literals.c:5:11
-24 TOKEN_EOF <null> <unknown>:0:0
+23 TOKEN_CHAR_LITERAL 24930 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_literals.c:5:9
+24 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__char_literals.c:5:13
+25 TOKEN_EOF <null> <unknown>:0:0

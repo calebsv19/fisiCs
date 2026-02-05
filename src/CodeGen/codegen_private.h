@@ -176,6 +176,9 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
                                          const ParsedType* lhsParsed);
 const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node);
 LLVMTypeRef cg_element_type_from_pointer_parsed(CodegenContext* ctx, const ParsedType* parsed);
+bool cg_is_volatile_object(const ParsedType* parsed);
+LLVMValueRef cg_build_load(CodegenContext* ctx, LLVMTypeRef type, LLVMValueRef ptr, const char* name, const ParsedType* parsed);
+LLVMValueRef cg_build_store(CodegenContext* ctx, LLVMValueRef value, LLVMValueRef ptr, const ParsedType* parsed);
 bool cg_expression_is_unsigned(CodegenContext* ctx, ASTNode* node);
 LLVMIntPredicate cg_select_int_predicate(const char* op, bool preferUnsigned);
 

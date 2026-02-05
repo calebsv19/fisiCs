@@ -7,6 +7,8 @@
 #include "const_eval.h"
 #include "literal_utils.h"
 #include "Compiler/compiler_context.h"
+#include "Syntax/target_layout.h"
+#include "Syntax/layout.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
@@ -18,13 +20,29 @@ static void inferCompoundLiteralArrayLength(ASTNode* node, Scope* scope);
 static bool isArithmeticOperator(const char* op);
 static bool isComparisonOperator(const char* op);
 static bool isLogicalOperator(const char* op);
+
+static TypeInfo sizeTypeFromScope(Scope* scope) {
+    Symbol* sym = resolveInScopeChain(scope, "size_t");
+    if (sym && sym->kind == SYMBOL_TYPEDEF) {
+        TypeInfo info = typeInfoFromParsedType(&sym->type, scope);
+        info.isLValue = false;
+        return info;
+    }
+    const TargetLayout* tl = (scope && scope->ctx) ? cc_get_target_layout(scope->ctx) : tl_default();
+    unsigned bits = tl && tl->pointerBits ? (unsigned)tl->pointerBits : 64;
+    TypeInfo info = makeIntegerType(bits, true, TOKEN_LONG);
+    info.isLValue = false;
+    return info;
+}
 static bool isBitwiseOperator(const char* op);
 static bool literalLooksFloat(const char* text);
-static TypeInfo typeFromLiteral(const char* text);
+static unsigned scope_int_bits(Scope* scope);
+static TypeInfo typeFromLiteral(const char* text, Scope* scope, bool* outOverflow);
 static TypeInfo typeFromStringLiteral(Scope* scope, const char* value);
 static void validateStringLiteral(ASTNode* node, Scope* scope, const TypeInfo* baseType);
 static void reportOperandError(ASTNode* node, const char* expectation, const char* op);
 static bool typeInfoIsKnown(const TypeInfo* info);
+static bool isNullPointerConstant(ASTNode* expr, Scope* scope);
 static void reportArgumentCountError(ASTNode* call, const char* calleeName, size_t expected, size_t actual, bool tooFew);
 static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* calleeName, const char* message);
 static const char* fallbackFunctionName(const char* name);
@@ -484,7 +502,14 @@ static bool literalLooksFloat(const char* text) {
     return false;
 }
 
-static TypeInfo typeFromLiteral(const char* text) {
+static unsigned scope_int_bits(Scope* scope) {
+    const TargetLayout* tl = (scope && scope->ctx) ? cc_get_target_layout(scope->ctx) : NULL;
+    if (tl && tl->intBits) return (unsigned)tl->intBits;
+    return 32;
+}
+
+static TypeInfo typeFromLiteral(const char* text, Scope* scope, bool* outOverflow) {
+    if (outOverflow) *outOverflow = false;
     if (literalLooksFloat(text)) {
         size_t len = text ? strlen(text) : 0;
         bool hasImag = len > 0 && (text[len - 1] == 'i' || text[len - 1] == 'I' || text[len - 1] == 'j' || text[len - 1] == 'J');
@@ -500,7 +525,16 @@ static TypeInfo typeFromLiteral(const char* text) {
         info.isLValue = false;
         return info;
     }
-    TypeInfo info = makeIntegerType(32, true, TOKEN_INT);
+    IntegerLiteralInfo lit;
+    if (parse_integer_literal_info(text, (scope && scope->ctx) ? cc_get_target_layout(scope->ctx) : NULL, &lit) && lit.ok) {
+        if (outOverflow) *outOverflow = lit.overflow;
+        unsigned intBits = scope_int_bits(scope);
+        TokenType prim = (lit.bits > intBits) ? TOKEN_LONG : TOKEN_INT;
+        TypeInfo info = makeIntegerType(lit.bits, !lit.isUnsigned, prim);
+        info.isLValue = false;
+        return info;
+    }
+    TypeInfo info = makeIntegerType(scope_int_bits(scope), true, TOKEN_INT);
     info.isLValue = false;
     return info;
 }
@@ -564,6 +598,11 @@ static void reportOperandError(ASTNode* node, const char* expectation, const cha
 
 static bool typeInfoIsKnown(const TypeInfo* info) {
     return info && info->category != TYPEINFO_INVALID;
+}
+
+static bool isNullPointerConstant(ASTNode* expr, Scope* scope) {
+    ConstEvalResult res = constEval(expr, scope, true);
+    return res.isConst && res.value == 0;
 }
 
 static void restoreBaseCategory(TypeInfo* info) {
@@ -813,8 +852,14 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             return info;
         }
 
-        case AST_NUMBER_LITERAL:
-            return typeFromLiteral(node->valueNode.value);
+        case AST_NUMBER_LITERAL: {
+            bool overflow = false;
+            TypeInfo info = typeFromLiteral(node->valueNode.value, scope, &overflow);
+            if (overflow) {
+                addError(node->line, 0, "Integer literal is too large for its type", NULL);
+            }
+            return info;
+        }
 
         case AST_CHAR_LITERAL: {
             const char* payload = NULL;
@@ -945,9 +990,17 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 if (typeInfoIsPointerLike(&left) && typeInfoIsPointerLike(&right)) {
                     return makeBoolType();
                 }
-                // Permit pointer comparisons against integer constants/null (common in headers).
-                if ((typeInfoIsPointerLike(&left) && typeInfoIsInteger(&right)) ||
-                    (typeInfoIsPointerLike(&right) && typeInfoIsInteger(&left))) {
+                // Permit pointer comparisons against null pointer constants; warn otherwise.
+                if (typeInfoIsPointerLike(&left) && typeInfoIsInteger(&right)) {
+                    if (!isNullPointerConstant(node->expr.right, scope)) {
+                        addWarning(node->line, 0, "Pointer comparison against non-null integer", NULL);
+                    }
+                    return makeBoolType();
+                }
+                if (typeInfoIsPointerLike(&right) && typeInfoIsInteger(&left)) {
+                    if (!isNullPointerConstant(node->expr.left, scope)) {
+                        addWarning(node->line, 0, "Pointer comparison against non-null integer", NULL);
+                    }
                     return makeBoolType();
                 }
                 bool ok = true;
@@ -1155,22 +1208,70 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         }
 
         case AST_FUNCTION_CALL: {
+            const char* calleeName = NULL;
+            if (node->functionCall.callee &&
+                node->functionCall.callee->type == AST_IDENTIFIER) {
+                calleeName = node->functionCall.callee->valueNode.value;
+                if (calleeName &&
+                    (strcmp(calleeName, "__builtin_offsetof") == 0 ||
+                     strcmp(calleeName, "offsetof") == 0)) {
+                    if (node->functionCall.argumentCount != 2) {
+                        addError(node->line, 0, "__builtin_offsetof expects 2 arguments", NULL);
+                        return sizeTypeFromScope(scope);
+                    }
+                    ASTNode* typeArg = node->functionCall.arguments[0];
+                    ASTNode* fieldArg = node->functionCall.arguments[1];
+                    if (!typeArg || typeArg->type != AST_PARSED_TYPE) {
+                        addError(node->line, 0, "__builtin_offsetof expects a type as the first argument", NULL);
+                        return sizeTypeFromScope(scope);
+                    }
+                    if (!fieldArg || fieldArg->type != AST_IDENTIFIER) {
+                        addError(node->line, 0, "__builtin_offsetof expects a field name as the second argument", NULL);
+                        return sizeTypeFromScope(scope);
+                    }
+                    TypeInfo base = typeInfoFromParsedType(&typeArg->parsedTypeNode.parsed, scope);
+                    if (base.category != TYPEINFO_STRUCT && base.category != TYPEINFO_UNION) {
+                        addError(node->line, 0, "__builtin_offsetof expects a struct or union type", NULL);
+                        return sizeTypeFromScope(scope);
+                    }
+                    CCTagKind kind = (base.category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+                    size_t sz = 0, al = 0;
+                    if (base.userTypeName) {
+                        layout_struct_union(scope->ctx, scope, kind, base.userTypeName, &sz, &al);
+                    }
+                    const CCTagFieldLayout* lay = lookupFieldLayout(&base, fieldArg->valueNode.value, scope);
+                    if (!lay) {
+                        addError(node->line, 0, "Unknown field in __builtin_offsetof", fieldArg->valueNode.value);
+                        return sizeTypeFromScope(scope);
+                    }
+                    if (lay->isBitfield && !lay->isZeroWidth) {
+                        addError(node->line, 0, "__builtin_offsetof cannot be used on bitfields", fieldArg->valueNode.value);
+                        return sizeTypeFromScope(scope);
+                    }
+                    return sizeTypeFromScope(scope);
+                }
+            }
+
             TypeInfo calleeInfo = analyzeExpression(node->functionCall.callee, scope);
 
             size_t argCount = node->functionCall.argumentCount;
             TypeInfo* argInfos = NULL;
+            TypeInfo* argRawInfos = NULL;
             if (argCount > 0) {
                 argInfos = calloc(argCount, sizeof(TypeInfo));
+                argRawInfos = calloc(argCount, sizeof(TypeInfo));
             }
             for (size_t i = 0; i < argCount; i++) {
                 ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : NULL;
                 TypeInfo argType = analyzeExpression(argNode, scope);
+                if (argRawInfos) {
+                    argRawInfos[i] = argType;
+                }
                 if (argInfos) {
                     argInfos[i] = decayToRValue(argType);
                 }
             }
 
-            const char* calleeName = NULL;
             Symbol* sym = NULL;
             if (node->functionCall.callee &&
                 node->functionCall.callee->type == AST_IDENTIFIER) {
@@ -1187,6 +1288,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     node->functionCall.arguments[1]->type == AST_PARSED_TYPE) {
                     result = typeInfoFromParsedType(&node->functionCall.arguments[1]->parsedTypeNode.parsed, scope);
                     result.isLValue = false;
+                    free(argInfos);
+                    free(argRawInfos);
                     return result;
                 }
             }
@@ -1207,6 +1310,23 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             }
             if (sym && sym->kind == SYMBOL_FUNCTION) {
                 FunctionSignature* sig = &sym->signature;
+                node->functionCall.usesPrototype = sig->hasPrototype;
+                if (!sig->hasPrototype) {
+                    if (argInfos) {
+                        for (size_t i = 0; i < argCount; ++i) {
+                            argInfos[i] = defaultArgumentPromotion(argInfos[i]);
+                        }
+                    }
+                    result = typeInfoFromParsedType(&sym->type, scope);
+                    if (argInfos) {
+                        free(argInfos);
+                    }
+                    if (argRawInfos) {
+                        free(argRawInfos);
+                    }
+                    result.isLValue = false;
+                    return result;
+                }
                 size_t expected = sig->paramCount;
                 bool tooFew = argCount < expected;
                 bool tooMany = !sig->isVariadic && argCount > expected;
@@ -1223,6 +1343,45 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     TypeInfo paramInfo = typeInfoFromParsedType(&sig->params[i], scope);
                     if (paramInfo.isArray) {
                         paramInfo = decayToRValue(paramInfo);
+                    }
+                    if (sig->params[i].hasParamArrayInfo &&
+                        sig->params[i].paramArrayInfo.hasStatic &&
+                        argRawInfos) {
+                        long long required = 0;
+                        bool haveRequired = false;
+                        const ParsedArrayInfo* paramArr = &sig->params[i].paramArrayInfo;
+                        if (paramArr->sizeExpr) {
+                            haveRequired = constEvalInteger(paramArr->sizeExpr, scope, &required, true);
+                        } else if (paramArr->hasConstantSize) {
+                            required = paramArr->constantSize;
+                            haveRequired = true;
+                        }
+                        if (haveRequired && required > 0 && i < argCount) {
+                            const TypeInfo* argRaw = &argRawInfos[i];
+                            if (argRaw->isArray && argRaw->originalType) {
+                                long long argSize = 0;
+                                bool haveArgSize = false;
+                                const TypeDerivation* argArr =
+                                    parsedTypeGetArrayDerivation(argRaw->originalType, 0);
+                                if (argArr) {
+                                    if (argArr->as.array.sizeExpr) {
+                                        haveArgSize = constEvalInteger(argArr->as.array.sizeExpr,
+                                                                       scope,
+                                                                       &argSize,
+                                                                       true);
+                                    } else if (argArr->as.array.hasConstantSize) {
+                                        argSize = argArr->as.array.constantSize;
+                                        haveArgSize = true;
+                                    }
+                                }
+                                if (haveArgSize && argSize < required) {
+                                    addWarning(node->functionCall.arguments[i]->line,
+                                               0,
+                                               "Array argument smaller than 'static' parameter size",
+                                               NULL);
+                                }
+                            }
+                        }
                     }
                     if (paramRestrict) {
                         paramRestrict[i] = parsedTypeIsRestrictPointer(&sig->params[i]) ||
@@ -1294,6 +1453,9 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             if (argInfos) {
                 free(argInfos);
             }
+            if (argRawInfos) {
+                free(argRawInfos);
+            }
 
             if (result.category == TYPEINFO_INVALID) {
                 result = makeIntegerType(32, true, TOKEN_INT);
@@ -1363,6 +1525,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 if (lay && lay->isBitfield && !lay->isZeroWidth) {
                     fieldInfo.isBitfield = true;
                     fieldInfo.bitfieldLayout = lay;
+                } else if (lookupFieldIsBitfield(&base, node->memberAccess.field, scope)) {
+                    fieldInfo.isBitfield = true;
                 }
                 return fieldInfo;
             }

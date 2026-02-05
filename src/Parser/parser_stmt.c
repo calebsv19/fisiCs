@@ -594,12 +594,23 @@ static bool currentTokenStartsDeclaration(Parser* parser) {
 
 void parserSyncToStatementEnd(Parser* parser) {
     if (!parser) return;
+    int depth = 0;
     while (parser->currentToken.type != TOKEN_EOF) {
-        if (parser->currentToken.type == TOKEN_SEMICOLON) {
+        if (parser->currentToken.type == TOKEN_LBRACE) {
+            depth++;
             advance(parser);
-            break;
+            continue;
         }
         if (parser->currentToken.type == TOKEN_RBRACE) {
+            if (depth == 0) {
+                break;
+            }
+            depth--;
+            advance(parser);
+            continue;
+        }
+        if (parser->currentToken.type == TOKEN_SEMICOLON && depth == 0) {
+            advance(parser);
             break;
         }
         advance(parser);

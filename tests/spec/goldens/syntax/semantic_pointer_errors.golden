@@ -9,7 +9,7 @@ PROGRAM
         IDENTIFIER __unnamed_param0
     BLOCK
       VAR_DECL
-        TYPE: int [NUMBER_LITERAL 3]
+        TYPE: int [3]
         IDENTIFIER values
             = NUMBER_LITERAL 1
 

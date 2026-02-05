@@ -6,12 +6,14 @@ Minimal headers and builtin surface to compile real programs.
 ## Validate
 - Provided headers: stddef.h, stdint.h, stdbool.h, limits.h (as supported).
 - Builtins/intrinsics you choose to implement.
+- offsetof macro expansion via system headers.
 
 ## Acceptance Checklist
 - System-like headers compile and expose expected typedefs/macros.
 - stdbool.h defines bool/true/false appropriately.
 - stdint.h defines fixed-width types.
 - stddef.h exposes size_t and NULL.
+- offsetof computes field offsets in headers/macros.
 - limits.h defines key integer limits.
 
 ## Test Cases (initial list)
@@ -23,6 +25,8 @@ Minimal headers and builtin surface to compile real programs.
    - size_t and NULL usage.
 4) `14__header_limits`
    - integer limits macros usable.
+5) `14__offsetof`
+   - offsetof macro expands and folds to a constant.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for header use.

@@ -3,7 +3,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER S
     VAR_DECL
-      TYPE: int [NUMBER_LITERAL 2]
+      TYPE: int [2]
       IDENTIFIER a
   FUNCTION DEFINITION
     RETURN TYPE: int

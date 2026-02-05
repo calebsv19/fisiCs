@@ -29,6 +29,35 @@ static unsigned defaultPointerBits(Scope* scope) {
     return (unsigned)((tl && tl->pointerBits) ? tl->pointerBits : (sizeof(void*) * 8));
 }
 
+static bool evalOffsetofField(Scope* scope,
+                              const ParsedType* type,
+                              const char* fieldName,
+                              size_t* offsetOut) {
+    if (!scope || !scope->ctx || !type || !fieldName || !offsetOut) return false;
+    TypeInfo info = typeInfoFromParsedType(type, scope);
+    if (info.category != TYPEINFO_STRUCT && info.category != TYPEINFO_UNION) return false;
+    CCTagKind kind = (info.category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    const CCTagFieldLayout* layouts = NULL;
+    size_t count = 0;
+    if (!cc_get_tag_field_layouts(scope->ctx, kind, info.userTypeName, &layouts, &count) || !layouts) {
+        size_t sz = 0, al = 0;
+        if (!layout_struct_union(scope->ctx, scope, kind, info.userTypeName, &sz, &al)) return false;
+        if (!cc_get_tag_field_layouts(scope->ctx, kind, info.userTypeName, &layouts, &count) || !layouts) {
+            return false;
+        }
+    }
+    for (size_t i = 0; i < count; ++i) {
+        const CCTagFieldLayout* lay = &layouts[i];
+        if (!lay->name) continue;
+        if (strcmp(lay->name, fieldName) == 0) {
+            if (lay->isBitfield && !lay->isZeroWidth) return false;
+            *offsetOut = lay->byteOffset;
+            return true;
+        }
+    }
+    return false;
+}
+
 static long long truncateToWidth(long long value, unsigned bits, bool isUnsigned) {
     if (bits == 0 || bits >= 64) {
         return value;
@@ -58,131 +87,20 @@ static ConstEvalResult makeNonConst(void) {
     return r;
 }
 
-static uint64_t maxUnsignedForBits(unsigned bits) {
-    if (bits == 0 || bits >= 64) return UINT64_MAX;
-    return (1ULL << bits) - 1ULL;
-}
-
-static uint64_t maxSignedForBits(unsigned bits) {
-    if (bits == 0 || bits >= 64) return INT64_MAX;
-    return (1ULL << (bits - 1)) - 1ULL;
-}
-
-static bool fitsInBits(uint64_t value, unsigned bits, bool isUnsigned) {
-    if (isUnsigned) {
-        return value <= maxUnsignedForBits(bits);
-    }
-    return value <= maxSignedForBits(bits);
-}
-
 static bool parseIntegerLiteral(const char* text,
                                 Scope* scope,
                                 long long* out,
                                 unsigned* bitsOut,
                                 bool* isUnsignedOut) {
     if (!text || !out) return false;
-
-    char* endptr = NULL;
-    unsigned long long raw = strtoull(text, &endptr, 0);
-    if (endptr == text) {
+    IntegerLiteralInfo info;
+    if (!parse_integer_literal_info(text, currentLayout(scope), &info) || !info.ok) {
         return false;
     }
-
-    bool hasU = false;
-    int lCount = 0;
-    for (const char* p = endptr; p && *p; ++p) {
-        if (*p == 'u' || *p == 'U') {
-            hasU = true;
-            continue;
-        }
-        if (*p == 'l' || *p == 'L') {
-            ++lCount;
-            continue;
-        }
-        // Unrecognised suffix -> treat as invalid for const folding.
-        return false;
-    }
-    if (lCount > 2) lCount = 2;
-
-    int base = 10;
-    if (text[0] == '0') {
-        if (text[1] == 'x' || text[1] == 'X') base = 16;
-        else base = 8;
-    }
-
-    const TargetLayout* tl = currentLayout(scope);
-    unsigned intBits = (unsigned)((tl && tl->intBits) ? tl->intBits : 32);
-    unsigned longBits = (unsigned)((tl && tl->longBits) ? tl->longBits : 64);
-    unsigned longLongBits = (unsigned)((tl && tl->longLongBits) ? tl->longLongBits : 64);
-
-    typedef struct { unsigned bits; bool isUnsigned; } Candidate;
-    Candidate cands[8];
-    int candCount = 0;
-    #define ADD(bitsVal, unsVal) do { cands[candCount].bits = (bitsVal); cands[candCount].isUnsigned = (unsVal); candCount++; } while(0)
-
-    if (hasU) {
-        if (lCount >= 2) {
-            ADD(longLongBits, true);
-        } else if (lCount == 1) {
-            ADD(longBits, true);
-            ADD(longLongBits, true);
-        } else {
-            ADD(intBits, true);
-            ADD(longBits, true);
-            ADD(longLongBits, true);
-        }
-    } else if (lCount >= 2) {
-        ADD(longLongBits, false);
-        ADD(longLongBits, true);
-    } else if (lCount == 1) {
-        ADD(longBits, false);
-        ADD(longLongBits, false);
-        ADD(longLongBits, true);
-    } else {
-        if (base == 10) {
-            ADD(intBits, false);
-            ADD(longBits, false);
-            ADD(longLongBits, false);
-            ADD(longLongBits, true);
-        } else {
-            ADD(intBits, false);
-            ADD(intBits, true);
-            ADD(longBits, false);
-            ADD(longBits, true);
-            ADD(longLongBits, false);
-            ADD(longLongBits, true);
-        }
-    }
-    #undef ADD
-
-    if (candCount == 0) return false;
-
-    int chosen = candCount - 1;
-    for (int i = 0; i < candCount; ++i) {
-        if (fitsInBits(raw, cands[i].bits, cands[i].isUnsigned)) {
-            chosen = i;
-            break;
-        }
-    }
-
-    unsigned bits = cands[chosen].bits;
-    bool isUnsigned = cands[chosen].isUnsigned;
-    uint64_t masked = raw;
-    if (bits > 0 && bits < 64) {
-        uint64_t mask = (1ULL << bits) - 1ULL;
-        masked &= mask;
-        if (!isUnsigned) {
-            uint64_t sign = 1ULL << (bits - 1);
-            if (masked & sign) {
-                masked |= ~mask;
-            }
-        }
-    }
-    long long val = (long long)masked;
-
+    long long val = (long long)info.value;
     if (out) *out = val;
-    if (bitsOut) *bitsOut = bits;
-    if (isUnsignedOut) *isUnsignedOut = isUnsigned;
+    if (bitsOut) *bitsOut = info.bits;
+    if (isUnsignedOut) *isUnsignedOut = info.isUnsigned;
     return true;
 }
 
@@ -315,6 +233,27 @@ static bool bitsFromTypeInfo(const TypeInfo* info, Scope* scope, unsigned* bits,
     }
 }
 
+static void commonIntegerType(ConstEvalResult lhs,
+                              ConstEvalResult rhs,
+                              Scope* scope,
+                              unsigned* bits,
+                              bool* isUnsigned) {
+    unsigned leftBits = lhs.bitWidth ? lhs.bitWidth : defaultIntBits(scope);
+    unsigned rightBits = rhs.bitWidth ? rhs.bitWidth : defaultIntBits(scope);
+    TypeInfo leftInfo = makeIntegerType(leftBits, !lhs.isUnsigned, TOKEN_INT);
+    TypeInfo rightInfo = makeIntegerType(rightBits, !rhs.isUnsigned, TOKEN_INT);
+    bool ok = true;
+    TypeInfo common = usualArithmeticConversion(leftInfo, rightInfo, &ok);
+    unsigned outBits = defaultIntBits(scope);
+    bool outUnsigned = false;
+    if (ok) {
+        outBits = common.bitWidth ? common.bitWidth : defaultIntBits(scope);
+        outUnsigned = !common.isSigned;
+    }
+    if (bits) *bits = outBits;
+    if (isUnsigned) *isUnsigned = outUnsigned;
+}
+
 static ConstEvalResult finalizeWithExprType(ConstEvalResult res, ASTNode* expr, Scope* scope) {
     (void)expr;
     if (!res.isConst) {
@@ -442,9 +381,9 @@ static ConstEvalResult evalBinaryOp(const char* op,
     bool resultUnsigned = false;
 
     if (strcmp(op, "|") == 0 || strcmp(op, "&") == 0 || strcmp(op, "^") == 0) {
-        unsigned opBits = lhs.bitWidth ? lhs.bitWidth : rhs.bitWidth;
-        if (opBits == 0) opBits = defaultIntBits(scope);
-        bool opUnsigned = lhs.isUnsigned || rhs.isUnsigned;
+        unsigned opBits = defaultIntBits(scope);
+        bool opUnsigned = false;
+        commonIntegerType(lhs, rhs, scope, &opBits, &opUnsigned);
         uint64_t l = (uint64_t)truncateToWidth(lhs.value, opBits, opUnsigned);
         uint64_t r = (uint64_t)truncateToWidth(rhs.value, opBits, opUnsigned);
         uint64_t v = 0;
@@ -458,15 +397,29 @@ static ConstEvalResult evalBinaryOp(const char* op,
     if (strcmp(op, "==") == 0 || strcmp(op, "!=") == 0 ||
         strcmp(op, "<") == 0 || strcmp(op, "<=") == 0 ||
         strcmp(op, ">") == 0 || strcmp(op, ">=") == 0) {
-        long long l = lhs.value;
-        long long r = rhs.value;
+        unsigned opBits = defaultIntBits(scope);
+        bool opUnsigned = false;
+        commonIntegerType(lhs, rhs, scope, &opBits, &opUnsigned);
+        long long l = truncateToWidth(lhs.value, opBits, false);
+        long long r = truncateToWidth(rhs.value, opBits, false);
+        uint64_t lu = (uint64_t)truncateToWidth(lhs.value, opBits, true);
+        uint64_t ru = (uint64_t)truncateToWidth(rhs.value, opBits, true);
         int cmp = 0;
-        if (strcmp(op, "==") == 0) cmp = (l == r);
-        else if (strcmp(op, "!=") == 0) cmp = (l != r);
-        else if (strcmp(op, "<") == 0) cmp = (l < r);
-        else if (strcmp(op, "<=") == 0) cmp = (l <= r);
-        else if (strcmp(op, ">") == 0) cmp = (l > r);
-        else cmp = (l >= r);
+        if (opUnsigned) {
+            if (strcmp(op, "==") == 0) cmp = (lu == ru);
+            else if (strcmp(op, "!=") == 0) cmp = (lu != ru);
+            else if (strcmp(op, "<") == 0) cmp = (lu < ru);
+            else if (strcmp(op, "<=") == 0) cmp = (lu <= ru);
+            else if (strcmp(op, ">") == 0) cmp = (lu > ru);
+            else cmp = (lu >= ru);
+        } else {
+            if (strcmp(op, "==") == 0) cmp = (l == r);
+            else if (strcmp(op, "!=") == 0) cmp = (l != r);
+            else if (strcmp(op, "<") == 0) cmp = (l < r);
+            else if (strcmp(op, "<=") == 0) cmp = (l <= r);
+            else if (strcmp(op, ">") == 0) cmp = (l > r);
+            else cmp = (l >= r);
+        }
         ConstEvalResult res = makeConstTyped(cmp ? 1 : 0, defaultIntBits(scope), false);
         return finalizeWithExprType(res, expr, scope);
     }
@@ -500,12 +453,27 @@ static ConstEvalResult evalBinaryOp(const char* op,
         if ((strcmp(op, "/") == 0 || strcmp(op, "%") == 0) && rhs.value == 0) {
             return makeNonConst();
         }
+        commonIntegerType(lhs, rhs, scope, &resultBits, &resultUnsigned);
+        if (resultUnsigned) {
+            uint64_t l = (uint64_t)truncateToWidth(lhs.value, resultBits, true);
+            uint64_t r = (uint64_t)truncateToWidth(rhs.value, resultBits, true);
+            uint64_t v = 0;
+            if (strcmp(op, "+") == 0) v = l + r;
+            else if (strcmp(op, "-") == 0) v = l - r;
+            else if (strcmp(op, "*") == 0) v = l * r;
+            else if (strcmp(op, "/") == 0) v = r == 0 ? 0 : (l / r);
+            else v = r == 0 ? 0 : (l % r);
+            ConstEvalResult res = makeConstTyped((long long)v, resultBits, true);
+            return finalizeWithExprType(res, expr, scope);
+        }
+        long long l = truncateToWidth(lhs.value, resultBits, false);
+        long long r = truncateToWidth(rhs.value, resultBits, false);
         long long v = 0;
-        if (strcmp(op, "+") == 0) v = lhs.value + rhs.value;
-        else if (strcmp(op, "-") == 0) v = lhs.value - rhs.value;
-        else if (strcmp(op, "*") == 0) v = lhs.value * rhs.value;
-        else if (strcmp(op, "/") == 0) v = lhs.value / rhs.value;
-        else v = lhs.value % rhs.value;
+        if (strcmp(op, "+") == 0) v = l + r;
+        else if (strcmp(op, "-") == 0) v = l - r;
+        else if (strcmp(op, "*") == 0) v = l * r;
+        else if (strcmp(op, "/") == 0) v = r == 0 ? 0 : (l / r);
+        else v = r == 0 ? 0 : (l % r);
         ConstEvalResult res = makeConstTyped(v, resultBits, resultUnsigned);
         return finalizeWithExprType(res, expr, scope);
     }
@@ -718,6 +686,30 @@ static ConstEvalResult constEvalInternal(ASTNode* expr,
             }
             unsigned bits = defaultPointerBits(scope);
             return makeConstTyped(alignVal, bits, true);
+        }
+        case AST_FUNCTION_CALL: {
+            if (expr->functionCall.callee &&
+                expr->functionCall.callee->type == AST_IDENTIFIER) {
+                const char* name = expr->functionCall.callee->valueNode.value;
+                if (name &&
+                    (strcmp(name, "__builtin_offsetof") == 0 ||
+                     strcmp(name, "offsetof") == 0)) {
+                    if (expr->functionCall.argumentCount == 2) {
+                        ASTNode* typeArg = expr->functionCall.arguments[0];
+                        ASTNode* fieldArg = expr->functionCall.arguments[1];
+                        if (typeArg && typeArg->type == AST_PARSED_TYPE &&
+                            fieldArg && fieldArg->type == AST_IDENTIFIER) {
+                            size_t offset = 0;
+                            if (evalOffsetofField(scope, &typeArg->parsedTypeNode.parsed,
+                                                  fieldArg->valueNode.value, &offset)) {
+                                return makeConstTyped((long long)offset, defaultPointerBits(scope), true);
+                            }
+                        }
+                    }
+                    return makeNonConst();
+                }
+            }
+            return makeNonConst();
         }
         default:
             return makeNonConst();

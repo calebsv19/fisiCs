@@ -10,6 +10,20 @@ typedef struct {
     size_t length;   // number of code points (not counting the implicit terminator)
 } LiteralDecodeResult;
 
+struct TargetLayout;
+
+typedef struct {
+    bool ok;              // false when the literal spelling is invalid
+    bool overflow;        // true when the value exceeds the largest candidate type
+    unsigned bits;        // chosen bit width
+    bool isUnsigned;      // chosen signedness
+    unsigned long long value; // truncated value (mod 2^bits)
+} IntegerLiteralInfo;
+
+bool parse_integer_literal_info(const char* text,
+                                const struct TargetLayout* layout,
+                                IntegerLiteralInfo* out);
+
 /**
  * Decode a C string literal payload (without surrounding quotes or any wide/UTF
  * prefix). The parser token still carries the raw spelling; this helper walks

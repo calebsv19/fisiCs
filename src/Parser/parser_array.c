@@ -28,18 +28,43 @@ DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* o
  
  
 // Array parsing
-ASTNode* parseArraySize(Parser* parser, bool* outIsVLA) {
+ASTNode* parseArraySize(Parser* parser, bool* outIsVLA, ParsedArrayInfo* outInfo) {
+    if (outInfo) {
+        memset(outInfo, 0, sizeof(*outInfo));
+    }
     if (parser->currentToken.type == TOKEN_LBRACKET) { //  Check for `[`
         advance(parser); // Consume `[`
 
-        while (parser->currentToken.type == TOKEN_STATIC ||
-               parser->currentToken.type == TOKEN_CONST ||
-               parser->currentToken.type == TOKEN_VOLATILE ||
-               parser->currentToken.type == TOKEN_RESTRICT) {
-            advance(parser);
+        bool scanning = true;
+        while (scanning) {
+            switch (parser->currentToken.type) {
+                case TOKEN_STATIC:
+                    if (outInfo) outInfo->hasStatic = true;
+                    advance(parser);
+                    break;
+                case TOKEN_CONST:
+                    if (outInfo) outInfo->qualConst = true;
+                    advance(parser);
+                    break;
+                case TOKEN_VOLATILE:
+                    if (outInfo) outInfo->qualVolatile = true;
+                    advance(parser);
+                    break;
+                case TOKEN_RESTRICT:
+                    if (outInfo) outInfo->qualRestrict = true;
+                    advance(parser);
+                    break;
+                default:
+                    scanning = false;
+                    break;
+            }
         }
 
         if (parser->currentToken.type == TOKEN_ASTERISK) {
+            if (outInfo && outInfo->hasStatic) {
+                printParseError("Array parameter 'static' requires a size expression", parser);
+                return NULL;
+            }
             advance(parser);
             if (parser->currentToken.type != TOKEN_RBRACKET) {
                 printf("Error: expected ']' after '*' array size at line %d\n", parser->currentToken.line);
@@ -47,12 +72,18 @@ ASTNode* parseArraySize(Parser* parser, bool* outIsVLA) {
             }
             advance(parser);
             if (outIsVLA) *outIsVLA = true;
+            if (outInfo) outInfo->isVLA = true;
             return NULL;
         }
 
         if (parser->currentToken.type == TOKEN_RBRACKET) {
+            if (outInfo && outInfo->hasStatic) {
+                printParseError("Array parameter 'static' requires a size expression", parser);
+                return NULL;
+            }
             advance(parser); // consume `]`
             if (outIsVLA) *outIsVLA = false;
+            if (outInfo) outInfo->isVLA = false;
             return NULL; // This means: array size is unspecified
         }
          
@@ -67,6 +98,10 @@ ASTNode* parseArraySize(Parser* parser, bool* outIsVLA) {
         }
         advance(parser); //  Consume `]`
         if (outIsVLA) *outIsVLA = false;
+        if (outInfo) {
+            outInfo->isVLA = false;
+            outInfo->sizeExpr = size;
+        }
         return size;
     }
     return NULL;

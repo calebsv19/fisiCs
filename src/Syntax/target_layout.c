@@ -57,7 +57,17 @@ static const TargetLayout layout_llp64_fp64 = {
 };
 
 const TargetLayout* tl_default(void) {
+#if defined(_WIN64) || defined(__WIN64__)
+    return &layout_llp64_fp64;
+#elif defined(__aarch64__) || defined(__arm64__)
+    return &layout_lp64_fp128;
+#elif defined(__x86_64__) || defined(_M_X64)
     return &layout_lp64_fp80;
+#elif defined(__riscv) && (__riscv_xlen == 64)
+    return &layout_lp64_fp128;
+#else
+    return &layout_lp64_fp80;
+#endif
 }
 
 const TargetLayout* tl_from_triple(const char* triple) {

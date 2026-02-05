@@ -54,6 +54,10 @@ Macro expansion rules, #if evaluation, and include handling.
    - #undef affects defined() result.
 18) `03__macro_paste_expand`
    - Macro arguments expand before token paste.
+19) `03__defined_macro_expansion`
+   - defined() inside macro expansion evaluates correctly.
+20) `03__line_directive_builtin`
+   - #line remaps __LINE__ inside #if expressions.
 
 ## Known Gaps
 - Macro recursion guard currently errors out in the CLI path. Track in `FAILING.md`

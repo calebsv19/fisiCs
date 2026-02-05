@@ -118,6 +118,10 @@ bool parsedTypeAppendArray(ParsedType* t, struct ASTNode* sizeExpr, bool isVLA) 
     slot->as.array.hasConstantSize = false;
     slot->as.array.constantSize = 0;
     slot->as.array.isFlexible = false;
+    slot->as.array.hasStatic = false;
+    slot->as.array.qualConst = false;
+    slot->as.array.qualVolatile = false;
+    slot->as.array.qualRestrict = false;
     if (isVLA) {
         t->isVLA = true;
     }
@@ -184,6 +188,10 @@ static TypeDerivation cloneDerivation(const TypeDerivation* src) {
             dst.as.array.hasConstantSize = src->as.array.hasConstantSize;
             dst.as.array.constantSize = src->as.array.constantSize;
             dst.as.array.isFlexible = src->as.array.isFlexible;
+            dst.as.array.hasStatic = src->as.array.hasStatic;
+            dst.as.array.qualConst = src->as.array.qualConst;
+            dst.as.array.qualVolatile = src->as.array.qualVolatile;
+            dst.as.array.qualRestrict = src->as.array.qualRestrict;
             break;
         case TYPE_DERIVATION_FUNCTION:
             dst.as.function.isVariadic = src->as.function.isVariadic;
@@ -258,6 +266,26 @@ void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count
 
 bool parsedTypeIsDirectArray(const ParsedType* t) {
     return t && t->derivationCount > 0 && t->derivations[0].kind == TYPE_DERIVATION_ARRAY;
+}
+
+bool parsedTypeAdjustArrayParameter(ParsedType* t) {
+    if (!parsedTypeIsDirectArray(t)) {
+        return false;
+    }
+    TypeDerivation* arr = &t->derivations[0];
+    t->hasParamArrayInfo = true;
+    t->paramArrayInfo = arr->as.array;
+
+    TypeDerivation ptr;
+    memset(&ptr, 0, sizeof(ptr));
+    ptr.kind = TYPE_DERIVATION_POINTER;
+    ptr.as.pointer.isConst = arr->as.array.qualConst;
+    ptr.as.pointer.isVolatile = arr->as.array.qualVolatile;
+    ptr.as.pointer.isRestrict = arr->as.array.qualRestrict;
+    t->derivations[0] = ptr;
+    parsedTypeAddPointerDepth(t, 1);
+    t->isVLA = parsedTypeHasVLA(t);
+    return true;
 }
 
 ParsedType parsedTypeArrayElementType(const ParsedType* t) {

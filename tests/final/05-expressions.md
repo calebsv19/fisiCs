@@ -40,6 +40,10 @@ Expression grammar, precedence, associativity, and ambiguous parses.
    - sizeof with typedef names.
 12) `05__cast_deref_precedence`
    - Cast binds before unary deref.
+13) `05__ternary_comma_true`
+   - Comma expressions inside the true arm of `?:`.
+14) `05__sizeof_array_type`
+   - `sizeof(int[2])` and compound-literal array size.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for expression shape checks.

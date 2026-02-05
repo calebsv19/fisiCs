@@ -8,6 +8,7 @@
 #include "Parser/Expr/parser_expr_pratt.h"
 
 #include <stdio.h>
+#include <string.h>
 
 ASTNode* parseExpression(Parser* parser) {
     if (parser->mode == PARSER_MODE_PRATT) {
@@ -670,6 +671,16 @@ ASTNode* parseSizeofExpression(Parser* parser) {
     // Try parsing as a type  
     ParsedType type = parseTypeCtx(parser, TYPECTX_Strict);
     if (type.kind != TYPE_INVALID) {
+        ParsedDeclarator abstractDecl;
+        if (!parserParseDeclarator(parser, &type, false, false, false, &abstractDecl)) {
+            parsedTypeFree(&type);
+            printParseError("Invalid abstract declarator in sizeof(type)", parser);
+            return NULL;
+        }
+        parsedTypeFree(&type);
+        type = abstractDecl.type;
+        memset(&abstractDecl.type, 0, sizeof(abstractDecl.type));
+        parserDeclaratorDestroy(&abstractDecl);
         target = createParsedTypeNode(type);  // Type-based sizeof
     } else if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         target = createIdentifierNode(parser->currentToken.value);  // Variable-based sizeof
@@ -705,6 +716,16 @@ ASTNode* parseAlignofExpression(Parser* parser) {
     ASTNode* target = NULL;
     ParsedType type = parseTypeCtx(parser, TYPECTX_Strict);
     if (type.kind != TYPE_INVALID) {
+        ParsedDeclarator abstractDecl;
+        if (!parserParseDeclarator(parser, &type, false, false, false, &abstractDecl)) {
+            parsedTypeFree(&type);
+            printParseError("Invalid abstract declarator in alignof(type)", parser);
+            return NULL;
+        }
+        parsedTypeFree(&type);
+        type = abstractDecl.type;
+        memset(&abstractDecl.type, 0, sizeof(abstractDecl.type));
+        parserDeclaratorDestroy(&abstractDecl);
         target = createParsedTypeNode(type);
     } else if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         target = createIdentifierNode(parser->currentToken.value);

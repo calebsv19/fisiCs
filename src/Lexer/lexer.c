@@ -131,9 +131,32 @@ static char* translate_source(const char* source, bool enableTrigraphs, bool* ou
         if (enableTrigraphs && i + 2 < len && source[i] == '?' && source[i + 1] == '?') {
             char mapped = translate_trigraph_char(source[i + 2]);
             if (mapped) {
+                size_t next = i + 3;
+                if (mapped == '\\' && next < len) {
+                    if (source[next] == '\n') {
+                        i = next + 1;
+                        sawTrigraph = true;
+                        continue;
+                    }
+                    if (source[next] == '\r' && next + 1 < len && source[next + 1] == '\n') {
+                        i = next + 2;
+                        sawTrigraph = true;
+                        continue;
+                    }
+                }
                 out[w++] = mapped;
                 i += 3;
                 sawTrigraph = true;
+                continue;
+            }
+        }
+        if (source[i] == '\\' && i + 1 < len) {
+            if (source[i + 1] == '\n') {
+                i += 2;
+                continue;
+            }
+            if (source[i + 1] == '\r' && i + 2 < len && source[i + 2] == '\n') {
+                i += 3;
                 continue;
             }
         }
@@ -491,103 +514,125 @@ Token handleCharLiteral(Lexer* lexer) {
     LexerMark startMark = lexer_mark(lexer);
     LEXER_DEBUG_PRINTF("DEBUG: Entering handleCharLiteral() at line %d\n", lexer->line);
     lexer->position++; // skip opening '
+    uint64_t accum = 0;
+    int count = 0;
+    int lastVal = 0;
 
-    int val = 0;
-    char ch = lexer->source[lexer->position++];
-
-    if (ch == '\\') {
-        char e = lexer->source[lexer->position++];
-        switch (e) {
-            case 'n':  val = '\n'; break;
-            case 't':  val = '\t'; break;
-            case 'r':  val = '\r'; break;
-            case 'b':  val = '\b'; break;
-            case 'f':  val = '\f'; break;
-            case 'a':  val = '\a'; break;
-            case 'v':  val = '\v'; break;
-            case '\\': val = '\\'; break;
-            case '\'': val = '\''; break;
-        case '\"': val = '\"'; break;
-            case 'u': {
-                int hex = 0;
-                int count = 0;
-                for (int k = 0; k < 4; ++k) {
-                    char h = lexer->source[lexer->position++];
-                    int v = 0;
-                    if (h >= '0' && h <= '9') v = h - '0';
-                    else if (h >= 'a' && h <= 'f') v = h - 'a' + 10;
-                    else if (h >= 'A' && h <= 'F') v = h - 'A' + 10;
-                    else { lexer->position--; break; }
-                    hex = (hex << 4) | v;
-                    ++count;
-                }
-                if (count != 4) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\u escape", startMark);
-                val = hex;
-                break;
-            }
-            case 'U': {
-                int hex = 0;
-                int count = 0;
-                for (int k = 0; k < 8; ++k) {
-                    char h = lexer->source[lexer->position++];
-                    int v = 0;
-                    if (h >= '0' && h <= '9') v = h - '0';
-                    else if (h >= 'a' && h <= 'f') v = h - 'a' + 10;
-                    else if (h >= 'A' && h <= 'F') v = h - 'A' + 10;
-                    else { lexer->position--; break; }
-                    hex = (hex << 4) | v;
-                    ++count;
-                }
-                if (count != 8) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\U escape", startMark);
-                val = hex;
-                break;
-            }
-
-            // \xHH… (1+ hex digits)
-            case 'x': {
-                int hex = 0, any = 0;
-                while (isxdigit((unsigned char)lexer->source[lexer->position])) {
-                    char h = lexer->source[lexer->position++];
-                    hex *= 16;
-                    if (h >= '0' && h <= '9') hex += (h - '0');
-                    else if (h >= 'a' && h <= 'f') hex += (h - 'a' + 10);
-                    else hex += (h - 'A' + 10);
-                    any = 1;
-                }
-                if (!any) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\x escape", startMark);
-                val = hex & 0xFF;
-                break;
-            }
-
-            // Octal \nnn (up to 3 octal digits; first already in e)
-            default:
-                if (e >= '0' && e <= '7') {
-                    int oct = (e - '0');
-                    for (int k = 0; k < 2; ++k) {
-                        char d = lexer->source[lexer->position];
-                        if (d < '0' || d > '7') break;
-                        lexer->position++;
-                        oct = (oct << 3) + (d - '0');
-                    }
-                    val = oct & 0xFF;
-                } else {
-                    // unknown escape, take literally
-                    val = (unsigned char)e;
-                }
-                break;
+    while (1) {
+        char ch = lexer->source[lexer->position];
+        if (ch == '\0' || ch == '\n') {
+            return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid character literal", startMark);
         }
-    } else {
-        val = (unsigned char)ch;
+        if (ch == '\'') {
+            lexer->position++; // consume closing '
+            break;
+        }
+
+        lexer->position++; // consume current char
+        int val = 0;
+        if (ch == '\\') {
+            char e = lexer->source[lexer->position++];
+            switch (e) {
+                case 'n':  val = '\n'; break;
+                case 't':  val = '\t'; break;
+                case 'r':  val = '\r'; break;
+                case 'b':  val = '\b'; break;
+                case 'f':  val = '\f'; break;
+                case 'a':  val = '\a'; break;
+                case 'v':  val = '\v'; break;
+                case '\\': val = '\\'; break;
+                case '\'': val = '\''; break;
+                case '\"': val = '\"'; break;
+                case 'u': {
+                    int hex = 0;
+                    int countHex = 0;
+                    for (int k = 0; k < 4; ++k) {
+                        char h = lexer->source[lexer->position++];
+                        int v = 0;
+                        if (h >= '0' && h <= '9') v = h - '0';
+                        else if (h >= 'a' && h <= 'f') v = h - 'a' + 10;
+                        else if (h >= 'A' && h <= 'F') v = h - 'A' + 10;
+                        else { lexer->position--; break; }
+                        hex = (hex << 4) | v;
+                        ++countHex;
+                    }
+                    if (countHex != 4) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\u escape", startMark);
+                    val = hex;
+                    break;
+                }
+                case 'U': {
+                    int hex = 0;
+                    int countHex = 0;
+                    for (int k = 0; k < 8; ++k) {
+                        char h = lexer->source[lexer->position++];
+                        int v = 0;
+                        if (h >= '0' && h <= '9') v = h - '0';
+                        else if (h >= 'a' && h <= 'f') v = h - 'a' + 10;
+                        else if (h >= 'A' && h <= 'F') v = h - 'A' + 10;
+                        else { lexer->position--; break; }
+                        hex = (hex << 4) | v;
+                        ++countHex;
+                    }
+                    if (countHex != 8) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\U escape", startMark);
+                    val = hex;
+                    break;
+                }
+
+                // \xHH… (1+ hex digits)
+                case 'x': {
+                    int hex = 0, any = 0;
+                    while (isxdigit((unsigned char)lexer->source[lexer->position])) {
+                        char h = lexer->source[lexer->position++];
+                        hex *= 16;
+                        if (h >= '0' && h <= '9') hex += (h - '0');
+                        else if (h >= 'a' && h <= 'f') hex += (h - 'a' + 10);
+                        else hex += (h - 'A' + 10);
+                        any = 1;
+                    }
+                    if (!any) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\x escape", startMark);
+                    val = hex;
+                    break;
+                }
+
+                // Octal \nnn (up to 3 octal digits; first already in e)
+                default:
+                    if (e >= '0' && e <= '7') {
+                        int oct = (e - '0');
+                        for (int k = 0; k < 2; ++k) {
+                            char d = lexer->source[lexer->position];
+                            if (d < '0' || d > '7') break;
+                            lexer->position++;
+                            oct = (oct << 3) + (d - '0');
+                        }
+                        val = oct;
+                    } else {
+                        // unknown escape, take literally
+                        val = (unsigned char)e;
+                    }
+                    break;
+            }
+        } else {
+            val = (unsigned char)ch;
+        }
+
+        lastVal = val;
+        if (count == 0) {
+            accum = (uint64_t)(val & 0xFF);
+        } else {
+            accum = (accum << 8) | (uint64_t)(val & 0xFF);
+        }
+        count++;
     }
 
-    if (lexer->source[lexer->position] != '\'')
+    if (count == 0) {
         return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid character literal", startMark);
+    }
 
-    lexer->position++; // consume closing '
+    uint64_t finalVal = (count == 1) ? (uint64_t)lastVal : accum;
 
     // store numeric value as text, keeps your existing print style simple
-    char buf[16];
-    snprintf(buf, sizeof(buf), "%d", val);
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%llu", (unsigned long long)finalVal);
     LEXER_DEBUG_PRINTF("DEBUG: Created TOKEN_CHAR_LITERAL with value %s at line %d\n", buf, lexer->line);
     return make_token(lexer, TOKEN_CHAR_LITERAL, strdup(buf), startMark);
 }

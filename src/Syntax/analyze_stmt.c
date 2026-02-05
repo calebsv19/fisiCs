@@ -440,13 +440,56 @@ static bool switchFrameRecordValue(SwitchFrame* frame, long long value, SourceRa
     return true;
 }
 
-static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* switchStack) {
+typedef struct {
+    const char** names;
+    SourceRange* locations;
+    size_t count;
+    size_t capacity;
+} LabelTracker;
+
+static bool labelTrackerRecord(LabelTracker* tracker,
+                               const char* name,
+                               SourceRange loc,
+                               SourceRange* outPrev) {
+    if (!tracker || !name) return true;
+    for (size_t i = 0; i < tracker->count; ++i) {
+        if (tracker->names[i] && strcmp(tracker->names[i], name) == 0) {
+            if (outPrev) {
+                *outPrev = tracker->locations[i];
+            }
+            return false;
+        }
+    }
+    if (tracker->count == tracker->capacity) {
+        size_t newCap = tracker->capacity == 0 ? 8 : tracker->capacity * 2;
+        const char** newNames = realloc(tracker->names, newCap * sizeof(char*));
+        SourceRange* newLocs = realloc(tracker->locations, newCap * sizeof(SourceRange));
+        if (!newNames || !newLocs) {
+            free(newNames);
+            free(newLocs);
+            return true;
+        }
+        tracker->names = newNames;
+        tracker->locations = newLocs;
+        tracker->capacity = newCap;
+    }
+    tracker->names[tracker->count] = name;
+    tracker->locations[tracker->count] = loc;
+    tracker->count++;
+    return true;
+}
+
+static void analyzeStatementInternal(ASTNode* node,
+                                     Scope* scope,
+                                     SwitchStack* switchStack,
+                                     LabelTracker* labels,
+                                     int loopDepth) {
     switch (node->type) {
         case AST_IF_STATEMENT:
             analyze(node->ifStmt.condition, scope);
-            analyzeStatementInternal(node->ifStmt.thenBranch, scope, switchStack);
+            analyzeStatementInternal(node->ifStmt.thenBranch, scope, switchStack, labels, loopDepth);
             if (node->ifStmt.elseBranch) {
-                analyzeStatementInternal(node->ifStmt.elseBranch, scope, switchStack);
+                analyzeStatementInternal(node->ifStmt.elseBranch, scope, switchStack, labels, loopDepth);
             }
             break;
 
@@ -455,14 +498,14 @@ static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* s
             analyze(node->forLoop.initializer, inner);
             analyze(node->forLoop.condition, inner);
             analyze(node->forLoop.increment, inner);
-            analyzeStatementInternal(node->forLoop.body, inner, switchStack);
+            analyzeStatementInternal(node->forLoop.body, inner, switchStack, labels, loopDepth + 1);
             destroyScope(inner);
             break;
         }
 
         case AST_WHILE_LOOP:
             analyze(node->whileLoop.condition, scope);
-            analyzeStatementInternal(node->whileLoop.body, scope, switchStack);
+            analyzeStatementInternal(node->whileLoop.body, scope, switchStack, labels, loopDepth + 1);
             break;
 
         case AST_RETURN:
@@ -483,15 +526,21 @@ static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* s
             break;
 
         case AST_BREAK:
+            if (loopDepth == 0 && (!switchStack || switchStack->depth == 0)) {
+                addError(node->line, 0, "Break statement not within loop or switch", NULL);
+            }
+            break;
         case AST_CONTINUE:
-            // Could track enclosing loop for validation
+            if (loopDepth == 0) {
+                addError(node->line, 0, "Continue statement not within a loop", NULL);
+            }
             break;
 
         case AST_SWITCH: {
             analyze(node->switchStmt.condition, scope);
             SwitchFrame* frame = pushSwitchFrame(switchStack);
             for (size_t i = 0; i < node->switchStmt.caseListSize; i++) {
-                analyzeStatementInternal(node->switchStmt.caseList[i], scope, switchStack);
+                analyzeStatementInternal(node->switchStmt.caseList[i], scope, switchStack, labels, loopDepth);
             }
             popSwitchFrame(switchStack);
             (void)frame;
@@ -546,14 +595,25 @@ static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* s
                 }
             }
             for (size_t i = 0; i < node->caseStmt.caseBodySize; i++) {
-                analyzeStatementInternal(node->caseStmt.caseBody[i], scope, switchStack);
+                analyzeStatementInternal(node->caseStmt.caseBody[i], scope, switchStack, labels, loopDepth);
             }
             if (node->caseStmt.nextCase) {
-                analyzeStatementInternal(node->caseStmt.nextCase, scope, switchStack);
+                analyzeStatementInternal(node->caseStmt.nextCase, scope, switchStack, labels, loopDepth);
             }
             break;
 
         case AST_LABEL_DECLARATION:
+            if (node->label.labelName) {
+                SourceRange prev = {0};
+                if (!labelTrackerRecord(labels, node->label.labelName, node->location, &prev)) {
+                    char buffer[256];
+                    snprintf(buffer, sizeof(buffer), "Label '%s' redefined", node->label.labelName);
+                    addWarning(node->line, 0, buffer, NULL);
+                    if (prev.start.line > 0) {
+                        addWarning(prev.start.line, 0, "Previous label is here", NULL);
+                    }
+                }
+            }
             if (node->label.statement) {
                 analyze(node->label.statement, scope);
             }
@@ -568,8 +628,16 @@ static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* s
             break;
 
         case AST_BLOCK:
-            for (size_t i = 0; i < node->block.statementCount; ++i) {
-                analyzeStatementInternal(node->block.statements[i], scope, switchStack);
+            if (scope) {
+                Scope* inner = createScope(scope);
+                for (size_t i = 0; i < node->block.statementCount; ++i) {
+                    analyzeStatementInternal(node->block.statements[i], inner, switchStack, labels, loopDepth);
+                }
+                destroyScope(inner);
+            } else {
+                for (size_t i = 0; i < node->block.statementCount; ++i) {
+                    analyzeStatementInternal(node->block.statements[i], scope, switchStack, labels, loopDepth);
+                }
             }
             break;
 
@@ -584,9 +652,22 @@ static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* s
         case AST_ASSIGNMENT:
         case AST_BINARY_EXPRESSION:
         case AST_UNARY_EXPRESSION:
+        case AST_TERNARY_EXPRESSION:
+        case AST_COMMA_EXPRESSION:
         case AST_FUNCTION_CALL:
         case AST_COMPOUND_LITERAL:
         case AST_CAST_EXPRESSION:
+        case AST_STATEMENT_EXPRESSION:
+        case AST_ARRAY_ACCESS:
+        case AST_POINTER_ACCESS:
+        case AST_POINTER_DEREFERENCE:
+        case AST_DOT_ACCESS:
+        case AST_IDENTIFIER:
+        case AST_NUMBER_LITERAL:
+        case AST_CHAR_LITERAL:
+        case AST_STRING_LITERAL:
+        case AST_SIZEOF:
+        case AST_ALIGNOF:
             (void)analyzeExpression(node, scope);
             break;
 
@@ -598,5 +679,8 @@ static void analyzeStatementInternal(ASTNode* node, Scope* scope, SwitchStack* s
 
 void analyzeStatement(ASTNode* node, Scope* scope) {
     SwitchStack stack = {0};
-    analyzeStatementInternal(node, scope, &stack);
+    LabelTracker labels = {0};
+    analyzeStatementInternal(node, scope, &stack, &labels, 0);
+    free(labels.names);
+    free(labels.locations);
 }

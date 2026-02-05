@@ -21,6 +21,10 @@ typedef struct ParsedArrayInfo {
     bool hasConstantSize;
     long long constantSize;
     bool isFlexible;
+    bool hasStatic;
+    bool qualConst;
+    bool qualVolatile;
+    bool qualRestrict;
 } ParsedArrayInfo;
 
 struct ParsedType;
@@ -116,6 +120,10 @@ typedef struct ParsedType {
     /* Optional explicit alignment from _Alignas/alignas */
     size_t alignOverride;
     bool hasAlignOverride;
+
+    /* Array parameter metadata (C99) */
+    bool hasParamArrayInfo;
+    ParsedArrayInfo paramArrayInfo;
 } ParsedType;
 
 
@@ -134,6 +142,7 @@ void parsedTypeResetDerivations(ParsedType* t);
 ParsedType parsedTypeClone(const ParsedType* src);
 void parsedTypeAdoptAttributes(ParsedType* t, ASTAttribute** attrs, size_t count);
 bool parsedTypeIsDirectArray(const ParsedType* t);
+bool parsedTypeAdjustArrayParameter(ParsedType* t);
 ParsedType parsedTypeArrayElementType(const ParsedType* t);
 ParsedType parsedTypePointerTargetType(const ParsedType* t);
 ParsedType parsedTypeFunctionReturnType(const ParsedType* t);

@@ -19,11 +19,13 @@ Semantic rules for assignability and addressability.
    - Assign to const and non-lvalues.
 2) `06__address_of_restrictions`
    - & on bitfield/register/temporary.
-3) `06__array_function_decay`
+3) `06__lvalue_edge_cases`
+   - Bitfield address-of, const-field assignment, pointer/int compare warning, unsigned conversion.
+4) `06__array_function_decay`
    - Array and function decay in expressions.
-4) `06__string_literal_mutability`
+5) `06__string_literal_mutability`
    - Assign to string literal should error.
-5) `06__increment_non_lvalue`
+6) `06__increment_non_lvalue`
    - ++ applied to non-lvalue should error.
 
 ## Expected Outputs

@@ -177,9 +177,8 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
                 }
             }
         }
-        if (!matchedField) {
-            implicitIndex = targetIndex + 1;
-        }
+        (void)matchedField;
+        implicitIndex = targetIndex + 1;
 
         LLVMValueRef fieldPtr = LLVMBuildStructGEP2(ctx->builder, destType, destPtr, targetIndex, "init.field");
         if (!fieldPtr) {
@@ -223,9 +222,8 @@ static bool cg_store_array_entries(CodegenContext* ctx,
             bool ok = false;
             targetIndex = cg_eval_initializer_index(entry->indexExpr, &ok);
             if (!ok) return false;
-        } else {
-            implicitIndex = targetIndex + 1;
         }
+        implicitIndex = targetIndex + 1;
 
         LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
         LLVMValueRef idxVals[2] = {

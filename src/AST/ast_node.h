@@ -254,6 +254,7 @@ struct ASTNode {
             ASTNode *callee;
             ASTNode **arguments;
 	    size_t argumentCount;
+            bool usesPrototype;
         } functionCall;
 
         struct {

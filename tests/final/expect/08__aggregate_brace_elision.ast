@@ -41,3 +41,18 @@ PROGRAM
         = NUMBER_LITERAL 7
 
         = NUMBER_LITERAL 8
+
+  VAR_DECL
+    TYPE: int [2] [3]
+    IDENTIFIER m
+        = NUMBER_LITERAL 1
+
+        = NUMBER_LITERAL 2
+
+        = NUMBER_LITERAL 3
+
+        = NUMBER_LITERAL 4
+
+        = NUMBER_LITERAL 5
+
+        = NUMBER_LITERAL 6

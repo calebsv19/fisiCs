@@ -475,6 +475,7 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
         size_t trailingAttrCount = 0;
         ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
         parsedTypeAdoptAttributes(&decl.type, trailingAttrs, trailingAttrCount);
+        parsedTypeAdjustArrayParameter(&decl.type);
 
         ASTNode* paramName = decl.identifier;
         if (!paramName) {

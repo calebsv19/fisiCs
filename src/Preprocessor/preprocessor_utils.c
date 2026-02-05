@@ -99,6 +99,18 @@ Token pp_token_clone_remap(Preprocessor* pp, const Token* tok) {
             if (clone.location.start.line < 1) clone.location.start.line = 1;
             if (clone.location.end.line < 1) clone.location.end.line = 1;
         }
+        if (clone.macroCallSite.start.file || clone.macroCallSite.start.line > 0) {
+            if (logicalFile) {
+                clone.macroCallSite.start.file = logicalFile;
+                clone.macroCallSite.end.file = logicalFile;
+            }
+            if (pp->lineOffset != 0) {
+                clone.macroCallSite.start.line += pp->lineOffset;
+                clone.macroCallSite.end.line += pp->lineOffset;
+                if (clone.macroCallSite.start.line < 1) clone.macroCallSite.start.line = 1;
+                if (clone.macroCallSite.end.line < 1) clone.macroCallSite.end.line = 1;
+            }
+        }
     }
     clone.line = clone.location.start.line;
     return clone;

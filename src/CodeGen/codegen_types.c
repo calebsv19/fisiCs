@@ -383,6 +383,12 @@ static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type) {
         return fallback;
     }
 
+    if (strcmp(aliasName, "_Float16") == 0 || strcmp(aliasName, "__fp16") == 0) {
+        LLVMTypeRef halfTy = LLVMHalfTypeInContext(cg_context_get_llvm_context(ctx));
+        CG_TRACE("[TRACE] namedAliasType builtin half=%p\n", (void*)halfTy);
+        return halfTy;
+    }
+
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
     if (cache) {
         CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, aliasName);

@@ -26,21 +26,43 @@ PROGRAM
       IDENTIFIER fmt
   RETURN
     NUMBER_LITERAL 0
-  FUNCTION CALL
-    IDENTIFIER va_start
-    ARGUMENTS
-      IDENTIFIER ap
-      IDENTIFIER a
-  RETURN
-    IDENTIFIER a
-  FUNCTION CALL
-    IDENTIFIER bad1
-  FUNCTION CALL
+  FUNCTION DEFINITION
+    RETURN TYPE: int
     IDENTIFIER bad2
-    ARGUMENTS
-      NUMBER_LITERAL 3
-  RETURN
-    NUMBER_LITERAL 0
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+    BLOCK
+      FUNCTION CALL
+        IDENTIFIER va_start
+        ARGUMENTS
+          IDENTIFIER ap
+          IDENTIFIER a
+      RETURN
+        IDENTIFIER a
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      FUNCTION CALL
+        IDENTIFIER good
+        ARGUMENTS
+          NUMBER_LITERAL 1
+          STRING_LITERAL x
+          NUMBER_LITERAL 2
+      FUNCTION CALL
+        IDENTIFIER bad1
+      FUNCTION CALL
+        IDENTIFIER bad2
+        ARGUMENTS
+          NUMBER_LITERAL 3
+      RETURN
+        NUMBER_LITERAL 0
 
 
 Diagnostics:
@@ -66,17 +88,8 @@ Error at (15:5): Undeclared identifier
 Error at (15:14): Undeclared identifier
    Hint: ap
    Spelling: tests/syntax/semantic_varargs.c:15:14
-Error at (15:18): Undeclared identifier
-   Hint: a
-   Spelling: tests/syntax/semantic_varargs.c:15:18
-Error at (15:0): va_start can only appear inside a function
-Error at (16:12): Undeclared identifier
-   Hint: a
-   Spelling: tests/syntax/semantic_varargs.c:16:12
+Error at (15:0): va_start used in non-variadic function
 Error at (21:5): Undeclared identifier
    Hint: bad1
    Spelling: tests/syntax/semantic_varargs.c:21:5
-Error at (22:5): Undeclared identifier
-   Hint: bad2
-   Spelling: tests/syntax/semantic_varargs.c:22:5
 

@@ -1,10 +1,10 @@
 AST:
 PROGRAM
   VAR_DECL
-    TYPE: extern int [NUMBER_LITERAL 3]
+    TYPE: extern int [3]
     IDENTIFIER arr
   VAR_DECL
-    TYPE: extern int [NUMBER_LITERAL 4]
+    TYPE: extern int [4]
     IDENTIFIER arr
   FUNCTION DEFINITION
     RETURN TYPE: int

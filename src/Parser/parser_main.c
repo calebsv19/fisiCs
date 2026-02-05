@@ -290,6 +290,9 @@ ASTNode* parseProgram(Parser* parser) {
                     parser->currentToken.line,
                     parser->currentToken.value ? parser->currentToken.value : "<null>");
             parserSyncToStatementEnd(parser);
+            if (parser->currentToken.type == TOKEN_RBRACE) {
+                advance(parser);
+            }
             continue;
         }
 
@@ -363,6 +366,13 @@ ASTNode* parseStatement(Parser* parser) {
     // --- Block Statement ---
     if (parser->currentToken.type == TOKEN_LBRACE) {
         parsed = parseBlock(parser);
+        goto attach_attrs;
+    }
+
+    // --- Empty statement ---
+    if (parser->currentToken.type == TOKEN_SEMICOLON) {
+        advance(parser);
+        parsed = createBlockNode(NULL, 0);
         goto attach_attrs;
     }
 

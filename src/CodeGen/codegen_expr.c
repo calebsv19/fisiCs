@@ -3,6 +3,8 @@
 #include "codegen_types.h"
 #include "Parser/Helpers/parsed_type.h"
 #include "literal_utils.h"
+#include "Syntax/type_checker.h"
+#include "Syntax/layout.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -15,6 +17,39 @@ static bool cg_parsed_type_is_pointerish(const ParsedType* t) {
     if (t->pointerDepth > 0) return true;
     for (size_t i = 0; i < t->derivationCount; ++i) {
         if (t->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool cg_eval_builtin_offsetof(CodegenContext* ctx,
+                                      const ParsedType* type,
+                                      const char* fieldName,
+                                      size_t* offsetOut) {
+    if (!ctx || !type || !fieldName || !offsetOut) return false;
+    const SemanticModel* model = cg_context_get_semantic_model(ctx);
+    CompilerContext* cctx = model ? semanticModelGetContext(model) : NULL;
+    Scope* scope = model ? semanticModelGetGlobalScope(model) : NULL;
+    if (!cctx || !scope) return false;
+    TypeInfo info = typeInfoFromParsedType(type, scope);
+    if (info.category != TYPEINFO_STRUCT && info.category != TYPEINFO_UNION) return false;
+    CCTagKind kind = (info.category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    const CCTagFieldLayout* layouts = NULL;
+    size_t count = 0;
+    if (!cc_get_tag_field_layouts(cctx, kind, info.userTypeName, &layouts, &count) || !layouts) {
+        size_t sz = 0, al = 0;
+        if (!layout_struct_union(cctx, scope, kind, info.userTypeName, &sz, &al)) return false;
+        if (!cc_get_tag_field_layouts(cctx, kind, info.userTypeName, &layouts, &count) || !layouts) {
+            return false;
+        }
+    }
+    for (size_t i = 0; i < count; ++i) {
+        const CCTagFieldLayout* lay = &layouts[i];
+        if (!lay->name) continue;
+        if (strcmp(lay->name, fieldName) == 0) {
+            if (lay->isBitfield && !lay->isZeroWidth) return false;
+            *offsetOut = lay->byteOffset;
             return true;
         }
     }
@@ -275,6 +310,45 @@ static LLVMValueRef ensureIntegerLike(CodegenContext* ctx, LLVMValueRef value) {
     return LLVMBuildIntCast2(ctx->builder, value, intptrTy, 0, "vla.intcast");
 }
 
+static bool cg_is_float_type(LLVMTypeRef type) {
+    if (!type) return false;
+    switch (LLVMGetTypeKind(type)) {
+        case LLVMHalfTypeKind:
+        case LLVMFloatTypeKind:
+        case LLVMDoubleTypeKind:
+        case LLVMX86_FP80TypeKind:
+        case LLVMFP128TypeKind:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static unsigned cg_float_rank_from_kind(LLVMTypeKind kind) {
+    switch (kind) {
+        case LLVMHalfTypeKind: return 1;
+        case LLVMFloatTypeKind: return 2;
+        case LLVMDoubleTypeKind: return 3;
+        case LLVMX86_FP80TypeKind: return 4;
+        case LLVMFP128TypeKind: return 5;
+        default: return 0;
+    }
+}
+
+static LLVMTypeRef cg_select_float_type(LLVMTypeRef lhs, LLVMTypeRef rhs, LLVMContextRef ctx) {
+    if (!lhs || !rhs) return lhs ? lhs : rhs;
+    LLVMTypeKind lhsKind = LLVMGetTypeKind(lhs);
+    LLVMTypeKind rhsKind = LLVMGetTypeKind(rhs);
+    unsigned lhsRank = cg_float_rank_from_kind(lhsKind);
+    unsigned rhsRank = cg_float_rank_from_kind(rhsKind);
+    if (lhsRank == 0 && rhsRank == 0) {
+        return LLVMDoubleTypeInContext(ctx);
+    }
+    if (lhsRank == 0) return rhs;
+    if (rhsRank == 0) return lhs;
+    return lhsRank >= rhsRank ? lhs : rhs;
+}
+
 static LLVMTypeRef vlaInnermostElementLLVM(CodegenContext* ctx, const ParsedType* type) {
     if (!type) return LLVMInt32TypeInContext(ctx->llvmContext);
     ParsedType base = parsedTypeClone(type);
@@ -456,6 +530,8 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
     LLVMTypeRef rhsType = LLVMTypeOf(R);
     bool lhsIsPointer = lhsType && LLVMGetTypeKind(lhsType) == LLVMPointerTypeKind;
     bool rhsIsPointer = rhsType && LLVMGetTypeKind(rhsType) == LLVMPointerTypeKind;
+    bool lhsFloat = cg_is_float_type(lhsType);
+    bool rhsFloat = cg_is_float_type(rhsType);
     bool lhsUnsigned = cg_is_unsigned_parsed(lhsParsed, lhsType);
     bool rhsUnsigned = cg_is_unsigned_parsed(rhsParsed, rhsType);
     bool preferUnsigned = lhsUnsigned || rhsUnsigned;
@@ -485,7 +561,21 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    if (!lhsIsPointer && !rhsIsPointer) {
+    bool useFloatOps = (lhsFloat || rhsFloat) && !lhsIsPointer && !rhsIsPointer;
+    if (useFloatOps) {
+        LLVMTypeRef floatType = cg_select_float_type(lhsType, rhsType, ctx->llvmContext);
+        if (!floatType || LLVMGetTypeKind(floatType) == LLVMVoidTypeKind) {
+            floatType = LLVMDoubleTypeInContext(ctx->llvmContext);
+        }
+        if (LLVMTypeOf(L) != floatType) {
+            L = cg_cast_value(ctx, L, floatType, lhsParsed, NULL, "float.cast.l");
+        }
+        if (LLVMTypeOf(R) != floatType) {
+            R = cg_cast_value(ctx, R, floatType, rhsParsed, NULL, "float.cast.r");
+        }
+        lhsType = floatType;
+        rhsType = floatType;
+    } else if (!lhsIsPointer && !rhsIsPointer) {
         cg_promote_integer_operands(ctx,
                                     &L,
                                     &R,
@@ -519,7 +609,9 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         if (lhsType != rhsType) {
             R = cg_cast_value(ctx, R, lhsType, rhsParsed, lhsParsed, "add.cast");
         }
-        return LLVMBuildAdd(ctx->builder, L, R, "addtmp");
+        return useFloatOps
+            ? LLVMBuildFAdd(ctx->builder, L, R, "faddtmp")
+            : LLVMBuildAdd(ctx->builder, L, R, "addtmp");
     } else if (strcmp(op, "-") == 0) {
         if (lhsIsPointer && rhsIsPointer) {
             return cg_build_pointer_difference(ctx, L, R, lhsParsed ? lhsParsed : rhsParsed);
@@ -534,15 +626,22 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         if (lhsType != rhsType) {
             R = cg_cast_value(ctx, R, lhsType, rhsParsed, lhsParsed, "sub.cast");
         }
-        return LLVMBuildSub(ctx->builder, L, R, "subtmp");
+        return useFloatOps
+            ? LLVMBuildFSub(ctx->builder, L, R, "fsubtmp")
+            : LLVMBuildSub(ctx->builder, L, R, "subtmp");
     } else if (strcmp(op, "*") == 0) {
         if (lhsType != rhsType) {
             R = cg_cast_value(ctx, R, lhsType, rhsParsed, lhsParsed, "mul.cast");
         }
-        return LLVMBuildMul(ctx->builder, L, R, "multmp");
+        return useFloatOps
+            ? LLVMBuildFMul(ctx->builder, L, R, "fmultmp")
+            : LLVMBuildMul(ctx->builder, L, R, "multmp");
     } else if (strcmp(op, "/") == 0) {
         if (lhsType != rhsType) {
             R = cg_cast_value(ctx, R, lhsType, rhsParsed, lhsParsed, "div.cast");
+        }
+        if (useFloatOps) {
+            return LLVMBuildFDiv(ctx->builder, L, R, "fdivtmp");
         }
         if (preferUnsigned) {
             return LLVMBuildUDiv(ctx->builder, L, R, "divtmp");
@@ -551,6 +650,9 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
     } else if (strcmp(op, "%") == 0) {
         if (lhsType != rhsType) {
             R = cg_cast_value(ctx, R, lhsType, rhsParsed, lhsParsed, "rem.cast");
+        }
+        if (useFloatOps) {
+            return LLVMBuildFRem(ctx->builder, L, R, "fmodtmp");
         }
         if (preferUnsigned) {
             return LLVMBuildURem(ctx->builder, L, R, "modtmp");
@@ -590,6 +692,17 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         }
         if (lhsType != rhsType) {
             R = cg_cast_value(ctx, R, lhsType, rhsParsed, lhsParsed, "cmp.cast");
+        }
+        if (useFloatOps) {
+            LLVMRealPredicate pred = LLVMRealOEQ;
+            if (strcmp(op, "==") == 0) pred = LLVMRealOEQ;
+            else if (strcmp(op, "!=") == 0) pred = LLVMRealONE;
+            else if (strcmp(op, "<") == 0) pred = LLVMRealOLT;
+            else if (strcmp(op, "<=") == 0) pred = LLVMRealOLE;
+            else if (strcmp(op, ">") == 0) pred = LLVMRealOGT;
+            else if (strcmp(op, ">=") == 0) pred = LLVMRealOGE;
+            LLVMValueRef cmp = LLVMBuildFCmp(ctx->builder, pred, L, R, "fcmp");
+            return cg_widen_bool_to_int(ctx, cmp, "cmp.int");
         }
         LLVMIntPredicate pred = cg_select_int_predicate(op, preferUnsigned);
         LLVMValueRef cmp = LLVMBuildICmp(ctx->builder, pred, L, R, "cmptmp");
@@ -655,7 +768,7 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
             LLVMTypeRef fieldType = LLVMIntTypeInContext(ctx->llvmContext, width);
             current = cg_load_bitfield(ctx, &lvalInfo, fieldType);
         } else {
-            current = LLVMBuildLoad2(ctx->builder, targetType, targetPtr, "unary.load");
+            current = cg_build_load(ctx, targetType, targetPtr, "unary.load", targetParsed);
         }
         if (!current) {
             fprintf(stderr, "Error: Failed to load ++/-- operand\n");
@@ -667,7 +780,7 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
             if (!updated) {
                 return NULL;
             }
-            LLVMBuildStore(ctx->builder, updated, targetPtr);
+            cg_build_store(ctx, updated, targetPtr, targetParsed);
             return isPostfix ? current : updated;
         }
 
@@ -683,7 +796,7 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
         if (lvalInfo.isBitfield) {
             if (!cg_store_bitfield(ctx, &lvalInfo, updated)) return NULL;
         } else {
-            LLVMBuildStore(ctx->builder, updated, targetPtr);
+            cg_build_store(ctx, updated, targetPtr, targetParsed);
         }
         return isPostfix ? current : updated;
     }
@@ -1031,7 +1144,7 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         if (lvalInfo.isBitfield) {
             current = cg_load_bitfield(ctx, &lvalInfo, storeType);
         } else {
-            current = LLVMBuildLoad2(ctx->builder, storeType, targetPtr, "compound.load");
+            current = cg_build_load(ctx, storeType, targetPtr, "compound.load", targetParsed);
         }
         if (!current) {
             fprintf(stderr, "Error: Failed to load target for compound assignment\n");
@@ -1039,6 +1152,7 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         }
 
         bool targetIsPointer = LLVMGetTypeKind(storeType) == LLVMPointerTypeKind;
+        bool targetIsFloat = cg_is_float_type(LLVMTypeOf(current));
         if (targetIsPointer && (strcmp(op, "+=") == 0 || strcmp(op, "-=") == 0)) {
             bool isSubtract = (strcmp(op, "-=") == 0);
             storedValue = cg_build_pointer_offset(ctx, current, value, targetParsed, valueParsed, isSubtract);
@@ -1049,22 +1163,30 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
             if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
                 value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
             }
-            storedValue = LLVMBuildAdd(ctx->builder, current, value, "compound.add");
+            storedValue = targetIsFloat
+                ? LLVMBuildFAdd(ctx->builder, current, value, "compound.fadd")
+                : LLVMBuildAdd(ctx->builder, current, value, "compound.add");
         } else if (strcmp(op, "-=") == 0) {
             if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
                 value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
             }
-            storedValue = LLVMBuildSub(ctx->builder, current, value, "compound.sub");
+            storedValue = targetIsFloat
+                ? LLVMBuildFSub(ctx->builder, current, value, "compound.fsub")
+                : LLVMBuildSub(ctx->builder, current, value, "compound.sub");
         } else if (strcmp(op, "*=") == 0) {
             if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
                 value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
             }
-            storedValue = LLVMBuildMul(ctx->builder, current, value, "compound.mul");
+            storedValue = targetIsFloat
+                ? LLVMBuildFMul(ctx->builder, current, value, "compound.fmul")
+                : LLVMBuildMul(ctx->builder, current, value, "compound.mul");
         } else if (strcmp(op, "/=") == 0) {
             if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
                 value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
             }
-            if (cg_expression_is_unsigned(ctx, node->assignment.target)) {
+            if (targetIsFloat) {
+                storedValue = LLVMBuildFDiv(ctx->builder, current, value, "compound.fdiv");
+            } else if (cg_expression_is_unsigned(ctx, node->assignment.target)) {
                 storedValue = LLVMBuildUDiv(ctx->builder, current, value, "compound.div");
             } else {
                 storedValue = LLVMBuildSDiv(ctx->builder, current, value, "compound.div");
@@ -1073,7 +1195,9 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
             if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
                 value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
             }
-            if (cg_expression_is_unsigned(ctx, node->assignment.target)) {
+            if (targetIsFloat) {
+                storedValue = LLVMBuildFRem(ctx->builder, current, value, "compound.frem");
+            } else if (cg_expression_is_unsigned(ctx, node->assignment.target)) {
                 storedValue = LLVMBuildURem(ctx->builder, current, value, "compound.rem");
             } else {
                 storedValue = LLVMBuildSRem(ctx->builder, current, value, "compound.rem");
@@ -1124,7 +1248,7 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         LLVMBuildMemCpy(ctx->builder, dstCast, 1, srcCast, 1, sizeVal);
         return storedValue;
     }
-    LLVMBuildStore(ctx->builder, storedValue, targetPtr);
+    cg_build_store(ctx, storedValue, targetPtr, targetParsed);
     return storedValue;
 }
 
@@ -1553,6 +1677,27 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         ? node->functionCall.callee->valueNode.value
         : NULL;
 
+    if (calleeName &&
+        (strcmp(calleeName, "__builtin_offsetof") == 0 ||
+         strcmp(calleeName, "offsetof") == 0)) {
+        size_t offset = 0;
+        bool ok = false;
+        if (node->functionCall.argumentCount == 2 &&
+            node->functionCall.arguments[0] &&
+            node->functionCall.arguments[0]->type == AST_PARSED_TYPE &&
+            node->functionCall.arguments[1] &&
+            node->functionCall.arguments[1]->type == AST_IDENTIFIER) {
+            ok = cg_eval_builtin_offsetof(ctx,
+                                          &node->functionCall.arguments[0]->parsedTypeNode.parsed,
+                                          node->functionCall.arguments[1]->valueNode.value,
+                                          &offset);
+        }
+        const TargetLayout* tl = cg_context_get_target_layout(ctx);
+        unsigned bits = (tl && tl->pointerBits) ? (unsigned)tl->pointerBits : 64;
+        LLVMTypeRef offTy = LLVMIntTypeInContext(ctx->llvmContext, bits);
+        return LLVMConstInt(offTy, ok ? (unsigned long long)offset : 0ULL, false);
+    }
+
     LLVMValueRef function = codegenNode(ctx, node->functionCall.callee);
     if (!function) {
         fprintf(stderr, "Error: Undefined function %s\n",
@@ -1653,11 +1798,23 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         return LLVMConstNull(LLVMInt32TypeInContext(ctx->llvmContext));
     }
 
+    const Symbol* sym = NULL;
+    bool noPrototype = false;
+    if (calleeName && ctx) {
+        const SemanticModel* model = cg_context_get_semantic_model(ctx);
+        if (model) {
+            sym = semanticModelLookupGlobal(model, calleeName);
+            if (sym && sym->kind == SYMBOL_FUNCTION && !sym->signature.hasPrototype) {
+                noPrototype = true;
+            }
+        }
+    }
+
     LLVMTypeRef calleeType = NULL;
-    if (calleeParsed) {
+    if (calleeParsed && !noPrototype) {
         calleeType = functionTypeFromPointerParsed(ctx, calleeParsed, node->functionCall.argumentCount, args);
     }
-    if (!calleeType) {
+    if (!calleeType && !noPrototype) {
         calleeType = LLVMTypeOf(function);
         if (calleeType && LLVMGetTypeKind(calleeType) == LLVMPointerTypeKind) {
             LLVMTypeRef element = cg_dereference_ptr_type(ctx, calleeType, "call target");
@@ -1666,34 +1823,75 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             }
         }
     }
-    if ((!calleeType || LLVMGetTypeKind(calleeType) != LLVMFunctionTypeKind) && calleeName && ctx) {
+    if ((!calleeType || LLVMGetTypeKind(calleeType) != LLVMFunctionTypeKind) && calleeName && ctx && !noPrototype) {
         const SemanticModel* model = cg_context_get_semantic_model(ctx);
         if (model) {
-            const Symbol* sym = semanticModelLookupGlobal(model, calleeName);
-            if (sym && sym->signature.paramCount >= 0) {
-                LLVMTypeRef retType = cg_type_from_parsed(ctx, &sym->type);
+            const Symbol* lookup = semanticModelLookupGlobal(model, calleeName);
+            if (lookup) {
+                LLVMTypeRef retType = cg_type_from_parsed(ctx, &lookup->type);
                 if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
                     retType = LLVMVoidTypeInContext(ctx->llvmContext);
                 }
-                size_t paramCount = sym->signature.paramCount;
+                size_t paramCount = lookup->signature.paramCount;
                 LLVMTypeRef* paramTypes = NULL;
                 if (paramCount > 0) {
                     paramTypes = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
                     if (!paramTypes) return NULL;
                     for (size_t i = 0; i < paramCount; ++i) {
-                        paramTypes[i] = cg_type_from_parsed(ctx, &sym->signature.params[i]);
+                        paramTypes[i] = cg_type_from_parsed(ctx, &lookup->signature.params[i]);
                         if (!paramTypes[i] || LLVMGetTypeKind(paramTypes[i]) == LLVMVoidTypeKind) {
                             paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
                         }
                     }
                 }
-                calleeType = LLVMFunctionType(retType, paramTypes, (unsigned)paramCount, sym->signature.isVariadic);
+                calleeType = LLVMFunctionType(retType, paramTypes, (unsigned)paramCount, lookup->signature.isVariadic);
                 free(paramTypes);
             }
         }
     }
+
+    size_t argCount = node->functionCall.argumentCount;
+    LLVMValueRef* finalArgs = args;
+    LLVMValueRef* promotedArgs = NULL;
+
+    if (noPrototype) {
+        if (argCount > 0 && args) {
+            promotedArgs = (LLVMValueRef*)malloc(sizeof(LLVMValueRef) * argCount);
+            if (promotedArgs) {
+                for (size_t i = 0; i < argCount; ++i) {
+                    promotedArgs[i] = cg_apply_default_promotion(ctx, args[i], node->functionCall.arguments[i]);
+                }
+                finalArgs = promotedArgs;
+            }
+        }
+
+        LLVMTypeRef retType = NULL;
+        if (sym) {
+            retType = cg_type_from_parsed(ctx, &sym->type);
+        }
+        if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
+            retType = LLVMVoidTypeInContext(ctx->llvmContext);
+        }
+
+        LLVMTypeRef* paramTypes = NULL;
+        if (argCount > 0) {
+            paramTypes = (LLVMTypeRef*)calloc(argCount, sizeof(LLVMTypeRef));
+            if (!paramTypes) return NULL;
+            for (size_t i = 0; i < argCount; ++i) {
+                LLVMValueRef val = finalArgs ? finalArgs[i] : NULL;
+                paramTypes[i] = val ? LLVMTypeOf(val) : LLVMInt32TypeInContext(ctx->llvmContext);
+                if (!paramTypes[i]) {
+                    paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+            }
+        }
+        calleeType = LLVMFunctionType(retType, paramTypes, (unsigned)argCount, 0);
+        free(paramTypes);
+    }
+
     if (!calleeType || LLVMGetTypeKind(calleeType) != LLVMFunctionTypeKind) {
         fprintf(stderr, "Error: call target is not a function type\n");
+        if (promotedArgs) free(promotedArgs);
         free(args);
         return NULL;
     }
@@ -1701,24 +1899,44 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     char* resolvedFnType = LLVMPrintTypeToString(calleeType);
     CG_DEBUG("[CG] Function call resolved type: %s\n", resolvedFnType ? resolvedFnType : "<null>");
     if (resolvedFnType) LLVMDisposeMessage(resolvedFnType);
-
-    size_t argCount = node->functionCall.argumentCount;
-    LLVMValueRef* finalArgs = args;
-    LLVMValueRef* promotedArgs = NULL;
-    bool isVariadic = LLVMIsFunctionVarArg(calleeType);
-    unsigned fixedParams = LLVMCountParamTypes(calleeType);
-
-    if (isVariadic && argCount > fixedParams && args) {
-        promotedArgs = (LLVMValueRef*)malloc(sizeof(LLVMValueRef) * argCount);
-        if (promotedArgs) {
-            for (size_t i = 0; i < argCount; ++i) {
-                LLVMValueRef val = args[i];
-                if (i >= fixedParams) {
-                    val = cg_apply_default_promotion(ctx, val, node->functionCall.arguments[i]);
-                }
-                promotedArgs[i] = val;
+    if (!noPrototype && sym && sym->signature.hasPrototype && sym->signature.paramCount > 0 && args) {
+        size_t fixedCount = sym->signature.paramCount;
+        if (fixedCount > argCount) {
+            fixedCount = argCount;
+        }
+        for (size_t i = 0; i < fixedCount; ++i) {
+            LLVMTypeRef paramTy = cg_type_from_parsed(ctx, &sym->signature.params[i]);
+            if (!paramTy || LLVMGetTypeKind(paramTy) == LLVMVoidTypeKind) {
+                continue;
             }
-            finalArgs = promotedArgs;
+            const ParsedType* fromParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[i]);
+            args[i] = cg_cast_value(ctx,
+                                    args[i],
+                                    paramTy,
+                                    fromParsed,
+                                    &sym->signature.params[i],
+                                    "call.arg.cast");
+        }
+    }
+    if (noPrototype) {
+        LLVMTypeRef fnPtrTy = LLVMPointerType(calleeType, 0);
+        function = LLVMBuildBitCast(ctx->builder, function, fnPtrTy, "call.cast");
+    } else {
+        bool isVariadic = LLVMIsFunctionVarArg(calleeType);
+        unsigned fixedParams = LLVMCountParamTypes(calleeType);
+
+        if (isVariadic && argCount > fixedParams && args) {
+            promotedArgs = (LLVMValueRef*)malloc(sizeof(LLVMValueRef) * argCount);
+            if (promotedArgs) {
+                for (size_t i = 0; i < argCount; ++i) {
+                    LLVMValueRef val = args[i];
+                    if (i >= fixedParams) {
+                        val = cg_apply_default_promotion(ctx, val, node->functionCall.arguments[i]);
+                    }
+                    promotedArgs[i] = val;
+                }
+                finalArgs = promotedArgs;
+            }
         }
     }
 
@@ -1868,8 +2086,21 @@ LLVMValueRef codegenNumberLiteral(CodegenContext* ctx, ASTNode* node) {
         return LLVMConstReal(floatTy, value);
     }
 
-    int value = atoi(node->valueNode.value ? node->valueNode.value : "0");
-    return LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), value, 0);
+    const ParsedType* parsedInt = cg_resolve_expression_type(ctx, node);
+    LLVMTypeRef ty = parsedInt ? cg_type_from_parsed(ctx, parsedInt) : NULL;
+    if (!ty || LLVMGetTypeKind(ty) == LLVMVoidTypeKind) {
+        ty = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+
+    IntegerLiteralInfo info = {0};
+    unsigned long long value = 0;
+    if (parse_integer_literal_info(node->valueNode.value ? node->valueNode.value : "0",
+                                   cg_context_get_target_layout(ctx),
+                                   &info) && info.ok) {
+        value = info.value;
+    }
+
+    return LLVMConstInt(ty, value, (info.ok && !info.isUnsigned) ? 1 : 0);
 }
 
 
@@ -1991,8 +2222,7 @@ LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
         if (!loadType || LLVMGetTypeKind(loadType) == LLVMVoidTypeKind) {
             loadType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
-        LLVMValueRef loaded = LLVMBuildLoad2(ctx->builder, loadType, entry->value, node->valueNode.value);
-        return loaded;
+        return cg_build_load(ctx, loadType, entry->value, node->valueNode.value, entry->parsedType);
     }
 
     const SemanticModel* model = cg_context_get_semantic_model(ctx);
@@ -2036,7 +2266,7 @@ LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
                     false,
                     NULL,
                     parsedType);
-    return LLVMBuildLoad2(ctx->builder, loadType, global, node->valueNode.value);
+    return cg_build_load(ctx, loadType, global, node->valueNode.value, parsedType);
 }
 
 

@@ -8,5 +8,3 @@ PROGRAM
         TYPE: void
         IDENTIFIER __unnamed_param0
     BLOCK
-  RETURN
-    NUMBER_LITERAL 0

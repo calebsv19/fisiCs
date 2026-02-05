@@ -562,8 +562,84 @@ bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
     }
 }
 
+static const TypeDerivation* findFunctionDerivation(const ParsedType* type) {
+    if (!type) return NULL;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+        if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
+            return deriv;
+        }
+    }
+    return NULL;
+}
+
 static bool typeInfoIsFunctionPointer(const TypeInfo* info) {
-    return info && info->originalType && info->originalType->isFunctionPointer;
+    if (!info || !info->originalType) return false;
+    if (info->originalType->isFunctionPointer) return true;
+    if (info->pointerDepth <= 0) return false;
+    ParsedType target = parsedTypePointerTargetType(info->originalType);
+    bool hasFunction = findFunctionDerivation(&target) != NULL;
+    parsedTypeFree(&target);
+    return hasFunction;
+}
+
+static bool functionPointerTargetsCompatible(const ParsedType* destType, const ParsedType* srcType) {
+    if (!destType || !srcType) return true;
+
+    ParsedType destTarget = parsedTypePointerTargetType(destType);
+    ParsedType srcTarget = parsedTypePointerTargetType(srcType);
+
+    const TypeDerivation* destFn = findFunctionDerivation(&destTarget);
+    const TypeDerivation* srcFn = findFunctionDerivation(&srcTarget);
+    if (!destFn || !srcFn) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return true;
+    }
+
+    ParsedType destRet = parsedTypeFunctionReturnType(&destTarget);
+    ParsedType srcRet = parsedTypeFunctionReturnType(&srcTarget);
+    bool retCompat = parsedTypesStructurallyEqual(&destRet, &srcRet);
+    parsedTypeFree(&destRet);
+    parsedTypeFree(&srcRet);
+    if (!retCompat) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return false;
+    }
+
+    bool destHasParams = destFn->as.function.paramCount > 0 || destFn->as.function.isVariadic;
+    bool srcHasParams = srcFn->as.function.paramCount > 0 || srcFn->as.function.isVariadic;
+    if (!destHasParams || !srcHasParams) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return true;
+    }
+
+    if (destFn->as.function.isVariadic != srcFn->as.function.isVariadic) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return false;
+    }
+
+    if (destFn->as.function.paramCount != srcFn->as.function.paramCount) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return false;
+    }
+
+    for (size_t i = 0; i < destFn->as.function.paramCount; ++i) {
+        if (!parsedTypesStructurallyEqual(&destFn->as.function.params[i],
+                                          &srcFn->as.function.params[i])) {
+            parsedTypeFree(&destTarget);
+            parsedTypeFree(&srcTarget);
+            return false;
+        }
+    }
+
+    parsedTypeFree(&destTarget);
+    parsedTypeFree(&srcTarget);
+    return true;
 }
 
 static bool typeInfoIsVoidPointer(const TypeInfo* info) {
@@ -606,6 +682,11 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
             if (s.isConst && !d.isConst) return ASSIGN_QUALIFIER_LOSS;
             if (s.isVolatile && !d.isVolatile) return ASSIGN_QUALIFIER_LOSS;
             if (s.isRestrict && !d.isRestrict) return ASSIGN_QUALIFIER_LOSS;
+        }
+        if (typeInfoIsFunctionPointer(dest) && typeInfoIsFunctionPointer(src)) {
+            if (!functionPointerTargetsCompatible(dest->originalType, src->originalType)) {
+                return ASSIGN_INCOMPATIBLE;
+            }
         }
         // For now allow pointer assignments when depths match; target compatibility
         // is enforced elsewhere (e.g., struct/union layout or stricter checks).

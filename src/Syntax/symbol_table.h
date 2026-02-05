@@ -31,6 +31,7 @@ typedef struct FunctionSignature {
     ParsedType* params;
     size_t paramCount;
     bool isVariadic;
+    bool hasPrototype;
     /* Optional interop metadata */
     enum {
         CALLCONV_DEFAULT = 0,

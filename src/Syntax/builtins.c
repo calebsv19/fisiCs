@@ -108,6 +108,7 @@ static Symbol* makeBuiltinFunc(const char* name, ParsedType retType, size_t para
     Symbol* sym = makeBuiltin(name, SYMBOL_FUNCTION, retType, NULL);
     if (!sym) return NULL;
     sym->signature.paramCount = paramCount;
+    sym->signature.hasPrototype = true;
     if (paramCount > 0 && params) {
         sym->signature.params = (ParsedType*)calloc(paramCount, sizeof(ParsedType));
         if (!sym->signature.params) return sym;
@@ -127,6 +128,7 @@ void seedBuiltins(Scope* globalScope) {
     if (printfSym) {
         printfSym->signature.isVariadic = true;
         printfSym->signature.paramCount = 0;
+        printfSym->signature.hasPrototype = true;
         addToScope(scope, printfSym);
     }
 
@@ -134,18 +136,21 @@ void seedBuiltins(Scope* globalScope) {
     if (fprintfSym) {
         fprintfSym->signature.isVariadic = true;
         fprintfSym->signature.paramCount = 0;
+        fprintfSym->signature.hasPrototype = true;
         addToScope(scope, fprintfSym);
     }
 
     Symbol* exitSym = makeBuiltin("exit", SYMBOL_FUNCTION, voidType(), NULL);
     if (exitSym) {
         exitSym->signature.paramCount = 1;
+        exitSym->signature.hasPrototype = true;
         addToScope(scope, exitSym);
     }
 
     Symbol* objSizeSym = makeBuiltin("__builtin_object_size", SYMBOL_FUNCTION, longType(true), NULL);
     if (objSizeSym) {
         objSizeSym->signature.paramCount = 2;
+        objSizeSym->signature.hasPrototype = true;
         objSizeSym->signature.params = (ParsedType*)calloc(2, sizeof(ParsedType));
         if (objSizeSym->signature.params) {
             objSizeSym->signature.params[0] = constVoidPtrType();
@@ -157,6 +162,7 @@ void seedBuiltins(Scope* globalScope) {
     Symbol* memcpyChkSym = makeBuiltin("__builtin___memcpy_chk", SYMBOL_FUNCTION, voidPtrType(), NULL);
     if (memcpyChkSym) {
         memcpyChkSym->signature.paramCount = 4;
+        memcpyChkSym->signature.hasPrototype = true;
         memcpyChkSym->signature.params = (ParsedType*)calloc(4, sizeof(ParsedType));
         if (memcpyChkSym->signature.params) {
             memcpyChkSym->signature.params[0] = voidPtrType();
@@ -170,6 +176,7 @@ void seedBuiltins(Scope* globalScope) {
     Symbol* memsetChkSym = makeBuiltin("__builtin___memset_chk", SYMBOL_FUNCTION, voidPtrType(), NULL);
     if (memsetChkSym) {
         memsetChkSym->signature.paramCount = 4;
+        memsetChkSym->signature.hasPrototype = true;
         memsetChkSym->signature.params = (ParsedType*)calloc(4, sizeof(ParsedType));
         if (memsetChkSym->signature.params) {
             memsetChkSym->signature.params[0] = voidPtrType();
@@ -183,6 +190,7 @@ void seedBuiltins(Scope* globalScope) {
     Symbol* strncpyChkSym = makeBuiltin("__builtin___strncpy_chk", SYMBOL_FUNCTION, charPtrType(), NULL);
     if (strncpyChkSym) {
         strncpyChkSym->signature.paramCount = 4;
+        strncpyChkSym->signature.hasPrototype = true;
         strncpyChkSym->signature.params = (ParsedType*)calloc(4, sizeof(ParsedType));
         if (strncpyChkSym->signature.params) {
             strncpyChkSym->signature.params[0] = charPtrType();
@@ -197,6 +205,7 @@ void seedBuiltins(Scope* globalScope) {
     if (snprintfChkSym) {
         snprintfChkSym->signature.isVariadic = true;
         snprintfChkSym->signature.paramCount = 5;
+        snprintfChkSym->signature.hasPrototype = true;
         snprintfChkSym->signature.params = (ParsedType*)calloc(5, sizeof(ParsedType));
         if (snprintfChkSym->signature.params) {
             snprintfChkSym->signature.params[0] = charPtrType();

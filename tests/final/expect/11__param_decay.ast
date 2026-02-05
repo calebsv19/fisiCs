@@ -5,7 +5,7 @@ PROGRAM
     IDENTIFIER takes_arr
     PARAMETERS
       VAR_DECL
-        TYPE: int [?]
+        TYPE: int*
         IDENTIFIER a
     BLOCK
       RETURN
@@ -46,7 +46,7 @@ PROGRAM
         IDENTIFIER __unnamed_param0
     BLOCK
       VAR_DECL
-        TYPE: int [NUMBER_LITERAL 2]
+        TYPE: int [2]
         IDENTIFIER arr
             = NUMBER_LITERAL 1
 

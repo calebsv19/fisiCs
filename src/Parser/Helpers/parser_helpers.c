@@ -65,9 +65,13 @@ void printParseError(const char* expected, Parser* parser) {
     if (!parser) return;
     if (parser->suppressErrors) return;
     const Token* tok = &parser->currentToken;
+    const SourceRange* loc = tok ? &tok->location : NULL;
+    if (tok && tok->macroCallSite.start.file) {
+        loc = &tok->macroCallSite;
+    }
     const char* got = tok && tok->value ? tok->value : "<eof>";
-    const char* file = tok && tok->location.start.file ? tok->location.start.file : "<unknown>";
-    int line = tok ? tok->location.start.line : -1;
+    const char* file = (loc && loc->start.file) ? loc->start.file : "<unknown>";
+    int line = (loc ? loc->start.line : -1);
     if (isSystemHeaderPath(file)) {
         const char* env = getenv("FISICS_SHOW_SYSTEM_PARSE_ERRORS");
         if (!env || env[0] == '\0' || env[0] == '0') {
@@ -76,7 +80,7 @@ void printParseError(const char* expected, Parser* parser) {
     }
     if (parser->ctx) {
         compiler_report_diag(parser->ctx,
-                             tok ? tok->location : (SourceRange){0},
+                             loc ? *loc : (SourceRange){0},
                              DIAG_ERROR,
                              CDIAG_PARSER_GENERIC,
                              NULL,

@@ -7,7 +7,7 @@ PROGRAM
     TYPE: extern int [?]
     IDENTIFIER arr
   VAR_DECL
-    TYPE: int [NUMBER_LITERAL 5]
+    TYPE: int [5]
     IDENTIFIER arr
   VAR_DECL
     TYPE: extern int

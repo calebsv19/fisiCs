@@ -143,7 +143,7 @@ static bool flush_chunk(Preprocessor* pp,
         if (expanded.tokens[j].type == TOKEN_UNKNOWN) {
             continue; // drop poison tokens such as stray backslashes that survive lexing
         }
-        if (!pp_token_buffer_append_clone(output, &expanded.tokens[j])) {
+        if (!pp_token_buffer_append_clone_remap(output, pp, &expanded.tokens[j])) {
             ok = false;
             break;
         }
@@ -186,6 +186,9 @@ bool preprocess_tokens(Preprocessor* pp,
     builtins.dateString = pp->dateString[0] ? pp->dateString : NULL;
     builtins.timeString = pp->timeString[0] ? pp->timeString : NULL;
     builtins.counter = &pp->counter;
+    builtins.logicalFile = (const char**)&pp->logicalFile;
+    builtins.lineOffset = &pp->lineOffset;
+    builtins.lineRemapActive = &pp->lineRemapActive;
     macro_expander_set_builtins(&pp->expander, builtins);
     PPTokenBuffer chunk = {0};
     PPConditionalFrame* condStack = NULL;
@@ -444,7 +447,7 @@ bool preprocess_tokens(Preprocessor* pp,
                     if (skip_pragma_operator(input->tokens, input->count, &i)) {
                         break;
                     }
-                    if (!pp_token_buffer_append_clone_remap(&chunk, pp, tok)) {
+                    if (!pp_token_buffer_append_clone(&chunk, tok)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;

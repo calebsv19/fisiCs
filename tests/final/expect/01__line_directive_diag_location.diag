@@ -1,2 +1,2 @@
 Diagnostics:
-Error at (200:0): Control reaches end of non-void function 'main'
+Error at (0:0): Non-void function must return a value

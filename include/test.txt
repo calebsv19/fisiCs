@@ -1,7 +1,11 @@
-#define HDR "virtual_file.h"
-#line 123 HDR
+#include <stdbool.h>
+#include <stdint.h>
+#include <limits.h>
+#include <stddef.h>
 
 int main(void) {
-    int x = ;
-    return x;
+    bool ok = true;
+    int32_t v = INT32_MAX;
+    size_t z = sizeof(v);
+    return ok ? (int)(v == INT32_MAX) + (int)z + (INT_MAX > 0) : 0;
 }

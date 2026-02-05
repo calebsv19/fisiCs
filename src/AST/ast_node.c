@@ -737,6 +737,7 @@ ASTNode* createFunctionCallNode(ASTNode* callee, ASTNode** arguments, size_t arg
     node->functionCall.callee        = callee;       // identifier / member / pointer call node
     node->functionCall.arguments     = arguments;    // array (not list) is fine
     node->functionCall.argumentCount = argumentCount;
+    node->functionCall.usesPrototype = true;
     inherit_line_from_node(node, callee);
     inherit_line_from_array(node, arguments, argumentCount);
     return node;

@@ -196,10 +196,10 @@ PROGRAM
         TYPE: __uint32_t
         Alias:     IDENTIFIER __darwin_useconds_t
   TYPEDEF
-        TYPE: unsigned char [NUMBER_LITERAL 16]
+        TYPE: unsigned char [16]
         Alias:     IDENTIFIER __darwin_uuid_t
   TYPEDEF
-        TYPE: char [NUMBER_LITERAL 37]
+        TYPE: char [37]
         Alias:     IDENTIFIER __darwin_uuid_string_t
   STRUCT
         Name:     IDENTIFIER __darwin_pthread_handler_rec
@@ -218,7 +218,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 56]
+      TYPE: char [56]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_cond_t
@@ -226,7 +226,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 40]
+      TYPE: char [40]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_condattr_t
@@ -234,7 +234,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 8]
+      TYPE: char [8]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_mutex_t
@@ -242,7 +242,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 56]
+      TYPE: char [56]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_mutexattr_t
@@ -250,7 +250,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 8]
+      TYPE: char [8]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_once_t
@@ -258,7 +258,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 8]
+      TYPE: char [8]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_rwlock_t
@@ -266,7 +266,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 192]
+      TYPE: char [192]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_rwlockattr_t
@@ -274,7 +274,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 16]
+      TYPE: char [16]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_t
@@ -285,7 +285,7 @@ PROGRAM
       TYPE: struct __darwin_pthread_handler_rec*
       IDENTIFIER __cleanup_stack
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 8176]
+      TYPE: char [8176]
       IDENTIFIER __opaque
   TYPEDEF
         TYPE: struct _opaque_pthread_attr_t

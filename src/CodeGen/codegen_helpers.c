@@ -3,6 +3,7 @@
 #include "codegen_types.h"
 #include "Compiler/compiler_context.h"
 #include "Syntax/layout.h"
+#include "Syntax/literal_utils.h"
 
 #include <llvm-c/Core.h>
 #include <stdio.h>
@@ -48,6 +49,51 @@ LLVMTypeRef cg_element_type_from_pointer_parsed(CodegenContext* ctx, const Parse
     LLVMTypeRef elem = cg_type_from_parsed(ctx, &base);
     parsedTypeFree(&base);
     return elem;
+}
+
+bool cg_is_volatile_object(const ParsedType* parsed) {
+    if (!parsed) {
+        return false;
+    }
+    if (parsed->pointerDepth > 0) {
+        for (size_t i = 0; i < parsed->derivationCount; ++i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(parsed, i);
+            if (!deriv) {
+                break;
+            }
+            if (deriv->kind == TYPE_DERIVATION_POINTER) {
+                return deriv->as.pointer.isVolatile;
+            }
+            if (deriv->kind == TYPE_DERIVATION_ARRAY) {
+                return deriv->as.array.qualVolatile;
+            }
+        }
+        return false;
+    }
+    return parsed->isVolatile;
+}
+
+LLVMValueRef cg_build_load(CodegenContext* ctx,
+                           LLVMTypeRef type,
+                           LLVMValueRef ptr,
+                           const char* name,
+                           const ParsedType* parsed) {
+    LLVMValueRef load = LLVMBuildLoad2(ctx->builder, type, ptr, name ? name : "");
+    if (cg_is_volatile_object(parsed)) {
+        LLVMSetVolatile(load, 1);
+    }
+    return load;
+}
+
+LLVMValueRef cg_build_store(CodegenContext* ctx,
+                            LLVMValueRef value,
+                            LLVMValueRef ptr,
+                            const ParsedType* parsed) {
+    LLVMValueRef store = LLVMBuildStore(ctx->builder, value, ptr);
+    if (cg_is_volatile_object(parsed)) {
+        LLVMSetVolatile(store, 1);
+    }
+    return store;
 }
 
 static const ParsedType* cg_builtin_signed_int_type(void) {
@@ -119,6 +165,24 @@ static ParsedType cg_make_float_literal_type(const char* text) {
     }
     t.isComplex = hasImag;
     t.isImaginary = hasImag;
+    return t;
+}
+
+static ParsedType cg_make_int_literal_type(CodegenContext* ctx, const char* text) {
+    ParsedType t;
+    memset(&t, 0, sizeof(t));
+    t.kind = TYPE_PRIMITIVE;
+    t.primitiveType = TOKEN_INT;
+
+    IntegerLiteralInfo info;
+    const TargetLayout* tl = cg_context_get_target_layout(ctx);
+    unsigned intBits = (unsigned)((tl && tl->intBits) ? tl->intBits : 32);
+    if (parse_integer_literal_info(text, tl, &info) && info.ok) {
+        t.isUnsigned = info.isUnsigned;
+        if (info.bits > intBits) {
+            t.primitiveType = TOKEN_LONG;
+        }
+    }
     return t;
 }
 
@@ -491,6 +555,18 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
         }
         return NULL;
     }
+    if (getenv("DEBUG_PTR_ARITH") && pointerParsed) {
+        fprintf(stderr, "[ptr-arith] pointerDepth=%d derivations=", pointerParsed->pointerDepth);
+        for (size_t i = 0; i < pointerParsed->derivationCount; ++i) {
+            const TypeDerivation* deriv = &pointerParsed->derivations[i];
+            const char* kind = "?";
+            if (deriv->kind == TYPE_DERIVATION_ARRAY) kind = "array";
+            else if (deriv->kind == TYPE_DERIVATION_POINTER) kind = "ptr";
+            else if (deriv->kind == TYPE_DERIVATION_FUNCTION) kind = "func";
+            fprintf(stderr, "%s%s", (i ? "," : ""), kind);
+        }
+        fprintf(stderr, "\n");
+    }
     /* If we got a pointer-to-array (e.g., the name of an array variable), decay
        to the element pointer before computing offsets. */
     const ParsedType* elemParsed = pointerParsed;
@@ -534,13 +610,21 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
 
     /* Determine element size; prefer semantic info, fall back to LLVM sizes, then 1 byte. */
     LLVMTypeRef elementType = cg_element_type_from_pointer(ctx, elemParsed, ptrType);
+    ParsedType targetParsed = parsedTypePointerTargetType(elemParsed);
+    const ParsedType* sizeParsed = elemParsed;
+    if (targetParsed.kind != TYPE_INVALID) {
+        sizeParsed = &targetParsed;
+    }
     uint64_t elemSize = 0;
     uint32_t elemAlign = 0;
-    if (!cg_size_align_for_type(ctx, elemParsed, elementType, &elemSize, &elemAlign) || elemSize == 0) {
+    if (!cg_size_align_for_type(ctx, sizeParsed, elementType, &elemSize, &elemAlign) || elemSize == 0) {
         LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
         if (td && elementType) {
             elemSize = LLVMABISizeOfType(td, elementType);
         }
+    }
+    if (targetParsed.kind != TYPE_INVALID) {
+        parsedTypeFree(&targetParsed);
     }
     if (elemSize == 0) elemSize = 1;
 
@@ -669,7 +753,15 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
                 *slot = cg_make_float_literal_type(node->valueNode.value);
                 return slot;
             }
-            return cg_builtin_signed_int_type();
+            {
+                static ParsedType litTypes[4];
+                static int litIndex = 0;
+                ParsedType* slot = &litTypes[litIndex];
+                litIndex = (litIndex + 1) % 4;
+                parsedTypeFree(slot);
+                *slot = cg_make_int_literal_type(ctx, node->valueNode.value);
+                return slot;
+            }
         case AST_CHAR_LITERAL:
             return cg_builtin_signed_int_type();
         case AST_SIZEOF:

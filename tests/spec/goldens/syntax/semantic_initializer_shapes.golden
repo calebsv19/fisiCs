@@ -32,7 +32,7 @@ PROGRAM
         IDENTIFIER p_bad
           = NUMBER_LITERAL 5
       VAR_DECL
-        TYPE: int [NUMBER_LITERAL 2]
+        TYPE: int [2]
         IDENTIFIER arr_too_many
             = NUMBER_LITERAL 1
 
@@ -41,17 +41,17 @@ PROGRAM
             = NUMBER_LITERAL 3
 
       VAR_DECL
-        TYPE: int [NUMBER_LITERAL 3]
+        TYPE: int [3]
         IDENTIFIER arr_too_few
             = NUMBER_LITERAL 1
 
       VAR_DECL
-        TYPE: int [NUMBER_LITERAL 2]
+        TYPE: int [2]
         IDENTIFIER arr_designator
             [NUMBER_LITERAL 2] = NUMBER_LITERAL 5
 
       VAR_DECL
-        TYPE: int [NUMBER_LITERAL 1]
+        TYPE: int [1]
         IDENTIFIER nested
             = 
               = NUMBER_LITERAL 1
@@ -59,7 +59,7 @@ PROGRAM
               = NUMBER_LITERAL 2
 
       VAR_DECL
-        TYPE: char [NUMBER_LITERAL 3]
+        TYPE: char [3]
         IDENTIFIER label
             = STRING_LITERAL "abcd"
 

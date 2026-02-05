@@ -13,7 +13,7 @@ PROGRAM
         IDENTIFIER c
           = NUMBER_LITERAL 0
       VAR_DECL
-        TYPE: int [NUMBER_LITERAL 2]
+        TYPE: int [2]
         IDENTIFIER array
             = NUMBER_LITERAL 1
 

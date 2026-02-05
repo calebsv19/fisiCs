@@ -15,6 +15,8 @@
 static const uint64_t FNV_OFFSET = 1469598103934665603ULL;
 static const uint64_t FNV_PRIME  = 1099511628211ULL;
 
+static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope);
+
 static const ParsedType* resolveTypedefBase(Scope* scope, const ParsedType* type, int depth) {
     if (!scope || !type || depth > 16) {
         return type;
@@ -263,6 +265,7 @@ static void resetFunctionSignature(Symbol* sym) {
     sym->signature.params = NULL;
     sym->signature.paramCount = 0;
     sym->signature.isVariadic = false;
+    sym->signature.hasPrototype = false;
 }
 
 static int countParameterDeclarators(ASTNode** params, size_t paramCount) {
@@ -295,6 +298,7 @@ static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramC
     sym->signature.params = NULL;
     sym->signature.paramCount = 0;
     sym->signature.isVariadic = isVariadic;
+    sym->signature.hasPrototype = false;
     sym->signature.callConv = CALLCONV_DEFAULT;
 
     if (!params || paramCount == 0) {
@@ -307,6 +311,7 @@ static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramC
     }
 
     if (totalDecls == 1 && isVoidParameterDecl(params[0]) && !isVariadic) {
+        sym->signature.hasPrototype = true;
         return;
     }
 
@@ -332,20 +337,16 @@ static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramC
         }
     }
     sym->signature.paramCount = idx;
+    sym->signature.hasPrototype = true;
 }
 
 static bool functionSignaturesCompatible(const FunctionSignature* lhs, const FunctionSignature* rhs) {
     if (!lhs || !rhs) return true;
-    if ((lhs->paramCount == 0 && !lhs->params && lhs->isVariadic) ||
-        (rhs->paramCount == 0 && !rhs->params && rhs->isVariadic)) {
+    if (!lhs->hasPrototype || !rhs->hasPrototype) {
         return true;
     }
     if ((lhs->paramCount > 0 && !lhs->params) ||
         (rhs->paramCount > 0 && !rhs->params)) {
-        return true;
-    }
-    if ((lhs->paramCount == 0 && !lhs->isVariadic) ||
-        (rhs->paramCount == 0 && !rhs->isVariadic)) {
         return true;
     }
     if (lhs->paramCount != rhs->paramCount) return false;
@@ -732,6 +733,29 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
 
             Symbol* existing = lookupSymbol(&scope->table, funcName->valueNode.value);
             if (existing && existing->kind == SYMBOL_FUNCTION) {
+                if (!existing->definition) {
+                    existing->type = node->type == AST_FUNCTION_DEFINITION
+                        ? node->functionDef.returnType
+                        : node->functionDecl.returnType;
+                    resetFunctionSignature(existing);
+                    if (node->type == AST_FUNCTION_DEFINITION) {
+                        assignFunctionSignature(existing,
+                                                node->functionDef.parameters,
+                                                node->functionDef.paramCount,
+                                                node->functionDef.isVariadic);
+                    } else {
+                        assignFunctionSignature(existing,
+                                                node->functionDecl.parameters,
+                                                node->functionDecl.paramCount,
+                                                node->functionDecl.isVariadic);
+                    }
+                    existing->definition = node;
+                    existing->storage = storage;
+                    existing->linkage = linkage;
+                    existing->hasDefinition = isDefinition;
+                    applyInteropAttributes(existing, node, scope, true);
+                    break;
+                }
                 if (node->type == AST_FUNCTION_DEFINITION &&
                     existing->definition &&
                     existing->definition->type == AST_FUNCTION_DEFINITION) {
@@ -1156,6 +1180,9 @@ static void validateVariableInitializer(ParsedType* type,
     }
 
     if (staticStorage && init->expression && init->expression->type != AST_COMPOUND_LITERAL) {
+        if (typeInfoIsPointerLike(&info) && isFunctionAddressConstant(init->expression, scope)) {
+            return;
+        }
         long long ignored = 0;
         if (!constEvalInteger(init->expression, scope, &ignored, true)) {
             char buffer[256];
@@ -1171,9 +1198,49 @@ static bool typeInfoIsCharLike(const TypeInfo* info) {
     return info && info->category == TYPEINFO_INTEGER && info->bitWidth == 8;
 }
 
+static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope) {
+    if (!expr || !scope) return false;
+    ASTNode* target = expr;
+    if (expr->type == AST_UNARY_EXPRESSION &&
+        expr->expr.op &&
+        strcmp(expr->expr.op, "&") == 0 &&
+        expr->expr.left) {
+        target = expr->expr.left;
+    }
+    if (!target || target->type != AST_IDENTIFIER) {
+        return false;
+    }
+    Symbol* sym = resolveInScopeChain(scope, target->valueNode.value);
+    return sym && sym->kind == SYMBOL_FUNCTION;
+}
+
 static bool isStringLiteralInitializer(DesignatedInit* init) {
     return init && !init->fieldName && !init->indexExpr &&
            init->expression && init->expression->type == AST_STRING_LITERAL;
+}
+
+static bool array_inner_block_size(const ParsedType* type, size_t* outSize) {
+    if (!type || !outSize) return false;
+    size_t block = 1;
+    bool saw = false;
+    for (size_t dim = 1; ; ++dim) {
+        const TypeDerivation* arr = parsedTypeGetArrayDerivation(type, dim);
+        if (!arr) break;
+        if (arr->as.array.isVLA || !arr->as.array.hasConstantSize) {
+            return false;
+        }
+        if (arr->as.array.constantSize < 0) {
+            return false;
+        }
+        block *= (size_t)arr->as.array.constantSize;
+        saw = true;
+    }
+    if (!saw) {
+        *outSize = 1;
+        return true;
+    }
+    *outSize = block;
+    return true;
 }
 
 static void validateArrayInitializerEntries(ParsedType* type,
@@ -1262,6 +1329,46 @@ static void validateArrayInitializerEntries(ParsedType* type,
         }
     }
 
+    bool hasDesignators = false;
+    bool hasCompound = false;
+    size_t scalarCount = 0;
+    for (size_t i = 0; i < valueCount; ++i) {
+        DesignatedInit* init = values[i];
+        if (!init || !init->expression) continue;
+        if (init->indexExpr || init->fieldName) {
+            hasDesignators = true;
+        }
+        if (init->expression->type == AST_COMPOUND_LITERAL) {
+            hasCompound = true;
+        }
+        scalarCount++;
+    }
+
+    if (elementIsArray && !hasDesignators && !hasCompound) {
+        size_t block = 0;
+        if (array_inner_block_size(type, &block) && block > 0) {
+            if (hasDeclaredLen) {
+                size_t capacity = declaredLen * block;
+                if (scalarCount > capacity) {
+                    char buffer[256];
+                    snprintf(buffer, sizeof(buffer),
+                             "Too many initializers for array '%s' (size %zu)",
+                             arrayName,
+                             capacity);
+                    addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+                }
+                parsedTypeFree(&elementParsed);
+                return;
+            }
+            if (outInferredLength && scalarCount > 0) {
+                size_t inferred = (scalarCount + block - 1) / block;
+                *outInferredLength = (long long)inferred;
+                parsedTypeFree(&elementParsed);
+                return;
+            }
+        }
+    }
+
     size_t sequentialCount = 0;
     size_t highestIndex = 0;
     bool sawAny = false;
@@ -1287,6 +1394,7 @@ static void validateArrayInitializerEntries(ParsedType* type,
             }
             if (indexValue >= 0) {
                 size_t candidate = (size_t)indexValue + 1;
+                sequentialCount = candidate;
                 if (candidate > highestIndex) {
                     highestIndex = candidate;
                 }

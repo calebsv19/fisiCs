@@ -7,7 +7,7 @@ PROGRAM
     TYPE: struct Node
     IDENTIFIER ok_obj
   VAR_DECL
-    TYPE: struct Node [NUMBER_LITERAL 2]
+    TYPE: struct Node [2]
     IDENTIFIER arr
   FUNCTION DEFINITION
     RETURN TYPE: int

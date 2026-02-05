@@ -39,6 +39,10 @@ Tokenization for all C99 literals, operators, and alternative tokens.
    - Binary literal tokenization (0b/0B).
 11) `02__float_hex_no_exponent`
    - Hex float without exponent handling.
+12) `02__literal_semantics`
+   - Literal value folding (hex/octal), multi-char constants, backslash-newline splicing, UTF prefixes.
+13) `02__int_overflow_diag`
+   - Integer literal overflow diagnostics.
 
 ## Expected Outputs
 - Token stream expectations (`.tokens`) for all cases.

@@ -1,0 +1,31 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
+          = 
+            SIZEOF
+                            PARSED_TYPE int [2]
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER z
+          = 
+            SIZEOF
+                            COMPOUND_LITERAL
+                TYPE: const int [?]
+                = NUMBER_LITERAL 1
+
+                = NUMBER_LITERAL 2
+
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER y
+          IDENTIFIER z

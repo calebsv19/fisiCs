@@ -106,7 +106,11 @@ def main():
             skipped += 1
             continue
 
-        input_path = ROOT / test["input"]
+        inputs = test.get("inputs")
+        if inputs:
+            input_paths = [ROOT / p for p in inputs]
+        else:
+            input_paths = [ROOT / test["input"]]
         expects = [ROOT / p for p in test.get("expects", [])]
 
         has_ast = any(p.suffix == ".ast" for p in expects)
@@ -114,7 +118,7 @@ def main():
         has_tokens = any(p.suffix == ".tokens" for p in expects)
         has_ir = any(p.suffix == ".ir" for p in expects)
 
-        cmd = [bin_path, str(input_path)]
+        cmd = [bin_path] + [str(p) for p in input_paths]
         if has_tokens:
             if not enable_token_dump:
                 print(f"SKIP {test_id}: requires token-dump")

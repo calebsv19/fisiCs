@@ -124,10 +124,10 @@ PROGRAM
         TYPE: __uint32_t
         Alias:     IDENTIFIER __darwin_useconds_t
   TYPEDEF
-        TYPE: unsigned char [NUMBER_LITERAL 16]
+        TYPE: unsigned char [16]
         Alias:     IDENTIFIER __darwin_uuid_t
   TYPEDEF
-        TYPE: char [NUMBER_LITERAL 37]
+        TYPE: char [37]
         Alias:     IDENTIFIER __darwin_uuid_string_t
   STRUCT
         Name:     IDENTIFIER __darwin_pthread_handler_rec
@@ -146,7 +146,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 56]
+      TYPE: char [56]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_cond_t
@@ -154,7 +154,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 40]
+      TYPE: char [40]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_condattr_t
@@ -162,7 +162,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 8]
+      TYPE: char [8]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_mutex_t
@@ -170,7 +170,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 56]
+      TYPE: char [56]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_mutexattr_t
@@ -178,7 +178,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 8]
+      TYPE: char [8]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_once_t
@@ -186,7 +186,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 8]
+      TYPE: char [8]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_rwlock_t
@@ -194,7 +194,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 192]
+      TYPE: char [192]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_rwlockattr_t
@@ -202,7 +202,7 @@ PROGRAM
       TYPE: long int
       IDENTIFIER __sig
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 16]
+      TYPE: char [16]
       IDENTIFIER __opaque
   STRUCT
         Name:     IDENTIFIER _opaque_pthread_t
@@ -213,7 +213,7 @@ PROGRAM
       TYPE: struct __darwin_pthread_handler_rec*
       IDENTIFIER __cleanup_stack
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 8176]
+      TYPE: char [8176]
       IDENTIFIER __opaque
   TYPEDEF
         TYPE: struct _opaque_pthread_attr_t
@@ -347,7 +347,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_arm_thread_state
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 13]
+      TYPE: __uint32_t [13]
       IDENTIFIER __r
     VAR_DECL
       TYPE: __uint32_t
@@ -364,7 +364,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_arm_thread_state64
     VAR_DECL
-      TYPE: __uint64_t [NUMBER_LITERAL 29]
+      TYPE: __uint64_t [29]
       IDENTIFIER __x
     VAR_DECL
       TYPE: __uint64_t
@@ -387,7 +387,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_arm_vfp_state
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 64]
+      TYPE: __uint32_t [64]
       IDENTIFIER __r
     VAR_DECL
       TYPE: __uint32_t
@@ -395,7 +395,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_arm_neon_state64
     VAR_DECL
-      TYPE: __uint128_t [NUMBER_LITERAL 32]
+      TYPE: __uint128_t [32]
       IDENTIFIER __v
     VAR_DECL
       TYPE: __uint32_t
@@ -406,7 +406,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_arm_neon_state
     VAR_DECL
-      TYPE: __uint128_t [NUMBER_LITERAL 16]
+      TYPE: __uint128_t [16]
       IDENTIFIER __v
     VAR_DECL
       TYPE: __uint32_t
@@ -434,53 +434,53 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_arm_sve_z_state
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 16] [NUMBER_LITERAL 256]
+      TYPE: char [16] [256]
       IDENTIFIER __z
   ATTRIBUTE [GNU] aligned(4)
   STRUCT
         Name:     IDENTIFIER __darwin_arm_sve_p_state
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 16] [(Unrecognized for inline: type 19)]
+      TYPE: char [16] [(Unrecognized for inline: type 19)]
       IDENTIFIER __p
   ATTRIBUTE [GNU] aligned(4)
   STRUCT
         Name:     IDENTIFIER __darwin_arm_sme_za_state
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 4096]
+      TYPE: char [4096]
       IDENTIFIER __za
   ATTRIBUTE [GNU] aligned(4)
   STRUCT
         Name:     IDENTIFIER __darwin_arm_sme2_state
     VAR_DECL
-      TYPE: char [NUMBER_LITERAL 64]
+      TYPE: char [64]
       IDENTIFIER __zt0
   STRUCT
         Name:     IDENTIFIER __arm_legacy_debug_state
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      TYPE: __uint32_t [16]
       IDENTIFIER __bvr
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      TYPE: __uint32_t [16]
       IDENTIFIER __bcr
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      TYPE: __uint32_t [16]
       IDENTIFIER __wvr
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      TYPE: __uint32_t [16]
       IDENTIFIER __wcr
   STRUCT
         Name:     IDENTIFIER __darwin_arm_debug_state32
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      TYPE: __uint32_t [16]
       IDENTIFIER __bvr
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      TYPE: __uint32_t [16]
       IDENTIFIER __bcr
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      TYPE: __uint32_t [16]
       IDENTIFIER __wvr
     VAR_DECL
-      TYPE: __uint32_t [NUMBER_LITERAL 16]
+      TYPE: __uint32_t [16]
       IDENTIFIER __wcr
     VAR_DECL
       TYPE: __uint64_t
@@ -488,16 +488,16 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_arm_debug_state64
     VAR_DECL
-      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      TYPE: __uint64_t [16]
       IDENTIFIER __bvr
     VAR_DECL
-      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      TYPE: __uint64_t [16]
       IDENTIFIER __bcr
     VAR_DECL
-      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      TYPE: __uint64_t [16]
       IDENTIFIER __wvr
     VAR_DECL
-      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      TYPE: __uint64_t [16]
       IDENTIFIER __wcr
     VAR_DECL
       TYPE: __uint64_t
@@ -505,7 +505,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_arm_cpmu_state64
     VAR_DECL
-      TYPE: __uint64_t [NUMBER_LITERAL 16]
+      TYPE: __uint64_t [16]
       IDENTIFIER __ctrs
   STRUCT
         Name:     IDENTIFIER __darwin_mcontext32
@@ -678,10 +678,10 @@ PROGRAM
         TYPE: __darwin_pthread_t
         Alias:     IDENTIFIER pthread_t
   VAR_DECL
-    TYPE: extern const char* const [NUMBER_LITERAL 32]
+    TYPE: extern const char* const [32]
     IDENTIFIER sys_signame
   VAR_DECL
-    TYPE: extern const char* const [NUMBER_LITERAL 32]
+    TYPE: extern const char* const [32]
     IDENTIFIER sys_siglist
   FUNCTION DECLARATION
     RETURN TYPE: int

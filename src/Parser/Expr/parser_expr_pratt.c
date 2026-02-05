@@ -118,6 +118,10 @@ static ASTNode* parseGNUStatementExpression(Parser* parser) {
 
 // Main Pratt parser loop
 ASTNode* parseExpressionPratt(Parser* parser, int minPrecedence) {
+    if (!isValidExpressionStart(parser->currentToken.type)) {
+        printParseError("Unexpected token at start of expression", parser);
+        return NULL;
+    }
     Token token = parser->currentToken;
     advance(parser);
 
@@ -438,9 +442,9 @@ static ASTNode* led(Parser* parser, ASTNode* left, Token token) {
 	}
 */
 	case TOKEN_QUESTION: {
-	    // parse the 'then' arm with rbp = p-1 so nested ?: binds inside
-	    int rbp = getTokenRightBindingPower(type); // will be -1 with our table
-	    ASTNode* thenExpr = parseExpressionPratt(parser, rbp);
+	    // Allow comma expressions in the true arm (C grammar uses full "expression" here).
+	    int rbp = getTokenRightBindingPower(type); // right-assoc for else arm
+	    ASTNode* thenExpr = parseExpressionPratt(parser, -1);
 	    if (!thenExpr) return NULL;	
 
 	    if (parser->currentToken.type != TOKEN_COLON) {
@@ -449,7 +453,7 @@ static ASTNode* led(Parser* parser, ASTNode* left, Token token) {
 	    }
 	    advance(parser); // consume ':'
 	
-	    // parse the 'else' arm with the same rbp (right-associative)
+	    // Else arm is a conditional-expression; keep comma out (handled outside).
 	    ASTNode* elseExpr = parseExpressionPratt(parser, rbp);
 	    if (!elseExpr) return NULL;
 	
@@ -655,6 +659,9 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
     bool isBuiltinVaArg = calleeName &&
                           (strcmp(calleeName, "__builtin_va_arg") == 0 ||
                            strcmp(calleeName, "va_arg") == 0);
+    bool isBuiltinOffsetof = calleeName &&
+                             (strcmp(calleeName, "__builtin_offsetof") == 0 ||
+                              strcmp(calleeName, "offsetof") == 0);
 
     size_t argCapacity = 4;
     size_t argCount = 0;
@@ -668,7 +675,19 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
     if (parser->currentToken.type != TOKEN_RPAREN) {
         while (1) {
             ASTNode* arg = NULL;
-            if (isBuiltinVaArg && argCount == 1 && looksLikeTypeDeclaration(parser)) {
+            if (isBuiltinOffsetof && argCount == 0 && looksLikeTypeDeclaration(parser)) {
+                ParsedType ty = parseType(parser);
+                arg = createParsedTypeNode(ty);
+            } else if (isBuiltinOffsetof && argCount == 1) {
+                if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+                    arg = createIdentifierNode(parser->currentToken.value);
+                    advance(parser);
+                } else {
+                    printParseError("Expected field name in __builtin_offsetof", parser);
+                    free(argList);
+                    return NULL;
+                }
+            } else if (isBuiltinVaArg && argCount == 1 && looksLikeTypeDeclaration(parser)) {
                 ParsedType ty = parseType(parser);
                 arg = createParsedTypeNode(ty);
             } else {
@@ -915,9 +934,15 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
         ParsedType probeType = parseTypeCtx(&temp, TYPECTX_Strict);
         bool looksLikeType = (probeType.kind != TYPE_INVALID);
         if (looksLikeType) {
-            consumeAbstractDeclarator(&temp);
-            looksLikeType = (temp.currentToken.type == TOKEN_RPAREN);
+            ParsedDeclarator probeDecl;
+            if (parserParseDeclarator(&temp, &probeType, false, false, false, &probeDecl)) {
+                parserDeclaratorDestroy(&probeDecl);
+                looksLikeType = (temp.currentToken.type == TOKEN_RPAREN);
+            } else {
+                looksLikeType = false;
+            }
         }
+        parsedTypeFree(&probeType);
         freeParserClone(&temp);
 
         if (looksLikeType) {
@@ -927,7 +952,16 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
                 printParseError("Invalid type in sizeof(type)", parser);
                 return NULL;
             }
-            consumeAbstractDeclarator(parser);
+            ParsedDeclarator abstractDecl;
+            if (!parserParseDeclarator(parser, &realType, false, false, false, &abstractDecl)) {
+                parsedTypeFree(&realType);
+                printParseError("Invalid abstract declarator in sizeof(type)", parser);
+                return NULL;
+            }
+            parsedTypeFree(&realType);
+            realType = abstractDecl.type;
+            memset(&abstractDecl.type, 0, sizeof(abstractDecl.type));
+            parserDeclaratorDestroy(&abstractDecl);
             if (parser->currentToken.type != TOKEN_RPAREN) {
                 printParseError("Expected ')' after sizeof(type)", parser);
                 return NULL;
@@ -953,9 +987,15 @@ ASTNode* parseAlignofExpressionPratt(Parser* parser) {
         ParsedType probeType = parseTypeCtx(&temp, TYPECTX_Strict);
         bool looksLikeType = (probeType.kind != TYPE_INVALID);
         if (looksLikeType) {
-            consumeAbstractDeclarator(&temp);
-            looksLikeType = (temp.currentToken.type == TOKEN_RPAREN);
+            ParsedDeclarator probeDecl;
+            if (parserParseDeclarator(&temp, &probeType, false, false, false, &probeDecl)) {
+                parserDeclaratorDestroy(&probeDecl);
+                looksLikeType = (temp.currentToken.type == TOKEN_RPAREN);
+            } else {
+                looksLikeType = false;
+            }
         }
+        parsedTypeFree(&probeType);
         freeParserClone(&temp);
 
         if (looksLikeType) {
@@ -965,7 +1005,16 @@ ASTNode* parseAlignofExpressionPratt(Parser* parser) {
                 printParseError("Invalid type in alignof(type)", parser);
                 return NULL;
             }
-            consumeAbstractDeclarator(parser);
+            ParsedDeclarator abstractDecl;
+            if (!parserParseDeclarator(parser, &realType, false, false, false, &abstractDecl)) {
+                parsedTypeFree(&realType);
+                printParseError("Invalid abstract declarator in alignof(type)", parser);
+                return NULL;
+            }
+            parsedTypeFree(&realType);
+            realType = abstractDecl.type;
+            memset(&abstractDecl.type, 0, sizeof(abstractDecl.type));
+            parserDeclaratorDestroy(&abstractDecl);
             if (parser->currentToken.type != TOKEN_RPAREN) {
                 printParseError("Expected ')' after alignof(type)", parser);
                 return NULL;

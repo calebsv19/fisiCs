@@ -34,6 +34,9 @@ void addWarning(int line, int column, const char* message, const char* hint) {
 void addErrorFromToken(const Token* tok, const char* message, const char* hint) {
     if (!g_ctx) return;
     SourceRange loc = tok ? tok->location : make_range_from_linecol(0, 0);
+    if (tok && tok->macroCallSite.start.file) {
+        loc = tok->macroCallSite;
+    }
     compiler_report_diag(g_ctx, loc, DIAG_ERROR, CDIAG_SEMANTIC_GENERIC, hint, "%s", message ? message : "error");
 }
 
@@ -43,9 +46,12 @@ void addErrorWithRanges(SourceRange spelling,
                         const char* message,
                         const char* hint) {
     if (!g_ctx) return;
-    (void)macroCallSite;
     (void)macroDefinition;
-    compiler_report_diag(g_ctx, spelling, DIAG_ERROR, CDIAG_SEMANTIC_GENERIC, hint, "%s", message ? message : "error");
+    SourceRange loc = spelling;
+    if (macroCallSite.start.file) {
+        loc = macroCallSite;
+    }
+    compiler_report_diag(g_ctx, loc, DIAG_ERROR, CDIAG_SEMANTIC_GENERIC, hint, "%s", message ? message : "error");
 }
 
 static void print_one(const FisicsDiagnostic* d) {

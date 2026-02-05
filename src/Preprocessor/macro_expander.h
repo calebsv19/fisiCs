@@ -17,6 +17,9 @@ typedef struct {
     const char* dateString;
     const char* timeString;
     int* counter;
+    const char** logicalFile;
+    int* lineOffset;
+    bool* lineRemapActive;
 } PPBuiltinState;
 
 typedef struct {

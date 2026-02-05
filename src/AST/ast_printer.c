@@ -123,7 +123,13 @@ static void printParsedType_inner(const ParsedType* pt) {
                 } else if (deriv->as.array.hasConstantSize) {
                     printf("%lld", deriv->as.array.constantSize);
                 } else if (deriv->as.array.sizeExpr) {
-                    printBasicAST(deriv->as.array.sizeExpr, 0, true);
+                    if (deriv->as.array.sizeExpr->type == AST_NUMBER_LITERAL) {
+                        printf("%s", deriv->as.array.sizeExpr->valueNode.value
+                            ? deriv->as.array.sizeExpr->valueNode.value
+                            : "");
+                    } else {
+                        printBasicAST(deriv->as.array.sizeExpr, 0, true);
+                    }
                 } else {
                     printf("?");
                 }

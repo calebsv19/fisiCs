@@ -9,7 +9,7 @@ PROGRAM
         IDENTIFIER __unnamed_param0
     BLOCK
       VAR_DECL
-        TYPE: int [NUMBER_LITERAL 5]
+        TYPE: int [5]
         IDENTIFIER arr
             = NUMBER_LITERAL 0
 

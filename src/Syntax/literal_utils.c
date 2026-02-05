@@ -1,9 +1,155 @@
 #include "literal_utils.h"
+#include "target_layout.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+static uint64_t max_unsigned_for_bits(unsigned bits) {
+    if (bits == 0 || bits >= 64) return UINT64_MAX;
+    return (1ULL << bits) - 1ULL;
+}
+
+static uint64_t max_signed_for_bits(unsigned bits) {
+    if (bits == 0 || bits >= 64) return INT64_MAX;
+    return (1ULL << (bits - 1)) - 1ULL;
+}
+
+static bool fits_in_bits(uint64_t value, unsigned bits, bool isUnsigned) {
+    if (isUnsigned) {
+        return value <= max_unsigned_for_bits(bits);
+    }
+    return value <= max_signed_for_bits(bits);
+}
+
+bool parse_integer_literal_info(const char* text,
+                                const struct TargetLayout* layout,
+                                IntegerLiteralInfo* out) {
+    if (!out) return false;
+    memset(out, 0, sizeof(*out));
+    if (!text || !*text) return false;
+
+    bool negative = false;
+    const char* p = text;
+    if (*p == '+' || *p == '-') {
+        negative = (*p == '-');
+        p++;
+    }
+
+    int base = 10;
+    if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X')) {
+        base = 16;
+        p += 2;
+    } else if (p[0] == '0' && (p[1] == 'b' || p[1] == 'B')) {
+        base = 2;
+        p += 2;
+    } else if (p[0] == '0') {
+        base = 8;
+    }
+
+    errno = 0;
+    char* endptr = NULL;
+    unsigned long long raw = strtoull(p, &endptr, base);
+    if (endptr == p) {
+        return false;
+    }
+
+    bool overflow = (errno == ERANGE);
+    bool hasU = false;
+    int lCount = 0;
+    for (const char* s = endptr; *s; ++s) {
+        if (*s == 'u' || *s == 'U') {
+            if (hasU) return false;
+            hasU = true;
+            continue;
+        }
+        if (*s == 'l' || *s == 'L') {
+            lCount++;
+            continue;
+        }
+        return false;
+    }
+    if (lCount > 2) lCount = 2;
+
+    const TargetLayout* tl = layout ? layout : tl_default();
+    unsigned intBits = (unsigned)(tl && tl->intBits ? tl->intBits : 32);
+    unsigned longBits = (unsigned)(tl && tl->longBits ? tl->longBits : 64);
+    unsigned longLongBits = (unsigned)(tl && tl->longLongBits ? tl->longLongBits : 64);
+
+    typedef struct { unsigned bits; bool isUnsigned; } Candidate;
+    Candidate cands[8];
+    int candCount = 0;
+    #define ADD(bitsVal, unsVal) do { cands[candCount].bits = (bitsVal); cands[candCount].isUnsigned = (unsVal); candCount++; } while (0)
+
+    if (hasU) {
+        if (lCount >= 2) {
+            ADD(longLongBits, true);
+        } else if (lCount == 1) {
+            ADD(longBits, true);
+            ADD(longLongBits, true);
+        } else {
+            ADD(intBits, true);
+            ADD(longBits, true);
+            ADD(longLongBits, true);
+        }
+    } else if (lCount >= 2) {
+        ADD(longLongBits, false);
+        ADD(longLongBits, true);
+    } else if (lCount == 1) {
+        ADD(longBits, false);
+        ADD(longLongBits, false);
+        ADD(longLongBits, true);
+    } else {
+        if (base == 10) {
+            ADD(intBits, false);
+            ADD(longBits, false);
+            ADD(longLongBits, false);
+            ADD(longLongBits, true);
+        } else {
+            ADD(intBits, false);
+            ADD(intBits, true);
+            ADD(longBits, false);
+            ADD(longBits, true);
+            ADD(longLongBits, false);
+            ADD(longLongBits, true);
+        }
+    }
+    #undef ADD
+
+    int chosen = candCount - 1;
+    for (int i = 0; i < candCount; ++i) {
+        if (fits_in_bits(raw, cands[i].bits, cands[i].isUnsigned)) {
+            chosen = i;
+            break;
+        }
+    }
+
+    unsigned bits = cands[chosen].bits;
+    bool isUnsigned = cands[chosen].isUnsigned;
+    if (!fits_in_bits(raw, bits, isUnsigned)) {
+        overflow = true;
+    }
+
+    uint64_t masked = raw;
+    if (bits > 0 && bits < 64) {
+        uint64_t mask = (1ULL << bits) - 1ULL;
+        masked &= mask;
+        if (!isUnsigned && negative) {
+            masked = (~masked + 1ULL) & mask;
+        }
+    } else if (negative) {
+        masked = (uint64_t)(-(long long)raw);
+    }
+
+    out->ok = true;
+    out->overflow = overflow;
+    out->bits = bits;
+    out->isUnsigned = isUnsigned;
+    out->value = masked;
+    return true;
+}
 
 static bool hexValue(char c, uint32_t* out) {
     if (c >= '0' && c <= '9') { *out = (uint32_t)(c - '0'); return true; }

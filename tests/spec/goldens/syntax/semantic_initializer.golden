@@ -26,7 +26,7 @@ PROGRAM
             .x = IDENTIFIER base
 
             .y = (Unrecognized for inline: type 19)      VAR_DECL
-        TYPE: int [NUMBER_LITERAL 2]
+        TYPE: int [2]
         IDENTIFIER values
             = IDENTIFIER base
 

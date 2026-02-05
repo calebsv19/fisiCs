@@ -37,6 +37,8 @@ Namespaces, redeclarations, and linkage behavior.
    - Tentative definition conflicts with static.
 11) `10__extern_array_mismatch`
    - extern array size mismatch.
+12) `10__tentative_definition_multi_tu`
+   - Multiple tentative definitions across translation units link cleanly.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for scope and linkage behavior.

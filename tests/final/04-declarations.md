@@ -8,6 +8,7 @@ Declarators, type qualifiers, aggregates, and C99 declaration features.
 - struct/union/enum definitions and forward decls.
 - Designated initializers and compound literals.
 - Bit-fields, flexible arrays, VLAs, inline (if supported).
+- Array parameter qualifiers (`static`/`const`/`restrict`/`volatile`) and minimum-size warnings.
 
 ## Test Ideas
 ## Acceptance Checklist
@@ -28,6 +29,8 @@ Declarators, type qualifiers, aggregates, and C99 declaration features.
    - .field and [index] designators.
 5) `04__bitfields_flex`
    - bit-fields and flexible array member.
+6) `04__array_param_qualifiers`
+   - array parameter qualifiers and `static` size warnings.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for parsing and declaration structure.

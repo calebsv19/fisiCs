@@ -7,6 +7,7 @@ Scalar vs aggregate initialization and layout-sensitive rules.
 - Brace elision and designator reset rules.
 - Zero-init for omitted fields.
 - Constant expression constraints for static storage.
+- Struct/union layout offsets and sizes match target layout.
 
 ## Acceptance Checklist
 - Scalar and aggregate initializers parse and type-check.
@@ -31,6 +32,8 @@ Scalar vs aggregate initialization and layout-sensitive rules.
    - Omitted fields default to zero.
 8) `08__string_init_too_long`
    - String initializer exceeds array bounds.
+9) `08__layout_offsets`
+   - Struct/union layout offsets and sizes via pointer comparisons and `sizeof`.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for initializer shape and errors.

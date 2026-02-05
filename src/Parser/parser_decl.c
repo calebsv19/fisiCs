@@ -107,6 +107,60 @@ void pointerChainFree(PointerChain* chain) {
     chain->count = 0;
 }
 
+static void normalizeGroupedArrayPointer(ParsedType* type) {
+    if (!type || type->derivationCount < 2 || !type->derivations) {
+        return;
+    }
+
+    size_t arrayCount = 0;
+    size_t firstArray = (size_t)-1;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        if (type->derivations[i].kind == TYPE_DERIVATION_ARRAY) {
+            arrayCount++;
+            firstArray = i;
+        }
+    }
+    if (arrayCount != 1) {
+        return;
+    }
+    if (firstArray == (size_t)-1) {
+        return;
+    }
+
+    bool hasPointerAfter = false;
+    for (size_t i = firstArray + 1; i < type->derivationCount; ++i) {
+        if (type->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            hasPointerAfter = true;
+            break;
+        }
+    }
+    if (!hasPointerAfter) {
+        return;
+    }
+
+    TypeDerivation* reordered = (TypeDerivation*)malloc(type->derivationCount * sizeof(TypeDerivation));
+    if (!reordered) {
+        return;
+    }
+
+    size_t out = 0;
+    for (size_t i = firstArray + 1; i < type->derivationCount; ++i) {
+        if (type->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+            reordered[out++] = type->derivations[i];
+        }
+    }
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        bool moved = (i > firstArray && type->derivations[i].kind == TYPE_DERIVATION_POINTER);
+        if (moved) {
+            continue;
+        }
+        reordered[out++] = type->derivations[i];
+    }
+
+    memcpy(type->derivations, reordered, type->derivationCount * sizeof(TypeDerivation));
+    free(reordered);
+}
+
 void applyPointerChainToType(ParsedType* type, const PointerChain* chain) {
     if (!type || !chain || chain->count == 0) {
         return;
@@ -127,9 +181,17 @@ bool parserConsumeArraySuffixes(Parser* parser, ParsedType* type) {
     if (!parser || !type) return false;
     while (parser->currentToken.type == TOKEN_LBRACKET) {
         bool isVLA = false;
-        ASTNode* sizeExpr = parseArraySize(parser, &isVLA);
+        ParsedArrayInfo arrayInfo = {0};
+        ASTNode* sizeExpr = parseArraySize(parser, &isVLA, &arrayInfo);
         if (!parsedTypeAppendArray(type, sizeExpr, isVLA)) {
             return false;
+        }
+        TypeDerivation* arr = parsedTypeGetMutableArrayDerivation(type, type->derivationCount - 1);
+        if (arr) {
+            arr->as.array.hasStatic = arrayInfo.hasStatic;
+            arr->as.array.qualConst = arrayInfo.qualConst;
+            arr->as.array.qualVolatile = arrayInfo.qualVolatile;
+            arr->as.array.qualRestrict = arrayInfo.qualRestrict;
         }
     }
     return true;
@@ -225,6 +287,7 @@ static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResu
         parsedTypeFree(&baseType);
 
         parsedTypeAdoptAttributes(&paramType, leadingAttrs, leadingAttrCount);
+        parsedTypeAdjustArrayParameter(&paramType);
 
         if (out->count == capacity) {
             size_t newCap = capacity == 0 ? 4 : capacity * 2;
@@ -438,15 +501,29 @@ static bool parseDeclaratorInternal(Parser* parser,
         }
     }
 
+    bool sawArraySuffix = false;
     while (parser->currentToken.type == TOKEN_LBRACKET ||
            parser->currentToken.type == TOKEN_LPAREN) {
         if (parser->currentToken.type == TOKEN_LBRACKET) {
             bool isVLA = false;
-            ASTNode* sizeExpr = parseArraySize(parser, &isVLA);
+            ParsedArrayInfo arrayInfo = {0};
+            ASTNode* sizeExpr = parseArraySize(parser, &isVLA, &arrayInfo);
             if (!parsedTypeAppendArray(type, sizeExpr, isVLA)) {
                 printParseError("Failed to parse array suffix", parser);
                 return false;
             }
+            TypeDerivation* arr = parsedTypeGetMutableArrayDerivation(type, type->derivationCount - 1);
+            if (arr) {
+                arr->as.array.hasStatic = arrayInfo.hasStatic;
+                arr->as.array.qualConst = arrayInfo.qualConst;
+                arr->as.array.qualVolatile = arrayInfo.qualVolatile;
+                arr->as.array.qualRestrict = arrayInfo.qualRestrict;
+            }
+            if (arr && sizeExpr && sizeExpr->type == AST_NUMBER_LITERAL && sizeExpr->valueNode.value) {
+                arr->as.array.hasConstantSize = true;
+                arr->as.array.constantSize = atoll(sizeExpr->valueNode.value);
+            }
+            sawArraySuffix = true;
         } else {
     if (!parseFunctionSuffix(parser,
                              type,
@@ -466,7 +543,22 @@ static bool parseDeclaratorInternal(Parser* parser,
 
     applyPointerChainToType(type, &chain);
     pointerChainFree(&chain);
+    if (groupedDeclarator && sawArraySuffix) {
+        normalizeGroupedArrayPointer(type);
+    }
     parsedTypeNormalizeFunctionPointer(type);
+    if (getenv("DEBUG_DECLARATOR") && decl && decl->identifier && decl->identifier->valueNode.value) {
+        fprintf(stderr, "[decl] %s: pointerDepth=%d derivations=", decl->identifier->valueNode.value, type->pointerDepth);
+        for (size_t i = 0; i < type->derivationCount; ++i) {
+            const TypeDerivation* deriv = &type->derivations[i];
+            const char* kind = "?";
+            if (deriv->kind == TYPE_DERIVATION_ARRAY) kind = "array";
+            else if (deriv->kind == TYPE_DERIVATION_POINTER) kind = "ptr";
+            else if (deriv->kind == TYPE_DERIVATION_FUNCTION) kind = "func";
+            fprintf(stderr, "%s%s", (i ? "," : ""), kind);
+        }
+        fprintf(stderr, "\n");
+    }
 
     if (requireIdentifier && !decl->identifier) {
         printParseError("Expected identifier in declarator", parser);
@@ -626,13 +718,11 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
             } else {
                 ASTNode* expr = parseExpression(parser);
                 if (!expr) {
-                    printf("Error: Invalid initializer in variable declaration at line %d\n",
-                           parser->currentToken.line);
-                    free(varNames);
-                    free(initializers);
-                    return NULL;
+                    printParseError("Invalid initializer in variable declaration", parser);
+                    init = NULL;
+                } else {
+                    init = createSimpleInit(expr);
                 }
-                init = createSimpleInit(expr);
             }
         }
          

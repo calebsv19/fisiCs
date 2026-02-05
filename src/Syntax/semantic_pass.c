@@ -43,7 +43,6 @@ static Scope* runSemanticAnalysis(ASTNode* root,
                 sym->isTentative &&
                 !sym->hasDefinition) {
                 sym->hasDefinition = true;
-                sym->isTentative = false;
             }
             sym = sym->next;
         }

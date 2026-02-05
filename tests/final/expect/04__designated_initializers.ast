@@ -9,7 +9,7 @@ PROGRAM
       TYPE: int
       IDENTIFIER y
   VAR_DECL
-    TYPE: int [NUMBER_LITERAL 5]
+    TYPE: int [5]
     IDENTIFIER arr
         [NUMBER_LITERAL 2] = NUMBER_LITERAL 7
 

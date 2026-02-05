@@ -7,6 +7,7 @@ Lowering semantics once IR/codegen is enabled.
 - Correct addressing for locals/globals.
 - Struct layout/offsets and short-circuit lowering.
 - Ternary and switch lowering.
+- Volatile loads/stores emit `load volatile`/`store volatile` in IR.
 
 ## Acceptance Checklist
 - IR emitted for basic arithmetic and control flow.
@@ -23,19 +24,21 @@ Lowering semantics once IR/codegen is enabled.
    - Conditional operator lowering.
 4) `13__ir_switch`
    - switch lowering for multiple cases.
-5) `13__ir_ptr_arith`
+5) `13__ir_volatile`
+   - volatile load/store lowering.
+6) `13__ir_ptr_arith`
    - pointer arithmetic lowering.
-6) `13__ir_struct_access`
+7) `13__ir_struct_access`
    - struct field access lowering.
-7) `13__ir_logical_not`
+8) `13__ir_logical_not`
    - logical not lowering.
-8) `13__ir_bitwise`
+9) `13__ir_bitwise`
    - bitwise ops lowering.
-9) `13__ir_short_circuit_side_effect`
+10) `13__ir_short_circuit_side_effect`
    - short-circuit with side effects.
-10) `13__ir_compare_branch`
+11) `13__ir_compare_branch`
    - comparison lowering to boolean.
-11) `13__ir_global_init`
+12) `13__ir_global_init`
    - global initializer emission.
 
 ## Expected Outputs
