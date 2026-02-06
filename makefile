@@ -460,6 +460,7 @@ preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_expr.sh
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_if.sh
+	@MallocNanoZone=0 ./tests/preprocessor/run_pp_ifdef_keyword.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_nested.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_include_stringize.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_include_basic.sh ./$(BIN)
@@ -474,6 +475,7 @@ preprocessor-tests: $(BIN)
 	@./tests/preprocessor/run_pp_macro_recursion.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_macro_depth.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_system_include.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_external_system_include.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_builtin_more.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_pragma_stdc.sh ./$(BIN)
 

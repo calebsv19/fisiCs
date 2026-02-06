@@ -383,6 +383,27 @@ ASTNode* parseStatement(Parser* parser) {
         goto attach_attrs;
     }
 
+    // --- Case labels inside switch bodies (Duff's device, nested blocks) ---
+    if (parser->switchDepth > 0 &&
+        (parser->currentToken.type == TOKEN_CASE || parser->currentToken.type == TOKEN_DEFAULT)) {
+        bool isDefault = (parser->currentToken.type == TOKEN_DEFAULT);
+        advance(parser);
+        if (!isDefault) {
+            ASTNode* caseExpr = parseExpression(parser);
+            if (!caseExpr) {
+                printParseError("case label expression", parser);
+                return NULL;
+            }
+        }
+        if (parser->currentToken.type != TOKEN_COLON) {
+            printParseError("':' after case label", parser);
+            return NULL;
+        }
+        advance(parser);
+        parsed = parseStatement(parser);
+        goto attach_attrs;
+    }
+
     // --- Label ---
     if (parser->currentToken.type == TOKEN_IDENTIFIER &&
         peekNextToken(parser).type == TOKEN_COLON) {

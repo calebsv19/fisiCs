@@ -367,6 +367,13 @@ void pp_report_diag(Preprocessor* pp,
                     ...) {
     if (!pp || !pp->ctx || !fmt) return;
     SourceRange loc = tok ? tok->location : (SourceRange){0};
+    if (!loc.start.file) {
+        const PPIncludeFrame* top = pp_include_stack_top(pp);
+        if (top && top->path) {
+            loc.start.file = top->path;
+            loc.end.file = top->path;
+        }
+    }
     va_list args;
     va_start(args, fmt);
     char buffer[512];

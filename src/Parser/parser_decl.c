@@ -64,6 +64,10 @@ static bool looksLikeIdentifierParamList(Parser* parser) {
 }
 
 
+static bool parser_allows_block_pointers(Parser* parser) {
+    return parser && parser->ctx && cc_extensions_enabled(parser->ctx);
+}
+
 static void consumePointerQualifiers(Parser* parser, PointerDeclaratorLayer* layer) {
     while (parser->currentToken.type == TOKEN_CONST ||
            parser->currentToken.type == TOKEN_VOLATILE ||
@@ -83,7 +87,8 @@ static void consumePointerQualifiers(Parser* parser, PointerDeclaratorLayer* lay
 
 PointerChain parsePointerChain(Parser* parser) {
     PointerChain chain = {0};
-    while (parser->currentToken.type == TOKEN_ASTERISK) {
+    while (parser->currentToken.type == TOKEN_ASTERISK ||
+           (parser_allows_block_pointers(parser) && parser->currentToken.type == TOKEN_BITWISE_XOR)) {
         advance(parser);
         PointerDeclaratorLayer layer = {0};
         consumePointerQualifiers(parser, &layer);
@@ -1198,6 +1203,12 @@ ASTNode* parseEnumDefinition(Parser* parser) {
         ASTNode* memberName = createIdentifierNode(parser->currentToken.value);
         astNodeSetProvenance(memberName, &parser->currentToken);
         advance(parser); // consume member name
+        size_t memberAttrCount = 0;
+        ASTAttribute** memberAttrs = parserParseAttributeSpecifiers(parser, &memberAttrCount);
+        if (memberAttrs) {
+            astAttributeListDestroy(memberAttrs, memberAttrCount);
+            free(memberAttrs);
+        }
 
         ASTNode* valueExpr = NULL;
         if (parser->currentToken.type == TOKEN_ASSIGN) {
@@ -1218,6 +1229,13 @@ ASTNode* parseEnumDefinition(Parser* parser) {
         members[count] = memberName;
         values [count] = valueExpr;
         count++;
+
+        size_t trailingAttrCount = 0;
+        ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
+        if (trailingAttrs) {
+            astAttributeListDestroy(trailingAttrs, trailingAttrCount);
+            free(trailingAttrs);
+        }
 
         if (parser->currentToken.type == TOKEN_COMMA) {
             advance(parser); // continue
@@ -1368,6 +1386,7 @@ ASTNode* handleStructStatements(Parser* parser) {
     bool looksLikeDeclaratorStart =
         (probe.currentToken.type == TOKEN_IDENTIFIER) ||
         (probe.currentToken.type == TOKEN_ASTERISK)   ||
+        (parser_allows_block_pointers(parser) && probe.currentToken.type == TOKEN_BITWISE_XOR) ||
         (probe.currentToken.type == TOKEN_LPAREN);
     if (probeType.kind != TYPE_INVALID && looksLikeDeclaratorStart) {
         ParsedDeclarator probeDecl;

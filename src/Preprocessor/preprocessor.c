@@ -12,6 +12,7 @@
 #include "Lexer/tokens.h"
 #include "Compiler/diagnostics.h"
 #include "Utils/logging.h"
+#include "Utils/profiler.h"
 
 static bool append_directive_line(const Token* tokens,
                                   size_t count,
@@ -79,6 +80,38 @@ static void define_builtin_object(Preprocessor* pp, const char* name, const char
     free(tok.value);
 }
 
+static void define_builtin_function(Preprocessor* pp,
+                                    const char* name,
+                                    const char* const* params,
+                                    size_t paramCount,
+                                    bool variadic,
+                                    const char* value) {
+    if (!pp || !name) return;
+    Token tok = {0};
+    PPTokenBuffer body = {0};
+    if (value && value[0]) {
+        tok.type = isdigit((unsigned char)value[0]) ? TOKEN_NUMBER : TOKEN_IDENTIFIER;
+        tok.value = strdup(value);
+        tok.location = (SourceRange){0};
+        tok.macroCallSite = (SourceRange){0};
+        tok.macroDefinition = (SourceRange){0};
+        if (tok.value) {
+            body.tokens = &tok;
+            body.count = 1;
+        }
+    }
+    macro_table_define_function(pp->table,
+                                name,
+                                params,
+                                paramCount,
+                                variadic,
+                                false,
+                                body.tokens,
+                                body.count,
+                                (SourceRange){0});
+    free(tok.value);
+}
+
 // Define a macro that expands to nothing for both object-like and variadic function-like
 // forms (to swallow attribute-style uses with parentheses/arguments).
 static void define_builtin_empty_macro(Preprocessor* pp, const char* name) {
@@ -101,7 +134,9 @@ static bool flush_chunk(Preprocessor* pp,
         return true;
     }
     PPTokenBuffer expanded = {0};
+    ProfilerScope scope = profiler_begin("pp_expand");
     if (!macro_expander_expand(&pp->expander, chunk->tokens, chunk->count, &expanded)) {
+        profiler_end(scope);
         const MacroExpansionFrame* top = NULL;
         MacroExpansionError err = macro_table_last_error(pp->table, &top);
         if (err == MT_ERR_RECURSION || err == MT_ERR_DEPTH || err == MT_ERR_NONE) {
@@ -133,6 +168,7 @@ static bool flush_chunk(Preprocessor* pp,
         pp_token_buffer_destroy(&expanded);
         return false;
     }
+    profiler_end(scope);
     bool ok = true;
     for (size_t j = 0; j < expanded.count; ++j) {
         size_t cursor = j;
@@ -227,12 +263,15 @@ bool preprocess_tokens(Preprocessor* pp,
                             return false;
                         }
                     }
+                    ProfilerScope defineScope = profiler_begin("pp_define");
                     if (!process_define(pp, input->tokens, input->count, &i)) {
+                        profiler_end(defineScope);
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         pp_debug_fail("process_define", &input->tokens[i]);
                         return false;
                     }
+                    profiler_end(defineScope);
                 } else {
                     skip_to_line_end(input->tokens, input->count, &i);
                 }
@@ -254,12 +293,15 @@ bool preprocess_tokens(Preprocessor* pp,
                         }
                     }
                     bool isIncludeNext = tok->type == TOKEN_INCLUDE_NEXT;
+                    ProfilerScope includeScope = profiler_begin("pp_include");
                     if (!process_include(pp, input->tokens, input->count, &i, output, isIncludeNext)) {
+                        profiler_end(includeScope);
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         pp_debug_fail("process_include", &input->tokens[i]);
                         return false;
                     }
+                    profiler_end(includeScope);
                 } else {
                     skip_to_line_end(input->tokens, input->count, &i);
                 }
@@ -288,13 +330,16 @@ bool preprocess_tokens(Preprocessor* pp,
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
+                ProfilerScope ifScope = profiler_begin("pp_if");
                 if (!process_if(pp, input->tokens, input->count, &i,
                                 &condStack, &condDepth, &condCap)) {
+                    profiler_end(ifScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_if", &input->tokens[i]);
                     return false;
                 }
+                profiler_end(ifScope);
                 break;
             case TOKEN_PP_ELIF:
                 if (!flush_chunk(pp, &chunk, output)) {
@@ -303,13 +348,16 @@ bool preprocess_tokens(Preprocessor* pp,
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
+                ProfilerScope elifScope = profiler_begin("pp_elif");
                 if (!process_elif(pp, input->tokens, input->count, &i,
                                   condStack, condDepth)) {
+                    profiler_end(elifScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_elif", &input->tokens[i]);
                     return false;
                 }
+                profiler_end(elifScope);
                 break;
             case TOKEN_PP_ELSE:
                 if (!flush_chunk(pp, &chunk, output)) {
@@ -358,13 +406,16 @@ bool preprocess_tokens(Preprocessor* pp,
                     return false;
                 }
                 bool negate = tok->type == TOKEN_IFNDEF;
+                ProfilerScope ifdefScope = profiler_begin("pp_ifdef");
                 if (!process_ifdeflike(pp, input->tokens, input->count, &i,
                                        &condStack, &condDepth, &condCap, negate)) {
+                    profiler_end(ifdefScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_ifdeflike", &input->tokens[i]);
                     return false;
                 }
+                profiler_end(ifdefScope);
                 break;
             }
             case TOKEN_PRAGMA:
@@ -487,8 +538,11 @@ bool preprocessor_init(Preprocessor* pp,
                        bool preserveDirectives,
                        bool lenientMissingIncludes,
                        bool enableTrigraphs,
+                       PreprocessMode preprocessMode,
                        const char* const* includePaths,
                        size_t includePathCount,
+                       const char* externalPreprocessCmd,
+                       const char* externalPreprocessArgs,
                        const char* const* macroDefines,
                        size_t macroDefineCount) {
     if (!pp) return false;
@@ -534,11 +588,18 @@ bool preprocessor_init(Preprocessor* pp,
     pp->preserveDirectives = preserveDirectives;
     pp->lenientMissingIncludes = lenientMissingIncludes;
     pp->enableTrigraphs = enableTrigraphs;
+    pp->preprocessMode = preprocessMode;
+    pp->externalPreprocessCmd = externalPreprocessCmd;
+    pp->externalPreprocessArgs = externalPreprocessArgs;
+    pp->includePaths = includePaths;
+    pp->includePathCount = includePathCount;
     pp->ctx = ctx;
 
     // Minimal builtin macros so system headers don't trigger #error on unknown/unsupported targets.
     define_builtin_object(pp, "__APPLE__", "1");
     define_builtin_object(pp, "__MACH__", "1");
+    define_builtin_object(pp, "__APPLE_CC__", "1");
+    define_builtin_object(pp, "__APPLE_CPP__", "1");
     define_builtin_object(pp, "__arm64__", "1");
     define_builtin_object(pp, "__LP64__", "1");
     define_builtin_object(pp, "__clang__", "1");
@@ -546,7 +607,32 @@ bool preprocessor_init(Preprocessor* pp,
     define_builtin_object(pp, "__GNUC_MINOR__", "2");
     define_builtin_object(pp, "__GNUC_PATCHLEVEL__", "1");
     define_builtin_object(pp, "__STDC_HOSTED__", "1");
-    define_builtin_object(pp, "__STDC_VERSION__", "199901L");
+    {
+        long stdc = 199901L;
+        if (pp->ctx) {
+            stdc = cc_dialect_stdc_version(cc_get_language_dialect(pp->ctx));
+        }
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%ldL", stdc);
+        define_builtin_object(pp, "__STDC_VERSION__", buf);
+        define_builtin_object(pp, "__FISICS__", "1");
+        snprintf(buf, sizeof(buf), "%ldL", stdc);
+        define_builtin_object(pp, "__FISICS_DIALECT__", buf);
+        if (pp->ctx && cc_extensions_enabled(pp->ctx)) {
+            define_builtin_object(pp, "__FISICS_EXTENSIONS__", "1");
+        }
+    }
+    define_builtin_object(pp, "MAC_OS_X_VERSION_MIN_REQUIRED", "130000");
+    define_builtin_object(pp, "__FLT_EPSILON__", "1.19209290e-7F");
+    define_builtin_object(pp, "__DBL_EPSILON__", "2.2204460492503131e-16");
+    define_builtin_object(pp, "__LDBL_EPSILON__", "1.0842021724855044e-19L");
+
+    {
+        const char* params[] = {"x"};
+        define_builtin_function(pp, "__has_builtin", params, 1, false, "0");
+        define_builtin_function(pp, "__has_feature", params, 1, false, "0");
+        define_builtin_function(pp, "__has_attribute", params, 1, false, "0");
+    }
 
     // Apple bounds-safety annotation shims: treat as no-ops so newer SDK headers parse.
     // Many appear as attributes or markers; empty object-like macros are enough to erase them.

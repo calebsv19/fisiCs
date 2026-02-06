@@ -34,7 +34,7 @@ PROGRAM
         TYPE: int
         Alias:     IDENTIFIER __darwin_ct_rune_t
   TYPEDEF
-        TYPE: union __anon_union_70
+        TYPE: union __anon_union_0_70
         Alias:     IDENTIFIER __mbstate_t
   TYPEDEF
         TYPE: __mbstate_t
@@ -1583,7 +1583,7 @@ PROGRAM
         TYPE: struct timespec*
         IDENTIFIER __rmtp
   TYPEDEF
-        TYPE: __anon_enum_156
+        TYPE: __anon_enum_1_156
         Alias:     IDENTIFIER clockid_t
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -1642,16 +1642,16 @@ PROGRAM
         TYPE: __darwin_wctype_t
         Alias:     IDENTIFIER wctype_t
   TYPEDEF
-        TYPE: struct __anon_struct_68
+        TYPE: struct __anon_struct_2_68
         Alias:     IDENTIFIER _RuneEntry
   TYPEDEF
-        TYPE: struct __anon_struct_73
+        TYPE: struct __anon_struct_3_73
         Alias:     IDENTIFIER _RuneRange
   TYPEDEF
-        TYPE: struct __anon_struct_78
+        TYPE: struct __anon_struct_4_78
         Alias:     IDENTIFIER _RuneCharClass
   TYPEDEF
-        TYPE: struct __anon_struct_109
+        TYPE: struct __anon_struct_5_109
         Alias:     IDENTIFIER _RuneLocale
   VAR_DECL
     TYPE: extern _RuneLocale

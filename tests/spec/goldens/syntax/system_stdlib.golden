@@ -34,7 +34,7 @@ PROGRAM
         TYPE: int
         Alias:     IDENTIFIER __darwin_ct_rune_t
   TYPEDEF
-        TYPE: union __anon_union_70
+        TYPE: union __anon_union_0_70
         Alias:     IDENTIFIER __mbstate_t
   TYPEDEF
         TYPE: __mbstate_t
@@ -255,7 +255,7 @@ PROGRAM
         TYPE: __uint32_t
         Alias:     IDENTIFIER __darwin_wctype_t
   TYPEDEF
-        TYPE: __anon_enum_79
+        TYPE: __anon_enum_1_79
         Alias:     IDENTIFIER idtype_t
   TYPEDEF
         TYPE: __darwin_pid_t
@@ -1572,7 +1572,7 @@ PROGRAM
         IDENTIFIER _data
     BLOCK
       VAR_DECL
-        TYPE: union __anon_union_86
+        TYPE: union __anon_union_2_86
         IDENTIFIER _u
       ASSIGNMENT (=)
         ARRAY_ACCESS
@@ -1634,10 +1634,10 @@ PROGRAM
       TYPE: int
       IDENTIFIER w_status
     VAR_DECL
-      TYPE: struct __anon_struct_211
+      TYPE: struct __anon_struct_3_211
       IDENTIFIER w_T
     VAR_DECL
-      TYPE: struct __anon_struct_227
+      TYPE: struct __anon_struct_4_227
       IDENTIFIER w_S
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION
@@ -1724,13 +1724,13 @@ PROGRAM
         TYPE: __darwin_wchar_t
         Alias:     IDENTIFIER wchar_t
   TYPEDEF
-        TYPE: struct __anon_struct_105
+        TYPE: struct __anon_struct_5_105
         Alias:     IDENTIFIER div_t
   TYPEDEF
-        TYPE: struct __anon_struct_110
+        TYPE: struct __anon_struct_6_110
         Alias:     IDENTIFIER ldiv_t
   TYPEDEF
-        TYPE: struct __anon_struct_116
+        TYPE: struct __anon_struct_7_116
         Alias:     IDENTIFIER lldiv_t
   VAR_DECL
     TYPE: extern int

@@ -34,7 +34,7 @@ PROGRAM
         TYPE: int
         Alias:     IDENTIFIER __darwin_ct_rune_t
   TYPEDEF
-        TYPE: union __anon_union_70
+        TYPE: union __anon_union_0_70
         Alias:     IDENTIFIER __mbstate_t
   TYPEDEF
         TYPE: __mbstate_t
@@ -380,7 +380,6 @@ PROGRAM
 
 
 Diagnostics:
-Error at (4:0): Variable-length array 'check_ld_sz' is not allowed at static storage duration
 Error at (7:0): Variable-length array 'check_size_t' is not allowed at static storage duration
 Error at (8:0): Variable-length array 'check_ptrdiff_t' is not allowed at static storage duration
 

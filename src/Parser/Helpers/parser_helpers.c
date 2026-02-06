@@ -17,6 +17,8 @@ void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerCo
     parser->ctx = ctx;
     parser->preserveDirectives = preserveDirectives;
     parser->suppressErrors = false;
+    parser->switchDepth = 0;
+    parser->anonTagCounter = 0;
     const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
     parser->enableStatementExpressions =
         (gnuEnv && gnuEnv[0] != '\0' && gnuEnv[0] != '0');

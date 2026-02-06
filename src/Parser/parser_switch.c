@@ -34,6 +34,8 @@ ASTNode* parseSwitchStatement(Parser* parser) {
         return NULL;
     }
     advance(parser); // Consume '{'
+
+    parser->switchDepth++;
                     
     // Dynamic array for case nodes
     ASTNode** caseList = malloc(4 * sizeof(ASTNode*));
@@ -46,6 +48,7 @@ ASTNode* parseSwitchStatement(Parser* parser) {
                 caseValue = parseExpression(parser);
                 if (!caseValue) {
                     printf("Error: Invalid case value at line %d\n", parser->currentToken.line);
+                    parser->switchDepth--;
                     return NULL;
                 }
             } else { // Default case
@@ -54,6 +57,7 @@ ASTNode* parseSwitchStatement(Parser* parser) {
              
             if (parser->currentToken.type != TOKEN_COLON) {
                 printParseError("':' after case value", parser);
+                parser->switchDepth--;
                 return NULL;
             }
             advance(parser); // Consume ':'
@@ -70,6 +74,7 @@ ASTNode* parseSwitchStatement(Parser* parser) {
                 if (!stmt) {
                     printf("Error: Invalid statement inside case block at line %d\n", 
 					parser->currentToken.line);
+                    parser->switchDepth--;
                     return NULL;
                 }
                  
@@ -84,6 +89,7 @@ ASTNode* parseSwitchStatement(Parser* parser) {
             // Create and store case node
             ASTNode* caseNode = createCaseNode(caseValue, caseBody);
             if (!caseNode) {
+                parser->switchDepth--;
                 return NULL;
             }
             caseNode->caseStmt.caseBodySize = caseBodySize;
@@ -97,15 +103,19 @@ ASTNode* parseSwitchStatement(Parser* parser) {
         } else {
             printf("Error: Unexpected token '%s' inside switch statement at line %d\n",
                    parser->currentToken.value, parser->currentToken.line);
+            parser->switchDepth--;
             return NULL;
         }
     }
      
     if (parser->currentToken.type != TOKEN_RBRACE) {
         printParseError("'}'", parser);
+        parser->switchDepth--;
         return NULL;
     }
     advance(parser); // Consume '}'
+
+    parser->switchDepth--;
     
     ASTNode* switchNode = createSwitchNode(condition, caseList);
     if (!switchNode) {

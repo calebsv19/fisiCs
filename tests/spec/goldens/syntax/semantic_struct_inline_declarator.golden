@@ -34,7 +34,7 @@ PROGRAM
         TYPE: int
         Alias:     IDENTIFIER __darwin_ct_rune_t
   TYPEDEF
-        TYPE: union __anon_union_70
+        TYPE: union __anon_union_0_70
         Alias:     IDENTIFIER __mbstate_t
   TYPEDEF
         TYPE: __mbstate_t

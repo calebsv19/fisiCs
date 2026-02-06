@@ -13,6 +13,7 @@
 #include "Compiler/pipeline.h"
 #include "Compiler/object_emit.h"
 #include "Syntax/target_layout.h"
+#include "Utils/profiler.h"
 
 typedef struct {
     char** items;
@@ -184,6 +185,10 @@ int main(int argc, char **argv) {
     const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
     bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
     if (debugProgress) fprintf(stderr, "[main] start argc=%d\n", argc);
+    profiler_init();
+    if (profiler_enabled()) {
+        atexit(profiler_shutdown);
+    }
     const char* nanoEnv = getenv("MallocNanoZone");
     if (!nanoEnv) {
         setenv("MallocNanoZone", "0", 0);
@@ -207,6 +212,11 @@ int main(int argc, char **argv) {
     bool enableTrigraphs = false;
     bool warnIgnoredInterop = true;
     bool errorIgnoredInterop = false;
+    PreprocessMode preprocessMode = PREPROCESS_INTERNAL;
+    const char* externalPreprocessCmd = NULL;
+    const char* externalPreprocessArgs = NULL;
+    CCDialect dialect = CC_DIALECT_C99;
+    bool enableExtensions = false;
     StringList includePaths = {0};
     StringList inputCFiles = {0};
     StringList inputOFiles = {0};
@@ -315,6 +325,48 @@ int main(int argc, char **argv) {
             warnIgnoredInterop = false;
         } else if (strcmp(argv[i], "--error-ignored-cc") == 0) {
             errorIgnoredInterop = true;
+        } else if (strncmp(argv[i], "--dialect=", 10) == 0) {
+            const char* mode = argv[i] + 10;
+            if (strcmp(mode, "c99") == 0) {
+                dialect = CC_DIALECT_C99;
+            } else if (strcmp(mode, "c11") == 0) {
+                dialect = CC_DIALECT_C11;
+            } else if (strcmp(mode, "c17") == 0) {
+                dialect = CC_DIALECT_C17;
+            } else {
+                fprintf(stderr, "Error: unknown dialect '%s'\n", mode);
+                goto fail;
+            }
+        } else if (strncmp(argv[i], "--extensions=", 13) == 0) {
+            const char* mode = argv[i] + 13;
+            if (strcmp(mode, "gnu") == 0 || strcmp(mode, "on") == 0) {
+                enableExtensions = true;
+            } else if (strcmp(mode, "off") == 0 || strcmp(mode, "none") == 0) {
+                enableExtensions = false;
+            } else {
+                fprintf(stderr, "Error: unknown extensions mode '%s'\n", mode);
+                goto fail;
+            }
+        } else if (strncmp(argv[i], "--preprocess=", 13) == 0) {
+            const char* mode = argv[i] + 13;
+            if (strcmp(mode, "internal") == 0) {
+                preprocessMode = PREPROCESS_INTERNAL;
+            } else if (strcmp(mode, "external") == 0) {
+                preprocessMode = PREPROCESS_EXTERNAL;
+            } else if (strcmp(mode, "hybrid") == 0) {
+                preprocessMode = PREPROCESS_HYBRID;
+            } else {
+                fprintf(stderr, "Error: unknown preprocess mode '%s'\n", mode);
+                goto fail;
+            }
+        } else if (strcmp(argv[i], "--preprocess-cmd") == 0 && i + 1 < argc) {
+            externalPreprocessCmd = argv[++i];
+        } else if (strncmp(argv[i], "--preprocess-cmd=", 17) == 0) {
+            externalPreprocessCmd = argv[i] + 17;
+        } else if (strcmp(argv[i], "--preprocess-args") == 0 && i + 1 < argc) {
+            externalPreprocessArgs = argv[++i];
+        } else if (strncmp(argv[i], "--preprocess-args=", 18) == 0) {
+            externalPreprocessArgs = argv[i] + 18;
         } else if (argv[i][0] != '-' && !filename) {
             filename = argv[i];
             if (has_extension(filename, ".c")) {
@@ -352,6 +404,40 @@ int main(int argc, char **argv) {
     const char* triEnv = getenv("ENABLE_TRIGRAPHS");
     if (triEnv && triEnv[0] != '\0' && triEnv[0] != '0') {
         enableTrigraphs = true;
+    }
+    const char* ppEnv = getenv("FISICS_PREPROCESS");
+    if (ppEnv && ppEnv[0]) {
+        if (strcmp(ppEnv, "external") == 0) {
+            preprocessMode = PREPROCESS_EXTERNAL;
+        } else if (strcmp(ppEnv, "hybrid") == 0) {
+            preprocessMode = PREPROCESS_HYBRID;
+        } else if (strcmp(ppEnv, "internal") == 0) {
+            preprocessMode = PREPROCESS_INTERNAL;
+        }
+    }
+    const char* externalCmdEnv = getenv("FISICS_EXTERNAL_CPP");
+    if (externalCmdEnv && externalCmdEnv[0]) {
+        externalPreprocessCmd = externalCmdEnv;
+    }
+    const char* externalArgsEnv = getenv("FISICS_EXTERNAL_CPP_ARGS");
+    if (externalArgsEnv && externalArgsEnv[0]) {
+        externalPreprocessArgs = externalArgsEnv;
+    }
+    const char* dialectEnv = getenv("FISICS_DIALECT");
+    if (dialectEnv && dialectEnv[0]) {
+        if (strcmp(dialectEnv, "c99") == 0) {
+            dialect = CC_DIALECT_C99;
+        } else if (strcmp(dialectEnv, "c11") == 0) {
+            dialect = CC_DIALECT_C11;
+        } else if (strcmp(dialectEnv, "c17") == 0) {
+            dialect = CC_DIALECT_C17;
+        }
+    }
+    const char* extEnv = getenv("FISICS_EXTENSIONS");
+    if (extEnv && extEnv[0]) {
+        enableExtensions = (strcmp(extEnv, "1") == 0 ||
+                            strcmp(extEnv, "on") == 0 ||
+                            strcmp(extEnv, "gnu") == 0);
     }
 
     const char* depsEnv = getenv("EMIT_DEPS_JSON");
@@ -412,6 +498,11 @@ int main(int argc, char **argv) {
                     .dataLayout = dataLayout,
                     .includePaths = (const char* const*)includePaths.items,
                     .includePathCount = includePaths.count,
+                    .preprocessMode = preprocessMode,
+                    .externalPreprocessCmd = externalPreprocessCmd,
+                    .externalPreprocessArgs = externalPreprocessArgs,
+                    .dialect = dialect,
+                    .enableExtensions = enableExtensions,
                     .dumpAst = dumpAst,
                     .dumpSemantic = dumpSemantic,
                     .dumpIR = dumpIR,
@@ -483,6 +574,11 @@ int main(int argc, char **argv) {
                     .dataLayout = dataLayout,
                     .includePaths = (const char* const*)includePaths.items,
                     .includePathCount = includePaths.count,
+                    .preprocessMode = preprocessMode,
+                    .externalPreprocessCmd = externalPreprocessCmd,
+                    .externalPreprocessArgs = externalPreprocessArgs,
+                    .dialect = dialect,
+                    .enableExtensions = enableExtensions,
                     .dumpAst = dumpAst,
                     .dumpSemantic = dumpSemantic,
                     .dumpIR = dumpIR,
@@ -656,6 +752,11 @@ int main(int argc, char **argv) {
         .dataLayout = dataLayout,
         .includePaths = (const char* const*)includePaths.items,
         .includePathCount = includePaths.count,
+        .preprocessMode = preprocessMode,
+        .externalPreprocessCmd = externalPreprocessCmd,
+        .externalPreprocessArgs = externalPreprocessArgs,
+        .dialect = dialect,
+        .enableExtensions = enableExtensions,
         .dumpAst = dumpAst || ENABLE_AST_PRINT,
         .dumpSemantic = dumpSemantic || ENABLE_SYNTAX_CHECK,
         .dumpIR = dumpIR || (enableCodegen && ENABLE_CODEGEN),

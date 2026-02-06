@@ -1,35 +1,39 @@
-# Category Validation Workflow
+# Full-Program Compilation Validation Workflow
 
-Purpose: Work through each behavior category in order, fixing failures and adding a consolidated test once the category is fully green.
+Purpose: Validate fisics against real projects by compiling every translation unit, triaging failures, fixing issues in focused batches, and tracking progress in a master log.
 
-## Workflow (per category)
-1) **Test each unvalidated behavior**
-   - Update `include/test.txt` with a focused snippet for one behavior.
-   - Run `make run`.
-   - Record outcome in `FAILING.md` under that category:
-     - `[PASS]` for confirmed behavior.
-     - `[FAIL]` for broken behavior.
-     - `[PARTIAL]` if incomplete/ambiguous.
+## Workflow (per project)
+1) **Inventory translation units**
+   - Enumerate all `.c` files in the project.
+   - Decide the include roots (`-I<project>/include`, `-I<project>/src`, etc.).
 
-2) **Fix failures and re‑test**
-   - Implement fixes in compiler code.
-   - Re-run the same focused `include/test.txt` snippet.
-   - Flip `[FAIL]/[PARTIAL]` to `[PASS]` only after a clean `make run`.
+2) **Compile each file and capture errors**
+   - Run `./fisics -c <file.c>` with the selected include paths.
+   - Record the first error (or full log if needed) per file.
+   - Store results in `FAILING.md` (or a dedicated report file) with:
+     - File path
+     - Error class (missing header / parser / semantic / codegen / crash)
+     - Key message
 
-3) **Create a category summary test**
-   - Once **all** items in the category are `[PASS]`:
-     - Add a single consolidated test in `tests/final/` that covers the category’s behaviors.
-     - Ensure it is deterministic and easy to maintain.
+3) **Cluster by root cause**
+   - Group failures by likely shared cause.
+   - Rank clusters by impact (largest count first, then easiest fixes).
 
-4) **Run full tests and update goldens**
-   - Run `make tests` (or `make final` / `make final-update` as needed).
-   - If goldens change, update only the specific files that are affected.
+4) **Fix by cluster, then re-run**
+   - Apply the minimal compiler fixes for a cluster.
+   - Re-compile the same subset of files to confirm the fix.
+   - Update the failure log, moving files to `[PASS]` as they succeed.
 
-5) **Promote to PASSING.md**
-   - Move the validated category summary into `PASSING.md`.
-   - Remove temporary per‑item tracking from `FAILING.md` for that category.
+5) **Progressive project validation**
+   - Repeat until all files compile or remaining failures are clearly scoped.
+   - For stubborn failures, mark `[PARTIAL]` with concrete blockers.
+
+6) **Regression checks**
+   - Run `make tests` and `make final`.
+   - Update goldens only for tests impacted by the fixes.
 
 ## Notes
-- Keep `FAILING.md` as the live tracking doc while a category is in progress.
-- Only promote a category after every behavior in it is confirmed passing.
-- Keep fixes scoped; avoid unrelated refactors during a category pass.
+- Keep fixes scoped to the active cluster to avoid unrelated regressions.
+- Always prefer fixes that unblock many files at once.
+- If a failure is due to missing third-party headers, document it clearly and skip unless the headers are available.
+- Keep `FAILING.md` as the live tracking doc while a project is in progress.

@@ -317,7 +317,7 @@ PROGRAM
         IDENTIFIER __x
     BLOCK
       VAR_DECL
-        TYPE: union __anon_union_206
+        TYPE: union __anon_union_0_206
         IDENTIFIER __u
       ASSIGNMENT (=)
         DOT_ACCESS '.'
@@ -342,7 +342,7 @@ PROGRAM
         IDENTIFIER __x
     BLOCK
       VAR_DECL
-        TYPE: union __anon_union_211
+        TYPE: union __anon_union_1_211
         IDENTIFIER __u
       ASSIGNMENT (=)
         DOT_ACCESS '.'
@@ -367,7 +367,7 @@ PROGRAM
         IDENTIFIER __x
     BLOCK
       VAR_DECL
-        TYPE: union __anon_union_226
+        TYPE: union __anon_union_2_226
         IDENTIFIER __u
       ASSIGNMENT (=)
         DOT_ACCESS '.'

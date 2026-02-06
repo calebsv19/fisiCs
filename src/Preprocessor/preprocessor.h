@@ -9,6 +9,7 @@
 #include "Preprocessor/pp_expr.h"
 #include "Preprocessor/include_resolver.h"
 #include "Compiler/compiler_context.h"
+#include "Compiler/preprocess_mode.h"
 
 struct PPIncludeFrame;
 
@@ -38,6 +39,11 @@ typedef struct {
     bool preserveDirectives;
     bool lenientMissingIncludes;
     bool enableTrigraphs;
+    PreprocessMode preprocessMode;
+    const char* externalPreprocessCmd;
+    const char* externalPreprocessArgs;
+    const char* const* includePaths;
+    size_t includePathCount;
     CompilerContext* ctx;
 } Preprocessor;
 
@@ -46,8 +52,11 @@ bool preprocessor_init(Preprocessor* pp,
                        bool preserveDirectives,
                        bool lenientMissingIncludes,
                        bool enableTrigraphs,
+                       PreprocessMode preprocessMode,
                        const char* const* includePaths,
                        size_t includePathCount,
+                       const char* externalPreprocessCmd,
+                       const char* externalPreprocessArgs,
                        const char* const* macroDefines,
                        size_t macroDefineCount);
 void preprocessor_destroy(Preprocessor* pp);

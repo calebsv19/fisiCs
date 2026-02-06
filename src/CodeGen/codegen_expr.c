@@ -1202,6 +1202,35 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
             } else {
                 storedValue = LLVMBuildSRem(ctx->builder, current, value, "compound.rem");
             }
+        } else if (strcmp(op, "&=") == 0) {
+            if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
+                value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
+            }
+            storedValue = LLVMBuildAnd(ctx->builder, current, value, "compound.and");
+        } else if (strcmp(op, "|=") == 0) {
+            if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
+                value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
+            }
+            storedValue = LLVMBuildOr(ctx->builder, current, value, "compound.or");
+        } else if (strcmp(op, "^=") == 0) {
+            if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
+                value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
+            }
+            storedValue = LLVMBuildXor(ctx->builder, current, value, "compound.xor");
+        } else if (strcmp(op, "<<=") == 0) {
+            if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
+                value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
+            }
+            storedValue = LLVMBuildShl(ctx->builder, current, value, "compound.shl");
+        } else if (strcmp(op, ">>=") == 0) {
+            if (LLVMTypeOf(current) != LLVMTypeOf(value)) {
+                value = cg_cast_value(ctx, value, LLVMTypeOf(current), valueParsed, targetParsed, "compound.cast");
+            }
+            if (cg_expression_is_unsigned(ctx, node->assignment.target)) {
+                storedValue = LLVMBuildLShr(ctx->builder, current, value, "compound.lshr");
+            } else {
+                storedValue = LLVMBuildAShr(ctx->builder, current, value, "compound.ashr");
+            }
         } else {
             fprintf(stderr, "Error: Unsupported compound assignment operator %s\n", op);
             return NULL;

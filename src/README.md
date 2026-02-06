@@ -13,7 +13,7 @@ This tree implements a single-pass C front-end with optional LLVM IR emission. C
 
 ## Files in this directory
 
-- `main.c` — Pipeline driver (`lex` → `preprocess` → `parse` → `semantics` → optional LLVM). Flags: `--preserve-pp`, `--emit-deps-json path`, `--target <triple>`, `--data-layout <layout>`.
+- `main.c` — Pipeline driver (`lex` → `preprocess` → `parse` → `semantics` → optional LLVM). Flags: `--preserve-pp`, `--emit-deps-json path`, `--target <triple>`, `--data-layout <layout>`, `--preprocess=internal|external`, `--preprocess-cmd <tool>`, `--preprocess-args "<args>"`.
 
 ## Subdirectories of note
 

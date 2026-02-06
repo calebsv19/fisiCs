@@ -169,7 +169,15 @@ typedef struct CompilerContext {
     CompilerSymbols symbols;
     CompilerIncludes includes;
     struct ASTNode* translationUnit;
+    int languageDialect;        // CCDialect encoded as int to avoid circular include
+    bool enableExtensions;
 } CompilerContext;
+
+typedef enum {
+    CC_DIALECT_C99 = 0,
+    CC_DIALECT_C11,
+    CC_DIALECT_C17
+} CCDialect;
 
 typedef enum {
     CC_TAGDEF_ADDED = 0,
@@ -181,6 +189,11 @@ typedef enum {
 CompilerContext* cc_create(void);
 void cc_destroy(CompilerContext* ctx);
 void cc_seed_builtins(CompilerContext* ctx);
+void cc_set_language_dialect(CompilerContext* ctx, CCDialect dialect);
+CCDialect cc_get_language_dialect(const CompilerContext* ctx);
+void cc_set_extensions_enabled(CompilerContext* ctx, bool enabled);
+bool cc_extensions_enabled(const CompilerContext* ctx);
+long cc_dialect_stdc_version(CCDialect dialect);
 
 // ---- Typedef-name namespace ----
 bool cc_is_typedef(const CompilerContext* ctx, const char* name);

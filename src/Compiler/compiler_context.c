@@ -152,6 +152,8 @@ CompilerContext* cc_create(void) {
     c->targetLayout = NULL;
     c->warnIgnoredInterop = true;
     c->errorIgnoredInterop = false;
+    c->languageDialect = CC_DIALECT_C99;
+    c->enableExtensions = false;
     return c;
 }
 
@@ -191,6 +193,35 @@ void cc_seed_builtins(CompilerContext* ctx) {
     };
     for (size_t i = 0; i < sizeof(typedefs) / sizeof(typedefs[0]); ++i) {
         cc_add_typedef(ctx, typedefs[i]);
+    }
+}
+
+void cc_set_language_dialect(CompilerContext* ctx, CCDialect dialect) {
+    if (!ctx) return;
+    ctx->languageDialect = (int)dialect;
+}
+
+CCDialect cc_get_language_dialect(const CompilerContext* ctx) {
+    if (!ctx) return CC_DIALECT_C99;
+    return (CCDialect)ctx->languageDialect;
+}
+
+void cc_set_extensions_enabled(CompilerContext* ctx, bool enabled) {
+    if (!ctx) return;
+    ctx->enableExtensions = enabled;
+}
+
+bool cc_extensions_enabled(const CompilerContext* ctx) {
+    return ctx ? ctx->enableExtensions : false;
+}
+
+long cc_dialect_stdc_version(CCDialect dialect) {
+    switch (dialect) {
+        case CC_DIALECT_C11: return 201112L;
+        case CC_DIALECT_C17: return 201710L;
+        case CC_DIALECT_C99:
+        default:
+            return 199901L;
     }
 }
 

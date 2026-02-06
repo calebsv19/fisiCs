@@ -533,6 +533,12 @@ bool consumeBalancedParens(Parser* p) {
 // We don't validate contents yet—just skip syntactically.
 void consumeAbstractDeclarator(Parser* p) {
     for (;;) {
+        if (p->currentToken.type == TOKEN_ASTERISK ||
+            (p->ctx && cc_extensions_enabled(p->ctx) &&
+             p->currentToken.type == TOKEN_BITWISE_XOR)) {
+            advance(p);
+            continue;
+        }
         if (p->currentToken.type == TOKEN_LPAREN) {
             // Could be (*), (params), or nested groups — just balance them
             consumeBalancedParens(p);
@@ -563,7 +569,9 @@ void consumeAbstractDeclaratorIntoType(Parser* p, ParsedType* type) {
     }
 
     // Leading pointer stars
-    while (p->currentToken.type == TOKEN_ASTERISK) {
+    while (p->currentToken.type == TOKEN_ASTERISK ||
+           (p->ctx && cc_extensions_enabled(p->ctx) &&
+            p->currentToken.type == TOKEN_BITWISE_XOR)) {
         parsedTypeAppendPointer(type);
         advance(p);
     }

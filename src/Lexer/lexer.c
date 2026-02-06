@@ -431,11 +431,15 @@ Token handleNumber(Lexer* lexer) {
         while (isdigit(lexer->source[lexer->position])) lexer->position++;
     }
 
-    // Handle fractional part (.) and exponent (e/E)
+    // Handle fractional part (.) and exponent (e/E or p/P for hex floats)
     bool sawExp = false;
     if (lexer->source[lexer->position] == '.') {
         lexer->position++;
-        while (isdigit(lexer->source[lexer->position])) lexer->position++;
+        if (isHex) {
+            while (isxdigit((unsigned char)lexer->source[lexer->position])) lexer->position++;
+        } else {
+            while (isdigit((unsigned char)lexer->source[lexer->position])) lexer->position++;
+        }
         type = TOKEN_FLOAT_LITERAL;
     }
     if (!sawExp && ((!isHex && (lexer->source[lexer->position] == 'e' || lexer->source[lexer->position] == 'E')) ||

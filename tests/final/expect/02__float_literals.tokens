@@ -23,9 +23,6 @@ Tokens:
 21 TOKEN_FLOAT float /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:1
 22 TOKEN_IDENTIFIER e /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:7
 23 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:9
-24 TOKEN_FLOAT_LITERAL 0x1.f /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:11
-25 TOKEN_IDENTIFIER p /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:16
-26 TOKEN_MINUS - /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:17
-27 TOKEN_FLOAT_LITERAL 2f /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:18
-28 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:20
-29 TOKEN_EOF <null> <unknown>:0:0
+24 TOKEN_FLOAT_LITERAL 0x1.fp-2f /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:11
+25 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__float_literals.c:5:20
+26 TOKEN_EOF <null> <unknown>:0:0

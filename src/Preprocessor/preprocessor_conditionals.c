@@ -9,6 +9,13 @@ bool conditional_stack_is_active(const PPConditionalFrame* stack, size_t depth) 
     return stack[depth - 1].selfActive;
 }
 
+static bool token_is_macro_identifier(const Token* tok) {
+    if (!tok || !tok->value) return false;
+    if (tok->type == TOKEN_IDENTIFIER) return true;
+    if (tok->type < TOKEN_IDENTIFIER) return true; // keyword tokens like __inline__
+    return false;
+}
+
 static bool push_conditional(PPConditionalFrame** stack,
                              size_t* depth,
                              size_t* capacity,
@@ -84,7 +91,12 @@ bool process_ifdeflike(Preprocessor* pp,
     size_t i = *cursor;
     int directiveLine = tokens[i].line;
     i++;
-    if (i >= count || tokens[i].type != TOKEN_IDENTIFIER) {
+    if (i >= count || !token_is_macro_identifier(&tokens[i])) {
+        if (pp_debug_fail_enabled()) {
+            fprintf(stderr, "[PP-DEBUG] ifdeflike name token type=%d val=%s\n",
+                    (i < count) ? tokens[i].type : -1,
+                    (i < count && tokens[i].value) ? tokens[i].value : "<null>");
+        }
         pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #%s",
                        negate ? "ifndef" : "ifdef");
         return false;

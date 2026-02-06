@@ -5,6 +5,9 @@
 
 #include <llvm-c/Core.h>
 
+#include "Compiler/preprocess_mode.h"
+#include "Compiler/compiler_context.h"
+
 struct CompilerContext;
 struct SemanticModel;
 struct ASTNode;
@@ -18,6 +21,11 @@ typedef struct {
     const char* dataLayout;
     const char* const* includePaths;
     size_t includePathCount;
+    PreprocessMode preprocessMode;
+    const char* externalPreprocessCmd;
+    const char* externalPreprocessArgs;
+    CCDialect dialect;
+    bool enableExtensions;
     bool dumpAst;
     bool dumpSemantic;
     bool dumpIR;

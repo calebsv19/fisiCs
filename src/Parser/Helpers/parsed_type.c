@@ -871,8 +871,10 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
 
             if (!tagName) {
                 char buffer[64];
-                snprintf(buffer, sizeof(buffer), "__anon_%s_%d",
+                unsigned long long anonId = parser ? parser->anonTagCounter++ : 0ULL;
+                snprintf(buffer, sizeof(buffer), "__anon_%s_%llu_%d",
                          tagToken == TOKEN_STRUCT ? "struct" : "union",
+                         anonId,
                          parser->currentToken.line);
                 tagName = strdup(buffer);
             }
@@ -922,7 +924,8 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
 
             if (!tagName) {
                 char buffer[64];
-                snprintf(buffer, sizeof(buffer), "__anon_enum_%d", tagLine);
+                unsigned long long anonId = parser ? parser->anonTagCounter++ : 0ULL;
+                snprintf(buffer, sizeof(buffer), "__anon_enum_%llu_%d", anonId, tagLine);
                 tagName = strdup(buffer);
             }
 
@@ -1036,7 +1039,9 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
 
     // Pointer qualifiers (only consumed eagerly outside declaration contexts)
     if (ctx != TYPECTX_Declaration) {
-        while (parser->currentToken.type == TOKEN_ASTERISK) {
+        while (parser->currentToken.type == TOKEN_ASTERISK ||
+               (parser->ctx && cc_extensions_enabled(parser->ctx) &&
+                parser->currentToken.type == TOKEN_BITWISE_XOR)) {
             advance(parser);
             PointerQuals quals = consumePointerQualifiers(parser);
             if (!parsedTypeAppendPointer(&type)) {
