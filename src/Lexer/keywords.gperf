@@ -50,6 +50,7 @@ inline
 sizeof
 _Alignof
 alignof
+_Static_assert
 _Bool
 asm
 _Complex

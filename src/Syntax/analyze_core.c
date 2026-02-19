@@ -6,6 +6,7 @@
 #include "scope.h"
 #include "symbol_table.h"
 #include "type_checker.h"
+#include "Parser/Helpers/parsed_type.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +16,30 @@ static void analyzeChildren(ASTNode** nodes, size_t n, Scope* scope) {
     for (size_t i = 0; i < n; i++) {
         analyze(nodes[i], scope);
     }
+}
+
+static void addFuncBuiltinIdentifiers(Scope* scope, const char* funcName) {
+    if (!scope) return;
+    Symbol* sym = (Symbol*)calloc(1, sizeof(Symbol));
+    if (!sym) return;
+    sym->name = strdup("__func__");
+    if (!sym->name) {
+        free(sym);
+        return;
+    }
+    sym->kind = SYMBOL_VARIABLE;
+    sym->hasDefinition = true;
+    sym->definition = NULL;
+    ParsedType t;
+    memset(&t, 0, sizeof(t));
+    t.kind = TYPE_PRIMITIVE;
+    t.tag = TAG_NONE;
+    t.primitiveType = TOKEN_CHAR;
+    t.isConst = true;
+    parsedTypeAppendPointer(&t);
+    sym->type = t;
+    addToScope(scope, sym);
+    (void)funcName;
 }
 
 void analyze(ASTNode* node, Scope* scope) {
@@ -44,6 +69,7 @@ void analyze(ASTNode* node, Scope* scope) {
             fscope->currentFunctionName = node->functionDef.funcName && node->functionDef.funcName->valueNode.value
                 ? node->functionDef.funcName->valueNode.value
                 : NULL;
+            addFuncBuiltinIdentifiers(fscope, fscope->currentFunctionName);
             size_t fixedCount = 0;
             for (size_t i = 0; i < node->functionDef.paramCount; ++i) {
                 ASTNode* p = node->functionDef.parameters[i];

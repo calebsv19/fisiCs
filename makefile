@@ -11,6 +11,10 @@ CODEGEN_DEBUG ?= 0
 CODEGEN_TRACE ?= 0
 PARSER_DEBUG ?= 0
 DISABLE_CODEGEN ?= 0
+SHIM_MODE ?= off
+SYS_SHIMS_DIR := ../shared/sys_shims
+SYS_SHIMS_OVERLAY := $(abspath $(SYS_SHIMS_DIR)/overlay/include)
+SYS_SHIMS_INCLUDE := $(abspath $(SYS_SHIMS_DIR)/include)
 
 CODEGEN_DEFS :=
 ifeq ($(CODEGEN_DEBUG),1)
@@ -32,7 +36,12 @@ INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax
 SRC_DIR := src
 BUILD_DIR := build
 BIN := fisics
-INCLUDE_PATHS ?= include
+INCLUDE_PATHS_BASE := include
+INCLUDE_PATHS ?= $(INCLUDE_PATHS_BASE)
+ifeq ($(SHIM_MODE),shadow)
+INCLUDE_PATHS := $(SYS_SHIMS_OVERLAY):$(INCLUDE_PATHS_BASE)
+BIN := fisics_shim_shadow
+endif
 DEFAULT_INCLUDE_PATHS := $(if $(INCLUDE_PATHS),$(INCLUDE_PATHS),include)
 
 # === Step 1: Generate keyword_lookup.c from keywords.gperf ===
@@ -479,6 +488,42 @@ preprocessor-tests: $(BIN)
 	@./tests/preprocessor/run_pp_builtin_more.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_pragma_stdc.sh ./$(BIN)
 
+shim-build-shadow:
+	@$(MAKE) SHIM_MODE=shadow all
+
+shim-parse-smoke: shim-build-shadow
+	@echo "Running shim parse smoke with $(BIN) (SHIM_MODE=shadow)..."
+	@SYSTEM_INCLUDE_PATHS="$(SYS_SHIMS_OVERLAY):$${SYSTEM_INCLUDE_PATHS:-}" \
+		./tests/preprocessor/run_pp_system_include.sh ./fisics_shim_shadow
+	@SYSTEM_INCLUDE_PATHS="$(SYS_SHIMS_OVERLAY):$${SYSTEM_INCLUDE_PATHS:-}" \
+		./tests/preprocessor/run_pp_include_search.sh ./fisics_shim_shadow
+
+shim-parse-parity:
+	@echo "Building baseline compiler..."
+	@$(MAKE) SHIM_MODE=off all
+	@echo "Building shim-shadow compiler..."
+	@$(MAKE) SHIM_MODE=shadow all
+	@echo "Comparing baseline vs shim-shadow system include behavior..."
+	@./tests/preprocessor/run_pp_system_include.sh ./fisics
+	@SYSTEM_INCLUDE_PATHS="$(SYS_SHIMS_OVERLAY):$${SYSTEM_INCLUDE_PATHS:-}" \
+		./tests/preprocessor/run_pp_system_include.sh ./fisics_shim_shadow
+	@./tests/preprocessor/run_pp_include_search.sh ./fisics
+	@SYSTEM_INCLUDE_PATHS="$(SYS_SHIMS_OVERLAY):$${SYSTEM_INCLUDE_PATHS:-}" \
+		./tests/preprocessor/run_pp_include_search.sh ./fisics_shim_shadow
+	@echo "shim parity checks passed (baseline and shadow paths both valid)."
+
+shim-parse-parity-quiet:
+	@echo "Building baseline compiler..."
+	@$(MAKE) SHIM_MODE=off all
+	@echo "Building shim-shadow compiler..."
+	@$(MAKE) SHIM_MODE=shadow all
+	@./tests/preprocessor/run_pp_shim_quiet_parity.sh ./fisics ./fisics_shim_shadow "$(SYS_SHIMS_OVERLAY)" "$(SYS_SHIMS_INCLUDE)"
+
+shim-gate:
+	@$(MAKE) shim-parse-parity-quiet
+	@$(MAKE) -C ../shared/sys_shims conformance
+	@echo "fisiCs shim gate passed."
+
 FRONTEND_TEST_SRCS := $(wildcard tests/unit/frontend_api*.c)
 FRONTEND_TEST_BINS := $(patsubst tests/unit/%.c,build/tests/%,$(FRONTEND_TEST_SRCS))
 
@@ -527,4 +572,5 @@ tests: test frontend-api-test
         codegen-bitfield \
         statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
         statement-expr-codegen codegen-bitfield \
-        parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array
+        parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
+        shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-gate

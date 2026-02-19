@@ -246,6 +246,9 @@ static ASTNode* nud(Parser* parser, Token token) {
         }
 
         case TOKEN_IDENTIFIER: {
+                if (token.value && strcmp(token.value, "__extension__") == 0) {
+                        return parseExpressionPratt(parser, 11);
+                }
                 ASTNode* ident = createIdentifierNode(token.value);
                 astNodeSetProvenance(ident, &token);
 

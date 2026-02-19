@@ -171,6 +171,32 @@ void parsedTypeResetDerivations(ParsedType* t) {
     t->isVariadicFunction = false;
 }
 
+static void skip_gnu_attribute_specifier(Parser* parser) {
+    if (!parser || parser->currentToken.type != TOKEN_IDENTIFIER || !parser->currentToken.value) {
+        return;
+    }
+    if (strcmp(parser->currentToken.value, "__attribute__") != 0) {
+        return;
+    }
+    advance(parser); // consume __attribute__
+    if (parser->currentToken.type != TOKEN_LPAREN) {
+        return;
+    }
+    int depth = 0;
+    while (parser->currentToken.type != TOKEN_EOF) {
+        if (parser->currentToken.type == TOKEN_LPAREN) {
+            depth++;
+        } else if (parser->currentToken.type == TOKEN_RPAREN) {
+            depth--;
+            if (depth <= 0) {
+                advance(parser);
+                break;
+            }
+        }
+        advance(parser);
+    }
+}
+
 static TypeDerivation cloneDerivation(const TypeDerivation* src) {
     TypeDerivation dst;
     memset(&dst, 0, sizeof(dst));
@@ -690,6 +716,17 @@ static bool parseInlineEnumBody(Parser* parser,
         ASTNode* memberName = createIdentifierNode(parser->currentToken.value);
         astNodeSetProvenance(memberName, &parser->currentToken);
         advance(parser); // consume member name
+        size_t memberAttrCount = 0;
+        ASTAttribute** memberAttrs = parserParseAttributeSpecifiers(parser, &memberAttrCount);
+        if (memberAttrs) {
+            astAttributeListDestroy(memberAttrs, memberAttrCount);
+            free(memberAttrs);
+        }
+        while (parser->currentToken.type == TOKEN_IDENTIFIER &&
+               parser->currentToken.value &&
+               strcmp(parser->currentToken.value, "__attribute__") == 0) {
+            skip_gnu_attribute_specifier(parser);
+        }
 
         ASTNode* valueExpr = NULL;
         if (parser->currentToken.type == TOKEN_ASSIGN) {
@@ -715,6 +752,18 @@ static bool parseInlineEnumBody(Parser* parser,
         members[count] = memberName;
         values[count] = valueExpr;
         count++;
+
+        size_t trailingAttrCount = 0;
+        ASTAttribute** trailingAttrs = parserParseAttributeSpecifiers(parser, &trailingAttrCount);
+        if (trailingAttrs) {
+            astAttributeListDestroy(trailingAttrs, trailingAttrCount);
+            free(trailingAttrs);
+        }
+        while (parser->currentToken.type == TOKEN_IDENTIFIER &&
+               parser->currentToken.value &&
+               strcmp(parser->currentToken.value, "__attribute__") == 0) {
+            skip_gnu_attribute_specifier(parser);
+        }
 
         if (parser->currentToken.type == TOKEN_COMMA) {
             advance(parser); // continue

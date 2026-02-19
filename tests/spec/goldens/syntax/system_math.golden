@@ -1907,116 +1907,116 @@ PROGRAM
         TYPE: double
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __fabsf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __hypotf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __sqrtf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __ceilf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __floorf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __rintf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __roundf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __truncf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __copysignf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __nextafterf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __fmaxf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __fminf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param1
   FUNCTION DECLARATION
-    RETURN TYPE: extern _Float16
+    RETURN TYPE: extern float
     IDENTIFIER __fmaf16
     PARAMETERS:
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: _Float16
+        TYPE: float
         IDENTIFIER __unnamed_param2
   ATTRIBUTE [GNU] __always_inline__
   FUNCTION DEFINITION

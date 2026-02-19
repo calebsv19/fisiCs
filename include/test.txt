@@ -1,11 +1,19 @@
-#include <stdbool.h>
-#include <stdint.h>
-#include <limits.h>
-#include <stddef.h>
+_Static_assert(sizeof(int) > 0, "static_assert works");
+
+enum ClockId {
+    _CLOCK_REALTIME __attribute__((availability(macosx,introduced=10.12))) = 0,
+    _CLOCK_MONOTONIC __attribute__((availability(macosx,introduced=10.12))) = 6
+};
+
+typedef struct { int x; int y; } Pair;
 
 int main(void) {
-    bool ok = true;
-    int32_t v = INT32_MAX;
-    size_t z = sizeof(v);
-    return ok ? (int)(v == INT32_MAX) + (int)z + (INT_MAX > 0) : 0;
+    const char* fn = __func__;
+    int v = (int)__builtin_bswap32(1);
+    long long w = (long long)__builtin_bswap64(2);
+    int out = 0;
+    __builtin_mul_overflow(3, 7, &out);
+    Pair p = (Pair){ .x = 1, .y = 2 };
+    int sum = p.x + p.y;
+    return (int)(v != 0) + (int)(w != 0) + out + (int)_CLOCK_MONOTONIC + sum + (fn ? 0 : 1);
 }

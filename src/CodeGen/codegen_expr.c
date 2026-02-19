@@ -2238,6 +2238,11 @@ LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
+    if (node->valueNode.value && strcmp(node->valueNode.value, "__func__") == 0) {
+        const char* fnName = ctx->currentFunctionName ? ctx->currentFunctionName : "";
+        return LLVMBuildGlobalStringPtr(ctx->builder, fnName, "__func__");
+    }
+
     NamedValue* entry = cg_scope_lookup(ctx->currentScope, node->valueNode.value);
     if (entry) {
         if (entry->addressOnly) {

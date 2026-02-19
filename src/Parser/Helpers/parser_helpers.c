@@ -2,6 +2,7 @@
 #include "Parser/Helpers/parser_lookahead.h"
 #include "parser_config.h"
 #include "Compiler/diagnostics.h"
+#include "Compiler/compiler_context.h"
 #include <stdlib.h>   // malloc, free
 #include <string.h>   // memcpy
 
@@ -21,7 +22,8 @@ void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerCo
     parser->anonTagCounter = 0;
     const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
     parser->enableStatementExpressions =
-        (gnuEnv && gnuEnv[0] != '\0' && gnuEnv[0] != '0');
+        (gnuEnv && gnuEnv[0] != '\0' && gnuEnv[0] != '0') ||
+        (ctx && cc_extensions_enabled(ctx));
 }
 
 // Advance the 4-token lookahead window forward

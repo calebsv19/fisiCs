@@ -378,6 +378,9 @@ Token handleIdentifierOrKeyword(Lexer* lexer) {
     if (strcmp(text, "__signed") == 0 || strcmp(text, "__signed__") == 0) {
         return make_token(lexer, TOKEN_SIGNED, text, startMark);
     }
+    if (strcmp(text, "_Float16") == 0 || strcmp(text, "__fp16") == 0) {
+        return make_token(lexer, TOKEN_FLOAT, text, startMark);
+    }
     if (strcmp(text, "__inline") == 0 || strcmp(text, "__inline__") == 0) {
         return make_token(lexer, TOKEN_INLINE, text, startMark);
     }
@@ -993,6 +996,7 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "inline") == 0) return TOKEN_INLINE;
     if (strcmp(word, "sizeof") == 0) return TOKEN_SIZEOF;
     if (strcmp(word, "_Alignof") == 0 || strcmp(word, "alignof") == 0) return TOKEN_ALIGNOF;
+    if (strcmp(word, "_Static_assert") == 0) return TOKEN_STATIC_ASSERT;
     if (strcmp(word, "asm") == 0) return TOKEN_ASM;
     if (strcmp(word, "pragma") == 0) return TOKEN_PRAGMA;
     if (strcmp(word, "once") == 0) return TOKEN_ONCE;

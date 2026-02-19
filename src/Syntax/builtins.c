@@ -318,6 +318,22 @@ void seedBuiltins(Scope* globalScope) {
     Symbol* expectSym = makeBuiltinFunc("__builtin_expect", longType(false), 2, expectArgs);
     if (expectSym) addToScope(scope, expectSym);
 
+    ParsedType bswap32Arg[1] = { intType() };
+    Symbol* bswap32 = makeBuiltinFunc("__builtin_bswap32", intType(), 1, bswap32Arg);
+    if (bswap32) addToScope(scope, bswap32);
+
+    ParsedType bswap64Arg[1] = { longType(true) };
+    Symbol* bswap64 = makeBuiltinFunc("__builtin_bswap64", longType(true), 1, bswap64Arg);
+    if (bswap64) addToScope(scope, bswap64);
+
+    Symbol* mulOverflow = makeBuiltin("__builtin_mul_overflow", SYMBOL_FUNCTION, intType(), NULL);
+    if (mulOverflow) {
+        mulOverflow->signature.isVariadic = true;
+        mulOverflow->signature.paramCount = 0;
+        mulOverflow->signature.hasPrototype = true;
+        addToScope(scope, mulOverflow);
+    }
+
     // Varargs helpers used by system headers/macros.
     ParsedType voidRet = voidType();
     Symbol* vaStart = makeBuiltinFunc("__builtin_va_start", voidRet, 0, NULL);

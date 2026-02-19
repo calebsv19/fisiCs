@@ -68,6 +68,32 @@ static bool parser_allows_block_pointers(Parser* parser) {
     return parser && parser->ctx && cc_extensions_enabled(parser->ctx);
 }
 
+static void skip_gnu_attribute_specifier(Parser* parser) {
+    if (!parser || parser->currentToken.type != TOKEN_IDENTIFIER || !parser->currentToken.value) {
+        return;
+    }
+    if (strcmp(parser->currentToken.value, "__attribute__") != 0) {
+        return;
+    }
+    advance(parser); // consume __attribute__
+    if (parser->currentToken.type != TOKEN_LPAREN) {
+        return;
+    }
+    int depth = 0;
+    while (parser->currentToken.type != TOKEN_EOF) {
+        if (parser->currentToken.type == TOKEN_LPAREN) {
+            depth++;
+        } else if (parser->currentToken.type == TOKEN_RPAREN) {
+            depth--;
+            if (depth <= 0) {
+                advance(parser);
+                break;
+            }
+        }
+        advance(parser);
+    }
+}
+
 static void consumePointerQualifiers(Parser* parser, PointerDeclaratorLayer* layer) {
     while (parser->currentToken.type == TOKEN_CONST ||
            parser->currentToken.type == TOKEN_VOLATILE ||
@@ -1170,22 +1196,21 @@ ASTNode* parseEnumDefinition(Parser* parser) {
         return NULL;
     }
 
+    int enumLine = parser->currentToken.line;
     advance(parser); // consume 'enum'
     size_t enumAttrCount = 0;
     ASTAttribute** enumAttrs = parserParseAttributeSpecifiers(parser, &enumAttrCount);
 
-    if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-        printParseError("Expected enum name after 'enum'", parser);
-        return NULL;
+    const char* enumName = NULL;
+    if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        enumName = parser->currentToken.value;
+        enumLine = parser->currentToken.line;
+        // Phase 2 hook: record enum tag
+        if (parser->ctx && enumName && enumName[0]) {
+            cc_add_tag(parser->ctx, CC_TAG_ENUM, enumName);
+        }
+        advance(parser); // consume name
     }
-
-    const char* enumName = parser->currentToken.value;
-    int enumLine = parser->currentToken.line;
-    // Phase 2 hook: record enum tag
-    if (parser->ctx && enumName && enumName[0]) {
-        cc_add_tag(parser->ctx, CC_TAG_ENUM, enumName);
-    }
-    advance(parser); // consume name
 
     if (parser->currentToken.type != TOKEN_LBRACE) {
         printParseError("Expected '{' to begin enum body", parser);
@@ -1208,6 +1233,11 @@ ASTNode* parseEnumDefinition(Parser* parser) {
         if (memberAttrs) {
             astAttributeListDestroy(memberAttrs, memberAttrCount);
             free(memberAttrs);
+        }
+        while (parser->currentToken.type == TOKEN_IDENTIFIER &&
+               parser->currentToken.value &&
+               strcmp(parser->currentToken.value, "__attribute__") == 0) {
+            skip_gnu_attribute_specifier(parser);
         }
 
         ASTNode* valueExpr = NULL;
@@ -1236,6 +1266,11 @@ ASTNode* parseEnumDefinition(Parser* parser) {
             astAttributeListDestroy(trailingAttrs, trailingAttrCount);
             free(trailingAttrs);
         }
+        while (parser->currentToken.type == TOKEN_IDENTIFIER &&
+               parser->currentToken.value &&
+               strcmp(parser->currentToken.value, "__attribute__") == 0) {
+            skip_gnu_attribute_specifier(parser);
+        }
 
         if (parser->currentToken.type == TOKEN_COMMA) {
             advance(parser); // continue
@@ -1258,6 +1293,16 @@ ASTNode* parseEnumDefinition(Parser* parser) {
         return NULL;
     }
     advance(parser); // consume ';'
+
+    char anonName[64];
+    if (!enumName) {
+        unsigned long long anonId = parser ? parser->anonTagCounter++ : 0ULL;
+        snprintf(anonName, sizeof(anonName), "__anon_enum_%llu_%d", anonId, enumLine);
+        enumName = anonName;
+        if (parser->ctx) {
+            cc_add_tag(parser->ctx, CC_TAG_ENUM, enumName);
+        }
+    }
 
     ASTNode* node = createEnumDefinitionNode(enumName, members, values, count);
     if (node) {

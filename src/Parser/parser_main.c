@@ -19,6 +19,16 @@ static void consume_line(Parser* parser, int line) {
     }
 }
 
+static bool expectTokenLocal(Parser* parser, TokenType type, const char* message) {
+    if (!parser) return false;
+    if (parser->currentToken.type != type) {
+        printParseError(message ? message : "Unexpected token", parser);
+        return false;
+    }
+    advance(parser);
+    return true;
+}
+
 static char* concat_tokens_on_line(Parser* parser, int line) {
     size_t cap = 64;
     size_t len = 0;
@@ -357,6 +367,31 @@ ASTNode* parseStatement(Parser* parser) {
 
     if (parser->currentToken.type == TOKEN_ASM) {
         return parseAsmStatement(parser);
+    }
+
+    if (parser->currentToken.type == TOKEN_STATIC_ASSERT) {
+        advance(parser); // consume _Static_assert
+        if (!expectTokenLocal(parser, TOKEN_LPAREN, "Expected '(' after _Static_assert")) {
+            return NULL;
+        }
+        ASTNode* expr = parseAssignmentExpression(parser);
+        (void)expr;
+        if (parser->currentToken.type == TOKEN_COMMA) {
+            advance(parser);
+            if (parser->currentToken.type == TOKEN_STRING) {
+                advance(parser);
+            } else {
+                printParseError("Expected string literal in _Static_assert", parser);
+                return NULL;
+            }
+        }
+        if (!expectTokenLocal(parser, TOKEN_RPAREN, "Expected ')' after _Static_assert")) {
+            return NULL;
+        }
+        if (!expectTokenLocal(parser, TOKEN_SEMICOLON, "Expected ';' after _Static_assert")) {
+            return NULL;
+        }
+        return createBlockNode(NULL, 0);
     }
 
     size_t stmtAttrCount = 0;

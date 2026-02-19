@@ -39,7 +39,7 @@ typedef enum {
     TOKEN_COMPLEX, TOKEN_IMAGINARY,
 
     // Special Values
-    TOKEN_NULL, TOKEN_SIZEOF, TOKEN_ALIGNOF,
+    TOKEN_NULL, TOKEN_SIZEOF, TOKEN_ALIGNOF, TOKEN_STATIC_ASSERT,
 
     // ==============================
     //  Identifiers & Literals
