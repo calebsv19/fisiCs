@@ -11,10 +11,17 @@ CODEGEN_DEBUG ?= 0
 CODEGEN_TRACE ?= 0
 PARSER_DEBUG ?= 0
 DISABLE_CODEGEN ?= 0
+BUILD_PROFILE ?= unsanitized
 SHIM_MODE ?= off
 SYS_SHIMS_DIR := ../shared/sys_shims
+CORE_BASE_DIR := ../shared/core_base
+CORE_IO_DIR := ../shared/core_io
+CORE_DATA_DIR := ../shared/core_data
+CORE_PACK_DIR := ../shared/core_pack
 SYS_SHIMS_OVERLAY := $(abspath $(SYS_SHIMS_DIR)/overlay/include)
 SYS_SHIMS_INCLUDE := $(abspath $(SYS_SHIMS_DIR)/include)
+SHIM_PROFILE_ID := shim_profile_lang_frontend_shadow_v1
+SHIM_PROFILE_VERSION := 1
 
 CODEGEN_DEFS :=
 ifeq ($(CODEGEN_DEBUG),1)
@@ -29,12 +36,25 @@ ifeq ($(PARSER_DEBUG),1)
 PARSER_DEFS += -DPARSER_DEBUG
 endif
 
-CFLAGS = -Wall -Wextra -Wpedantic -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS) -DDEFAULT_INCLUDE_PATHS=\"$(DEFAULT_INCLUDE_PATHS)\"
-LDFLAGS := -fsanitize=address,undefined $(LLVM_LDFLAGS) $(LLVM_LIBS)
+BASE_CFLAGS = -Wall -Wextra -Wpedantic $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS) -DDEFAULT_INCLUDE_PATHS=\"$(DEFAULT_INCLUDE_PATHS)\"
+BASE_LDFLAGS := $(LLVM_LDFLAGS) $(LLVM_LIBS)
 
-INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax
+ifeq ($(BUILD_PROFILE),sanitized)
+PROFILE_CFLAGS := -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined
+PROFILE_LDFLAGS := -fsanitize=address,undefined
+else ifeq ($(BUILD_PROFILE),unsanitized)
+PROFILE_CFLAGS := -O3 -DNDEBUG
+PROFILE_LDFLAGS :=
+else
+$(error Unsupported BUILD_PROFILE '$(BUILD_PROFILE)' (expected unsanitized or sanitized))
+endif
+
+CFLAGS = $(BASE_CFLAGS) $(PROFILE_CFLAGS)
+LDFLAGS := $(BASE_LDFLAGS) $(PROFILE_LDFLAGS)
+
+INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax -I$(CORE_BASE_DIR)/include -I$(CORE_IO_DIR)/include -I$(CORE_DATA_DIR)/include -I$(CORE_PACK_DIR)/include
 SRC_DIR := src
-BUILD_DIR := build
+BUILD_DIR := build/$(BUILD_PROFILE)
 BIN := fisics
 INCLUDE_PATHS_BASE := include
 INCLUDE_PATHS ?= $(INCLUDE_PATHS_BASE)
@@ -58,8 +78,17 @@ SRCS := $(shell find $(SRC_DIR) -name '*.c')
 SRCS += src/Lexer/keyword_lookup.c
 
 SRCS += src/Preprocessor/include_resolver.c
+CORE_BASE_SRCS := $(CORE_BASE_DIR)/src/core_base.c
+CORE_IO_SRCS := $(CORE_IO_DIR)/src/core_io.c
+CORE_DATA_SRCS := $(CORE_DATA_DIR)/src/core_data.c
+CORE_PACK_SRCS := $(CORE_PACK_DIR)/src/core_pack.c
 
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
+CORE_BASE_OBJS := $(patsubst $(CORE_BASE_DIR)/src/%.c,$(BUILD_DIR)/core_base/%.o,$(CORE_BASE_SRCS))
+CORE_IO_OBJS := $(patsubst $(CORE_IO_DIR)/src/%.c,$(BUILD_DIR)/core_io/%.o,$(CORE_IO_SRCS))
+CORE_DATA_OBJS := $(patsubst $(CORE_DATA_DIR)/src/%.c,$(BUILD_DIR)/core_data/%.o,$(CORE_DATA_SRCS))
+CORE_PACK_OBJS := $(patsubst $(CORE_PACK_DIR)/src/%.c,$(BUILD_DIR)/core_pack/%.o,$(CORE_PACK_SRCS))
+OBJS += $(CORE_BASE_OBJS) $(CORE_IO_OBJS) $(CORE_DATA_OBJS) $(CORE_PACK_OBJS)
 LIB_FRONTEND := libfisics_frontend.a
 # Include codegen in the archive so downstream IDEs don’t see undefined symbols.
 FRONTEND_OBJS := $(filter-out $(BUILD_DIR)/main.o $(BUILD_DIR)/Compiler/object_emit.o,$(OBJS))
@@ -70,8 +99,13 @@ BACKEND_OBJS := $(BUILD_DIR)/Compiler/object_emit.o
 all: $(BIN)
 
 # Frontend-only targets
-.PHONY: frontend frontend-clean frontend-rebuild
+.PHONY: frontend frontend-clean frontend-rebuild frontend-sanitized frontend-unsanitized frontend-both
 frontend: $(LIB_FRONTEND)
+frontend-sanitized:
+	@$(MAKE) BUILD_PROFILE=sanitized LIB_FRONTEND=libfisics_frontend_sanitized.a frontend
+frontend-unsanitized:
+	@$(MAKE) BUILD_PROFILE=unsanitized LIB_FRONTEND=libfisics_frontend_unsanitized.a frontend
+frontend-both: frontend-unsanitized frontend-sanitized
 frontend-clean:
 	@echo "Cleaning frontend library..."
 	rm -f $(LIB_FRONTEND)
@@ -94,10 +128,30 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
+$(BUILD_DIR)/core_base/%.o: $(CORE_BASE_DIR)/src/%.c
+	@mkdir -p $(dir $@)
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD_DIR)/core_io/%.o: $(CORE_IO_DIR)/src/%.c
+	@mkdir -p $(dir $@)
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD_DIR)/core_data/%.o: $(CORE_DATA_DIR)/src/%.c
+	@mkdir -p $(dir $@)
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD_DIR)/core_pack/%.o: $(CORE_PACK_DIR)/src/%.c
+	@mkdir -p $(dir $@)
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
 # === Clean: remove binary + build artifacts ===
 clean:
 	@echo "Cleaning..."
-	rm -rf $(BUILD_DIR) $(BIN) $(LIB_FRONTEND)
+	rm -rf build $(BIN) $(LIB_FRONTEND) libfisics_frontend_unsanitized.a libfisics_frontend_sanitized.a
 	rm -f src/Lexer/keyword_lookup.c
 
 integration-compile-only: $(BIN)
@@ -105,6 +159,9 @@ integration-compile-only: $(BIN)
 
 integration-compile-link: $(BIN)
 	@./tests/integration/compile_and_link.sh ./$(BIN)
+
+integration-diags-pack: $(BIN)
+	@./tests/integration/run_emit_diags_pack.sh ./$(BIN)
 
 integration: integration-compile-only integration-compile-link
 
@@ -140,6 +197,9 @@ cast-grouped: $(BIN)
 
 for_typedef: $(BIN)
 	@./tests/parser/run_for_typedef.sh ./$(BIN)
+
+comma-decl-init: $(BIN)
+	@./tests/parser/run_comma_decl_init.sh ./$(BIN)
 
 function-pointer: $(BIN)
 	@./tests/parser/run_function_pointer.sh ./$(BIN)
@@ -434,7 +494,7 @@ spec-tests: $(BIN)
 	@MallocNanoZone=0 DISABLE_CODEGEN=1 ./tests/spec/run_ast_golden.sh ./$(BIN)
 
 parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \
-              cast-grouped for_typedef function-pointer switch-flow goto-flow \
+              cast-grouped for_typedef comma-decl-init function-pointer switch-flow goto-flow \
               statement-expr-enabled statement-expr-disabled recovery
 
 syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic-bool \
@@ -463,7 +523,7 @@ codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff codegen-
                codegen-compound-literal-storage codegen-builtin-expect \
                statement-expr-codegen
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -519,16 +579,33 @@ shim-parse-parity-quiet:
 	@$(MAKE) SHIM_MODE=shadow all
 	@./tests/preprocessor/run_pp_shim_quiet_parity.sh ./fisics ./fisics_shim_shadow "$(SYS_SHIMS_OVERLAY)" "$(SYS_SHIMS_INCLUDE)"
 
+shim-language-profile:
+	@echo "Building baseline compiler..."
+	@$(MAKE) SHIM_MODE=off all
+	@echo "Building shim-shadow compiler..."
+	@$(MAKE) SHIM_MODE=shadow all
+	@./tests/preprocessor/run_pp_shim_language_profile.sh ./fisics ./fisics_shim_shadow "$(SYS_SHIMS_OVERLAY)" "$(SYS_SHIMS_INCLUDE)" "$(SHIM_PROFILE_ID)" "$(SHIM_PROFILE_VERSION)"
+
+shim-language-profile-negative:
+	@echo "Building shim-shadow compiler..."
+	@$(MAKE) SHIM_MODE=shadow all
+	@./tests/preprocessor/run_pp_shim_language_profile_negative.sh ./fisics_shim_shadow "$(SYS_SHIMS_OVERLAY)" "$(SYS_SHIMS_INCLUDE)" "$(SHIM_PROFILE_ID)" "$(SHIM_PROFILE_VERSION)"
+
+shim-s6-gate:
+	@$(MAKE) shim-language-profile
+	@$(MAKE) shim-language-profile-negative
+	@echo "fisiCs S6 shim profile gate passed."
+
 shim-gate:
 	@$(MAKE) shim-parse-parity-quiet
 	@$(MAKE) -C ../shared/sys_shims conformance
 	@echo "fisiCs shim gate passed."
 
 FRONTEND_TEST_SRCS := $(wildcard tests/unit/frontend_api*.c)
-FRONTEND_TEST_BINS := $(patsubst tests/unit/%.c,build/tests/%,$(FRONTEND_TEST_SRCS))
+FRONTEND_TEST_BINS := $(patsubst tests/unit/%.c,$(BUILD_DIR)/tests/%,$(FRONTEND_TEST_SRCS))
 
-build/tests/%: tests/unit/%.c $(LIB_FRONTEND)
-	@mkdir -p build/tests
+$(BUILD_DIR)/tests/%: tests/unit/%.c $(LIB_FRONTEND)
+	@mkdir -p $(BUILD_DIR)/tests
 	$(CC) $(CFLAGS) $(INCLUDES) $< -L. -lfisics_frontend -o $@ $(LDFLAGS)
 
 frontend-api-test: $(LIB_FRONTEND) $(FRONTEND_TEST_BINS)
@@ -546,10 +623,10 @@ frontend-api-test: $(LIB_FRONTEND) $(FRONTEND_TEST_BINS)
 	echo "Frontend API tests: PASS"
 
 HARNESS_SRC := tests/harness/frontend_harness.c
-HARNESS_BIN := build/tests/frontend_harness
+HARNESS_BIN := $(BUILD_DIR)/tests/frontend_harness
 
 $(HARNESS_BIN): $(HARNESS_SRC) $(LIB_FRONTEND)
-	@mkdir -p build/tests
+	@mkdir -p $(BUILD_DIR)/tests
 	$(CC) $(CFLAGS) $(INCLUDES) $(HARNESS_SRC) -L. -lfisics_frontend -o $@ $(LDFLAGS)
 
 frontend-harness: $(HARNESS_BIN)
@@ -573,4 +650,5 @@ tests: test frontend-api-test
         statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
         statement-expr-codegen codegen-bitfield \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
-        shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-gate
+        integration-diags-pack \
+        shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

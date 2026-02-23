@@ -1,5 +1,7 @@
 #include "Preprocessor/include_resolver.h"
+#include "core_io.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,18 +23,20 @@ static bool ir_path_exists(const char* path, long* mtimeOut) {
 }
 
 static char* ir_read_file(const char* path) {
-    FILE* f = fopen(path, "rb");
-    if (!f) return NULL;
-    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return NULL; }
-    long len = ftell(f);
-    if (len < 0) { fclose(f); return NULL; }
-    if (fseek(f, 0, SEEK_SET) != 0) { fclose(f); return NULL; }
-    char* buffer = malloc((size_t)len + 1);
-    if (!buffer) { fclose(f); return NULL; }
-    size_t read = fread(buffer, 1, (size_t)len, f);
-    fclose(f);
-    if (read != (size_t)len) { free(buffer); return NULL; }
-    buffer[len] = '\0';
+    CoreBuffer file_data = {0};
+    CoreResult read_result = core_io_read_all(path, &file_data);
+    if (read_result.code != CORE_OK) return NULL;
+
+    char* buffer = malloc(file_data.size + 1u);
+    if (!buffer) {
+        core_io_buffer_free(&file_data);
+        return NULL;
+    }
+    if (file_data.size > 0u) {
+        memcpy(buffer, file_data.data, file_data.size);
+    }
+    buffer[file_data.size] = '\0';
+    core_io_buffer_free(&file_data);
     return buffer;
 }
 
@@ -348,43 +352,90 @@ bool include_graph_clone(IncludeGraph* dest, const IncludeGraph* src) {
     return true;
 }
 
-static void fprint_json_escaped(FILE* f, const char* s) {
-    if (!s) {
-        fputs("\"\"", f);
-        return;
+typedef struct IncludeGraphJsonBuilder {
+    char* data;
+    size_t len;
+    size_t cap;
+} IncludeGraphJsonBuilder;
+
+static bool graph_json_reserve(IncludeGraphJsonBuilder* b, size_t extra) {
+    if (!b) return false;
+    if (extra > SIZE_MAX - b->len) return false;
+    size_t need = b->len + extra;
+    if (need <= b->cap) return true;
+    size_t newCap = b->cap ? b->cap : 256u;
+    while (newCap < need) {
+        if (newCap > SIZE_MAX / 2u) {
+            newCap = need;
+            break;
+        }
+        newCap *= 2u;
     }
-    fputc('"', f);
+    char* grown = (char*)realloc(b->data, newCap);
+    if (!grown) return false;
+    b->data = grown;
+    b->cap = newCap;
+    return true;
+}
+
+static bool graph_json_append_raw(IncludeGraphJsonBuilder* b, const char* s) {
+    size_t add = 0;
+    if (!b || !s) return false;
+    add = strlen(s);
+    if (!graph_json_reserve(b, add)) return false;
+    memcpy(b->data + b->len, s, add);
+    b->len += add;
+    return true;
+}
+
+static bool graph_json_append_char(IncludeGraphJsonBuilder* b, char c) {
+    if (!graph_json_reserve(b, 1u)) return false;
+    b->data[b->len++] = c;
+    return true;
+}
+
+static bool graph_json_append_escaped(IncludeGraphJsonBuilder* b, const char* s) {
+    if (!s) {
+        return graph_json_append_raw(b, "\"\"");
+    }
+    if (!graph_json_append_char(b, '"')) return false;
     for (const unsigned char* p = (const unsigned char*)s; *p; ++p) {
         if (*p == '\\' || *p == '"') {
-            fputc('\\', f);
-            fputc(*p, f);
+            if (!graph_json_append_char(b, '\\')) return false;
+            if (!graph_json_append_char(b, (char)*p)) return false;
         } else if (*p == '\n') {
-            fputs("\\n", f);
+            if (!graph_json_append_raw(b, "\\n")) return false;
         } else if (*p == '\r') {
-            fputs("\\r", f);
+            if (!graph_json_append_raw(b, "\\r")) return false;
         } else if (*p == '\t') {
-            fputs("\\t", f);
+            if (!graph_json_append_raw(b, "\\t")) return false;
         } else {
-            fputc(*p, f);
+            if (!graph_json_append_char(b, (char)*p)) return false;
         }
     }
-    fputc('"', f);
+    return graph_json_append_char(b, '"');
 }
 
 bool include_graph_write_json(const IncludeGraph* graph, const char* outPath) {
+    IncludeGraphJsonBuilder b = {0};
+    CoreResult write_result = core_result_ok();
     if (!graph || !outPath || outPath[0] == '\0') return false;
-    FILE* f = fopen(outPath, "w");
-    if (!f) return false;
-    fputs("{\"edges\":[", f);
+
+    if (!graph_json_append_raw(&b, "{\"edges\":[")) goto fail;
     for (size_t i = 0; i < graph->count; ++i) {
-        if (i) fputc(',', f);
-        fputs("{\"from\":", f);
-        fprint_json_escaped(f, graph->edges[i].from);
-        fputs(",\"to\":", f);
-        fprint_json_escaped(f, graph->edges[i].to);
-        fputc('}', f);
+        if (i && !graph_json_append_char(&b, ',')) goto fail;
+        if (!graph_json_append_raw(&b, "{\"from\":")) goto fail;
+        if (!graph_json_append_escaped(&b, graph->edges[i].from)) goto fail;
+        if (!graph_json_append_raw(&b, ",\"to\":")) goto fail;
+        if (!graph_json_append_escaped(&b, graph->edges[i].to)) goto fail;
+        if (!graph_json_append_char(&b, '}')) goto fail;
     }
-    fputs("]}\n", f);
-    fclose(f);
-    return true;
+    if (!graph_json_append_raw(&b, "]}\n")) goto fail;
+    write_result = core_io_write_all(outPath, b.data, b.len);
+    free(b.data);
+    return write_result.code == CORE_OK;
+
+fail:
+    free(b.data);
+    return false;
 }

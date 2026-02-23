@@ -39,6 +39,37 @@ void parsedTypeAddPointerDepth(ParsedType* t, int depth) {
     t->pointerDepth += depth;
 }
 
+static void parsedTypeFreeShallowArray(ParsedType* items, size_t count) {
+    if (!items) return;
+    for (size_t i = 0; i < count; ++i) {
+        parsedTypeFree(&items[i]);
+    }
+    free(items);
+}
+
+static bool cloneParsedTypeArray(ParsedType** outItems,
+                                 size_t* outCount,
+                                 const ParsedType* srcItems,
+                                 size_t count) {
+    if (!outItems || !outCount) return false;
+    *outItems = NULL;
+    *outCount = 0;
+    if (!srcItems || count == 0) {
+        return true;
+    }
+
+    ParsedType* cloned = (ParsedType*)calloc(count, sizeof(ParsedType));
+    if (!cloned) {
+        return false;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        cloned[i] = parsedTypeClone(&srcItems[i]);
+    }
+    *outItems = cloned;
+    *outCount = count;
+    return true;
+}
+
 static bool ensureDerivationCapacity(ParsedType* t, size_t extra) {
     if (!t) return false;
     size_t newCount = t->derivationCount + extra;
@@ -53,23 +84,18 @@ static bool ensureDerivationCapacity(ParsedType* t, size_t extra) {
 void parsedTypeSetFunctionPointer(ParsedType* t, size_t nParams, const ParsedType* params) {
     if (!t) return;
     t->isFunctionPointer = true;
-    t->fpParamCount = 0;
+    parsedTypeFreeShallowArray(t->fpParams, t->fpParamCount);
     t->fpParams = NULL;
+    t->fpParamCount = 0;
 
     if (nParams == 0) return;
-
-    ParsedType* copy = (ParsedType*)malloc(nParams * sizeof(ParsedType));
-    if (!copy) return;
-
-    memcpy(copy, params, nParams * sizeof(ParsedType));
-    t->fpParams = copy;
-    t->fpParamCount = nParams;
+    cloneParsedTypeArray(&t->fpParams, &t->fpParamCount, params, nParams);
 }
 
 void parsedTypeFree(ParsedType* t) {
     if (!t) return;
     if (t->fpParams) {
-        free(t->fpParams);
+        parsedTypeFreeShallowArray(t->fpParams, t->fpParamCount);
         t->fpParams = NULL;
     }
     t->fpParamCount = 0;
@@ -138,13 +164,13 @@ bool parsedTypeAppendFunction(ParsedType* t, const ParsedType* params, size_t pa
     slot->as.function.paramCount = paramCount;
     slot->as.function.params = NULL;
     if (paramCount > 0) {
-        size_t allocCount = paramCount * sizeof(ParsedType);
-        slot->as.function.params = (ParsedType*)malloc(allocCount);
-        if (!slot->as.function.params) {
+        if (!cloneParsedTypeArray(&slot->as.function.params,
+                                  &slot->as.function.paramCount,
+                                  params,
+                                  paramCount)) {
             slot->as.function.paramCount = 0;
             return false;
         }
-        memcpy(slot->as.function.params, params, allocCount);
     }
     t->derivationCount++;
     t->directlyDeclaresFunction = true;
@@ -158,7 +184,7 @@ void parsedTypeResetDerivations(ParsedType* t) {
         for (size_t i = 0; i < t->derivationCount; ++i) {
             TypeDerivation* slot = &t->derivations[i];
             if (slot->kind == TYPE_DERIVATION_FUNCTION && slot->as.function.params) {
-                free(slot->as.function.params);
+                parsedTypeFreeShallowArray(slot->as.function.params, slot->as.function.paramCount);
                 slot->as.function.params = NULL;
                 slot->as.function.paramCount = 0;
             }
@@ -223,15 +249,10 @@ static TypeDerivation cloneDerivation(const TypeDerivation* src) {
             dst.as.function.isVariadic = src->as.function.isVariadic;
             dst.as.function.paramCount = src->as.function.paramCount;
             dst.as.function.params = NULL;
-            if (src->as.function.params && src->as.function.paramCount > 0) {
-                size_t bytes = src->as.function.paramCount * sizeof(ParsedType);
-                dst.as.function.params = (ParsedType*)malloc(bytes);
-                if (dst.as.function.params) {
-                    memcpy(dst.as.function.params, src->as.function.params, bytes);
-                } else {
-                    dst.as.function.paramCount = 0;
-                }
-            }
+            cloneParsedTypeArray(&dst.as.function.params,
+                                 &dst.as.function.paramCount,
+                                 src->as.function.params,
+                                 src->as.function.paramCount);
             break;
     }
     return dst;
@@ -252,12 +273,7 @@ ParsedType parsedTypeClone(const ParsedType* src) {
     copy.attributes = NULL;
     copy.attributeCount = 0;
     if (src->fpParamCount > 0 && src->fpParams) {
-        size_t bytes = src->fpParamCount * sizeof(ParsedType);
-        copy.fpParams = (ParsedType*)malloc(bytes);
-        if (copy.fpParams) {
-            memcpy(copy.fpParams, src->fpParams, bytes);
-            copy.fpParamCount = src->fpParamCount;
-        }
+        cloneParsedTypeArray(&copy.fpParams, &copy.fpParamCount, src->fpParams, src->fpParamCount);
     }
     if (src->derivationCount > 0 && src->derivations) {
         copy.derivationCount = src->derivationCount;

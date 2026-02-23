@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "core_data.h"
 #include "Lexer/tokens.h"
 
 #ifdef __cplusplus
@@ -52,6 +53,12 @@ bool compiler_diagnostics_copy(const struct CompilerContext* ctx, FisicsDiagnost
 void compiler_diagnostics_clear(struct CompilerContext* ctx);
 size_t compiler_diagnostics_error_count(const struct CompilerContext* ctx);
 size_t compiler_diagnostics_parser_error_count(const struct CompilerContext* ctx);
+CoreResult compiler_diagnostics_build_core_dataset(const struct CompilerContext* ctx,
+                                                   CoreDataset* out_dataset);
+CoreResult compiler_diagnostics_write_core_dataset_json(const struct CompilerContext* ctx,
+                                                        const char* out_path);
+CoreResult compiler_diagnostics_write_core_dataset_pack(const struct CompilerContext* ctx,
+                                                        const char* out_path);
 
 #ifdef __cplusplus
 }

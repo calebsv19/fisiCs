@@ -747,7 +747,7 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
                 // Treat the whole initializer as a single simple init (no .field or [index])
                 init = createSimpleInit(compound);
             } else {
-                ASTNode* expr = parseExpression(parser);
+                ASTNode* expr = parseAssignmentExpression(parser);
                 if (!expr) {
                     printParseError("Invalid initializer in variable declaration", parser);
                     init = NULL;

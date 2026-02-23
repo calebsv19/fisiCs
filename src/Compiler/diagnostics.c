@@ -1,8 +1,13 @@
 #include "Compiler/diagnostics.h"
 
+#include "core_io.h"
+#include "core_pack.h"
+
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "Compiler/compiler_context.h"
 #include "Utils/logging.h"
@@ -243,4 +248,446 @@ size_t compiler_diagnostics_parser_error_count(const struct CompilerContext* ctx
     return count_errors_in_range(ctx_buffer_const(ctx),
                                  CDIAG_PARSER_GENERIC,
                                  CDIAG_SEMANTIC_GENERIC);
+}
+
+CoreResult compiler_diagnostics_build_core_dataset(const struct CompilerContext* ctx,
+                                                   CoreDataset* out_dataset) {
+    const CompilerDiagnostics* buf = ctx_buffer_const(ctx);
+    uint32_t n = 0u;
+    uint32_t* line_col = NULL;
+    uint32_t* column_col = NULL;
+    uint32_t* length_col = NULL;
+    uint32_t* kind_col = NULL;
+    int64_t* code_col = NULL;
+    bool* has_file_col = NULL;
+    bool* has_message_col = NULL;
+    bool* has_hint_col = NULL;
+    uint32_t error_count = 0u;
+    uint32_t warning_count = 0u;
+    uint32_t note_count = 0u;
+    CoreResult r;
+    const char* col_names[] = {
+        "line",
+        "column",
+        "length",
+        "kind",
+        "code",
+        "has_file",
+        "has_message",
+        "has_hint"
+    };
+    const CoreTableColumnType col_types[] = {
+        CORE_TABLE_COL_U32,
+        CORE_TABLE_COL_U32,
+        CORE_TABLE_COL_U32,
+        CORE_TABLE_COL_U32,
+        CORE_TABLE_COL_I64,
+        CORE_TABLE_COL_BOOL,
+        CORE_TABLE_COL_BOOL,
+        CORE_TABLE_COL_BOOL
+    };
+    const void* col_data[] = {
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    };
+
+    if (!out_dataset) {
+        CoreResult invalid = { CORE_ERR_INVALID_ARG, "invalid argument" };
+        return invalid;
+    }
+
+    core_dataset_init(out_dataset);
+    if (buf) {
+        n = (uint32_t)buf->count;
+    }
+
+    if (n > 0u) {
+        line_col = (uint32_t*)malloc(sizeof(uint32_t) * n);
+        column_col = (uint32_t*)malloc(sizeof(uint32_t) * n);
+        length_col = (uint32_t*)malloc(sizeof(uint32_t) * n);
+        kind_col = (uint32_t*)malloc(sizeof(uint32_t) * n);
+        code_col = (int64_t*)malloc(sizeof(int64_t) * n);
+        has_file_col = (bool*)malloc(sizeof(bool) * n);
+        has_message_col = (bool*)malloc(sizeof(bool) * n);
+        has_hint_col = (bool*)malloc(sizeof(bool) * n);
+        if (!line_col || !column_col || !length_col || !kind_col ||
+            !code_col || !has_file_col || !has_message_col || !has_hint_col) {
+            r.code = CORE_ERR_OUT_OF_MEMORY;
+            r.message = "out of memory";
+            goto fail;
+        }
+    }
+
+    if (buf) {
+        for (uint32_t i = 0u; i < n; ++i) {
+            const FisicsDiagnostic* d = &buf->items[i];
+            if (d->kind == DIAG_ERROR) error_count += 1u;
+            else if (d->kind == DIAG_WARNING) warning_count += 1u;
+            else if (d->kind == DIAG_NOTE) note_count += 1u;
+
+            line_col[i] = (d->line > 0) ? (uint32_t)d->line : 0u;
+            column_col[i] = (d->column > 0) ? (uint32_t)d->column : 0u;
+            length_col[i] = (d->length > 0) ? (uint32_t)d->length : 0u;
+            kind_col[i] = (uint32_t)d->kind;
+            code_col[i] = (int64_t)d->code;
+            has_file_col[i] = (d->file_path && d->file_path[0] != '\0');
+            has_message_col[i] = (d->message && d->message[0] != '\0');
+            has_hint_col[i] = (d->hint && d->hint[0] != '\0');
+        }
+    }
+
+    r = core_dataset_add_metadata_string(out_dataset, "profile", "fisics_diagnostics_v1");
+    if (r.code != CORE_OK) goto fail;
+    r = core_dataset_add_metadata_i64(out_dataset, "schema_version", 1);
+    if (r.code != CORE_OK) goto fail;
+    r = core_dataset_add_metadata_i64(out_dataset, "diag_count", (int64_t)n);
+    if (r.code != CORE_OK) goto fail;
+    r = core_dataset_add_metadata_i64(out_dataset, "error_count", (int64_t)error_count);
+    if (r.code != CORE_OK) goto fail;
+    r = core_dataset_add_metadata_i64(out_dataset, "warning_count", (int64_t)warning_count);
+    if (r.code != CORE_OK) goto fail;
+    r = core_dataset_add_metadata_i64(out_dataset, "note_count", (int64_t)note_count);
+    if (r.code != CORE_OK) goto fail;
+
+    col_data[0] = line_col;
+    col_data[1] = column_col;
+    col_data[2] = length_col;
+    col_data[3] = kind_col;
+    col_data[4] = code_col;
+    col_data[5] = has_file_col;
+    col_data[6] = has_message_col;
+    col_data[7] = has_hint_col;
+    r = core_dataset_add_table_typed(out_dataset,
+                                     "diagnostics_v1",
+                                     col_names,
+                                     col_types,
+                                     (uint32_t)(sizeof(col_names) / sizeof(col_names[0])),
+                                     n,
+                                     col_data);
+    if (r.code != CORE_OK) goto fail;
+
+    free(line_col);
+    free(column_col);
+    free(length_col);
+    free(kind_col);
+    free(code_col);
+    free(has_file_col);
+    free(has_message_col);
+    free(has_hint_col);
+    return core_result_ok();
+
+fail:
+    free(line_col);
+    free(column_col);
+    free(length_col);
+    free(kind_col);
+    free(code_col);
+    free(has_file_col);
+    free(has_message_col);
+    free(has_hint_col);
+    core_dataset_free(out_dataset);
+    return r;
+}
+
+typedef struct JsonBuilder {
+    char* data;
+    size_t len;
+    size_t cap;
+} JsonBuilder;
+
+static bool json_builder_reserve(JsonBuilder* b, size_t extra) {
+    size_t needed;
+    size_t cap;
+    char* grown;
+    if (!b) return false;
+    if (extra > SIZE_MAX - b->len - 1u) return false;
+    needed = b->len + extra + 1u;
+    if (needed <= b->cap) return true;
+    cap = b->cap ? b->cap : 256u;
+    while (cap < needed) {
+        if (cap > SIZE_MAX / 2u) {
+            cap = needed;
+            break;
+        }
+        cap *= 2u;
+    }
+    grown = (char*)realloc(b->data, cap);
+    if (!grown) return false;
+    b->data = grown;
+    b->cap = cap;
+    return true;
+}
+
+static bool json_builder_append(JsonBuilder* b, const char* text) {
+    size_t n;
+    if (!b || !text) return false;
+    n = strlen(text);
+    if (!json_builder_reserve(b, n)) return false;
+    memcpy(b->data + b->len, text, n);
+    b->len += n;
+    b->data[b->len] = '\0';
+    return true;
+}
+
+static bool json_builder_appendf(JsonBuilder* b, const char* fmt, ...) {
+    va_list args;
+    va_list copy;
+    int needed;
+    if (!b || !fmt) return false;
+    va_start(args, fmt);
+    va_copy(copy, args);
+    needed = vsnprintf(NULL, 0, fmt, copy);
+    va_end(copy);
+    if (needed < 0) {
+        va_end(args);
+        return false;
+    }
+    if (!json_builder_reserve(b, (size_t)needed)) {
+        va_end(args);
+        return false;
+    }
+    vsnprintf(b->data + b->len, (size_t)needed + 1u, fmt, args);
+    b->len += (size_t)needed;
+    va_end(args);
+    return true;
+}
+
+static const CoreTableColumnTyped* find_typed_column(const CoreDataItem* item, const char* name) {
+    uint32_t i;
+    if (!item || !name || item->kind != CORE_DATA_TABLE_TYPED) return NULL;
+    for (i = 0u; i < item->as.table_typed.column_count; ++i) {
+        const CoreTableColumnTyped* col = &item->as.table_typed.columns[i];
+        if (col->name && strcmp(col->name, name) == 0) return col;
+    }
+    return NULL;
+}
+
+static int64_t metadata_i64_or_default(const CoreDataset* dataset, const char* key, int64_t fallback) {
+    const CoreMetadataItem* item = core_dataset_find_metadata(dataset, key);
+    if (!item || item->type != CORE_META_I64) return fallback;
+    return item->as.i64_value;
+}
+
+CoreResult compiler_diagnostics_write_core_dataset_json(const struct CompilerContext* ctx,
+                                                        const char* out_path) {
+    CoreDataset dataset;
+    CoreResult r;
+    const CoreDataItem* table_item = NULL;
+    const CoreTableColumnTyped* line_col = NULL;
+    const CoreTableColumnTyped* column_col = NULL;
+    const CoreTableColumnTyped* length_col = NULL;
+    const CoreTableColumnTyped* kind_col = NULL;
+    const CoreTableColumnTyped* code_col = NULL;
+    const CoreTableColumnTyped* has_file_col = NULL;
+    const CoreTableColumnTyped* has_message_col = NULL;
+    const CoreTableColumnTyped* has_hint_col = NULL;
+    JsonBuilder jb = {0};
+    uint32_t rows = 0u;
+
+    if (!ctx || !out_path || out_path[0] == '\0') {
+        CoreResult invalid = { CORE_ERR_INVALID_ARG, "invalid argument" };
+        return invalid;
+    }
+
+    r = compiler_diagnostics_build_core_dataset(ctx, &dataset);
+    if (r.code != CORE_OK) return r;
+
+    table_item = core_dataset_find(&dataset, "diagnostics_v1");
+    if (!table_item || table_item->kind != CORE_DATA_TABLE_TYPED) {
+        core_dataset_free(&dataset);
+        r.code = CORE_ERR_FORMAT;
+        r.message = "diagnostics table missing";
+        return r;
+    }
+
+    rows = table_item->as.table_typed.row_count;
+    line_col = find_typed_column(table_item, "line");
+    column_col = find_typed_column(table_item, "column");
+    length_col = find_typed_column(table_item, "length");
+    kind_col = find_typed_column(table_item, "kind");
+    code_col = find_typed_column(table_item, "code");
+    has_file_col = find_typed_column(table_item, "has_file");
+    has_message_col = find_typed_column(table_item, "has_message");
+    has_hint_col = find_typed_column(table_item, "has_hint");
+    if (!line_col || !column_col || !length_col || !kind_col || !code_col ||
+        !has_file_col || !has_message_col || !has_hint_col) {
+        core_dataset_free(&dataset);
+        r.code = CORE_ERR_FORMAT;
+        r.message = "diagnostics table schema mismatch";
+        return r;
+    }
+
+    if (!json_builder_append(&jb, "{")) goto oom;
+    if (!json_builder_appendf(&jb, "\"profile\":\"fisics_diagnostics_v1\",\"schema_version\":%lld,",
+                              (long long)metadata_i64_or_default(&dataset, "schema_version", 1))) goto oom;
+    if (!json_builder_appendf(&jb, "\"diag_count\":%lld,", (long long)metadata_i64_or_default(&dataset, "diag_count", (int64_t)rows))) goto oom;
+    if (!json_builder_appendf(&jb, "\"error_count\":%lld,", (long long)metadata_i64_or_default(&dataset, "error_count", 0))) goto oom;
+    if (!json_builder_appendf(&jb, "\"warning_count\":%lld,", (long long)metadata_i64_or_default(&dataset, "warning_count", 0))) goto oom;
+    if (!json_builder_appendf(&jb, "\"note_count\":%lld,", (long long)metadata_i64_or_default(&dataset, "note_count", 0))) goto oom;
+    if (!json_builder_append(&jb, "\"diagnostics\":[")) goto oom;
+
+    for (uint32_t i = 0u; i < rows; ++i) {
+        if (i > 0u && !json_builder_append(&jb, ",")) goto oom;
+        if (!json_builder_appendf(&jb,
+                                  "{\"line\":%u,\"column\":%u,\"length\":%u,\"kind\":%u,\"code\":%lld,"
+                                  "\"has_file\":%s,\"has_message\":%s,\"has_hint\":%s}",
+                                  line_col->as.u32_values[i],
+                                  column_col->as.u32_values[i],
+                                  length_col->as.u32_values[i],
+                                  kind_col->as.u32_values[i],
+                                  (long long)code_col->as.i64_values[i],
+                                  has_file_col->as.bool_values[i] ? "true" : "false",
+                                  has_message_col->as.bool_values[i] ? "true" : "false",
+                                  has_hint_col->as.bool_values[i] ? "true" : "false")) goto oom;
+    }
+
+    if (!json_builder_append(&jb, "]}\n")) goto oom;
+    r = core_io_write_all(out_path, jb.data, jb.len);
+    free(jb.data);
+    core_dataset_free(&dataset);
+    return r;
+
+oom:
+    free(jb.data);
+    core_dataset_free(&dataset);
+    r.code = CORE_ERR_OUT_OF_MEMORY;
+    r.message = "out of memory";
+    return r;
+}
+
+typedef struct FisicsDiagPackHeaderV1 {
+    uint32_t schema_version;
+    uint32_t diag_count;
+    uint32_t error_count;
+    uint32_t warning_count;
+    uint32_t note_count;
+} FisicsDiagPackHeaderV1;
+
+typedef struct FisicsDiagPackRowV1 {
+    uint32_t line;
+    uint32_t column;
+    uint32_t length;
+    uint32_t kind;
+    int64_t code;
+    uint32_t flags;
+} FisicsDiagPackRowV1;
+
+CoreResult compiler_diagnostics_write_core_dataset_pack(const struct CompilerContext* ctx,
+                                                        const char* out_path) {
+    CoreDataset dataset;
+    CoreResult r;
+    const CoreDataItem* table_item = NULL;
+    const CoreTableColumnTyped* line_col = NULL;
+    const CoreTableColumnTyped* column_col = NULL;
+    const CoreTableColumnTyped* length_col = NULL;
+    const CoreTableColumnTyped* kind_col = NULL;
+    const CoreTableColumnTyped* code_col = NULL;
+    const CoreTableColumnTyped* has_file_col = NULL;
+    const CoreTableColumnTyped* has_message_col = NULL;
+    const CoreTableColumnTyped* has_hint_col = NULL;
+    FisicsDiagPackHeaderV1 header = {0};
+    FisicsDiagPackRowV1* rows = NULL;
+    CorePackWriter writer = {0};
+    JsonBuilder meta = {0};
+    uint32_t row_count = 0u;
+
+    if (!ctx || !out_path || out_path[0] == '\0') {
+        CoreResult invalid = { CORE_ERR_INVALID_ARG, "invalid argument" };
+        return invalid;
+    }
+
+    r = compiler_diagnostics_build_core_dataset(ctx, &dataset);
+    if (r.code != CORE_OK) return r;
+
+    table_item = core_dataset_find(&dataset, "diagnostics_v1");
+    if (!table_item || table_item->kind != CORE_DATA_TABLE_TYPED) {
+        r.code = CORE_ERR_FORMAT;
+        r.message = "diagnostics table missing";
+        goto fail;
+    }
+    row_count = table_item->as.table_typed.row_count;
+    line_col = find_typed_column(table_item, "line");
+    column_col = find_typed_column(table_item, "column");
+    length_col = find_typed_column(table_item, "length");
+    kind_col = find_typed_column(table_item, "kind");
+    code_col = find_typed_column(table_item, "code");
+    has_file_col = find_typed_column(table_item, "has_file");
+    has_message_col = find_typed_column(table_item, "has_message");
+    has_hint_col = find_typed_column(table_item, "has_hint");
+    if (!line_col || !column_col || !length_col || !kind_col || !code_col ||
+        !has_file_col || !has_message_col || !has_hint_col) {
+        r.code = CORE_ERR_FORMAT;
+        r.message = "diagnostics table schema mismatch";
+        goto fail;
+    }
+
+    if (row_count > 0u) {
+        rows = (FisicsDiagPackRowV1*)malloc(sizeof(FisicsDiagPackRowV1) * row_count);
+        if (!rows) {
+            r.code = CORE_ERR_OUT_OF_MEMORY;
+            r.message = "out of memory";
+            goto fail;
+        }
+        for (uint32_t i = 0u; i < row_count; ++i) {
+            uint32_t flags = 0u;
+            if (has_file_col->as.bool_values[i]) flags |= 1u << 0;
+            if (has_message_col->as.bool_values[i]) flags |= 1u << 1;
+            if (has_hint_col->as.bool_values[i]) flags |= 1u << 2;
+            rows[i].line = line_col->as.u32_values[i];
+            rows[i].column = column_col->as.u32_values[i];
+            rows[i].length = length_col->as.u32_values[i];
+            rows[i].kind = kind_col->as.u32_values[i];
+            rows[i].code = code_col->as.i64_values[i];
+            rows[i].flags = flags;
+        }
+    }
+
+    header.schema_version = (uint32_t)metadata_i64_or_default(&dataset, "schema_version", 1);
+    header.diag_count = (uint32_t)metadata_i64_or_default(&dataset, "diag_count", (int64_t)row_count);
+    header.error_count = (uint32_t)metadata_i64_or_default(&dataset, "error_count", 0);
+    header.warning_count = (uint32_t)metadata_i64_or_default(&dataset, "warning_count", 0);
+    header.note_count = (uint32_t)metadata_i64_or_default(&dataset, "note_count", 0);
+
+    if (!json_builder_appendf(&meta,
+                              "{\"profile\":\"fisics_diagnostics_v1\",\"schema_version\":%u,"
+                              "\"diag_count\":%u,\"error_count\":%u,\"warning_count\":%u,\"note_count\":%u}\n",
+                              header.schema_version,
+                              header.diag_count,
+                              header.error_count,
+                              header.warning_count,
+                              header.note_count)) {
+        r.code = CORE_ERR_OUT_OF_MEMORY;
+        r.message = "out of memory";
+        goto fail;
+    }
+
+    r = core_pack_writer_open(out_path, &writer);
+    if (r.code != CORE_OK) goto fail;
+
+    r = core_pack_writer_add_chunk(&writer, "FDHD", &header, (uint64_t)sizeof(header));
+    if (r.code != CORE_OK) goto fail_close;
+
+    r = core_pack_writer_add_chunk(&writer, "FDMJ", meta.data, (uint64_t)meta.len);
+    if (r.code != CORE_OK) goto fail_close;
+
+    r = core_pack_writer_add_chunk(&writer,
+                                   "FDRW",
+                                   rows,
+                                   (uint64_t)sizeof(FisicsDiagPackRowV1) * (uint64_t)row_count);
+    if (r.code != CORE_OK) goto fail_close;
+
+    r = core_pack_writer_close(&writer);
+    if (r.code != CORE_OK) goto fail;
+
+    free(meta.data);
+    free(rows);
+    core_dataset_free(&dataset);
+    return core_result_ok();
+
+fail_close:
+    (void)core_pack_writer_close(&writer);
+fail:
+    free(meta.data);
+    free(rows);
+    core_dataset_free(&dataset);
+    return r;
 }

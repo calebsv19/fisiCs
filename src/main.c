@@ -102,6 +102,56 @@ static char* create_temp_object_path(const char* baseName) {
     return withExt;
 }
 
+static char* derive_diag_json_path(const char* basePath, size_t index, size_t total) {
+    const char* ext;
+    size_t baseLen;
+    size_t need;
+    char* out;
+    if (!basePath || !basePath[0]) return NULL;
+    if (total <= 1u) return strdup(basePath);
+
+    ext = strrchr(basePath, '.');
+    if (ext && strcmp(ext, ".json") == 0) {
+        baseLen = (size_t)(ext - basePath);
+        need = baseLen + 1u + 20u + strlen(ext) + 1u;
+        out = (char*)malloc(need);
+        if (!out) return NULL;
+        snprintf(out, need, "%.*s.%zu%s", (int)baseLen, basePath, index + 1u, ext);
+        return out;
+    }
+
+    need = strlen(basePath) + 1u + 20u + 6u;
+    out = (char*)malloc(need);
+    if (!out) return NULL;
+    snprintf(out, need, "%s.%zu.json", basePath, index + 1u);
+    return out;
+}
+
+static char* derive_diag_pack_path(const char* basePath, size_t index, size_t total) {
+    const char* ext;
+    size_t baseLen;
+    size_t need;
+    char* out;
+    if (!basePath || !basePath[0]) return NULL;
+    if (total <= 1u) return strdup(basePath);
+
+    ext = strrchr(basePath, '.');
+    if (ext && strcmp(ext, ".pack") == 0) {
+        baseLen = (size_t)(ext - basePath);
+        need = baseLen + 1u + 20u + strlen(ext) + 1u;
+        out = (char*)malloc(need);
+        if (!out) return NULL;
+        snprintf(out, need, "%.*s.%zu%s", (int)baseLen, basePath, index + 1u, ext);
+        return out;
+    }
+
+    need = strlen(basePath) + 1u + 20u + 6u;
+    out = (char*)malloc(need);
+    if (!out) return NULL;
+    snprintf(out, need, "%s.%zu.pack", basePath, index + 1u);
+    return out;
+}
+
 static bool dir_exists(const char* path) {
     if (!path || !*path) return false;
     struct stat st;
@@ -175,6 +225,102 @@ static char* detect_clang_resource_include(void) {
     return path;
 }
 
+static bool env_is_enabled(const char* key) {
+    const char* value = getenv(key);
+    return value && value[0] && value[0] != '0';
+}
+
+static bool validate_shim_profile_contract(void) {
+    if (!env_is_enabled("FISICS_SHIM_PROFILE_ENFORCE")) {
+        return true;
+    }
+
+    const char* defaultProfileId = "shim_profile_lang_frontend_shadow_v1";
+    const char* defaultProfileVersion = "1";
+    const char* profileId = getenv("FISICS_SHIM_PROFILE_ID");
+    const char* profileVersion = getenv("FISICS_SHIM_PROFILE_VERSION");
+    const char* expectedProfileId = getenv("FISICS_SHIM_PROFILE_EXPECT_ID");
+    const char* expectedProfileVersion = getenv("FISICS_SHIM_PROFILE_EXPECT_VERSION");
+    const char* expectedOverlay = getenv("FISICS_SHIM_PROFILE_EXPECT_OVERLAY");
+    const char* expectedInclude = getenv("FISICS_SHIM_PROFILE_EXPECT_INCLUDE");
+    const char* sysPaths = getenv("SYSTEM_INCLUDE_PATHS");
+
+    if (!expectedProfileId || !expectedProfileId[0]) expectedProfileId = defaultProfileId;
+    if (!expectedProfileVersion || !expectedProfileVersion[0]) expectedProfileVersion = defaultProfileVersion;
+
+    if (!profileId || !profileId[0]) {
+        fprintf(stderr, "shim profile contract failed: FISICS_SHIM_PROFILE_ID is required\n");
+        return false;
+    }
+    if (!profileVersion || !profileVersion[0]) {
+        fprintf(stderr, "shim profile contract failed: FISICS_SHIM_PROFILE_VERSION is required\n");
+        return false;
+    }
+    if (strcmp(profileId, expectedProfileId) != 0) {
+        fprintf(stderr,
+                "shim profile contract failed: profile id '%s' does not match expected '%s'\n",
+                profileId,
+                expectedProfileId);
+        return false;
+    }
+    if (strcmp(profileVersion, expectedProfileVersion) != 0) {
+        fprintf(stderr,
+                "shim profile contract failed: profile version '%s' does not match expected '%s'\n",
+                profileVersion,
+                expectedProfileVersion);
+        return false;
+    }
+    if (!expectedOverlay || !expectedOverlay[0]) {
+        fprintf(stderr, "shim profile contract failed: FISICS_SHIM_PROFILE_EXPECT_OVERLAY is required\n");
+        return false;
+    }
+    if (!expectedInclude || !expectedInclude[0]) {
+        fprintf(stderr, "shim profile contract failed: FISICS_SHIM_PROFILE_EXPECT_INCLUDE is required\n");
+        return false;
+    }
+    if (!sysPaths || !sysPaths[0]) {
+        fprintf(stderr, "shim profile contract failed: SYSTEM_INCLUDE_PATHS is required\n");
+        return false;
+    }
+
+    char** parsed = NULL;
+    size_t parsedCount = 0;
+    if (!compiler_collect_include_paths(sysPaths, &parsed, &parsedCount)) {
+        fprintf(stderr, "shim profile contract failed: unable to parse SYSTEM_INCLUDE_PATHS\n");
+        return false;
+    }
+
+    bool ok = true;
+    if (parsedCount < 2 ||
+        strcmp(parsed[0], expectedOverlay) != 0 ||
+        strcmp(parsed[1], expectedInclude) != 0) {
+        fprintf(stderr,
+                "shim profile contract failed: SYSTEM_INCLUDE_PATHS must start with '%s:%s'\n",
+                expectedOverlay,
+                expectedInclude);
+        ok = false;
+    }
+
+    size_t overlayIndex = (size_t)-1;
+    size_t includeIndex = (size_t)-1;
+    for (size_t i = 0; i < parsedCount; ++i) {
+        if (overlayIndex == (size_t)-1 && strcmp(parsed[i], expectedOverlay) == 0) {
+            overlayIndex = i;
+        }
+        if (includeIndex == (size_t)-1 && strcmp(parsed[i], expectedInclude) == 0) {
+            includeIndex = i;
+        }
+    }
+    if (overlayIndex == (size_t)-1 || includeIndex == (size_t)-1 || overlayIndex >= includeIndex) {
+        fprintf(stderr,
+                "shim profile contract failed: expected overlay path before include path in SYSTEM_INCLUDE_PATHS\n");
+        ok = false;
+    }
+
+    compiler_free_include_paths(parsed, parsedCount);
+    return ok;
+}
+
 // === Feature Toggles ===
 #define ENABLE_LEXER_OUTPUT      0
 #define ENABLE_AST_PRINT         1
@@ -199,6 +345,8 @@ int main(int argc, char **argv) {
     const char *filename = NULL;
     bool preservePPNodes = false;
     const char* depsJsonPath = NULL;
+    const char* diagsJsonPath = NULL;
+    const char* diagsPackPath = NULL;
     const char* targetTriple = NULL;
     const char* dataLayout = NULL;
     bool compileOnly = false;
@@ -222,6 +370,10 @@ int main(int argc, char **argv) {
     StringList inputOFiles = {0};
     StringList linkerSearchPaths = {0};
     StringList linkerLibs = {0};
+
+    if (!validate_shim_profile_contract()) {
+        return 1;
+    }
 
     // Seed include paths from default list.
     char** defaultIncludePaths = NULL;
@@ -278,6 +430,10 @@ int main(int argc, char **argv) {
             preservePPNodes = true;
         } else if (strcmp(argv[i], "--emit-deps-json") == 0 && i + 1 < argc) {
             depsJsonPath = argv[++i];
+        } else if (strcmp(argv[i], "--emit-diags-json") == 0 && i + 1 < argc) {
+            diagsJsonPath = argv[++i];
+        } else if (strcmp(argv[i], "--emit-diags-pack") == 0 && i + 1 < argc) {
+            diagsPackPath = argv[++i];
         } else if (strcmp(argv[i], "--target") == 0 && i + 1 < argc) {
             targetTriple = argv[++i];
         } else if (strcmp(argv[i], "--data-layout") == 0 && i + 1 < argc) {
@@ -444,6 +600,14 @@ int main(int argc, char **argv) {
     if (!depsJsonPath && depsEnv && depsEnv[0] != '\0') {
         depsJsonPath = depsEnv;
     }
+    const char* diagsEnv = getenv("EMIT_DIAGS_JSON");
+    if (!diagsJsonPath && diagsEnv && diagsEnv[0] != '\0') {
+        diagsJsonPath = diagsEnv;
+    }
+    const char* diagsPackEnv = getenv("EMIT_DIAGS_PACK");
+    if (!diagsPackPath && diagsPackEnv && diagsPackEnv[0] != '\0') {
+        diagsPackPath = diagsPackEnv;
+    }
     const char* warnInteropEnv = getenv("WARN_IGNORED_CC");
     if (warnInteropEnv && warnInteropEnv[0] != '\0') {
         warnIgnoredInterop = warnInteropEnv[0] != '0';
@@ -478,6 +642,8 @@ int main(int argc, char **argv) {
 
             for (size_t i = 0; i < inputCFiles.count; ++i) {
                 const char* cPath = inputCFiles.items[i];
+                char* diagPath = derive_diag_json_path(diagsJsonPath, i, inputCFiles.count);
+                char* diagPackPathForInput = derive_diag_pack_path(diagsPackPath, i, inputCFiles.count);
                 char* objPath = NULL;
                 if (outputName) {
                     objPath = strdup(outputName);
@@ -486,6 +652,8 @@ int main(int argc, char **argv) {
                 }
                 if (!objPath) {
                     fprintf(stderr, "Error: failed to compute output path for %s\n", cPath);
+                    free(diagPath);
+                    free(diagPackPathForInput);
                     goto fail;
                 }
 
@@ -516,10 +684,26 @@ int main(int argc, char **argv) {
                 int status = compile_translation_unit(&options, &result);
                 if (status != 0 || result.semanticErrors > 0 || !result.module) {
                     fprintf(stderr, "Error: compilation failed for %s\n", cPath);
+                    free(diagPath);
+                    free(diagPackPathForInput);
                     free(objPath);
                     compile_result_destroy(&result);
                     goto fail;
                 }
+                if (diagPath) {
+                    CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagPath);
+                    if (wr.code != CORE_OK) {
+                        fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
+                    }
+                }
+                if (diagPackPathForInput) {
+                    CoreResult wr = compiler_diagnostics_write_core_dataset_pack(result.compilerCtx, diagPackPathForInput);
+                    if (wr.code != CORE_OK) {
+                        fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagPackPathForInput);
+                    }
+                }
+                free(diagPath);
+                free(diagPackPathForInput);
 
                 char* emitErr = NULL;
                 if (!compiler_emit_object_file(result.module,
@@ -562,8 +746,10 @@ int main(int argc, char **argv) {
             // Step A: compile all .c to temp .o
             for (size_t i = 0; i < inputCFiles.count; ++i) {
                 const char* cPath = inputCFiles.items[i];
+                char* diagPath = derive_diag_json_path(diagsJsonPath, i, inputCFiles.count);
+                char* diagPackPathForInput = derive_diag_pack_path(diagsPackPath, i, inputCFiles.count);
                 char* objPath = create_temp_object_path(cPath);
-                if (!objPath) { allOk = false; break; }
+                if (!objPath) { free(diagPath); free(diagPackPathForInput); allOk = false; break; }
 
                 CompileOptions options = {
                     .inputPath = cPath,
@@ -592,11 +778,27 @@ int main(int argc, char **argv) {
                 int status = compile_translation_unit(&options, &result);
                 if (status != 0 || result.semanticErrors > 0 || !result.module) {
                     fprintf(stderr, "Error: compilation failed for %s\n", cPath);
+                    free(diagPath);
+                    free(diagPackPathForInput);
                     free(objPath);
                     compile_result_destroy(&result);
                     allOk = false;
                     break;
                 }
+                if (diagPath) {
+                    CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagPath);
+                    if (wr.code != CORE_OK) {
+                        fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
+                    }
+                }
+                if (diagPackPathForInput) {
+                    CoreResult wr = compiler_diagnostics_write_core_dataset_pack(result.compilerCtx, diagPackPathForInput);
+                    if (wr.code != CORE_OK) {
+                        fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagPackPathForInput);
+                    }
+                }
+                free(diagPath);
+                free(diagPackPathForInput);
 
                 char* emitErr = NULL;
                 if (!compiler_emit_object_file(result.module,
@@ -768,6 +970,18 @@ int main(int argc, char **argv) {
 
     CompileResult result;
     int status = compile_translation_unit(&options, &result);
+    if (status == 0 && diagsJsonPath && diagsJsonPath[0] != '\0') {
+        CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagsJsonPath);
+        if (wr.code != CORE_OK) {
+            fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagsJsonPath);
+        }
+    }
+    if (status == 0 && diagsPackPath && diagsPackPath[0] != '\0') {
+        CoreResult wr = compiler_diagnostics_write_core_dataset_pack(result.compilerCtx, diagsPackPath);
+        if (wr.code != CORE_OK) {
+            fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagsPackPath);
+        }
+    }
 
     compile_result_destroy(&result);
     string_list_free(&includePaths);

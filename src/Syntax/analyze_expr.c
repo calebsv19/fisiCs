@@ -48,6 +48,22 @@ static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* 
 static const char* fallbackFunctionName(const char* name);
 static bool isExpressionNodeType(ASTNodeType type);
 
+static void typeInfoAdoptParsedType(TypeInfo* info, ParsedType* ownedParsed) {
+    if (!info || !ownedParsed) return;
+    ParsedType* heap = (ParsedType*)malloc(sizeof(ParsedType));
+    if (!heap) {
+        parsedTypeFree(ownedParsed);
+        memset(ownedParsed, 0, sizeof(*ownedParsed));
+        ownedParsed->kind = TYPE_INVALID;
+        info->originalType = NULL;
+        return;
+    }
+    *heap = *ownedParsed; // transfer ownership
+    memset(ownedParsed, 0, sizeof(*ownedParsed));
+    ownedParsed->kind = TYPE_INVALID;
+    info->originalType = heap;
+}
+
 static char* dupString(const char* s) {
     if (!s) return NULL;
     size_t len = strlen(s) + 1;
@@ -1442,6 +1458,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     ParsedType retParsed = parsedTypeFunctionReturnType(&fnTarget);
                     if (retParsed.kind != TYPE_INVALID) {
                         result = typeInfoFromParsedType(&retParsed, scope);
+                        typeInfoAdoptParsedType(&result, &retParsed);
                     }
                     parsedTypeFree(&retParsed);
                 }
@@ -1466,15 +1483,16 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
         case AST_POINTER_DEREFERENCE: {
             TypeInfo base = analyzeExpression(node->pointerDeref.pointer, scope);
-            if (base.category == TYPEINFO_POINTER && base.pointerDepth > 0) {
-                if (base.originalType) {
-                    ParsedType targetParsed = parsedTypePointerTargetType(base.originalType);
-                    if (targetParsed.kind != TYPE_INVALID) {
-                        TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
-                        targetInfo.isLValue = true;
-                        parsedTypeFree(&targetParsed);
-                        return targetInfo;
-                    }
+                if (base.category == TYPEINFO_POINTER && base.pointerDepth > 0) {
+                    if (base.originalType) {
+                        ParsedType targetParsed = parsedTypePointerTargetType(base.originalType);
+                        if (targetParsed.kind != TYPE_INVALID) {
+                            TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
+                            typeInfoAdoptParsedType(&targetInfo, &targetParsed);
+                            targetInfo.isLValue = true;
+                            parsedTypeFree(&targetParsed);
+                            return targetInfo;
+                        }
                     parsedTypeFree(&targetParsed);
                 }
                 typeInfoDropPointerLevel(&base);
@@ -1562,6 +1580,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     ParsedType targetParsed = parsedTypePointerTargetType(arrayInfo.originalType);
                     if (targetParsed.kind != TYPE_INVALID) {
                         TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
+                        typeInfoAdoptParsedType(&targetInfo, &targetParsed);
                         parsedTypeFree(&targetParsed);
                         targetInfo.isLValue = true;
                         return targetInfo;
