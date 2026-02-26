@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 static char* ir_strdup(const char* s) {
     if (!s) return NULL;
@@ -15,11 +17,26 @@ static char* ir_strdup(const char* s) {
     return copy;
 }
 
+static char* ir_canonicalize_path(const char* path) {
+    if (!path) return NULL;
+    char resolved[4096];
+    if (realpath(path, resolved)) {
+        return ir_strdup(resolved);
+    }
+    return ir_strdup(path);
+}
+
 static bool ir_path_exists(const char* path, long* mtimeOut) {
     struct stat st;
     if (stat(path, &st) != 0) return false;
     if (mtimeOut) *mtimeOut = (long)st.st_mtime;
     return true;
+}
+
+static bool ir_path_is_dir(const char* path) {
+    struct stat st;
+    if (!path || stat(path, &st) != 0) return false;
+    return S_ISDIR(st.st_mode);
 }
 
 static char* ir_read_file(const char* path) {
@@ -38,6 +55,100 @@ static char* ir_read_file(const char* path) {
     buffer[file_data.size] = '\0';
     core_io_buffer_free(&file_data);
     return buffer;
+}
+
+static bool ir_append_file(IncludeResolver* resolver, IncludeFile file);
+static const IncludeFile* ir_lookup(const IncludeResolver* resolver, const char* path);
+static const IncludeFile* ir_lookup_equivalent(const IncludeResolver* resolver, const char* path);
+
+static const IncludeFile* ir_try_virtual_audio_toolbox(IncludeResolver* resolver, const char* name) {
+    static const char* kAudioToolboxName = "AudioToolbox/AudioToolbox.h";
+    static const char* kVirtualPath = "<fisics>/AudioToolbox/AudioToolbox.h";
+    static const char* kShim =
+        "#ifndef FISICS_AUDIO_TOOLBOX_SHIM_H\n"
+        "#define FISICS_AUDIO_TOOLBOX_SHIM_H\n"
+        "typedef int OSStatus;\n"
+        "typedef unsigned int UInt32;\n"
+        "typedef unsigned char UInt8;\n"
+        "typedef long CFIndex;\n"
+        "typedef long long SInt64;\n"
+        "typedef double Float64;\n"
+        "typedef void* CFURLRef;\n"
+        "typedef void* CFStringRef;\n"
+        "typedef struct OpaqueExtAudioFile* ExtAudioFileRef;\n"
+        "enum { noErr = 0 };\n"
+        "enum { kExtAudioFileProperty_FileDataFormat = 1 };\n"
+        "enum { kExtAudioFileProperty_FileLengthFrames = 2 };\n"
+        "enum { kExtAudioFileProperty_ClientDataFormat = 3 };\n"
+        "enum { kAudioFormatLinearPCM = 1819304813 };\n"
+        "enum { kAudioFormatFlagIsFloat = 1u << 0 };\n"
+        "enum { kAudioFormatFlagIsPacked = 1u << 3 };\n"
+        "enum { kAudioFormatFlagsNativeEndian = 0u };\n"
+        "typedef struct AudioStreamBasicDescription {\n"
+        "  Float64 mSampleRate;\n"
+        "  UInt32 mFormatID;\n"
+        "  UInt32 mFormatFlags;\n"
+        "  UInt32 mBytesPerPacket;\n"
+        "  UInt32 mFramesPerPacket;\n"
+        "  UInt32 mBytesPerFrame;\n"
+        "  UInt32 mChannelsPerFrame;\n"
+        "  UInt32 mBitsPerChannel;\n"
+        "} AudioStreamBasicDescription;\n"
+        "typedef struct AudioBuffer {\n"
+        "  UInt32 mNumberChannels;\n"
+        "  UInt32 mDataByteSize;\n"
+        "  void* mData;\n"
+        "} AudioBuffer;\n"
+        "typedef struct AudioBufferList {\n"
+        "  UInt32 mNumberBuffers;\n"
+        "  AudioBuffer mBuffers[1];\n"
+        "} AudioBufferList;\n"
+        "CFURLRef CFURLCreateFromFileSystemRepresentation(void* alloc,\n"
+        "                                                  const UInt8* buffer,\n"
+        "                                                  CFIndex len,\n"
+        "                                                  int isDir);\n"
+        "void CFRelease(void* cf);\n"
+        "const char* CFStringGetCStringPtr(CFStringRef str, unsigned int enc);\n"
+        "OSStatus ExtAudioFileOpenURL(CFURLRef url, ExtAudioFileRef* outExtAudioFile);\n"
+        "OSStatus ExtAudioFileGetProperty(ExtAudioFileRef inExtAudioFile,\n"
+        "                                 UInt32 inPropertyID,\n"
+        "                                 UInt32* ioPropertyDataSize,\n"
+        "                                 void* outPropertyData);\n"
+        "OSStatus ExtAudioFileSetProperty(ExtAudioFileRef inExtAudioFile,\n"
+        "                                 UInt32 inPropertyID,\n"
+        "                                 UInt32 inPropertyDataSize,\n"
+        "                                 const void* inPropertyData);\n"
+        "OSStatus ExtAudioFileRead(ExtAudioFileRef inExtAudioFile,\n"
+        "                          UInt32* ioNumberFrames,\n"
+        "                          AudioBufferList* ioData);\n"
+        "OSStatus ExtAudioFileDispose(ExtAudioFileRef inExtAudioFile);\n"
+        "#endif\n";
+
+    if (!resolver || !name || strcmp(name, kAudioToolboxName) != 0) {
+        return NULL;
+    }
+    const IncludeFile* cached = ir_lookup(resolver, kVirtualPath);
+    if (cached) return cached;
+
+    IncludeFile file = {0};
+    file.path = ir_strdup(kVirtualPath);
+    file.contents = ir_strdup(kShim);
+    file.mtime = 0;
+    file.pragmaOnce = true;
+    file.includedOnce = false;
+    file.origin = INCLUDE_SEARCH_RAW;
+    file.originIndex = (size_t)-1;
+    if (!file.path || !file.contents) {
+        free(file.path);
+        free(file.contents);
+        return NULL;
+    }
+    if (!ir_append_file(resolver, file)) {
+        free(file.path);
+        free(file.contents);
+        return NULL;
+    }
+    return &resolver->files[resolver->count - 1];
 }
 
 static bool ir_append_file(IncludeResolver* resolver, IncludeFile file) {
@@ -59,6 +170,28 @@ static const IncludeFile* ir_lookup(const IncludeResolver* resolver, const char*
             return &resolver->files[i];
         }
     }
+    return NULL;
+}
+
+static const IncludeFile* ir_lookup_equivalent(const IncludeResolver* resolver, const char* path) {
+    if (!resolver || !path) return NULL;
+    const IncludeFile* direct = ir_lookup(resolver, path);
+    if (direct) return direct;
+
+    char* canonical = ir_canonicalize_path(path);
+    if (!canonical) return NULL;
+
+    for (size_t i = 0; i < resolver->count; ++i) {
+        char* existing = ir_canonicalize_path(resolver->files[i].path);
+        bool equal = existing && strcmp(existing, canonical) == 0;
+        free(existing);
+        if (equal) {
+            free(canonical);
+            return &resolver->files[i];
+        }
+    }
+
+    free(canonical);
     return NULL;
 }
 
@@ -103,6 +236,224 @@ static bool ir_build_path(char* buffer, size_t bufSize, const char* dir, const c
     return len < bufSize;
 }
 
+static const IncludeFile* ir_try_load(IncludeResolver* resolver,
+                                      const char* path,
+                                      IncludeSearchOrigin origin,
+                                      size_t originIndex);
+
+static const IncludeFile* ir_search_ancestor_dirs(IncludeResolver* resolver,
+                                                  const char* includingFile,
+                                                  const char* name,
+                                                  IncludeSearchOrigin* originOut,
+                                                  size_t* originIndexOut) {
+    char dir[4096];
+    if (!resolver || !includingFile || !name) return NULL;
+
+    const char* slash = strrchr(includingFile, '/');
+    if (!slash) return NULL;
+    size_t dirLen = (size_t)(slash - includingFile);
+    if (dirLen == 0 || dirLen >= sizeof(dir)) return NULL;
+    memcpy(dir, includingFile, dirLen);
+    dir[dirLen] = '\0';
+
+    for (int depth = 0; depth < 24; ++depth) {
+        char candidate[4096];
+        if (ir_build_path(candidate, sizeof(candidate), dir, name)) {
+            const IncludeFile* file = ir_try_load(resolver,
+                                                  candidate,
+                                                  INCLUDE_SEARCH_SAME_DIR,
+                                                  (size_t)-1);
+            if (file) {
+                if (originOut) *originOut = INCLUDE_SEARCH_SAME_DIR;
+                if (originIndexOut) *originIndexOut = (size_t)-1;
+                return file;
+            }
+        }
+
+        char* up = strrchr(dir, '/');
+        if (!up) break;
+        if (up == dir) break;
+        *up = '\0';
+    }
+
+    return NULL;
+}
+
+static const IncludeFile* ir_try_framework_header(IncludeResolver* resolver,
+                                                  const char* name,
+                                                  IncludeSearchOrigin* originOut,
+                                                  size_t* originIndexOut) {
+    char framework[256];
+    char candidate[4096];
+    const char* slash = NULL;
+    const char* sdkRoot = NULL;
+    const char* roots[3];
+    size_t rootCount = 0;
+
+    if (!resolver || !name) return NULL;
+    slash = strchr(name, '/');
+    if (!slash) return NULL;
+    if ((size_t)(slash - name) >= sizeof(framework)) return NULL;
+
+    memcpy(framework, name, (size_t)(slash - name));
+    framework[slash - name] = '\0';
+
+    sdkRoot = getenv("SDKROOT");
+    if (sdkRoot && sdkRoot[0] != '\0') {
+        roots[rootCount++] = sdkRoot;
+    }
+    roots[rootCount++] = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk";
+    roots[rootCount++] = "";
+
+    for (size_t i = 0; i < rootCount; ++i) {
+        const char* base = roots[i];
+        if (base && base[0] != '\0') {
+            if (snprintf(candidate,
+                         sizeof(candidate),
+                         "%s/System/Library/Frameworks/%s.framework/Headers/%s",
+                         base,
+                         framework,
+                         slash + 1) < (int)sizeof(candidate)) {
+                const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
+                if (file) {
+                    if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+                    if (originIndexOut) *originIndexOut = (size_t)-1;
+                    return file;
+                }
+            }
+            if (snprintf(candidate,
+                         sizeof(candidate),
+                         "%s/Library/Frameworks/%s.framework/Headers/%s",
+                         base,
+                         framework,
+                         slash + 1) < (int)sizeof(candidate)) {
+                const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
+                if (file) {
+                    if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+                    if (originIndexOut) *originIndexOut = (size_t)-1;
+                    return file;
+                }
+            }
+        } else {
+            if (snprintf(candidate,
+                         sizeof(candidate),
+                         "/System/Library/Frameworks/%s.framework/Headers/%s",
+                         framework,
+                         slash + 1) < (int)sizeof(candidate)) {
+                const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
+                if (file) {
+                    if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+                    if (originIndexOut) *originIndexOut = (size_t)-1;
+                    return file;
+                }
+            }
+            if (snprintf(candidate,
+                         sizeof(candidate),
+                         "/Library/Frameworks/%s.framework/Headers/%s",
+                         framework,
+                         slash + 1) < (int)sizeof(candidate)) {
+                const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
+                if (file) {
+                    if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+                    if (originIndexOut) *originIndexOut = (size_t)-1;
+                    return file;
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
+static const IncludeFile* ir_try_shared_workspace_header(IncludeResolver* resolver,
+                                                         const char* includingFile,
+                                                         const char* name,
+                                                         IncludeSearchOrigin* originOut,
+                                                         size_t* originIndexOut) {
+    char dir[4096];
+    if (!resolver || !includingFile || !name || !name[0]) return NULL;
+
+    const char* slash = strrchr(includingFile, '/');
+    if (!slash) return NULL;
+    size_t dirLen = (size_t)(slash - includingFile);
+    if (dirLen == 0 || dirLen >= sizeof(dir)) return NULL;
+    memcpy(dir, includingFile, dirLen);
+    dir[dirLen] = '\0';
+
+    for (int depth = 0; depth < 24; ++depth) {
+        char sharedRoot[4096];
+        if (!ir_build_path(sharedRoot, sizeof(sharedRoot), dir, "shared")) {
+            break;
+        }
+        if (ir_path_is_dir(sharedRoot)) {
+            char candidate[4096];
+            if (snprintf(candidate, sizeof(candidate), "%s/include/%s", sharedRoot, name) < (int)sizeof(candidate)) {
+                const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
+                if (file) {
+                    if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+                    if (originIndexOut) *originIndexOut = (size_t)-1;
+                    return file;
+                }
+            }
+
+            DIR* d1 = opendir(sharedRoot);
+            if (d1) {
+                struct dirent* e1 = NULL;
+                while ((e1 = readdir(d1)) != NULL) {
+                    if (e1->d_name[0] == '.') continue;
+                    char l1[4096];
+                    if (snprintf(l1, sizeof(l1), "%s/%s", sharedRoot, e1->d_name) >= (int)sizeof(l1)) {
+                        continue;
+                    }
+                    if (!ir_path_is_dir(l1)) continue;
+
+                    if (snprintf(candidate, sizeof(candidate), "%s/include/%s", l1, name) < (int)sizeof(candidate)) {
+                        const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
+                        if (file) {
+                            closedir(d1);
+                            if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+                            if (originIndexOut) *originIndexOut = (size_t)-1;
+                            return file;
+                        }
+                    }
+
+                    DIR* d2 = opendir(l1);
+                    if (!d2) continue;
+                    struct dirent* e2 = NULL;
+                    while ((e2 = readdir(d2)) != NULL) {
+                        if (e2->d_name[0] == '.') continue;
+                        char l2[4096];
+                        if (snprintf(l2, sizeof(l2), "%s/%s", l1, e2->d_name) >= (int)sizeof(l2)) {
+                            continue;
+                        }
+                        if (!ir_path_is_dir(l2)) continue;
+                        if (snprintf(candidate, sizeof(candidate), "%s/include/%s", l2, name) >= (int)sizeof(candidate)) {
+                            continue;
+                        }
+                        const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
+                        if (file) {
+                            closedir(d2);
+                            closedir(d1);
+                            if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+                            if (originIndexOut) *originIndexOut = (size_t)-1;
+                            return file;
+                        }
+                    }
+                    closedir(d2);
+                }
+                closedir(d1);
+            }
+        }
+
+        char* up = strrchr(dir, '/');
+        if (!up) break;
+        if (up == dir) break;
+        *up = '\0';
+    }
+
+    return NULL;
+}
+
 IncludeResolver* include_resolver_create(const char* const* includePaths, size_t pathCount) {
     IncludeResolver* resolver = calloc(1, sizeof(IncludeResolver));
     if (!resolver) return NULL;
@@ -140,20 +491,35 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
                                       const char* path,
                                       IncludeSearchOrigin origin,
                                       size_t originIndex) {
-    long mtime = 0;
-    if (!ir_path_exists(path, &mtime)) return NULL;
+    char* canonical = ir_canonicalize_path(path);
+    if (!canonical) return NULL;
 
-    const IncludeFile* cached = ir_lookup(resolver, path);
+    long mtime = 0;
+    if (!ir_path_exists(canonical, &mtime)) {
+        free(canonical);
+        return NULL;
+    }
+
+    const IncludeFile* cached = ir_lookup_equivalent(resolver, canonical);
     if (cached && cached->mtime == mtime) {
+        free(canonical);
         // cached origin is authoritative; ignore requested origin/index
         return cached;
     }
 
-    char* data = ir_read_file(path);
-    if (!data) return NULL;
+    char* data = ir_read_file(canonical);
+    if (!data) {
+        free(canonical);
+        return NULL;
+    }
 
     IncludeFile file;
     file.path = ir_strdup(path);
+    if (!file.path) {
+        free(data);
+        free(canonical);
+        return NULL;
+    }
     file.contents = data;
     file.mtime = mtime;
     file.pragmaOnce = false;
@@ -161,6 +527,7 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
     file.origin = origin;
     file.originIndex = originIndex;
 
+    free(canonical);
     if (!ir_append_file(resolver, file)) {
         free(file.path);
         free(file.contents);
@@ -218,6 +585,18 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
     }
 
     // 2) Project include paths
+    if (!isSystem && !isIncludeNext && includingFile) {
+        const IncludeFile* ancestorFile = ir_search_ancestor_dirs(resolver,
+                                                                  includingFile,
+                                                                  name,
+                                                                  originOut,
+                                                                  originIndexOut);
+        if (ancestorFile) {
+            return ancestorFile;
+        }
+    }
+
+    // 3) Project include paths
     size_t startIdx = 0;
     if (isIncludeNext && parentOrigin == INCLUDE_SEARCH_INCLUDE_PATH && parentIndex != (size_t)-1) {
         startIdx = parentIndex + 1;
@@ -238,13 +617,31 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
         }
     }
 
-    // 3) Fallback: raw name
+    // 4) Fallback: raw name
+    if (isSystem) {
+        const IncludeFile* frameworkFile = ir_try_framework_header(resolver, name, originOut, originIndexOut);
+        if (frameworkFile) {
+            return frameworkFile;
+        }
+    }
+
     origin = INCLUDE_SEARCH_RAW;
     originIndex = (size_t)-1;
-    if (ir_try_load(resolver, name, origin, originIndex)) {
+    const IncludeFile* file = ir_try_load(resolver, name, origin, originIndex);
+    if (file) {
         if (originOut) *originOut = origin;
         if (originIndexOut) *originIndexOut = originIndex;
-        return ir_lookup(resolver, name);
+        return file;
+    }
+    if (!isSystem) {
+        const IncludeFile* sharedFile = ir_try_shared_workspace_header(resolver,
+                                                                       includingFile,
+                                                                       name,
+                                                                       originOut,
+                                                                       originIndexOut);
+        if (sharedFile) {
+            return sharedFile;
+        }
     }
     return NULL;
 }
@@ -257,7 +654,15 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
                                          IncludeSearchOrigin* originOut,
                                          size_t* originIndexOut) {
     if (!resolver || !name) return NULL;
-    const IncludeFile* cached = ir_lookup(resolver, name);
+    if (isSystem) {
+        const IncludeFile* virtualAudioToolbox = ir_try_virtual_audio_toolbox(resolver, name);
+        if (virtualAudioToolbox) {
+            if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+            if (originIndexOut) *originIndexOut = (size_t)-1;
+            return virtualAudioToolbox;
+        }
+    }
+    const IncludeFile* cached = ir_lookup_equivalent(resolver, name);
     if (cached) {
         if (originOut) *originOut = cached->origin;
         if (originIndexOut) *originIndexOut = cached->originIndex;

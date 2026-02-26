@@ -402,7 +402,7 @@ PROGRAM
               IDENTIFIER __builtin_fabsf
               ARGUMENTS
                 IDENTIFIER __x
-            IDENTIFIER __FLT_MIN__
+            NUMBER_LITERAL 1.175494351e-38F
   ATTRIBUTE [GNU] __always_inline__
   FUNCTION DEFINITION
     RETURN TYPE: inline int
@@ -423,7 +423,7 @@ PROGRAM
               IDENTIFIER __builtin_fabs
               ARGUMENTS
                 IDENTIFIER __x
-            IDENTIFIER __DBL_MIN__
+            NUMBER_LITERAL 2.2250738585072014e-308
   ATTRIBUTE [GNU] __always_inline__
   FUNCTION DEFINITION
     RETURN TYPE: inline int
@@ -444,7 +444,7 @@ PROGRAM
               IDENTIFIER __builtin_fabsl
               ARGUMENTS
                 IDENTIFIER __x
-            IDENTIFIER __LDBL_MIN__
+            NUMBER_LITERAL 3.3621031431120935063e-4932L
   FUNCTION DECLARATION
     RETURN TYPE: extern float
     IDENTIFIER acosf

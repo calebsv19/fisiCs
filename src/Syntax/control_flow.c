@@ -5,12 +5,20 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char** names;
+    size_t count;
+    size_t capacity;
+} GotoTargetSet;
 
 typedef struct {
     bool inLoop;
     bool inSwitch;
     bool reachable;
     bool suppressUnreachable;
+    const GotoTargetSet* gotoTargets;
 } FlowContext;
 
 typedef struct {
@@ -30,6 +38,92 @@ static int safeLine(ASTNode* node) {
         return 0;
     }
     return node->line;
+}
+
+static void gotoTargetSetFree(GotoTargetSet* set) {
+    if (!set) return;
+    for (size_t i = 0; i < set->count; ++i) {
+        free(set->names[i]);
+    }
+    free(set->names);
+    set->names = NULL;
+    set->count = 0;
+    set->capacity = 0;
+}
+
+static void gotoTargetSetAdd(GotoTargetSet* set, const char* name) {
+    if (!set || !name || !name[0]) return;
+    for (size_t i = 0; i < set->count; ++i) {
+        if (set->names[i] && strcmp(set->names[i], name) == 0) {
+            return;
+        }
+    }
+    if (set->count == set->capacity) {
+        size_t newCap = (set->capacity == 0) ? 8 : set->capacity * 2;
+        char** grown = (char**)realloc(set->names, newCap * sizeof(char*));
+        if (!grown) return;
+        set->names = grown;
+        set->capacity = newCap;
+    }
+    char* copy = strdup(name);
+    if (!copy) return;
+    set->names[set->count++] = copy;
+}
+
+static bool gotoTargetSetContains(const GotoTargetSet* set, const char* name) {
+    if (!set || !name || !name[0]) return false;
+    for (size_t i = 0; i < set->count; ++i) {
+        if (set->names[i] && strcmp(set->names[i], name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void collectGotoTargets(ASTNode* node, GotoTargetSet* set) {
+    if (!node || !set) return;
+    switch (node->type) {
+        case AST_BLOCK:
+        case AST_PROGRAM:
+            for (size_t i = 0; i < node->block.statementCount; ++i) {
+                collectGotoTargets(node->block.statements[i], set);
+            }
+            break;
+        case AST_IF_STATEMENT:
+            collectGotoTargets(node->ifStmt.thenBranch, set);
+            collectGotoTargets(node->ifStmt.elseBranch, set);
+            break;
+        case AST_WHILE_LOOP:
+            collectGotoTargets(node->whileLoop.condition, set);
+            collectGotoTargets(node->whileLoop.body, set);
+            break;
+        case AST_FOR_LOOP:
+            collectGotoTargets(node->forLoop.initializer, set);
+            collectGotoTargets(node->forLoop.condition, set);
+            collectGotoTargets(node->forLoop.increment, set);
+            collectGotoTargets(node->forLoop.body, set);
+            break;
+        case AST_SWITCH:
+            collectGotoTargets(node->switchStmt.condition, set);
+            for (size_t i = 0; i < node->switchStmt.caseListSize; ++i) {
+                collectGotoTargets(node->switchStmt.caseList[i], set);
+            }
+            break;
+        case AST_CASE:
+            for (size_t i = 0; i < node->caseStmt.caseBodySize; ++i) {
+                collectGotoTargets(node->caseStmt.caseBody[i], set);
+            }
+            collectGotoTargets(node->caseStmt.nextCase, set);
+            break;
+        case AST_LABEL_DECLARATION:
+            collectGotoTargets(node->label.statement, set);
+            break;
+        case AST_GOTO_STATEMENT:
+            gotoTargetSetAdd(set, node->gotoStmt.label);
+            break;
+        default:
+            break;
+    }
 }
 
 static FlowResult checkStatement(ASTNode* node, Scope* scope, FlowContext ctx);
@@ -103,7 +197,8 @@ static FlowResult checkSwitch(ASTNode* node, Scope* scope, FlowContext ctx) {
             if (isDefault) isDefault[i] = true;
         }
 
-        bool fallsThrough = caseReachable && !caseFlow.stops && (i + 1 < caseCount);
+        bool hasStatements = caseNode->caseStmt.caseBodySize > 0;
+        bool fallsThrough = caseReachable && hasStatements && !caseFlow.stops && (i + 1 < caseCount);
         if (fallsThrough) {
             addWarning(safeLine(caseNode), 0, "Switch case may fall through", NULL);
         }
@@ -160,21 +255,32 @@ static FlowResult checkIf(ASTNode* node, Scope* scope, FlowContext ctx) {
 static FlowResult checkStatementList(ASTNode** list, size_t count, Scope* scope, FlowContext ctx) {
     bool reachable = ctx.reachable;
     bool sawReturn = false;
+    bool reportedDeadRegion = false;
 
     for (size_t i = 0; i < count; ++i) {
         ASTNode* stmt = list ? list[i] : NULL;
+
+        if (!reachable && stmt && stmt->type == AST_LABEL_DECLARATION &&
+            stmt->label.labelName &&
+            gotoTargetSetContains(ctx.gotoTargets, stmt->label.labelName)) {
+            reachable = true;
+            reportedDeadRegion = false;
+        }
+
         FlowContext stmtCtx = ctx;
         stmtCtx.reachable = reachable;
         stmtCtx.suppressUnreachable = !reachable;
 
-        if (stmt && stmt->line > 0 && !reachable && !ctx.suppressUnreachable) {
+        if (stmt && stmt->line > 0 && !reachable && !ctx.suppressUnreachable && !reportedDeadRegion) {
             reportUnreachable(stmt);
+            reportedDeadRegion = true;
         }
 
         FlowResult flow = checkStatement(stmt, scope, stmtCtx);
 
         if (reachable && flow.stops) {
             reachable = false;
+            reportedDeadRegion = false;
             if (flow.returns) {
                 sawReturn = true;
             }
@@ -226,6 +332,7 @@ static FlowResult checkStatement(ASTNode* node, Scope* scope, FlowContext ctx) {
 
         case AST_BREAK:
         case AST_CONTINUE:
+        case AST_GOTO_STATEMENT:
             return makeFlow(false, true);
 
         case AST_LABEL_DECLARATION:
@@ -245,7 +352,16 @@ static void traverse(ASTNode* node, Scope* scope) {
             }
             break;
         case AST_FUNCTION_DEFINITION: {
-            FlowContext ctx = { .inLoop = false, .inSwitch = false, .reachable = true, .suppressUnreachable = false };
+            GotoTargetSet gotoTargets = {0};
+            collectGotoTargets(node->functionDef.body, &gotoTargets);
+
+            FlowContext ctx = {
+                .inLoop = false,
+                .inSwitch = false,
+                .reachable = true,
+                .suppressUnreachable = false,
+                .gotoTargets = &gotoTargets
+            };
             FlowResult flow = checkStatement(node->functionDef.body, scope, ctx);
 
             TypeInfo retInfo = typeInfoFromParsedType(&node->functionDef.returnType, scope);
@@ -257,6 +373,7 @@ static void traverse(ASTNode* node, Scope* scope) {
                 snprintf(buffer, sizeof(buffer), "Control reaches end of non-void function '%s'", name);
                 addError(safeLine(node), 0, buffer, NULL);
             }
+            gotoTargetSetFree(&gotoTargets);
             break;
         }
         default:

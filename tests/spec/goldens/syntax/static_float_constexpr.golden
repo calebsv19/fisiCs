@@ -1,0 +1,35 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: static const float
+    IDENTIFIER kTileExtent
+      = NUMBER_LITERAL 4096.0f
+  VAR_DECL
+    TYPE: static const double
+    IDENTIFIER kEarthRadiusMeters
+      = NUMBER_LITERAL 6378137.0
+  FUNCTION DEFINITION
+    RETURN TYPE: double
+    IDENTIFIER time_now_seconds
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: static double
+        IDENTIFIER frequency
+          = NUMBER_LITERAL 0.0
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            IDENTIFIER frequency
+            CAST_EXPRESSION
+                            CAST TYPE: double
+              IDENTIFIER kTileExtent
+          IDENTIFIER kEarthRadiusMeters
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

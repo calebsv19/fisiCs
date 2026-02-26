@@ -9,6 +9,11 @@ static bool isAlignasToken(const Token* tok) {
     return strcmp(tok->value, "alignas") == 0 || strcmp(tok->value, "_Alignas") == 0;
 }
 
+static bool isAtomicKeywordToken(const Token* tok) {
+    if (!tok || tok->type != TOKEN_IDENTIFIER || !tok->value) return false;
+    return strcmp(tok->value, "_Atomic") == 0;
+}
+
 void printParserState(const char* label, Parser* parser) {
     printf("\n=== PARSER STATE: %s ===\n", label);
     printf("currentToken:      %-10s at line %d\n", parser->currentToken.value, parser->currentToken.line);
@@ -28,6 +33,9 @@ bool looksLikeTypeDeclaration(Parser* parser) {
         return false; // handled explicitly via parseTypedef
     }
     if (isAlignasToken(&parser->currentToken)) {
+        return true;
+    }
+    if (isAtomicKeywordToken(&parser->currentToken)) {
         return true;
     }
 

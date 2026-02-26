@@ -72,9 +72,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (5:0): Initializer for static variable 'ld' is not a constant expression
 Error at (6:0): Initializer for static variable 'mix' is not a constant expression
-Error at (7:0): Initializer for static variable 'promote' is not a constant expression
-Error at (8:0): Initializer for static variable 'lit_imag' is not a constant expression
-Error at (9:0): Initializer for static variable 'just_imag' is not a constant expression
 

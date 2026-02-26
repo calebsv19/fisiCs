@@ -14,10 +14,10 @@ DISABLE_CODEGEN ?= 0
 BUILD_PROFILE ?= unsanitized
 SHIM_MODE ?= off
 SYS_SHIMS_DIR := ../shared/sys_shims
-CORE_BASE_DIR := ../shared/core_base
-CORE_IO_DIR := ../shared/core_io
-CORE_DATA_DIR := ../shared/core_data
-CORE_PACK_DIR := ../shared/core_pack
+CORE_BASE_DIR := ../shared/core/core_base
+CORE_IO_DIR := ../shared/core/core_io
+CORE_DATA_DIR := ../shared/core/core_data
+CORE_PACK_DIR := ../shared/core/core_pack
 SYS_SHIMS_OVERLAY := $(abspath $(SYS_SHIMS_DIR)/overlay/include)
 SYS_SHIMS_INCLUDE := $(abspath $(SYS_SHIMS_DIR)/include)
 SHIM_PROFILE_ID := shim_profile_lang_frontend_shadow_v1
@@ -99,7 +99,8 @@ BACKEND_OBJS := $(BUILD_DIR)/Compiler/object_emit.o
 all: $(BIN)
 
 # Frontend-only targets
-.PHONY: frontend frontend-clean frontend-rebuild frontend-sanitized frontend-unsanitized frontend-both
+.PHONY: frontend frontend-clean frontend-rebuild frontend-rebuild-local frontend-rebuild-ide \
+        frontend-sanitized frontend-unsanitized frontend-both
 frontend: $(LIB_FRONTEND)
 frontend-sanitized:
 	@$(MAKE) BUILD_PROFILE=sanitized LIB_FRONTEND=libfisics_frontend_sanitized.a frontend
@@ -110,7 +111,11 @@ frontend-clean:
 	@echo "Cleaning frontend library..."
 	rm -f $(LIB_FRONTEND)
 	rm -f $(FRONTEND_OBJS)
-frontend-rebuild: frontend-clean frontend
+frontend-rebuild-local: frontend-clean frontend
+frontend-rebuild-ide: frontend-both
+	@cp -f libfisics_frontend_unsanitized.a libfisics_frontend.a
+	@echo "Refreshed frontend IDE archives: libfisics_frontend_unsanitized.a, libfisics_frontend_sanitized.a"
+frontend-rebuild: frontend-rebuild-ide
 
 # Frontend static library (reusable by IDE)
 $(LIB_FRONTEND): $(FRONTEND_OBJS)
@@ -203,6 +208,9 @@ comma-decl-init: $(BIN)
 
 function-pointer: $(BIN)
 	@./tests/parser/run_function_pointer.sh ./$(BIN)
+
+compound-literal-nested-braces: $(BIN)
+	@./tests/parser/run_compound_literal_nested_braces.sh ./$(BIN)
 
 switch-flow: $(BIN)
 ifeq ($(DISABLE_CODEGEN),1)
@@ -421,6 +429,12 @@ semantic-initializer-shapes: $(BIN)
 semantic-flow: $(BIN)
 	@./tests/syntax/run_semantic_flow.sh ./$(BIN)
 
+semantic-goto-reachable-label: $(BIN)
+	@./tests/syntax/run_semantic_goto_reachable_label.sh ./$(BIN)
+
+semantic-switch-grouped-cases: $(BIN)
+	@./tests/syntax/run_semantic_switch_grouped_cases.sh ./$(BIN)
+
 semantic-vla-errors: $(BIN)
 	@./tests/syntax/run_semantic_vla_errors.sh ./$(BIN)
 
@@ -448,6 +462,9 @@ semantic-unsequenced: $(BIN)
 semantic-restrict-alias: $(BIN)
 	@./tests/syntax/run_semantic_restrict_alias.sh ./$(BIN)
 
+semantic-restrict-alias-fields: $(BIN)
+	@./tests/syntax/run_semantic_restrict_alias_fields.sh ./$(BIN)
+
 semantic-alignas: $(BIN)
 	@./tests/syntax/run_semantic_alignas.sh ./$(BIN)
 
@@ -456,6 +473,12 @@ semantic-bitfield-layout: $(BIN)
 
 semantic-long-double-layout: $(BIN)
 	@./tests/syntax/run_semantic_long_double_layout.sh ./$(BIN)
+
+semantic-atomic-qualifier: $(BIN)
+	@./tests/syntax/run_semantic_atomic_qualifier.sh ./$(BIN)
+
+semantic-static-float-constexpr: $(BIN)
+	@./tests/syntax/run_static_float_constexpr.sh ./$(BIN)
 
 semantic-flexible-array-layout: $(BIN)
 	@./tests/syntax/run_semantic_flexible_array_layout.sh ./$(BIN)
@@ -494,20 +517,26 @@ spec-tests: $(BIN)
 	@MallocNanoZone=0 DISABLE_CODEGEN=1 ./tests/spec/run_ast_golden.sh ./$(BIN)
 
 parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \
-              cast-grouped for_typedef comma-decl-init function-pointer switch-flow goto-flow \
+              cast-grouped for_typedef comma-decl-init function-pointer \
+              compound-literal-nested-braces switch-flow goto-flow \
               statement-expr-enabled statement-expr-disabled recovery
 
 syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic-bool \
               semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
               semantic-pointer-qualifier semantic-function-calls semantic-tag-conflicts \
-              semantic-initializer-shapes semantic-flow semantic-vla-errors semantic-vla-block \
+              semantic-initializer-shapes semantic-flow semantic-goto-reachable-label \
+              semantic-switch-grouped-cases \
+              semantic-vla-errors semantic-vla-block \
               semantic-struct-definition-only semantic-struct-inline-declarator \
-              semantic-vla-param-decay semantic-flexible-array \
-              semantic-knr-function semantic-unsequenced semantic-restrict-alias \
-              semantic-alignas semantic-bitfield-layout semantic-long-double-layout \
-              semantic-flexible-array-layout semantic-union-anon-member \
-              semantic-sizeof-alignof-vla \
-              semantic-case-non-ice semantic-char-escape-consteval \
+	              semantic-vla-param-decay semantic-flexible-array \
+	              semantic-knr-function semantic-unsequenced semantic-restrict-alias \
+	              semantic-restrict-alias-fields \
+	              semantic-alignas semantic-bitfield-layout semantic-long-double-layout \
+	              semantic-atomic-qualifier \
+	              semantic-static-float-constexpr \
+	              semantic-flexible-array-layout semantic-union-anon-member \
+	              semantic-sizeof-alignof-vla \
+	              semantic-case-non-ice semantic-char-escape-consteval \
               semantic-ternary-merge-ptr semantic-shift-unsigned \
               compound-literal-lvalues \
               semantic-complex-declarators
@@ -545,6 +574,9 @@ preprocessor-tests: $(BIN)
 	@./tests/preprocessor/run_pp_macro_depth.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_system_include.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_external_system_include.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_cli_define_string_macro.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_cli_define_string_macro_escaped.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_float_limits_macro.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_builtin_more.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_pragma_stdc.sh ./$(BIN)
 

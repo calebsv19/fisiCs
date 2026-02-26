@@ -140,6 +140,21 @@ void seedBuiltins(Scope* globalScope) {
         addToScope(scope, fprintfSym);
     }
 
+    Symbol* vsnprintfSym = makeBuiltin("vsnprintf", SYMBOL_FUNCTION, intType(), NULL);
+    if (vsnprintfSym) {
+        vsnprintfSym->signature.isVariadic = true;
+        vsnprintfSym->signature.paramCount = 4;
+        vsnprintfSym->signature.hasPrototype = true;
+        vsnprintfSym->signature.params = (ParsedType*)calloc(4, sizeof(ParsedType));
+        if (vsnprintfSym->signature.params) {
+            vsnprintfSym->signature.params[0] = charPtrType();
+            vsnprintfSym->signature.params[1] = longType(true);
+            vsnprintfSym->signature.params[2] = constCharPtrType();
+            vsnprintfSym->signature.params[3] = voidPtrType();
+        }
+        addToScope(scope, vsnprintfSym);
+    }
+
     Symbol* exitSym = makeBuiltin("exit", SYMBOL_FUNCTION, voidType(), NULL);
     if (exitSym) {
         exitSym->signature.paramCount = 1;
@@ -187,6 +202,17 @@ void seedBuiltins(Scope* globalScope) {
         addToScope(scope, memsetChkSym);
     }
 
+    Symbol* allocaSym = makeBuiltin("__builtin_alloca", SYMBOL_FUNCTION, voidPtrType(), NULL);
+    if (allocaSym) {
+        allocaSym->signature.paramCount = 1;
+        allocaSym->signature.hasPrototype = true;
+        allocaSym->signature.params = (ParsedType*)calloc(1, sizeof(ParsedType));
+        if (allocaSym->signature.params) {
+            allocaSym->signature.params[0] = longType(true);
+        }
+        addToScope(scope, allocaSym);
+    }
+
     Symbol* strncpyChkSym = makeBuiltin("__builtin___strncpy_chk", SYMBOL_FUNCTION, charPtrType(), NULL);
     if (strncpyChkSym) {
         strncpyChkSym->signature.paramCount = 4;
@@ -199,6 +225,45 @@ void seedBuiltins(Scope* globalScope) {
             strncpyChkSym->signature.params[3] = longType(true);
         }
         addToScope(scope, strncpyChkSym);
+    }
+
+    Symbol* strncatChkSym = makeBuiltin("__builtin___strncat_chk", SYMBOL_FUNCTION, charPtrType(), NULL);
+    if (strncatChkSym) {
+        strncatChkSym->signature.paramCount = 4;
+        strncatChkSym->signature.hasPrototype = true;
+        strncatChkSym->signature.params = (ParsedType*)calloc(4, sizeof(ParsedType));
+        if (strncatChkSym->signature.params) {
+            strncatChkSym->signature.params[0] = charPtrType();
+            strncatChkSym->signature.params[1] = constCharPtrType();
+            strncatChkSym->signature.params[2] = longType(true);
+            strncatChkSym->signature.params[3] = longType(true);
+        }
+        addToScope(scope, strncatChkSym);
+    }
+
+    Symbol* strncatSym = makeBuiltin("strncat", SYMBOL_FUNCTION, charPtrType(), NULL);
+    if (strncatSym) {
+        strncatSym->signature.paramCount = 3;
+        strncatSym->signature.hasPrototype = true;
+        strncatSym->signature.params = (ParsedType*)calloc(3, sizeof(ParsedType));
+        if (strncatSym->signature.params) {
+            strncatSym->signature.params[0] = charPtrType();
+            strncatSym->signature.params[1] = constCharPtrType();
+            strncatSym->signature.params[2] = longType(true);
+        }
+        addToScope(scope, strncatSym);
+    }
+
+    Symbol* strcatSym = makeBuiltin("strcat", SYMBOL_FUNCTION, charPtrType(), NULL);
+    if (strcatSym) {
+        strcatSym->signature.paramCount = 2;
+        strcatSym->signature.hasPrototype = true;
+        strcatSym->signature.params = (ParsedType*)calloc(2, sizeof(ParsedType));
+        if (strcatSym->signature.params) {
+            strcatSym->signature.params[0] = charPtrType();
+            strcatSym->signature.params[1] = constCharPtrType();
+        }
+        addToScope(scope, strcatSym);
     }
 
     Symbol* snprintfChkSym = makeBuiltin("__builtin___snprintf_chk", SYMBOL_FUNCTION, intType(), NULL);
@@ -215,6 +280,15 @@ void seedBuiltins(Scope* globalScope) {
             snprintfChkSym->signature.params[4] = constCharPtrType();
         }
         addToScope(scope, snprintfChkSym);
+    }
+
+    Symbol* vsnprintfChkSym = makeBuiltin("__builtin___vsnprintf_chk", SYMBOL_FUNCTION, intType(), NULL);
+    if (vsnprintfChkSym) {
+        vsnprintfChkSym->signature.isVariadic = true;
+        // The final argument is platform-specific va_list storage; accept flexibly.
+        vsnprintfChkSym->signature.paramCount = 0;
+        vsnprintfChkSym->signature.hasPrototype = false;
+        addToScope(scope, vsnprintfChkSym);
     }
 
     Symbol* sprintfChkSym = makeBuiltin("__builtin___sprintf_chk", SYMBOL_FUNCTION, intType(), NULL);
@@ -243,6 +317,19 @@ void seedBuiltins(Scope* globalScope) {
             strcpyChkSym->signature.params[2] = longType(true);
         }
         addToScope(scope, strcpyChkSym);
+    }
+
+    Symbol* strcatChkSym = makeBuiltin("__builtin___strcat_chk", SYMBOL_FUNCTION, charPtrType(), NULL);
+    if (strcatChkSym) {
+        strcatChkSym->signature.paramCount = 3;
+        strcatChkSym->signature.hasPrototype = true;
+        strcatChkSym->signature.params = (ParsedType*)calloc(3, sizeof(ParsedType));
+        if (strcatChkSym->signature.params) {
+            strcatChkSym->signature.params[0] = charPtrType();
+            strcatChkSym->signature.params[1] = constCharPtrType();
+            strcatChkSym->signature.params[2] = longType(true);
+        }
+        addToScope(scope, strcatChkSym);
     }
 
     Symbol* memmoveChkSym = makeBuiltin("__builtin___memmove_chk", SYMBOL_FUNCTION, voidPtrType(), NULL);
@@ -288,6 +375,63 @@ void seedBuiltins(Scope* globalScope) {
         addToScope(scope, falseSym);
     }
 
+    Symbol* atomicLoad = makeBuiltin("atomic_load_explicit", SYMBOL_FUNCTION, longType(true), NULL);
+    if (atomicLoad) {
+        atomicLoad->signature.isVariadic = true;
+        atomicLoad->signature.paramCount = 0;
+        atomicLoad->signature.hasPrototype = true;
+        addToScope(scope, atomicLoad);
+    }
+    Symbol* atomicStore = makeBuiltin("atomic_store_explicit", SYMBOL_FUNCTION, voidType(), NULL);
+    if (atomicStore) {
+        atomicStore->signature.isVariadic = true;
+        atomicStore->signature.paramCount = 0;
+        atomicStore->signature.hasPrototype = true;
+        addToScope(scope, atomicStore);
+    }
+    Symbol* atomicExchange = makeBuiltin("atomic_exchange_explicit", SYMBOL_FUNCTION, longType(true), NULL);
+    if (atomicExchange) {
+        atomicExchange->signature.isVariadic = true;
+        atomicExchange->signature.paramCount = 0;
+        atomicExchange->signature.hasPrototype = true;
+        addToScope(scope, atomicExchange);
+    }
+    Symbol* atomicInit = makeBuiltin("atomic_init", SYMBOL_FUNCTION, voidType(), NULL);
+    if (atomicInit) {
+        atomicInit->signature.isVariadic = true;
+        atomicInit->signature.paramCount = 0;
+        atomicInit->signature.hasPrototype = true;
+        addToScope(scope, atomicInit);
+    }
+    Symbol* c11AtomicLoad = makeBuiltin("__c11_atomic_load", SYMBOL_FUNCTION, longType(true), NULL);
+    if (c11AtomicLoad) {
+        c11AtomicLoad->signature.isVariadic = true;
+        c11AtomicLoad->signature.paramCount = 0;
+        c11AtomicLoad->signature.hasPrototype = true;
+        addToScope(scope, c11AtomicLoad);
+    }
+    Symbol* c11AtomicStore = makeBuiltin("__c11_atomic_store", SYMBOL_FUNCTION, voidType(), NULL);
+    if (c11AtomicStore) {
+        c11AtomicStore->signature.isVariadic = true;
+        c11AtomicStore->signature.paramCount = 0;
+        c11AtomicStore->signature.hasPrototype = true;
+        addToScope(scope, c11AtomicStore);
+    }
+    Symbol* c11AtomicExchange = makeBuiltin("__c11_atomic_exchange", SYMBOL_FUNCTION, longType(true), NULL);
+    if (c11AtomicExchange) {
+        c11AtomicExchange->signature.isVariadic = true;
+        c11AtomicExchange->signature.paramCount = 0;
+        c11AtomicExchange->signature.hasPrototype = true;
+        addToScope(scope, c11AtomicExchange);
+    }
+    Symbol* c11AtomicInit = makeBuiltin("__c11_atomic_init", SYMBOL_FUNCTION, voidType(), NULL);
+    if (c11AtomicInit) {
+        c11AtomicInit->signature.isVariadic = true;
+        c11AtomicInit->signature.paramCount = 0;
+        c11AtomicInit->signature.hasPrototype = true;
+        addToScope(scope, c11AtomicInit);
+    }
+
     // Math-related builtins used in system headers
     ParsedType floatRet = floatType(false);
     ParsedType doubleRet = floatType(true);
@@ -318,6 +462,15 @@ void seedBuiltins(Scope* globalScope) {
     Symbol* expectSym = makeBuiltinFunc("__builtin_expect", longType(false), 2, expectArgs);
     if (expectSym) addToScope(scope, expectSym);
 
+    Symbol* constantPSym = makeBuiltin("__builtin_constant_p", SYMBOL_FUNCTION, intType(), NULL);
+    if (constantPSym) {
+        // GCC/Clang treat this as a special builtin predicate that accepts arbitrary expressions.
+        constantPSym->signature.isVariadic = true;
+        constantPSym->signature.paramCount = 0;
+        constantPSym->signature.hasPrototype = true;
+        addToScope(scope, constantPSym);
+    }
+
     ParsedType bswap32Arg[1] = { intType() };
     Symbol* bswap32 = makeBuiltinFunc("__builtin_bswap32", intType(), 1, bswap32Arg);
     if (bswap32) addToScope(scope, bswap32);
@@ -325,6 +478,10 @@ void seedBuiltins(Scope* globalScope) {
     ParsedType bswap64Arg[1] = { longType(true) };
     Symbol* bswap64 = makeBuiltinFunc("__builtin_bswap64", longType(true), 1, bswap64Arg);
     if (bswap64) addToScope(scope, bswap64);
+
+    ParsedType bzeroArgs[2] = { voidPtrType(), longType(true) };
+    Symbol* bzeroSym = makeBuiltinFunc("__builtin_bzero", voidType(), 2, bzeroArgs);
+    if (bzeroSym) addToScope(scope, bzeroSym);
 
     Symbol* mulOverflow = makeBuiltin("__builtin_mul_overflow", SYMBOL_FUNCTION, intType(), NULL);
     if (mulOverflow) {

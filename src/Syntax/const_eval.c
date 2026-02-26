@@ -482,9 +482,18 @@ static ConstEvalResult evalBinaryOp(const char* op,
 }
 
 static bool evalIdentifier(ASTNode* expr, Scope* scope, long long* out, bool allowEnumRefs) {
-    if (!expr || !scope || !out || !allowEnumRefs) return false;
+    if (!expr || !scope || !out) return false;
     Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
-    if (!sym || sym->kind != SYMBOL_ENUM || !sym->definition) {
+    if (!sym) {
+        return false;
+    }
+
+    if (sym->kind == SYMBOL_VARIABLE && sym->hasConstValue) {
+        *out = sym->constValue;
+        return true;
+    }
+
+    if (!allowEnumRefs || sym->kind != SYMBOL_ENUM || !sym->definition) {
         return false;
     }
 

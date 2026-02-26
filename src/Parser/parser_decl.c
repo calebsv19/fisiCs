@@ -824,41 +824,76 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
         return NULL;
     }       
          
-    ParsedDeclarator decl;
-    if (!parserParseDeclarator(parser, &parsedType, false, true, false, &decl)) {
-        printParseError("invalid declarator in for-loop", parser);
+    size_t varCapacity = 4;
+    size_t varCount = 0;
+    ASTNode** varNames = malloc(varCapacity * sizeof(ASTNode*));
+    DesignatedInit** initializers = malloc(varCapacity * sizeof(DesignatedInit*));
+    ParsedType* perTypes = malloc(varCapacity * sizeof(ParsedType));
+    if (!varNames || !initializers || !perTypes) {
+        free(varNames);
+        free(initializers);
+        free(perTypes);
         return NULL;
     }
-    ASTNode* idNode = decl.identifier;
 
-    ASTNode* initializer = NULL;
-    if (parser->currentToken.type == TOKEN_ASSIGN) {
-        advance(parser); // Consume '='
-        initializer = parseExpression(parser);
-        if (!initializer) {
-            printf("Error: Invalid initializer in for-loop at line %d\n", parser->currentToken.line);
+    while (1) {
+        ParsedDeclarator decl;
+        if (!parserParseDeclarator(parser, &parsedType, false, true, false, &decl)) {
+            printParseError("invalid declarator in for-loop", parser);
+            free(varNames);
+            free(initializers);
+            free(perTypes);
             return NULL;
         }
+
+        ASTNode* initializer = NULL;
+        if (parser->currentToken.type == TOKEN_ASSIGN) {
+            advance(parser); // Consume '='
+            initializer = parseAssignmentExpression(parser);
+            if (!initializer) {
+                printf("Error: Invalid initializer in for-loop at line %d\n", parser->currentToken.line);
+                free(varNames);
+                free(initializers);
+                free(perTypes);
+                return NULL;
+            }
+        }
+
+        if (varCount >= varCapacity) {
+            varCapacity *= 2;
+            ASTNode** nextNames = realloc(varNames, varCapacity * sizeof(ASTNode*));
+            DesignatedInit** nextInits = realloc(initializers, varCapacity * sizeof(DesignatedInit*));
+            ParsedType* nextTypes = realloc(perTypes, varCapacity * sizeof(ParsedType));
+            if (!nextNames || !nextInits || !nextTypes) {
+                free(nextNames ? nextNames : varNames);
+                free(nextInits ? nextInits : initializers);
+                free(nextTypes ? nextTypes : perTypes);
+                return NULL;
+            }
+            varNames = nextNames;
+            initializers = nextInits;
+            perTypes = nextTypes;
+        }
+
+        varNames[varCount] = decl.identifier;
+        initializers[varCount] = createSimpleInit(initializer);
+        perTypes[varCount] = decl.type;
+        varCount++;
+
+        if (parser->currentToken.type == TOKEN_COMMA) {
+            advance(parser);
+            continue;
+        }
+        break;
     }
-    
-    // Allocate identifier and initializer arrays  
-    size_t varCount = 1;
-    ASTNode** varNames = malloc(sizeof(ASTNode*));
-    DesignatedInit** initializers = malloc(sizeof(DesignatedInit*));
-    
-    varNames[0] = idNode;
-    initializers[0] = createSimpleInit(initializer);
-    
-    
-    //  Construct variable declaration using ParsedType
+
+    // Construct variable declaration using ParsedType.
     ASTNode* node = createVariableDeclarationNode(parsedType, varNames, initializers, varCount);
     if (node) {
-        ParsedType* perTypes = malloc(sizeof(ParsedType));
-        if (perTypes) {
-            perTypes[0] = decl.type;
-            node->varDecl.declaredTypes = perTypes;
-        }
+        node->varDecl.declaredTypes = perTypes;
         astNodeCloneTypeAttributes(node, &parsedType);
+    } else {
+        free(perTypes);
     }
     return node;
 }

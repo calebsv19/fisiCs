@@ -1,0 +1,33 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER grouped_cases_no_fallthrough_warning
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      SWITCH
+        IDENTIFIER x
+        CASE
+          NUMBER_LITERAL 0
+        CASE
+          NUMBER_LITERAL 1
+          ASSIGNMENT (=)
+            IDENTIFIER x
+            NUMBER_LITERAL 10
+          BREAK
+        CASE
+          DEFAULT
+          ASSIGNMENT (=)
+            IDENTIFIER x
+            NUMBER_LITERAL 20
+          BREAK
+      RETURN
+        IDENTIFIER x
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

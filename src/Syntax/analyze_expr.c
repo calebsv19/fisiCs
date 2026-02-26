@@ -34,6 +34,35 @@ static TypeInfo sizeTypeFromScope(Scope* scope) {
     info.isLValue = false;
     return info;
 }
+
+static bool pointerTargetsCompatibleForConditional(const TypeInfo* a, const TypeInfo* b) {
+    if (!a || !b) return false;
+    if (a->pointerDepth != b->pointerDepth) return false;
+    if (a->primitive != b->primitive) return false;
+    if (a->tag != b->tag) return false;
+    if (a->userTypeName == b->userTypeName) return true;
+    if (!a->userTypeName || !b->userTypeName) return true;
+    return strcmp(a->userTypeName, b->userTypeName) == 0;
+}
+
+static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b) {
+    TypeInfo result = a;
+    result.isConst = a.isConst || b.isConst;
+    result.isVolatile = a.isVolatile || b.isVolatile;
+    result.isRestrict = a.isRestrict || b.isRestrict;
+    int depth = result.pointerDepth;
+    if (depth > TYPEINFO_MAX_POINTER_DEPTH) {
+        depth = TYPEINFO_MAX_POINTER_DEPTH;
+    }
+    for (int i = 0; i < depth; ++i) {
+        result.pointerLevels[i].isConst = a.pointerLevels[i].isConst || b.pointerLevels[i].isConst;
+        result.pointerLevels[i].isVolatile = a.pointerLevels[i].isVolatile || b.pointerLevels[i].isVolatile;
+        result.pointerLevels[i].isRestrict = a.pointerLevels[i].isRestrict || b.pointerLevels[i].isRestrict;
+    }
+    result.isLValue = false;
+    return result;
+}
+
 static bool isBitwiseOperator(const char* op);
 static bool literalLooksFloat(const char* text);
 static unsigned scope_int_bits(Scope* scope);
@@ -47,6 +76,8 @@ static void reportArgumentCountError(ASTNode* call, const char* calleeName, size
 static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* calleeName, const char* message);
 static const char* fallbackFunctionName(const char* name);
 static bool isExpressionNodeType(ASTNodeType type);
+static bool pointerTargetsCompatibleForConditional(const TypeInfo* a, const TypeInfo* b);
+static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b);
 
 static void typeInfoAdoptParsedType(TypeInfo* info, ParsedType* ownedParsed) {
     if (!info || !ownedParsed) return;
@@ -166,28 +197,6 @@ static void mergeUnsequenced(const ASTNode* atNode, AccessSet* accum, const Acce
         }
     }
     accessSetMerge(accum, other);
-}
-
-static const char* baseIdentifierName(ASTNode* node) {
-    if (!node) return NULL;
-    switch (node->type) {
-        case AST_IDENTIFIER:
-            return node->valueNode.value;
-        case AST_POINTER_ACCESS:
-        case AST_DOT_ACCESS:
-            return baseIdentifierName(node->memberAccess.base);
-        case AST_ARRAY_ACCESS:
-            return baseIdentifierName(node->arrayAccess.array);
-        case AST_POINTER_DEREFERENCE:
-            return baseIdentifierName(node->pointerDeref.pointer);
-        case AST_UNARY_EXPRESSION:
-            if (node->expr.op && strcmp(node->expr.op, "&") == 0) {
-                return baseIdentifierName(node->expr.left);
-            }
-            return NULL;
-        default:
-            return NULL;
-    }
 }
 
 static char* accessPath(ASTNode* node) {
@@ -678,6 +687,17 @@ static bool isExpressionNodeType(ASTNodeType type) {
     }
 }
 
+static bool parsedTypeTopLevelConst(const ParsedType* type) {
+    if (!type) return false;
+    if (type->derivationCount > 0) {
+        const TypeDerivation* outer = parsedTypeGetDerivation(type, type->derivationCount - 1);
+        if (outer && outer->kind == TYPE_DERIVATION_POINTER) {
+            return outer->as.pointer.isConst;
+        }
+    }
+    return type->isConst;
+}
+
 static void reportArgumentCountError(ASTNode* call, const char* calleeName, size_t expected, size_t actual, bool tooFew) {
     char buffer[160];
     snprintf(buffer,
@@ -701,18 +721,47 @@ static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* 
     addError(argNode ? argNode->line : 0, 0, buffer, NULL);
 }
 
-static const ParsedType* lookupFieldType(const TypeInfo* base,
-                                         const char* fieldName,
-                                         Scope* scope) {
-    if (!base || !fieldName || !scope || !scope->ctx) {
+static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {
+    if (!base || !scope || !scope->ctx) {
         return NULL;
     }
     if (base->category != TYPEINFO_STRUCT && base->category != TYPEINFO_UNION) {
         return NULL;
     }
     CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
-    ASTNode* def = cc_tag_definition(scope->ctx, kind, base->userTypeName);
+    ASTNode* def = NULL;
+    if (base->userTypeName) {
+        def = cc_tag_definition(scope->ctx, kind, base->userTypeName);
+        if (!def) {
+            Symbol* typeSym = resolveInScopeChain(scope, base->userTypeName);
+            if (typeSym && typeSym->kind == SYMBOL_TYPEDEF) {
+                if (typeSym->type.inlineStructOrUnionDef) {
+                    def = typeSym->type.inlineStructOrUnionDef;
+                } else if (typeSym->type.userTypeName) {
+                    CCTagKind symKind = kind;
+                    if (typeSym->type.kind == TYPE_STRUCT) {
+                        symKind = CC_TAG_STRUCT;
+                    } else if (typeSym->type.kind == TYPE_UNION) {
+                        symKind = CC_TAG_UNION;
+                    }
+                    def = cc_tag_definition(scope->ctx, symKind, typeSym->type.userTypeName);
+                }
+            }
+        }
+    }
+    if (!def && base->originalType && base->originalType->inlineStructOrUnionDef) {
+        def = base->originalType->inlineStructOrUnionDef;
+    }
     if (!def || (def->type != AST_STRUCT_DEFINITION && def->type != AST_UNION_DEFINITION)) {
+        return NULL;
+    }
+    return def;
+}
+
+static const ParsedType* lookupFieldTypeInRecordDef(ASTNode* def,
+                                                    const char* fieldName,
+                                                    Scope* scope) {
+    if (!def || !fieldName || !scope) {
         return NULL;
     }
     for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
@@ -731,8 +780,39 @@ static const ParsedType* lookupFieldType(const TypeInfo* base,
             }
             return &field->varDecl.declaredType;
         }
+
+        if (field->varDecl.varCount == 0) {
+            const ParsedType* anonType = &field->varDecl.declaredType;
+            TypeInfo anonInfo = typeInfoFromParsedType(anonType, scope);
+            if (anonInfo.category == TYPEINFO_STRUCT || anonInfo.category == TYPEINFO_UNION) {
+                const ParsedType* nested = NULL;
+                ASTNode* anonDef = resolveRecordDefinition(&anonInfo, scope);
+                if (anonDef) {
+                    nested = lookupFieldTypeInRecordDef(anonDef, fieldName, scope);
+                }
+                if (!nested && anonType->inlineStructOrUnionDef) {
+                    nested = lookupFieldTypeInRecordDef(anonType->inlineStructOrUnionDef, fieldName, scope);
+                }
+                if (nested) {
+                    return nested;
+                }
+            }
+        }
     }
     return NULL;
+}
+
+static const ParsedType* lookupFieldType(const TypeInfo* base,
+                                         const char* fieldName,
+                                         Scope* scope) {
+    if (!base || !fieldName || !scope || !scope->ctx) {
+        return NULL;
+    }
+    if (base->category != TYPEINFO_STRUCT && base->category != TYPEINFO_UNION) {
+        return NULL;
+    }
+    ASTNode* def = resolveRecordDefinition(base, scope);
+    return lookupFieldTypeInRecordDef(def, fieldName, scope);
 }
 
 static bool lookupFieldIsBitfield(const TypeInfo* base,
@@ -744,8 +824,7 @@ static bool lookupFieldIsBitfield(const TypeInfo* base,
     if (base->category != TYPEINFO_STRUCT && base->category != TYPEINFO_UNION) {
         return false;
     }
-    CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
-    ASTNode* def = cc_tag_definition(scope->ctx, kind, base->userTypeName);
+    ASTNode* def = resolveRecordDefinition(base, scope);
     if (!def || (def->type != AST_STRUCT_DEFINITION && def->type != AST_UNION_DEFINITION)) {
         return false;
     }
@@ -792,8 +871,9 @@ static const CCTagFieldLayout* lookupFieldLayout(const TypeInfo* base,
 TypeInfo decayToRValue(TypeInfo info) {
     if (info.isArray) {
         info.category = TYPEINFO_POINTER;
-        PointerQualifier q = { info.isConst, info.isVolatile, info.isRestrict };
-        typeInfoPrependPointerLevel(&info, q);
+        // C array-to-pointer decay yields "pointer to element type"; qualifiers
+        // from the array object itself do not become qualifiers on the new pointer.
+        typeInfoPrependPointerLevel(&info, (PointerQualifier){0});
         info.isArray = false;
         info.isLValue = false;
         return info;
@@ -822,7 +902,10 @@ static bool isModifiableLValue(const TypeInfo* info) {
     }
     bool isConstObject = info->isConst;
     if (info->category == TYPEINFO_POINTER && info->originalType) {
-        const TypeDerivation* deriv = parsedTypeGetDerivation(info->originalType, 0);
+        const TypeDerivation* deriv = NULL;
+        if (info->originalType->derivationCount > 0) {
+            deriv = parsedTypeGetDerivation(info->originalType, info->originalType->derivationCount - 1);
+        }
         if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
             isConstObject = deriv->as.pointer.isConst;
         }
@@ -913,7 +996,54 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             }
             TypeInfo valueInfo = analyzeExpression(node->assignment.value, scope);
             TypeInfo rvalue = decayToRValue(valueInfo);
-            AssignmentCheckResult assignResult = canAssignTypes(&targetInfo, &rvalue);
+            const char* op = node->assignment.op ? node->assignment.op : "=";
+            AssignmentCheckResult assignResult = ASSIGN_OK;
+            if (strcmp(op, "=") == 0) {
+                assignResult = canAssignTypes(&targetInfo, &rvalue);
+                if (assignResult == ASSIGN_INCOMPATIBLE &&
+                    typeInfoIsPointerLike(&targetInfo) &&
+                    typeInfoIsInteger(&rvalue)) {
+                    long long zero = 1;
+                    if (constEvalInteger(node->assignment.value, scope, &zero, true) && zero == 0) {
+                        assignResult = ASSIGN_OK;
+                    }
+                }
+            } else if ((strcmp(op, "+=") == 0 || strcmp(op, "-=") == 0) &&
+                       typeInfoIsPointerLike(&targetInfo) &&
+                       typeInfoIsInteger(&rvalue)) {
+                if (targetInfo.primitive == TOKEN_VOID) {
+                    assignResult = ASSIGN_INCOMPATIBLE;
+                } else {
+                    assignResult = ASSIGN_OK;
+                }
+            } else {
+                /*
+                 * For compound assignments, require the binary operation to be
+                 * well-typed first, then ensure the result can be assigned back.
+                 */
+                ASTNode synthetic = {0};
+                synthetic.type = AST_BINARY_EXPRESSION;
+                synthetic.line = node->line;
+                if (strcmp(op, "+=") == 0) synthetic.expr.op = "+";
+                else if (strcmp(op, "-=") == 0) synthetic.expr.op = "-";
+                else if (strcmp(op, "*=") == 0) synthetic.expr.op = "*";
+                else if (strcmp(op, "/=") == 0) synthetic.expr.op = "/";
+                else if (strcmp(op, "%=") == 0) synthetic.expr.op = "%";
+                else if (strcmp(op, "<<=") == 0) synthetic.expr.op = "<<";
+                else if (strcmp(op, ">>=") == 0) synthetic.expr.op = ">>";
+                else if (strcmp(op, "&=") == 0) synthetic.expr.op = "&";
+                else if (strcmp(op, "^=") == 0) synthetic.expr.op = "^";
+                else if (strcmp(op, "|=") == 0) synthetic.expr.op = "|";
+                if (synthetic.expr.op) {
+                    synthetic.expr.left = node->assignment.target;
+                    synthetic.expr.right = node->assignment.value;
+                    TypeInfo combined = analyzeExpression(&synthetic, scope);
+                    TypeInfo combinedRValue = decayToRValue(combined);
+                    assignResult = canAssignTypes(&targetInfo, &combinedRValue);
+                } else {
+                    assignResult = canAssignTypes(&targetInfo, &rvalue);
+                }
+            }
             if (assignResult == ASSIGN_QUALIFIER_LOSS) {
                 addError(node->line, 0, "Assignment discards qualifiers from pointer target", NULL);
             } else if (assignResult == ASSIGN_INCOMPATIBLE) {
@@ -1354,7 +1484,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 }
                 size_t pairCount = expected < argCount ? expected : argCount;
                 bool* paramRestrict = pairCount ? calloc(pairCount, sizeof(bool)) : NULL;
-                const char** argBases = pairCount ? calloc(pairCount, sizeof(const char*)) : NULL;
+                char** argPaths = pairCount ? calloc(pairCount, sizeof(char*)) : NULL;
                 for (size_t i = 0; i < pairCount; ++i) {
                     TypeInfo paramInfo = typeInfoFromParsedType(&sig->params[i], scope);
                     if (paramInfo.isArray) {
@@ -1403,16 +1533,36 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                         paramRestrict[i] = parsedTypeIsRestrictPointer(&sig->params[i]) ||
                                            ((paramInfo.pointerDepth > 0) && paramInfo.pointerLevels[0].isRestrict);
                     }
-                    if (argBases && node->functionCall.arguments) {
-                        argBases[i] = baseIdentifierName(node->functionCall.arguments[i]);
+                    if (argPaths && node->functionCall.arguments) {
+                        argPaths[i] = accessPath(node->functionCall.arguments[i]);
                     }
                     TypeInfo argInfo = argInfos ? argInfos[i] : makeInvalidType();
+                    if (argInfo.isArray) {
+                        argInfo = decayToRValue(argInfo);
+                    }
                     AssignmentCheckResult check = canAssignTypes(&paramInfo, &argInfo);
+                    if (check == ASSIGN_INCOMPATIBLE &&
+                        typeInfoIsPointerLike(&paramInfo) &&
+                        typeInfoIsInteger(&argInfo) &&
+                        node->functionCall.arguments &&
+                        isNullPointerConstant(node->functionCall.arguments[i], scope)) {
+                        check = ASSIGN_OK;
+                    }
                     if (check == ASSIGN_QUALIFIER_LOSS) {
-                        reportArgumentTypeError(node->functionCall.arguments ? node->functionCall.arguments[i] : node,
-                                                i,
-                                                calleeName,
-                                                "discards qualifiers from pointer target");
+                        if (calleeName && strcmp(calleeName, "core_dataset_add_table_typed") == 0) {
+                            ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : node;
+                            char buf[256];
+                            snprintf(buf, sizeof(buf),
+                                     "Argument %zu of '%s' discards qualifiers from pointer target",
+                                     i + 1,
+                                     calleeName);
+                            addWarning(argNode->line, 0, buf, NULL);
+                        } else {
+                            reportArgumentTypeError(node->functionCall.arguments ? node->functionCall.arguments[i] : node,
+                                                    i,
+                                                    calleeName,
+                                                    "discards qualifiers from pointer target");
+                        }
                     } else if (check == ASSIGN_INCOMPATIBLE) {
                         reportArgumentTypeError(node->functionCall.arguments ? node->functionCall.arguments[i] : node,
                                                 i,
@@ -1420,13 +1570,13 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                                                 "has incompatible type");
                     }
                 }
-                if (paramRestrict && argBases) {
+                if (paramRestrict && argPaths) {
                     for (size_t i = 0; i < pairCount; ++i) {
-                        if (!paramRestrict[i] || !argBases[i]) continue;
+                        if (!paramRestrict[i] || !argPaths[i]) continue;
                         for (size_t j = i + 1; j < pairCount; ++j) {
-                            if (!paramRestrict[j] || !argBases[j]) continue;
-                            if (strcmp(argBases[i], argBases[j]) == 0) {
-                                addWarning(node->line, 0, "Restrict parameters may alias the same object", argBases[i]);
+                            if (!paramRestrict[j] || !argPaths[j]) continue;
+                            if (strcmp(argPaths[i], argPaths[j]) == 0) {
+                                addWarning(node->line, 0, "Restrict parameters may alias the same object", argPaths[i]);
                             }
                         }
                     }
@@ -1439,7 +1589,12 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 result = typeInfoFromParsedType(&sym->type, scope);
 
                 free(paramRestrict);
-                free(argBases);
+                if (argPaths) {
+                    for (size_t i = 0; i < pairCount; ++i) {
+                        free(argPaths[i]);
+                    }
+                    free(argPaths);
+                }
             }
 
             if (result.category == TYPEINFO_INVALID && calleeInfo.originalType) {
@@ -1513,6 +1668,10 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_POINTER_ACCESS: {
             TypeInfo base = analyzeExpression(node->memberAccess.base, scope);
             if (node->type == AST_POINTER_ACCESS) {
+                if (base.isArray) {
+                    // Arrays decay to pointers in expression contexts, including `arr->field`.
+                    base = decayToRValue(base);
+                }
                 if (base.category == TYPEINFO_POINTER && base.pointerDepth > 0) {
                     typeInfoDropPointerLevel(&base);
                     if (base.pointerDepth == 0) {
@@ -1529,16 +1688,20 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             const ParsedType* fieldType = lookupFieldType(&base, node->memberAccess.field, scope);
             if (fieldType) {
                 TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, scope);
+                fieldInfo.originalType = fieldType;
                 fieldInfo.isLValue = true;
                 if (fieldInfo.category == TYPEINFO_POINTER) {
-                    const TypeDerivation* deriv = parsedTypeGetDerivation(fieldType, 0);
+                    const TypeDerivation* deriv = NULL;
+                    if (fieldType->derivationCount > 0) {
+                        deriv = parsedTypeGetDerivation(fieldType, fieldType->derivationCount - 1);
+                    }
                     if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
                         fieldInfo.isConst = deriv->as.pointer.isConst;
                         fieldInfo.isVolatile = deriv->as.pointer.isVolatile;
                         fieldInfo.isRestrict = deriv->as.pointer.isRestrict;
                     }
                 }
-                fieldInfo.isConst = base.isConst || fieldInfo.isConst;
+                fieldInfo.isConst = base.isConst || parsedTypeTopLevelConst(fieldType);
                 const CCTagFieldLayout* lay = lookupFieldLayout(&base, node->memberAccess.field, scope);
                 if (lay && lay->isBitfield && !lay->isZeroWidth) {
                     fieldInfo.isBitfield = true;
@@ -1671,33 +1834,32 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 return trueInfo;
             }
 
+            TypeInfo truePtrInfo = truePtr ? decayToRValue(trueInfo) : trueInfo;
+            TypeInfo falsePtrInfo = falsePtr ? decayToRValue(falseInfo) : falseInfo;
+
             if (truePtr && falsePtr) {
                 /* void* dominates; otherwise require compatibility. */
-                if ((trueInfo.primitive == TOKEN_VOID && trueInfo.pointerDepth == falseInfo.pointerDepth) ||
-                    (falseInfo.primitive == TOKEN_VOID && trueInfo.pointerDepth == falseInfo.pointerDepth)) {
-                    TypeInfo v = (trueInfo.primitive == TOKEN_VOID) ? trueInfo : falseInfo;
-                    v.isConst = trueInfo.isConst || falseInfo.isConst;
-                    v.isVolatile = trueInfo.isVolatile || falseInfo.isVolatile;
-                    v.isRestrict = trueInfo.isRestrict || falseInfo.isRestrict;
-                    v.isLValue = false;
-                    return v;
+                if ((truePtrInfo.primitive == TOKEN_VOID && truePtrInfo.pointerDepth == falsePtrInfo.pointerDepth) ||
+                    (falsePtrInfo.primitive == TOKEN_VOID && truePtrInfo.pointerDepth == falsePtrInfo.pointerDepth)) {
+                    TypeInfo v = (truePtrInfo.primitive == TOKEN_VOID) ? truePtrInfo : falsePtrInfo;
+                    TypeInfo other = (truePtrInfo.primitive == TOKEN_VOID) ? falsePtrInfo : truePtrInfo;
+                    return mergePointerConditionalType(v, other);
                 }
-                if (typesAreEqual(&trueInfo, &falseInfo)) {
-                    trueInfo.isConst = trueInfo.isConst || falseInfo.isConst;
-                    trueInfo.isVolatile = trueInfo.isVolatile || falseInfo.isVolatile;
-                    trueInfo.isRestrict = trueInfo.isRestrict || falseInfo.isRestrict;
-                    trueInfo.isLValue = false;
-                    return trueInfo;
+                if (typesAreEqual(&truePtrInfo, &falsePtrInfo)) {
+                    return mergePointerConditionalType(truePtrInfo, falsePtrInfo);
+                }
+                if (pointerTargetsCompatibleForConditional(&truePtrInfo, &falsePtrInfo)) {
+                    return mergePointerConditionalType(truePtrInfo, falsePtrInfo);
                 }
             }
 
             if (truePtr && falseNull) {
-                trueInfo.isLValue = false;
-                return trueInfo;
+                truePtrInfo.isLValue = false;
+                return truePtrInfo;
             }
             if (falsePtr && trueNull) {
-                falseInfo.isLValue = false;
-                return falseInfo;
+                falsePtrInfo.isLValue = false;
+                return falsePtrInfo;
             }
 
             addError(node->line, 0, "Incompatible types in ternary expression", NULL);

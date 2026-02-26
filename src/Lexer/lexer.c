@@ -279,6 +279,13 @@ Token getNextToken(Lexer* lexer) {
         return handleNumber(lexer);
     }
 
+    // C permits floating literals that begin with a dot (e.g. `.8`).
+    if (lexer->source[lexer->position] == '.' &&
+        lexer->position + 1 < lexer->length &&
+        isdigit((unsigned char)lexer->source[lexer->position + 1])) {
+        return handleNumber(lexer);
+    }
+
     if (lexer->source[lexer->position] == '"') {
         return handleStringLiteral(lexer);
     }
@@ -503,9 +510,22 @@ Token handleStringLiteral(Lexer* lexer) {
     lexer->position++; // Skip opening quote
     int start = lexer->position;
 
-    while (lexer->source[lexer->position] != '"' || lexer->source[lexer->position - 1] == '\\') {
-        if (lexer->source[lexer->position] == '\0' || lexer->source[lexer->position] == '\n') {
+    while (1) {
+        char c = lexer->source[lexer->position];
+        if (c == '\0' || c == '\n') {
             return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated string", startMark);
+        }
+        if (c == '"') {
+            break;
+        }
+        if (c == '\\') {
+            // Skip escaped byte (e.g. \" \\ \n \xNN), so a quote after \\ can terminate.
+            lexer->position++;
+            if (lexer->source[lexer->position] == '\0' || lexer->source[lexer->position] == '\n') {
+                return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated string", startMark);
+            }
+            lexer->position++;
+            continue;
         }
         lexer->position++;
     }

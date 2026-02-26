@@ -239,8 +239,8 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
             info.category = (type->kind == TYPE_STRUCT) ? TYPEINFO_STRUCT : TYPEINFO_UNION;
             info.tag = (type->kind == TYPE_STRUCT) ? TAG_STRUCT : TAG_UNION;
             info.userTypeName = type->userTypeName;
-            info.isComplete = false;
-            if (scope && scope->ctx && type->userTypeName) {
+            info.isComplete = (type->inlineStructOrUnionDef != NULL);
+            if (!info.isComplete && scope && scope->ctx && type->userTypeName) {
                 CCTagKind k = (type->kind == TYPE_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
                 info.isComplete = cc_tag_is_defined(scope->ctx, k, type->userTypeName);
             }
@@ -656,6 +656,10 @@ static bool typeInfoIsVoidPointer(const TypeInfo* info) {
 
 AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) {
     if (!dest || !src) return ASSIGN_INCOMPATIBLE;
+    if (dest->userTypeName && src->userTypeName &&
+        strcmp(dest->userTypeName, src->userTypeName) == 0) {
+        return ASSIGN_OK;
+    }
 
     if (typeInfoIsPointerLike(dest) && typeInfoIsPointerLike(src)) {
         bool destVoidPtr = typeInfoIsVoidPointer(dest);

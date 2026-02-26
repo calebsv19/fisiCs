@@ -442,6 +442,20 @@ static bool parse_include_operand(const Token* tokens,
     return true;
 }
 
+static bool include_name_is_suspicious(const char* name) {
+    if (!name || !name[0]) return true;
+    for (const unsigned char* p = (const unsigned char*)name; *p; ++p) {
+        unsigned char c = *p;
+        bool ok =
+            (c >= 'a' && c <= 'z') ||
+            (c >= 'A' && c <= 'Z') ||
+            (c >= '0' && c <= '9') ||
+            c == '_' || c == '-' || c == '.' || c == '/' || c == '+';
+        if (!ok) return true;
+    }
+    return false;
+}
+
 static const char* detect_include_guard(const TokenBuffer* buffer) {
     if (!buffer || buffer->count < 3) return NULL;
     const Token* tokens = buffer->tokens;
@@ -693,7 +707,14 @@ bool process_include(Preprocessor* pp,
     }
     if (!haveInc) {
         bool warnOnly = isSystem || pp->lenientMissingIncludes;
+        bool suspiciousSystemName = isSystem && include_name_is_suspicious(name);
         if (warnOnly) {
+            if (suspiciousSystemName) {
+                // Some SDK macro-expanded include operands are non-header expressions
+                // (e.g. "(*__error()).h"); ignore in lenient/system mode.
+                free(name);
+                return true;
+            }
             pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_WARNING, CDIAG_PREPROCESSOR_GENERIC,
                            "skipping missing %s include '%s'", isSystem ? "system" : "local", name ? name : "<null>");
             free(name);
@@ -768,6 +789,9 @@ bool process_include(Preprocessor* pp,
     }
 
     if (pp_include_stack_contains(pp, incValue.path)) {
+        if (pp->lenientMissingIncludes) {
+            return true;
+        }
         pp_report_diag(pp,
                        tokens ? &tokens[*cursor] : NULL,
                        DIAG_ERROR,

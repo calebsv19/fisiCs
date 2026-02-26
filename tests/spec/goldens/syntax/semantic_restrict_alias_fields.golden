@@ -1,0 +1,59 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Pair
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER cond
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER mutex
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER wait_pair
+    PARAMETERS
+      VAR_DECL
+        TYPE: int* restrict
+        IDENTIFIER cond
+      VAR_DECL
+        TYPE: int* restrict
+        IDENTIFIER mutex
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          UNARY EXPRESSION '*' (prefix)
+            IDENTIFIER cond
+          UNARY EXPRESSION '*' (prefix)
+            IDENTIFIER mutex
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Pair
+        IDENTIFIER p
+            = NUMBER_LITERAL 1
+
+            = NUMBER_LITERAL 2
+
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER wait_pair
+          ARGUMENTS
+            UNARY EXPRESSION '&' (prefix)
+              DOT_ACCESS '.'
+                IDENTIFIER p
+                FIELD cond
+            UNARY EXPRESSION '&' (prefix)
+              DOT_ACCESS '.'
+                IDENTIFIER p
+                FIELD mutex
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

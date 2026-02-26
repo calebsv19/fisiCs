@@ -137,8 +137,8 @@ int main(int argc, char** argv) {
 EOF
 
 cc -std=c11 -Wall -Wextra -Wpedantic \
-  -I../shared/core_pack/include -I../shared/core_base/include \
-  "$inspector_c" ../shared/core_pack/src/core_pack.c ../shared/core_base/src/core_base.c \
+  -I../shared/core/core_pack/include -I../shared/core/core_base/include \
+  "$inspector_c" ../shared/core/core_pack/src/core_pack.c ../shared/core/core_base/src/core_base.c \
   -o "$inspector_bin"
 
 "$inspector_bin" "$pack_path"

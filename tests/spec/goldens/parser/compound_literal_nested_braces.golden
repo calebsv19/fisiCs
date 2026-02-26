@@ -1,0 +1,55 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: struct __anon_struct_0_4
+        Alias:     IDENTIFIER P
+  TYPEDEF
+        TYPE: struct __anon_struct_1_10
+        Alias:     IDENTIFIER V
+  FUNCTION DEFINITION
+    RETURN TYPE: void
+    IDENTIFIER f
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: P
+        IDENTIFIER a
+            = NUMBER_LITERAL 1.0f
+
+            = NUMBER_LITERAL 2.0f
+
+      VAR_DECL
+        TYPE: V [1]
+        IDENTIFIER verts
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER v
+          = NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER color
+          = NUMBER_LITERAL 7
+      ASSIGNMENT (=)
+        ARRAY_ACCESS
+          IDENTIFIER verts
+          UNARY EXPRESSION '++' (postfix)
+            IDENTIFIER v
+        COMPOUND_LITERAL
+          TYPE: V
+          = IDENTIFIER a
+
+          = IDENTIFIER color
+
+          = 
+            = NUMBER_LITERAL 0.0f
+
+            = NUMBER_LITERAL 0.0f
+
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

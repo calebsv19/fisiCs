@@ -810,6 +810,61 @@ static bool parseInlineEnumBody(Parser* parser,
     return true;
 }
 
+static bool isAtomicTypeKeywordToken(const Token* tok) {
+    if (!tok || tok->type != TOKEN_IDENTIFIER || !tok->value) return false;
+    return strcmp(tok->value, "_Atomic") == 0;
+}
+
+static bool isInteropCallingConventionMarker(const Token* tok) {
+    if (!tok || tok->type != TOKEN_IDENTIFIER || !tok->value) return false;
+    const char* value = tok->value;
+    return strcmp(value, "VKAPI_ATTR") == 0 ||
+           strcmp(value, "VKAPI_CALL") == 0 ||
+           strcmp(value, "VKAPI_PTR") == 0 ||
+           strcmp(value, "APIENTRY") == 0 ||
+           strcmp(value, "WINAPI") == 0 ||
+           strcmp(value, "CALLBACK") == 0 ||
+           strcmp(value, "STDMETHODCALLTYPE") == 0 ||
+           strcmp(value, "__stdcall") == 0 ||
+           strcmp(value, "__cdecl") == 0 ||
+           strcmp(value, "__fastcall") == 0;
+}
+
+static void parsedTypeAdoptBase(ParsedType* dst, ParsedType* src) {
+    if (!dst || !src) return;
+    dst->kind = src->kind;
+    dst->tag = src->tag;
+    dst->inlineStructOrUnionDef = src->inlineStructOrUnionDef;
+    dst->inlineEnumDef = src->inlineEnumDef;
+    dst->isFunctionPointer = src->isFunctionPointer;
+    dst->fpParamCount = src->fpParamCount;
+    dst->fpParams = src->fpParams;
+    dst->primitiveType = src->primitiveType;
+    dst->userTypeName = src->userTypeName;
+    dst->pointerDepth = src->pointerDepth;
+    dst->isVLA = src->isVLA;
+    dst->directlyDeclaresFunction = src->directlyDeclaresFunction;
+    dst->isVariadicFunction = src->isVariadicFunction;
+    dst->derivations = src->derivations;
+    dst->derivationCount = src->derivationCount;
+    dst->hasParamArrayInfo = src->hasParamArrayInfo;
+    dst->paramArrayInfo = src->paramArrayInfo;
+
+    src->inlineStructOrUnionDef = NULL;
+    src->inlineEnumDef = NULL;
+    src->isFunctionPointer = false;
+    src->fpParamCount = 0;
+    src->fpParams = NULL;
+    src->userTypeName = NULL;
+    src->pointerDepth = 0;
+    src->isVLA = false;
+    src->directlyDeclaresFunction = false;
+    src->isVariadicFunction = false;
+    src->derivations = NULL;
+    src->derivationCount = 0;
+    src->hasParamArrayInfo = false;
+}
+
 static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
     ParsedType type = parsedTypeDefault();
     if (!parser) {
@@ -834,6 +889,9 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         break;
     }
 
+    ParsedType atomicWrappedType = parsedTypeDefault();
+    bool hasAtomicWrappedType = false;
+
     // Type qualifiers / modifiers
     for (;;) {
         switch (parser->currentToken.type) {
@@ -849,6 +907,33 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_IMAGINARY: type.isImaginary = true; advance(parser); continue;
             default: break;
         }
+        if (isAtomicTypeKeywordToken(&parser->currentToken)) {
+            advance(parser); // consume _Atomic
+            if (parser->currentToken.type == TOKEN_LPAREN) {
+                advance(parser); // consume '('
+                ParsedType inner = parseTypeCtx(parser, TYPECTX_Strict);
+                if (inner.kind == TYPE_INVALID) {
+                    printParseError("Expected type-name in _Atomic(...)", parser);
+                    return parsedTypeDefault();
+                }
+                if (parser->currentToken.type != TOKEN_RPAREN) {
+                    parsedTypeFree(&inner);
+                    printParseError("Expected ')' to close _Atomic type-name", parser);
+                    return parsedTypeDefault();
+                }
+                advance(parser); // consume ')'
+                if (hasAtomicWrappedType) {
+                    parsedTypeFree(&atomicWrappedType);
+                }
+                atomicWrappedType = inner;
+                hasAtomicWrappedType = true;
+            }
+            continue;
+        }
+        if (isInteropCallingConventionMarker(&parser->currentToken)) {
+            advance(parser);
+            continue;
+        }
         consumeTypeAttributes(parser, &type);
         consumeAlignasSpecifiers(parser, &type);
         consumeAlignasSpecifiers(parser, &type);
@@ -857,7 +942,23 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
 
     bool sawBaseType = false;
 
-    if (isPrimitiveTypeToken(parser->currentToken.type)) {
+    if (hasAtomicWrappedType) {
+        type.isConst |= atomicWrappedType.isConst;
+        type.isSigned |= atomicWrappedType.isSigned;
+        type.isUnsigned |= atomicWrappedType.isUnsigned;
+        type.isShort |= atomicWrappedType.isShort;
+        type.isLong |= atomicWrappedType.isLong;
+        type.isComplex |= atomicWrappedType.isComplex;
+        type.isImaginary |= atomicWrappedType.isImaginary;
+        type.isVolatile |= atomicWrappedType.isVolatile;
+        type.isRestrict |= atomicWrappedType.isRestrict;
+        type.isInline |= atomicWrappedType.isInline;
+        type.alignOverride = atomicWrappedType.alignOverride;
+        type.hasAlignOverride = atomicWrappedType.hasAlignOverride;
+        parsedTypeAdoptBase(&type, &atomicWrappedType);
+        parsedTypeFree(&atomicWrappedType);
+        sawBaseType = true;
+    } else if (isPrimitiveTypeToken(parser->currentToken.type)) {
         type.kind = TYPE_PRIMITIVE;
         type.primitiveType = parser->currentToken.type;
         advance(parser);
@@ -1046,8 +1147,6 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
         const char* ident = parser->currentToken.value;
         bool hasTypeModifiers =
             type.isUnsigned || type.isSigned || type.isShort || type.isLong;
-        bool hasQualifiers =
-            type.isConst || type.isVolatile || type.isRestrict || type.isInline;
         bool known = (!hasTypeModifiers) && identifierMatchesKnownType(parser, ident);
 
         if (!known) {
@@ -1055,7 +1154,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
                 return parsedTypeDefault();
             }
 
-            if (hasTypeModifiers || hasQualifiers) {
+            if (hasTypeModifiers) {
                 // Treat combinations like "unsigned long" as integral types without
                 // consuming the following identifier (likely the declarator name).
                 type.kind = TYPE_PRIMITIVE;
@@ -1097,6 +1196,14 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_COMPLEX:  type.isComplex  = true; advance(parser); continue;
             case TOKEN_IMAGINARY: type.isImaginary = true; advance(parser); continue;
             default: break;
+        }
+        if (isAtomicTypeKeywordToken(&parser->currentToken)) {
+            advance(parser); // allow trailing/qualifier-style _Atomic
+            continue;
+        }
+        if (isInteropCallingConventionMarker(&parser->currentToken)) {
+            advance(parser);
+            continue;
         }
         consumeTypeAttributes(parser, &type);
         break;

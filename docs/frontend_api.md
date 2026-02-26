@@ -35,3 +35,8 @@ fisics_free_analysis_result(&res);
 
 ## Linking
 - Build provides `libfisics_frontend.a` and `fisics_frontend.h`. Link with `-L<repo> -lfisics_frontend` and include headers from `src/`.
+- IDE integration note:
+  - Some consumers (for example `../ide`) link profile-specific archives:
+    - `libfisics_frontend_unsanitized.a`
+    - `libfisics_frontend_sanitized.a`
+  - Run `make frontend-rebuild` in `fisiCs` to refresh both archives and update `libfisics_frontend.a` alias.

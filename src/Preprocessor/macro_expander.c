@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#if defined(__APPLE__)
+#include <malloc/malloc.h>
+#endif
 
 #include "Lexer/lexer.h"
 
@@ -27,6 +30,16 @@ typedef struct {
 
 static SourceRange empty_range(void);
 
+static void safe_free_token_value(char* value) {
+    if (!value) return;
+#if defined(__APPLE__)
+    if (malloc_zone_from_ptr(value) == NULL) {
+        return;
+    }
+#endif
+    free(value);
+}
+
 static char* pp_strdup(const char* s) {
     if (!s) return NULL;
     size_t len = strlen(s) + 1;
@@ -39,7 +52,7 @@ static char* pp_strdup(const char* s) {
 
 static void token_free(Token* tok) {
     if (!tok) return;
-    free(tok->value);
+    safe_free_token_value(tok->value);
     tok->value = NULL;
 }
 

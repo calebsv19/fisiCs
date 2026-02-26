@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <errno.h>
+#include <signal.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <limits.h>
@@ -20,6 +24,100 @@ typedef struct {
     size_t count;
     size_t capacity;
 } StringList;
+
+static char g_proc_guard_path[PATH_MAX] = {0};
+
+static void fisics_proc_guard_cleanup(void) {
+    if (g_proc_guard_path[0] != '\0') {
+        unlink(g_proc_guard_path);
+        g_proc_guard_path[0] = '\0';
+    }
+}
+
+static int parse_positive_int_env(const char* key) {
+    const char* raw = getenv(key);
+    if (!raw || !raw[0]) return 0;
+    char* end = NULL;
+    long v = strtol(raw, &end, 10);
+    if (!end || *end != '\0' || v <= 0 || v > 100000) return 0;
+    return (int)v;
+}
+
+static void cleanup_stale_guard_entries(const char* dirPath) {
+    DIR* dir = opendir(dirPath);
+    if (!dir) return;
+    struct dirent* ent = NULL;
+    while ((ent = readdir(dir)) != NULL) {
+        if (strncmp(ent->d_name, "pid-", 4) != 0) continue;
+        const char* pidPart = ent->d_name + 4;
+        char* end = NULL;
+        long pid = strtol(pidPart, &end, 10);
+        if (!end || *end != '\0' || pid <= 0) continue;
+        if (kill((pid_t)pid, 0) == -1 && errno == ESRCH) {
+            char filePath[PATH_MAX];
+            if (snprintf(filePath, sizeof(filePath), "%s/%s", dirPath, ent->d_name) < (int)sizeof(filePath)) {
+                unlink(filePath);
+            }
+        }
+    }
+    closedir(dir);
+}
+
+static int count_guard_entries(const char* dirPath) {
+    int count = 0;
+    DIR* dir = opendir(dirPath);
+    if (!dir) return 0;
+    struct dirent* ent = NULL;
+    while ((ent = readdir(dir)) != NULL) {
+        if (strncmp(ent->d_name, "pid-", 4) == 0) {
+            count++;
+        }
+    }
+    closedir(dir);
+    return count;
+}
+
+static bool fisics_proc_guard_enter(void) {
+    int maxProcs = parse_positive_int_env("FISICS_MAX_PROCS");
+    if (maxProcs <= 0) return true;
+
+    const char* dirPath = "/tmp/fisics_proc_guard";
+    if (mkdir(dirPath, 0700) != 0 && errno != EEXIST) {
+        fprintf(stderr, "Warning: failed to create process-guard dir %s\n", dirPath);
+        return true;
+    }
+
+    cleanup_stale_guard_entries(dirPath);
+    int running = count_guard_entries(dirPath);
+    if (running >= maxProcs) {
+        fprintf(stderr,
+                "Error: refusing to start fisics (FISICS_MAX_PROCS=%d, currently active=%d)\n",
+                maxProcs,
+                running);
+        fprintf(stderr,
+                "Hint: set FISICS_MAX_PROCS higher, or unset it to disable this guard.\n");
+        return false;
+    }
+
+    pid_t pid = getpid();
+    if (snprintf(g_proc_guard_path, sizeof(g_proc_guard_path), "%s/pid-%ld", dirPath, (long)pid) >= (int)sizeof(g_proc_guard_path)) {
+        g_proc_guard_path[0] = '\0';
+        return true;
+    }
+
+    int fd = open(g_proc_guard_path, O_CREAT | O_EXCL | O_WRONLY, 0600);
+    if (fd < 0) {
+        // Best effort: don't hard-fail if guard file cannot be created.
+        g_proc_guard_path[0] = '\0';
+        return true;
+    }
+    char msg[64];
+    int len = snprintf(msg, sizeof(msg), "%ld\n", (long)pid);
+    if (len > 0) (void)write(fd, msg, (size_t)len);
+    close(fd);
+    atexit(fisics_proc_guard_cleanup);
+    return true;
+}
 
 static void string_list_free(StringList* list) {
     if (!list) return;
@@ -340,6 +438,10 @@ int main(int argc, char **argv) {
         setenv("MallocNanoZone", "0", 0);
     }
 
+    if (!fisics_proc_guard_enter()) {
+        return 1;
+    }
+
     LLVMInstallFatalErrorHandler(llvm_fatal_handler);
 
     const char *filename = NULL;
@@ -366,6 +468,7 @@ int main(int argc, char **argv) {
     CCDialect dialect = CC_DIALECT_C99;
     bool enableExtensions = false;
     StringList includePaths = {0};
+    StringList macroDefines = {0};
     StringList inputCFiles = {0};
     StringList inputOFiles = {0};
     StringList linkerSearchPaths = {0};
@@ -418,6 +521,10 @@ int main(int argc, char **argv) {
     // Always fall back to common macOS SDK/system include locations so we don’t hang on xcrun.
     append_include_dir_if_exists(&includePaths, "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include");
     append_include_dir_if_exists(&includePaths, "/Library/Developer/CommandLineTools/usr/include");
+    append_include_dir_if_exists(&includePaths, "/opt/homebrew/include");
+    append_include_dir_if_exists(&includePaths, "/opt/homebrew/include/SDL2");
+    append_include_dir_if_exists(&includePaths, "/usr/local/include");
+    append_include_dir_if_exists(&includePaths, "/usr/local/include/SDL2");
     append_include_dir_if_exists(&includePaths, "/usr/include");
     char* clangResource = detect_clang_resource_include();
     if (clangResource) {
@@ -461,6 +568,13 @@ int main(int argc, char **argv) {
                 path = argv[++i];
             }
             if (!string_list_push(&includePaths, path)) { fprintf(stderr, "OOM: include path\n"); goto fail; }
+        } else if (strncmp(argv[i], "-D", 2) == 0) {
+            const char* def = argv[i] + 2;
+            if (!*def) {
+                if (i + 1 >= argc) { fprintf(stderr, "-D requires a macro definition\n"); goto fail; }
+                def = argv[++i];
+            }
+            if (!string_list_push(&macroDefines, def)) { fprintf(stderr, "OOM: macro define\n"); goto fail; }
         } else if (strncmp(argv[i], "-L", 2) == 0) {
             const char* path = argv[i] + 2;
             if (!*path) {
@@ -666,6 +780,8 @@ int main(int argc, char **argv) {
                     .dataLayout = dataLayout,
                     .includePaths = (const char* const*)includePaths.items,
                     .includePathCount = includePaths.count,
+                    .macroDefines = (const char* const*)macroDefines.items,
+                    .macroDefineCount = macroDefines.count,
                     .preprocessMode = preprocessMode,
                     .externalPreprocessCmd = externalPreprocessCmd,
                     .externalPreprocessArgs = externalPreprocessArgs,
@@ -725,6 +841,7 @@ int main(int argc, char **argv) {
             }
 
             string_list_free(&includePaths);
+            string_list_free(&macroDefines);
             string_list_free(&inputCFiles);
             string_list_free(&inputOFiles);
             string_list_free(&linkerSearchPaths);
@@ -760,6 +877,8 @@ int main(int argc, char **argv) {
                     .dataLayout = dataLayout,
                     .includePaths = (const char* const*)includePaths.items,
                     .includePathCount = includePaths.count,
+                    .macroDefines = (const char* const*)macroDefines.items,
+                    .macroDefineCount = macroDefines.count,
                     .preprocessMode = preprocessMode,
                     .externalPreprocessCmd = externalPreprocessCmd,
                     .externalPreprocessArgs = externalPreprocessArgs,
@@ -934,6 +1053,7 @@ int main(int argc, char **argv) {
             string_list_free(&argvList);
 
             string_list_free(&includePaths);
+            string_list_free(&macroDefines);
             string_list_free(&inputCFiles);
             string_list_free(&inputOFiles);
             string_list_free(&linkerSearchPaths);
@@ -954,6 +1074,8 @@ int main(int argc, char **argv) {
         .dataLayout = dataLayout,
         .includePaths = (const char* const*)includePaths.items,
         .includePathCount = includePaths.count,
+        .macroDefines = (const char* const*)macroDefines.items,
+        .macroDefineCount = macroDefines.count,
         .preprocessMode = preprocessMode,
         .externalPreprocessCmd = externalPreprocessCmd,
         .externalPreprocessArgs = externalPreprocessArgs,
@@ -985,6 +1107,7 @@ int main(int argc, char **argv) {
 
     compile_result_destroy(&result);
     string_list_free(&includePaths);
+    string_list_free(&macroDefines);
     string_list_free(&inputCFiles);
     string_list_free(&inputOFiles);
     string_list_free(&linkerSearchPaths);
@@ -993,6 +1116,7 @@ int main(int argc, char **argv) {
 
 fail:
     string_list_free(&includePaths);
+    string_list_free(&macroDefines);
     string_list_free(&inputCFiles);
     string_list_free(&inputOFiles);
     string_list_free(&linkerSearchPaths);

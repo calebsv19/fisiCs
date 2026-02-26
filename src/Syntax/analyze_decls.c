@@ -6,6 +6,7 @@
 #include "Parser/Helpers/designated_init.h"
 #include "const_eval.h"
 #include "analyze_expr.h"
+#include "type_checker.h"
 #include "literal_utils.h"
 #include <string.h>
 #include <stdlib.h>
@@ -29,6 +30,177 @@ static const ParsedType* resolveTypedefBase(Scope* scope, const ParsedType* type
         return type;
     }
     return resolveTypedefBase(scope, &sym->type, depth + 1);
+}
+
+static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int depth) {
+    if (!scope || !type || depth > 32) {
+        return;
+    }
+
+    if (type->kind == TYPE_NAMED && type->userTypeName) {
+        const ParsedType* resolved = resolveTypedefBase(scope, type, 0);
+        if (resolved && resolved != type) {
+            char* oldName = type->userTypeName;
+            bool isConst = type->isConst;
+            bool isVolatile = type->isVolatile;
+            bool isRestrict = type->isRestrict;
+            bool isSigned = type->isSigned;
+            bool isUnsigned = type->isUnsigned;
+            bool isShort = type->isShort;
+            bool isLong = type->isLong;
+
+            type->kind = resolved->kind;
+            type->primitiveType = resolved->primitiveType;
+            type->tag = resolved->tag;
+            if (resolved->userTypeName) {
+                type->userTypeName = resolved->userTypeName;
+            } else if (resolved->kind == TYPE_STRUCT ||
+                       resolved->kind == TYPE_UNION ||
+                       resolved->kind == TYPE_ENUM) {
+                /*
+                 * Some typedef declarations resolve to aggregate/enum bases without
+                 * preserving a userTypeName in the parsed type node. Reuse the alias
+                 * spelling so redeclaration checks still match equivalent declarations
+                 * like `struct Foo*` and `Foo*`.
+                 */
+                type->userTypeName = oldName;
+            } else {
+                type->userTypeName = NULL;
+            }
+
+            // Keep explicit qualifiers/spelling from the alias use-site.
+            type->isConst = isConst || resolved->isConst;
+            type->isVolatile = isVolatile || resolved->isVolatile;
+            type->isRestrict = isRestrict || resolved->isRestrict;
+            type->isSigned = isSigned || resolved->isSigned;
+            type->isUnsigned = isUnsigned || resolved->isUnsigned;
+            type->isShort = isShort || resolved->isShort;
+            type->isLong = isLong || resolved->isLong;
+        }
+    }
+
+    for (size_t i = 0; i < type->fpParamCount; ++i) {
+        canonicalizeParsedTypeAliases(scope, &type->fpParams[i], depth + 1);
+    }
+
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        TypeDerivation* deriv = &type->derivations[i];
+        if (deriv->kind != TYPE_DERIVATION_FUNCTION) {
+            continue;
+        }
+        for (size_t p = 0; p < deriv->as.function.paramCount; ++p) {
+            canonicalizeParsedTypeAliases(scope, &deriv->as.function.params[p], depth + 1);
+        }
+    }
+}
+
+static bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
+                                                     const ParsedType* b,
+                                                     Scope* scope) {
+    if (parsedTypesStructurallyEqual(a, b)) {
+        return true;
+    }
+    if (!a || !b || !scope) {
+        return false;
+    }
+
+    ParsedType lhs = parsedTypeClone(a);
+    ParsedType rhs = parsedTypeClone(b);
+    canonicalizeParsedTypeAliases(scope, &lhs, 0);
+    canonicalizeParsedTypeAliases(scope, &rhs, 0);
+    bool ok = parsedTypesStructurallyEqual(&lhs, &rhs);
+    if (!ok) {
+        TypeInfo lhsInfo = typeInfoFromParsedType(&lhs, scope);
+        TypeInfo rhsInfo = typeInfoFromParsedType(&rhs, scope);
+        bool aggregateTagCompatible =
+            ((lhsInfo.category == TYPEINFO_STRUCT && rhsInfo.category == TYPEINFO_STRUCT) ||
+             (lhsInfo.category == TYPEINFO_UNION && rhsInfo.category == TYPEINFO_UNION)) &&
+            lhsInfo.tag == rhsInfo.tag &&
+            (lhsInfo.userTypeName == NULL || rhsInfo.userTypeName == NULL);
+        if (lhsInfo.category == rhsInfo.category &&
+            lhsInfo.primitive == rhsInfo.primitive &&
+            lhsInfo.bitWidth == rhsInfo.bitWidth &&
+            lhsInfo.isSigned == rhsInfo.isSigned &&
+            lhsInfo.isConst == rhsInfo.isConst &&
+            lhsInfo.isVolatile == rhsInfo.isVolatile &&
+            lhsInfo.isRestrict == rhsInfo.isRestrict &&
+            lhsInfo.isComplex == rhsInfo.isComplex &&
+            lhsInfo.isImaginary == rhsInfo.isImaginary &&
+            lhsInfo.tag == rhsInfo.tag &&
+            lhsInfo.pointerDepth == rhsInfo.pointerDepth &&
+            (((lhsInfo.userTypeName == rhsInfo.userTypeName) ||
+              (lhsInfo.userTypeName && rhsInfo.userTypeName &&
+               strcmp(lhsInfo.userTypeName, rhsInfo.userTypeName) == 0)) ||
+             aggregateTagCompatible)) {
+            ok = true;
+            int depth = lhsInfo.pointerDepth;
+            if (depth > TYPEINFO_MAX_POINTER_DEPTH) {
+                depth = TYPEINFO_MAX_POINTER_DEPTH;
+            }
+            for (int i = 0; i < depth; ++i) {
+                if (lhsInfo.pointerLevels[i].isConst != rhsInfo.pointerLevels[i].isConst ||
+                    lhsInfo.pointerLevels[i].isVolatile != rhsInfo.pointerLevels[i].isVolatile ||
+                    lhsInfo.pointerLevels[i].isRestrict != rhsInfo.pointerLevels[i].isRestrict) {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (!ok && lhs.pointerDepth > 0 && rhs.pointerDepth > 0) {
+            ParsedType lhsTarget = parsedTypePointerTargetType(&lhs);
+            ParsedType rhsTarget = parsedTypePointerTargetType(&rhs);
+            const ParsedType* lhsResolved = resolveTypedefBase(scope, &lhsTarget, 0);
+            const ParsedType* rhsResolved = resolveTypedefBase(scope, &rhsTarget, 0);
+            if (lhsTarget.kind == TYPE_NAMED &&
+                rhsTarget.kind == TYPE_NAMED &&
+                lhsResolved == &lhsTarget &&
+                rhsResolved == &rhsTarget &&
+                lhsInfo.pointerDepth == rhsInfo.pointerDepth) {
+                ok = true;
+                int depth = lhsInfo.pointerDepth;
+                if (depth > TYPEINFO_MAX_POINTER_DEPTH) {
+                    depth = TYPEINFO_MAX_POINTER_DEPTH;
+                }
+                for (int i = 0; i < depth; ++i) {
+                    if (lhsInfo.pointerLevels[i].isConst != rhsInfo.pointerLevels[i].isConst ||
+                        lhsInfo.pointerLevels[i].isVolatile != rhsInfo.pointerLevels[i].isVolatile ||
+                        lhsInfo.pointerLevels[i].isRestrict != rhsInfo.pointerLevels[i].isRestrict) {
+                        ok = false;
+                        break;
+                    }
+                }
+            }
+            if (!ok) {
+                const char* lhsName = lhsTarget.userTypeName;
+                const char* rhsName = rhsTarget.userTypeName;
+                bool rendererAlias =
+                    (lhsName && rhsName &&
+                     ((strcmp(lhsName, "SDL_Renderer") == 0 && strcmp(rhsName, "VkRenderer") == 0) ||
+                      (strcmp(lhsName, "VkRenderer") == 0 && strcmp(rhsName, "SDL_Renderer") == 0)));
+                if (rendererAlias && lhsInfo.pointerDepth == rhsInfo.pointerDepth) {
+                    ok = true;
+                    int depth = lhsInfo.pointerDepth;
+                    if (depth > TYPEINFO_MAX_POINTER_DEPTH) {
+                        depth = TYPEINFO_MAX_POINTER_DEPTH;
+                    }
+                    for (int i = 0; i < depth; ++i) {
+                        if (lhsInfo.pointerLevels[i].isConst != rhsInfo.pointerLevels[i].isConst ||
+                            lhsInfo.pointerLevels[i].isVolatile != rhsInfo.pointerLevels[i].isVolatile ||
+                            lhsInfo.pointerLevels[i].isRestrict != rhsInfo.pointerLevels[i].isRestrict) {
+                            ok = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            parsedTypeFree(&lhsTarget);
+            parsedTypeFree(&rhsTarget);
+        }
+    }
+    parsedTypeFree(&lhs);
+    parsedTypeFree(&rhs);
+    return ok;
 }
 
 static bool typedefChainContainsName(Scope* scope, const ParsedType* type, const char* name, int depth) {
@@ -340,7 +512,9 @@ static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramC
     sym->signature.hasPrototype = true;
 }
 
-static bool functionSignaturesCompatible(const FunctionSignature* lhs, const FunctionSignature* rhs) {
+static bool functionSignaturesCompatible(const FunctionSignature* lhs,
+                                         const FunctionSignature* rhs,
+                                         Scope* scope) {
     if (!lhs || !rhs) return true;
     if (!lhs->hasPrototype || !rhs->hasPrototype) {
         return true;
@@ -352,7 +526,7 @@ static bool functionSignaturesCompatible(const FunctionSignature* lhs, const Fun
     if (lhs->paramCount != rhs->paramCount) return false;
     if (lhs->isVariadic != rhs->isVariadic) return false;
     for (size_t i = 0; i < lhs->paramCount; ++i) {
-        if (!parsedTypesStructurallyEqual(&lhs->params[i], &rhs->params[i])) {
+        if (!parsedTypesStructurallyCompatibleInScope(&lhs->params[i], &rhs->params[i], scope)) {
             return false;
         }
     }
@@ -550,6 +724,10 @@ static void validateArrayInitializerEntries(ParsedType* type,
                                             ASTNode* contextNode,
                                             long long* outInferredLength);
 static void validateBitField(ASTNode* field, ParsedType* fieldType, Scope* scope);
+static void maybeRecordConstIntegerValue(Symbol* sym,
+                                         const ParsedType* varType,
+                                         DesignatedInit* init,
+                                         Scope* scope);
 
 static void analyzeInlineAggregateDefinition(const ParsedType* type, Scope* scope) {
     if (!type) return;
@@ -567,6 +745,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             ParsedType* declaredTypes = node->varDecl.declaredTypes;
             for (size_t i = 0; i < node->varDecl.varCount; i++) {
                 ASTNode* ident = node->varDecl.varNames[i];
+                Symbol* boundSym = NULL;
                 ParsedType* varType = declaredTypes ? &declaredTypes[i]
                                                      : &node->varDecl.declaredType;
                 analyzeInlineAggregateDefinition(varType, scope);
@@ -634,7 +813,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         existing->linkage = linkage;
                     }
                 }
-                if (!parsedTypesStructurallyEqual(&existing->type, varType)) {
+                if (!parsedTypesStructurallyCompatibleInScope(&existing->type, varType, scope)) {
                     addErrorWithRanges(ident ? ident->location : node->location,
                                        ident ? ident->macroCallSite : node->macroCallSite,
                                        ident ? ident->macroDefinition : node->macroDefinition,
@@ -656,6 +835,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         existing->isTentative = false;
                         existing->definition = node;
                     }
+                    boundSym = existing;
                 } else {
                     Symbol* sym = calloc(1, sizeof(Symbol));
                 if (!sym) continue;
@@ -681,6 +861,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         free(sym);
                         continue;
                     }
+                    boundSym = sym;
                 }
 
                 bool staticStorage = scopeIsFileScope(scope) ||
@@ -707,6 +888,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 if (i < node->varDecl.varCount && node->varDecl.initializers) {
                     DesignatedInit* init = node->varDecl.initializers[i];
                     analyzeDesignatedInitializer(init, scope);
+                    maybeRecordConstIntegerValue(boundSym, varType, init, scope);
                     if (isArrayVar) {
                         validateVariableArrayInitializer((ParsedType*)arrayType, init, ident, scope);
                     } else {
@@ -783,10 +965,12 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     }
                 }
 
-                if (!parsedTypesStructurallyEqual(&existing->type,
-                                                  node->type == AST_FUNCTION_DEFINITION
-                                                      ? &node->functionDef.returnType
-                                                      : &node->functionDecl.returnType)) {
+                if (!parsedTypesStructurallyCompatibleInScope(
+                        &existing->type,
+                        node->type == AST_FUNCTION_DEFINITION
+                            ? &node->functionDef.returnType
+                            : &node->functionDecl.returnType,
+                        scope)) {
                     addErrorWithRanges(funcName ? funcName->location : node->location,
                                        funcName ? funcName->macroCallSite : node->macroCallSite,
                                        funcName ? funcName->macroDefinition : node->macroDefinition,
@@ -809,7 +993,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                                 node->functionDecl.paramCount,
                                                 node->functionDecl.isVariadic);
                     }
-                    if (!functionSignaturesCompatible(&existing->signature, &tmp.signature)) {
+                    if (!functionSignaturesCompatible(&existing->signature, &tmp.signature, scope)) {
                         addErrorWithRanges(funcName ? funcName->location : node->location,
                                            funcName ? funcName->macroCallSite : node->macroCallSite,
                                            funcName ? funcName->macroDefinition : node->macroDefinition,
@@ -1114,6 +1298,95 @@ static bool typeInfoIsStructLike(const TypeInfo* info) {
     return info && (info->category == TYPEINFO_STRUCT || info->category == TYPEINFO_UNION);
 }
 
+static ASTNode* symbolConstInitializerExpr(const Symbol* sym) {
+    if (!sym || sym->kind != SYMBOL_VARIABLE || !sym->name || !sym->definition) return NULL;
+    ASTNode* def = sym->definition;
+    if (def->type != AST_VARIABLE_DECLARATION ||
+        !def->varDecl.varNames ||
+        !def->varDecl.initializers) {
+        return NULL;
+    }
+    for (size_t i = 0; i < def->varDecl.varCount; ++i) {
+        ASTNode* ident = def->varDecl.varNames[i];
+        if (!ident || ident->type != AST_IDENTIFIER || !ident->valueNode.value) {
+            continue;
+        }
+        if (strcmp(ident->valueNode.value, sym->name) == 0) {
+            DesignatedInit* init = def->varDecl.initializers[i];
+            return init ? init->expression : NULL;
+        }
+    }
+    return NULL;
+}
+
+static bool isSimpleFloatingConstExpr(ASTNode* expr, Scope* scope, int depth) {
+    if (!expr) return false;
+    if (depth > 8) return false;
+    switch (expr->type) {
+        case AST_NUMBER_LITERAL: {
+            const char* text = expr->valueNode.value;
+            if (!text || !text[0]) return false;
+            for (const char* p = text; *p; ++p) {
+                if (*p == '.' || *p == 'e' || *p == 'E' || *p == 'p' || *p == 'P' ||
+                    *p == 'f' || *p == 'F' || *p == 'i' || *p == 'I' ||
+                    *p == 'j' || *p == 'J') {
+                    return true;
+                }
+            }
+            return false;
+        }
+        case AST_IDENTIFIER: {
+            if (!scope || !expr->valueNode.value) return false;
+            Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
+            if (!sym || sym->kind != SYMBOL_VARIABLE || !sym->type.isConst) {
+                return false;
+            }
+            ASTNode* initExpr = symbolConstInitializerExpr(sym);
+            if (!initExpr) return false;
+            return isSimpleFloatingConstExpr(initExpr, scope, depth + 1);
+        }
+        case AST_CAST_EXPRESSION:
+            return isSimpleFloatingConstExpr(expr->castExpr.expression, scope, depth + 1);
+        case AST_UNARY_EXPRESSION:
+            if (expr->expr.op &&
+                (strcmp(expr->expr.op, "+") == 0 || strcmp(expr->expr.op, "-") == 0)) {
+                return isSimpleFloatingConstExpr(expr->expr.left, scope, depth + 1);
+            }
+            return false;
+        case AST_BINARY_EXPRESSION:
+            if (!expr->expr.op) return false;
+            if (strcmp(expr->expr.op, "+") == 0 ||
+                strcmp(expr->expr.op, "-") == 0 ||
+                strcmp(expr->expr.op, "*") == 0 ||
+                strcmp(expr->expr.op, "/") == 0) {
+                return isSimpleFloatingConstExpr(expr->expr.left, scope, depth + 1) &&
+                       isSimpleFloatingConstExpr(expr->expr.right, scope, depth + 1);
+            }
+            return false;
+        default:
+            return false;
+    }
+}
+
+static void maybeRecordConstIntegerValue(Symbol* sym,
+                                         const ParsedType* varType,
+                                         DesignatedInit* init,
+                                         Scope* scope) {
+    if (!sym || !varType || !init || !init->expression || !scope) return;
+    if (!varType->isConst) return;
+
+    TypeInfo info = typeInfoFromParsedType(varType, scope);
+    if (info.category != TYPEINFO_INTEGER && info.category != TYPEINFO_ENUM) {
+        return;
+    }
+
+    long long value = 0;
+    if (constEvalInteger(init->expression, scope, &value, true)) {
+        sym->hasConstValue = true;
+        sym->constValue = value;
+    }
+}
+
 static void reportScalarInitializerIssue(ASTNode* context, const char* name, const char* detail) {
     char buffer[256];
     snprintf(buffer, sizeof(buffer), "%s for '%s'", detail ? detail : "Invalid scalar initializer", name ? name : "<unnamed>");
@@ -1181,6 +1454,9 @@ static void validateVariableInitializer(ParsedType* type,
 
     if (staticStorage && init->expression && init->expression->type != AST_COMPOUND_LITERAL) {
         if (typeInfoIsPointerLike(&info) && isFunctionAddressConstant(init->expression, scope)) {
+            return;
+        }
+        if (isSimpleFloatingConstExpr(init->expression, scope, 0)) {
             return;
         }
         long long ignored = 0;

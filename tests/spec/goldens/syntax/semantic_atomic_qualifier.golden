@@ -1,0 +1,53 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: _Bool
+        Alias:     IDENTIFIER atomic_bool_local
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER atomic_ulong_local
+  TYPEDEF
+        TYPE: struct __anon_struct_0_7
+        Alias:     IDENTIFIER RingBufferAtomicFields
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: RingBufferAtomicFields
+        IDENTIFIER rb
+            = NUMBER_LITERAL 0
+
+      VAR_DECL
+        TYPE: atomic_bool_local
+        IDENTIFIER ready
+          = NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: atomic_ulong_local
+        IDENTIFIER frames
+          = NUMBER_LITERAL 1ul
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '+'
+              BINARY EXPRESSION '+'
+                DOT_ACCESS '.'
+                  IDENTIFIER rb
+                  FIELD head
+                DOT_ACCESS '.'
+                  IDENTIFIER rb
+                  FIELD tail
+              IDENTIFIER frames
+            CAST_EXPRESSION
+                            CAST TYPE: unsigned long int
+              IDENTIFIER ready
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

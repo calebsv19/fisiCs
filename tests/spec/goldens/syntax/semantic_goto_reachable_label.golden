@@ -1,0 +1,30 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER goto_cleanup_path
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      IF_STATEMENT
+        BINARY EXPRESSION '>'
+          IDENTIFIER x
+          NUMBER_LITERAL 0
+        BLOCK
+          GOTO
+            LABEL cleanup
+      RETURN
+        NUMBER_LITERAL 1
+      LABEL: cleanup
+        ASSIGNMENT (+=)
+          IDENTIFIER x
+          NUMBER_LITERAL 2
+      RETURN
+        IDENTIFIER x
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

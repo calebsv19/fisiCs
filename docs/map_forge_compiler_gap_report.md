@@ -80,6 +80,8 @@ Fix target:
   - at least `__FLT_MAX__`, `__DBL_MAX__`, `__LDBL_MAX__` (and likely min-norm/subnorm companions used by headers).
 
 ## 5) Restrict-alias warnings are over-eager (likely false positives)
+Status: Completed in `fisiCs` on 2026-02-23.
+
 Symptoms:
 - Warnings in:
   - `app_route.c` (`50`, `189`, `259`, `296`)
@@ -95,8 +97,14 @@ Fix target:
 - Tighten heuristic:
   - distinguish member-access paths (`app->route_worker_cond` vs `app->route_worker_mutex`)
   - suppress for known library APIs where parameter aliasing model is not this simplistic.
+Implemented:
+- Restrict call-arg alias heuristic now compares full access paths (`accessPath`) instead of only the base identifier.
+- Added regression test `tests/syntax/semantic_restrict_alias_fields.c` to ensure distinct members (e.g. `&p.cond`, `&p.mutex`) do not warn.
+- Added runner `tests/syntax/run_semantic_restrict_alias_fields.sh` and wired target `semantic-restrict-alias-fields` into `syntax-tests`.
 
 ## 6) Switch fallthrough warnings are broad/noisy
+Status: Completed in `fisiCs` on 2026-02-23 (grouped-empty-case suppression).
+
 Symptoms:
 - Multiple `Switch case may fall through` warnings across render/map files.
 
@@ -109,8 +117,18 @@ Fix target:
   - grouped empty labels
   - explicit fallthrough marker comments/attributes
   - or reduce warning level/severity for now.
+Implemented:
+- `control_flow` fallthrough warning now requires a non-empty case body before warning.
+- This suppresses warnings for intentional grouped labels (`case A: case B: ...`) while preserving warnings for real body-to-next-case fallthrough.
+- Added regression:
+  - `tests/syntax/semantic_switch_grouped_cases.c`
+  - `tests/syntax/run_semantic_switch_grouped_cases.sh`
+  - `tests/spec/goldens/syntax/semantic_switch_grouped_cases.golden`
+  - `makefile` target `semantic-switch-grouped-cases` in `syntax-tests`.
 
 ## 7) Unreachable-statement warnings likely CFG false positives
+Status: Completed in `fisiCs` on 2026-02-23 (goto-target label reachability).
+
 Symptoms:
 - `mft_loader.c:26`, `265`, `266` marked unreachable.
 - Source at those lines is normally reachable in valid control flow.
@@ -120,8 +138,19 @@ Likely compiler cause:
 
 Fix target:
 - Improve CFG handling for labels/goto cleanup paths before emitting unreachable diagnostics there.
+Implemented:
+- Control-flow pass now pre-collects goto target labels per function.
+- During statement-list traversal, a label that is a goto target re-enables reachability, preventing false-positive unreachable diagnostics on cleanup blocks.
+- Goto statements are treated as stopping control-flow in the local linear pass.
+- Added regression:
+  - `tests/syntax/semantic_goto_reachable_label.c`
+  - `tests/syntax/run_semantic_goto_reachable_label.sh`
+  - `tests/spec/goldens/syntax/semantic_goto_reachable_label.golden`
+  - `makefile` target `semantic-goto-reachable-label` in `syntax-tests`.
 
 ## 8) `VK_RENDERER_SHADER_ROOT` undeclared (`sdl_renderer.c:116`)
+Status: Completed in `fisiCs` on 2026-02-23.
+
 Notes:
 - Map Forge Makefile defines this macro (`-DVK_RENDERER_SHADER_ROOT=\"...\"`).
 - `ide_files/build_flags.json` currently includes both unresolved and resolved forms:
@@ -131,6 +160,19 @@ Notes:
 Likely issue:
 - Could be compile-command ingestion/selection order issue in IDE pipeline, not core parser/sema.
 - Keep as integration check after the parser/sema fixes above.
+Implemented:
+- Fixed macro-define value tokenization in preprocessor initialization:
+  - Macro values from frontend/CLI are now lexed into real replacement-token streams (instead of first-char guessing).
+  - This preserves string literals correctly for defines like `VK_RENDERER_SHADER_ROOT="..."`.
+- Added robustness for frontend macro entries that include raw `-D` prefixes (now accepted).
+- Added CLI `-D` ingestion end-to-end:
+  - `main.c` now parses `-DNAME` / `-DNAME=VALUE`
+  - `CompileOptions` now carries `macroDefines` into frontend preprocessing.
+- Added regressions:
+  - `tests/preprocessor/cli_define_string_macro.c`
+  - `tests/preprocessor/run_pp_cli_define_string_macro.sh`
+  - `tests/unit/frontend_api_macro_define_string.c`
+  - `makefile` updated to run CLI regression in `preprocessor-tests`.
 
 ## Priority fix order (recommended)
 1. `parser_decl` initializer parse (`int w = 0, h = 0` bug).
@@ -149,4 +191,3 @@ Likely issue:
 - `pthread_cond_wait(&s->cond, &s->mutex)` does not trigger restrict-alias warning.
 - switch with intentional grouped cases does not warn unless real fallthrough risk.
 - `goto fail` cleanup pattern does not spuriously mark reachable cleanup lines unreachable.
-

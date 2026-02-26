@@ -21,6 +21,8 @@ typedef struct {
     const char* dataLayout;
     const char* const* includePaths;
     size_t includePathCount;
+    const char* const* macroDefines;
+    size_t macroDefineCount;
     PreprocessMode preprocessMode;
     const char* externalPreprocessCmd;
     const char* externalPreprocessArgs;

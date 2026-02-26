@@ -836,26 +836,77 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
         DesignatedInit* di = NULL;
 
         if (parser->currentToken.type == TOKEN_DOT) {
-            // .field = expr
-            advance(parser); // '.'
+            size_t fieldCount = 0;
+            size_t fieldCap = 4;
+            char** fieldNames = malloc(fieldCap * sizeof(char*));
+            if (!fieldNames) return NULL;
 
-            if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-                printParseError("Expected field name after '.' in designated initializer", parser);
-                return NULL;
+            while (parser->currentToken.type == TOKEN_DOT) {
+                advance(parser); // '.'
+                if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+                    printParseError("Expected field name after '.' in designated initializer", parser);
+                    free(fieldNames);
+                    return NULL;
+                }
+                if (fieldCount >= fieldCap) {
+                    fieldCap *= 2;
+                    char** grown = realloc(fieldNames, fieldCap * sizeof(char*));
+                    if (!grown) {
+                        free(fieldNames);
+                        return NULL;
+                    }
+                    fieldNames = grown;
+                }
+                fieldNames[fieldCount++] = strdup(parser->currentToken.value);
+                advance(parser); // identifier
             }
-            const char* fieldName = parser->currentToken.value; // token text from lexer
-            advance(parser); // identifier
 
-            if (parser->currentToken.type != TOKEN_ASSIGN) { // '='
+            if (fieldCount == 0 || parser->currentToken.type != TOKEN_ASSIGN) { // '='
                 printParseError("Expected '=' after field designator", parser);
+                for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
+                free(fieldNames);
                 return NULL;
             }
             advance(parser); // '='
 
-            ASTNode* value = parseExpressionPratt(parser, 0);
-            if (!value) return NULL;
+            ASTNode* value = NULL;
+            if (parser->currentToken.type == TOKEN_LBRACE) {
+                size_t nestedCount = 0;
+                DesignatedInit** nested = parseInitializerList(parser, literalType, &nestedCount);
+                if (!nested) {
+                    for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
+                    free(fieldNames);
+                    return NULL;
+                }
+                value = createCompoundInit(nested, nestedCount);
+            } else {
+                value = parseExpressionPratt(parser, 0);
+            }
+            if (!value) {
+                for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
+                free(fieldNames);
+                return NULL;
+            }
 
-            di = createDesignatedInit(fieldName, value);
+            if (fieldCount == 1) {
+                di = createDesignatedInit(fieldNames[0], value);
+            } else {
+                ASTNode* nestedExpr = value;
+                for (size_t i = fieldCount; i-- > 1;) {
+                    DesignatedInit* fieldInit = createDesignatedInit(fieldNames[i], nestedExpr);
+                    DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
+                    if (!fieldInit || !nestedEntries) {
+                        for (size_t j = 0; j < fieldCount; ++j) free(fieldNames[j]);
+                        free(fieldNames);
+                        return NULL;
+                    }
+                    nestedEntries[0] = fieldInit;
+                    nestedExpr = createCompoundInit(nestedEntries, 1);
+                }
+                di = createDesignatedInit(fieldNames[0], nestedExpr);
+            }
+            for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
+            free(fieldNames);
             if (!di) return NULL;
 
         } else if (parser->currentToken.type == TOKEN_LBRACKET) {
@@ -877,7 +928,15 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
             }
             advance(parser); // '='
 
-            ASTNode* value = parseExpressionPratt(parser, 0);
+            ASTNode* value = NULL;
+            if (parser->currentToken.type == TOKEN_LBRACE) {
+                size_t nestedCount = 0;
+                DesignatedInit** nested = parseInitializerList(parser, literalType, &nestedCount);
+                if (!nested) return NULL;
+                value = createCompoundInit(nested, nestedCount);
+            } else {
+                value = parseExpressionPratt(parser, 0);
+            }
             if (!value) return NULL;
 
             di = createSimpleInit(value);
@@ -886,7 +945,15 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
 
         } else {
             // positional initializer: just an expression
-            ASTNode* value = parseExpressionPratt(parser, 0);
+            ASTNode* value = NULL;
+            if (parser->currentToken.type == TOKEN_LBRACE) {
+                size_t nestedCount = 0;
+                DesignatedInit** nested = parseInitializerList(parser, literalType, &nestedCount);
+                if (!nested) return NULL;
+                value = createCompoundInit(nested, nestedCount);
+            } else {
+                value = parseExpressionPratt(parser, 0);
+            }
             if (!value) return NULL;
 
             di = createSimpleInit(value);

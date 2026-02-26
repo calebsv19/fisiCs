@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "AST/ast_node.h"
 #include "AST/ast_printer.h"
@@ -49,6 +50,28 @@ static const char* diag_kind_str(DiagKind kind) {
         case DIAG_WARNING: return "warning";
         default: return "note";
     }
+}
+
+static bool pipeline_path_exists(const char* path) {
+    struct stat st;
+    if (!path || !path[0]) return false;
+    return stat(path, &st) == 0;
+}
+
+static bool pipeline_path_list_push(const char*** items,
+                                    size_t* count,
+                                    size_t* capacity,
+                                    const char* value) {
+    if (!items || !count || !capacity || !value || !value[0]) return false;
+    if (*count == *capacity) {
+        size_t newCap = (*capacity == 0) ? 8 : (*capacity * 2);
+        const char** grown = (const char**)realloc((void*)(*items), newCap * sizeof(const char*));
+        if (!grown) return false;
+        *items = grown;
+        *capacity = newCap;
+    }
+    (*items)[(*count)++] = value;
+    return true;
 }
 
 static void pipeline_print_diagnostics(CompilerContext* ctx) {
@@ -1260,27 +1283,95 @@ bool compiler_run_frontend(CompilerContext* ctx,
         return false;
     }
     cc_seed_builtins(ctx);
-    return compiler_run_frontend_internal(ctx,
-                                          file_path,
-                                          source,
-                                          length,
-                                          preservePPNodes,
-                                          enableTrigraphs,
-                                          PREPROCESS_INTERNAL,
-                                          NULL,
-                                          NULL,
-                                          includePaths,
-                                          includePathCount,
-                                          macroDefines,
-                                          macroDefineCount,
-                                          lenientIncludes,
-                                          includeSystemSymbols,
-                                          dumpAst,
-                                          dumpSemantic,
-                                          dumpTokens,
-                                          outAst,
-                                          outModel,
-                                          outSemanticErrors);
+
+    const char* const* effectiveIncludePaths = includePaths;
+    size_t effectiveIncludeCount = includePathCount;
+    const char** mergedIncludePaths = NULL;
+    size_t mergedIncludeCount = 0;
+    size_t mergedIncludeCap = 0;
+    char** defaultParsed = NULL;
+    size_t defaultParsedCount = 0;
+    char** sysParsed = NULL;
+    size_t sysParsedCount = 0;
+
+    for (size_t i = 0; i < includePathCount; ++i) {
+        pipeline_path_list_push(&mergedIncludePaths,
+                                &mergedIncludeCount,
+                                &mergedIncludeCap,
+                                includePaths[i]);
+    }
+
+    if (compiler_collect_include_paths(DEFAULT_INCLUDE_PATHS, &defaultParsed, &defaultParsedCount)) {
+        for (size_t i = 0; i < defaultParsedCount; ++i) {
+            pipeline_path_list_push(&mergedIncludePaths,
+                                    &mergedIncludeCount,
+                                    &mergedIncludeCap,
+                                    defaultParsed[i]);
+        }
+    }
+
+    const char* sysEnv = getenv("SYSTEM_INCLUDE_PATHS");
+    if (sysEnv && sysEnv[0] &&
+        compiler_collect_include_paths(sysEnv, &sysParsed, &sysParsedCount)) {
+        for (size_t i = 0; i < sysParsedCount; ++i) {
+            pipeline_path_list_push(&mergedIncludePaths,
+                                    &mergedIncludeCount,
+                                    &mergedIncludeCap,
+                                    sysParsed[i]);
+        }
+    }
+
+    const char* commonIncludeRoots[] = {
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include",
+        "/Library/Developer/CommandLineTools/usr/include",
+        "/opt/homebrew/include",
+        "/opt/homebrew/include/SDL2",
+        "/usr/local/include",
+        "/usr/local/include/SDL2",
+        "/usr/include"
+    };
+    for (size_t i = 0; i < sizeof(commonIncludeRoots) / sizeof(commonIncludeRoots[0]); ++i) {
+        if (pipeline_path_exists(commonIncludeRoots[i])) {
+            pipeline_path_list_push(&mergedIncludePaths,
+                                    &mergedIncludeCount,
+                                    &mergedIncludeCap,
+                                    commonIncludeRoots[i]);
+        }
+    }
+
+    effectiveIncludePaths = mergedIncludePaths;
+    effectiveIncludeCount = mergedIncludeCount;
+
+    bool ok = compiler_run_frontend_internal(ctx,
+                                             file_path,
+                                             source,
+                                             length,
+                                             preservePPNodes,
+                                             enableTrigraphs,
+                                             PREPROCESS_INTERNAL,
+                                             NULL,
+                                             NULL,
+                                             effectiveIncludePaths,
+                                             effectiveIncludeCount,
+                                             macroDefines,
+                                             macroDefineCount,
+                                             lenientIncludes,
+                                             includeSystemSymbols,
+                                             dumpAst,
+                                             dumpSemantic,
+                                             dumpTokens,
+                                             outAst,
+                                             outModel,
+                                             outSemanticErrors);
+
+    if (defaultParsed) {
+        compiler_free_include_paths(defaultParsed, defaultParsedCount);
+    }
+    if (sysParsed) {
+        compiler_free_include_paths(sysParsed, sysParsedCount);
+    }
+    free((void*)mergedIncludePaths);
+    return ok;
 }
 
 int compile_translation_unit(const CompileOptions* options, CompileResult* outResult) {
@@ -1369,8 +1460,8 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
                                         options->externalPreprocessArgs,
                                         options->includePaths,
                                         options->includePathCount,
-                                        NULL,
-                                        0,
+                                        options->macroDefines,
+                                        options->macroDefineCount,
                                         false, // lenientIncludes disabled for CLI path
                                         true,
                                         options->dumpAst,

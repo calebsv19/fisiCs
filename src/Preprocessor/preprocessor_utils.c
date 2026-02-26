@@ -4,9 +4,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(__APPLE__)
+#include <malloc/malloc.h>
+#endif
 
 #include "Compiler/diagnostics.h"
 #include "Lexer/tokens.h"
+
+static void strip_include_spaces_local(char* name) {
+    if (!name) return;
+    char* out = name;
+    for (char* p = name; *p; ++p) {
+        if (*p != ' ' && *p != '\t' && *p != '\r' && *p != '\n') {
+            *out++ = *p;
+        }
+    }
+    *out = '\0';
+}
 
 static bool append_expr_token(Preprocessor* pp, PPTokenBuffer* out, const Token* tok) {
     if (!tok) return true;
@@ -70,9 +84,19 @@ char* pp_strdup_local(const char* s) {
     return copy;
 }
 
+static void safe_free_token_value(char* value) {
+    if (!value) return;
+#if defined(__APPLE__)
+    if (malloc_zone_from_ptr(value) == NULL) {
+        return;
+    }
+#endif
+    free(value);
+}
+
 void pp_token_free(Token* tok) {
     if (!tok) return;
-    free(tok->value);
+    safe_free_token_value(tok->value);
     tok->value = NULL;
 }
 
@@ -256,6 +280,76 @@ bool pp_prepare_expr_tokens(Preprocessor* pp,
     size_t i = 0;
     while (i < count) {
         const Token* tok = &tokens[i];
+        if (pp && pp->lenientMissingIncludes &&
+            tok->type == TOKEN_IDENTIFIER && tok->value &&
+            strcmp(tok->value, "__has_include") == 0) {
+            size_t j = i + 1;
+            bool hasParen = false;
+            if (j < count && tokens[j].type == TOKEN_LPAREN) {
+                hasParen = true;
+                j++;
+            }
+            bool parsed = false;
+            bool isSystem = false;
+            char nameBuf[1024];
+            nameBuf[0] = '\0';
+
+            if (j < count && tokens[j].type == TOKEN_STRING && tokens[j].value) {
+                snprintf(nameBuf, sizeof(nameBuf), "%s", tokens[j].value);
+                strip_include_spaces_local(nameBuf);
+                j++;
+                parsed = true;
+            } else if (j < count && tokens[j].type == TOKEN_LESS) {
+                j++;
+                size_t len = 0;
+                bool closed = false;
+                while (j < count && tokens[j].type != TOKEN_EOF) {
+                    if (tokens[j].type == TOKEN_GREATER) {
+                        closed = true;
+                        j++;
+                        break;
+                    }
+                    const char* piece = tokens[j].value ? tokens[j].value : "";
+                    size_t pieceLen = strlen(piece);
+                    if (len + pieceLen + 1 >= sizeof(nameBuf)) {
+                        parsed = false;
+                        break;
+                    }
+                    memcpy(nameBuf + len, piece, pieceLen);
+                    len += pieceLen;
+                    j++;
+                }
+                if (closed) {
+                    nameBuf[len] = '\0';
+                    strip_include_spaces_local(nameBuf);
+                    isSystem = true;
+                    parsed = true;
+                }
+            }
+            if (hasParen && j < count && tokens[j].type == TOKEN_RPAREN) {
+                j++;
+            }
+
+            int present = 0;
+            if (parsed && pp && pp->resolver && nameBuf[0]) {
+                IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;
+                size_t originIndex = (size_t)-1;
+                const char* parent = pp->logicalFile ? pp->logicalFile : NULL;
+                const IncludeFile* inc = include_resolver_load(pp->resolver,
+                                                               parent,
+                                                               nameBuf,
+                                                               isSystem,
+                                                               false,
+                                                               &origin,
+                                                               &originIndex);
+                present = (inc != NULL) ? 1 : 0;
+            }
+            if (!pp_append_number_literal(pp, out, tok, present ? "1" : "0")) {
+                return false;
+            }
+            i = (j > i) ? j : (i + 1);
+            continue;
+        }
         // Preserve defined operand without expanding it.
         if (tok->type == TOKEN_IDENTIFIER && tok->value &&
             strcmp(tok->value, "defined") == 0) {

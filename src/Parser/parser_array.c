@@ -339,50 +339,92 @@ DesignatedInit** parseStructInitializer(Parser* parser, ParsedType parentType, s
         DesignatedInit* init = NULL;
         
         if (parser->currentToken.type == TOKEN_DOT) {
-            advance(parser);  // Consume `.`
-            
-            if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-                printParseError("Expected field name after '.' in struct initializer", parser);
+            size_t fieldCount = 0;
+            size_t fieldCap = 4;
+            char** fieldNames = malloc(fieldCap * sizeof(char*));
+            if (!fieldNames) {
                 free(entries);
-                return NULL;  
+                return NULL;
             }
-             
-            char* fieldName = strdup(parser->currentToken.value);
-            advance(parser);  // Consume identifier
-            
-            if (parser->currentToken.type != TOKEN_ASSIGN) {
+
+            while (parser->currentToken.type == TOKEN_DOT) {
+                advance(parser);  // Consume '.'
+                if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+                    printParseError("Expected field name after '.' in struct initializer", parser);
+                    free(fieldNames);
+                    free(entries);
+                    return NULL;
+                }
+                if (fieldCount >= fieldCap) {
+                    fieldCap *= 2;
+                    char** grown = realloc(fieldNames, fieldCap * sizeof(char*));
+                    if (!grown) {
+                        free(fieldNames);
+                        free(entries);
+                        return NULL;
+                    }
+                    fieldNames = grown;
+                }
+                fieldNames[fieldCount++] = strdup(parser->currentToken.value);
+                advance(parser);  // Consume identifier
+            }
+
+            if (fieldCount == 0 || parser->currentToken.type != TOKEN_ASSIGN) {
                 printParseError("Expected '=' after field name in struct initializer", parser);
+                for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
+                free(fieldNames);
                 free(entries);
-                return NULL;  
+                return NULL;
             }
-             
+
             advance(parser);  // Consume '='
-            
+
             ASTNode* expr = NULL;
-            
-            // TODO: Later, actually lookup fieldType for .fieldName
             ParsedType fieldType = parentType;
             if (parser->currentToken.type == TOKEN_LBRACE) {
                 size_t nestedCount = 0;
                 DesignatedInit** nested = parseInitializerList(parser, fieldType, &nestedCount);
                 if (!nested) {
                     printParseError("Failed to parse nested initializer list", parser);
+                    for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
+                    free(fieldNames);
                     free(entries);
-                    return NULL;  
+                    return NULL;
                 }
                 expr = createCompoundInit(nested, nestedCount);
             } else {
                 expr = parseAssignmentExpression(parser);
             }
-             
+
             if (!expr) {
                 printParseError("Expected expression after '=' in struct initializer", parser);
+                for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
+                free(fieldNames);
                 free(entries);
-                return NULL;  
+                return NULL;
             }
-             
-            init = createDesignatedInit(fieldName, expr);
-            
+
+            if (fieldCount == 1) {
+                init = createDesignatedInit(fieldNames[0], expr);
+            } else {
+                ASTNode* nestedExpr = expr;
+                for (size_t i = fieldCount; i-- > 1;) {
+                    DesignatedInit* fieldInit = createDesignatedInit(fieldNames[i], nestedExpr);
+                    DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
+                    if (!fieldInit || !nestedEntries) {
+                        for (size_t j = 0; j < fieldCount; ++j) free(fieldNames[j]);
+                        free(fieldNames);
+                        free(entries);
+                        return NULL;
+                    }
+                    nestedEntries[0] = fieldInit;
+                    nestedExpr = createCompoundInit(nestedEntries, 1);
+                }
+                init = createDesignatedInit(fieldNames[0], nestedExpr);
+            }
+
+            for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
+            free(fieldNames);
         } else {
             ASTNode* expr = NULL;
             
