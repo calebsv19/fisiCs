@@ -1,7 +1,6 @@
 #ifndef DESIGNATED_INIT_H
 #define DESIGNATED_INIT_H
 
-#include "AST/ast_node.h"  // For ASTNode forward declaration
 #include <stddef.h>
 #include <stdbool.h>
 
@@ -27,4 +26,3 @@ struct ASTNode* createCompoundInit(struct DesignatedInit** entries, size_t count
 void freeDesignatedInit(DesignatedInit* init);
 
 #endif
-

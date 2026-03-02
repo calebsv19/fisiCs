@@ -26,7 +26,7 @@
       && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
       && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
-error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
+#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
 #line 1 "src/Lexer/keywords.gperf"
@@ -45,18 +45,8 @@ error "gperf generated tables don't work with this execution character set. Plea
 #define MAX_HASH_VALUE 83
 /* maximum key range = 82, duplicates = 0 */
 
-#ifdef __GNUC__
-__inline
-#else
-#ifdef __cplusplus
-inline
-#endif
-#endif
-static unsigned int
-keyword_hash (str, len)
-     register const char *str;
-     register unsigned int len;
-{
+static inline unsigned int
+keyword_hash(register const char* str, register unsigned int len) {
   static const unsigned char asso_values[] =
     {
       84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
@@ -101,11 +91,8 @@ keyword_hash (str, len)
   return hval;
 }
 
-const char *
-in_keyword_set (str, len)
-     register const char *str;
-     register unsigned int len;
-{
+const char*
+in_keyword_set(register const char* str, register unsigned int len) {
   static const char * const wordlist[] =
     {
       "", "",
@@ -185,4 +172,3 @@ in_keyword_set (str, len)
   return 0;
 }
 #line 60 "src/Lexer/keywords.gperf"
-

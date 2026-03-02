@@ -231,8 +231,9 @@ static bool layout_struct_fields(ASTNode* def,
         fprintf(stderr, "[layout] struct attrs count=%zu packed=%d alignOverride=%zu\n",
                 def->attributeCount, (int)packed, structAlignOverride);
     }
+    ASTNode** fields = def->structDef.fields;
     for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
-        ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
+        ASTNode* field = fields ? fields[i] : NULL;
         if (!field || field->type != AST_VARIABLE_DECLARATION) {
             continue;
         }
@@ -240,12 +241,15 @@ static bool layout_struct_fields(ASTNode* def,
         bool fieldPacked = packed;
         size_t fieldAlignOverride = 0;
         collectAttrLayout(field->attributes, field->attributeCount, &fieldPacked, &fieldAlignOverride);
-        ParsedType* baseType = field->varDecl.declaredTypes
-            ? &field->varDecl.declaredTypes[0]
-            : &field->varDecl.declaredType;
+        ParsedType* baseType = &field->varDecl.declaredType;
+        ParsedType* declaredTypes0 = field->varDecl.declaredTypes;
+        if (declaredTypes0) {
+            baseType = declaredTypes0;
+        }
         const char* fieldName = NULL;
-        if (field->varDecl.varNames && field->varDecl.varNames[0]) {
-            fieldName = field->varDecl.varNames[0]->valueNode.value;
+        ASTNode** varNames0 = field->varDecl.varNames;
+        if (varNames0 && varNames0[0]) {
+            fieldName = varNames0[0]->valueNode.value;
         }
         TypeInfo baseInfo = typeInfoFromParsedType(baseType, scope);
 
@@ -392,14 +396,16 @@ static bool layout_struct_fields(ASTNode* def,
         }
         // handle multiple declarators
         if (field->varDecl.varCount > 1 && field->varDecl.declaredTypes) {
+            ParsedType* declaredTypes = field->varDecl.declaredTypes;
+            ASTNode** varNames = field->varDecl.varNames;
             for (size_t k = 1; k < field->varDecl.varCount; ++k) {
                 if (bitOffset > 0) {
                     offset += currentUnitSize;
                     bitOffset = 0;
                     currentUnitSize = 0;
                 }
-                ParsedType* t = &field->varDecl.declaredTypes[k];
-                ASTNode* nameNode = field->varDecl.varNames ? field->varDecl.varNames[k] : NULL;
+                ParsedType* t = declaredTypes + k;
+                ASTNode* nameNode = varNames ? varNames[k] : NULL;
                 size_t sz = 0, al = 0;
                 if (!size_align_of_parsed_type(t, scope, &sz, &al)) return false;
                 if (al == 0) al = 1;
@@ -457,15 +463,18 @@ static bool layout_union_fields(ASTNode* def,
     bool packed = false;
     size_t structAlignOverride = 0;
     collectAttrLayout(def->attributes, def->attributeCount, &packed, &structAlignOverride);
+    ASTNode** fields = def->structDef.fields;
     for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
-        ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
+        ASTNode* field = fields ? fields[i] : NULL;
         if (!field || field->type != AST_VARIABLE_DECLARATION) continue;
         bool fieldPacked = packed;
         size_t fieldAlignOverride = 0;
         collectAttrLayout(field->attributes, field->attributeCount, &fieldPacked, &fieldAlignOverride);
-        ParsedType* baseType = field->varDecl.declaredTypes
-            ? &field->varDecl.declaredTypes[0]
-            : &field->varDecl.declaredType;
+        ParsedType* baseType = &field->varDecl.declaredType;
+        ParsedType* declaredTypes0 = field->varDecl.declaredTypes;
+        if (declaredTypes0) {
+            baseType = declaredTypes0;
+        }
         size_t fieldSize = 0, fieldAlign = 0;
         if (!size_align_of_parsed_type(baseType, scope, &fieldSize, &fieldAlign)) return false;
         if (fieldPacked) fieldAlign = 1;
@@ -474,8 +483,9 @@ static bool layout_union_fields(ASTNode* def,
         }
         if (layouts) {
             const char* nm = NULL;
-            if (field->varDecl.varNames && field->varDecl.varNames[0]) {
-                nm = field->varDecl.varNames[0]->valueNode.value;
+            ASTNode** varNames0 = field->varDecl.varNames;
+            if (varNames0 && varNames0[0]) {
+                nm = varNames0[0]->valueNode.value;
             }
             TypeInfo info = typeInfoFromParsedType(baseType, scope);
             CCTagFieldLayout lay = {
@@ -494,14 +504,16 @@ static bool layout_union_fields(ASTNode* def,
         if (fieldSize > maxSize) maxSize = fieldSize;
         if (fieldAlign > maxAlign) maxAlign = fieldAlign;
         if (field->varDecl.varCount > 1 && field->varDecl.declaredTypes) {
+            ParsedType* declaredTypes = field->varDecl.declaredTypes;
+            ASTNode** varNames = field->varDecl.varNames;
             for (size_t k = 1; k < field->varDecl.varCount; ++k) {
-                ParsedType* t = &field->varDecl.declaredTypes[k];
+                ParsedType* t = declaredTypes + k;
                 size_t sz = 0, al = 0;
                 if (!size_align_of_parsed_type(t, scope, &sz, &al)) return false;
                 if (fieldPacked) al = 1;
                 if (fieldAlignOverride > 0 && fieldAlignOverride > al) al = fieldAlignOverride;
                 if (layouts) {
-                    ASTNode* nameNode = field->varDecl.varNames ? field->varDecl.varNames[k] : NULL;
+                    ASTNode* nameNode = varNames ? varNames[k] : NULL;
                     const char* nm2 = nameNode ? nameNode->valueNode.value : NULL;
                     TypeInfo info2 = typeInfoFromParsedType(t, scope);
                     CCTagFieldLayout lay = {

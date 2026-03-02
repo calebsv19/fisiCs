@@ -110,7 +110,8 @@ ASTNode* parseAssignmentExpression(Parser* parser) {
                 case TOKEN_RIGHT_SHIFT_ASSIGN: opStr = ">>"; break;
                 default: opStr = "="; break;
             }
-            ASTNode* leftCopy = createIdentifierNode(left->valueNode.value);
+            const char* leftName = left->valueNode.value;
+            ASTNode* leftCopy = createIdentifierNode(leftName);
             if (leftCopy) leftCopy->line = left->line;
             right = createBinaryExprNode(opStr, leftCopy, right);
         }
@@ -595,7 +596,10 @@ ASTNode* parsePrimary(Parser* parser) {
             buf = strdup("");
         }
         if (sawWide || sawUtf8) {
-            const char* prefix = sawWide ? "W|" : "U8|";
+            const char* prefix = "U8|";
+            if (sawWide) {
+                prefix = "W|";
+            }
             size_t plen = strlen(prefix);
             size_t total = plen + len + 1;
             char* merged = (char*)malloc(total);
@@ -773,8 +777,9 @@ ASTNode* handleExpressionOrAssignment(Parser* parser) {
 
     // Wrap top-level comma expressions as a block of statements (unchanged)
     if (expr->type == AST_COMMA_EXPRESSION) {
-        ASTNode* blockNode = createBlockNode(expr->commaExpr.expressions,
-                                             expr->commaExpr.exprCount);
+        ASTNode** commaExprs = expr->commaExpr.expressions;
+        size_t commaExprCount = expr->commaExpr.exprCount;
+        ASTNode* blockNode = createBlockNode(commaExprs, commaExprCount);
         if (!blockNode) {
             return NULL;
         }

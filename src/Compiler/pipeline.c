@@ -505,8 +505,9 @@ static void collect_top_symbols(ASTNode* root, CompilerContext* ctx) {
     if (!root || root->type != AST_PROGRAM || !ctx) return;
     SymbolBuffer buf = {0};
 
+    ASTNode** statements = root->block.statements;
     for (size_t i = 0; i < root->block.statementCount; ++i) {
-        ASTNode* stmt = root->block.statements ? root->block.statements[i] : NULL;
+        ASTNode* stmt = statements ? statements[i] : NULL;
         if (!stmt) continue;
 
         const char* name = NULL;
@@ -514,26 +515,41 @@ static void collect_top_symbols(ASTNode* root, CompilerContext* ctx) {
         bool isDefinition = true;
         switch (stmt->type) {
             case AST_FUNCTION_DEFINITION:
-                name = identifier_name(stmt->functionDef.funcName);
+                {
+                    ASTNode* funcName = stmt->functionDef.funcName;
+                    name = identifier_name(funcName);
+                }
                 kind = FISICS_SYMBOL_FUNCTION;
                 isDefinition = true;
                 break;
             case AST_FUNCTION_DECLARATION:
-                name = identifier_name(stmt->functionDecl.funcName);
+                {
+                    ASTNode* funcName = stmt->functionDecl.funcName;
+                    name = identifier_name(funcName);
+                }
                 kind = FISICS_SYMBOL_FUNCTION;
                 isDefinition = false;
                 break;
             case AST_STRUCT_DEFINITION:
             case AST_UNION_DEFINITION:
-                name = identifier_name(stmt->structDef.structName);
+                {
+                    ASTNode* structName = stmt->structDef.structName;
+                    name = identifier_name(structName);
+                }
                 kind = (stmt->type == AST_STRUCT_DEFINITION) ? FISICS_SYMBOL_STRUCT : FISICS_SYMBOL_UNION;
                 break;
             case AST_ENUM_DEFINITION:
-                name = identifier_name(stmt->enumDef.enumName);
+                {
+                    ASTNode* enumName = stmt->enumDef.enumName;
+                    name = identifier_name(enumName);
+                }
                 kind = FISICS_SYMBOL_ENUM;
                 break;
             case AST_TYPEDEF:
-                name = identifier_name(stmt->typedefStmt.alias);
+                {
+                    ASTNode* alias = stmt->typedefStmt.alias;
+                    name = identifier_name(alias);
+                }
                 kind = FISICS_SYMBOL_TYPEDEF;
                 break;
             default:
@@ -601,13 +617,15 @@ static const ASTNode* symbol_identifier_node(const Symbol* sym) {
             return def->typedefStmt.alias;
         case AST_VARIABLE_DECLARATION: {
             if (def->varDecl.varNames && def->varDecl.varCount > 0) {
+                ASTNode** varNames = def->varDecl.varNames;
                 for (size_t i = 0; i < def->varDecl.varCount; ++i) {
-                    const char* name = identifier_name(def->varDecl.varNames[i]);
+                    ASTNode* varName = varNames ? varNames[i] : NULL;
+                    const char* name = identifier_name(varName);
                     if (name && sym->name && strcmp(name, sym->name) == 0) {
-                        return def->varDecl.varNames[i];
+                        return varName;
                     }
                 }
-                return def->varDecl.varNames[0];
+                return varNames ? varNames[0] : NULL;
             }
             return NULL;
         }
@@ -619,7 +637,8 @@ static const ASTNode* symbol_identifier_node(const Symbol* sym) {
 static const char* param_decl_name(const ASTNode* paramDecl) {
     if (!paramDecl || paramDecl->type != AST_VARIABLE_DECLARATION) return NULL;
     if (!paramDecl->varDecl.varNames || paramDecl->varDecl.varCount == 0) return NULL;
-    return identifier_name(paramDecl->varDecl.varNames[0]);
+    ASTNode** varNames = paramDecl->varDecl.varNames;
+    return identifier_name(varNames ? varNames[0] : NULL);
 }
 
 static void append_struct_field_symbols(SymbolBuffer* buf, const Symbol* sym, const ASTNode* def) {
@@ -630,18 +649,21 @@ static void append_struct_field_symbols(SymbolBuffer* buf, const Symbol* sym, co
         ? FISICS_SYMBOL_UNION
         : FISICS_SYMBOL_STRUCT;
 
+    ASTNode** fields = def->structDef.fields;
     for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
-        ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
+        ASTNode* field = fields ? fields[i] : NULL;
         if (!field || field->type != AST_VARIABLE_DECLARATION) continue;
         size_t varCount = field->varDecl.varCount;
+        ASTNode** varNames = field->varDecl.varNames;
         for (size_t v = 0; v < varCount; ++v) {
-            ASTNode* nameNode = field->varDecl.varNames ? field->varDecl.varNames[v] : NULL;
+            ASTNode* nameNode = varNames ? varNames[v] : NULL;
             const char* name = identifier_name(nameNode);
             if (!name || !name[0]) continue;
 
             const ParsedType* fieldType = NULL;
-            if (field->varDecl.declaredTypes && v < field->varDecl.varCount) {
-                fieldType = &field->varDecl.declaredTypes[v];
+            ParsedType* declaredTypes = field->varDecl.declaredTypes;
+            if (declaredTypes && v < field->varDecl.varCount) {
+                fieldType = declaredTypes + v;
             } else {
                 fieldType = &field->varDecl.declaredType;
             }
@@ -669,8 +691,9 @@ static void append_struct_field_symbols(SymbolBuffer* buf, const Symbol* sym, co
 
 static void append_enum_member_symbols(SymbolBuffer* buf, const Symbol* sym, const ASTNode* def) {
     if (!buf || !sym || !def || def->type != AST_ENUM_DEFINITION) return;
+    ASTNode** members = def->enumDef.members;
     for (size_t i = 0; i < def->enumDef.memberCount; ++i) {
-        ASTNode* member = def->enumDef.members ? def->enumDef.members[i] : NULL;
+        ASTNode* member = members ? members[i] : NULL;
         const char* name = identifier_name(member);
         if (!name || !name[0]) continue;
 
@@ -1507,7 +1530,7 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     }
 
     if (options->enableCodegen) {
-        printf("\n️ LLVM Code Generation:\n");
+        printf("\nLLVM Code Generation:\n");
         if (semaErrors == 0) {
             ProfilerScope codegenScope = profiler_begin("codegen");
             CodegenContext* codegenCtx = codegen_context_create("compiler_module", model);
@@ -1539,7 +1562,7 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
             printf("Skipping LLVM code generation due to semantic errors.\n");
         }
     } else {
-        printf("\n️ LLVM Code Generation:\n");
+        printf("\nLLVM Code Generation:\n");
         printf("Skipping LLVM code generation (disabled via configuration).\n");
     }
 

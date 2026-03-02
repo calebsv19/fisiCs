@@ -32,4 +32,3 @@ const Symbol* semanticModelLookupGlobal(const SemanticModel* model, const char* 
 const MacroTable* semanticModelGetMacros(const SemanticModel* model);
 
 #endif // SEMANTIC_MODEL_H
-#include "Preprocessor/macro_table.h"

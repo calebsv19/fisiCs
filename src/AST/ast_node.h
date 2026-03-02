@@ -362,8 +362,9 @@ static inline const ParsedType* astVarDeclTypeAt(const ASTNode* node, size_t ind
     if (!node || node->type != AST_VARIABLE_DECLARATION) {
         return NULL;
     }
-    if (node->varDecl.declaredTypes && index < node->varDecl.varCount) {
-        return &node->varDecl.declaredTypes[index];
+    const ParsedType* declared = node->varDecl.declaredTypes;
+    if (declared && index < node->varDecl.varCount) {
+        return declared + index;
     }
     return &node->varDecl.declaredType;
 }

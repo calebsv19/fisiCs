@@ -226,7 +226,10 @@ static ASTNode* nud(Parser* parser, Token token) {
                 buf = strdup("");
             }
             if (sawWide || sawUtf8) {
-                const char* prefix = sawWide ? "W|" : "U8|";
+                const char* prefix = "U8|";
+                if (sawWide) {
+                    prefix = "W|";
+                }
                 size_t plen = strlen(prefix);
                 size_t total = plen + len + 1;
                 char* merged = (char*)malloc(total);
@@ -477,17 +480,18 @@ static ASTNode* led(Parser* parser, ASTNode* left, Token token) {
 	
 	        if (leftExpr->type == AST_COMMA_EXPRESSION) {
 	            // Copy existing items
-	            count = leftExpr->commaExpr.exprCount + 1;
-	            items = realloc(leftExpr->commaExpr.expressions, sizeof(ASTNode*) * count);
+                    count = leftExpr->commaExpr.exprCount + 1;
+                    ASTNode** commaExprs = leftExpr->commaExpr.expressions;
+                    items = realloc(commaExprs, sizeof(ASTNode*) * count);
 	            if (!items) {
 	                printf("Error: Memory allocation failed during comma expansion\n");
 	                return NULL;
 	            }
 	            items[count - 1] = rightExpr;
 	
-	            leftExpr->commaExpr.expressions = items;
-	            leftExpr->commaExpr.exprCount = count;
-	            return leftExpr;
+                    leftExpr->commaExpr.expressions = items;
+                    leftExpr->commaExpr.exprCount = count;
+                    return leftExpr;
 	
 	        } else {
 	            // New comma expression from scratch
@@ -602,8 +606,9 @@ void consumeAbstractDeclaratorIntoType(Parser* p, ParsedType* type) {
         parsedTypeAppendArray(type, sizeExpr, false);
         TypeDerivation* arr = parsedTypeGetMutableArrayDerivation(type, type->derivationCount - 1);
         if (arr && sizeExpr && sizeExpr->type == AST_NUMBER_LITERAL && sizeExpr->valueNode.value) {
+            const char* literalText = sizeExpr->valueNode.value;
             arr->as.array.hasConstantSize = true;
-            arr->as.array.constantSize = atoll(sizeExpr->valueNode.value);
+            arr->as.array.constantSize = atoll(literalText);
         }
     }
 
@@ -666,7 +671,10 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
     }
     advance(parser); // Consume '('
 
-    const char* calleeName = (callee && callee->type == AST_IDENTIFIER) ? callee->valueNode.value : NULL;
+    const char* calleeName = NULL;
+    if (callee && callee->type == AST_IDENTIFIER) {
+        calleeName = callee->valueNode.value;
+    }
     bool isBuiltinVaArg = calleeName &&
                           (strcmp(calleeName, "__builtin_va_arg") == 0 ||
                            strcmp(calleeName, "va_arg") == 0);

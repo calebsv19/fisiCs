@@ -46,10 +46,13 @@ void analyze(ASTNode* node, Scope* scope) {
     if (!node) return;
 
     switch (node->type) {
-    case AST_PROGRAM:
+    case AST_PROGRAM: {
         // Global scope: just walk children
-        analyzeChildren(node->block.statements, node->block.statementCount, scope);
+        ASTNode** statements = node->block.statements;
+        size_t statementCount = node->block.statementCount;
+        analyzeChildren(statements, statementCount, scope);
         break;
+    }
 
     case AST_BLOCK:
         analyzeStatement(node, scope);
@@ -66,13 +69,16 @@ void analyze(ASTNode* node, Scope* scope) {
             fscope->returnType = typeInfoFromParsedType(&node->functionDef.returnType, scope);
             fscope->inFunction = true;
             fscope->currentFunctionIsVariadic = node->functionDef.isVariadic;
-            fscope->currentFunctionName = node->functionDef.funcName && node->functionDef.funcName->valueNode.value
-                ? node->functionDef.funcName->valueNode.value
-                : NULL;
+            fscope->currentFunctionName = NULL;
+            ASTNode* funcNameNode = node->functionDef.funcName;
+            if (funcNameNode) {
+                fscope->currentFunctionName = funcNameNode->valueNode.value;
+            }
             addFuncBuiltinIdentifiers(fscope, fscope->currentFunctionName);
             size_t fixedCount = 0;
+            ASTNode** params = node->functionDef.parameters;
             for (size_t i = 0; i < node->functionDef.paramCount; ++i) {
-                ASTNode* p = node->functionDef.parameters[i];
+                ASTNode* p = params ? params[i] : NULL;
                 if (!p || p->type != AST_VARIABLE_DECLARATION) continue;
                 fixedCount += p->varDecl.varCount;
             }
@@ -81,26 +87,32 @@ void analyze(ASTNode* node, Scope* scope) {
 
         // 3) Bind parameters (each parameter node is usually a VAR_DECL;
         //    support multiple names per declaration:  int a, b )
+        ASTNode** params = node->functionDef.parameters;
         for (size_t i = 0; i < node->functionDef.paramCount; i++) {
-            ASTNode* p = node->functionDef.parameters[i];
+            ASTNode* p = params ? params[i] : NULL;
             if (!p) continue;
 
             if (p->type == AST_VARIABLE_DECLARATION) {
                 ParsedType* perTypes = p->varDecl.declaredTypes;
+                ASTNode** varNames = p->varDecl.varNames;
                 for (size_t k = 0; k < p->varDecl.varCount; k++) {
-                    ASTNode* nameNode = p->varDecl.varNames[k];
+                    ASTNode* nameNode = varNames ? varNames[k] : NULL;
                     if (!nameNode || nameNode->type != AST_IDENTIFIER) {
                         // Be forgiving but noisy during bring-up
                         fprintf(stderr, "Semantic: parameter[%zu] has non-identifier name\n", k);
                         continue;
                     }
-                    const ParsedType* typeForParam = perTypes ? &perTypes[k] : &p->varDecl.declaredType;
+                    const ParsedType* typeForParam = &p->varDecl.declaredType;
+                    if (perTypes) {
+                        typeForParam = &perTypes[k];
+                    }
 
                     // Create symbol
             Symbol* s = (Symbol*)calloc(1, sizeof(Symbol));
             if (!s) { fprintf(stderr, "OOM: Symbol param\n"); continue; }
             s->kind = SYMBOL_VARIABLE;
-            s->name = strdup(nameNode->valueNode.value);
+            const char* paramName = nameNode->valueNode.value;
+            s->name = strdup(paramName);
             if (!s->name) {
                 fprintf(stderr, "OOM: Symbol param name\n");
                 free(s);
@@ -124,8 +136,9 @@ void analyze(ASTNode* node, Scope* scope) {
         }
 
         // 4) Analyze the function body under the function scope
-        validateGotoScopes(node->functionDef.body);
-        analyze(node->functionDef.body, fscope);
+        ASTNode* functionBody = node->functionDef.body;
+        validateGotoScopes(functionBody);
+        analyze(functionBody, fscope);
 
         destroyScope(fscope);
         break;
