@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Binary literal requires at least one binary digit at tests/final/cases/02__radix_prefix_missing_digits_reject.c:1:9 (got '0b')
+Error: Binary literal requires at least one binary digit at tests/final/cases/02__radix_prefix_missing_digits_reject.c:2:9 (got '0B')
+Error: Hex literal requires at least one hex digit at tests/final/cases/02__radix_prefix_missing_digits_reject.c:3:9 (got '0x')
+Error: Hex literal requires at least one hex digit at tests/final/cases/02__radix_prefix_missing_digits_reject.c:4:9 (got '0X')

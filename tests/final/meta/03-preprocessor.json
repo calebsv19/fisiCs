@@ -1,0 +1,2452 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__object_like_macro",
+      "bucket": "preprocessor",
+      "input": "cases/03__object_like_macro.c",
+      "expects": [
+        "expect/03__object_like_macro.tokens"
+      ],
+      "tags": [
+        "macro"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__function_like_macro",
+      "bucket": "preprocessor",
+      "input": "cases/03__function_like_macro.c",
+      "expects": [
+        "expect/03__function_like_macro.tokens"
+      ],
+      "tags": [
+        "macro",
+        "function-like"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__stringify_and_paste",
+      "bucket": "preprocessor",
+      "input": "cases/03__stringify_and_paste.c",
+      "expects": [
+        "expect/03__stringify_and_paste.tokens"
+      ],
+      "tags": [
+        "stringify",
+        "paste"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__variadic_macro",
+      "bucket": "preprocessor",
+      "input": "cases/03__variadic_macro.c",
+      "expects": [
+        "expect/03__variadic_macro.tokens"
+      ],
+      "tags": [
+        "variadic"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__defined_expr",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_expr.c",
+      "expects": [
+        "expect/03__defined_expr.tokens"
+      ],
+      "tags": [
+        "defined",
+        "if"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__defined_macro_expansion",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_macro_expansion.c",
+      "expects": [
+        "expect/03__defined_macro_expansion.tokens"
+      ],
+      "tags": [
+        "defined",
+        "macro"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_builtin",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_builtin.c",
+      "expects": [
+        "expect/03__line_directive_builtin.tokens"
+      ],
+      "tags": [
+        "line-directive",
+        "builtin"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_basic",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_basic.c",
+      "expects": [
+        "expect/03__include_basic.tokens"
+      ],
+      "tags": [
+        "include"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_guard",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_guard.c",
+      "expects": [
+        "expect/03__include_guard.tokens"
+      ],
+      "tags": [
+        "include",
+        "guard"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_arith",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_arith.c",
+      "expects": [
+        "expect/03__pp_if_arith.tokens"
+      ],
+      "tags": [
+        "if",
+        "arith"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_redefinition",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_redefinition.c",
+      "expects": [
+        "expect/03__macro_redefinition.tokens"
+      ],
+      "tags": [
+        "macro",
+        "redef"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_macro_expansion",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_macro_expansion.c",
+      "expects": [
+        "expect/03__nested_macro_expansion.tokens"
+      ],
+      "tags": [
+        "macro",
+        "nested"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_arg_commas",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_arg_commas.c",
+      "expects": [
+        "expect/03__macro_arg_commas.tokens"
+      ],
+      "tags": [
+        "macro",
+        "args"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__if_defined_paren",
+      "bucket": "preprocessor",
+      "input": "cases/03__if_defined_paren.c",
+      "expects": [
+        "expect/03__if_defined_paren.tokens"
+      ],
+      "tags": [
+        "defined",
+        "if"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__stringize_spacing",
+      "bucket": "preprocessor",
+      "input": "cases/03__stringize_spacing.c",
+      "expects": [
+        "expect/03__stringize_spacing.tokens"
+      ],
+      "tags": [
+        "stringize"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__token_paste_numbers",
+      "bucket": "preprocessor",
+      "input": "cases/03__token_paste_numbers.c",
+      "expects": [
+        "expect/03__token_paste_numbers.tokens"
+      ],
+      "tags": [
+        "paste"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__variadic_empty",
+      "bucket": "preprocessor",
+      "input": "cases/03__variadic_empty.c",
+      "expects": [
+        "expect/03__variadic_empty.tokens"
+      ],
+      "tags": [
+        "variadic"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__if_elif_chain",
+      "bucket": "preprocessor",
+      "input": "cases/03__if_elif_chain.c",
+      "expects": [
+        "expect/03__if_elif_chain.tokens"
+      ],
+      "tags": [
+        "if"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__undef_defined",
+      "bucket": "preprocessor",
+      "input": "cases/03__undef_defined.c",
+      "expects": [
+        "expect/03__undef_defined.tokens"
+      ],
+      "tags": [
+        "undef",
+        "defined"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_paste_expand",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_paste_expand.c",
+      "expects": [
+        "expect/03__macro_paste_expand.tokens"
+      ],
+      "tags": [
+        "paste",
+        "expand"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_to_nothing",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_to_nothing.c",
+      "expects": [
+        "expect/03__macro_to_nothing.tokens"
+      ],
+      "tags": [
+        "macro",
+        "empty"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_continuation",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_continuation.c",
+      "expects": [
+        "expect/03__line_continuation.tokens"
+      ],
+      "tags": [
+        "line-continuation",
+        "macro"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__empty_fn_args",
+      "bucket": "preprocessor",
+      "input": "cases/03__empty_fn_args.c",
+      "expects": [
+        "expect/03__empty_fn_args.tokens"
+      ],
+      "tags": [
+        "macro",
+        "function-like"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__recursive_block",
+      "bucket": "preprocessor",
+      "input": "cases/03__recursive_block.c",
+      "expects": [
+        "expect/03__recursive_block.tokens"
+      ],
+      "tags": [
+        "macro",
+        "recursive"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_missing",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_missing.c",
+      "expects": [
+        "expect/03__include_missing.diag"
+      ],
+      "tags": [
+        "include",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__partial_token_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__partial_token_reject.c",
+      "expects": [
+        "expect/03__partial_token_reject.diag"
+      ],
+      "tags": [
+        "macro",
+        "negative",
+        "partial-token"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__ifdef_ifndef",
+      "bucket": "preprocessor",
+      "input": "cases/03__ifdef_ifndef.c",
+      "expects": [
+        "expect/03__ifdef_ifndef.tokens"
+      ],
+      "tags": [
+        "if",
+        "ifdef",
+        "ifndef"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pragma_once",
+      "bucket": "preprocessor",
+      "input": "cases/03__pragma_once.c",
+      "expects": [
+        "expect/03__pragma_once.tokens"
+      ],
+      "tags": [
+        "include",
+        "pragma-once"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__skip_missing_include",
+      "bucket": "preprocessor",
+      "input": "cases/03__skip_missing_include.c",
+      "expects": [
+        "expect/03__skip_missing_include.tokens"
+      ],
+      "tags": [
+        "if",
+        "include",
+        "skip"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_conditionals",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_conditionals.c",
+      "expects": [
+        "expect/03__nested_conditionals.tokens"
+      ],
+      "tags": [
+        "if",
+        "nested"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__else_without_if",
+      "bucket": "preprocessor",
+      "input": "cases/03__else_without_if.c",
+      "expects": [
+        "expect/03__else_without_if.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "directive"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__endif_without_if",
+      "bucket": "preprocessor",
+      "input": "cases/03__endif_without_if.c",
+      "expects": [
+        "expect/03__endif_without_if.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "directive"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__unterminated_if_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__unterminated_if_reject.c",
+      "expects": [
+        "expect/03__unterminated_if_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "directive"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__elif_after_else",
+      "bucket": "preprocessor",
+      "input": "cases/03__elif_after_else.c",
+      "expects": [
+        "expect/03__elif_after_else.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "directive"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_cycle",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle.c",
+      "expects": [
+        "expect/03__include_cycle.diag"
+      ],
+      "tags": [
+        "include",
+        "negative",
+        "cycle"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_arg_count_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_arg_count_reject.c",
+      "expects": [
+        "expect/03__macro_arg_count_reject.diag"
+      ],
+      "tags": [
+        "macro",
+        "negative",
+        "arity"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__quote_include_prefers_local",
+      "bucket": "preprocessor",
+      "input": "cases/03__quote_include_prefers_local.c",
+      "expects": [
+        "expect/03__quote_include_prefers_local.tokens"
+      ],
+      "tags": [
+        "include",
+        "quote"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__angle_include_uses_include_path",
+      "bucket": "preprocessor",
+      "input": "cases/03__angle_include_uses_include_path.c",
+      "expects": [
+        "expect/03__angle_include_uses_include_path.tokens"
+      ],
+      "tags": [
+        "include",
+        "angle"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_short_circuit",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_short_circuit.c",
+      "expects": [
+        "expect/03__pp_if_short_circuit.tokens"
+      ],
+      "tags": [
+        "if",
+        "short-circuit"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_numeric_edges",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_numeric_edges.c",
+      "expects": [
+        "expect/03__pp_if_numeric_edges.tokens"
+      ],
+      "tags": [
+        "if",
+        "numeric"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_large_values",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_large_values.c",
+      "expects": [
+        "expect/03__pp_if_large_values.tokens"
+      ],
+      "tags": [
+        "if",
+        "numeric",
+        "large-values"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_mixed_signedness",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_mixed_signedness.c",
+      "expects": [
+        "expect/03__pp_if_mixed_signedness.tokens"
+      ],
+      "tags": [
+        "if",
+        "numeric",
+        "mixed-signedness"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_ternary_short_circuit",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_ternary_short_circuit.c",
+      "expects": [
+        "expect/03__pp_if_ternary_short_circuit.tokens"
+      ],
+      "tags": [
+        "if",
+        "ternary",
+        "short-circuit"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_unsigned_shift_boundary",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_unsigned_shift_boundary.c",
+      "expects": [
+        "expect/03__pp_if_unsigned_shift_boundary.tokens"
+      ],
+      "tags": [
+        "if",
+        "numeric",
+        "shift"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_missing_rhs_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_missing_rhs_reject.c",
+      "expects": [
+        "expect/03__pp_if_missing_rhs_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "expr"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_missing_colon_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_missing_colon_reject.c",
+      "expects": [
+        "expect/03__pp_if_missing_colon_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "expr"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_unmatched_paren_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_unmatched_paren_reject.c",
+      "expects": [
+        "expect/03__pp_if_unmatched_paren_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "expr"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_div_zero_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_div_zero_reject.c",
+      "expects": [
+        "expect/03__pp_if_div_zero_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "expr"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_elif_missing_rhs_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_elif_missing_rhs_reject.c",
+      "expects": [
+        "expect/03__pp_elif_missing_rhs_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "elif"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_elif_div_zero_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_elif_div_zero_reject.c",
+      "expects": [
+        "expect/03__pp_elif_div_zero_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "elif"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_basic",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_basic.c",
+      "expects": [
+        "expect/03__include_next_basic.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_elif_missing_colon_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_elif_missing_colon_reject.c",
+      "expects": [
+        "expect/03__pp_elif_missing_colon_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "elif"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_elif_unmatched_paren_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_elif_unmatched_paren_reject.c",
+      "expects": [
+        "expect/03__pp_elif_unmatched_paren_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "elif"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_elif_skips_dead_expr",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_elif_skips_dead_expr.c",
+      "expects": [
+        "expect/03__pp_elif_skips_dead_expr.tokens"
+      ],
+      "tags": [
+        "if",
+        "elif",
+        "short-circuit"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__inactive_nested_if_skips_bad_expr",
+      "bucket": "preprocessor",
+      "input": "cases/03__inactive_nested_if_skips_bad_expr.c",
+      "expects": [
+        "expect/03__inactive_nested_if_skips_bad_expr.tokens"
+      ],
+      "tags": [
+        "if",
+        "nested",
+        "inactive"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_missing",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_missing.c",
+      "expects": [
+        "expect/03__include_next_missing.diag"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_duplicate_else_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_duplicate_else_reject.c",
+      "expects": [
+        "expect/03__nested_duplicate_else_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "nested",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_elif_after_else_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_elif_after_else_reject.c",
+      "expects": [
+        "expect/03__nested_elif_after_else_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "nested",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__inactive_outer_skips_malformed_elif",
+      "bucket": "preprocessor",
+      "input": "cases/03__inactive_outer_skips_malformed_elif.c",
+      "expects": [
+        "expect/03__inactive_outer_skips_malformed_elif.tokens"
+      ],
+      "tags": [
+        "if",
+        "nested",
+        "inactive"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_mutual_recursive_block",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_mutual_recursive_block.c",
+      "expects": [
+        "expect/03__macro_mutual_recursive_block.tokens"
+      ],
+      "tags": [
+        "macro",
+        "recursion",
+        "edge"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_layered",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_layered.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_l1",
+        "-Itests/final/cases/pp_inext_l2",
+        "-Itests/final/cases/pp_inext_l3"
+      ],
+      "expects": [
+        "expect/03__include_next_layered.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "layered"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_arg_too_many_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_arg_too_many_reject.c",
+      "expects": [
+        "expect/03__macro_arg_too_many_reject.diag"
+      ],
+      "tags": [
+        "macro",
+        "args",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_arg_missing_comma_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_arg_missing_comma_reject.c",
+      "expects": [
+        "expect/03__macro_arg_missing_comma_reject.diag"
+      ],
+      "tags": [
+        "macro",
+        "args",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_redef_conflict_tokens",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_redef_conflict_tokens.c",
+      "expects": [
+        "expect/03__macro_redef_conflict_tokens.tokens"
+      ],
+      "tags": [
+        "macro",
+        "redef",
+        "edge"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_redef_identical_tokens",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_redef_identical_tokens.c",
+      "expects": [
+        "expect/03__macro_redef_identical_tokens.tokens"
+      ],
+      "tags": [
+        "macro",
+        "redef",
+        "edge"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_same_dir_parent",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_same_dir_parent.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_same_p1",
+        "-Itests/final/cases/pp_inext_same_p2"
+      ],
+      "expects": [
+        "expect/03__include_next_same_dir_parent.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "same-dir"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_angle_layered",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_angle_layered.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_angle_p1",
+        "-Itests/final/cases/pp_inext_angle_p2"
+      ],
+      "expects": [
+        "expect/03__include_next_angle_layered.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "angle"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_active_bad_elif_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_active_bad_elif_reject.c",
+      "expects": [
+        "expect/03__nested_active_bad_elif_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "nested",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_bitwise_logic_mix",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_bitwise_logic_mix.c",
+      "expects": [
+        "expect/03__pp_if_bitwise_logic_mix.tokens"
+      ],
+      "tags": [
+        "if",
+        "numeric",
+        "bitwise"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_nested_ternary_invalid_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_nested_ternary_invalid_reject.c",
+      "expects": [
+        "expect/03__pp_if_nested_ternary_invalid_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "negative",
+        "expr"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__variadic_missing_named_arg_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__variadic_missing_named_arg_reject.c",
+      "expects": [
+        "expect/03__variadic_missing_named_arg_reject.diag"
+      ],
+      "tags": [
+        "macro",
+        "variadic",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_expansion_limit_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_expansion_limit_reject.c",
+      "env": {
+        "FISICS_MACRO_EXP_LIMIT": "2"
+      },
+      "expects": [
+        "expect/03__macro_expansion_limit_reject.diag"
+      ],
+      "tags": [
+        "macro",
+        "recursion",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_pragma_once_chain",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_pragma_once_chain.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_once_p1",
+        "-Itests/final/cases/pp_inext_once_p2"
+      ],
+      "expects": [
+        "expect/03__include_next_pragma_once_chain.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "pragma-once"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__vaopt_basic",
+      "bucket": "preprocessor",
+      "input": "cases/03__vaopt_basic.c",
+      "expects": [
+        "expect/03__vaopt_basic.tokens"
+      ],
+      "tags": [
+        "macro",
+        "variadic",
+        "vaopt"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__error_directive_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__error_directive_reject.c",
+      "expects": [
+        "expect/03__error_directive_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "error",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__warning_directive_diag",
+      "bucket": "preprocessor",
+      "input": "cases/03__warning_directive_diag.c",
+      "expects": [
+        "expect/03__warning_directive_diag.diag"
+      ],
+      "tags": [
+        "directive",
+        "warning"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__warning_inactive_branch",
+      "bucket": "preprocessor",
+      "input": "cases/03__warning_inactive_branch.c",
+      "expects": [
+        "expect/03__warning_inactive_branch.tokens"
+      ],
+      "tags": [
+        "directive",
+        "warning",
+        "inactive-branch"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__pp_if_shift_negative_boundary",
+      "bucket": "preprocessor",
+      "input": "cases/03__pp_if_shift_negative_boundary.c",
+      "expects": [
+        "expect/03__pp_if_shift_negative_boundary.tokens"
+      ],
+      "tags": [
+        "if",
+        "numeric",
+        "shift"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_invocation_requires_adjacent_lparen",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_invocation_requires_adjacent_lparen.c",
+      "expects": [
+        "expect/03__macro_invocation_requires_adjacent_lparen.tokens"
+      ],
+      "tags": [
+        "macro",
+        "invocation",
+        "whitespace"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_arg_nested_paren_grouping",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_arg_nested_paren_grouping.c",
+      "expects": [
+        "expect/03__macro_arg_nested_paren_grouping.tokens"
+      ],
+      "tags": [
+        "macro",
+        "args",
+        "nesting"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_unknown_directive_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_unknown_directive_reject.c",
+      "expects": [
+        "expect/03__issue_unknown_directive_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "unknown",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_endif_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_endif_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__issue_endif_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "endif",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_ifdef_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_ifdef_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__issue_ifdef_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "ifdef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_ifndef_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_ifndef_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__issue_ifndef_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "ifndef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_else_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_else_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__issue_else_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "else",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__gnu_comma_vaargs",
+      "bucket": "preprocessor",
+      "input": "cases/03__gnu_comma_vaargs.c",
+      "expects": [
+        "expect/03__gnu_comma_vaargs.diag"
+      ],
+      "tags": [
+        "macro",
+        "variadic",
+        "gnu-extension",
+        "unsupported",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__unknown_directive_inactive_branch",
+      "bucket": "preprocessor",
+      "input": "cases/03__unknown_directive_inactive_branch.c",
+      "expects": [
+        "expect/03__unknown_directive_inactive_branch.tokens"
+      ],
+      "tags": [
+        "directive",
+        "unknown",
+        "inactive-branch"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_missing_number_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_missing_number_reject.c",
+      "expects": [
+        "expect/03__line_directive_missing_number_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_non_number_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_non_number_reject.c",
+      "expects": [
+        "expect/03__line_directive_non_number_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__line_directive_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_inner_ifdef_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_inner_ifdef_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__nested_inner_ifdef_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "nested",
+        "directive",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_inner_else_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_inner_else_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__nested_inner_else_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "nested",
+        "directive",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_inactive_skips_unknown_directive",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_inactive_skips_unknown_directive.c",
+      "expects": [
+        "expect/03__nested_inactive_skips_unknown_directive.tokens"
+      ],
+      "tags": [
+        "nested",
+        "directive",
+        "inactive-branch"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_order_chain",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_order_chain.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_ord_p1",
+        "-Itests/final/cases/pp_inext_ord_p2",
+        "-Itests/final/cases/pp_inext_ord_p3",
+        "-Itests/final/cases/pp_inext_ord_p4"
+      ],
+      "expects": [
+        "expect/03__include_next_order_chain.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "search-order"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_macro_trailing_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_macro_trailing_reject.c",
+      "expects": [
+        "expect/03__line_directive_macro_trailing_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "macro-expansion",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_deep_inner_else_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_deep_inner_else_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__nested_deep_inner_else_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "nested",
+        "directive",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_deep_active_bad_elif_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_deep_active_bad_elif_reject.c",
+      "expects": [
+        "expect/03__nested_deep_active_bad_elif_reject.diag"
+      ],
+      "tags": [
+        "nested",
+        "elif",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_deep_inactive_skips_unknown_directive",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_deep_inactive_skips_unknown_directive.c",
+      "expects": [
+        "expect/03__nested_deep_inactive_skips_unknown_directive.tokens"
+      ],
+      "tags": [
+        "nested",
+        "directive",
+        "inactive-branch"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_mixed_delims_order",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_mixed_delims_order.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_mix_p1",
+        "-Itests/final/cases/pp_inext_mix_p2",
+        "-Itests/final/cases/pp_inext_mix_p3",
+        "-Itests/final/cases/pp_inext_mix_p4"
+      ],
+      "expects": [
+        "expect/03__include_next_mixed_delims_order.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "search-order",
+        "mixed-delims"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_zero_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_zero_reject.c",
+      "expects": [
+        "expect/03__line_directive_zero_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative",
+        "strict"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_hex_number_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_hex_number_reject.c",
+      "expects": [
+        "expect/03__line_directive_hex_number_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative",
+        "strict"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_suffix_number_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_suffix_number_reject.c",
+      "expects": [
+        "expect/03__line_directive_suffix_number_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative",
+        "strict"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_depth5_duplicate_else_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_depth5_duplicate_else_reject.c",
+      "expects": [
+        "expect/03__nested_depth5_duplicate_else_reject.diag"
+      ],
+      "tags": [
+        "nested",
+        "directive",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_depth5_inactive_skips_bad_if_expr",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_depth5_inactive_skips_bad_if_expr.c",
+      "expects": [
+        "expect/03__nested_depth5_inactive_skips_bad_if_expr.tokens"
+      ],
+      "tags": [
+        "nested",
+        "if",
+        "inactive-branch"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_collision_quote_chain",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_collision_quote_chain.c",
+      "args": [
+        "-Itests/final/cases/pp_collide_p1",
+        "-Itests/final/cases/pp_collide_p2"
+      ],
+      "expects": [
+        "expect/03__include_collision_quote_chain.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "collision",
+        "quote"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_collision_angle_chain",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_collision_angle_chain.c",
+      "args": [
+        "-Itests/final/cases/pp_collide_p1",
+        "-Itests/final/cases/pp_collide_p2"
+      ],
+      "expects": [
+        "expect/03__include_collision_angle_chain.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "collision",
+        "angle"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_out_of_range_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_out_of_range_reject.c",
+      "expects": [
+        "expect/03__line_directive_out_of_range_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative",
+        "strict",
+        "range"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_macro_out_of_range_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_macro_out_of_range_reject.c",
+      "expects": [
+        "expect/03__line_directive_macro_out_of_range_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative",
+        "strict",
+        "range",
+        "macro-expansion"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_charconst_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_charconst_reject.c",
+      "expects": [
+        "expect/03__line_directive_charconst_reject.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "negative",
+        "strict"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_depth6_duplicate_else_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_depth6_duplicate_else_reject.c",
+      "expects": [
+        "expect/03__nested_depth6_duplicate_else_reject.diag"
+      ],
+      "tags": [
+        "nested",
+        "directive",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_depth6_inactive_skips_bad_elif_expr",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_depth6_inactive_skips_bad_elif_expr.c",
+      "expects": [
+        "expect/03__nested_depth6_inactive_skips_bad_elif_expr.tokens"
+      ],
+      "tags": [
+        "nested",
+        "elif",
+        "inactive-branch"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_collision_quote_chain_long",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_collision_quote_chain_long.c",
+      "args": [
+        "-Itests/final/cases/pp_collide2_p1",
+        "-Itests/final/cases/pp_collide2_p2",
+        "-Itests/final/cases/pp_collide2_p3"
+      ],
+      "expects": [
+        "expect/03__include_collision_quote_chain_long.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "collision",
+        "quote"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_collision_angle_chain_long",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_collision_angle_chain_long.c",
+      "args": [
+        "-Itests/final/cases/pp_collide2_p1",
+        "-Itests/final/cases/pp_collide2_p2",
+        "-Itests/final/cases/pp_collide2_p3"
+      ],
+      "expects": [
+        "expect/03__include_collision_angle_chain_long.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "collision",
+        "angle"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_ifdef_missing_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_ifdef_missing_identifier_reject.c",
+      "expects": [
+        "expect/03__issue_ifdef_missing_identifier_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "ifdef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_ifndef_missing_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_ifndef_missing_identifier_reject.c",
+      "expects": [
+        "expect/03__issue_ifndef_missing_identifier_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "ifndef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_define_missing_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_define_missing_identifier_reject.c",
+      "expects": [
+        "expect/03__issue_define_missing_identifier_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "define",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_define_non_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_define_non_identifier_reject.c",
+      "expects": [
+        "expect/03__issue_define_non_identifier_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "define",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_undef_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_undef_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__issue_undef_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "undef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_undef_missing_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_undef_missing_identifier_reject.c",
+      "expects": [
+        "expect/03__issue_undef_missing_identifier_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "undef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_expansion_limit_chain_ok",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_expansion_limit_chain_ok.c",
+      "env": {
+        "FISICS_MACRO_EXP_LIMIT": "8"
+      },
+      "expects": [
+        "expect/03__macro_expansion_limit_chain_ok.tokens"
+      ],
+      "tags": [
+        "macro",
+        "recursion",
+        "limit"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_expansion_limit_chain6_ok",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_expansion_limit_chain6_ok.c",
+      "env": {
+        "FISICS_MACRO_EXP_LIMIT": "6"
+      },
+      "expects": [
+        "expect/03__macro_expansion_limit_chain6_ok.tokens"
+      ],
+      "tags": [
+        "macro",
+        "recursion",
+        "limit",
+        "boundary"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_expansion_limit_chain6_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_expansion_limit_chain6_reject.c",
+      "env": {
+        "FISICS_MACRO_EXP_LIMIT": "5"
+      },
+      "expects": [
+        "expect/03__macro_expansion_limit_chain6_reject.diag"
+      ],
+      "tags": [
+        "macro",
+        "recursion",
+        "limit",
+        "negative",
+        "boundary"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_define_param_missing_comma_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_define_param_missing_comma_reject.c",
+      "expects": [
+        "expect/03__issue_define_param_missing_comma_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "define",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_define_param_trailing_comma_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_define_param_trailing_comma_reject.c",
+      "expects": [
+        "expect/03__issue_define_param_trailing_comma_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "define",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_define_param_unclosed_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_define_param_unclosed_reject.c",
+      "expects": [
+        "expect/03__issue_define_param_unclosed_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "define",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_collision_mixed_local_angle_chain",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_collision_mixed_local_angle_chain.c",
+      "args": [
+        "-Itests/final/cases/pp_mix2_p1",
+        "-Itests/final/cases/pp_mix2_p2",
+        "-Itests/final/cases/pp_mix2_p3",
+        "-Itests/final/cases/pp_mix2_p4"
+      ],
+      "expects": [
+        "expect/03__include_collision_mixed_local_angle_chain.tokens"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "collision",
+        "mixed-delims",
+        "quote",
+        "angle"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_redef_obj_to_function_tokens",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_redef_obj_to_function_tokens.c",
+      "expects": [
+        "expect/03__macro_redef_obj_to_function_tokens.tokens"
+      ],
+      "tags": [
+        "macro",
+        "redef",
+        "object-to-function"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_redef_function_to_object_tokens",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_redef_function_to_object_tokens.c",
+      "expects": [
+        "expect/03__macro_redef_function_to_object_tokens.tokens"
+      ],
+      "tags": [
+        "macro",
+        "redef",
+        "function-to-object"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_redef_function_conflict_tokens",
+      "bucket": "preprocessor",
+      "input": "cases/03__macro_redef_function_conflict_tokens.c",
+      "expects": [
+        "expect/03__macro_redef_function_conflict_tokens.tokens"
+      ],
+      "tags": [
+        "macro",
+        "redef",
+        "function-like",
+        "conflict"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_depth7_active_bad_elif_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_depth7_active_bad_elif_reject.c",
+      "expects": [
+        "expect/03__nested_depth7_active_bad_elif_reject.diag"
+      ],
+      "tags": [
+        "nested",
+        "elif",
+        "negative",
+        "depth7"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_depth7_inactive_skips_bad_if_expr",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_depth7_inactive_skips_bad_if_expr.c",
+      "expects": [
+        "expect/03__nested_depth7_inactive_skips_bad_if_expr.tokens"
+      ],
+      "tags": [
+        "nested",
+        "if",
+        "inactive-branch",
+        "depth7"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_missing_mid_chain",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_missing_mid_chain.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_gap_p1",
+        "-Itests/final/cases/pp_inext_gap_p2"
+      ],
+      "expects": [
+        "expect/03__include_next_missing_mid_chain.diag"
+      ],
+      "tags": [
+        "include",
+        "include-next",
+        "negative",
+        "missing-mid-chain"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__defined_keyword_name",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_keyword_name.c",
+      "expects": [
+        "expect/03__defined_keyword_name.tokens"
+      ],
+      "tags": [
+        "defined",
+        "keyword-name",
+        "if"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__defined_keyword_name_no_paren",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_keyword_name_no_paren.c",
+      "expects": [
+        "expect/03__defined_keyword_name_no_paren.tokens"
+      ],
+      "tags": [
+        "defined",
+        "keyword-name",
+        "if"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__defined_non_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_non_identifier_reject.c",
+      "expects": [
+        "expect/03__defined_non_identifier_reject.diag"
+      ],
+      "tags": [
+        "defined",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_ifdef_non_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_ifdef_non_identifier_reject.c",
+      "expects": [
+        "expect/03__issue_ifdef_non_identifier_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "ifdef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_ifndef_non_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_ifndef_non_identifier_reject.c",
+      "expects": [
+        "expect/03__issue_ifndef_non_identifier_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "ifndef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__issue_undef_non_identifier_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__issue_undef_non_identifier_reject.c",
+      "expects": [
+        "expect/03__issue_undef_non_identifier_reject.diag"
+      ],
+      "tags": [
+        "directive",
+        "undef",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_depth8_active_bad_elif_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_depth8_active_bad_elif_reject.c",
+      "expects": [
+        "expect/03__nested_depth8_active_bad_elif_reject.diag"
+      ],
+      "tags": [
+        "nested",
+        "elif",
+        "negative",
+        "depth8"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__nested_depth8_skips_bad_elif_taken_branch",
+      "bucket": "preprocessor",
+      "input": "cases/03__nested_depth8_skips_bad_elif_taken_branch.c",
+      "expects": [
+        "expect/03__nested_depth8_skips_bad_elif_taken_branch.tokens"
+      ],
+      "tags": [
+        "nested",
+        "elif",
+        "inactive-branch",
+        "depth8"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__include_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "include",
+        "negative",
+        "strict"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_extra_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__include_next_extra_tokens_reject.diag"
+      ],
+      "tags": [
+        "include-next",
+        "negative",
+        "strict"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_macro_non_header_operand_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_macro_non_header_operand_reject.c",
+      "expects": [
+        "expect/03__include_macro_non_header_operand_reject.diag"
+      ],
+      "tags": [
+        "include",
+        "macro-expansion",
+        "negative"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_macro_trailing_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_macro_trailing_tokens_reject.c",
+      "expects": [
+        "expect/03__include_macro_trailing_tokens_reject.diag"
+      ],
+      "tags": [
+        "include",
+        "macro-expansion",
+        "negative",
+        "strict"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_macro_trailing_tokens_reject",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_macro_trailing_tokens_reject.c",
+      "expects": [
+        "expect/03__include_next_macro_trailing_tokens_reject.diag"
+      ],
+      "tags": [
+        "include-next",
+        "macro-expansion",
+        "negative",
+        "strict"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    }
+  ]
+}

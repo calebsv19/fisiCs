@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_arg_count_reject.c:3:14: error: macro 'ADD2' requires 2 argument(s), got 1
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_arg_count_reject.c:3:14: error: macro 'ADD2' requires 2 argument(s), got 1
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_arg_count_reject.c:3:14: error: macro 'ADD2' requires 2 argument(s), got 1

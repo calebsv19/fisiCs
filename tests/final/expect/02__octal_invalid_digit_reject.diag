@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid digit in octal literal at tests/final/cases/02__octal_invalid_digit_reject.c:1:9 (got '0778')

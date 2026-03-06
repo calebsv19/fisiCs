@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__dangling_else",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__dangling_else.c",
+      "expects": [
+        "expect/09__dangling_else.ast",
+        "expect/09__dangling_else.diag"
+      ],
+      "tags": [
+        "if",
+        "else"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_rules",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_rules.c",
+      "expects": [
+        "expect/09__switch_rules.ast",
+        "expect/09__switch_rules.diag"
+      ],
+      "tags": [
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__for_decl_scope",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__for_decl_scope.c",
+      "expects": [
+        "expect/09__for_decl_scope.ast",
+        "expect/09__for_decl_scope.diag"
+      ],
+      "tags": [
+        "for"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__break_continue_errors",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__break_continue_errors.c",
+      "expects": [
+        "expect/09__break_continue_errors.ast",
+        "expect/09__break_continue_errors.diag"
+      ],
+      "tags": [
+        "break",
+        "continue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__goto_labels",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__goto_labels.c",
+      "expects": [
+        "expect/09__goto_labels.ast",
+        "expect/09__goto_labels.diag"
+      ],
+      "tags": [
+        "goto"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_duplicate_case",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_duplicate_case.c",
+      "expects": [
+        "expect/09__switch_duplicate_case.ast",
+        "expect/09__switch_duplicate_case.diag"
+      ],
+      "tags": [
+        "switch",
+        "duplicate"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__goto_cross_init",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__goto_cross_init.c",
+      "expects": [
+        "expect/09__goto_cross_init.ast",
+        "expect/09__goto_cross_init.diag"
+      ],
+      "tags": [
+        "goto",
+        "init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__nested_block_realloc",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__nested_block_realloc.c",
+      "expects": [
+        "expect/09__nested_block_realloc.diag"
+      ],
+      "tags": [
+        "blocks",
+        "analysis"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__label_redefinition",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__label_redefinition.c",
+      "expects": [
+        "expect/09__label_redefinition.ast",
+        "expect/09__label_redefinition.diag"
+      ],
+      "tags": [
+        "label",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

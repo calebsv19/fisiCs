@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__elif_after_else.c:5:1: error: #elif after #else
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__elif_after_else.c:5:1: error: #elif after #else

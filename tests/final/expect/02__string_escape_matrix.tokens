@@ -1,0 +1,16 @@
+Tokens:
+0 TOKEN_CONST const /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:1:1
+1 TOKEN_CHAR char /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:1:7
+2 TOKEN_ASTERISK * /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:1:12
+3 TOKEN_IDENTIFIER a /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:1:13
+4 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:1:15
+5 TOKEN_STRING a\\0b\\n\\x41 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:1:17
+6 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:1:29
+7 TOKEN_CONST const /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:2:1
+8 TOKEN_CHAR char /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:2:7
+9 TOKEN_ASTERISK * /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:2:12
+10 TOKEN_IDENTIFIER b /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:2:13
+11 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:2:15
+12 TOKEN_STRING tab\\tpath\\\\ /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:2:17
+13 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__string_escape_matrix.c:2:30
+14 TOKEN_EOF <null> <unknown>:0:0

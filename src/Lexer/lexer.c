@@ -33,9 +33,65 @@ static inline const char* lexer_file_path(const Lexer* lexer) {
     return (lexer && lexer->filePath) ? lexer->filePath : "<unknown>";
 }
 
+static const char* lexer_display_file_path(const Lexer* lexer, char* scratch, size_t scratchSize) {
+    const char* file = lexer_file_path(lexer);
+    if (!file || file[0] != '/' || !scratch || scratchSize == 0) {
+        return file;
+    }
+
+    char cwd[4096];
+    if (!getcwd(cwd, sizeof(cwd))) {
+        return file;
+    }
+
+    size_t cwdLen = strlen(cwd);
+    if (strncmp(file, cwd, cwdLen) != 0 || file[cwdLen] != '/') {
+        return file;
+    }
+
+    snprintf(scratch, scratchSize, "%s", file + cwdLen + 1);
+    return scratch;
+}
+
 static inline int lexer_compute_column(int position, int lineStart) {
     int column = (position - lineStart) + 1;
     return (column < 1) ? 1 : column;
+}
+
+static void report_lexer_error(Lexer* lexer, LexerMark start, const char* message, const char* got) {
+    if (!lexer || !message) return;
+    char fileScratch[4096];
+    const char* file = lexer_display_file_path(lexer, fileScratch, sizeof(fileScratch));
+    int column = lexer_compute_column(start.position, start.lineStart);
+    if (got && got[0] != '\0') {
+        fprintf(stderr,
+                "Error: %s at %s:%d:%d (got '%s')\n",
+                message,
+                file,
+                start.line,
+                column,
+                got);
+    } else {
+        fprintf(stderr,
+                "Error: %s at %s:%d:%d\n",
+                message,
+                file,
+                start.line,
+                column);
+    }
+    lexer->fatalErrorCount += 1;
+}
+
+static void report_unsupported_ucn_identifier(Lexer* lexer, LexerMark start, const char* text) {
+    if (!lexer || !text) return;
+    char fileScratch[4096];
+    const char* file = lexer_display_file_path(lexer, fileScratch, sizeof(fileScratch));
+    fprintf(stderr,
+            "Error: universal character names in identifiers are not supported yet at %s:%d (got '%s')\n",
+            file,
+            start.line,
+            text);
+    lexer->fatalErrorCount += 1;
 }
 
 static void prepend_literal_prefix(Token* tok, const char* prefix) {
@@ -56,12 +112,6 @@ static inline LexerMark lexer_mark(const Lexer* lexer) {
         mark.line = lexer->line;
         mark.lineStart = lexer->lineStart;
     }
-    return mark;
-}
-
-static inline LexerMark lexer_mark_previous(const Lexer* lexer) {
-    LexerMark mark = lexer_mark(lexer);
-    mark.position -= 1;
     return mark;
 }
 
@@ -92,6 +142,52 @@ static inline SourceRange empty_source_range(void) {
     range.start.column = 0;
     range.end = range.start;
     return range;
+}
+
+static void consume_char_literal_tail_after_error(Lexer* lexer) {
+    if (!lexer) return;
+    while (!isEOF(lexer)) {
+        char c = lexer->source[lexer->position];
+        if (c == '\'') {
+            lexer->position++;
+            return;
+        }
+        if (c == '\n') {
+            return;
+        }
+        lexer->position++;
+    }
+}
+
+static void consume_string_literal_tail_after_error(Lexer* lexer) {
+    if (!lexer) return;
+    while (!isEOF(lexer)) {
+        char c = lexer->source[lexer->position];
+        if (c == '"') {
+            lexer->position++;
+            return;
+        }
+        if (c == '\n') {
+            return;
+        }
+        if (c == '\\') {
+            lexer->position++;
+            if (isEOF(lexer) || lexer->source[lexer->position] == '\n') {
+                return;
+            }
+            lexer->position++;
+            continue;
+        }
+        lexer->position++;
+    }
+}
+
+static void format_simple_escape(char out[4], char escapeChar) {
+    if (!out) return;
+    out[0] = '\\';
+    out[1] = escapeChar;
+    out[2] = '\0';
+    out[3] = '\0';
 }
 
 static inline Token make_token(Lexer* lexer, TokenType type, char* value, LexerMark start) {
@@ -208,6 +304,7 @@ void initLexer(Lexer* lexer, const char* source, const char* filePath, bool enab
     lexer->length = 0;
 	lexer->line = 1;
 	lexer->lineStart = 0;
+    lexer->fatalErrorCount = 0;
     bool sawTrigraph = false;
     const char* rawSource = source ? source : "";
     char* translated = translate_source(rawSource, enableTrigraphs, &sawTrigraph);
@@ -269,6 +366,21 @@ Token getNextToken(Lexer* lexer) {
         Token t = handleCharLiteral(lexer);
         prepend_literal_prefix(&t, "W|");
         return t;
+    }
+    if (c == '\\' && (n == 'u' || n == 'U')) {
+        LexerMark start = lexer_mark(lexer);
+        int startPos = lexer->position;
+        int expectedDigits = (n == 'u') ? 4 : 8;
+        lexer->position += 2;
+        for (int i = 0; i < expectedDigits; ++i) {
+            if (!isxdigit((unsigned char)lexer->source[lexer->position])) {
+                break;
+            }
+            lexer->position++;
+        }
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        report_unsupported_ucn_identifier(lexer, start, text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, start);
     }
 
     if (isalpha(lexer->source[lexer->position]) || lexer->source[lexer->position] == '_') {
@@ -422,31 +534,57 @@ Token handleNumber(Lexer* lexer) {
     TokenType type = TOKEN_NUMBER;
 
     bool isHex = false;
+    bool isBinary = false;
+    bool sawFraction = false;
+    bool invalidOctalDigit = false;
+    bool invalidBinaryDigit = false;
+    int radixDigits = 0;
+    int hexFractionDigits = 0;
     // Handle hexadecimal (0x...), binary (0b...), and octal (0...)
     if (lexer->source[startPos] == '0') {
         if (lexer->source[startPos + 1] == 'x' || lexer->source[startPos + 1] == 'X') {
             lexer->position += 2;
             isHex = true;
-            while (isxdigit(lexer->source[lexer->position])) lexer->position++;
+            while (isxdigit((unsigned char)lexer->source[lexer->position])) {
+                radixDigits++;
+                lexer->position++;
+            }
             type = TOKEN_NUMBER; // Hex integer
         } else if (lexer->source[startPos + 1] == 'b' || lexer->source[startPos + 1] == 'B') {
             lexer->position += 2;
-            while (lexer->source[lexer->position] == '0' || lexer->source[lexer->position] == '1') lexer->position++;
+            isBinary = true;
+            while (lexer->source[lexer->position] == '0' || lexer->source[lexer->position] == '1') {
+                radixDigits++;
+                lexer->position++;
+            }
+            while (isdigit((unsigned char)lexer->source[lexer->position])) {
+                invalidBinaryDigit = true;
+                lexer->position++;
+            }
             type = TOKEN_NUMBER; // Binary integer
         } else {
-            while (isdigit(lexer->source[lexer->position])) lexer->position++;
+            while (isdigit((unsigned char)lexer->source[lexer->position])) {
+                if (lexer->source[lexer->position] == '8' || lexer->source[lexer->position] == '9') {
+                    invalidOctalDigit = true;
+                }
+                lexer->position++;
+            }
             type = TOKEN_NUMBER; // Octal or decimal integer
         }
     } else {
-        while (isdigit(lexer->source[lexer->position])) lexer->position++;
+        while (isdigit((unsigned char)lexer->source[lexer->position])) lexer->position++;
     }
 
     // Handle fractional part (.) and exponent (e/E or p/P for hex floats)
     bool sawExp = false;
     if (lexer->source[lexer->position] == '.') {
         lexer->position++;
+        sawFraction = true;
         if (isHex) {
-            while (isxdigit((unsigned char)lexer->source[lexer->position])) lexer->position++;
+            while (isxdigit((unsigned char)lexer->source[lexer->position])) {
+                hexFractionDigits++;
+                lexer->position++;
+            }
         } else {
             while (isdigit((unsigned char)lexer->source[lexer->position])) lexer->position++;
         }
@@ -464,9 +602,15 @@ Token handleNumber(Lexer* lexer) {
             hadDigit = true;
             lexer->position++;
         }
-        if (hadDigit) {
-            type = TOKEN_FLOAT_LITERAL;
+        if (!hadDigit) {
+            while (isalnum((unsigned char)lexer->source[lexer->position]) || lexer->source[lexer->position] == '_') {
+                lexer->position++;
+            }
+            char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+            report_lexer_error(lexer, startMark, "Malformed floating literal exponent", text);
+            return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
         }
+        type = TOKEN_FLOAT_LITERAL;
     }
 
     // Handle numeric suffixes (u/U, one or two l/L, f/F, and optional i/I/j/J for imaginary).
@@ -500,6 +644,67 @@ Token handleNumber(Lexer* lexer) {
         break;
     }
 
+    if (isBinary && (sawFraction || sawExp || type == TOKEN_FLOAT_LITERAL ||
+                     lexer->source[lexer->position] == 'p' || lexer->source[lexer->position] == 'P')) {
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        if (lexer->source[lexer->position] == 'p' || lexer->source[lexer->position] == 'P') {
+            while (isalnum((unsigned char)lexer->source[lexer->position]) || lexer->source[lexer->position] == '_') {
+                lexer->position++;
+            }
+            free(text);
+            text = strndup(lexer->source + startPos, lexer->position - startPos);
+        }
+        report_lexer_error(lexer, startMark, "Binary literals do not support fractional or exponent forms", text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
+    }
+
+    if (isBinary && invalidBinaryDigit) {
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        report_lexer_error(lexer, startMark, "Invalid digit in binary literal", text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
+    }
+
+    if (isBinary && radixDigits == 0) {
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        report_lexer_error(lexer, startMark, "Binary literal requires at least one binary digit", text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
+    }
+
+    if (!isHex && !isBinary && invalidOctalDigit && !sawFraction && !sawExp && type == TOKEN_NUMBER) {
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        report_lexer_error(lexer, startMark, "Invalid digit in octal literal", text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
+    }
+
+    if (isHex && !sawFraction && radixDigits == 0) {
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        report_lexer_error(lexer, startMark, "Hex literal requires at least one hex digit", text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
+    }
+
+    if (isHex && sawFraction && radixDigits == 0 && hexFractionDigits == 0) {
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        report_lexer_error(lexer, startMark, "Hex floating literal requires at least one mantissa digit", text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
+    }
+
+    if (isHex && sawFraction && !sawExp) {
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        report_lexer_error(lexer, startMark, "Hex floating literal requires a 'p' exponent", text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
+    }
+
+    if (isalpha((unsigned char)lexer->source[lexer->position]) || lexer->source[lexer->position] == '_') {
+        int badStart = lexer->position;
+        while (isalnum((unsigned char)lexer->source[lexer->position]) || lexer->source[lexer->position] == '_') {
+            lexer->position++;
+        }
+        (void)badStart;
+        char* text = strndup(lexer->source + startPos, lexer->position - startPos);
+        report_lexer_error(lexer, startMark, "Invalid numeric literal suffix", text);
+        return make_token(lexer, TOKEN_UNKNOWN, text, startMark);
+    }
+
     return make_token(lexer, type, strndup(lexer->source + startPos, lexer->position - startPos), startMark);
 
 }
@@ -513,18 +718,90 @@ Token handleStringLiteral(Lexer* lexer) {
     while (1) {
         char c = lexer->source[lexer->position];
         if (c == '\0' || c == '\n') {
+            report_lexer_error(lexer, startMark, "Unterminated string literal", "\"");
             return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated string", startMark);
         }
         if (c == '"') {
             break;
         }
         if (c == '\\') {
-            // Skip escaped byte (e.g. \" \\ \n \xNN), so a quote after \\ can terminate.
             lexer->position++;
-            if (lexer->source[lexer->position] == '\0' || lexer->source[lexer->position] == '\n') {
+            char e = lexer->source[lexer->position];
+            if (e == '\0' || e == '\n') {
+                report_lexer_error(lexer, startMark, "Unterminated string literal", "\"");
                 return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated string", startMark);
             }
-            lexer->position++;
+            switch (e) {
+                case 'n':
+                case 't':
+                case 'r':
+                case 'b':
+                case 'f':
+                case 'a':
+                case 'v':
+                case '\\':
+                case '\'':
+                case '\"':
+                case '?':
+                    lexer->position++;
+                    break;
+                case 'x': {
+                    lexer->position++;
+                    if (!isxdigit((unsigned char)lexer->source[lexer->position])) {
+                        report_lexer_error(lexer, startMark, "Invalid \\x escape in string literal", "\\x");
+                        consume_string_literal_tail_after_error(lexer);
+                        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\x escape", startMark);
+                    }
+                    while (isxdigit((unsigned char)lexer->source[lexer->position])) {
+                        lexer->position++;
+                    }
+                    break;
+                }
+                case 'u': {
+                    lexer->position++;
+                    int countHex = 0;
+                    while (countHex < 4 && isxdigit((unsigned char)lexer->source[lexer->position])) {
+                        lexer->position++;
+                        countHex++;
+                    }
+                    if (countHex != 4) {
+                        report_lexer_error(lexer, startMark, "Invalid \\u escape in string literal", "\\u");
+                        consume_string_literal_tail_after_error(lexer);
+                        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\u escape", startMark);
+                    }
+                    break;
+                }
+                case 'U': {
+                    lexer->position++;
+                    int countHex = 0;
+                    while (countHex < 8 && isxdigit((unsigned char)lexer->source[lexer->position])) {
+                        lexer->position++;
+                        countHex++;
+                    }
+                    if (countHex != 8) {
+                        report_lexer_error(lexer, startMark, "Invalid \\U escape in string literal", "\\U");
+                        consume_string_literal_tail_after_error(lexer);
+                        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\U escape", startMark);
+                    }
+                    break;
+                }
+                default:
+                    if (e >= '0' && e <= '7') {
+                        lexer->position++;
+                        for (int k = 0; k < 2; ++k) {
+                            char d = lexer->source[lexer->position];
+                            if (d < '0' || d > '7') break;
+                            lexer->position++;
+                        }
+                    } else {
+                        char got[4];
+                        format_simple_escape(got, e);
+                        report_lexer_error(lexer, startMark, "Invalid escape in string literal", got);
+                        consume_string_literal_tail_after_error(lexer);
+                        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid escape", startMark);
+                    }
+                    break;
+            }
             continue;
         }
         lexer->position++;
@@ -548,6 +825,7 @@ Token handleCharLiteral(Lexer* lexer) {
     while (1) {
         char ch = lexer->source[lexer->position];
         if (ch == '\0' || ch == '\n') {
+            report_lexer_error(lexer, startMark, "Unterminated character literal", "'");
             return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid character literal", startMark);
         }
         if (ch == '\'') {
@@ -570,6 +848,7 @@ Token handleCharLiteral(Lexer* lexer) {
                 case '\\': val = '\\'; break;
                 case '\'': val = '\''; break;
                 case '\"': val = '\"'; break;
+                case '?':  val = '?'; break;
                 case 'u': {
                     int hex = 0;
                     int countHex = 0;
@@ -583,7 +862,11 @@ Token handleCharLiteral(Lexer* lexer) {
                         hex = (hex << 4) | v;
                         ++countHex;
                     }
-                    if (countHex != 4) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\u escape", startMark);
+                    if (countHex != 4) {
+                        report_lexer_error(lexer, startMark, "Invalid \\u escape in character literal", "\\u");
+                        consume_char_literal_tail_after_error(lexer);
+                        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\u escape", startMark);
+                    }
                     val = hex;
                     break;
                 }
@@ -600,7 +883,11 @@ Token handleCharLiteral(Lexer* lexer) {
                         hex = (hex << 4) | v;
                         ++countHex;
                     }
-                    if (countHex != 8) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\U escape", startMark);
+                    if (countHex != 8) {
+                        report_lexer_error(lexer, startMark, "Invalid \\U escape in character literal", "\\U");
+                        consume_char_literal_tail_after_error(lexer);
+                        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\U escape", startMark);
+                    }
                     val = hex;
                     break;
                 }
@@ -616,7 +903,11 @@ Token handleCharLiteral(Lexer* lexer) {
                         else hex += (h - 'A' + 10);
                         any = 1;
                     }
-                    if (!any) return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\x escape", startMark);
+                    if (!any) {
+                        report_lexer_error(lexer, startMark, "Invalid \\x escape in character literal", "\\x");
+                        consume_char_literal_tail_after_error(lexer);
+                        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid \\x escape", startMark);
+                    }
                     val = hex;
                     break;
                 }
@@ -633,8 +924,11 @@ Token handleCharLiteral(Lexer* lexer) {
                         }
                         val = oct;
                     } else {
-                        // unknown escape, take literally
-                        val = (unsigned char)e;
+                        char got[4];
+                        format_simple_escape(got, e);
+                        report_lexer_error(lexer, startMark, "Invalid escape in character literal", got);
+                        consume_char_literal_tail_after_error(lexer);
+                        return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid escape", startMark);
                     }
                     break;
             }
@@ -652,6 +946,7 @@ Token handleCharLiteral(Lexer* lexer) {
     }
 
     if (count == 0) {
+        report_lexer_error(lexer, startMark, "Empty character literal", "''");
         return make_token(lexer, TOKEN_UNKNOWN, (char*)"Invalid character literal", startMark);
     }
 
@@ -743,7 +1038,7 @@ Token handlePreprocessorDirective(Lexer* lexer) {
 
 // Processes comments (single-line `//` and multi-line `/* */`)
 Token handleComment(Lexer* lexer) {
-    LexerMark slashStart = lexer_mark_previous(lexer);
+    LexerMark slashStart = lexer_mark(lexer);
     if (lexer->source[lexer->position] == '\0' || lexer->source[lexer->position + 1] == '\0') {
         lexer->position++;
         return make_token(lexer, TOKEN_DIVIDE, strndup("/", 1), slashStart);
@@ -770,8 +1065,8 @@ Token handleComment(Lexer* lexer) {
         lexer->position += 2;
         while (!(lexer->source[lexer->position] == '*' && lexer->source[lexer->position + 1] == '/')) {
             if (lexer->source[lexer->position] == '\0') {
-                LexerMark errorMark = lexer_mark(lexer);
-                return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated comment", errorMark);
+                report_lexer_error(lexer, slashStart, "Unterminated block comment", "/*");
+                return make_token(lexer, TOKEN_UNKNOWN, (char*)"Unterminated comment", slashStart);
             }
             if (lexer->source[lexer->position] == '\n') {
                 lexer->position++;
@@ -968,6 +1263,15 @@ Token handlePunctuation(Lexer* lexer) {
 // Handles unknown tokens (invalid characters, etc.)
 Token handleUnknownToken(Lexer* lexer) {
     LexerMark start = lexer_mark(lexer);
+    unsigned char bad = (unsigned char)lexer->source[lexer->position];
+    char got[8];
+    if (isprint(bad)) {
+        got[0] = (char)bad;
+        got[1] = '\0';
+    } else {
+        snprintf(got, sizeof(got), "\\x%02X", bad);
+    }
+    report_lexer_error(lexer, start, "Invalid character in source", got);
     lexer->position++; // Move past the current character
     return make_token(lexer, TOKEN_UNKNOWN, (char*)"ERROR", start);
 }
@@ -1009,11 +1313,13 @@ TokenType keywordToTokenType(const char* word) {
     if (strcmp(word, "static") == 0) return TOKEN_STATIC;
     if (strcmp(word, "auto") == 0) return TOKEN_AUTO;
     if (strcmp(word, "register") == 0) return TOKEN_REGISTER;
+    if (strcmp(word, "_Thread_local") == 0) return TOKEN_THREAD_LOCAL;
     if (strcmp(word, "const") == 0) return TOKEN_CONST;
     if (strcmp(word, "__const") == 0 || strcmp(word, "__const__") == 0) return TOKEN_CONST;
     if (strcmp(word, "volatile") == 0) return TOKEN_VOLATILE;
     if (strcmp(word, "restrict") == 0 || strcmp(word, "__restrict") == 0 || strcmp(word, "__restrict__") == 0) return TOKEN_RESTRICT;
     if (strcmp(word, "inline") == 0) return TOKEN_INLINE;
+    if (strcmp(word, "_Atomic") == 0) return TOKEN_ATOMIC;
     if (strcmp(word, "sizeof") == 0) return TOKEN_SIZEOF;
     if (strcmp(word, "_Alignof") == 0 || strcmp(word, "alignof") == 0) return TOKEN_ALIGNOF;
     if (strcmp(word, "_Static_assert") == 0) return TOKEN_STATIC_ASSERT;

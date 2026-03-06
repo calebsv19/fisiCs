@@ -386,10 +386,13 @@ bool pp_prepare_expr_tokens(Preprocessor* pp,
         size_t span = i - start;
         if (span > 0) {
             PPTokenBuffer expanded = {0};
+            macro_expander_set_preserve_defined_operands(&pp->expander, true);
             if (!macro_expander_expand(&pp->expander, tokens + start, span, &expanded)) {
+                macro_expander_set_preserve_defined_operands(&pp->expander, false);
                 pp_token_buffer_destroy(&expanded);
                 return false;
             }
+            macro_expander_set_preserve_defined_operands(&pp->expander, false);
             for (size_t j = 0; j < expanded.count; ++j) {
                 if (!append_expr_token(pp, out, &expanded.tokens[j])) {
                     pp_token_buffer_destroy(&expanded);

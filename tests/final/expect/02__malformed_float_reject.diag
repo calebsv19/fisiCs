@@ -1,0 +1,4 @@
+Diagnostics:
+Error: Malformed floating literal exponent at tests/final/cases/02__malformed_float_reject.c:1:12 (got '1e+')
+Error: Malformed floating literal exponent at tests/final/cases/02__malformed_float_reject.c:2:12 (got '1e')
+Error: Malformed floating literal exponent at tests/final/cases/02__malformed_float_reject.c:3:12 (got '0x1.p')

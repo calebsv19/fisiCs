@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__precedence_basic",
+      "bucket": "expressions",
+      "input": "cases/05__precedence_basic.c",
+      "expects": [
+        "expect/05__precedence_basic.ast",
+        "expect/05__precedence_basic.diag"
+      ],
+      "tags": [
+        "precedence"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__ternary_assoc",
+      "bucket": "expressions",
+      "input": "cases/05__ternary_assoc.c",
+      "expects": [
+        "expect/05__ternary_assoc.ast",
+        "expect/05__ternary_assoc.diag"
+      ],
+      "tags": [
+        "ternary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__comma_operator",
+      "bucket": "expressions",
+      "input": "cases/05__comma_operator.c",
+      "expects": [
+        "expect/05__comma_operator.ast",
+        "expect/05__comma_operator.diag"
+      ],
+      "tags": [
+        "comma"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__cast_vs_group",
+      "bucket": "expressions",
+      "input": "cases/05__cast_vs_group.c",
+      "expects": [
+        "expect/05__cast_vs_group.ast",
+        "expect/05__cast_vs_group.diag"
+      ],
+      "tags": [
+        "cast"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__member_call_chain",
+      "bucket": "expressions",
+      "input": "cases/05__member_call_chain.c",
+      "expects": [
+        "expect/05__member_call_chain.ast",
+        "expect/05__member_call_chain.diag"
+      ],
+      "tags": [
+        "member",
+        "call"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__logical_precedence",
+      "bucket": "expressions",
+      "input": "cases/05__logical_precedence.c",
+      "expects": [
+        "expect/05__logical_precedence.ast",
+        "expect/05__logical_precedence.diag"
+      ],
+      "tags": [
+        "logical",
+        "precedence"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__cast_function_style",
+      "bucket": "expressions",
+      "input": "cases/05__cast_function_style.c",
+      "expects": [
+        "expect/05__cast_function_style.ast",
+        "expect/05__cast_function_style.diag"
+      ],
+      "tags": [
+        "cast"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__sizeof_ambiguity",
+      "bucket": "expressions",
+      "input": "cases/05__sizeof_ambiguity.c",
+      "expects": [
+        "expect/05__sizeof_ambiguity.ast",
+        "expect/05__sizeof_ambiguity.diag"
+      ],
+      "tags": [
+        "sizeof"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__postfix_chain",
+      "bucket": "expressions",
+      "input": "cases/05__postfix_chain.c",
+      "expects": [
+        "expect/05__postfix_chain.ast",
+        "expect/05__postfix_chain.diag"
+      ],
+      "tags": [
+        "postfix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__unary_precedence",
+      "bucket": "expressions",
+      "input": "cases/05__unary_precedence.c",
+      "expects": [
+        "expect/05__unary_precedence.ast",
+        "expect/05__unary_precedence.diag"
+      ],
+      "tags": [
+        "unary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__sizeof_typedef",
+      "bucket": "expressions",
+      "input": "cases/05__sizeof_typedef.c",
+      "expects": [
+        "expect/05__sizeof_typedef.ast",
+        "expect/05__sizeof_typedef.diag"
+      ],
+      "tags": [
+        "sizeof",
+        "typedef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__cast_deref_precedence",
+      "bucket": "expressions",
+      "input": "cases/05__cast_deref_precedence.c",
+      "expects": [
+        "expect/05__cast_deref_precedence.ast",
+        "expect/05__cast_deref_precedence.diag"
+      ],
+      "tags": [
+        "cast",
+        "deref"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__ternary_comma_true",
+      "bucket": "expressions",
+      "input": "cases/05__ternary_comma_true.c",
+      "expects": [
+        "expect/05__ternary_comma_true.ast",
+        "expect/05__ternary_comma_true.diag"
+      ],
+      "tags": [
+        "ternary",
+        "comma"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__sizeof_array_type",
+      "bucket": "expressions",
+      "input": "cases/05__sizeof_array_type.c",
+      "expects": [
+        "expect/05__sizeof_array_type.ast",
+        "expect/05__sizeof_array_type.diag",
+        "expect/05__sizeof_array_type.ir"
+      ],
+      "tags": [
+        "sizeof",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

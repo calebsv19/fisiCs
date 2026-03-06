@@ -1,0 +1,12 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:2:1
+1 TOKEN_IDENTIFIER short_or /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:2:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:2:14
+3 TOKEN_NUMBER 1 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:2:16
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:2:17
+5 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:10:1
+6 TOKEN_IDENTIFIER short_and /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:10:5
+7 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:10:15
+8 TOKEN_NUMBER 4 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:10:17
+9 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_short_circuit.c:10:18
+10 TOKEN_EOF <null> <unknown>:0:0

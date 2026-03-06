@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (1:16): Static assertion failed
+   Hint: nope
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__static_assert_fail.c:1:16

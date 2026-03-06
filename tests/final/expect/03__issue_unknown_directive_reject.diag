@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__issue_unknown_directive_reject.c:1:1: error: unknown preprocessing directive #bogus
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__issue_unknown_directive_reject.c:1:1: error: unknown preprocessing directive #bogus

@@ -648,7 +648,14 @@ static PointerQuals consumePointerQualifiers(Parser* parser) {
     PointerQuals quals = {0};
     while (parser->currentToken.type == TOKEN_CONST ||
            parser->currentToken.type == TOKEN_VOLATILE ||
-           parser->currentToken.type == TOKEN_RESTRICT) {
+           parser->currentToken.type == TOKEN_RESTRICT ||
+           parser->currentToken.type == TOKEN_ATOMIC) {
+        if (parser->currentToken.type == TOKEN_ATOMIC) {
+            printParseError("_Atomic is not supported yet", parser);
+            markParserFatalError(parser);
+            advance(parser);
+            continue;
+        }
         if (parser->currentToken.type == TOKEN_CONST) {
             quals.isConst = true;
         } else if (parser->currentToken.type == TOKEN_VOLATILE) {
@@ -811,8 +818,7 @@ static bool parseInlineEnumBody(Parser* parser,
 }
 
 static bool isAtomicTypeKeywordToken(const Token* tok) {
-    if (!tok || tok->type != TOKEN_IDENTIFIER || !tok->value) return false;
-    return strcmp(tok->value, "_Atomic") == 0;
+    return tok && tok->type == TOKEN_ATOMIC;
 }
 
 static bool isInteropCallingConventionMarker(const Token* tok) {
@@ -891,6 +897,8 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
 
     ParsedType atomicWrappedType = parsedTypeDefault();
     bool hasAtomicWrappedType = false;
+    bool reportedAtomicUnsupported = false;
+    bool reportedThreadLocalUnsupported = false;
 
     // Type qualifiers / modifiers
     for (;;) {
@@ -907,7 +915,21 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_IMAGINARY: type.isImaginary = true; advance(parser); continue;
             default: break;
         }
+        if (parser->currentToken.type == TOKEN_THREAD_LOCAL) {
+            if (!reportedThreadLocalUnsupported) {
+                printParseError("_Thread_local is not supported yet", parser);
+                markParserFatalError(parser);
+                reportedThreadLocalUnsupported = true;
+            }
+            advance(parser);
+            continue;
+        }
         if (isAtomicTypeKeywordToken(&parser->currentToken)) {
+            if (!reportedAtomicUnsupported) {
+                printParseError("_Atomic is not supported yet", parser);
+                markParserFatalError(parser);
+                reportedAtomicUnsupported = true;
+            }
             advance(parser); // consume _Atomic
             if (parser->currentToken.type == TOKEN_LPAREN) {
                 advance(parser); // consume '('
@@ -1198,6 +1220,11 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             default: break;
         }
         if (isAtomicTypeKeywordToken(&parser->currentToken)) {
+            if (!reportedAtomicUnsupported) {
+                printParseError("_Atomic is not supported yet", parser);
+                markParserFatalError(parser);
+                reportedAtomicUnsupported = true;
+            }
             advance(parser); // allow trailing/qualifier-style _Atomic
             continue;
         }

@@ -5,6 +5,8 @@ This directory is organized so active reference material stays at the top level 
 ## Top Level
 
 - `00_docs_index.md`: primary table of contents for all Markdown docs in `docs/`
+- `compiler_lexer_bucket_report.md`: first bucket baseline report covering current lexer test results, confirmed gaps, and next test-expansion priorities
+- `compiler_preprocessor_bucket_report.md`: preprocessor bucket baseline and prep report covering current anchor coverage, known gaps, and next execution steps
 - `compiler_test_system_rearchitecture_context.md`: active working brief for the compiler test-system overhaul
 - `compiler_test_coverage_blueprint.md`: concrete coverage map and harness setup plan for the compiler test suite
 - `compiler_behavior_coverage_checklist.md`: execution tracker for validating each compiler behavior bucket and recording per-feature test status

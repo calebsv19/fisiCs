@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__line_directive_hex_number_reject.c:1:1: error: line number after #line must use decimal digits
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__line_directive_hex_number_reject.c:1:1: error: line number after #line must use decimal digits

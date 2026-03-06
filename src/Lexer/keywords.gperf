@@ -43,10 +43,12 @@ extern
 static
 auto
 register
+_Thread_local
 const
 volatile
 restrict
 inline
+_Atomic
 sizeof
 _Alignof
 alignof

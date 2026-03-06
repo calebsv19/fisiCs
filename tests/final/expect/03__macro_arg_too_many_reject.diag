@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_arg_too_many_reject.c:2:9: error: macro 'F' requires 1 argument(s), got 2
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_arg_too_many_reject.c:2:9: error: macro 'F' requires 1 argument(s), got 2
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_arg_too_many_reject.c:2:9: error: macro 'F' requires 1 argument(s), got 2

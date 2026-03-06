@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__nested_declarators",
+      "bucket": "declarations",
+      "input": "cases/04__nested_declarators.c",
+      "expects": [
+        "expect/04__nested_declarators.ast",
+        "expect/04__nested_declarators.diag"
+      ],
+      "tags": [
+        "declarators"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage_and_qualifiers",
+      "bucket": "declarations",
+      "input": "cases/04__storage_and_qualifiers.c",
+      "expects": [
+        "expect/04__storage_and_qualifiers.ast",
+        "expect/04__storage_and_qualifiers.diag"
+      ],
+      "tags": [
+        "storage",
+        "qualifiers"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__array_param_qualifiers",
+      "bucket": "declarations",
+      "input": "cases/04__array_param_qualifiers.c",
+      "expects": [
+        "expect/04__array_param_qualifiers.diag"
+      ],
+      "tags": [
+        "array-param",
+        "qualifiers",
+        "static"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct_union_enum",
+      "bucket": "declarations",
+      "input": "cases/04__struct_union_enum.c",
+      "expects": [
+        "expect/04__struct_union_enum.ast",
+        "expect/04__struct_union_enum.diag"
+      ],
+      "tags": [
+        "struct",
+        "union",
+        "enum"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__designated_initializers",
+      "bucket": "declarations",
+      "input": "cases/04__designated_initializers.c",
+      "expects": [
+        "expect/04__designated_initializers.ast",
+        "expect/04__designated_initializers.diag"
+      ],
+      "tags": [
+        "designated-init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfields_flex",
+      "bucket": "declarations",
+      "input": "cases/04__bitfields_flex.c",
+      "expects": [
+        "expect/04__bitfields_flex.ast",
+        "expect/04__bitfields_flex.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "flex"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__static_assert_pass",
+      "bucket": "declarations",
+      "input": "cases/04__static_assert_pass.c",
+      "expects": [
+        "expect/04__static_assert_pass.ast"
+      ],
+      "tags": [
+        "static-assert",
+        "c11"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__static_assert_fail",
+      "bucket": "declarations",
+      "input": "cases/04__static_assert_fail.c",
+      "expects": [
+        "expect/04__static_assert_fail.diag"
+      ],
+      "tags": [
+        "static-assert",
+        "negative",
+        "c11"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__static_assert_nonconst",
+      "bucket": "declarations",
+      "input": "cases/04__static_assert_nonconst.c",
+      "expects": [
+        "expect/04__static_assert_nonconst.diag"
+      ],
+      "tags": [
+        "static-assert",
+        "constexpr",
+        "negative",
+        "c11"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__thread_local_unsupported",
+      "bucket": "declarations",
+      "input": "cases/04__thread_local_unsupported.c",
+      "expects": [
+        "expect/04__thread_local_unsupported.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "thread-local",
+        "unsupported",
+        "c11"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__atomic_unsupported",
+      "bucket": "declarations",
+      "input": "cases/04__atomic_unsupported.c",
+      "expects": [
+        "expect/04__atomic_unsupported.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "atomic",
+        "unsupported",
+        "c11"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

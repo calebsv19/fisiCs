@@ -1,6 +1,8 @@
 #include "Preprocessor/pp_internal.h"
 
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -50,6 +52,12 @@ static bool tokens_adjacent(const Token* left, const Token* right) {
     if (!left || !right) return false;
     if (left->location.end.line != right->location.start.line) return false;
     return right->location.start.column <= left->location.end.column;
+}
+
+static bool token_is_macro_identifier(const Token* tok) {
+    if (!tok || !tok->value) return false;
+    if (tok->type == TOKEN_IDENTIFIER) return true;
+    return tok->type < TOKEN_IDENTIFIER; // keyword tokens remain valid macro names in PP context
 }
 
 static bool parse_macro_parameters(const Token* tokens,
@@ -133,6 +141,22 @@ static bool collect_macro_body(const Token* tokens,
     }
     *cursor = i;
     return true;
+}
+
+static bool macro_body_uses_gnu_comma_variadic(const PPTokenBuffer* body) {
+    if (!body || body->count < 3) return false;
+    for (size_t i = 0; i + 2 < body->count; ++i) {
+        const Token* comma = &body->tokens[i];
+        const Token* hashhash = &body->tokens[i + 1];
+        const Token* vaArgs = &body->tokens[i + 2];
+        if (comma->type != TOKEN_COMMA) continue;
+        if (hashhash->type != TOKEN_DOUBLE_HASH) continue;
+        if (vaArgs->type != TOKEN_IDENTIFIER || !vaArgs->value) continue;
+        if (strcmp(vaArgs->value, "__VA_ARGS__") == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 static void strip_include_spaces(char* name) {
@@ -435,6 +459,10 @@ static bool parse_include_operand(const Token* tokens,
         return false;
     }
 
+    if (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
+        return false;
+    }
+
     while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
         i++;
     }
@@ -484,7 +512,7 @@ bool process_define(Preprocessor* pp,
     size_t i = *cursor;
     int directiveLine = tokens[i].line;
     i++;
-    if (i >= count || !tokens[i].value) {
+    if (i >= count || tokens[i].line != directiveLine || !token_is_macro_identifier(&tokens[i])) {
         DiagKind kind = pp && pp->lenientMissingIncludes ? DIAG_WARNING : DIAG_ERROR;
         pp_report_diag(pp, tokens ? &tokens[i] : NULL, kind, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #define");
         if (pp && pp->lenientMissingIncludes) {
@@ -546,6 +574,14 @@ bool process_define(Preprocessor* pp,
                 break;
             }
         }
+        if (macro_body_uses_gnu_comma_variadic(&body)) {
+            pp_report_diag(pp,
+                           nameTok,
+                           DIAG_ERROR,
+                           CDIAG_PREPROCESSOR_GENERIC,
+                           "GNU ', ##__VA_ARGS__' extension is not supported");
+            goto cleanup;
+        }
     }
 
     if (isFunction) {
@@ -593,15 +629,21 @@ bool process_undef(Preprocessor* pp,
     size_t i = *cursor;
     int directiveLine = tokens[i].line;
     i++;
-    if (i >= count || tokens[i].type != TOKEN_IDENTIFIER) {
+    if (i >= count || tokens[i].line != directiveLine || !token_is_macro_identifier(&tokens[i])) {
         pp_report_diag(pp, tokens ? &tokens[i] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "expected identifier after #undef");
         return false;
     }
     macro_table_undef(pp->table, tokens[i].value);
     i++;
-    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
-        i++;
+    if (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
+        pp_report_diag(pp,
+                       &tokens[i],
+                       DIAG_ERROR,
+                       CDIAG_PREPROCESSOR_GENERIC,
+                       "unexpected tokens after #undef directive");
+        return false;
     }
+    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) i++;
     *cursor = (i == 0) ? 0 : i - 1;
     return true;
 }
@@ -919,8 +961,37 @@ bool process_line_directive(Preprocessor* pp,
                        "expected line number after #line");
         return false;
     }
-    long newLine = strtol(expanded.tokens[cursorExp].value ? expanded.tokens[cursorExp].value : "0", NULL, 10);
-    if (newLine < 1) newLine = 1;
+    const char* lineText = expanded.tokens[cursorExp].value ? expanded.tokens[cursorExp].value : "";
+    if (!lineText[0]) {
+        pp_token_buffer_destroy(&expanded);
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,
+                       "expected line number after #line");
+        return false;
+    }
+    for (const unsigned char* p = (const unsigned char*)lineText; *p; ++p) {
+        if (!isdigit(*p)) {
+            pp_token_buffer_destroy(&expanded);
+            pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,
+                           "line number after #line must use decimal digits");
+            return false;
+        }
+    }
+    errno = 0;
+    char* end = NULL;
+    unsigned long parsedLine = strtoul(lineText, &end, 10);
+    if (errno == ERANGE || !end || *end != '\0' || parsedLine > (unsigned long)INT_MAX) {
+        pp_token_buffer_destroy(&expanded);
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,
+                       "line number after #line is out of range");
+        return false;
+    }
+    if (parsedLine == 0UL) {
+        pp_token_buffer_destroy(&expanded);
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,
+                       "line number after #line must be positive");
+        return false;
+    }
+    long newLine = (long)parsedLine;
     cursorExp++;
 
     const char* newFile = NULL;
@@ -930,6 +1001,15 @@ bool process_line_directive(Preprocessor* pp,
     if (cursorExp < expanded.count && expanded.tokens[cursorExp].type == TOKEN_STRING) {
         newFile = expanded.tokens[cursorExp].value;
         cursorExp++;
+    }
+    while (cursorExp < expanded.count && expanded.tokens[cursorExp].type == TOKEN_EOF) {
+        cursorExp++;
+    }
+    if (cursorExp < expanded.count) {
+        pp_token_buffer_destroy(&expanded);
+        pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,
+                       "unexpected tokens after #line directive");
+        return false;
     }
 
     int nextPhysical = directiveLine + 1;

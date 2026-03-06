@@ -370,15 +370,25 @@ ASTNode* parseStatement(Parser* parser) {
     }
 
     if (parser->currentToken.type == TOKEN_STATIC_ASSERT) {
+        Token staticAssertTok = parser->currentToken;
         advance(parser); // consume _Static_assert
         if (!expectTokenLocal(parser, TOKEN_LPAREN, "Expected '(' after _Static_assert")) {
             return NULL;
         }
         ASTNode* expr = parseAssignmentExpression(parser);
-        (void)expr;
+        if (!expr) {
+            printParseError("Expected constant expression in _Static_assert", parser);
+            return NULL;
+        }
+        ASTNode* message = NULL;
         if (parser->currentToken.type == TOKEN_COMMA) {
             advance(parser);
             if (parser->currentToken.type == TOKEN_STRING) {
+                Token messageTok = parser->currentToken;
+                message = createStringLiteralNode(parser->currentToken.value);
+                if (message) {
+                    astNodeSetProvenance(message, &messageTok);
+                }
                 advance(parser);
             } else {
                 printParseError("Expected string literal in _Static_assert", parser);
@@ -391,7 +401,11 @@ ASTNode* parseStatement(Parser* parser) {
         if (!expectTokenLocal(parser, TOKEN_SEMICOLON, "Expected ';' after _Static_assert")) {
             return NULL;
         }
-        return createBlockNode(NULL, 0);
+        ASTNode* node = createStaticAssertNode(expr, message);
+        if (node) {
+            astNodeSetProvenance(node, &staticAssertTok);
+        }
+        return node;
     }
 
     size_t stmtAttrCount = 0;

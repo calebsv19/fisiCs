@@ -1,0 +1,10 @@
+a && b;
+a || b;
+a == b;
+a != b;
+a <= b;
+a >= b;
+a << b;
+a >> b;
+p->field;
+int log(const char *fmt, ...);

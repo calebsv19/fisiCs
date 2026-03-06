@@ -1,0 +1,14 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:1
+1 TOKEN_IDENTIFIER arr /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:5
+2 TOKEN_LBRACKET [ /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:8
+3 TOKEN_NUMBER 2 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:9
+4 TOKEN_RBRACKET ] /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:10
+5 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:12
+6 TOKEN_LBRACE { /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:14
+7 TOKEN_NUMBER 1 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:15
+8 TOKEN_COMMA , /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:16
+9 TOKEN_NUMBER 2 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:18
+10 TOKEN_RBRACE } /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:19
+11 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__digraph_tokens.c:1:20
+12 TOKEN_EOF <null> <unknown>:0:0

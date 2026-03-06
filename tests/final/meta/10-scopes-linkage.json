@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__shadowing_rules",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__shadowing_rules.c",
+      "expects": [
+        "expect/10__shadowing_rules.ast",
+        "expect/10__shadowing_rules.diag"
+      ],
+      "tags": [
+        "shadow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__typedef_tag_namespace",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__typedef_tag_namespace.c",
+      "expects": [
+        "expect/10__typedef_tag_namespace.ast",
+        "expect/10__typedef_tag_namespace.diag"
+      ],
+      "tags": [
+        "typedef",
+        "tag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__tentative_definition",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__tentative_definition.c",
+      "expects": [
+        "expect/10__tentative_definition.ast",
+        "expect/10__tentative_definition.diag"
+      ],
+      "tags": [
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__tentative_definition_multi_tu",
+      "bucket": "scopes-linkage",
+      "inputs": [
+        "cases/10__tentative_definition_multi_a.c",
+        "cases/10__tentative_definition_multi_b.c"
+      ],
+      "expects": [
+        "expect/10__tentative_definition_multi_tu.diag"
+      ],
+      "tags": [
+        "tentative",
+        "linkage",
+        "multi-tu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__redeclaration_mismatch",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__redeclaration_mismatch.c",
+      "expects": [
+        "expect/10__redeclaration_mismatch.ast",
+        "expect/10__redeclaration_mismatch.diag"
+      ],
+      "tags": [
+        "redeclaration"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__extern_static_mismatch",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__extern_static_mismatch.c",
+      "expects": [
+        "expect/10__extern_static_mismatch.ast",
+        "expect/10__extern_static_mismatch.diag"
+      ],
+      "tags": [
+        "linkage",
+        "storage"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__conflicting_extern_definition",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__conflicting_extern_definition.c",
+      "expects": [
+        "expect/10__conflicting_extern_definition.ast",
+        "expect/10__conflicting_extern_definition.diag"
+      ],
+      "tags": [
+        "linkage",
+        "extern"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__multiple_static_defs",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__multiple_static_defs.c",
+      "expects": [
+        "expect/10__multiple_static_defs.ast",
+        "expect/10__multiple_static_defs.diag"
+      ],
+      "tags": [
+        "linkage",
+        "static"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__extern_type_mismatch",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__extern_type_mismatch.c",
+      "expects": [
+        "expect/10__extern_type_mismatch.ast",
+        "expect/10__extern_type_mismatch.diag"
+      ],
+      "tags": [
+        "linkage",
+        "extern"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__function_redecl_conflict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__function_redecl_conflict.c",
+      "expects": [
+        "expect/10__function_redecl_conflict.ast",
+        "expect/10__function_redecl_conflict.diag"
+      ],
+      "tags": [
+        "linkage",
+        "function"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__tentative_static_conflict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__tentative_static_conflict.c",
+      "expects": [
+        "expect/10__tentative_static_conflict.ast",
+        "expect/10__tentative_static_conflict.diag"
+      ],
+      "tags": [
+        "linkage",
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__extern_array_mismatch",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__extern_array_mismatch.c",
+      "expects": [
+        "expect/10__extern_array_mismatch.ast",
+        "expect/10__extern_array_mismatch.diag"
+      ],
+      "tags": [
+        "linkage",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_duplicate_else_reject.c:4:1: error: duplicate #else
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_duplicate_else_reject.c:4:1: error: duplicate #else

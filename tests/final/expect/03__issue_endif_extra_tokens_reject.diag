@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__issue_endif_extra_tokens_reject.c:3:8: error: unexpected tokens after #endif directive
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__issue_endif_extra_tokens_reject.c:3:8: error: unexpected tokens after #endif directive

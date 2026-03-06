@@ -97,7 +97,14 @@ static void skip_gnu_attribute_specifier(Parser* parser) {
 static void consumePointerQualifiers(Parser* parser, PointerDeclaratorLayer* layer) {
     while (parser->currentToken.type == TOKEN_CONST ||
            parser->currentToken.type == TOKEN_VOLATILE ||
-           parser->currentToken.type == TOKEN_RESTRICT) {
+           parser->currentToken.type == TOKEN_RESTRICT ||
+           parser->currentToken.type == TOKEN_ATOMIC) {
+        if (parser->currentToken.type == TOKEN_ATOMIC) {
+            printParseError("_Atomic is not supported yet", parser);
+            markParserFatalError(parser);
+            advance(parser);
+            continue;
+        }
         if (layer) {
             if (parser->currentToken.type == TOKEN_CONST) {
                 layer->isConst = true;

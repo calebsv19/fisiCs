@@ -350,6 +350,15 @@ ASTNode* createAsmNode(const char* asmText) {
     return node;
 }
 
+ASTNode* createStaticAssertNode(ASTNode* condition, ASTNode* message) {
+    ASTNode* node = new_node(AST_STATIC_ASSERT);
+    if (!node) return NULL;
+    node->expr.left = condition;
+    node->expr.right = message;
+    inherit_line_from_pair(node, condition, message);
+    return node;
+}
+
 
 // sizeof(expr or type) node — you currently hang it off expr.left
 ASTNode* createSizeofNode(ASTNode* target) {

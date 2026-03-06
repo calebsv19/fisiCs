@@ -1,0 +1,3 @@
+Diagnostics:
+Error: Hex floating literal requires at least one mantissa digit at tests/final/cases/02__hex_float_missing_mantissa_reject.c:1:12 (got '0x.p1')
+Error: Hex floating literal requires at least one mantissa digit at tests/final/cases/02__hex_float_missing_mantissa_reject.c:2:12 (got '0X.P+1')

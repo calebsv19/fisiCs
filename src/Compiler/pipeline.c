@@ -133,15 +133,18 @@ static const char* token_type_name(TokenType type) {
         case TOKEN_STATIC: return "TOKEN_STATIC";
         case TOKEN_AUTO: return "TOKEN_AUTO";
         case TOKEN_REGISTER: return "TOKEN_REGISTER";
+        case TOKEN_THREAD_LOCAL: return "TOKEN_THREAD_LOCAL";
         case TOKEN_CONST: return "TOKEN_CONST";
         case TOKEN_VOLATILE: return "TOKEN_VOLATILE";
         case TOKEN_RESTRICT: return "TOKEN_RESTRICT";
         case TOKEN_INLINE: return "TOKEN_INLINE";
+        case TOKEN_ATOMIC: return "TOKEN_ATOMIC";
         case TOKEN_COMPLEX: return "TOKEN_COMPLEX";
         case TOKEN_IMAGINARY: return "TOKEN_IMAGINARY";
         case TOKEN_NULL: return "TOKEN_NULL";
         case TOKEN_SIZEOF: return "TOKEN_SIZEOF";
         case TOKEN_ALIGNOF: return "TOKEN_ALIGNOF";
+        case TOKEN_STATIC_ASSERT: return "TOKEN_STATIC_ASSERT";
         case TOKEN_IDENTIFIER: return "TOKEN_IDENTIFIER";
         case TOKEN_INCLUDE: return "TOKEN_INCLUDE";
         case TOKEN_INCLUDE_NEXT: return "TOKEN_INCLUDE_NEXT";
@@ -907,8 +910,9 @@ static FisicsTokenKind map_token_kind(TokenType t) {
         case TOKEN_STRUCT: case TOKEN_TYPEDEF: case TOKEN_IF: case TOKEN_ELSE: case TOKEN_WHILE: case TOKEN_FOR:
         case TOKEN_DO: case TOKEN_SWITCH: case TOKEN_CASE: case TOKEN_DEFAULT: case TOKEN_RETURN: case TOKEN_GOTO:
         case TOKEN_BREAK: case TOKEN_CONTINUE: case TOKEN_EXTERN: case TOKEN_STATIC: case TOKEN_AUTO:
-        case TOKEN_REGISTER: case TOKEN_CONST: case TOKEN_VOLATILE: case TOKEN_RESTRICT: case TOKEN_INLINE:
-        case TOKEN_NULL: case TOKEN_SIZEOF: case TOKEN_ASM:
+        case TOKEN_REGISTER: case TOKEN_THREAD_LOCAL: case TOKEN_CONST: case TOKEN_VOLATILE:
+        case TOKEN_RESTRICT: case TOKEN_INLINE: case TOKEN_ATOMIC: case TOKEN_NULL:
+        case TOKEN_SIZEOF: case TOKEN_ALIGNOF: case TOKEN_STATIC_ASSERT: case TOKEN_ASM:
             return FISICS_TOK_KEYWORD;
         case TOKEN_LPAREN: case TOKEN_RPAREN: case TOKEN_LBRACE: case TOKEN_RBRACE:
         case TOKEN_LBRACKET: case TOKEN_RBRACKET: case TOKEN_SEMICOLON: case TOKEN_COMMA:
@@ -1113,6 +1117,11 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         fprintf(stderr, "Error: failed to lex tokens into buffer\n");
         goto cleanup;
     }
+    if (lexer.fatalErrorCount > 0) {
+        destroyLexer(&lexer);
+        profiler_end(scope);
+        goto cleanup;
+    }
     profiler_end(scope);
     destroyLexer(&lexer);
     log_layout_state(ctx, "after lex");
@@ -1220,7 +1229,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     }
     size_t diagErrors = compiler_diagnostics_error_count(ctx);
     size_t parserErrors = compiler_diagnostics_parser_error_count(ctx);
-    if (getErrorCount() > 0 || diagErrors > parserErrors) {
+    if (getErrorCount() > 0 || parser.fatalParseErrors > 0 || diagErrors > parserErrors) {
         reportErrors();
         if (outSemanticErrors) *outSemanticErrors = getErrorCount();
         freeErrorList();

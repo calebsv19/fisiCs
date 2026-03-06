@@ -1,0 +1,17 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:1:1
+1 TOKEN_IDENTIFIER a /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:1:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:1:7
+3 TOKEN_CHAR_LITERAL W|97 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:1:10
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:1:13
+5 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:2:1
+6 TOKEN_IDENTIFIER b /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:2:5
+7 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:2:7
+8 TOKEN_CHAR_LITERAL W|97 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:2:10
+9 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:2:13
+10 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:3:1
+11 TOKEN_IDENTIFIER c /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:3:5
+12 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:3:7
+13 TOKEN_CHAR_LITERAL W|97 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:3:10
+14 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__wide_utf_chars.c:3:13
+15 TOKEN_EOF <null> <unknown>:0:0

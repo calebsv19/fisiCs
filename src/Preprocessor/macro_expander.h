@@ -22,19 +22,38 @@ typedef struct {
     bool* lineRemapActive;
 } PPBuiltinState;
 
+typedef enum {
+    ME_ERR_NONE = 0,
+    ME_ERR_MACRO_ARG_COUNT = 1
+} MacroExpandError;
+
+typedef struct {
+    MacroExpandError kind;
+    const MacroDefinition* macro;
+    SourceRange callSite;
+    size_t expectedArgs;
+    size_t providedArgs;
+    bool variadic;
+} MacroExpandErrorInfo;
+
 typedef struct {
     MacroTable* table;
     PPBuiltinState builtins;
+    MacroExpandErrorInfo lastError;
+    bool preserveDefinedOperands;
 } MacroExpander;
 
 void macro_expander_init(MacroExpander* expander, MacroTable* table);
 void macro_expander_reset(MacroExpander* expander);
 void macro_expander_set_builtins(MacroExpander* expander, PPBuiltinState state);
+void macro_expander_set_preserve_defined_operands(MacroExpander* expander, bool enabled);
 
 bool macro_expander_expand(MacroExpander* expander,
                            const Token* input,
                            size_t count,
                            PPTokenBuffer* outTokens);
+
+MacroExpandErrorInfo macro_expander_last_error(const MacroExpander* expander);
 
 void pp_token_buffer_destroy(PPTokenBuffer* buffer);
 

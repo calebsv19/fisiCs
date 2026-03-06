@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__assignability_errors",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__assignability_errors.c",
+      "expects": [
+        "expect/06__assignability_errors.ast",
+        "expect/06__assignability_errors.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "assign"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__address_of_restrictions",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__address_of_restrictions.c",
+      "expects": [
+        "expect/06__address_of_restrictions.ast",
+        "expect/06__address_of_restrictions.diag"
+      ],
+      "tags": [
+        "address-of"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__lvalue_edge_cases",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__lvalue_edge_cases.c",
+      "expects": [
+        "expect/06__lvalue_edge_cases.ast",
+        "expect/06__lvalue_edge_cases.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "address-of",
+        "compare",
+        "arith"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__array_function_decay",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__array_function_decay.c",
+      "expects": [
+        "expect/06__array_function_decay.ast",
+        "expect/06__array_function_decay.diag"
+      ],
+      "tags": [
+        "decay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__string_literal_mutability",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__string_literal_mutability.c",
+      "expects": [
+        "expect/06__string_literal_mutability.ast",
+        "expect/06__string_literal_mutability.diag"
+      ],
+      "tags": [
+        "string",
+        "lvalue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__increment_non_lvalue",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__increment_non_lvalue.c",
+      "expects": [
+        "expect/06__increment_non_lvalue.ast",
+        "expect/06__increment_non_lvalue.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "inc"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

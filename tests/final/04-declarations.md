@@ -31,6 +31,16 @@ Declarators, type qualifiers, aggregates, and C99 declaration features.
    - bit-fields and flexible array member.
 6) `04__array_param_qualifiers`
    - array parameter qualifiers and `static` size warnings.
+7) `04__static_assert_pass`
+   - Valid `_Static_assert` declaration form.
+8) `04__static_assert_fail`
+   - Failing constant-expression `_Static_assert`.
+9) `04__static_assert_nonconst`
+   - Non-constant `_Static_assert` rejection.
+10) `04__thread_local_unsupported`
+   - Explicit unsupported diagnostic for `_Thread_local`.
+11) `04__atomic_unsupported`
+   - Explicit unsupported diagnostic for `_Atomic`.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for parsing and declaration structure.

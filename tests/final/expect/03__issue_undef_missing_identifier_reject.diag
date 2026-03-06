@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__issue_undef_missing_identifier_reject.c:3:1: error: expected identifier after #undef
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__issue_undef_missing_identifier_reject.c:3:1: error: expected identifier after #undef

@@ -646,6 +646,7 @@ static void analyzeStatementInternal(ASTNode* node,
         case AST_UNION_DEFINITION:
         case AST_ENUM_DEFINITION:
         case AST_TYPEDEF:
+        case AST_STATIC_ASSERT:
             analyzeDeclaration(node, scope);
             break;
 

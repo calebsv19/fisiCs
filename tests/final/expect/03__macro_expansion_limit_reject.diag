@@ -1,0 +1,5 @@
+Diagnostics:
+<unknown>:0:0: error: macro expansion depth exceeded (possible recursion) for '<macro>'
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_expansion_limit_reject.c:0:0: error: macro expansion depth exceeded (possible recursion) for '<macro>'
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_expansion_limit_reject.c:0:0: error: macro expansion depth exceeded (possible recursion) for '<macro>'

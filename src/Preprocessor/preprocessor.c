@@ -33,6 +33,15 @@ static bool append_directive_line(const Token* tokens,
     return true;
 }
 
+static bool directive_has_trailing_tokens(const Token* tokens,
+                                          size_t count,
+                                          size_t cursor) {
+    if (!tokens || cursor >= count) return false;
+    int line = tokens[cursor].line;
+    size_t i = cursor + 1;
+    return (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == line);
+}
+
 // Consume a _Pragma("...") operator; returns true if handled (skipped).
 static bool skip_pragma_operator(const Token* tokens,
                                  size_t count,
@@ -198,6 +207,49 @@ static bool flush_chunk(Preprocessor* pp,
     ProfilerScope scope = profiler_begin("pp_expand");
     if (!macro_expander_expand(&pp->expander, chunk->tokens, chunk->count, &expanded)) {
         profiler_end(scope);
+        MacroExpandErrorInfo expandErr = macro_expander_last_error(&pp->expander);
+        if (expandErr.kind == ME_ERR_MACRO_ARG_COUNT) {
+            const char* macroName = (expandErr.macro && expandErr.macro->name)
+                ? expandErr.macro->name
+                : "<macro>";
+            Token tmp = {0};
+            tmp.location = expandErr.callSite;
+            if (expandErr.variadic) {
+                pp_report_diag(pp,
+                               &tmp,
+                               DIAG_ERROR,
+                               CDIAG_PREPROCESSOR_GENERIC,
+                               "macro '%s' requires at least %zu argument(s), got %zu",
+                               macroName,
+                               expandErr.expectedArgs,
+                               expandErr.providedArgs);
+                fprintf(stderr, "%s:%d:%d: error: macro '%s' requires at least %zu argument(s), got %zu\n",
+                        expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
+                        expandErr.callSite.start.line,
+                        expandErr.callSite.start.column,
+                        macroName,
+                        expandErr.expectedArgs,
+                        expandErr.providedArgs);
+            } else {
+                pp_report_diag(pp,
+                               &tmp,
+                               DIAG_ERROR,
+                               CDIAG_PREPROCESSOR_GENERIC,
+                               "macro '%s' requires %zu argument(s), got %zu",
+                               macroName,
+                               expandErr.expectedArgs,
+                               expandErr.providedArgs);
+                fprintf(stderr, "%s:%d:%d: error: macro '%s' requires %zu argument(s), got %zu\n",
+                        expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
+                        expandErr.callSite.start.line,
+                        expandErr.callSite.start.column,
+                        macroName,
+                        expandErr.expectedArgs,
+                        expandErr.providedArgs);
+            }
+            pp_token_buffer_destroy(&expanded);
+            return false;
+        }
         const MacroExpansionFrame* top = NULL;
         MacroExpansionError err = macro_table_last_error(pp->table, &top);
         if (err == MT_ERR_RECURSION || err == MT_ERR_DEPTH || err == MT_ERR_NONE) {
@@ -427,6 +479,16 @@ bool preprocess_tokens(Preprocessor* pp,
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
                     return false;
                 }
+                if (directive_has_trailing_tokens(input->tokens, input->count, i)) {
+                    pp_report_diag(pp,
+                                   &input->tokens[i + 1],
+                                   DIAG_ERROR,
+                                   CDIAG_PREPROCESSOR_GENERIC,
+                                   "unexpected tokens after #else directive");
+                    pp_token_buffer_reset(&chunk);
+                    free(condStack);
+                    return false;
+                }
                 if (!process_else(pp, condStack, condDepth, &input->tokens[i])) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
@@ -440,6 +502,16 @@ bool preprocess_tokens(Preprocessor* pp,
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
+                    return false;
+                }
+                if (directive_has_trailing_tokens(input->tokens, input->count, i)) {
+                    pp_report_diag(pp,
+                                   &input->tokens[i + 1],
+                                   DIAG_ERROR,
+                                   CDIAG_PREPROCESSOR_GENERIC,
+                                   "unexpected tokens after #endif directive");
+                    pp_token_buffer_reset(&chunk);
+                    free(condStack);
                     return false;
                 }
                 if (pp->preserveDirectives && active) {
@@ -550,7 +622,19 @@ bool preprocess_tokens(Preprocessor* pp,
                     skip_to_line_end(input->tokens, input->count, &i);
                     break;
                 }
-                // fall through to default handling for other unknown directives
+                if (active) {
+                    pp_report_diag(pp,
+                                   tok,
+                                   DIAG_ERROR,
+                                   CDIAG_PREPROCESSOR_GENERIC,
+                                   "unknown preprocessing directive #%s",
+                                   tok->value ? tok->value : "<unknown>");
+                    pp_token_buffer_reset(&chunk);
+                    free(condStack);
+                    return false;
+                }
+                skip_to_line_end(input->tokens, input->count, &i);
+                break;
             case TOKEN_EOF:
                 // handled after loop
                 break;

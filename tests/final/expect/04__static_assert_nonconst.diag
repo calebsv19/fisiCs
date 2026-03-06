@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:16): Static assertion requires an integer constant expression
+   Hint: bad
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__static_assert_nonconst.c:2:16

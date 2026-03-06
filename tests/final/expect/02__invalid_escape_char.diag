@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid escape in character literal at tests/final/cases/02__invalid_escape_char.c:1:9 (got '\q')

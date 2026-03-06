@@ -1,0 +1,10 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pragma_once.h:4:1
+1 TOKEN_IDENTIFIER pragma_once_seen /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pragma_once.h:4:5
+2 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pragma_once.h:4:21
+3 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pragma_once.c:4:1
+4 TOKEN_IDENTIFIER pragma_once_value /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pragma_once.c:4:5
+5 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pragma_once.c:4:23
+6 TOKEN_NUMBER 17 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pragma_once.h:3:23
+7 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pragma_once.c:4:38
+8 TOKEN_EOF <null> <unknown>:0:0

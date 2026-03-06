@@ -1,0 +1,7 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__quote_include_prefers_local.c:3:1
+1 TOKEN_IDENTIFIER quote_include_value /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__quote_include_prefers_local.c:3:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__quote_include_prefers_local.c:3:25
+3 TOKEN_NUMBER 11 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/pp_quote_angle_shared.h:1:30
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__quote_include_prefers_local.c:3:47
+5 TOKEN_EOF <null> <unknown>:0:0

@@ -93,6 +93,7 @@ typedef enum {
     
     AST_SWITCH,
     AST_CASE,
+    AST_STATIC_ASSERT,
 
     AST_ASM
 
@@ -408,6 +409,7 @@ ASTNode* createCompoundLiteralNode(ParsedType literalType,
 ASTNode *createBasicTypeNode(const char *name);
 ASTNode *createIdentifierNode(const char *name);
 ASTNode* createAsmNode(const char* asmText);
+ASTNode* createStaticAssertNode(ASTNode* condition, ASTNode* message);
 ASTNode *createSizeofNode(ASTNode* target);
 ASTNode *createAlignofNode(ASTNode* target);
 ASTNode *createNumberLiteralNode(const char *value);

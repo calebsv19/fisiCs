@@ -1,0 +1,8 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__comment_nested_like.c:1:1
+1 TOKEN_IDENTIFIER a /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__comment_nested_like.c:1:5
+2 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__comment_nested_like.c:1:6
+3 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__comment_nested_like.c:1:29
+4 TOKEN_IDENTIFIER b /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__comment_nested_like.c:1:33
+5 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__comment_nested_like.c:1:34
+6 TOKEN_EOF <null> <unknown>:0:0

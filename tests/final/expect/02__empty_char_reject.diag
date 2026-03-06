@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Empty character literal at tests/final/cases/02__empty_char_reject.c:1:9 (got '''')

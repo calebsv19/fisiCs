@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_b.h:1:10: error: detected recursive include of '/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_a.h'
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_b.h:1:10: error: detected recursive include of '/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_a.h'

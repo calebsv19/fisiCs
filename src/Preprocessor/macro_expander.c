@@ -29,6 +29,12 @@ typedef struct {
 } MacroArgPack;
 
 static SourceRange empty_range(void);
+static void macro_expander_clear_error(MacroExpander* expander);
+static void macro_expander_set_arg_count_error(MacroExpander* expander,
+                                               const MacroDefinition* def,
+                                               SourceRange callSite,
+                                               size_t expectedArgs,
+                                               size_t providedArgs);
 
 static void safe_free_token_value(char* value) {
     if (!value) return;
@@ -68,6 +74,24 @@ static bool range_is_initialized(const SourceRange* range) {
     return range && (range->start.file || range->start.line || range->start.column);
 }
 
+static bool token_is_defined_operand_context(const Token* tokens, size_t index) {
+    if (!tokens) return false;
+    if (index > 0 &&
+        tokens[index - 1].type == TOKEN_IDENTIFIER &&
+        tokens[index - 1].value &&
+        strcmp(tokens[index - 1].value, "defined") == 0) {
+        return true;
+    }
+    if (index > 1 &&
+        tokens[index - 1].type == TOKEN_LPAREN &&
+        tokens[index - 2].type == TOKEN_IDENTIFIER &&
+        tokens[index - 2].value &&
+        strcmp(tokens[index - 2].value, "defined") == 0) {
+        return true;
+    }
+    return false;
+}
+
 static SourceRange empty_range(void) {
     SourceRange range;
     range.start.file = NULL;
@@ -75,6 +99,30 @@ static SourceRange empty_range(void) {
     range.start.column = 0;
     range.end = range.start;
     return range;
+}
+
+static void macro_expander_clear_error(MacroExpander* expander) {
+    if (!expander) return;
+    expander->lastError.kind = ME_ERR_NONE;
+    expander->lastError.macro = NULL;
+    expander->lastError.callSite = empty_range();
+    expander->lastError.expectedArgs = 0;
+    expander->lastError.providedArgs = 0;
+    expander->lastError.variadic = false;
+}
+
+static void macro_expander_set_arg_count_error(MacroExpander* expander,
+                                               const MacroDefinition* def,
+                                               SourceRange callSite,
+                                               size_t expectedArgs,
+                                               size_t providedArgs) {
+    if (!expander) return;
+    expander->lastError.kind = ME_ERR_MACRO_ARG_COUNT;
+    expander->lastError.macro = def;
+    expander->lastError.callSite = callSite;
+    expander->lastError.expectedArgs = expectedArgs;
+    expander->lastError.providedArgs = providedArgs;
+    expander->lastError.variadic = def ? def->params.variadic : false;
 }
 
 static bool pp_token_buffer_reserve(PPTokenBuffer* buffer, size_t extra) {
@@ -299,20 +347,33 @@ static bool parse_macro_argument_tokens(const Token* input,
     return true;
 }
 
-static bool build_macro_arg_pack(const MacroDefinition* def,
+static bool build_macro_arg_pack(MacroExpander* expander,
+                                 const MacroDefinition* def,
                                  PPArgumentList* rawArgs,
-                                 MacroArgPack* pack) {
+                                 MacroArgPack* pack,
+                                 SourceRange callSite) {
     macro_arg_pack_init(pack);
     size_t expected = def->params.count;
     size_t provided = rawArgs->count;
+    bool singleEmptyArg = (provided == 1 &&
+                           rawArgs->items &&
+                           rawArgs->items[0].count == 0);
+
+    // Distinguish "empty invocation" from "one explicit argument":
+    // F() with required named parameters should count as 0 provided args.
+    if (expected > 0 && singleEmptyArg) {
+        provided = 0;
+    }
 
     if (!def->params.variadic) {
         if (provided != expected) {
+            macro_expander_set_arg_count_error(expander, def, callSite, expected, provided);
             macro_arg_pack_destroy(pack);
             return false;
         }
     } else {
         if (provided < expected) {
+            macro_expander_set_arg_count_error(expander, def, callSite, expected, provided);
             macro_arg_pack_destroy(pack);
             return false;
         }
@@ -777,13 +838,26 @@ static bool substitute_macro(MacroExpander* expander,
             }
             ssize_t index = macro_param_index(def, tok->value);
             bool adjacentPaste = false;
+            bool definedOperandContext = false;
             if (index >= 0) {
+                if (i > 0 &&
+                    def->body.tokens[i - 1].type == TOKEN_IDENTIFIER &&
+                    def->body.tokens[i - 1].value &&
+                    strcmp(def->body.tokens[i - 1].value, "defined") == 0) {
+                    definedOperandContext = true;
+                } else if (i > 1 &&
+                           def->body.tokens[i - 1].type == TOKEN_LPAREN &&
+                           def->body.tokens[i - 2].type == TOKEN_IDENTIFIER &&
+                           def->body.tokens[i - 2].value &&
+                           strcmp(def->body.tokens[i - 2].value, "defined") == 0) {
+                    definedOperandContext = true;
+                }
                 if ((i + 1 < def->body.count &&
                      def->body.tokens[i + 1].type == TOKEN_DOUBLE_HASH) ||
                     (i > 0 && def->body.tokens[i - 1].type == TOKEN_DOUBLE_HASH)) {
                     adjacentPaste = true;
                 }
-                const PPTokenBuffer* buffer = adjacentPaste
+                const PPTokenBuffer* buffer = (adjacentPaste || definedOperandContext)
                     ? &args->positionals[index].raw
                     : &args->positionals[index].expanded;
                 if (!append_argument_tokens(&working, buffer)) {
@@ -848,10 +922,23 @@ void macro_expander_init(MacroExpander* expander, MacroTable* table) {
     expander->builtins.logicalFile = NULL;
     expander->builtins.lineOffset = NULL;
     expander->builtins.lineRemapActive = NULL;
+    expander->preserveDefinedOperands = false;
+    macro_expander_clear_error(expander);
 }
 
 void macro_expander_reset(MacroExpander* expander) {
-    (void)expander;
+    macro_expander_clear_error(expander);
+}
+
+void macro_expander_set_preserve_defined_operands(MacroExpander* expander, bool enabled) {
+    if (!expander) return;
+    expander->preserveDefinedOperands = enabled;
+}
+
+MacroExpandErrorInfo macro_expander_last_error(const MacroExpander* expander) {
+    MacroExpandErrorInfo empty = {0};
+    if (!expander) return empty;
+    return expander->lastError;
 }
 
 bool macro_expander_expand(MacroExpander* expander,
@@ -859,6 +946,7 @@ bool macro_expander_expand(MacroExpander* expander,
                            size_t count,
                            PPTokenBuffer* outTokens) {
     if (!outTokens) return false;
+    macro_expander_clear_error(expander);
     outTokens->tokens = NULL;
     outTokens->count = 0;
     outTokens->capacity = 0;
@@ -876,6 +964,13 @@ bool macro_expander_expand(MacroExpander* expander,
         }
 
         if (tok->type == TOKEN_IDENTIFIER && expander && expander->table) {
+            if (expander->preserveDefinedOperands &&
+                token_is_defined_operand_context(input, i)) {
+                if (!pp_token_buffer_append_clone(outTokens, tok)) {
+                    return false;
+                }
+                continue;
+            }
             const MacroDefinition* def = macro_table_lookup(expander->table, tok->value);
             if (def && macro_table_is_expanding(expander->table, tok->value)) {
                 if (!pp_token_buffer_append_clone(outTokens, tok)) {
@@ -914,7 +1009,7 @@ bool macro_expander_expand(MacroExpander* expander,
                         pp_argument_list_init(&rawArgs);
                         if (parse_macro_argument_tokens(input, count, &cursor, &rawArgs, def)) {
                             MacroArgPack pack;
-                            if (build_macro_arg_pack(def, &rawArgs, &pack)) {
+                            if (build_macro_arg_pack(expander, def, &rawArgs, &pack, callRange)) {
                                 if (expand_macro_arguments(expander, &pack) &&
                                     macro_table_push_expansion(expander->table, def, callRange, def->definitionRange)) {
                                     PPTokenBuffer replaced = {0};
@@ -939,6 +1034,9 @@ bool macro_expander_expand(MacroExpander* expander,
                                     }
                                 }
                                 macro_arg_pack_destroy(&pack);
+                            } else if (expander && expander->lastError.kind != ME_ERR_NONE) {
+                                pp_argument_list_destroy(&rawArgs);
+                                return false;
                             }
                         }
                         pp_argument_list_destroy(&rawArgs);

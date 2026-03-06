@@ -1,0 +1,5 @@
+Tokens:
+0 TOKEN_HASH # /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__percent_hashhash_digraph.c:1:1
+1 TOKEN_HASH # /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__percent_hashhash_digraph.c:1:2
+2 TOKEN_IDENTIFIER x /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__percent_hashhash_digraph.c:1:4
+3 TOKEN_EOF <null> <unknown>:0:0

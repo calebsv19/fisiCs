@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/pp_include_next_missing.h:1:15: error: could not resolve include 'pp_include_next_missing_target.h'
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/pp_include_next_missing.h:1:15: error: could not resolve include 'pp_include_next_missing_target.h'

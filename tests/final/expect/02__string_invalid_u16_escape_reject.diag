@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid \u escape in string literal at tests/final/cases/02__string_invalid_u16_escape_reject.c:1:17 (got '\u')

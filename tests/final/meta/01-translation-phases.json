@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__macro_changes_parse_shape",
+      "bucket": "translation-phases",
+      "input": "cases/01__macro_changes_parse_shape.c",
+      "expects": [
+        "expect/01__macro_changes_parse_shape.ast"
+      ],
+      "tags": [
+        "macro",
+        "parse-shape"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_diag_location",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_diag_location.c",
+      "expects": [
+        "expect/01__line_directive_diag_location.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_macro_filename",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_macro_filename.c",
+      "expects": [
+        "expect/01__line_directive_macro_filename.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "macro",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__macro_expansion_line_map",
+      "bucket": "translation-phases",
+      "input": "cases/01__macro_expansion_line_map.c",
+      "expects": [
+        "expect/01__macro_expansion_line_map.diag"
+      ],
+      "tags": [
+        "macro",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__include_boundary_diag_file",
+      "bucket": "translation-phases",
+      "input": "cases/01__include_boundary_diag_file.c",
+      "expects": [
+        "expect/01__include_boundary_diag_file.diag"
+      ],
+      "tags": [
+        "include",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__deterministic_ast_output",
+      "bucket": "translation-phases",
+      "input": "cases/01__deterministic_ast_output.c",
+      "expects": [
+        "expect/01__deterministic_ast_output.ast",
+        "expect/01__deterministic_ast_output.ir"
+      ],
+      "tags": [
+        "determinism",
+        "ast"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__macro_expansion_order",
+      "bucket": "translation-phases",
+      "input": "cases/01__macro_expansion_order.c",
+      "expects": [
+        "expect/01__macro_expansion_order.tokens"
+      ],
+      "tags": [
+        "macro",
+        "rescan"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_include",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_include.c",
+      "expects": [
+        "expect/01__line_directive_include.ast",
+        "expect/01__line_directive_include.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "include"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

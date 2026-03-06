@@ -96,6 +96,8 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
             return codegenStructFieldAccess(ctx, node);
         case AST_HEAP_ALLOCATION:
             return codegenHeapAllocation(ctx, node);
+        case AST_STATIC_ASSERT:
+            return NULL; // semantic-only declaration
         case AST_ASM:
             return NULL; // inline asm is parsed but not lowered yet
         default:

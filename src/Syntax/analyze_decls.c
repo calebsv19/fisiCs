@@ -729,6 +729,33 @@ static void maybeRecordConstIntegerValue(Symbol* sym,
                                          DesignatedInit* init,
                                          Scope* scope);
 
+static const char* staticAssertHint(ASTNode* node) {
+    if (!node || node->type != AST_STATIC_ASSERT) return NULL;
+    if (!node->expr.right || node->expr.right->type != AST_STRING_LITERAL) return NULL;
+    return node->expr.right->valueNode.value;
+}
+
+static void analyzeStaticAssertDeclaration(ASTNode* node, Scope* scope) {
+    if (!node) return;
+    ASTNode* condition = node->expr.left;
+    long long value = 0;
+    if (!condition || !constEvalInteger(condition, scope, &value, true)) {
+        addErrorWithRanges(condition ? condition->location : node->location,
+                           condition ? condition->macroCallSite : node->macroCallSite,
+                           condition ? condition->macroDefinition : node->macroDefinition,
+                           "Static assertion requires an integer constant expression",
+                           staticAssertHint(node));
+        return;
+    }
+    if (value == 0) {
+        addErrorWithRanges(condition ? condition->location : node->location,
+                           condition ? condition->macroCallSite : node->macroCallSite,
+                           condition ? condition->macroDefinition : node->macroDefinition,
+                           "Static assertion failed",
+                           staticAssertHint(node));
+    }
+}
+
 static void analyzeInlineAggregateDefinition(const ParsedType* type, Scope* scope) {
     if (!type) return;
     if (type->inlineStructOrUnionDef) {
@@ -741,6 +768,9 @@ static void analyzeInlineAggregateDefinition(const ParsedType* type, Scope* scop
 
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
     switch (node->type) {
+        case AST_STATIC_ASSERT:
+            analyzeStaticAssertDeclaration(node, scope);
+            break;
         case AST_VARIABLE_DECLARATION: {
             ParsedType* declaredTypes = node->varDecl.declaredTypes;
             for (size_t i = 0; i < node->varDecl.varCount; i++) {

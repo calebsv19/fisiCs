@@ -1,0 +1,7 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_basic.c:3:1
+1 TOKEN_IDENTIFIER include_next_value /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_basic.c:3:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_basic.c:3:24
+3 TOKEN_NUMBER 8 include/pp_include_next_chain.h:1:20
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_basic.c:3:47
+5 TOKEN_EOF <null> <unknown>:0:0

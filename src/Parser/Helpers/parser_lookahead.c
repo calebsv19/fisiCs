@@ -10,8 +10,7 @@ static bool isAlignasToken(const Token* tok) {
 }
 
 static bool isAtomicKeywordToken(const Token* tok) {
-    if (!tok || tok->type != TOKEN_IDENTIFIER || !tok->value) return false;
-    return strcmp(tok->value, "_Atomic") == 0;
+    return tok && tok->type == TOKEN_ATOMIC;
 }
 
 void printParserState(const char* label, Parser* parser) {
@@ -62,6 +61,8 @@ bool looksLikeTypeDeclaration(Parser* parser) {
         case TOKEN_EXTERN:
         case TOKEN_AUTO:
         case TOKEN_REGISTER:
+        case TOKEN_THREAD_LOCAL:
+        case TOKEN_ATOMIC:
             return true;
         default:
             break;

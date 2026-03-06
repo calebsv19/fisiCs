@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__prototype_call",
+      "bucket": "functions-calls",
+      "input": "cases/11__prototype_call.c",
+      "expects": [
+        "expect/11__prototype_call.ast",
+        "expect/11__prototype_call.diag"
+      ],
+      "tags": [
+        "prototype"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__no_prototype_call",
+      "bucket": "functions-calls",
+      "input": "cases/11__no_prototype_call.c",
+      "expects": [
+        "expect/11__no_prototype_call.ast",
+        "expect/11__no_prototype_call.diag",
+        "expect/11__no_prototype_call.ir"
+      ],
+      "tags": [
+        "prototype",
+        "promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__function_pointer_assign",
+      "bucket": "functions-calls",
+      "input": "cases/11__function_pointer_assign.c",
+      "expects": [
+        "expect/11__function_pointer_assign.ast",
+        "expect/11__function_pointer_assign.diag"
+      ],
+      "tags": [
+        "function-pointer",
+        "assignment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__variadic_call",
+      "bucket": "functions-calls",
+      "input": "cases/11__variadic_call.c",
+      "expects": [
+        "expect/11__variadic_call.ast",
+        "expect/11__variadic_call.diag"
+      ],
+      "tags": [
+        "variadic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__param_decay",
+      "bucket": "functions-calls",
+      "input": "cases/11__param_decay.c",
+      "expects": [
+        "expect/11__param_decay.ast",
+        "expect/11__param_decay.diag"
+      ],
+      "tags": [
+        "param",
+        "decay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__return_type_mismatch",
+      "bucket": "functions-calls",
+      "input": "cases/11__return_type_mismatch.c",
+      "expects": [
+        "expect/11__return_type_mismatch.ast",
+        "expect/11__return_type_mismatch.diag"
+      ],
+      "tags": [
+        "return"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__void_return_value",
+      "bucket": "functions-calls",
+      "input": "cases/11__void_return_value.c",
+      "expects": [
+        "expect/11__void_return_value.ast",
+        "expect/11__void_return_value.diag"
+      ],
+      "tags": [
+        "return",
+        "void"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

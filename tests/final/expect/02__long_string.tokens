@@ -1,0 +1,9 @@
+Tokens:
+0 TOKEN_CONST const /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__long_string.c:1:1
+1 TOKEN_CHAR char /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__long_string.c:1:7
+2 TOKEN_ASTERISK * /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__long_string.c:1:12
+3 TOKEN_IDENTIFIER a /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__long_string.c:1:13
+4 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__long_string.c:1:15
+5 TOKEN_STRING abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__long_string.c:1:17
+6 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__long_string.c:1:123
+7 TOKEN_EOF <null> <unknown>:0:0

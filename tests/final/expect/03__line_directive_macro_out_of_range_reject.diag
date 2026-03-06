@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__line_directive_macro_out_of_range_reject.c:2:1: error: line number after #line is out of range
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__line_directive_macro_out_of_range_reject.c:2:1: error: line number after #line is out of range

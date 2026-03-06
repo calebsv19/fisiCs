@@ -1,0 +1,7 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_to_nothing.c:2:1
+1 TOKEN_IDENTIFIER x /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_to_nothing.c:2:11
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_to_nothing.c:2:13
+3 TOKEN_NUMBER 1 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_to_nothing.c:2:15
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__macro_to_nothing.c:2:16
+5 TOKEN_EOF <null> <unknown>:0:0

@@ -1,0 +1,7 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_same_dir_parent.c:3:1
+1 TOKEN_IDENTIFIER same_dir_include_next /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_same_dir_parent.c:3:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_same_dir_parent.c:3:27
+3 TOKEN_NUMBER 11 tests/final/cases/pp_inext_same_p1/pp_inext_same_val.h:1:21
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_same_dir_parent.c:3:40
+5 TOKEN_EOF <null> <unknown>:0:0

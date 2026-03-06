@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__issue_else_extra_tokens_reject.c:3:7: error: unexpected tokens after #else directive
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__issue_else_extra_tokens_reject.c:3:7: error: unexpected tokens after #else directive

@@ -1,0 +1,9 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_collision_angle_chain.c:3:1
+1 TOKEN_IDENTIFIER include_collision_angle_chain /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_collision_angle_chain.c:3:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_collision_angle_chain.c:3:35
+3 TOKEN_NUMBER 10 tests/final/cases/pp_collide_p1/pp_collide_chain.h:2:23
+4 TOKEN_PLUS + /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_collision_angle_chain.c:3:51
+5 TOKEN_NUMBER 20 tests/final/cases/pp_collide_p2/pp_collide_chain.h:1:23
+6 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_collision_angle_chain.c:3:66
+7 TOKEN_EOF <null> <unknown>:0:0

@@ -190,7 +190,7 @@ Before writing new tests, map what already exists:
 
 - Existing `tests/final/cases/*`
 - Existing `tests/final/expect/*`
-- Existing `tests/final/meta/index.json`
+- Existing `tests/final/meta/*.json`
 - Relevant legacy shell tests under `tests/parser/`, `tests/syntax/`,
   `tests/codegen/`, `tests/preprocessor/`, or `tests/spec/`
 
@@ -215,8 +215,20 @@ When implementing:
 
 - Put new source cases under the canonical suite (`tests/final/cases/`)
 - Put checked-in expectations under `tests/final/expect/`
-- Add or extend metadata in `tests/final/meta/index.json`
+- Add or extend metadata in the relevant `tests/final/meta/*.json` bucket shard
+- Keep `tests/final/meta/index.json` as the manifest registry
 - Keep naming stable and bucket-aligned
+- If the current harness cannot faithfully express the needed oracle, fix the
+  harness before adding the test so the test does not bless the wrong behavior
+
+If a case reproduces a real bug but there is no acceptable passing oracle yet:
+
+- Add the repro source under `tests/final/cases/`
+- Document it as a known issue case
+- Keep it out of active metadata until it can pass with an intentional oracle
+
+This preserves the investigation artifact without forcing the main suite to
+bless broken behavior or fail continuously without an xfail policy.
 
 Do not skip negative coverage just because the valid case already passes.
 

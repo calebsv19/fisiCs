@@ -26,7 +26,7 @@
       && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
       && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
-#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
+error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
 #line 1 "src/Lexer/keywords.gperf"
@@ -38,15 +38,25 @@
 #pragma clang diagnostic ignored "-Wdeprecated-non-prototype"
 #endif
 
-#define TOTAL_KEYWORDS 43
+#define TOTAL_KEYWORDS 45
 #define MIN_WORD_LENGTH 2
 #define MAX_WORD_LENGTH 14
 #define MIN_HASH_VALUE 2
 #define MAX_HASH_VALUE 83
 /* maximum key range = 82, duplicates = 0 */
 
-static inline unsigned int
-keyword_hash(register const char* str, register unsigned int len) {
+#ifdef __GNUC__
+__inline
+#else
+#ifdef __cplusplus
+inline
+#endif
+#endif
+static unsigned int
+keyword_hash (str, len)
+     register const char *str;
+     register unsigned int len;
+{
   static const unsigned char asso_values[] =
     {
       84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
@@ -59,7 +69,7 @@ keyword_hash(register const char* str, register unsigned int len) {
       84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
       84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
       84, 84, 84, 84, 84,  0, 84, 15,  5, 20,
-      15, 40, 25, 30, 84,  0, 84, 84, 25, 35,
+      15, 40, 25, 30,  0,  0, 84, 84, 25, 35,
       15,  0, 30, 84, 10,  5,  0, 15, 50, 10,
       84, 84, 45, 84, 84, 84, 84, 84, 84, 84,
       84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
@@ -91,8 +101,11 @@ keyword_hash(register const char* str, register unsigned int len) {
   return hval;
 }
 
-const char*
-in_keyword_set(register const char* str, register unsigned int len) {
+const char *
+in_keyword_set (str, len)
+     register const char *str;
+     register unsigned int len;
+{
   static const char * const wordlist[] =
     {
       "", "",
@@ -100,12 +113,14 @@ in_keyword_set(register const char* str, register unsigned int len) {
       "int",
       "",
       "_Bool",
-      "", "",
+      "",
+      "_Atomic",
       "_Complex",
       "",
       "short",
       "switch",
-      "", "",
+      "",
+      "_Thread_local",
       "_Static_assert",
       "while",
       "return",
@@ -171,4 +186,5 @@ in_keyword_set(register const char* str, register unsigned int len) {
     }
   return 0;
 }
-#line 60 "src/Lexer/keywords.gperf"
+#line 62 "src/Lexer/keywords.gperf"
+

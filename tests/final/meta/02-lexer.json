@@ -1,0 +1,1063 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__int_literals",
+      "bucket": "lexer",
+      "input": "cases/02__int_literals.c",
+      "expects": [
+        "expect/02__int_literals.tokens"
+      ],
+      "tags": [
+        "literals",
+        "integer"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__float_literals",
+      "bucket": "lexer",
+      "input": "cases/02__float_literals.c",
+      "expects": [
+        "expect/02__float_literals.tokens"
+      ],
+      "tags": [
+        "literals",
+        "float"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__char_literals",
+      "bucket": "lexer",
+      "input": "cases/02__char_literals.c",
+      "expects": [
+        "expect/02__char_literals.tokens"
+      ],
+      "tags": [
+        "literals",
+        "char"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__string_concat",
+      "bucket": "lexer",
+      "input": "cases/02__string_concat.c",
+      "expects": [
+        "expect/02__string_concat.tokens"
+      ],
+      "tags": [
+        "string",
+        "concat"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__operator_edges",
+      "bucket": "lexer",
+      "input": "cases/02__operator_edges.c",
+      "expects": [
+        "expect/02__operator_edges.tokens"
+      ],
+      "tags": [
+        "operators"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__int_suffix_order",
+      "bucket": "lexer",
+      "input": "cases/02__int_suffix_order.c",
+      "expects": [
+        "expect/02__int_suffix_order.tokens"
+      ],
+      "tags": [
+        "literals",
+        "integer"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__float_exponent_forms",
+      "bucket": "lexer",
+      "input": "cases/02__float_exponent_forms.c",
+      "expects": [
+        "expect/02__float_exponent_forms.tokens"
+      ],
+      "tags": [
+        "literals",
+        "float"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__char_unicode_escapes",
+      "bucket": "lexer",
+      "input": "cases/02__char_unicode_escapes.c",
+      "expects": [
+        "expect/02__char_unicode_escapes.tokens"
+      ],
+      "tags": [
+        "literals",
+        "char"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__invalid_escape_char",
+      "bucket": "lexer",
+      "input": "cases/02__invalid_escape_char.c",
+      "expects": [
+        "expect/02__invalid_escape_char.diag"
+      ],
+      "tags": [
+        "negative",
+        "char",
+        "escape"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__binary_literals",
+      "bucket": "lexer",
+      "input": "cases/02__binary_literals.c",
+      "expects": [
+        "expect/02__binary_literals.tokens"
+      ],
+      "tags": [
+        "literals",
+        "binary"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__float_hex_no_exponent",
+      "bucket": "lexer",
+      "input": "cases/02__float_hex_no_exponent.c",
+      "expects": [
+        "expect/02__float_hex_no_exponent.diag"
+      ],
+      "tags": [
+        "float",
+        "hex"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__literal_semantics",
+      "bucket": "lexer",
+      "input": "cases/02__literal_semantics.c",
+      "expects": [
+        "expect/02__literal_semantics.diag"
+      ],
+      "tags": [
+        "literals",
+        "semantics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__int_overflow_diag",
+      "bucket": "lexer",
+      "input": "cases/02__int_overflow_diag.c",
+      "expects": [
+        "expect/02__int_overflow_diag.diag"
+      ],
+      "tags": [
+        "literals",
+        "overflow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__long_identifier",
+      "bucket": "lexer",
+      "input": "cases/02__long_identifier.c",
+      "expects": [
+        "expect/02__long_identifier.tokens"
+      ],
+      "tags": [
+        "identifiers",
+        "long"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__digraph_tokens",
+      "bucket": "lexer",
+      "input": "cases/02__digraph_tokens.c",
+      "expects": [
+        "expect/02__digraph_tokens.tokens"
+      ],
+      "tags": [
+        "operators",
+        "digraph"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__keyword_identifier_reject",
+      "bucket": "lexer",
+      "input": "cases/02__keyword_identifier_reject.c",
+      "expects": [
+        "expect/02__keyword_identifier_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "keywords",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__trigraph_reject",
+      "bucket": "lexer",
+      "input": "cases/02__trigraph_reject.c",
+      "expects": [
+        "expect/02__trigraph_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "operators",
+        "trigraph",
+        "unsupported"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__comments_and_splice",
+      "bucket": "lexer",
+      "input": "cases/02__comments_and_splice.c",
+      "expects": [
+        "expect/02__comments_and_splice.tokens"
+      ],
+      "tags": [
+        "comments",
+        "splicing"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__wide_utf_strings",
+      "bucket": "lexer",
+      "input": "cases/02__wide_utf_strings.c",
+      "expects": [
+        "expect/02__wide_utf_strings.tokens"
+      ],
+      "tags": [
+        "strings",
+        "utf"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__c11_keyword_tokens",
+      "bucket": "lexer",
+      "input": "cases/02__c11_keyword_tokens.c",
+      "expects": [
+        "expect/02__c11_keyword_tokens.tokens"
+      ],
+      "tags": [
+        "keywords",
+        "c11"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__identifier_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__identifier_matrix.c",
+      "expects": [
+        "expect/02__identifier_matrix.tokens"
+      ],
+      "tags": [
+        "identifiers",
+        "matrix"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__keyword_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__keyword_matrix.c",
+      "expects": [
+        "expect/02__keyword_matrix.tokens"
+      ],
+      "tags": [
+        "keywords",
+        "matrix"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__float_edge_forms",
+      "bucket": "lexer",
+      "input": "cases/02__float_edge_forms.c",
+      "expects": [
+        "expect/02__float_edge_forms.tokens"
+      ],
+      "tags": [
+        "float",
+        "edge"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__digraph_pp_tokens",
+      "bucket": "lexer",
+      "input": "cases/02__digraph_pp_tokens.c",
+      "expects": [
+        "expect/02__digraph_pp_tokens.tokens"
+      ],
+      "tags": [
+        "digraph",
+        "preprocessor"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__wide_utf_chars",
+      "bucket": "lexer",
+      "input": "cases/02__wide_utf_chars.c",
+      "expects": [
+        "expect/02__wide_utf_chars.tokens"
+      ],
+      "tags": [
+        "char",
+        "utf"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__ucn_identifier_unsupported",
+      "bucket": "lexer",
+      "input": "cases/02__ucn_identifier_unsupported.c",
+      "expects": [
+        "expect/02__ucn_identifier_unsupported.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "identifiers",
+        "ucn",
+        "unsupported"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__comment_nested_like",
+      "bucket": "lexer",
+      "input": "cases/02__comment_nested_like.c",
+      "expects": [
+        "expect/02__comment_nested_like.tokens"
+      ],
+      "tags": [
+        "comments",
+        "nested-like"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__comment_macro_context",
+      "bucket": "lexer",
+      "input": "cases/02__comment_macro_context.c",
+      "expects": [
+        "expect/02__comment_macro_context.tokens"
+      ],
+      "tags": [
+        "comments",
+        "macro"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__string_escape_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__string_escape_matrix.c",
+      "expects": [
+        "expect/02__string_escape_matrix.tokens"
+      ],
+      "tags": [
+        "string",
+        "escapes"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__operator_boundary_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__operator_boundary_matrix.c",
+      "expects": [
+        "expect/02__operator_boundary_matrix.tokens"
+      ],
+      "tags": [
+        "operators",
+        "boundaries"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__invalid_dollar_reject",
+      "bucket": "lexer",
+      "input": "cases/02__invalid_dollar_reject.c",
+      "expects": [
+        "expect/02__invalid_dollar_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "invalid-char"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__malformed_float_reject",
+      "bucket": "lexer",
+      "input": "cases/02__malformed_float_reject.c",
+      "expects": [
+        "expect/02__malformed_float_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "float"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__unterminated_comment_reject",
+      "bucket": "lexer",
+      "input": "cases/02__unterminated_comment_reject.c",
+      "expects": [
+        "expect/02__unterminated_comment_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "comments"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__unterminated_string_reject",
+      "bucket": "lexer",
+      "input": "cases/02__unterminated_string_reject.c",
+      "expects": [
+        "expect/02__unterminated_string_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "string"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__empty_char_reject",
+      "bucket": "lexer",
+      "input": "cases/02__empty_char_reject.c",
+      "expects": [
+        "expect/02__empty_char_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "char"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__unterminated_char_reject",
+      "bucket": "lexer",
+      "input": "cases/02__unterminated_char_reject.c",
+      "expects": [
+        "expect/02__unterminated_char_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "char"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__float_suffix_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__float_suffix_matrix.c",
+      "expects": [
+        "expect/02__float_suffix_matrix.tokens"
+      ],
+      "tags": [
+        "float",
+        "suffixes"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__char_invalid_hex_escape_reject",
+      "bucket": "lexer",
+      "input": "cases/02__char_invalid_hex_escape_reject.c",
+      "expects": [
+        "expect/02__char_invalid_hex_escape_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "char",
+        "escape"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__char_invalid_u16_escape_reject",
+      "bucket": "lexer",
+      "input": "cases/02__char_invalid_u16_escape_reject.c",
+      "expects": [
+        "expect/02__char_invalid_u16_escape_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "char",
+        "escape"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__char_invalid_u32_escape_reject",
+      "bucket": "lexer",
+      "input": "cases/02__char_invalid_u32_escape_reject.c",
+      "expects": [
+        "expect/02__char_invalid_u32_escape_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "char",
+        "escape"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__invalid_at_reject",
+      "bucket": "lexer",
+      "input": "cases/02__invalid_at_reject.c",
+      "expects": [
+        "expect/02__invalid_at_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "invalid-char"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__operator_relational_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__operator_relational_matrix.c",
+      "expects": [
+        "expect/02__operator_relational_matrix.tokens"
+      ],
+      "tags": [
+        "operators",
+        "relations"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__int_invalid_suffix_reject",
+      "bucket": "lexer",
+      "input": "cases/02__int_invalid_suffix_reject.c",
+      "expects": [
+        "expect/02__int_invalid_suffix_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "numeric",
+        "suffix"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__octal_invalid_digit_reject",
+      "bucket": "lexer",
+      "input": "cases/02__octal_invalid_digit_reject.c",
+      "expects": [
+        "expect/02__octal_invalid_digit_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "numeric",
+        "octal"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__binary_invalid_digit_reject",
+      "bucket": "lexer",
+      "input": "cases/02__binary_invalid_digit_reject.c",
+      "expects": [
+        "expect/02__binary_invalid_digit_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "numeric",
+        "binary"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__invalid_backtick_reject",
+      "bucket": "lexer",
+      "input": "cases/02__invalid_backtick_reject.c",
+      "expects": [
+        "expect/02__invalid_backtick_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "invalid-char"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__punctuator_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__punctuator_matrix.c",
+      "expects": [
+        "expect/02__punctuator_matrix.tokens"
+      ],
+      "tags": [
+        "punctuators",
+        "digraphs"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__hex_float_missing_mantissa_reject",
+      "bucket": "lexer",
+      "input": "cases/02__hex_float_missing_mantissa_reject.c",
+      "expects": [
+        "expect/02__hex_float_missing_mantissa_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "numeric",
+        "float"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__radix_prefix_missing_digits_reject",
+      "bucket": "lexer",
+      "input": "cases/02__radix_prefix_missing_digits_reject.c",
+      "expects": [
+        "expect/02__radix_prefix_missing_digits_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "numeric",
+        "radix"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__string_invalid_hex_escape_reject",
+      "bucket": "lexer",
+      "input": "cases/02__string_invalid_hex_escape_reject.c",
+      "expects": [
+        "expect/02__string_invalid_hex_escape_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "string",
+        "escape"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__string_invalid_u16_escape_reject",
+      "bucket": "lexer",
+      "input": "cases/02__string_invalid_u16_escape_reject.c",
+      "expects": [
+        "expect/02__string_invalid_u16_escape_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "string",
+        "escape"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__string_invalid_u32_escape_reject",
+      "bucket": "lexer",
+      "input": "cases/02__string_invalid_u32_escape_reject.c",
+      "expects": [
+        "expect/02__string_invalid_u32_escape_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "string",
+        "escape"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__radix_case_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__radix_case_matrix.c",
+      "expects": [
+        "expect/02__radix_case_matrix.tokens"
+      ],
+      "tags": [
+        "numeric",
+        "radix",
+        "float"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__binary_float_forms_reject",
+      "bucket": "lexer",
+      "input": "cases/02__binary_float_forms_reject.c",
+      "expects": [
+        "expect/02__binary_float_forms_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "numeric",
+        "binary",
+        "float"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__int_suffix_case_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__int_suffix_case_matrix.c",
+      "expects": [
+        "expect/02__int_suffix_case_matrix.tokens"
+      ],
+      "tags": [
+        "numeric",
+        "suffix"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__string_invalid_escape_reject",
+      "bucket": "lexer",
+      "input": "cases/02__string_invalid_escape_reject.c",
+      "expects": [
+        "expect/02__string_invalid_escape_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "string",
+        "escape"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__escape_question_mark",
+      "bucket": "lexer",
+      "input": "cases/02__escape_question_mark.c",
+      "expects": [
+        "expect/02__escape_question_mark.tokens"
+      ],
+      "tags": [
+        "char",
+        "string",
+        "escape"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__string_embedded_null",
+      "bucket": "lexer",
+      "input": "cases/02__string_embedded_null.c",
+      "expects": [
+        "expect/02__string_embedded_null.tokens"
+      ],
+      "tags": [
+        "string",
+        "embedded-null"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__long_string",
+      "bucket": "lexer",
+      "input": "cases/02__long_string.c",
+      "expects": [
+        "expect/02__long_string.tokens"
+      ],
+      "tags": [
+        "string",
+        "stress"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    },
+    {
+      "id": "02__operator_misc_matrix",
+      "bucket": "lexer",
+      "input": "cases/02__operator_misc_matrix.c",
+      "expects": [
+        "expect/02__operator_misc_matrix.tokens"
+      ],
+      "tags": [
+        "operators",
+        "punctuators"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__hex_bad_exponent_tail_reject",
+      "bucket": "lexer",
+      "input": "cases/02__hex_bad_exponent_tail_reject.c",
+      "expects": [
+        "expect/02__hex_bad_exponent_tail_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "numeric",
+        "float",
+        "hex"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__punctuator_oddities",
+      "bucket": "lexer",
+      "input": "cases/02__punctuator_oddities.c",
+      "expects": [
+        "expect/02__punctuator_oddities.tokens"
+      ],
+      "tags": [
+        "punctuators",
+        "operators"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__macro_identifier_boundary",
+      "bucket": "lexer",
+      "input": "cases/02__macro_identifier_boundary.c",
+      "expects": [
+        "expect/02__macro_identifier_boundary.tokens"
+      ],
+      "tags": [
+        "identifier",
+        "macro"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__percent_hashhash_digraph",
+      "bucket": "lexer",
+      "input": "cases/02__percent_hashhash_digraph.c",
+      "expects": [
+        "expect/02__percent_hashhash_digraph.tokens"
+      ],
+      "tags": [
+        "punctuators",
+        "digraphs",
+        "preprocessor"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "allow_nonzero_exit": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__hex_suffix_tail_reject",
+      "bucket": "lexer",
+      "input": "cases/02__hex_suffix_tail_reject.c",
+      "expects": [
+        "expect/02__hex_suffix_tail_reject.diag"
+      ],
+      "tags": [
+        "negative",
+        "numeric",
+        "float",
+        "hex"
+      ],
+      "requires": [],
+      "capture_frontend_diag": true,
+      "status": "ok"
+    },
+    {
+      "id": "02__macro_keyword_boundary",
+      "bucket": "lexer",
+      "input": "cases/02__macro_keyword_boundary.c",
+      "expects": [
+        "expect/02__macro_keyword_boundary.tokens"
+      ],
+      "tags": [
+        "keyword",
+        "macro"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    }
+  ]
+}

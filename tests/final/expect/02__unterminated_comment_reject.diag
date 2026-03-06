@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Unterminated block comment at tests/final/cases/02__unterminated_comment_reject.c:1:8 (got '/*')

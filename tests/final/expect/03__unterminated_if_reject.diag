@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__unterminated_if_reject.c:0:0: error: unclosed #if/#ifdef/#ifndef
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__unterminated_if_reject.c:0:0: error: unclosed #if/#ifdef/#ifndef

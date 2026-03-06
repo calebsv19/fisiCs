@@ -1,0 +1,2 @@
+#define BAD 0x
+BAD

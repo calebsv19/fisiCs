@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_nested_ternary_invalid_reject.c:1:1: error: invalid #if expression
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_nested_ternary_invalid_reject.c:1:1: error: invalid #if expression

@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__gnu_comma_vaargs.c:1:9: error: GNU ', ##__VA_ARGS__' extension is not supported
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__gnu_comma_vaargs.c:1:9: error: GNU ', ##__VA_ARGS__' extension is not supported

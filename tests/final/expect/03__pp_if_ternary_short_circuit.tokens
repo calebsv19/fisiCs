@@ -1,0 +1,12 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:2:1
+1 TOKEN_IDENTIFIER pp_ternary_true /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:2:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:2:21
+3 TOKEN_NUMBER 1 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:2:23
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:2:24
+5 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:8:1
+6 TOKEN_IDENTIFIER pp_ternary_false /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:8:5
+7 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:8:22
+8 TOKEN_NUMBER 3 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:8:24
+9 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_ternary_short_circuit.c:8:25
+10 TOKEN_EOF <null> <unknown>:0:0

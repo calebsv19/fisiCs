@@ -30,6 +30,18 @@ Non-negotiable constraints for the compiler test-system redesign: end-state
 targets, truth hierarchy, golden safety rules, test categories, and phased
 implementation boundaries.
 
+### `docs/compiler_lexer_bucket_report.md`
+
+First concrete bucket report for the compiler test upgrade. Captures the current
+lexer baseline, existing passing coverage, confirmed lexer gaps, and the next
+recommended test-expansion batch.
+
+### `docs/compiler_preprocessor_bucket_report.md`
+
+Baseline and preparation report for the preprocessor bucket. Captures the
+current active preprocessor slice, what it already covers, the main missing
+areas, and the next structured failure-collection workflow.
+
 ### `docs/compiler_test_coverage_blueprint.md`
 
 Repo-specific structural plan for the compiler test rework. Maps the current

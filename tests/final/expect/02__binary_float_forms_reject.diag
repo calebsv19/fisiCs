@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Binary literals do not support fractional or exponent forms at tests/final/cases/02__binary_float_forms_reject.c:1:12 (got '0b1.0')
+Error: Binary literals do not support fractional or exponent forms at tests/final/cases/02__binary_float_forms_reject.c:2:12 (got '0b1e2')
+Error: Binary literals do not support fractional or exponent forms at tests/final/cases/02__binary_float_forms_reject.c:3:12 (got '0b1p2')
+Error: Binary literals do not support fractional or exponent forms at tests/final/cases/02__binary_float_forms_reject.c:4:12 (got '0b1P2')

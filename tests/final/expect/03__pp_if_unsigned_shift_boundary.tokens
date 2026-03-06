@@ -1,0 +1,7 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_unsigned_shift_boundary.c:2:1
+1 TOKEN_IDENTIFIER pp_unsigned_shift_boundary /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_unsigned_shift_boundary.c:2:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_unsigned_shift_boundary.c:2:32
+3 TOKEN_NUMBER 12 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_unsigned_shift_boundary.c:2:34
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__pp_if_unsigned_shift_boundary.c:2:36
+5 TOKEN_EOF <null> <unknown>:0:0

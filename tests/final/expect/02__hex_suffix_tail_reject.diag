@@ -1,0 +1,3 @@
+Diagnostics:
+Error: Invalid numeric literal suffix at tests/final/cases/02__hex_suffix_tail_reject.c:1:12 (got '0x1p2foo')
+Error: Invalid numeric literal suffix at tests/final/cases/02__hex_suffix_tail_reject.c:2:12 (got '0x1.P+2bar')

@@ -1,0 +1,3 @@
+Diagnostics:
+Error: Malformed floating literal exponent at tests/final/cases/02__hex_bad_exponent_tail_reject.c:1:12 (got '0x1.pz')
+Error: Malformed floating literal exponent at tests/final/cases/02__hex_bad_exponent_tail_reject.c:2:12 (got '0x1p+z')

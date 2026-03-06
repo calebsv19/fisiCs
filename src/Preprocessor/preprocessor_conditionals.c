@@ -61,7 +61,11 @@ bool process_if(Preprocessor* pp,
             evalTokens = prepared.tokens;
             evalCount = prepared.count;
         }
-        preprocessor_eval_tokens(pp, evalTokens, evalCount, &value);
+        if (!preprocessor_eval_tokens(pp, evalTokens, evalCount, &value)) {
+            pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "invalid #if expression");
+            pp_token_buffer_destroy(&prepared);
+            return false;
+        }
         condValue = (value != 0);
         pp_token_buffer_destroy(&prepared);
     }
@@ -91,7 +95,7 @@ bool process_ifdeflike(Preprocessor* pp,
     size_t i = *cursor;
     int directiveLine = tokens[i].line;
     i++;
-    if (i >= count || !token_is_macro_identifier(&tokens[i])) {
+    if (i >= count || tokens[i].line != directiveLine || !token_is_macro_identifier(&tokens[i])) {
         if (pp_debug_fail_enabled()) {
             fprintf(stderr, "[PP-DEBUG] ifdeflike name token type=%d val=%s\n",
                     (i < count) ? tokens[i].type : -1,
@@ -102,6 +106,16 @@ bool process_ifdeflike(Preprocessor* pp,
         return false;
     }
     const char* name = tokens[i].value;
+    i++;
+    if (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == directiveLine) {
+        pp_report_diag(pp,
+                       &tokens[i],
+                       DIAG_ERROR,
+                       CDIAG_PREPROCESSOR_GENERIC,
+                       "unexpected tokens after #%s directive",
+                       negate ? "ifndef" : "ifdef");
+        return false;
+    }
     bool parentActive = conditional_stack_is_active(*stack, *depth);
     bool isDefined = parentActive && (macro_table_lookup(pp->table, name) != NULL);
     bool selfActive = parentActive && (negate ? !isDefined : isDefined);
@@ -162,7 +176,11 @@ bool process_elif(Preprocessor* pp,
             evalTokens = prepared.tokens;
             evalCount = prepared.count;
         }
-        preprocessor_eval_tokens(pp, evalTokens, evalCount, &value);
+        if (!preprocessor_eval_tokens(pp, evalTokens, evalCount, &value)) {
+            pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "invalid #elif expression");
+            pp_token_buffer_destroy(&prepared);
+            return false;
+        }
         pp_token_buffer_destroy(&prepared);
         newActive = (value != 0);
     }

@@ -1,0 +1,199 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_basic_arith",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_basic_arith.c",
+      "expects": [
+        "expect/13__ir_basic_arith.ast",
+        "expect/13__ir_basic_arith.diag",
+        "expect/13__ir_basic_arith.ir"
+      ],
+      "tags": [
+        "ir",
+        "arith"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_short_circuit",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_short_circuit.c",
+      "expects": [
+        "expect/13__ir_short_circuit.ast",
+        "expect/13__ir_short_circuit.diag",
+        "expect/13__ir_short_circuit.ir"
+      ],
+      "tags": [
+        "ir",
+        "short-circuit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ternary",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ternary.c",
+      "expects": [
+        "expect/13__ir_ternary.ast",
+        "expect/13__ir_ternary.diag",
+        "expect/13__ir_ternary.ir"
+      ],
+      "tags": [
+        "ir",
+        "ternary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_switch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_switch.c",
+      "expects": [
+        "expect/13__ir_switch.ast",
+        "expect/13__ir_switch.diag",
+        "expect/13__ir_switch.ir"
+      ],
+      "tags": [
+        "ir",
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_volatile",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_volatile.c",
+      "expects": [
+        "expect/13__ir_volatile.ast",
+        "expect/13__ir_volatile.diag",
+        "expect/13__ir_volatile.ir"
+      ],
+      "tags": [
+        "ir",
+        "volatile"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ptr_arith",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ptr_arith.c",
+      "expects": [
+        "expect/13__ir_ptr_arith.ast",
+        "expect/13__ir_ptr_arith.diag",
+        "expect/13__ir_ptr_arith.ir"
+      ],
+      "tags": [
+        "ir",
+        "pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_struct_access",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_struct_access.c",
+      "expects": [
+        "expect/13__ir_struct_access.ast",
+        "expect/13__ir_struct_access.diag",
+        "expect/13__ir_struct_access.ir"
+      ],
+      "tags": [
+        "ir",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_logical_not",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_logical_not.c",
+      "expects": [
+        "expect/13__ir_logical_not.ast",
+        "expect/13__ir_logical_not.diag",
+        "expect/13__ir_logical_not.ir"
+      ],
+      "tags": [
+        "ir",
+        "logical"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_bitwise",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_bitwise.c",
+      "expects": [
+        "expect/13__ir_bitwise.ast",
+        "expect/13__ir_bitwise.diag",
+        "expect/13__ir_bitwise.ir"
+      ],
+      "tags": [
+        "ir",
+        "bitwise"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_short_circuit_side_effect",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_short_circuit_side_effect.c",
+      "expects": [
+        "expect/13__ir_short_circuit_side_effect.ast",
+        "expect/13__ir_short_circuit_side_effect.diag",
+        "expect/13__ir_short_circuit_side_effect.ir"
+      ],
+      "tags": [
+        "ir",
+        "short-circuit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_compare_branch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_compare_branch.c",
+      "expects": [
+        "expect/13__ir_compare_branch.ast",
+        "expect/13__ir_compare_branch.diag",
+        "expect/13__ir_compare_branch.ir"
+      ],
+      "tags": [
+        "ir",
+        "compare"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_global_init",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_global_init.c",
+      "expects": [
+        "expect/13__ir_global_init.ast",
+        "expect/13__ir_global_init.diag",
+        "expect/13__ir_global_init.ir"
+      ],
+      "tags": [
+        "ir",
+        "global"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

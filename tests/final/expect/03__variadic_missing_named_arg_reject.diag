@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_missing_named_arg_reject.c:2:9: error: macro 'V' requires at least 1 argument(s), got 0
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_missing_named_arg_reject.c:2:9: error: macro 'V' requires at least 1 argument(s), got 0
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__variadic_missing_named_arg_reject.c:2:9: error: macro 'V' requires at least 1 argument(s), got 0

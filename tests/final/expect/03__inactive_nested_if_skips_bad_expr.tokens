@@ -1,0 +1,7 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__inactive_nested_if_skips_bad_expr.c:7:1
+1 TOKEN_IDENTIFIER ok /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__inactive_nested_if_skips_bad_expr.c:7:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__inactive_nested_if_skips_bad_expr.c:7:8
+3 TOKEN_NUMBER 2 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__inactive_nested_if_skips_bad_expr.c:7:10
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__inactive_nested_if_skips_bad_expr.c:7:11
+5 TOKEN_EOF <null> <unknown>:0:0

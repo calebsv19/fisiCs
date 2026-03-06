@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Hex floating literal requires a 'p' exponent at tests/final/cases/02__float_hex_no_exponent.c:1:12 (got '0x1.2')

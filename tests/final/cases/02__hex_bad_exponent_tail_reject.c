@@ -1,0 +1,2 @@
+double a = 0x1.pz;
+double b = 0x1p+z;

@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_inner_ifdef_extra_tokens_reject.c:2:12: error: unexpected tokens after #ifdef directive
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_inner_ifdef_extra_tokens_reject.c:2:12: error: unexpected tokens after #ifdef directive

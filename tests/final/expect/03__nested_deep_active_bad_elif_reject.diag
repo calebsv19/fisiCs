@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_deep_active_bad_elif_reject.c:5:1: error: invalid #elif expression
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__nested_deep_active_bad_elif_reject.c:5:1: error: invalid #elif expression

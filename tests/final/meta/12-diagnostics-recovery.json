@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__missing_semicolon",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__missing_semicolon.c",
+      "expects": [
+        "expect/12__missing_semicolon.ast",
+        "expect/12__missing_semicolon.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__bad_paren_expr",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__bad_paren_expr.c",
+      "expects": [
+        "expect/12__bad_paren_expr.ast",
+        "expect/12__bad_paren_expr.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__bad_decl_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__bad_decl_recovery.c",
+      "expects": [
+        "expect/12__bad_decl_recovery.ast",
+        "expect/12__bad_decl_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__bad_stmt_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__bad_stmt_recovery.c",
+      "expects": [
+        "expect/12__bad_stmt_recovery.ast",
+        "expect/12__bad_stmt_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__extra_paren_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__extra_paren_recovery.c",
+      "expects": [
+        "expect/12__extra_paren_recovery.ast",
+        "expect/12__extra_paren_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__missing_rbrace_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__missing_rbrace_recovery.c",
+      "expects": [
+        "expect/12__missing_rbrace_recovery.ast",
+        "expect/12__missing_rbrace_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__cascading_errors",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__cascading_errors.c",
+      "expects": [
+        "expect/12__cascading_errors.ast",
+        "expect/12__cascading_errors.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__typedef_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__typedef_recovery.c",
+      "expects": [
+        "expect/12__typedef_recovery.ast",
+        "expect/12__typedef_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "typedef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__stray_else_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__stray_else_recovery.c",
+      "expects": [
+        "expect/12__stray_else_recovery.ast",
+        "expect/12__stray_else_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__for_missing_paren",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__for_missing_paren.c",
+      "expects": [
+        "expect/12__for_missing_paren.ast",
+        "expect/12__for_missing_paren.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__decl_init_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__decl_init_recovery.c",
+      "expects": [
+        "expect/12__decl_init_recovery.ast",
+        "expect/12__decl_init_recovery.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "decl-init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__macro_callsite_dedup",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__macro_callsite_dedup.c",
+      "expects": [
+        "expect/12__macro_callsite_dedup.ast",
+        "expect/12__macro_callsite_dedup.diag"
+      ],
+      "tags": [
+        "diag",
+        "macro",
+        "dedup"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

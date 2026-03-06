@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__scalar_initializers",
+      "bucket": "initializers-layout",
+      "input": "cases/08__scalar_initializers.c",
+      "expects": [
+        "expect/08__scalar_initializers.ast",
+        "expect/08__scalar_initializers.diag"
+      ],
+      "tags": [
+        "scalar"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__aggregate_brace_elision",
+      "bucket": "initializers-layout",
+      "input": "cases/08__aggregate_brace_elision.c",
+      "expects": [
+        "expect/08__aggregate_brace_elision.ast",
+        "expect/08__aggregate_brace_elision.diag"
+      ],
+      "tags": [
+        "aggregate",
+        "braces"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__designator_reset",
+      "bucket": "initializers-layout",
+      "input": "cases/08__designator_reset.c",
+      "expects": [
+        "expect/08__designator_reset.ast",
+        "expect/08__designator_reset.diag"
+      ],
+      "tags": [
+        "designator"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__static_constexpr",
+      "bucket": "initializers-layout",
+      "input": "cases/08__static_constexpr.c",
+      "expects": [
+        "expect/08__static_constexpr.ast",
+        "expect/08__static_constexpr.diag"
+      ],
+      "tags": [
+        "static",
+        "constexpr"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__array_string_init",
+      "bucket": "initializers-layout",
+      "input": "cases/08__array_string_init.c",
+      "expects": [
+        "expect/08__array_string_init.ast",
+        "expect/08__array_string_init.diag"
+      ],
+      "tags": [
+        "array",
+        "string"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__nested_designators",
+      "bucket": "initializers-layout",
+      "input": "cases/08__nested_designators.c",
+      "expects": [
+        "expect/08__nested_designators.ast",
+        "expect/08__nested_designators.diag"
+      ],
+      "tags": [
+        "designator"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__zero_init_aggregate",
+      "bucket": "initializers-layout",
+      "input": "cases/08__zero_init_aggregate.c",
+      "expects": [
+        "expect/08__zero_init_aggregate.ast",
+        "expect/08__zero_init_aggregate.diag"
+      ],
+      "tags": [
+        "aggregate",
+        "zero-init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__string_init_too_long",
+      "bucket": "initializers-layout",
+      "input": "cases/08__string_init_too_long.c",
+      "expects": [
+        "expect/08__string_init_too_long.ast",
+        "expect/08__string_init_too_long.diag"
+      ],
+      "tags": [
+        "string",
+        "init"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__layout_offsets",
+      "bucket": "initializers-layout",
+      "input": "cases/08__layout_offsets.c",
+      "expects": [
+        "expect/08__layout_offsets.ast",
+        "expect/08__layout_offsets.diag",
+        "expect/08__layout_offsets.ir"
+      ],
+      "tags": [
+        "layout",
+        "offsets"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

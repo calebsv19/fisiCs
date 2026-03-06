@@ -20,6 +20,7 @@ void freeParserClone(Parser* parser);
 
 // Error reporting
 void printParseError(const char* expected, Parser* parser);
+void markParserFatalError(Parser* parser);
 
 // Token lookahead
 Token peekNextToken(Parser* parser);

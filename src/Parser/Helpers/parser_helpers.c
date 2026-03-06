@@ -18,6 +18,7 @@ void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerCo
     parser->ctx = ctx;
     parser->preserveDirectives = preserveDirectives;
     parser->suppressErrors = false;
+    parser->fatalParseErrors = 0;
     parser->switchDepth = 0;
     parser->anonTagCounter = 0;
     const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
@@ -98,6 +99,11 @@ void printParseError(const char* expected, Parser* parser) {
             file,
             line,
             got);
+}
+
+void markParserFatalError(Parser* parser) {
+    if (!parser) return;
+    parser->fatalParseErrors += 1;
 }
 
 

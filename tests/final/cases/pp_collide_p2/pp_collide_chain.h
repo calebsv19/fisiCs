@@ -1,0 +1,1 @@
+#define PP_COLLIDE_P2 20

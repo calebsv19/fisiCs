@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid character in source at tests/final/cases/02__invalid_dollar_reject.c:1:5 (got '$')

@@ -1,0 +1,14 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:1:1
+1 TOKEN_IDENTIFIER a /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:1:5
+2 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:1:7
+3 TOKEN_CHAR_LITERAL 63 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:1:9
+4 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:1:13
+5 TOKEN_CONST const /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:2:1
+6 TOKEN_CHAR char /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:2:7
+7 TOKEN_ASTERISK * /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:2:12
+8 TOKEN_IDENTIFIER b /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:2:13
+9 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:2:15
+10 TOKEN_STRING \\? /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:2:17
+11 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/02__escape_question_mark.c:2:21
+12 TOKEN_EOF <null> <unknown>:0:0

@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Unterminated string literal at tests/final/cases/02__unterminated_string_reject.c:1:17 (got '"')

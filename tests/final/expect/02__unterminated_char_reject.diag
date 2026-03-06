@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Unterminated character literal at tests/final/cases/02__unterminated_char_reject.c:1:9 (got ''')

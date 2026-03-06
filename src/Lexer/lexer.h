@@ -11,6 +11,7 @@ typedef struct {
     int length;
     int line;
     int lineStart;
+    int fatalErrorCount;
     char* ownedSource;   // translated buffer (trigraph/digraph), owned if non-NULL
     bool enableTrigraphs;
 } Lexer;

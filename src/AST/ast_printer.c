@@ -776,6 +776,17 @@ void printAST(ASTNode* node, int depth) {
             for (int i = 0; i < depth + 1; i++) printf("    ");
             printf("CODE: %s\n", node->asmStmt.asmText);
             break;
+        case AST_STATIC_ASSERT:
+            printf("STATIC_ASSERT\n");
+            if (node->expr.left) {
+                printAST(node->expr.left, depth + 1);
+            }
+            if (node->expr.right) {
+                for (int i = 0; i < depth + 1; i++) printf("  ");
+                printf("MESSAGE\n");
+                printAST(node->expr.right, depth + 2);
+            }
+            break;
             
         case AST_SIZEOF:
             printf("SIZEOF\n");
