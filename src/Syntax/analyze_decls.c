@@ -17,6 +17,7 @@ static const uint64_t FNV_OFFSET = 1469598103934665603ULL;
 static const uint64_t FNV_PRIME  = 1099511628211ULL;
 
 static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope);
+static StorageClass deduceStorageClass(const ParsedType* type);
 
 static const ParsedType* resolveTypedefBase(Scope* scope, const ParsedType* type, int depth) {
     if (!scope || !type || depth > 16) {
@@ -464,6 +465,185 @@ static bool isVoidParameterDecl(ASTNode* param) {
            param->varDecl.varCount == 1;
 }
 
+static bool parsedTypeIsPlainVoid(const ParsedType* type) {
+    return type &&
+           type->kind == TYPE_PRIMITIVE &&
+           type->primitiveType == TOKEN_VOID &&
+           type->pointerDepth == 0 &&
+           type->derivationCount == 0;
+}
+
+static bool parsedTypeIsDirectFunction(const ParsedType* type) {
+    return type &&
+           type->derivationCount > 0 &&
+           type->derivations &&
+           type->derivations[0].kind == TYPE_DERIVATION_FUNCTION;
+}
+
+static bool isSyntheticUnnamedParameterName(const char* name) {
+    static const char* kPrefix = "__unnamed_param";
+    return name && strncmp(name, kPrefix, strlen(kPrefix)) == 0;
+}
+
+static bool adjustFunctionParameterType(ParsedType* type) {
+    if (!type) return false;
+    bool changed = false;
+    if (parsedTypeAdjustArrayParameter(type)) {
+        changed = true;
+    }
+    if (!parsedTypeIsDirectFunction(type)) {
+        return changed;
+    }
+    TypeDerivation* grown = realloc(type->derivations, (type->derivationCount + 1) * sizeof(TypeDerivation));
+    if (!grown) {
+        return changed;
+    }
+    type->derivations = grown;
+    memmove(type->derivations + 1, type->derivations, type->derivationCount * sizeof(TypeDerivation));
+    memset(&type->derivations[0], 0, sizeof(TypeDerivation));
+    type->derivations[0].kind = TYPE_DERIVATION_POINTER;
+    type->derivations[0].as.pointer.isConst = false;
+    type->derivations[0].as.pointer.isVolatile = false;
+    type->derivations[0].as.pointer.isRestrict = false;
+    type->derivationCount++;
+    type->pointerDepth += 1;
+    type->directlyDeclaresFunction = false;
+    changed = true;
+    return changed;
+}
+
+static bool parameterNameAlreadySeen(char** names, size_t count, const char* candidate) {
+    if (!candidate || !candidate[0]) return false;
+    for (size_t i = 0; i < count; ++i) {
+        if (names[i] && strcmp(names[i], candidate) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void parameterNameRemember(char*** names, size_t* count, size_t* capacity, char* name) {
+    if (!names || !count || !capacity || !name || !name[0]) {
+        return;
+    }
+    if (*count >= *capacity) {
+        size_t newCap = *capacity ? (*capacity * 2) : 8;
+        char** grown = realloc(*names, newCap * sizeof(char*));
+        if (!grown) {
+            return;
+        }
+        *names = grown;
+        *capacity = newCap;
+    }
+    (*names)[(*count)++] = name;
+}
+
+static bool validateFunctionParameters(ASTNode** params,
+                                       size_t paramCount,
+                                       bool isVariadic,
+                                       Scope* scope,
+                                       int line,
+                                       const char* funcName) {
+    if (!params || paramCount == 0) {
+        return true;
+    }
+    bool ok = true;
+    bool sawVoidParameter = false;
+    bool sawNonVoidParameter = false;
+    char** seenNames = NULL;
+    size_t seenCount = 0;
+    size_t seenCapacity = 0;
+
+    for (size_t i = 0; i < paramCount; ++i) {
+        ASTNode* param = params[i];
+        if (!param || param->type != AST_VARIABLE_DECLARATION) {
+            continue;
+        }
+        ParsedType* perTypes = param->varDecl.declaredTypes;
+        ASTNode** varNames = param->varDecl.varNames;
+        for (size_t k = 0; k < param->varDecl.varCount; ++k) {
+            const ParsedType* paramType = perTypes ? &perTypes[k] : &param->varDecl.declaredType;
+            ASTNode* nameNode = varNames ? varNames[k] : NULL;
+            const char* paramName = (nameNode && nameNode->type == AST_IDENTIFIER) ? nameNode->valueNode.value : NULL;
+            if (isSyntheticUnnamedParameterName(paramName)) {
+                paramName = NULL;
+            }
+            SourceRange paramLoc = nameNode ? nameNode->location : (param ? param->location : (SourceRange){0});
+            SourceRange paramCallSite = nameNode ? nameNode->macroCallSite : (param ? param->macroCallSite : (SourceRange){0});
+            SourceRange paramDefSite = nameNode ? nameNode->macroDefinition : (param ? param->macroDefinition : (SourceRange){0});
+
+            StorageClass storage = deduceStorageClass(paramType);
+            if (storage == STORAGE_EXTERN || storage == STORAGE_AUTO) {
+                addErrorWithRanges(paramLoc,
+                                   paramCallSite,
+                                   paramDefSite,
+                                   "Invalid storage class for function parameter",
+                                   paramName ? paramName : funcName);
+                ok = false;
+            } else if (storage == STORAGE_STATIC && !parsedTypeIsDirectArray(paramType)) {
+                addErrorWithRanges(paramLoc,
+                                   paramCallSite,
+                                   paramDefSite,
+                                   "Invalid use of static storage class in parameter declaration",
+                                   paramName ? paramName : funcName);
+                ok = false;
+            }
+
+            if (parsedTypeIsPlainVoid(paramType)) {
+                if (paramName && paramName[0]) {
+                    addErrorWithRanges(paramLoc,
+                                       paramCallSite,
+                                       paramDefSite,
+                                       "Parameter declared with type void must not have a name",
+                                       paramName);
+                    ok = false;
+                }
+                sawVoidParameter = true;
+            } else {
+                sawNonVoidParameter = true;
+            }
+
+            if (paramName && paramName[0]) {
+                if (parameterNameAlreadySeen(seenNames, seenCount, paramName)) {
+                    addErrorWithRanges(paramLoc,
+                                       paramCallSite,
+                                       paramDefSite,
+                                       "Duplicate parameter name",
+                                       paramName);
+                    ok = false;
+                } else {
+                    parameterNameRemember(&seenNames, &seenCount, &seenCapacity, nameNode->valueNode.value);
+                }
+            }
+
+            TypeInfo info = typeInfoFromParsedType(paramType, scope);
+            bool directArray = parsedTypeIsDirectArray(paramType);
+            bool directFunction = parsedTypeIsDirectFunction(paramType);
+            if (!directArray &&
+                !directFunction &&
+                paramType->pointerDepth == 0 &&
+                (info.category == TYPEINFO_STRUCT || info.category == TYPEINFO_UNION) &&
+                !info.isComplete) {
+                addErrorWithRanges(paramLoc,
+                                   paramCallSite,
+                                   paramDefSite,
+                                   "Function parameter has incomplete type",
+                                   paramName ? paramName : funcName);
+                ok = false;
+            }
+        }
+    }
+
+    free(seenNames);
+
+    if (sawVoidParameter && (sawNonVoidParameter || isVariadic)) {
+        addError(line, 0, "Parameter list cannot combine 'void' with other parameters", funcName);
+        ok = false;
+    }
+
+    return ok;
+}
+
 static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramCount, bool isVariadic) {
     if (!sym) return;
     free(sym->signature.params);
@@ -503,7 +683,9 @@ static void assignFunctionSignature(Symbol* sym, ASTNode** params, size_t paramC
         for (size_t k = 0; k < param->varDecl.varCount; ++k) {
             if (idx < (size_t)totalDecls) {
                 const ParsedType* srcType = perTypes ? &perTypes[k] : &param->varDecl.declaredType;
-                sym->signature.params[idx] = *srcType;
+                ParsedType adjusted = parsedTypeClone(srcType);
+                adjustFunctionParameterType(&adjusted);
+                sym->signature.params[idx] = adjusted;
                 idx++;
             }
         }
@@ -704,6 +886,179 @@ static SymbolLinkage deduceLinkage(const ParsedType* type, bool fileScope) {
     return LINKAGE_NONE;
 }
 
+static int countStorageSpecifiers(const ParsedType* type) {
+    if (!type) return 0;
+    int count = 0;
+    if (type->isExtern) count++;
+    if (type->isStatic) count++;
+    if (type->isRegister) count++;
+    if (type->isAuto) count++;
+    return count;
+}
+
+static bool validateStorageUsage(const ParsedType* type,
+                                 bool fileScope,
+                                 bool isFunction,
+                                 bool isTypedef,
+                                 int line,
+                                 const char* nameHint) {
+    if (!type) return true;
+
+    int storageCount = countStorageSpecifiers(type);
+    if (storageCount > 1) {
+        addError(line, 0, "Conflicting storage class specifiers", nameHint);
+        return false;
+    }
+
+    if (isTypedef) {
+        if (storageCount > 0) {
+            addError(line, 0, "Typedef cannot combine with other storage class specifiers", nameHint);
+            return false;
+        }
+        return true;
+    }
+
+    StorageClass storage = deduceStorageClass(type);
+    if (!isFunction && fileScope &&
+        (storage == STORAGE_AUTO || storage == STORAGE_REGISTER)) {
+        addError(line, 0, "Invalid storage class at file scope", nameHint);
+        return false;
+    }
+
+    if (isFunction &&
+        (storage == STORAGE_AUTO || storage == STORAGE_REGISTER)) {
+        addError(line, 0, "Invalid storage class for function declaration", nameHint);
+        return false;
+    }
+
+    return true;
+}
+
+static bool validateRestrictUsage(const ParsedType* type,
+                                  Scope* scope,
+                                  int line,
+                                  const char* nameHint) {
+    if (!type || !type->isRestrict) return true;
+    TypeInfo info = typeInfoFromParsedType(type, scope);
+    if (info.pointerDepth > 0) return true;
+    addError(line, 0, "restrict qualifier requires a pointer type", nameHint);
+    return false;
+}
+
+static bool validatePrimitiveSpecifierUsage(const ParsedType* type,
+                                            int line,
+                                            const char* nameHint) {
+    if (!type || type->kind != TYPE_PRIMITIVE) return true;
+
+    if (type->isSigned && type->isUnsigned) {
+        addError(line, 0, "Type cannot be both signed and unsigned", nameHint);
+        return false;
+    }
+    if (type->isShort && type->isLong) {
+        addError(line, 0, "Type cannot be both short and long", nameHint);
+        return false;
+    }
+
+    switch (type->primitiveType) {
+        case TOKEN_FLOAT:
+            if (type->isSigned || type->isUnsigned || type->isShort || type->isLong) {
+                addError(line, 0, "Invalid type specifier combination for float", nameHint);
+                return false;
+            }
+            break;
+        case TOKEN_DOUBLE:
+            if (type->isSigned || type->isUnsigned || type->isShort) {
+                addError(line, 0, "Invalid type specifier combination for double", nameHint);
+                return false;
+            }
+            break;
+        case TOKEN_BOOL:
+            if (type->isSigned || type->isUnsigned || type->isShort || type->isLong) {
+                addError(line, 0, "Invalid type specifier combination for _Bool", nameHint);
+                return false;
+            }
+            break;
+        case TOKEN_CHAR:
+            if (type->isShort || type->isLong) {
+                addError(line, 0, "Invalid type specifier combination for char", nameHint);
+                return false;
+            }
+            break;
+        case TOKEN_VOID:
+            if (type->isSigned || type->isUnsigned || type->isShort || type->isLong) {
+                addError(line, 0, "Invalid type specifier combination for void", nameHint);
+                return false;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
+static bool enumExprHasOverflowingIntegerLiteral(ASTNode* expr, Scope* scope) {
+    if (!expr) {
+        return false;
+    }
+
+    switch (expr->type) {
+        case AST_NUMBER_LITERAL: {
+            if (!expr->valueNode.value) {
+                return false;
+            }
+            IntegerLiteralInfo info;
+            if (!parse_integer_literal_info(expr->valueNode.value,
+                                            (scope && scope->ctx) ? cc_get_target_layout(scope->ctx) : NULL,
+                                            &info)) {
+                return false;
+            }
+            return info.ok && info.overflow;
+        }
+        case AST_UNARY_EXPRESSION:
+            return enumExprHasOverflowingIntegerLiteral(expr->expr.left, scope);
+        case AST_BINARY_EXPRESSION:
+            return enumExprHasOverflowingIntegerLiteral(expr->expr.left, scope) ||
+                   enumExprHasOverflowingIntegerLiteral(expr->expr.right, scope);
+        case AST_TERNARY_EXPRESSION:
+            return enumExprHasOverflowingIntegerLiteral(expr->ternaryExpr.condition, scope) ||
+                   enumExprHasOverflowingIntegerLiteral(expr->ternaryExpr.trueExpr, scope) ||
+                   enumExprHasOverflowingIntegerLiteral(expr->ternaryExpr.falseExpr, scope);
+        case AST_CAST_EXPRESSION:
+            return enumExprHasOverflowingIntegerLiteral(expr->castExpr.expression, scope);
+        case AST_COMMA_EXPRESSION:
+            if (!expr->commaExpr.expressions) {
+                return false;
+            }
+            for (size_t i = 0; i < expr->commaExpr.exprCount; ++i) {
+                if (enumExprHasOverflowingIntegerLiteral(expr->commaExpr.expressions[i], scope)) {
+                    return true;
+                }
+            }
+            return false;
+        default:
+            return false;
+    }
+}
+
+static bool enumValueFitsIntRange(long long value, Scope* scope) {
+    unsigned intBits = 32;
+    const TargetLayout* tl = (scope && scope->ctx) ? cc_get_target_layout(scope->ctx) : NULL;
+    if (tl && tl->intBits > 0) {
+        intBits = (unsigned)tl->intBits;
+    }
+    if (intBits >= 64) {
+        return true;
+    }
+    if (intBits == 0) {
+        intBits = 32;
+    }
+
+    long long minVal = -(1LL << (intBits - 1));
+    long long maxVal = (1LL << (intBits - 1)) - 1LL;
+    return value >= minVal && value <= maxVal;
+}
+
 static void analyzeDesignatedInitializer(DesignatedInit* init, Scope* scope) {
     if (!init || !scope) return;
     if (init->indexExpr) {
@@ -772,12 +1127,34 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             analyzeStaticAssertDeclaration(node, scope);
             break;
         case AST_VARIABLE_DECLARATION: {
+            if (!validatePrimitiveSpecifierUsage(&node->varDecl.declaredType, node->line, NULL)) {
+                break;
+            }
             ParsedType* declaredTypes = node->varDecl.declaredTypes;
             for (size_t i = 0; i < node->varDecl.varCount; i++) {
                 ASTNode* ident = node->varDecl.varNames[i];
                 Symbol* boundSym = NULL;
                 ParsedType* varType = declaredTypes ? &declaredTypes[i]
                                                      : &node->varDecl.declaredType;
+                const char* nameHint = (ident && ident->type == AST_IDENTIFIER)
+                    ? ident->valueNode.value
+                    : NULL;
+                int declLine = ident ? ident->line : node->line;
+
+                if (!validateStorageUsage(varType,
+                                          scopeIsFileScope(scope),
+                                          false,
+                                          false,
+                                          declLine,
+                                          nameHint)) {
+                    continue;
+                }
+                if (!validateRestrictUsage(varType, scope, declLine, nameHint)) {
+                    continue;
+                }
+                if (!validatePrimitiveSpecifierUsage(varType, declLine, nameHint)) {
+                    continue;
+                }
                 analyzeInlineAggregateDefinition(varType, scope);
                 TypeInfo varInfo = typeInfoFromParsedType(varType, scope);
                 StorageClass storage = deduceStorageClass(varType);
@@ -786,6 +1163,14 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                       i < node->varDecl.varCount &&
                                       node->varDecl.initializers[i] != NULL;
                 bool fileScope = scopeIsFileScope(scope);
+                if (!fileScope && storage == STORAGE_EXTERN && hasInitializer) {
+                    addErrorWithRanges(ident ? ident->location : node->location,
+                                       ident ? ident->macroCallSite : node->macroCallSite,
+                                       ident ? ident->macroDefinition : node->macroDefinition,
+                                       "Block-scope extern declaration cannot have an initializer",
+                                       ident ? ident->valueNode.value : NULL);
+                    continue;
+                }
                 bool tentative = fileScope &&
                                   linkage == LINKAGE_EXTERNAL &&
                                   storage != STORAGE_EXTERN &&
@@ -867,6 +1252,20 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     }
                     boundSym = existing;
                 } else {
+                    if (!fileScope && storage == STORAGE_EXTERN) {
+                        Symbol* linked = resolveInScopeChain(scope, ident->valueNode.value);
+                        if (linked &&
+                            linked->kind == SYMBOL_VARIABLE &&
+                            linked->linkage != LINKAGE_NONE &&
+                            !parsedTypesStructurallyCompatibleInScope(&linked->type, varType, scope)) {
+                            addErrorWithRanges(ident ? ident->location : node->location,
+                                               ident ? ident->macroCallSite : node->macroCallSite,
+                                               ident ? ident->macroDefinition : node->macroDefinition,
+                                               "Conflicting types for variable",
+                                               ident ? ident->valueNode.value : NULL);
+                            continue;
+                        }
+                    }
                     Symbol* sym = calloc(1, sizeof(Symbol));
                 if (!sym) continue;
                 sym->name = strdup(ident->valueNode.value);
@@ -934,6 +1333,46 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             ASTNode* funcName = node->type == AST_FUNCTION_DEFINITION
                 ? node->functionDef.funcName
                 : node->functionDecl.funcName;
+            ParsedType* returnType = node->type == AST_FUNCTION_DEFINITION
+                ? &node->functionDef.returnType
+                : &node->functionDecl.returnType;
+            const char* funcHint = (funcName && funcName->type == AST_IDENTIFIER)
+                ? funcName->valueNode.value
+                : NULL;
+            int funcLine = funcName ? funcName->line : node->line;
+            bool fileScope = scopeIsFileScope(scope);
+
+            if (!validateStorageUsage(returnType,
+                                      fileScope,
+                                      true,
+                                      false,
+                                      funcLine,
+                                      funcHint)) {
+                break;
+            }
+            if (!validateRestrictUsage(returnType, scope, funcLine, funcHint)) {
+                break;
+            }
+            if (!validatePrimitiveSpecifierUsage(returnType, funcLine, funcHint)) {
+                break;
+            }
+            ASTNode** params = node->type == AST_FUNCTION_DEFINITION
+                ? node->functionDef.parameters
+                : node->functionDecl.parameters;
+            size_t paramCount = node->type == AST_FUNCTION_DEFINITION
+                ? node->functionDef.paramCount
+                : node->functionDecl.paramCount;
+            bool isVariadic = node->type == AST_FUNCTION_DEFINITION
+                ? node->functionDef.isVariadic
+                : node->functionDecl.isVariadic;
+            if (!validateFunctionParameters(params,
+                                            paramCount,
+                                            isVariadic,
+                                            scope,
+                                            funcLine,
+                                            funcHint)) {
+                break;
+            }
             StorageClass storage = deduceStorageClass(node->type == AST_FUNCTION_DEFINITION
                                                       ? &node->functionDef.returnType
                                                       : &node->functionDecl.returnType);
@@ -980,8 +1419,13 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 }
 
                 if (existing->linkage != linkage) {
-                    bool conflict = (existing->linkage == LINKAGE_INTERNAL && linkage != LINKAGE_INTERNAL) ||
-                                    (linkage == LINKAGE_INTERNAL && existing->linkage != LINKAGE_INTERNAL);
+                    bool allowExternAfterStatic = fileScope &&
+                                                  storage == STORAGE_EXTERN &&
+                                                  existing->linkage == LINKAGE_INTERNAL &&
+                                                  linkage == LINKAGE_EXTERNAL;
+                    bool conflict = !allowExternAfterStatic &&
+                                    ((existing->linkage == LINKAGE_INTERNAL && linkage != LINKAGE_INTERNAL) ||
+                                     (linkage == LINKAGE_INTERNAL && existing->linkage != LINKAGE_INTERNAL));
                     if (conflict) {
                         addErrorWithRanges(funcName ? funcName->location : node->location,
                                            funcName ? funcName->macroCallSite : node->macroCallSite,
@@ -990,7 +1434,9 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                            funcName ? funcName->valueNode.value : NULL);
                         break;
                     }
-                    if (existing->linkage == LINKAGE_NONE) {
+                    if (allowExternAfterStatic) {
+                        linkage = LINKAGE_INTERNAL;
+                    } else if (existing->linkage == LINKAGE_NONE) {
                         existing->linkage = linkage;
                     }
                 }
@@ -1098,6 +1544,21 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
         case AST_TYPEDEF: {
             analyzeInlineAggregateDefinition(&node->typedefStmt.baseType, scope);
             const char* aliasName = node->typedefStmt.alias->valueNode.value;
+            int aliasLine = node->typedefStmt.alias ? node->typedefStmt.alias->line : node->line;
+            if (!validateStorageUsage(&node->typedefStmt.baseType,
+                                      scopeIsFileScope(scope),
+                                      false,
+                                      true,
+                                      aliasLine,
+                                      aliasName)) {
+                break;
+            }
+            if (!validateRestrictUsage(&node->typedefStmt.baseType, scope, aliasLine, aliasName)) {
+                break;
+            }
+            if (!validatePrimitiveSpecifierUsage(&node->typedefStmt.baseType, aliasLine, aliasName)) {
+                break;
+            }
             evaluateArrayDerivations(&node->typedefStmt.baseType, scope);
             Symbol* existing = lookupSymbol(&scope->table, aliasName);
             if (existing && existing->kind == SYMBOL_TYPEDEF) {
@@ -1154,6 +1615,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             if (!nameNode || nameNode->type != AST_IDENTIFIER || !scope->ctx) {
                 break;
             }
+            bool fileScope = scopeIsFileScope(scope);
 
             CCTagKind tagKind = CC_TAG_STRUCT;
             uint64_t fingerprint = 0;
@@ -1175,22 +1637,57 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 isForward = (node->structDef.fieldCount == 0);
             }
 
-            if (isForward && tagKind != CC_TAG_ENUM) {
-                if (!cc_add_tag(scope->ctx, tagKind, nameNode->valueNode.value)) {
+            if (fileScope) {
+                bool crossKindConflict = false;
+                if (tagKind != CC_TAG_STRUCT &&
+                    cc_has_tag(scope->ctx, CC_TAG_STRUCT, nameNode->valueNode.value)) {
+                    crossKindConflict = true;
+                }
+                if (tagKind != CC_TAG_UNION &&
+                    cc_has_tag(scope->ctx, CC_TAG_UNION, nameNode->valueNode.value)) {
+                    crossKindConflict = true;
+                }
+                if (tagKind != CC_TAG_ENUM &&
+                    cc_has_tag(scope->ctx, CC_TAG_ENUM, nameNode->valueNode.value)) {
+                    crossKindConflict = true;
+                }
+                if (crossKindConflict) {
                     char buffer[128];
                     snprintf(buffer, sizeof(buffer), "Conflicting tag name for %s '%s'", kindLabel, nameNode->valueNode.value);
                     addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                    break;
+                }
+            }
+
+            if (isForward && tagKind != CC_TAG_ENUM) {
+                if (fileScope) {
+                    if (!cc_add_tag(scope->ctx, tagKind, nameNode->valueNode.value)) {
+                        char buffer[128];
+                        snprintf(buffer, sizeof(buffer), "Conflicting tag name for %s '%s'", kindLabel, nameNode->valueNode.value);
+                        addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                    }
                 }
             } else {
-                CCTagDefineResult result = cc_define_tag(scope->ctx,
-                                                         tagKind,
-                                                         nameNode->valueNode.value,
-                                                         fingerprint,
-                                                         node);
-                if (result == CC_TAGDEF_CONFLICT) {
-                    char buffer[128];
-                    snprintf(buffer, sizeof(buffer), "Conflicting definition of %s '%s'", kindLabel, nameNode->valueNode.value);
-                    addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                /*
+                 * Block-scope struct/union tag definitions may shadow outer tags.
+                 * Keep file-scope as the canonical global tag namespace and avoid
+                 * forcing local shadows into CompilerContext.
+                 */
+                if (!fileScope && tagKind != CC_TAG_ENUM) {
+                    if (!cc_has_tag(scope->ctx, tagKind, nameNode->valueNode.value)) {
+                        (void)cc_add_tag(scope->ctx, tagKind, nameNode->valueNode.value);
+                    }
+                } else {
+                    CCTagDefineResult result = cc_define_tag(scope->ctx,
+                                                             tagKind,
+                                                             nameNode->valueNode.value,
+                                                             fingerprint,
+                                                             node);
+                    if (result == CC_TAGDEF_CONFLICT) {
+                        char buffer[128];
+                        snprintf(buffer, sizeof(buffer), "Conflicting definition of %s '%s'", kindLabel, nameNode->valueNode.value);
+                        addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                    }
                 }
             }
 
@@ -1206,7 +1703,15 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     long long enumVal = 0;
                     bool hasValue = false;
                     if (node->enumDef.values && node->enumDef.values[i]) {
-                        ConstEvalResult val = constEval(node->enumDef.values[i], scope, true);
+                        ASTNode* valueExpr = node->enumDef.values[i];
+                        if (enumExprHasOverflowingIntegerLiteral(valueExpr, scope)) {
+                            addErrorWithRanges(member ? member->location : node->location,
+                                               member ? member->macroCallSite : node->macroCallSite,
+                                               member ? member->macroDefinition : node->macroDefinition,
+                                               "Enumerator value contains an out-of-range integer literal",
+                                               member ? member->valueNode.value : NULL);
+                        }
+                        ConstEvalResult val = constEval(valueExpr, scope, true);
                         if (!val.isConst) {
                             addErrorWithRanges(member ? member->location : node->location,
                                                member ? member->macroCallSite : node->macroCallSite,
@@ -1216,10 +1721,24 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         } else {
                             enumVal = val.value;
                             hasValue = true;
+                            if (!enumValueFitsIntRange(enumVal, scope)) {
+                                addErrorWithRanges(member ? member->location : node->location,
+                                                   member ? member->macroCallSite : node->macroCallSite,
+                                                   member ? member->macroDefinition : node->macroDefinition,
+                                                   "Enumerator value is out of range for type 'int'",
+                                                   member ? member->valueNode.value : NULL);
+                            }
                         }
                     } else if (haveCurrent) {
                         enumVal = currentValue + 1;
                         hasValue = true;
+                        if (!enumValueFitsIntRange(enumVal, scope)) {
+                            addErrorWithRanges(member ? member->location : node->location,
+                                               member ? member->macroCallSite : node->macroCallSite,
+                                               member ? member->macroDefinition : node->macroDefinition,
+                                               "Enumerator value is out of range for type 'int'",
+                                               member ? member->valueNode.value : NULL);
+                        }
                     } else {
                         enumVal = 0;
                         hasValue = true;
@@ -1253,6 +1772,9 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             }
 
             if (node->type == AST_STRUCT_DEFINITION || node->type == AST_UNION_DEFINITION) {
+                char** seenFieldNames = NULL;
+                size_t seenFieldCount = 0;
+                size_t seenFieldCap = 0;
                 for (size_t i = 0; i < node->structDef.fieldCount; ++i) {
                     ASTNode* field = node->structDef.fields ? node->structDef.fields[i] : NULL;
                     if (!field || field->type != AST_VARIABLE_DECLARATION) continue;
@@ -1265,6 +1787,34 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                          field->varDecl.varNames[0]->type == AST_IDENTIFIER)
                             ? field->varDecl.varNames[0]->valueNode.value
                             : NULL;
+                    if (fieldName && fieldName[0]) {
+                        bool isDuplicate = false;
+                        for (size_t j = 0; j < seenFieldCount; ++j) {
+                            if (seenFieldNames[j] && strcmp(seenFieldNames[j], fieldName) == 0) {
+                                isDuplicate = true;
+                                break;
+                            }
+                        }
+                        if (isDuplicate) {
+                                addErrorWithRanges(field->location,
+                                                   field->macroCallSite,
+                                                   field->macroDefinition,
+                                                   "Duplicate field name in aggregate type",
+                                                   fieldName);
+                        } else {
+                            if (seenFieldCount == seenFieldCap) {
+                                size_t newCap = seenFieldCap ? seenFieldCap * 2 : 8;
+                                char** grown = realloc(seenFieldNames, newCap * sizeof(char*));
+                                if (grown) {
+                                    seenFieldNames = grown;
+                                    seenFieldCap = newCap;
+                                }
+                            }
+                            if (seenFieldCount < seenFieldCap) {
+                                seenFieldNames[seenFieldCount++] = strdup(fieldName);
+                            }
+                        }
+                    }
                     if (isFlexible) {
                         if (node->type == AST_UNION_DEFINITION) {
                             addErrorWithRanges(field->location,
@@ -1315,6 +1865,10 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         }
                     }
                 }
+                for (size_t i = 0; i < seenFieldCount; ++i) {
+                    free(seenFieldNames[i]);
+                }
+                free(seenFieldNames);
             }
             break;
         }
@@ -1326,6 +1880,89 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
 }
 static bool typeInfoIsStructLike(const TypeInfo* info) {
     return info && (info->category == TYPEINFO_STRUCT || info->category == TYPEINFO_UNION);
+}
+
+static bool inlineAggregateHasField(const ASTNode* aggregateDef, const char* fieldName) {
+    if (!aggregateDef || !fieldName || !fieldName[0]) {
+        return false;
+    }
+    if (aggregateDef->type != AST_STRUCT_DEFINITION &&
+        aggregateDef->type != AST_UNION_DEFINITION) {
+        return false;
+    }
+    for (size_t i = 0; i < aggregateDef->structDef.fieldCount; ++i) {
+        ASTNode* field = aggregateDef->structDef.fields ? aggregateDef->structDef.fields[i] : NULL;
+        if (!field || field->type != AST_VARIABLE_DECLARATION || !field->varDecl.varNames) {
+            continue;
+        }
+        for (size_t k = 0; k < field->varDecl.varCount; ++k) {
+            ASTNode* nameNode = field->varDecl.varNames[k];
+            if (!nameNode || nameNode->type != AST_IDENTIFIER || !nameNode->valueNode.value) {
+                continue;
+            }
+            if (strcmp(nameNode->valueNode.value, fieldName) == 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool aggregateTypeHasField(const ParsedType* parsedType,
+                                  const TypeInfo* info,
+                                  const char* fieldName,
+                                  Scope* scope) {
+    if (!fieldName || !fieldName[0]) {
+        return true;
+    }
+    if (parsedType && parsedType->inlineStructOrUnionDef &&
+        inlineAggregateHasField(parsedType->inlineStructOrUnionDef, fieldName)) {
+        return true;
+    }
+    if (!scope || !scope->ctx || !info || !info->userTypeName) {
+        return false;
+    }
+    CCTagKind kind = (info->category == TYPEINFO_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+    ASTNode* tagDef = cc_tag_definition(scope->ctx, kind, info->userTypeName);
+    if (tagDef && inlineAggregateHasField(tagDef, fieldName)) {
+        return true;
+    }
+    const CCTagFieldLayout* layouts = NULL;
+    size_t count = 0;
+    if (!cc_get_tag_field_layouts(scope->ctx, kind, info->userTypeName, &layouts, &count) || !layouts) {
+        return false;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        const CCTagFieldLayout* lay = &layouts[i];
+        if (!lay->name) {
+            continue;
+        }
+        if (strcmp(lay->name, fieldName) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool aggregateTypeCanValidateFields(const ParsedType* parsedType,
+                                           const TypeInfo* info,
+                                           Scope* scope) {
+    if (parsedType && parsedType->inlineStructOrUnionDef) {
+        return true;
+    }
+    if (!scope || !scope->ctx || !info || !info->userTypeName) {
+        return false;
+    }
+    CCTagKind kind = (info->category == TYPEINFO_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+    ASTNode* tagDef = cc_tag_definition(scope->ctx, kind, info->userTypeName);
+    if (tagDef && (tagDef->type == AST_STRUCT_DEFINITION || tagDef->type == AST_UNION_DEFINITION)) {
+        return true;
+    }
+    const CCTagFieldLayout* layouts = NULL;
+    size_t count = 0;
+    return cc_get_tag_field_layouts(scope->ctx, kind, info->userTypeName, &layouts, &count) &&
+           layouts &&
+           count > 0;
 }
 
 static ASTNode* symbolConstInitializerExpr(const Symbol* sym) {
@@ -1469,6 +2106,25 @@ static void validateVariableInitializer(ParsedType* type,
             char buffer[256];
             snprintf(buffer, sizeof(buffer), "Empty initializer for struct variable '%s'", name);
             addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+        } else if (init->expression->type == AST_COMPOUND_LITERAL) {
+            bool canValidateFields = aggregateTypeCanValidateFields(type, &info, scope);
+            for (size_t i = 0; i < init->expression->compoundLiteral.entryCount; ++i) {
+                DesignatedInit* entry = init->expression->compoundLiteral.entries
+                    ? init->expression->compoundLiteral.entries[i]
+                    : NULL;
+                if (!entry || !entry->fieldName) {
+                    continue;
+                }
+                if (canValidateFields &&
+                    !aggregateTypeHasField(type, &info, entry->fieldName, scope)) {
+                    char buffer[256];
+                    snprintf(buffer, sizeof(buffer),
+                             "Unknown field '%s' in designated initializer for '%s'",
+                             entry->fieldName,
+                             name ? name : "<unnamed>");
+                    addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+                }
+            }
         }
         return;
     }
@@ -1480,6 +2136,35 @@ static void validateVariableInitializer(ParsedType* type,
     if (staticStorage && init->expression && init->expression->type == AST_STRING_LITERAL) {
         // String literals are load-time constants for pointers/arrays at static storage.
         return;
+    }
+
+    if (init->expression) {
+        TypeInfo rhs = analyzeExpression(init->expression, scope);
+        rhs = decayToRValue(rhs);
+        if (rhs.category != TYPEINFO_INVALID) {
+            AssignmentCheckResult assign = canAssignTypes(&info, &rhs);
+            if (assign == ASSIGN_INCOMPATIBLE &&
+                typeInfoIsPointerLike(&info) &&
+                typeInfoIsInteger(&rhs)) {
+                long long zero = 1;
+                if (constEvalInteger(init->expression, scope, &zero, true) && zero == 0) {
+                    assign = ASSIGN_OK;
+                }
+            }
+            if (assign == ASSIGN_INCOMPATIBLE) {
+                char buffer[256];
+                snprintf(buffer, sizeof(buffer),
+                         "Incompatible initializer type for '%s'",
+                         name ? name : "<unnamed>");
+                addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+            } else if (assign == ASSIGN_QUALIFIER_LOSS) {
+                char buffer[256];
+                snprintf(buffer, sizeof(buffer),
+                         "Initializer for '%s' discards qualifiers from pointer target",
+                         name ? name : "<unnamed>");
+                addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+            }
+        }
     }
 
     if (staticStorage && init->expression && init->expression->type != AST_COMPOUND_LITERAL) {

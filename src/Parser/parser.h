@@ -19,6 +19,16 @@
 #define PARSER_DEBUG_PRINTF(...) ((void)0)
 #endif
 
+typedef struct ParserOrdinaryName {
+    char* name;
+    struct ParserOrdinaryName* next;
+} ParserOrdinaryName;
+
+typedef struct ParserScopeFrame {
+    ParserOrdinaryName* names;
+    struct ParserScopeFrame* parent;
+} ParserScopeFrame;
+
 typedef struct Parser {
     Token currentToken;
     Token nextToken;
@@ -35,6 +45,7 @@ typedef struct Parser {
     int switchDepth;
     unsigned long long anonTagCounter;
     CompilerContext* ctx;
+    ParserScopeFrame* ordinaryScope;
 } Parser;
 
 

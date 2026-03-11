@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER NegativeValues
+        Member:   IDENTIFIER NV_NEG
+            Value:  UNARY EXPRESSION '-' (prefix)
+    NUMBER_LITERAL 3
+        Member:   IDENTIFIER NV_NEG_NEXT
+        Member:   IDENTIFIER NV_ZERO
+            Value:  NUMBER_LITERAL 0

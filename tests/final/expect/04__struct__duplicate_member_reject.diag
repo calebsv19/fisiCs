@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (0:0): Duplicate field name in aggregate type
+   Hint: value

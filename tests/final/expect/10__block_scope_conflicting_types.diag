@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (5:15): Conflicting types for variable
+   Hint: a
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/10__block_scope_conflicting_types.c:5:15

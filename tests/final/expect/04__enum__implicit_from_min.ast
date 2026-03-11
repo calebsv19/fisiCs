@@ -1,0 +1,8 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER ImplicitFromMin
+        Member:   IDENTIFIER IFM_MIN
+            Value:  UNARY EXPRESSION '-' (prefix)
+    NUMBER_LITERAL 2147483648LL
+        Member:   IDENTIFIER IFM_NEXT

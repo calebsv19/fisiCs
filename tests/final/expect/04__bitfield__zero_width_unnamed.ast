@@ -1,0 +1,16 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER ZeroWidthUnnamed
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER a
+        BITFIELD : NUMBER_LITERAL 3
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER <unnamed>
+        BITFIELD : NUMBER_LITERAL 0
+    VAR_DECL
+      TYPE: unsigned int
+      IDENTIFIER b
+        BITFIELD : NUMBER_LITERAL 5

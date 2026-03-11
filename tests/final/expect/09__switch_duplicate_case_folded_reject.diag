@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (5:14): Duplicate case label with value 1
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/09__switch_duplicate_case_folded_reject.c:5:14
+Warning at (3:0): Previous case label with same value here

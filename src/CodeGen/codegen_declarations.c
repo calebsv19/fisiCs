@@ -790,6 +790,35 @@ static bool parsedTypeIsPlainVoid(const ParsedType* type) {
     return true;
 }
 
+static bool parsedTypeIsDirectFunction(const ParsedType* type) {
+    return type &&
+           type->derivationCount > 0 &&
+           type->derivations &&
+           type->derivations[0].kind == TYPE_DERIVATION_FUNCTION;
+}
+
+static void cg_adjust_parameter_type(ParsedType* type) {
+    if (!type) return;
+    parsedTypeAdjustArrayParameter(type);
+    if (!parsedTypeIsDirectFunction(type)) {
+        return;
+    }
+    TypeDerivation* grown = realloc(type->derivations, (type->derivationCount + 1) * sizeof(TypeDerivation));
+    if (!grown) {
+        return;
+    }
+    type->derivations = grown;
+    memmove(type->derivations + 1, type->derivations, type->derivationCount * sizeof(TypeDerivation));
+    memset(&type->derivations[0], 0, sizeof(TypeDerivation));
+    type->derivations[0].kind = TYPE_DERIVATION_POINTER;
+    type->derivations[0].as.pointer.isConst = false;
+    type->derivations[0].as.pointer.isVolatile = false;
+    type->derivations[0].as.pointer.isRestrict = false;
+    type->derivationCount++;
+    type->pointerDepth += 1;
+    type->directlyDeclaresFunction = false;
+}
+
 static bool paramDeclRepresentsVoid(ASTNode* param) {
     if (!param || param->type != AST_VARIABLE_DECLARATION) {
         return false;
@@ -900,7 +929,10 @@ LLVMTypeRef* collectParamTypes(CodegenContext* ctx,
 
     for (size_t i = 0; i < flatCount; ++i) {
         const ParsedType* type = infos[i].parsedType;
-        LLVMTypeRef llvmType = cg_type_from_parsed(ctx, type);
+        ParsedType adjusted = parsedTypeClone(type);
+        cg_adjust_parameter_type(&adjusted);
+        LLVMTypeRef llvmType = cg_type_from_parsed(ctx, &adjusted);
+        parsedTypeFree(&adjusted);
         if (!llvmType || LLVMGetTypeKind(llvmType) == LLVMVoidTypeKind) {
             llvmType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
@@ -929,7 +961,10 @@ static LLVMTypeRef* collectParamTypesFromSignature(CodegenContext* ctx,
         return NULL;
     }
     for (size_t i = 0; i < paramCount; ++i) {
-        LLVMTypeRef llvmType = cg_type_from_parsed(ctx, &params[i]);
+        ParsedType adjusted = parsedTypeClone(&params[i]);
+        cg_adjust_parameter_type(&adjusted);
+        LLVMTypeRef llvmType = cg_type_from_parsed(ctx, &adjusted);
+        parsedTypeFree(&adjusted);
         if (!llvmType || LLVMGetTypeKind(llvmType) == LLVMVoidTypeKind) {
             llvmType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
@@ -946,6 +981,7 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
                             const ParsedType* returnType,
                             size_t paramCount,
                             LLVMTypeRef* paramTypes,
+                            bool isVariadic,
                             const Symbol* symHint) {
     if (!ctx || !name) return NULL;
 
@@ -955,11 +991,16 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
     bool supportsDllStorage = tl && tl->supportsDllStorage;
 
     LLVMTypeRef returnLLVM = returnType ? cg_type_from_parsed(ctx, returnType) : LLVMVoidTypeInContext(ctx->llvmContext);
+    if (returnLLVM && LLVMGetTypeKind(returnLLVM) == LLVMFunctionTypeKind) {
+        returnLLVM = LLVMPointerType(returnLLVM, 0);
+    } else if (returnLLVM && LLVMGetTypeKind(returnLLVM) == LLVMArrayTypeKind) {
+        returnLLVM = LLVMPointerType(returnLLVM, 0);
+    }
     if (!returnLLVM || LLVMGetTypeKind(returnLLVM) == LLVMVoidTypeKind) {
         returnLLVM = LLVMVoidTypeInContext(ctx->llvmContext);
     }
 
-    LLVMTypeRef fnType = LLVMFunctionType(returnLLVM, paramTypes, (unsigned)paramCount, 0);
+    LLVMTypeRef fnType = LLVMFunctionType(returnLLVM, paramTypes, (unsigned)paramCount, isVariadic ? 1 : 0);
     LLVMValueRef existing = LLVMGetNamedFunction(ctx->module, name);
     LLVMValueRef fn = existing ? existing : LLVMAddFunction(ctx->module, name, fnType);
 
@@ -1008,6 +1049,7 @@ void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node) {
     const char* name = NULL;
     size_t paramCount = 0;
     ASTNode** params = NULL;
+    bool isVariadic = false;
 
     switch (node->type) {
         case AST_FUNCTION_DEFINITION:
@@ -1016,6 +1058,7 @@ void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node) {
             returnType = &node->functionDef.returnType;
             paramCount = node->functionDef.paramCount;
             params = node->functionDef.parameters;
+            isVariadic = node->functionDef.isVariadic;
             break;
         case AST_FUNCTION_DECLARATION:
             if (!node->functionDecl.funcName || node->functionDecl.funcName->type != AST_IDENTIFIER) return;
@@ -1023,6 +1066,7 @@ void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node) {
             returnType = &node->functionDecl.returnType;
             paramCount = node->functionDecl.paramCount;
             params = node->functionDecl.parameters;
+            isVariadic = node->functionDecl.isVariadic;
             break;
         default:
             return;
@@ -1032,7 +1076,7 @@ void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node) {
 
     size_t flattenedCount = 0;
     LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
-    LLVMValueRef fn = ensureFunction(ctx, name, returnType, flattenedCount, paramTypes, NULL);
+    LLVMValueRef fn = ensureFunction(ctx, name, returnType, flattenedCount, paramTypes, isVariadic, NULL);
     (void)fn;
     free(paramTypes);
 }
@@ -1158,7 +1202,13 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
     } else {
         paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
     }
-    LLVMValueRef fn = ensureFunction(ctx, sym->name, &sym->type, flattenedCount, paramTypes, sym);
+    LLVMValueRef fn = ensureFunction(ctx,
+                                     sym->name,
+                                     &sym->type,
+                                     flattenedCount,
+                                     paramTypes,
+                                     sym->signature.isVariadic,
+                                     sym);
     (void)fn;
     free(paramTypes);
 }

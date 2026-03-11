@@ -1,0 +1,7 @@
+Diagnostics:
+Error at (2:5): Enumerator value contains an out-of-range integer literal
+   Hint: E_OVERFLOW_LITERAL
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__enum__out_of_range_reject.c:2:5
+Error at (3:5): Enumerator value is out of range for type 'int'
+   Hint: E_TOO_LARGE_FOR_INT
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__enum__out_of_range_reject.c:3:5

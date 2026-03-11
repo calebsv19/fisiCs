@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER SelfRefNode
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+    VAR_DECL
+      TYPE: struct SelfRefNode*
+      IDENTIFIER next

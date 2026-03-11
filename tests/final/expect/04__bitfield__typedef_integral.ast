@@ -1,0 +1,11 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER u32_bitfield_t
+  STRUCT
+        Name:     IDENTIFIER TypedefBitfield
+    VAR_DECL
+      TYPE: u32_bitfield_t
+      IDENTIFIER bits
+        BITFIELD : NUMBER_LITERAL 5

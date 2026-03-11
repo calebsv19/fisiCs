@@ -10,6 +10,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void cg_clear_function_pointer_metadata(ParsedType* type) {
+    if (!type) return;
+    if (type->fpParams) {
+        for (size_t i = 0; i < type->fpParamCount; ++i) {
+            parsedTypeFree(&type->fpParams[i]);
+        }
+        free(type->fpParams);
+        type->fpParams = NULL;
+    }
+    type->fpParamCount = 0;
+    type->isFunctionPointer = false;
+}
+
 LLVMTypeRef cg_dereference_ptr_type(CodegenContext* ctx, LLVMTypeRef ptrType, const char* ctxMsg) {
     (void)ctx;
     if (!ptrType || LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
@@ -119,22 +132,25 @@ static const ParsedType* cg_builtin_unsigned_int_type(void) {
 static bool cg_literal_looks_float(const char* text) {
     if (!text) return false;
     bool isHex = text[0] == '0' && (text[1] == 'x' || text[1] == 'X');
+    bool hasFloatMarker = false;
     for (const char* p = text; *p; ++p) {
         if (*p == '.') {
-            return true;
+            hasFloatMarker = true;
         }
         if (!isHex && (*p == 'e' || *p == 'E')) {
-            return true;
+            hasFloatMarker = true;
         }
         if (isHex && (*p == 'p' || *p == 'P')) {
-            return true;
+            hasFloatMarker = true;
         }
+    }
+    if (hasFloatMarker) {
+        return true;
     }
     size_t len = strlen(text);
     if (len > 0) {
         char last = text[len - 1];
-        if (last == 'f' || last == 'F' || last == 'l' || last == 'L' ||
-            last == 'i' || last == 'I' || last == 'j' || last == 'J') {
+        if (!isHex && (last == 'f' || last == 'F')) {
             return true;
         }
     }
@@ -842,7 +858,13 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
         case AST_POINTER_ACCESS:
         case AST_DOT_ACCESS:
         case AST_STRUCT_FIELD_ACCESS: {
-            const ParsedType* base = cg_resolve_expression_type(ctx, node->memberAccess.base);
+            ASTNode* baseNode = (node->type == AST_STRUCT_FIELD_ACCESS)
+                ? node->structFieldAccess.structInstance
+                : node->memberAccess.base;
+            const char* fieldName = (node->type == AST_STRUCT_FIELD_ACCESS)
+                ? node->structFieldAccess.fieldName
+                : node->memberAccess.field;
+            const ParsedType* base = cg_resolve_expression_type(ctx, baseNode);
             if (!base) return NULL;
             ParsedType baseCopy = parsedTypeClone(base);
             if (node->type == AST_POINTER_ACCESS) {
@@ -861,16 +883,17 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
                 CGStructLLVMInfo* info = cache
                     ? cg_type_cache_get_struct_info(cache, structParsed->userTypeName)
                     : NULL;
-                if (info && node->memberAccess.field) {
+                if (info && fieldName) {
                     for (size_t i = 0; i < info->fieldCount; ++i) {
                         if (info->fields[i].name &&
-                            strcmp(info->fields[i].name, node->memberAccess.field) == 0) {
+                            fieldName &&
+                            strcmp(info->fields[i].name, fieldName) == 0) {
                             parsedTypeFree(&baseCopy);
                             return &info->fields[i].parsedType;
                         }
                     }
                 }
-                if (ctx && ctx->semanticModel && node->memberAccess.field) {
+                if (ctx && ctx->semanticModel && fieldName) {
                     CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
                     CCTagKind tagKind = (structParsed->kind == TYPE_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
                     ASTNode* def = cctx ? cc_tag_definition(cctx, tagKind, structParsed->userTypeName) : NULL;
@@ -880,10 +903,10 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
                             if (!fieldDecl || fieldDecl->type != AST_VARIABLE_DECLARATION) continue;
                             for (size_t v = 0; v < fieldDecl->varDecl.varCount; ++v) {
                                 ASTNode* nameNode = fieldDecl->varDecl.varNames[v];
-                                const char* fieldName = (nameNode && nameNode->type == AST_IDENTIFIER)
+                                const char* declFieldName = (nameNode && nameNode->type == AST_IDENTIFIER)
                                     ? nameNode->valueNode.value
                                     : NULL;
-                                if (fieldName && strcmp(fieldName, node->memberAccess.field) == 0) {
+                                if (declFieldName && strcmp(declFieldName, fieldName) == 0) {
                                     parsedTypeFree(&baseCopy);
                                     return astVarDeclTypeAt(fieldDecl, v);
                                 }
@@ -895,20 +918,38 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             parsedTypeFree(&baseCopy);
             return base;
         }
-        case AST_POINTER_DEREFERENCE:
-            return cg_resolve_expression_type(ctx, node->memberAccess.base);
+        case AST_POINTER_DEREFERENCE: {
+            const ParsedType* base = cg_resolve_expression_type(ctx, node->pointerDeref.pointer);
+            static ParsedType pointed;
+            parsedTypeFree(&pointed);
+            pointed = parsedTypePointerTargetType(base);
+            if (pointed.kind != TYPE_INVALID) {
+                return &pointed;
+            }
+            parsedTypeFree(&pointed);
+            return base;
+        }
         case AST_FUNCTION_CALL: {
             ASTNode* callee = node->functionCall.callee;
-            if (callee && callee->type == AST_IDENTIFIER) {
+            const ParsedType* calleeType = cg_resolve_expression_type(ctx, callee);
+            if (!calleeType && callee && callee->type == AST_IDENTIFIER) {
                 const SemanticModel* model = cg_context_get_semantic_model(ctx);
                 if (model) {
                     const Symbol* sym = semanticModelLookupGlobal(model, callee->valueNode.value);
                     if (sym) {
-                        return &sym->type;
+                        calleeType = &sym->type;
                     }
                 }
             }
-            return NULL;
+            static ParsedType retType;
+            parsedTypeFree(&retType);
+            retType = parsedTypeFunctionReturnType(calleeType);
+            cg_clear_function_pointer_metadata(&retType);
+            if (retType.kind != TYPE_INVALID) {
+                return &retType;
+            }
+            parsedTypeFree(&retType);
+            return calleeType;
         }
         case AST_ARRAY_ACCESS: {
             const ParsedType* base = cg_resolve_expression_type(ctx, node->arrayAccess.array);
@@ -918,10 +959,30 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             if (!base) return NULL;
             if (parsedTypeIsDirectArray(base)) {
                 cached = parsedTypeArrayElementType(base);
+                const TypeDerivation* first = parsedTypeGetDerivation(&cached, 0);
+                if (first && first->kind == TYPE_DERIVATION_FUNCTION) {
+                    ParsedType refined = parsedTypeFunctionReturnType(&cached);
+                    if (refined.kind != TYPE_INVALID) {
+                        parsedTypeFree(&cached);
+                        cached = refined;
+                    } else {
+                        parsedTypeFree(&refined);
+                    }
+                }
                 return &cached;
             }
             ParsedType pointed = parsedTypePointerTargetType(base);
             if (pointed.kind != TYPE_INVALID) {
+                const TypeDerivation* first = parsedTypeGetDerivation(&pointed, 0);
+                if (first && first->kind == TYPE_DERIVATION_FUNCTION) {
+                    ParsedType refined = parsedTypeFunctionReturnType(&pointed);
+                    if (refined.kind != TYPE_INVALID) {
+                        parsedTypeFree(&pointed);
+                        pointed = refined;
+                    } else {
+                        parsedTypeFree(&refined);
+                    }
+                }
                 cached = pointed;
                 return &cached;
             }
@@ -932,6 +993,38 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             break;
     }
     return NULL;
+}
+
+const ParsedType* cg_refine_function_call_result_type(CodegenContext* ctx, ASTNode* callNode) {
+    if (!ctx || !callNode || callNode->type != AST_FUNCTION_CALL) {
+        return NULL;
+    }
+    const ParsedType* calleeType = cg_resolve_expression_type(ctx, callNode->functionCall.callee);
+    if (!calleeType) {
+        return NULL;
+    }
+
+    static ParsedType refined;
+    parsedTypeFree(&refined);
+    refined = parsedTypeFunctionReturnType(calleeType);
+    cg_clear_function_pointer_metadata(&refined);
+    if (refined.kind == TYPE_INVALID) {
+        parsedTypeFree(&refined);
+        return NULL;
+    }
+
+    size_t funcDerivs = parsedTypeCountDerivationsOfKind(&refined, TYPE_DERIVATION_FUNCTION);
+    size_t ptrDerivs = parsedTypeCountDerivationsOfKind(&refined, TYPE_DERIVATION_POINTER);
+    if (funcDerivs > 0 && ptrDerivs == 0 && refined.pointerDepth == 0) {
+        ParsedType next = parsedTypeFunctionReturnType(&refined);
+        if (next.kind != TYPE_INVALID) {
+            parsedTypeFree(&refined);
+            refined = next;
+        } else {
+            parsedTypeFree(&next);
+        }
+    }
+    return &refined;
 }
 
 bool cg_expression_is_unsigned(CodegenContext* ctx, ASTNode* node) {

@@ -1,0 +1,26 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER takes_ptr
+    PARAMETERS
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+    BLOCK
+      RETURN
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER p
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER takes_ptr
+          ARGUMENTS
+            NUMBER_LITERAL 1

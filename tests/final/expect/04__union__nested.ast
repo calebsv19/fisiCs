@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  UNION
+        Name:     IDENTIFIER OuterUnion
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER kind
+    VAR_DECL
+      TYPE: union InnerUnion
+      IDENTIFIER inner

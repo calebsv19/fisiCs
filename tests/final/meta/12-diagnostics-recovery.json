@@ -184,6 +184,97 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "12__diag_type_mismatch",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_type_mismatch.c",
+      "expects": [
+        "expect/12__diag_type_mismatch.ast",
+        "expect/12__diag_type_mismatch.diag"
+      ],
+      "tags": [
+        "diag",
+        "type-mismatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_undeclared_identifier",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_undeclared_identifier.c",
+      "expects": [
+        "expect/12__diag_undeclared_identifier.ast",
+        "expect/12__diag_undeclared_identifier.diag"
+      ],
+      "tags": [
+        "diag",
+        "undeclared"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_redeclaration_conflict",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_redeclaration_conflict.c",
+      "expects": [
+        "expect/12__diag_redeclaration_conflict.ast",
+        "expect/12__diag_redeclaration_conflict.diag"
+      ],
+      "tags": [
+        "diag",
+        "redeclaration"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_invalid_storage_class",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_invalid_storage_class.c",
+      "expects": [
+        "expect/12__diag_invalid_storage_class.ast",
+        "expect/12__diag_invalid_storage_class.diag"
+      ],
+      "tags": [
+        "diag",
+        "storage"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_invalid_initializer",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_invalid_initializer.c",
+      "expects": [
+        "expect/12__diag_invalid_initializer.ast",
+        "expect/12__diag_invalid_initializer.diag"
+      ],
+      "tags": [
+        "diag",
+        "initializer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_invalid_shift_width",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_invalid_shift_width.c",
+      "expects": [
+        "expect/12__diag_invalid_shift_width.ast",
+        "expect/12__diag_invalid_shift_width.diag"
+      ],
+      "tags": [
+        "diag",
+        "shift",
+        "constraints"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

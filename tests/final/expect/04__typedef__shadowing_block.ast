@@ -1,0 +1,24 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER scalar_t
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER typedef_shadowing_value
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      TYPEDEF
+                TYPE: float
+                Alias:         IDENTIFIER scalar_t
+      VAR_DECL
+        TYPE: scalar_t
+        IDENTIFIER value
+          = NUMBER_LITERAL 0.0f
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          IDENTIFIER value

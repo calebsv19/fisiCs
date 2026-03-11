@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__do_while_missing_semicolon_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__do_while_missing_semicolon_reject.c",
+      "expects": [
+        "expect/09__do_while_missing_semicolon_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "do-while",
+        "negative",
+        "parse-error",
+        "semicolon"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_case_decl_block",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_case_decl_block.c",
+      "expects": [
+        "expect/09__switch_case_decl_block.ast",
+        "expect/09__switch_case_decl_block.diag"
+      ],
+      "tags": [
+        "switch",
+        "case",
+        "block-scope"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

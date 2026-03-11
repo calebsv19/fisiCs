@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  UNION
+        Name:     IDENTIFIER UnionWithAnonymous
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tag
+    VAR_DECL
+      TYPE: union __anon_union_0_6
+      IDENTIFIER <unnamed>

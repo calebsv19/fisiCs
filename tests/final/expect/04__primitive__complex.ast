@@ -1,0 +1,18 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: double
+    IDENTIFIER z
+      = NUMBER_LITERAL 1.0
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '!='
+          IDENTIFIER z
+          NUMBER_LITERAL 0.0

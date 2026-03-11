@@ -1,0 +1,19 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int [4]
+    IDENTIFIER backing_array
+        = NUMBER_LITERAL 1
+
+        = NUMBER_LITERAL 2
+
+        = NUMBER_LITERAL 3
+
+        = NUMBER_LITERAL 4
+
+  VAR_DECL
+    TYPE: int* [4]
+    IDENTIFIER ptr_to_array
+      = 
+        UNARY EXPRESSION '&' (prefix)
+          IDENTIFIER backing_array

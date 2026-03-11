@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Expected ';' or '{' after function declaration at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__declarator__fn_returns_array_reject.c:1 (got '[')

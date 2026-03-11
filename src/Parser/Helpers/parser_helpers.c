@@ -6,6 +6,78 @@
 #include <stdlib.h>   // malloc, free
 #include <string.h>   // memcpy
 
+static void parserFreeScopeFrame(ParserScopeFrame* frame) {
+    while (frame) {
+        ParserOrdinaryName* name = frame->names;
+        while (name) {
+            ParserOrdinaryName* nextName = name->next;
+            free(name->name);
+            free(name);
+            name = nextName;
+        }
+        ParserScopeFrame* next = frame->parent;
+        free(frame);
+        frame = next;
+    }
+}
+
+void parserPushOrdinaryScope(Parser* parser) {
+    if (!parser) return;
+    ParserScopeFrame* frame = (ParserScopeFrame*)calloc(1, sizeof(ParserScopeFrame));
+    if (!frame) return;
+    frame->parent = parser->ordinaryScope;
+    parser->ordinaryScope = frame;
+}
+
+void parserPopOrdinaryScope(Parser* parser) {
+    if (!parser || !parser->ordinaryScope) return;
+    ParserScopeFrame* frame = parser->ordinaryScope;
+    parser->ordinaryScope = frame->parent;
+    frame->parent = NULL;
+    parserFreeScopeFrame(frame);
+}
+
+void parserRecordOrdinaryIdentifier(Parser* parser, const char* name) {
+    if (!parser || !name || !name[0]) return;
+    if (!parser->ordinaryScope) {
+        parserPushOrdinaryScope(parser);
+        if (!parser->ordinaryScope) return;
+    }
+
+    for (ParserOrdinaryName* cur = parser->ordinaryScope->names; cur; cur = cur->next) {
+        if (strcmp(cur->name, name) == 0) {
+            return;
+        }
+    }
+
+    ParserOrdinaryName* entry = (ParserOrdinaryName*)calloc(1, sizeof(ParserOrdinaryName));
+    if (!entry) return;
+    entry->name = strdup(name);
+    if (!entry->name) {
+        free(entry);
+        return;
+    }
+    entry->next = parser->ordinaryScope->names;
+    parser->ordinaryScope->names = entry;
+}
+
+bool parserIsTypedefVisible(Parser* parser, const char* name) {
+    if (!parser || !parser->ctx || !name || !name[0]) {
+        return false;
+    }
+    if (!cc_is_typedef(parser->ctx, name)) {
+        return false;
+    }
+    for (ParserScopeFrame* frame = parser->ordinaryScope; frame; frame = frame->parent) {
+        for (ParserOrdinaryName* cur = frame->names; cur; cur = cur->next) {
+            if (strcmp(cur->name, name) == 0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 // Initialize parser with a fresh token window
 void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerContext* ctx, bool preserveDirectives) {
     parser->tokenBuffer = buffer;
@@ -21,6 +93,8 @@ void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerCo
     parser->fatalParseErrors = 0;
     parser->switchDepth = 0;
     parser->anonTagCounter = 0;
+    parser->ordinaryScope = NULL;
+    parserPushOrdinaryScope(parser);
     const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
     parser->enableStatementExpressions =
         (gnuEnv && gnuEnv[0] != '\0' && gnuEnv[0] != '0') ||

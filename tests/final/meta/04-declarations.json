@@ -33,6 +33,433 @@
       "status": "ok"
     },
     {
+      "id": "04__storage__static",
+      "bucket": "declarations",
+      "input": "cases/04__storage__static.c",
+      "expects": [
+        "expect/04__storage__static.ast",
+        "expect/04__storage__static.diag"
+      ],
+      "tags": [
+        "storage",
+        "static"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__extern",
+      "bucket": "declarations",
+      "input": "cases/04__storage__extern.c",
+      "expects": [
+        "expect/04__storage__extern.ast",
+        "expect/04__storage__extern.diag"
+      ],
+      "tags": [
+        "storage",
+        "extern"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__auto",
+      "bucket": "declarations",
+      "input": "cases/04__storage__auto.c",
+      "expects": [
+        "expect/04__storage__auto.ast",
+        "expect/04__storage__auto.diag"
+      ],
+      "tags": [
+        "storage",
+        "auto"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__register",
+      "bucket": "declarations",
+      "input": "cases/04__storage__register.c",
+      "expects": [
+        "expect/04__storage__register.ast",
+        "expect/04__storage__register.diag"
+      ],
+      "tags": [
+        "storage",
+        "register"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__file_scope_auto_reject",
+      "bucket": "declarations",
+      "input": "cases/04__storage__file_scope_auto_reject.c",
+      "expects": [
+        "expect/04__storage__file_scope_auto_reject.diag"
+      ],
+      "tags": [
+        "storage",
+        "auto",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__file_scope_register_reject",
+      "bucket": "declarations",
+      "input": "cases/04__storage__file_scope_register_reject.c",
+      "expects": [
+        "expect/04__storage__file_scope_register_reject.diag"
+      ],
+      "tags": [
+        "storage",
+        "register",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__conflict_static_auto_reject",
+      "bucket": "declarations",
+      "input": "cases/04__storage__conflict_static_auto_reject.c",
+      "expects": [
+        "expect/04__storage__conflict_static_auto_reject.diag"
+      ],
+      "tags": [
+        "storage",
+        "static",
+        "auto",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__conflict_extern_register_reject",
+      "bucket": "declarations",
+      "input": "cases/04__storage__conflict_extern_register_reject.c",
+      "expects": [
+        "expect/04__storage__conflict_extern_register_reject.diag"
+      ],
+      "tags": [
+        "storage",
+        "extern",
+        "register",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__typedef_extern_reject",
+      "bucket": "declarations",
+      "input": "cases/04__storage__typedef_extern_reject.c",
+      "expects": [
+        "expect/04__storage__typedef_extern_reject.diag"
+      ],
+      "tags": [
+        "storage",
+        "typedef",
+        "extern",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__typedef__redefinition_reject",
+      "bucket": "declarations",
+      "input": "cases/04__typedef__redefinition_reject.c",
+      "expects": [
+        "expect/04__typedef__redefinition_reject.diag"
+      ],
+      "tags": [
+        "typedef",
+        "redefinition",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__typedef__shadowing_block",
+      "bucket": "declarations",
+      "input": "cases/04__typedef__shadowing_block.c",
+      "expects": [
+        "expect/04__typedef__shadowing_block.ast",
+        "expect/04__typedef__shadowing_block.diag"
+      ],
+      "tags": [
+        "typedef",
+        "shadowing"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__storage__missing_declarator",
+      "bucket": "declarations",
+      "input": "cases/04__storage__missing_declarator.c",
+      "expects": [
+        "expect/04__storage__missing_declarator.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "storage",
+        "negative",
+        "parse-error"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__qualifiers__const",
+      "bucket": "declarations",
+      "input": "cases/04__qualifiers__const.c",
+      "expects": [
+        "expect/04__qualifiers__const.ast",
+        "expect/04__qualifiers__const.diag"
+      ],
+      "tags": [
+        "qualifiers",
+        "const",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__qualifiers__const_pointer_assign",
+      "bucket": "declarations",
+      "input": "cases/04__qualifiers__const_pointer_assign.c",
+      "expects": [
+        "expect/04__qualifiers__const_pointer_assign.ast",
+        "expect/04__qualifiers__const_pointer_assign.diag"
+      ],
+      "tags": [
+        "qualifiers",
+        "const",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__qualifiers__volatile",
+      "bucket": "declarations",
+      "input": "cases/04__qualifiers__volatile.c",
+      "expects": [
+        "expect/04__qualifiers__volatile.ast",
+        "expect/04__qualifiers__volatile.diag"
+      ],
+      "tags": [
+        "qualifiers",
+        "volatile"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__qualifiers__missing_type",
+      "bucket": "declarations",
+      "input": "cases/04__qualifiers__missing_type.c",
+      "expects": [
+        "expect/04__qualifiers__missing_type.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "qualifiers",
+        "negative",
+        "parse-error"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__qualifiers__restrict",
+      "bucket": "declarations",
+      "input": "cases/04__qualifiers__restrict.c",
+      "expects": [
+        "expect/04__qualifiers__restrict.ast",
+        "expect/04__qualifiers__restrict.diag"
+      ],
+      "tags": [
+        "qualifiers",
+        "restrict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__qualifiers__restrict_non_pointer_reject",
+      "bucket": "declarations",
+      "input": "cases/04__qualifiers__restrict_non_pointer_reject.c",
+      "expects": [
+        "expect/04__qualifiers__restrict_non_pointer_reject.diag"
+      ],
+      "tags": [
+        "qualifiers",
+        "restrict",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__integers",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__integers.c",
+      "expects": [
+        "expect/04__primitive__integers.ast",
+        "expect/04__primitive__integers.diag"
+      ],
+      "tags": [
+        "primitive",
+        "integer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__floating",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__floating.c",
+      "expects": [
+        "expect/04__primitive__floating.ast",
+        "expect/04__primitive__floating.diag"
+      ],
+      "tags": [
+        "primitive",
+        "floating"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__bool",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__bool.c",
+      "expects": [
+        "expect/04__primitive__bool.ast",
+        "expect/04__primitive__bool.diag"
+      ],
+      "tags": [
+        "primitive",
+        "bool"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__char_signedness",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__char_signedness.c",
+      "expects": [
+        "expect/04__primitive__char_signedness.ast",
+        "expect/04__primitive__char_signedness.diag"
+      ],
+      "tags": [
+        "primitive",
+        "char"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__long_char_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__long_char_reject.c",
+      "expects": [
+        "expect/04__primitive__long_char_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "char",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__signed_unsigned_conflict_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__signed_unsigned_conflict_reject.c",
+      "expects": [
+        "expect/04__primitive__signed_unsigned_conflict_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "integer",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__short_long_conflict_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__short_long_conflict_reject.c",
+      "expects": [
+        "expect/04__primitive__short_long_conflict_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "integer",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__unsigned_float_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__unsigned_float_reject.c",
+      "expects": [
+        "expect/04__primitive__unsigned_float_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "floating",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__signed_bool_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__signed_bool_reject.c",
+      "expects": [
+        "expect/04__primitive__signed_bool_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "bool",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__unsigned_void_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__unsigned_void_reject.c",
+      "expects": [
+        "expect/04__primitive__unsigned_void_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "void",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
       "id": "04__array_param_qualifiers",
       "bucket": "declarations",
       "input": "cases/04__array_param_qualifiers.c",
@@ -43,6 +470,176 @@
         "array-param",
         "qualifiers",
         "static"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__ptr_to_fn",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__ptr_to_fn.c",
+      "expects": [
+        "expect/04__declarator__ptr_to_fn.ast",
+        "expect/04__declarator__ptr_to_fn.diag"
+      ],
+      "tags": [
+        "declarator",
+        "pointer-to-function"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__fn_returns_ptr",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__fn_returns_ptr.c",
+      "expects": [
+        "expect/04__declarator__fn_returns_ptr.ast",
+        "expect/04__declarator__fn_returns_ptr.diag"
+      ],
+      "tags": [
+        "declarator",
+        "function-returns-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__ptr_to_array",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__ptr_to_array.c",
+      "expects": [
+        "expect/04__declarator__ptr_to_array.ast",
+        "expect/04__declarator__ptr_to_array.diag"
+      ],
+      "tags": [
+        "declarator",
+        "pointer-to-array"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__array_of_ptrs",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__array_of_ptrs.c",
+      "expects": [
+        "expect/04__declarator__array_of_ptrs.ast",
+        "expect/04__declarator__array_of_ptrs.diag"
+      ],
+      "tags": [
+        "declarator",
+        "array-of-pointers"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__fn_ptr_param",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__fn_ptr_param.c",
+      "expects": [
+        "expect/04__declarator__fn_ptr_param.ast",
+        "expect/04__declarator__fn_ptr_param.diag"
+      ],
+      "tags": [
+        "declarator",
+        "function-pointer-param"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__abstract_fnptr_param",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__abstract_fnptr_param.c",
+      "expects": [
+        "expect/04__declarator__abstract_fnptr_param.ast",
+        "expect/04__declarator__abstract_fnptr_param.diag"
+      ],
+      "tags": [
+        "declarator",
+        "abstract",
+        "function-pointer-param"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__abstract_ptr_to_array_param",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__abstract_ptr_to_array_param.c",
+      "expects": [
+        "expect/04__declarator__abstract_ptr_to_array_param.ast",
+        "expect/04__declarator__abstract_ptr_to_array_param.diag"
+      ],
+      "tags": [
+        "declarator",
+        "abstract",
+        "pointer-to-array-param"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__multi_array",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__multi_array.c",
+      "expects": [
+        "expect/04__declarator__multi_array.ast",
+        "expect/04__declarator__multi_array.diag"
+      ],
+      "tags": [
+        "declarator",
+        "multi-array"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__fn_returns_fn_reject",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__fn_returns_fn_reject.c",
+      "expects": [
+        "expect/04__declarator__fn_returns_fn_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "declarator",
+        "negative",
+        "parse-error"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__array_of_fn_reject",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__array_of_fn_reject.c",
+      "expects": [
+        "expect/04__declarator__array_of_fn_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "declarator",
+        "negative",
+        "parse-error"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__fn_returns_array_reject",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__fn_returns_array_reject.c",
+      "expects": [
+        "expect/04__declarator__fn_returns_array_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "declarator",
+        "negative",
+        "parse-error"
       ],
       "requires": [],
       "status": "ok"
@@ -59,6 +656,339 @@
         "struct",
         "union",
         "enum"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__explicit_values",
+      "bucket": "declarations",
+      "input": "cases/04__enum__explicit_values.c",
+      "expects": [
+        "expect/04__enum__explicit_values.ast",
+        "expect/04__enum__explicit_values.diag"
+      ],
+      "tags": [
+        "enum",
+        "explicit-values"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__implicit_increment",
+      "bucket": "declarations",
+      "input": "cases/04__enum__implicit_increment.c",
+      "expects": [
+        "expect/04__enum__implicit_increment.ast",
+        "expect/04__enum__implicit_increment.diag"
+      ],
+      "tags": [
+        "enum",
+        "implicit-increment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__negative_values",
+      "bucket": "declarations",
+      "input": "cases/04__enum__negative_values.c",
+      "expects": [
+        "expect/04__enum__negative_values.ast",
+        "expect/04__enum__negative_values.diag"
+      ],
+      "tags": [
+        "enum",
+        "negative-values"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__large_values",
+      "bucket": "declarations",
+      "input": "cases/04__enum__large_values.c",
+      "expects": [
+        "expect/04__enum__large_values.ast",
+        "expect/04__enum__large_values.diag"
+      ],
+      "tags": [
+        "enum",
+        "large-values"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__non_integer_value_reject",
+      "bucket": "declarations",
+      "input": "cases/04__enum__non_integer_value_reject.c",
+      "expects": [
+        "expect/04__enum__non_integer_value_reject.diag"
+      ],
+      "tags": [
+        "enum",
+        "negative",
+        "constant-expression"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__out_of_range_reject",
+      "bucket": "declarations",
+      "input": "cases/04__enum__out_of_range_reject.c",
+      "expects": [
+        "expect/04__enum__out_of_range_reject.diag"
+      ],
+      "tags": [
+        "enum",
+        "negative",
+        "range"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__implicit_from_min",
+      "bucket": "declarations",
+      "input": "cases/04__enum__implicit_from_min.c",
+      "expects": [
+        "expect/04__enum__implicit_from_min.ast",
+        "expect/04__enum__implicit_from_min.diag"
+      ],
+      "tags": [
+        "enum",
+        "implicit-increment",
+        "boundary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__implicit_overflow_reject",
+      "bucket": "declarations",
+      "input": "cases/04__enum__implicit_overflow_reject.c",
+      "expects": [
+        "expect/04__enum__implicit_overflow_reject.diag"
+      ],
+      "tags": [
+        "enum",
+        "negative",
+        "range",
+        "implicit-increment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__overflow_expr_literal_reject",
+      "bucket": "declarations",
+      "input": "cases/04__enum__overflow_expr_literal_reject.c",
+      "expects": [
+        "expect/04__enum__overflow_expr_literal_reject.diag"
+      ],
+      "tags": [
+        "enum",
+        "negative",
+        "range",
+        "expression"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__enum__duplicate",
+      "bucket": "declarations",
+      "input": "cases/04__enum__duplicate.c",
+      "expects": [
+        "expect/04__enum__duplicate.diag"
+      ],
+      "tags": [
+        "enum",
+        "negative",
+        "duplicate-member"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct__basic",
+      "bucket": "declarations",
+      "input": "cases/04__struct__basic.c",
+      "expects": [
+        "expect/04__struct__basic.ast",
+        "expect/04__struct__basic.diag"
+      ],
+      "tags": [
+        "struct",
+        "basic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct__nested",
+      "bucket": "declarations",
+      "input": "cases/04__struct__nested.c",
+      "expects": [
+        "expect/04__struct__nested.ast",
+        "expect/04__struct__nested.diag"
+      ],
+      "tags": [
+        "struct",
+        "nested"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct__anonymous",
+      "bucket": "declarations",
+      "input": "cases/04__struct__anonymous.c",
+      "expects": [
+        "expect/04__struct__anonymous.ast",
+        "expect/04__struct__anonymous.diag"
+      ],
+      "tags": [
+        "struct",
+        "anonymous"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct__self_ref",
+      "bucket": "declarations",
+      "input": "cases/04__struct__self_ref.c",
+      "expects": [
+        "expect/04__struct__self_ref.ast",
+        "expect/04__struct__self_ref.diag"
+      ],
+      "tags": [
+        "struct",
+        "self-ref"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct__duplicate_member_reject",
+      "bucket": "declarations",
+      "input": "cases/04__struct__duplicate_member_reject.c",
+      "expects": [
+        "expect/04__struct__duplicate_member_reject.diag"
+      ],
+      "tags": [
+        "struct",
+        "duplicate-member",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__union__basic",
+      "bucket": "declarations",
+      "input": "cases/04__union__basic.c",
+      "expects": [
+        "expect/04__union__basic.ast",
+        "expect/04__union__basic.diag"
+      ],
+      "tags": [
+        "union",
+        "basic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__union__nested",
+      "bucket": "declarations",
+      "input": "cases/04__union__nested.c",
+      "expects": [
+        "expect/04__union__nested.ast",
+        "expect/04__union__nested.diag"
+      ],
+      "tags": [
+        "union",
+        "nested"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__union__anonymous",
+      "bucket": "declarations",
+      "input": "cases/04__union__anonymous.c",
+      "expects": [
+        "expect/04__union__anonymous.ast",
+        "expect/04__union__anonymous.diag"
+      ],
+      "tags": [
+        "union",
+        "anonymous"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__union__duplicate_member_reject",
+      "bucket": "declarations",
+      "input": "cases/04__union__duplicate_member_reject.c",
+      "expects": [
+        "expect/04__union__duplicate_member_reject.diag"
+      ],
+      "tags": [
+        "union",
+        "duplicate-member",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct__flex_not_last_reject",
+      "bucket": "declarations",
+      "input": "cases/04__struct__flex_not_last_reject.c",
+      "expects": [
+        "expect/04__struct__flex_not_last_reject.diag"
+      ],
+      "tags": [
+        "struct",
+        "flex-array",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__union__flex_array_reject",
+      "bucket": "declarations",
+      "input": "cases/04__union__flex_array_reject.c",
+      "expects": [
+        "expect/04__union__flex_array_reject.diag"
+      ],
+      "tags": [
+        "union",
+        "flex-array",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__struct__vla_field_reject",
+      "bucket": "declarations",
+      "input": "cases/04__struct__vla_field_reject.c",
+      "expects": [
+        "expect/04__struct__vla_field_reject.diag"
+      ],
+      "tags": [
+        "struct",
+        "vla",
+        "negative"
       ],
       "requires": [],
       "status": "ok"
@@ -88,6 +1018,127 @@
       "tags": [
         "bitfields",
         "flex"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfield__negative_width_reject",
+      "bucket": "declarations",
+      "input": "cases/04__bitfield__negative_width_reject.c",
+      "expects": [
+        "expect/04__bitfield__negative_width_reject.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "negative",
+        "width"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfield__width_exceeds_type_reject",
+      "bucket": "declarations",
+      "input": "cases/04__bitfield__width_exceeds_type_reject.c",
+      "expects": [
+        "expect/04__bitfield__width_exceeds_type_reject.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "negative",
+        "width"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfield__non_integral_type_reject",
+      "bucket": "declarations",
+      "input": "cases/04__bitfield__non_integral_type_reject.c",
+      "expects": [
+        "expect/04__bitfield__non_integral_type_reject.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "negative",
+        "type"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfield__zero_width_unnamed",
+      "bucket": "declarations",
+      "input": "cases/04__bitfield__zero_width_unnamed.c",
+      "expects": [
+        "expect/04__bitfield__zero_width_unnamed.ast",
+        "expect/04__bitfield__zero_width_unnamed.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "zero-width",
+        "unnamed"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfield__zero_width_named_reject",
+      "bucket": "declarations",
+      "input": "cases/04__bitfield__zero_width_named_reject.c",
+      "expects": [
+        "expect/04__bitfield__zero_width_named_reject.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "zero-width",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfield__typedef_integral",
+      "bucket": "declarations",
+      "input": "cases/04__bitfield__typedef_integral.c",
+      "expects": [
+        "expect/04__bitfield__typedef_integral.ast",
+        "expect/04__bitfield__typedef_integral.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "typedef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfield__enum_type",
+      "bucket": "declarations",
+      "input": "cases/04__bitfield__enum_type.c",
+      "expects": [
+        "expect/04__bitfield__enum_type.ast",
+        "expect/04__bitfield__enum_type.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "enum"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__bitfield__unnamed",
+      "bucket": "declarations",
+      "input": "cases/04__bitfield__unnamed.c",
+      "expects": [
+        "expect/04__bitfield__unnamed.ast",
+        "expect/04__bitfield__unnamed.diag"
+      ],
+      "tags": [
+        "bitfields",
+        "unnamed"
       ],
       "requires": [],
       "status": "ok"

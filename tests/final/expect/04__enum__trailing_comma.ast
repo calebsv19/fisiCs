@@ -1,0 +1,20 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER ParseTrailingComma
+        Member:   IDENTIFIER PARSE_TC_A
+            Value:  NUMBER_LITERAL 3
+        Member:   IDENTIFIER PARSE_TC_B
+            Value:  NUMBER_LITERAL 7
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '-'
+          IDENTIFIER PARSE_TC_B
+          IDENTIFIER PARSE_TC_A

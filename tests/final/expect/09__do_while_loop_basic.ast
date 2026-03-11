@@ -1,0 +1,30 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER i
+          = NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER sum
+          = NUMBER_LITERAL 0
+      DO_WHILE_LOOP
+        BLOCK
+          ASSIGNMENT (+=)
+            IDENTIFIER sum
+            IDENTIFIER i
+          UNARY EXPRESSION '++' (postfix)
+            IDENTIFIER i
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          NUMBER_LITERAL 3
+      RETURN
+        IDENTIFIER sum

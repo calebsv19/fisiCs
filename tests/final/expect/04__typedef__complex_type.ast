@@ -1,0 +1,40 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: double
+        Alias:     IDENTIFIER cdouble_t
+  FUNCTION DEFINITION
+    RETURN TYPE: cdouble_t
+    IDENTIFIER make_value
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: cdouble_t
+        IDENTIFIER v
+          = NUMBER_LITERAL 2.0
+      RETURN
+        IDENTIFIER v
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: cdouble_t
+        IDENTIFIER v
+          = 
+            FUNCTION CALL
+              IDENTIFIER make_value
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '=='
+            IDENTIFIER v
+            NUMBER_LITERAL 2.0
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1

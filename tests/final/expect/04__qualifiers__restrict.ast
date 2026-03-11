@@ -1,0 +1,27 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER add_restrict
+    PARAMETERS
+      VAR_DECL
+        TYPE: int* restrict
+        IDENTIFIER out
+      VAR_DECL
+        TYPE: const int* restrict
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: const int* restrict
+        IDENTIFIER b
+    BLOCK
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER out
+        BINARY EXPRESSION '+'
+          UNARY EXPRESSION '*' (prefix)
+            IDENTIFIER a
+          UNARY EXPRESSION '*' (prefix)
+            IDENTIFIER b
+      RETURN
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER out

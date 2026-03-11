@@ -1,0 +1,12 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER UnnamedBitfield
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER <unnamed>
+        BITFIELD : NUMBER_LITERAL 3
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+        BITFIELD : NUMBER_LITERAL 5

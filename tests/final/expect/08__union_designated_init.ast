@@ -1,0 +1,36 @@
+AST:
+PROGRAM
+  UNION
+        Name:     IDENTIFIER U
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER i
+    VAR_DECL
+      TYPE: char [4]
+      IDENTIFIER c
+  VAR_DECL
+    TYPE: union U
+    IDENTIFIER u
+        .c = 
+          = NUMBER_LITERAL 1
+
+          = NUMBER_LITERAL 2
+
+          = NUMBER_LITERAL 3
+
+          = NUMBER_LITERAL 4
+
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        ARRAY_ACCESS
+          DOT_ACCESS '.'
+            IDENTIFIER u
+            FIELD c
+          NUMBER_LITERAL 0

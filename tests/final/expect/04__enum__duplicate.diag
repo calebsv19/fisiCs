@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (3:5): Redefinition of enum constant
+   Hint: DUP_VALUE
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__enum__duplicate.c:3:5

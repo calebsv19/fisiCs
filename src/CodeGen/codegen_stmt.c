@@ -28,6 +28,35 @@ static bool cg_parsed_type_is_pointer_like(const ParsedType* type) {
     return parsedTypeCountDerivationsOfKind(type, TYPE_DERIVATION_POINTER) > 0;
 }
 
+static bool cg_parsed_type_is_direct_function(const ParsedType* type) {
+    return type &&
+           type->derivationCount > 0 &&
+           type->derivations &&
+           type->derivations[0].kind == TYPE_DERIVATION_FUNCTION;
+}
+
+static void cg_adjust_parameter_type(ParsedType* type) {
+    if (!type) return;
+    parsedTypeAdjustArrayParameter(type);
+    if (!cg_parsed_type_is_direct_function(type)) {
+        return;
+    }
+    TypeDerivation* grown = realloc(type->derivations, (type->derivationCount + 1) * sizeof(TypeDerivation));
+    if (!grown) {
+        return;
+    }
+    type->derivations = grown;
+    memmove(type->derivations + 1, type->derivations, type->derivationCount * sizeof(TypeDerivation));
+    memset(&type->derivations[0], 0, sizeof(TypeDerivation));
+    type->derivations[0].kind = TYPE_DERIVATION_POINTER;
+    type->derivations[0].as.pointer.isConst = false;
+    type->derivations[0].as.pointer.isVolatile = false;
+    type->derivations[0].as.pointer.isRestrict = false;
+    type->derivationCount++;
+    type->pointerDepth += 1;
+    type->directlyDeclaresFunction = false;
+}
+
 static bool cg_try_eval_initializer_index(ASTNode* expr, unsigned long long* outIndex) {
     if (!expr || !outIndex) return false;
     switch (expr->type) {
@@ -678,6 +707,11 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
 
     CG_DEBUG("[CG] Function definition paramCount=%zu\n", node->functionDef.paramCount);
     LLVMTypeRef returnType = cg_type_from_parsed(ctx, &node->functionDef.returnType);
+    if (returnType && LLVMGetTypeKind(returnType) == LLVMFunctionTypeKind) {
+        returnType = LLVMPointerType(returnType, 0);
+    } else if (returnType && LLVMGetTypeKind(returnType) == LLVMArrayTypeKind) {
+        returnType = LLVMPointerType(returnType, 0);
+    }
     if (!returnType) {
         returnType = LLVMVoidTypeInContext(ctx->llvmContext);
     }
@@ -687,16 +721,26 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                                              node->functionDef.paramCount,
                                              &paramInfos,
                                              NULL);
+    ParsedType* adjustedParamTypes = NULL;
     LLVMTypeRef* paramTypes = NULL;
     if (paramCount > 0) {
+        adjustedParamTypes = (ParsedType*)calloc(paramCount, sizeof(ParsedType));
         paramTypes = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * paramCount);
-        if (!paramTypes) {
+        if (!paramTypes || !adjustedParamTypes) {
+            if (adjustedParamTypes) {
+                free(adjustedParamTypes);
+            }
+            if (paramTypes) {
+                free(paramTypes);
+            }
             cg_free_param_infos(paramInfos);
             return NULL;
         }
         for (size_t i = 0; i < paramCount; i++) {
             const ParsedType* paramType = paramInfos[i].parsedType;
-            LLVMTypeRef inferred = cg_type_from_parsed(ctx, paramType);
+            adjustedParamTypes[i] = parsedTypeClone(paramType);
+            cg_adjust_parameter_type(&adjustedParamTypes[i]);
+            LLVMTypeRef inferred = cg_type_from_parsed(ctx, &adjustedParamTypes[i]);
             if (!inferred || LLVMGetTypeKind(inferred) == LLVMVoidTypeKind) {
                 inferred = LLVMInt32TypeInContext(ctx->llvmContext);
             }
@@ -776,9 +820,9 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
         LLVMTypeRef paramType = paramTypes ? paramTypes[i] : LLVMInt32TypeInContext(ctx->llvmContext);
         LLVMValueRef allocaInst = LLVMBuildAlloca(ctx->builder, paramType, label);
         LLVMBuildStore(ctx->builder, LLVMGetParam(function, (unsigned)i), allocaInst);
-        const ParsedType* storedType = info->parsedType
-            ? info->parsedType
-            : &info->declaration->varDecl.declaredType;
+        const ParsedType* storedType = adjustedParamTypes
+            ? &adjustedParamTypes[i]
+            : (info->parsedType ? info->parsedType : &info->declaration->varDecl.declaredType);
         LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedType);
         cg_scope_insert(ctx->currentScope,
                         label,
@@ -799,6 +843,12 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     ctx->currentFunctionName = previousFunctionName;
     cg_free_param_infos(paramInfos);
     free(paramTypes);
+    if (adjustedParamTypes) {
+        for (size_t i = 0; i < paramCount; ++i) {
+            parsedTypeFree(&adjustedParamTypes[i]);
+        }
+        free(adjustedParamTypes);
+    }
     if (ctx->verifyFunctions && function) {
         if (LLVMVerifyFunction(function, LLVMPrintMessageAction) != 0) {
             fprintf(stderr, "Warning: LLVM verification failed for function %s\n",
@@ -862,6 +912,11 @@ LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
     LLVMTypeRef declaredReturnLLVM = NULL;
     if (ctx->currentFunctionReturnType) {
         declaredReturnLLVM = cg_type_from_parsed(ctx, ctx->currentFunctionReturnType);
+        if (declaredReturnLLVM && LLVMGetTypeKind(declaredReturnLLVM) == LLVMFunctionTypeKind) {
+            declaredReturnLLVM = LLVMPointerType(declaredReturnLLVM, 0);
+        } else if (declaredReturnLLVM && LLVMGetTypeKind(declaredReturnLLVM) == LLVMArrayTypeKind) {
+            declaredReturnLLVM = LLVMPointerType(declaredReturnLLVM, 0);
+        }
         if (!declaredReturnLLVM) {
             declaredReturnLLVM = LLVMVoidTypeInContext(ctx->llvmContext);
         }
@@ -1061,8 +1116,6 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
 
     free(entries);
 
-    cg_loop_pop(ctx);
-
     if (pendingFallthrough) {
         LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
         LLVMBuildBr(ctx->builder, defaultCase ? defaultBB : switchEnd);
@@ -1078,6 +1131,8 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
     if (!LLVMGetBasicBlockTerminator(defaultBB)) {
         LLVMBuildBr(ctx->builder, switchEnd);
     }
+
+    cg_loop_pop(ctx);
 
     LLVMPositionBuilderAtEnd(ctx->builder, switchEnd);
     return NULL;

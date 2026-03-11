@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER OuterStruct
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tag
+    VAR_DECL
+      TYPE: struct InnerStruct
+      IDENTIFIER inner

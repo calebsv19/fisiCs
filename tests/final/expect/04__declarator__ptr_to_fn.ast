@@ -1,0 +1,18 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER add_one
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: int (*)(int) (int)
+    IDENTIFIER fn_ptr
+      = IDENTIFIER add_one

@@ -1,0 +1,21 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: volatile int
+    IDENTIFIER g_volatile
+      = NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER bump_volatile
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      ASSIGNMENT (=)
+        IDENTIFIER g_volatile
+        BINARY EXPRESSION '+'
+          IDENTIFIER g_volatile
+          NUMBER_LITERAL 1
+      RETURN
+        IDENTIFIER g_volatile

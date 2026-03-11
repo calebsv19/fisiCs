@@ -1,0 +1,25 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER id
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER v
+    BLOCK
+      RETURN
+        IDENTIFIER v
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER id
+          ARGUMENTS
+            NUMBER_LITERAL 0

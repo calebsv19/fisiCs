@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (1:0): restrict qualifier requires a pointer type
+   Hint: not_a_pointer

@@ -1,0 +1,9 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER LargeValues
+        Member:   IDENTIFIER LV_INT_MAX
+            Value:  NUMBER_LITERAL 2147483647
+        Member:   IDENTIFIER LV_INT_MIN
+            Value:  UNARY EXPRESSION '-' (prefix)
+    NUMBER_LITERAL 2147483648LL

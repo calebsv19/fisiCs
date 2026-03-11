@@ -27,6 +27,14 @@ Semantic rules for assignability and addressability.
    - Assign to string literal should error.
 6) `06__increment_non_lvalue`
    - ++ applied to non-lvalue should error.
+7) `06__array_assignment_reject`
+   - Array assignment rejected as non-modifiable lvalue target.
+8) `06__ternary_assignment_reject`
+   - Assignment into conditional expression result rejected.
+9) `06__const_pointer_write_reject`
+   - Write through pointer-to-const rejected.
+10) `06__volatile_read_write`
+   - Volatile load/store baseline remains accepted.
 
 ## Expected Outputs
 - Diagnostics expectations (`.diag`) for invalid cases.

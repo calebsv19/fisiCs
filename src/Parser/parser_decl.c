@@ -817,6 +817,12 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
         astNodeAppendAttributes(node, trailingAttrs, trailingAttrCount);
         trailingAttrs = NULL;
         trailingAttrCount = 0;
+        for (size_t i = 0; i < varCount; ++i) {
+            ASTNode* ident = varNames[i];
+            if (ident && ident->type == AST_IDENTIFIER && ident->valueNode.value) {
+                parserRecordOrdinaryIdentifier(parser, ident->valueNode.value);
+            }
+        }
     }
     return node;
 }
@@ -899,6 +905,12 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
     if (node) {
         node->varDecl.declaredTypes = perTypes;
         astNodeCloneTypeAttributes(node, &parsedType);
+        for (size_t i = 0; i < varCount; ++i) {
+            ASTNode* ident = varNames[i];
+            if (ident && ident->type == AST_IDENTIFIER && ident->valueNode.value) {
+                parserRecordOrdinaryIdentifier(parser, ident->valueNode.value);
+            }
+        }
     } else {
         free(perTypes);
     }
@@ -1322,6 +1334,15 @@ ASTNode* parseEnumDefinition(Parser* parser) {
             printParseError("Expected ',' or '}' after enum member", parser);
             return NULL;
         }
+    }
+
+    if (count == 0) {
+        printParseError("Enum declaration requires at least one enumerator", parser);
+        free(members);
+        free(values);
+        astAttributeListDestroy(enumAttrs, enumAttrCount);
+        free(enumAttrs);
+        return NULL;
     }
 
     if (parser->currentToken.type != TOKEN_RBRACE) {

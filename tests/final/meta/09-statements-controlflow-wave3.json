@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__if_decl_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__if_decl_condition_reject.c",
+      "expects": [
+        "expect/09__if_decl_condition_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "if",
+        "negative",
+        "parse-error",
+        "condition"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__while_decl_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__while_decl_condition_reject.c",
+      "expects": [
+        "expect/09__while_decl_condition_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "while",
+        "negative",
+        "parse-error",
+        "condition"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_decl_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_decl_condition_reject.c",
+      "expects": [
+        "expect/09__switch_decl_condition_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "switch",
+        "negative",
+        "parse-error",
+        "condition"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__case_outside_switch_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__case_outside_switch_reject.c",
+      "expects": [
+        "expect/09__case_outside_switch_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "switch",
+        "negative",
+        "parse-error",
+        "case"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__default_outside_switch_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__default_outside_switch_reject.c",
+      "expects": [
+        "expect/09__default_outside_switch_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "switch",
+        "negative",
+        "parse-error",
+        "default"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

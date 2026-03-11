@@ -1,0 +1,36 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: char
+    IDENTIFIER c_plain
+      = NUMBER_LITERAL 0
+  VAR_DECL
+    TYPE: signed char
+    IDENTIFIER c_signed
+      = 
+        UNARY EXPRESSION '-' (prefix)
+          NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: unsigned char
+    IDENTIFIER c_unsigned
+      = NUMBER_LITERAL 255
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER char_signedness_probe
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: char
+        IDENTIFIER local
+          = 
+            CAST_EXPRESSION
+                            CAST TYPE: char
+              UNARY EXPRESSION '-' (prefix)
+                NUMBER_LITERAL 1
+      RETURN
+        BINARY EXPRESSION '<'
+          IDENTIFIER local
+          NUMBER_LITERAL 0

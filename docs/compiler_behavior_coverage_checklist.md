@@ -248,82 +248,83 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `static` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__storage__static` | | |
-| `extern` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__storage__extern` | | |
-| `auto` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__storage__auto` | | |
-| `register` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__storage__register` | | |
+| `static` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `diag` | `04__storage__static`, `04__storage__conflict_static_auto_reject` | | Conflict checks now fail closed |
+| `extern` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `diag` | `04__storage__extern`, `04__storage__missing_declarator`, `04__storage__conflict_extern_register_reject`, `04__storage__typedef_extern_reject` | | Missing declarator and conflict checks now fail closed |
+| `auto` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `diag` | `04__storage__auto`, `04__storage__file_scope_auto_reject`, `04__storage__conflict_static_auto_reject` | | File-scope and conflict checks now fail closed |
+| `register` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `diag` | `04__storage__register`, `04__storage__file_scope_register_reject`, `04__storage__conflict_extern_register_reject` | | File-scope and conflict checks now fail closed |
 | `_Thread_local` | `declarations` | [ ] | [x] | [ ] | `unsupported` | `diag` | `04__thread_local_unsupported` | Emits an explicit unsupported diagnostic and now fails closed before semantic/codegen | Reserved keyword now lexes correctly |
 
 ### 3.2 Type Qualifiers
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `const` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__qualifiers__const` | | |
-| `volatile` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__qualifiers__volatile` | | |
-| `restrict` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__qualifiers__restrict` | | |
+| `const` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `diag` | `04__qualifiers__const`, `04__qualifiers__const_pointer_assign` | | Baseline positive + const-object mutation negatives added |
+| `volatile` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `diag` | `04__qualifiers__volatile`, `04__qualifiers__missing_type` | | Baseline positive + missing-type parse negative added |
+| `restrict` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `diag` | `04__qualifiers__restrict`, `04__qualifiers__restrict_non_pointer_reject` | | Non-pointer usage now fails closed |
 | `_Atomic` | `declarations` | [ ] | [x] | [ ] | `unsupported` | `diag` | `04__atomic_unsupported` | Emits an explicit unsupported diagnostic and now fails closed before semantic/codegen | Reserved keyword now lexes correctly |
 
 ### 3.3 Primitive Types
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `char` signedness behavior | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `04__primitive__char_signedness` | | Implementation-defined |
-| `short`, `int`, `long`, `long long` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__primitive__integers` | | |
-| `float`, `double`, `long double` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `04__primitive__floating` | | |
-| `_Bool` | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `04__primitive__bool` | | |
+| `char` signedness behavior | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `runtime` | `04__primitive__char_signedness`, `04__primitive__long_char_reject` | | Runtime/differential behavior still implementation-defined and pending |
+| `short`, `int`, `long`, `long long` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast` | `04__primitive__integers`, `04__primitive__signed_unsigned_conflict_reject`, `04__primitive__short_long_conflict_reject` | | Baseline valid + conflict-negative coverage added |
+| `float`, `double`, `long double` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `runtime` | `04__primitive__floating`, `04__primitive__unsigned_float_reject` | | Baseline valid + invalid-modifier negative coverage added |
+| `_Bool` | `declarations` | [x] | [x] | [ ] | `in_progress` | `ast`, `runtime` | `04__primitive__bool`, `04__primitive__signed_bool_reject` | | Baseline valid + invalid-modifier negative coverage added |
 | Complex types | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__primitive__complex` | | Mark unsupported if absent |
 
 ### 3.4 Structs
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Basic struct | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__struct__basic` | | |
-| Nested struct | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__struct__nested` | | |
-| Anonymous struct | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__struct__anonymous` | | |
-| Self-referential struct | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__struct__self_ref` | | |
-| Flexible array member | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__struct__flex_array` | | |
-| Bitfields | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `04__struct__bitfields` | | ABI-sensitive |
-| Duplicate member names | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `04__struct__duplicate_member` | | |
+| Basic struct | `declarations` | [x] | [ ] | [ ] | `in_progress` | `ast` | `04__struct_union_enum`, `04__struct__basic` | | Baseline named struct definitions covered |
+| Nested struct | `declarations` | [x] | [ ] | [x] | `in_progress` | `ast` | `04__struct__nested` | | Nested aggregate shape coverage added |
+| Anonymous struct | `declarations` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `04__struct__anonymous` | | Anonymous member form now covered |
+| Self-referential struct | `declarations` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `04__struct__self_ref` | | Pointer-to-self field form covered |
+| Flexible array member | `declarations` | [x] | [x] | [x] | `in_progress` | `ast`, `diag` | `04__bitfields_flex`, `04__struct__flex_not_last_reject`, `04__union__flex_array_reject` | | Positive + structural reject coverage added |
+| Bitfields | `declarations` | [x] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `04__bitfields_flex`, `04__bitfield__negative_width_reject`, `04__bitfield__width_exceeds_type_reject`, `04__bitfield__non_integral_type_reject`, `04__bitfield__zero_width_unnamed`, `04__bitfield__zero_width_named_reject`, `04__bitfield__typedef_integral`, `04__bitfield__enum_type`, `04__bitfield__unnamed`, `04__struct__bitfields` | | Width/type/zero-width and typedef/enum base forms covered; ABI runtime checks still pending |
+| Duplicate member names | `declarations` | [ ] | [x] | [ ] | `in_progress` | `diag` | `04__struct__duplicate_member_reject`, `04__union__duplicate_member_reject` | | Duplicate field/member names now fail closed |
 
 ### 3.5 Unions
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Basic union | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__union__basic` | | |
-| Anonymous union | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__union__anonymous` | | |
-| Nested union | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__union__nested` | | |
+| Basic union | `declarations` | [x] | [ ] | [ ] | `in_progress` | `ast` | `04__struct_union_enum`, `04__union__basic` | | Baseline named union definitions covered |
+| Anonymous union | `declarations` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `04__union__anonymous` | | Anonymous union member form now covered |
+| Nested union | `declarations` | [x] | [ ] | [x] | `in_progress` | `ast` | `04__union__nested` | | Nested union shape coverage added |
 | Overlapping member correctness | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `04__union__overlap` | | ABI-sensitive |
 
 ### 3.6 Enums
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Explicit enumerator values | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__enum__explicit_values` | | |
-| Implicit increment behavior | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `04__enum__implicit_increment` | | |
-| Negative values | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `04__enum__negative_values` | | |
-| Large values | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__enum__large_values` | | |
-| Duplicate enumerators | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `04__enum__duplicate` | | |
+| Explicit enumerator values | `declarations` | [x] | [ ] | [ ] | `in_progress` | `ast` | `04__enum__explicit_values` | | Baseline explicit assignments covered |
+| Implicit increment behavior | `declarations` | [x] | [x] | [x] | `in_progress` | `ast`, `runtime` | `04__enum__implicit_increment`, `04__enum__implicit_from_min`, `04__enum__implicit_overflow_reject` | | Mixed implicit + explicit stepping plus overflow-negative coverage |
+| Negative values | `declarations` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `04__enum__negative_values` | | Negative enumerator constants covered |
+| Large values | `declarations` | [x] | [x] | [x] | `in_progress` | `ast`, `diag` | `04__enum__large_values`, `04__enum__out_of_range_reject` | | Range-boundary positives and out-of-range negatives are both covered |
+| Integer constant-expression enforcement | `declarations` | [ ] | [x] | [x] | `in_progress` | `diag` | `04__enum__non_integer_value_reject`, `04__enum__overflow_expr_literal_reject` | | Non-integer and overflow-literal expression forms now fail closed |
+| Duplicate enumerators | `declarations` | [ ] | [x] | [ ] | `in_progress` | `diag` | `04__enum__duplicate` | | Negative coverage added |
 
 ### 3.7 Declarator Complexity
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Pointer to function | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__declarator__ptr_to_fn` | | |
-| Function returning pointer | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__declarator__fn_returns_ptr` | | |
-| Pointer to array | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__declarator__ptr_to_array` | | |
-| Array of pointers | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__declarator__array_of_ptrs` | | |
-| Function pointer parameters | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__declarator__fn_ptr_param` | | |
-| Abstract declarators | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__declarator__abstract` | | |
-| VLAs | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `04__declarator__vla` | | Mark unsupported if absent |
-| Multidimensional arrays | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `04__declarator__multi_array` | | |
+| Pointer to function | `declarations` | [x] | [ ] | [ ] | `in_progress` | `ast` | `04__declarator__ptr_to_fn` | | |
+| Function returning pointer | `declarations` | [x] | [ ] | [ ] | `in_progress` | `ast` | `04__declarator__fn_returns_ptr` | | |
+| Pointer to array | `declarations` | [x] | [ ] | [ ] | `in_progress` | `ast` | `04__declarator__ptr_to_array` | | |
+| Array of pointers | `declarations` | [x] | [ ] | [ ] | `in_progress` | `ast` | `04__declarator__array_of_ptrs` | | |
+| Function pointer parameters | `declarations` | [x] | [ ] | [ ] | `in_progress` | `ast` | `04__declarator__fn_ptr_param` | | |
+| Abstract declarators | `declarations` | [x] | [x] | [x] | `in_progress` | `ast`, `diag` | `04__declarator__abstract_fnptr_param`, `04__declarator__abstract_ptr_to_array_param`, `04__declarator__fn_returns_fn_reject`, `04__declarator__array_of_fn_reject`, `04__declarator__fn_returns_array_reject` | | Valid abstract parameter forms and invalid declarator-shape negatives covered |
+| VLAs | `declarations` | [ ] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `04__declarator__vla`, `04__struct__vla_field_reject` | | Aggregate-field VLA rejection now fails closed; full VLA declarator support coverage pending |
+| Multidimensional arrays | `declarations` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `04__declarator__multi_array` | | Baseline multidimensional declaration coverage added |
 
 ### 3.8 Typedef
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Typedef of complex types | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `04__typedef__complex_type` | | |
-| Typedef shadowing | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `04__typedef__shadowing` | | |
-| Redefinition errors | `declarations` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `04__typedef__redefinition` | | |
+| Typedef shadowing | `declarations` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `04__typedef__shadowing_block` | | Block-scope typedef shadowing behavior now covered |
+| Redefinition errors | `declarations` | [ ] | [x] | [ ] | `in_progress` | `diag` | `04__typedef__redefinition_reject` | | Conflicting typedef redefinition now fails closed |
 
 ## Phase 4 — Expressions
 
@@ -355,7 +356,7 @@ Primary oracles:
 | Address-of | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `05__unary__address_of` | | |
 | Dereference | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `05__unary__deref` | | |
 | `sizeof` type vs expression | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__unary__sizeof_ambiguity` | | |
-| `_Alignof` | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `diag` | `05__unary__alignof` | | Mark unsupported if absent |
+| `_Alignof` | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__unary_alignof` | | Supported and covered with type-name forms |
 
 ### 4.3 Binary Operations
 
@@ -366,15 +367,15 @@ Primary oracles:
 | Logical | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `ir` | `05__binary__logical` | | |
 | Relational | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__binary__relational` | | |
 | Equality | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__binary__equality` | | |
-| Shift signed and unsigned | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `diag` | `05__binary__shift` | | UB-sensitive edges |
-| Invalid shift widths | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `05__binary__invalid_shift_width` | | |
+| Shift signed and unsigned | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__binary_shift_matrix` | | UB-sensitive edges still pending |
+| Invalid shift widths | `expressions` | [ ] | [ ] | [x] | `blocked` | `diag` | `05__binary__invalid_shift_width`, `12__probe_invalid_shift_width` | Probe `12__probe_invalid_shift_width` currently emits no diagnostic for `x << -1` | Add active negative anchor once shift-width diagnostics are enforced |
 
 ### 4.4 Ternary Operator
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Nested ternary | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__ternary__nested` | | |
-| Mixed types | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `diag` | `05__ternary__mixed_types` | | |
+| Mixed types | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__ternary_mixed_types` | | |
 | Lvalue cases | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `05__ternary__lvalue` | | |
 
 ### 4.5 Casts
@@ -389,15 +390,15 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Struct literal | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__compound_literal__struct` | | |
-| Array literal | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__compound_literal__array` | | |
+| Struct literal | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__compound_literal_struct` | | |
+| Array literal | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__compound_literal_array` | | |
 | Static storage compound literal | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `ir` | `05__compound_literal__static_storage` | | |
 
 ### 4.7 `_Generic`
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `_Generic` selection | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `05__generic__selection` | | Mark unsupported if absent |
+| `_Generic` selection | `expressions` | [ ] | [x] | [ ] | `in_progress` | `ast`, `diag`, `runtime` | `05__generic_unsupported_reject` | | Explicit unsupported-policy negative test |
 
 ## Phase 5 — Statements
 
@@ -418,18 +419,18 @@ Primary oracles:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Expression statement | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `09__stmt__expr` | | |
 | Compound block | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast` | `09__stmt__compound` | | |
-| `if`/`else` and dangling else | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `09__stmt__if_else` | | |
-| `switch` fallthrough | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `ir` | `09__stmt__switch_fallthrough` | | |
-| Duplicate `case` detection | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `09__stmt__switch_duplicate_case` | | |
-| Non-constant `case` label | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `09__stmt__switch_non_constant` | | |
-| `while` | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `ir` | `09__stmt__while` | | |
-| `do-while` | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `ir` | `09__stmt__do_while` | | |
-| `for` loop forms | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `ir` | `09__stmt__for_forms` | | |
-| Declaration in `for` initializer | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `09__stmt__for_decl_init` | | |
-| `break` and `continue` legality | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `diag`, `runtime` | `09__stmt__break_continue` | | |
-| `goto` and labels | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `09__stmt__goto_labels` | | |
-| Duplicate label error | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `09__stmt__duplicate_label` | | |
-| `goto` across scopes | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `diag`, `runtime` | `09__stmt__goto_scope_cross` | | |
+| `if`/`else` and dangling else | `statements-controlflow` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `09__dangling_else` | | |
+| `switch` fallthrough | `statements-controlflow` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `ir` | `09__switch_rules` | | |
+| Duplicate `case` detection | `statements-controlflow` | [ ] | [x] | [x] | `in_progress` | `diag` | `09__switch_duplicate_case` | | |
+| Non-constant `case` label | `statements-controlflow` | [ ] | [x] | [x] | `in_progress` | `diag` | `09__switch_nonconst_case` | | |
+| `while` | `statements-controlflow` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `ir` | `09__while_loop_basic` | | |
+| `do-while` | `statements-controlflow` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `ir` | `09__do_while_loop_basic` | | |
+| `for` loop forms | `statements-controlflow` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `ir` | `09__for_forms` | | |
+| Declaration in `for` initializer | `statements-controlflow` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `09__for_decl_scope` | | |
+| `break` and `continue` legality | `statements-controlflow` | [ ] | [x] | [x] | `in_progress` | `diag`, `runtime` | `09__break_continue_errors` | | |
+| `goto` and labels | `statements-controlflow` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `09__goto_labels` | | |
+| Duplicate label error | `statements-controlflow` | [ ] | [x] | [x] | `in_progress` | `diag` | `09__label_redefinition` | | |
+| `goto` across scopes | `statements-controlflow` | [x] | [ ] | [x] | `in_progress` | `diag`, `runtime` | `09__goto_cross_init` | | |
 | `return` basic correctness | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `09__stmt__return_basic` | | |
 | Missing return | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `09__stmt__missing_return` | | Policy may be warning or error |
 | Wrong return type | `statements-controlflow` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `09__stmt__wrong_return_type` | | |
@@ -449,14 +450,14 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Scalar initialization | `initializers-layout` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `08__init__scalar` | | |
-| Aggregate initialization | `initializers-layout` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `08__init__aggregate` | | |
-| Designated initializers | `initializers-layout` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `diag` | `08__init__designated` | | |
-| Nested designated initializers | `initializers-layout` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `08__init__nested_designated` | | |
-| Mixed designated and non-designated | `initializers-layout` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `08__init__mixed_designated` | | |
-| Excess elements | `initializers-layout` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `08__init__excess_elements` | | |
-| Missing elements and zero-fill | `initializers-layout` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `08__init__zero_fill` | | |
-| Static initialization constant-expression enforcement | `initializers-layout` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `08__init__static_constexpr` | | |
+| Scalar initialization | `initializers-layout` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `08__scalar_initializers` | | |
+| Aggregate initialization | `initializers-layout` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `08__aggregate_brace_elision`, `08__union_designated_init` | | |
+| Designated initializers | `initializers-layout` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `08__designator_reset`, `08__nested_designators` | | |
+| Nested designated initializers | `initializers-layout` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `08__nested_designators` | | |
+| Mixed designated and non-designated | `initializers-layout` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `08__mixed_designated_sequence`, `08__designator_reset` | | |
+| Excess elements | `initializers-layout` | [ ] | [x] | [x] | `in_progress` | `diag` | `08__array_excess_elements_reject`, `08__string_init_too_long` | | |
+| Missing elements and zero-fill | `initializers-layout` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `08__zero_init_aggregate`, `08__partial_designated_zero_fill` | | |
+| Static initialization constant-expression enforcement | `initializers-layout` | [ ] | [x] | [x] | `in_progress` | `diag` | `08__static_constexpr` | | |
 
 ## Phase 7 — Semantics
 
@@ -477,11 +478,11 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Block scope | `scopes-linkage` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `10__scope__block` | | |
-| File scope | `scopes-linkage` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `10__scope__file` | | |
-| Shadowing | `scopes-linkage` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `10__scope__shadowing` | | |
-| Tentative definitions | `scopes-linkage` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `10__scope__tentative_def` | | |
-| Multiple definition errors | `scopes-linkage` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `10__scope__multiple_def` | | Multi-file |
+| Block scope | `scopes-linkage` | [x] | [x] | [x] | `in_progress` | `ast`, `diag` | `10__shadowing_rules`, `10__block_extern_reference`, `10__block_scope_conflicting_types` | | |
+| File scope | `scopes-linkage` | [x] | [x] | [x] | `in_progress` | `ast`, `diag` | `10__extern_array_consistent_definition`, `10__extern_type_mismatch`, `10__var_function_name_conflict` | | `extern int arr[]; int arr[3]={...};` currently crashes and is tracked as pending fix |
+| Shadowing | `scopes-linkage` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `10__shadowing_rules`, `10__block_extern_reference` | | |
+| Tentative definitions | `scopes-linkage` | [x] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `10__tentative_definition`, `10__tentative_definition_multi_tu`, `10__tentative_static_conflict` | | |
+| Multiple definition errors | `scopes-linkage` | [ ] | [x] | [x] | `in_progress` | `diag` | `10__multiple_static_defs`, `10__var_function_name_conflict` | | Multi-file external-definition collision still pending |
 
 ### 7.2 Type Conversions
 
@@ -490,26 +491,26 @@ Primary oracles:
 | Integer promotions | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__conv__integer_promotions` | | |
 | Usual arithmetic conversions | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__conv__usual_arith` | | |
 | Signed vs unsigned comparisons | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__conv__signed_unsigned_compare` | | |
-| Pointer conversions | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `07__conv__pointer` | | |
-| Array-to-pointer decay | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__conv__array_decay` | | |
-| Function-to-pointer decay | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__conv__function_decay` | | |
+| Pointer conversions | `semantic` | [x] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `07__void_pointer_roundtrip`, `07__void_pointer_arith_reject` | | |
+| Array-to-pointer decay | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__array_decay_param` | | |
+| Function-to-pointer decay | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__function_decay_call` | | |
 
 ### 7.3 Lvalue and Rvalue Correctness
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Assignment target rules | `lvalues-rvalues` | [ ] | [ ] | [ ] | `unstarted` | `diag`, `ast` | `06__lvalue__assignment_target` | | |
-| Const correctness enforcement | `lvalues-rvalues` | [ ] | [ ] | [ ] | `unstarted` | `diag`, `ast` | `06__lvalue__const` | | |
-| Volatile propagation | `lvalues-rvalues` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `06__lvalue__volatile` | | |
+| Assignment target rules | `lvalues-rvalues` | [x] | [x] | [x] | `in_progress` | `diag`, `ast` | `06__assignability_errors`, `06__array_assignment_reject`, `06__ternary_assignment_reject` | | |
+| Const correctness enforcement | `lvalues-rvalues` | [x] | [x] | [x] | `in_progress` | `diag`, `ast` | `06__string_literal_mutability`, `06__const_pointer_write_reject` | | |
+| Volatile propagation | `lvalues-rvalues` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `06__volatile_read_write` | | |
 
 ### 7.4 Function Semantics
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Prototype matching | `functions-calls` | [ ] | [ ] | [ ] | `unstarted` | `diag`, `ast` | `11__fn__prototype_match` | | |
-| Argument count mismatch | `functions-calls` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `11__fn__arg_count_mismatch` | | |
-| Variadic correctness | `functions-calls` | [ ] | [ ] | [ ] | `unstarted` | `diag`, `runtime` | `11__fn__variadic` | | |
-| Return type enforcement | `functions-calls` | [ ] | [ ] | [ ] | `unstarted` | `diag`, `runtime` | `11__fn__return_type` | | |
+| Prototype matching | `functions-calls` | [x] | [x] | [x] | `in_progress` | `diag`, `ast` | `11__prototype_call`, `11__argument_type_mismatch` | | |
+| Argument count mismatch | `functions-calls` | [ ] | [x] | [x] | `in_progress` | `diag` | `11__prototype_too_few_args`, `11__prototype_too_many_args` | | |
+| Variadic correctness | `functions-calls` | [x] | [x] | [x] | `in_progress` | `diag`, `runtime` | `11__variadic_call`, `11__variadic_requires_named_param_reject` | | |
+| Return type enforcement | `functions-calls` | [x] | [x] | [x] | `in_progress` | `diag`, `runtime` | `11__return_type_mismatch`, `11__void_return_value`, `11__nonvoid_missing_return` | | |
 
 ### 7.5 Struct and Union Semantics
 
@@ -546,51 +547,51 @@ Primary oracles:
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Signed overflow behavior | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `14__arith__signed_overflow` | | UB-tag required |
-| Unsigned wraparound | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__arith__unsigned_wrap` | | Safe for diff |
-| Division and modulo edge cases | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `diag` | `14__arith__div_mod_edges` | | Division by zero is UB if runtime |
+| Unsigned wraparound | `runtime` | [ ] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__arith__unsigned_wrap`, `probes/runtime/14__probe_unsigned_wrap.c` | Probe output mismatch: fisics `0 4294967295 0` vs clang `1 4294967295 4294967295` | Likely mixed issue in unsigned-compare semantics and/or `UINT_MAX` constant surface; keep as blocked probe |
+| Division and modulo edge cases | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `14__runtime_div_mod_edges` | | Division by zero is UB if runtime |
 
 ### 8.2 Floating-Point Correctness
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Precision behavior | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__float__precision` | | Target-specific tolerance may be needed |
-| NaN propagation | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__float__nan` | | May need pattern-based compare |
-| Infinity behavior | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__float__infinity` | | |
+| Precision behavior | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_float_precision` | | Target-specific tolerance may be needed |
+| NaN propagation | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__float__nan` | Probe: `z/z` NaN self-inequality returned `0` (clang `1`) | Held as blocked probe pending float-semantics fix |
+| Infinity behavior | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_float_infinity` | | Active differential runtime anchor added |
 
 ### 8.3 Control Flow
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Nested loops | `codegen-ir` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `ir` | `13__cf__nested_loops` | | |
-| Short-circuit logic | `codegen-ir` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `ir`, `differential` | `13__cf__short_circuit` | | |
-| Switch lowering correctness | `codegen-ir` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `ir` | `13__cf__switch_lowering` | | |
+| Nested loops | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir` | `13__ir_nested_loops` | | |
+| Short-circuit logic | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_short_circuit`, `13__ir_short_circuit_side_effect` | | |
+| Switch lowering correctness | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_switch`, `14__runtime_switch_simple`, `15__torture__deep_switch` | Probe `15__torture__deep_switch`: runtime mismatch (`fisics=15`, `clang=60`) | Simple switch runtime is green; looped switch path remains blocked |
 
 ### 8.4 Memory
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Stack allocation | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `ir` | `14__mem__stack_alloc` | | |
-| Struct layout correctness | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__mem__struct_layout` | | ABI-sensitive tag required |
-| Array indexing | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `14__mem__array_indexing` | | |
-| Pointer arithmetic | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__mem__pointer_arith` | | |
-| Alignment correctness | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `ir` | `14__mem__alignment` | | ABI-sensitive |
+| Stack allocation | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir` | `14__runtime_large_stack` | | |
+| Struct layout correctness | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_struct_layout_alignment` | | ABI-sensitive tag active |
+| Array indexing | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_pointer_arith`, `15__torture__large_array_stress` | | Includes larger local-array stress coverage |
+| Pointer arithmetic | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_pointer_arith` | | |
+| Alignment correctness | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `14__runtime_struct_layout_alignment` | | Offset-mod-alignment check active |
 
 ### 8.5 Function Calls
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Parameter passing | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__calls__params` | | |
-| Variadic calls | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__calls__variadic` | | |
-| Recursion | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `14__calls__recursion` | | |
-| Function pointers | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__calls__fn_ptr` | | |
-| Struct return | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__calls__struct_return` | | ABI-sensitive |
+| Parameter passing | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_function_pointer`, `14__runtime_struct_return`, `15__torture__many_params` | | Added multi-parameter ABI stress anchor |
+| Variadic calls | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_variadic_calls` | | Active variadic call-site anchor added |
+| Recursion | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime` | `14__runtime_recursion` | | |
+| Function pointers | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_function_pointer` | | |
+| Struct return | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_struct_return` | | ABI-sensitive |
 
 ### 8.6 Stress Runtime
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Large stack frames | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `14__stress__large_stack` | | Stress path |
-| Deep recursion | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `14__stress__deep_recursion` | | Stress path |
+| Large stack frames | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime` | `14__runtime_large_stack` | | Stress path |
+| Deep recursion | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_deep_recursion` | | Stress path |
 
 ## Phase 9 — Diagnostics
 
@@ -606,14 +607,14 @@ Primary oracle:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Syntax errors | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag__syntax_error` | | |
-| Type mismatch | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag__type_mismatch` | | |
-| Undeclared identifiers | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag__undeclared` | | |
-| Redeclarations | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag__redeclaration` | | |
-| Incompatible pointer types | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag__incompatible_ptr` | | |
-| Illegal casts | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag__illegal_cast` | | |
-| Invalid storage class usage | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag__invalid_storage` | | |
-| Invalid initializers | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag__invalid_initializer` | | |
+| Syntax errors | `diagnostics-recovery` | [x] | [x] | [x] | `in_progress` | `diag` | `12__missing_semicolon`, `12__bad_paren_expr`, `12__for_missing_paren` | | |
+| Type mismatch | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_type_mismatch` | | Active non-scalar-to-scalar assignment mismatch anchor added |
+| Undeclared identifiers | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_undeclared_identifier` | | |
+| Redeclarations | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_redeclaration_conflict` | | |
+| Incompatible pointer types | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag_incompatible_ptr` | Probe: `int* = double*` currently accepted with no diagnostic | Likely missing pointer-compatibility constraint checks in assignment conversions |
+| Illegal casts | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag_illegal_cast` | Probe: `(int)(struct S){1}` currently accepted and lowered via bitcast | Likely missing semantic cast legality checks for non-scalar source types |
+| Invalid storage class usage | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_invalid_storage_class` | | |
+| Invalid initializers | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_invalid_initializer` | | |
 
 Diagnostics acceptance rule:
 
@@ -636,13 +637,13 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Extremely long expressions | `torture-differential` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `diag` | `15__torture__long_expr` | | Stress path |
-| Deep nesting | `torture-differential` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `diag` | `15__torture__deep_nesting` | | Stress path |
-| Many declarations in one file | `torture-differential` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `diag` | `15__torture__many_decls` | | |
-| Large struct definitions | `torture-differential` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `diag` | `15__torture__large_struct` | | ABI-sensitive |
-| Pathological declarators | `torture-differential` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `15__torture__pathological_decl` | | |
+| Extremely long expressions | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `15__torture__long_expr` | | Active runtime stress anchor added (100-term chain) |
+| Deep nesting | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `15__torture__deep_nesting`, `15__torture__deep_switch` | Probe `15__torture__deep_switch`: runtime mismatch (`fisics=15`, `clang=60`) | Active nested-branch anchor is passing; nested-switch probe remains blocked pending control-flow fix |
+| Many declarations in one file | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `15__torture__many_decls`, `15__torture__many_globals` | | Active local+global declaration-density anchors |
+| Large struct definitions | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `15__torture__large_struct` | | ABI-sensitive; tagged `abi_sensitive: true` |
+| Pathological declarators | `torture-differential` | [x] | [ ] | [x] | `blocked` | `ast`, `diag` | `15__torture__pathological_decl`, `15__torture__path_decl_nested`, `04__probe_deep_declarator_call_only`, `04__probe_deep_declarator_codegen_hang` | Runtime declarator probes currently blocked (compile crash `-11` and compile timeout on deep function-pointer/array shape); compile-surface anchor active | Keep runtime path in probes until codegen fix lands |
 | Fuzz-compatible harness design | `torture-differential` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `15__torture__fuzz_harness` | | Infrastructure item |
-| Malformed input robustness | `torture-differential` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `15__torture__malformed_no_crash` | | Must never crash compiler |
+| Malformed input robustness | `torture-differential` | [ ] | [x] | [x] | `in_progress` | `diag` | `15__torture__malformed_no_crash`, `15__torture__malformed_unclosed_comment_no_crash`, `15__torture__malformed_unbalanced_block_no_crash` | | Must never crash compiler |
 
 ## Phase 11 — Implementation-Defined and UB Tracking
 
@@ -1296,6 +1297,220 @@ Suggested entry format:
   145 / 145 passing
 - Full `tests/final` suite result:
   321 / 321 passing
+
+### 2026-03-08 — Bucket: declarations (Wave 1 storage/qualifier baseline)
+
+- Added storage class baseline anchors:
+  `04__storage__static`,
+  `04__storage__extern`,
+  `04__storage__auto`,
+  `04__storage__register`
+- Added qualifier baseline anchors:
+  `04__qualifiers__const`,
+  `04__qualifiers__volatile`,
+  `04__qualifiers__restrict`
+- `const` now has explicit negative coverage in baseline via assignment to
+  const-qualified object.
+- Storage and qualifier rows in Phase 3 are now marked `in_progress` with
+  baseline valid coverage checked.
+- Full `tests/final` suite result:
+  328 / 328 passing
+
+### 2026-03-08 — Bucket: declarations (Wave 1 negative expansion)
+
+- Added storage parse-negative anchor:
+  `04__storage__missing_declarator`
+- Added qualifier negatives:
+  `04__qualifiers__const_pointer_assign`,
+  `04__qualifiers__missing_type`
+- Updated Phase 3 matrix rows with newly covered negatives and explicit
+  spec-gap notes for storage-class legality and non-pointer `restrict`.
+- Full `tests/final` suite result:
+  331 / 331 passing
+
+### 2026-03-08 — Bucket: declarations (storage/qualifier fix pass + strict negatives)
+
+- Enforced storage-class legality in semantic declaration analysis:
+  file-scope `auto/register` now reject, conflicting storage-class specifiers
+  now reject, and `typedef` mixed with other storage classes now rejects.
+- Enforced `restrict` legality: non-pointer top-level `restrict` declarations
+  now reject.
+- Added strict negative anchors:
+  `04__storage__file_scope_auto_reject`,
+  `04__storage__file_scope_register_reject`,
+  `04__storage__conflict_static_auto_reject`,
+  `04__storage__conflict_extern_register_reject`,
+  `04__storage__typedef_extern_reject`,
+  `04__qualifiers__restrict_non_pointer_reject`
+- Full `tests/final` suite result:
+  337 / 337 passing
+
+### 2026-03-08 — Bucket: declarations (primitive integer baseline start)
+
+- Added primitive integer baseline anchor:
+  `04__primitive__integers`
+- Phase 3 primitive integer row now has valid coverage marked `in_progress`.
+- Full `tests/final` suite result:
+  338 / 338 passing
+
+### 2026-03-08 — Bucket: declarations (primitive floating/bool baseline start)
+
+- Added primitive baseline anchors:
+  `04__primitive__floating`,
+  `04__primitive__bool`
+- Phase 3 floating and `_Bool` rows now have valid coverage marked
+  `in_progress`.
+- Full `tests/final` suite result:
+  340 / 340 passing
+
+### 2026-03-08 — Bucket: declarations (primitive specifier legality fix + negatives)
+
+- Enforced primitive specifier legality in semantic declaration analysis:
+  signed/unsigned conflict rejects, short/long conflict rejects, and invalid
+  integer modifiers on `float`, `_Bool`, and `void` now reject.
+- Added strict primitive-negative anchors:
+  `04__primitive__signed_unsigned_conflict_reject`,
+  `04__primitive__short_long_conflict_reject`,
+  `04__primitive__unsigned_float_reject`,
+  `04__primitive__signed_bool_reject`,
+  `04__primitive__unsigned_void_reject`
+- Phase 3 primitive rows now include negative coverage for integer/floating/
+  `_Bool` combinations.
+- Full `tests/final` suite result:
+  345 / 345 passing
+
+### 2026-03-08 — Bucket: declarations (char + enum follow-up)
+
+- Added char baseline and negative anchors:
+  `04__primitive__char_signedness`,
+  `04__primitive__long_char_reject`
+- Added enum duplicate-negative anchor:
+  `04__enum__duplicate`
+- Updated Phase 3 rows:
+  char row now `in_progress` with valid+negative coverage; duplicate enum row
+  now has negative coverage.
+- Confirmed remaining gap:
+  duplicate field names in `struct`/`union` are still accepted without
+  diagnostics and remain tracked as unstarted.
+- Full `tests/final` suite result:
+  348 / 348 passing
+
+### 2026-03-10 — Bucket: torture-differential (phase-10 baseline)
+
+- Added runtime+differential torture anchors:
+  `15__torture__long_expr`,
+  `15__torture__deep_nesting`,
+  `15__torture__many_decls`,
+  `15__torture__large_struct`
+- Added compile-surface pathological declarator anchor:
+  `15__torture__pathological_decl`
+- Added malformed-input robustness anchor:
+  `15__torture__malformed_no_crash`
+- Current known gap tracked:
+  function-pointer runtime path for this declarator family still crashes in
+  probe form, so pathological declarator is currently compile-surface only.
+
+### 2026-03-10 — Bucket: diagnostics-recovery (targeted gap expansion)
+
+- Added active diagnostics test:
+  `12__diag_type_mismatch`
+- Probe failures logged (not yet promoted as passing anchors):
+  `12__diag_incompatible_ptr` candidate (`int* = double*`) currently emits no
+  diagnostic.
+  `12__diag_illegal_cast` candidate (`(int)(struct S){1}`) currently emits no
+  diagnostic and lowers to a bitcast in IR.
+- Possible causes:
+  assignment compatibility checks are not enforcing pointer constraint
+  diagnostics; cast semantic validation is not rejecting non-scalar source
+  casts to scalar destinations.
+
+### 2026-03-10 — Bucket: torture-differential (stress expansion wave 2)
+
+- Added runtime stress anchor:
+  `15__torture__many_globals`
+- Added malformed robustness anchor:
+  `15__torture__malformed_unclosed_comment_no_crash`
+- Logged blocked probe:
+  `15__torture__deep_switch` currently mismatches clang runtime output
+  (`fisics=15`, `clang=60`) and is not promoted as a passing anchor.
+- Result:
+  new active stress anchors pass and differential-check cleanly where
+  applicable;
+  malformed unclosed-comment path fails closed with deterministic lexer
+  diagnostics and no crash.
+
+### 2026-03-10 — Bucket: torture-differential (stress expansion wave 3)
+
+- Added runtime stress anchors:
+  `15__torture__many_params`,
+  `15__torture__large_array_stress`
+- Added malformed robustness anchor:
+  `15__torture__malformed_unbalanced_block_no_crash`
+- Logged blocked probe:
+  `15__torture__path_decl_nested` currently segfaults at runtime (`exit 139`)
+  in function-pointer call path; not promoted as passing anchor.
+
+### 2026-03-10 — Bucket: runtime-surface (harness + control-flow expansion)
+
+- Added runtime harness-behavior anchors:
+  `14__runtime_args_env`,
+  `14__runtime_stdin`
+- Added runtime control-flow anchor:
+  `14__runtime_switch_simple`
+- Logged blocked control-flow probe:
+  looped-switch variant (`15__torture__deep_switch`) still mismatches clang
+  output and remains outside active passing anchors.
+
+### 2026-03-10 — Bucket: runtime-surface (float edge expansion)
+
+- Added active floating-point infinity anchor:
+  `14__runtime_float_infinity`
+- Logged blocked floating-point probe:
+  `14__float__nan` currently mismatches clang on NaN self-inequality.
+
+### 2026-03-10 — Bucket: runtime-surface (calls/memory stress expansion)
+
+- Added active runtime+differential anchors:
+  `14__runtime_variadic_calls`,
+  `14__runtime_deep_recursion`,
+  `14__runtime_struct_layout_alignment`
+- Phase-8 rows promoted to `in_progress` for variadic calls, deep recursion,
+  struct layout correctness, and alignment correctness.
+
+### 2026-03-10 — Probe Fixtures (pre-fix lock-in set)
+
+- Added non-manifest probe fixtures under:
+  `tests/final/probes/runtime/` and `tests/final/probes/diagnostics/`
+- Added probe runner:
+  `python3 tests/final/probes/run_probes.py`
+- Current snapshot (`2026-03-10`):
+  blocked=7, resolved=0, skipped=0
+- Blocked runtime probes:
+  `14__probe_unsigned_wrap`,
+  `14__probe_float_nan`,
+  `15__probe_switch_loop_lite`,
+  `15__probe_switch_loop_mod5`,
+  `15__probe_path_decl_nested_runtime`
+- Blocked diagnostics probes:
+  `12__probe_incompatible_ptr_assign`,
+  `12__probe_illegal_struct_to_int_cast`
+
+### 2026-03-10 — Probe Fixtures (declarator + shift-width expansion)
+
+- Added runtime boundary probe:
+  `04__probe_deep_declarator_call_only`
+- Added deep declarator compile-time hang probe:
+  `04__probe_deep_declarator_codegen_hang`
+- Added diagnostics probe:
+  `12__probe_invalid_shift_width`
+- Updated probe runner with deterministic compile/runtime timeouts to avoid
+  hanging the full probe sweep.
+- Current snapshot (`2026-03-10`):
+  blocked=3, resolved=7, skipped=0
+- Blocked probes:
+  `04__probe_deep_declarator_call_only` (compiler crash `-11`),
+  `04__probe_deep_declarator_codegen_hang` (compile timeout),
+  `12__probe_invalid_shift_width` (missing diagnostic).
 
 ## Completion Rule
 

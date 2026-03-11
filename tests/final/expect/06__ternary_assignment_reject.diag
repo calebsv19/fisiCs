@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (5:0): Left operand of '=' must be a modifiable lvalue

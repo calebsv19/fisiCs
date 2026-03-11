@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__struct__tag_redefinition_reject",
+      "bucket": "declarations",
+      "input": "cases/04__struct__tag_redefinition_reject.c",
+      "expects": [
+        "expect/04__struct__tag_redefinition_reject.diag"
+      ],
+      "tags": [
+        "struct",
+        "tag",
+        "negative",
+        "redefinition"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

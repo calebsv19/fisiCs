@@ -297,6 +297,19 @@ static CGStructLLVMInfo* findStructInfoForAggregate(CodegenContext* ctx,
     if (!cache) {
         return NULL;
     }
+    if (parsedHint && parsedHint->inlineStructOrUnionDef) {
+        CGStructLLVMInfo* info =
+            cg_type_cache_get_struct_by_definition(cache, parsedHint->inlineStructOrUnionDef);
+        if (info) {
+            return info;
+        }
+    }
+    if (aggregateType) {
+        CGStructLLVMInfo* info = cg_type_cache_find_struct_by_llvm(cache, aggregateType);
+        if (info) {
+            return info;
+        }
+    }
     if (structNameHint && structNameHint[0]) {
         CGStructLLVMInfo* info = cg_type_cache_get_struct_info(cache, structNameHint);
         if (info) {
@@ -305,12 +318,6 @@ static CGStructLLVMInfo* findStructInfoForAggregate(CodegenContext* ctx,
     }
     if (parsedHint && parsedHint->userTypeName) {
         CGStructLLVMInfo* info = cg_type_cache_get_struct_info(cache, parsedHint->userTypeName);
-        if (info) {
-            return info;
-        }
-    }
-    if (aggregateType) {
-        CGStructLLVMInfo* info = cg_type_cache_find_struct_by_llvm(cache, aggregateType);
         if (info) {
             return info;
         }
@@ -409,6 +416,39 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
                     fieldLLVMType = legacy->fields[i].type;
                     found = true;
                     break;
+                }
+            }
+        }
+    }
+
+    if (!found && structParsedHint && structParsedHint->inlineStructOrUnionDef) {
+        ASTNode* def = structParsedHint->inlineStructOrUnionDef;
+        if (def->type == AST_STRUCT_DEFINITION || def->type == AST_UNION_DEFINITION) {
+            bool inlineUnion = (def->type == AST_UNION_DEFINITION);
+            unsigned runningIndex = 0;
+            for (size_t i = 0; i < def->structDef.fieldCount && !found; ++i) {
+                ASTNode* fieldDecl = def->structDef.fields ? def->structDef.fields[i] : NULL;
+                if (!fieldDecl || fieldDecl->type != AST_VARIABLE_DECLARATION) {
+                    continue;
+                }
+                for (size_t v = 0; v < fieldDecl->varDecl.varCount; ++v) {
+                    ASTNode* fieldNameNode = fieldDecl->varDecl.varNames ? fieldDecl->varDecl.varNames[v] : NULL;
+                    const char* candidate = (fieldNameNode && fieldNameNode->type == AST_IDENTIFIER)
+                        ? fieldNameNode->valueNode.value
+                        : NULL;
+                    if (candidate && strcmp(candidate, fieldName) == 0) {
+                        fieldIndex = inlineUnion ? 0 : runningIndex;
+                        const ParsedType* parsedField = astVarDeclTypeAt(fieldDecl, v);
+                        fieldLLVMType = cg_type_from_parsed(ctx, parsedField);
+                        if (outFieldParsedType) {
+                            *outFieldParsedType = parsedField;
+                        }
+                        found = true;
+                        break;
+                    }
+                    if (!inlineUnion) {
+                        runningIndex++;
+                    }
                 }
             }
         }
@@ -543,10 +583,24 @@ bool codegenLValue(CodegenContext* ctx,
                 arrayPtr = codegenNode(ctx, target->arrayAccess.array);
                 baseParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
             }
+            const ParsedType* refinedCallParsed =
+                cg_refine_function_call_result_type(ctx, target->arrayAccess.array);
+            if (refinedCallParsed) {
+                baseParsed = refinedCallParsed;
+            }
             if (!arrayPtr) return false;
             /* If the base is a pointer variable (not an actual array object), load the pointer
                value so we index the pointee rather than the stack slot. */
-            if (haveBasePtr && (!baseParsed || !parsedTypeIsDirectArray(baseParsed))) {
+            bool baseNeedsLoad = haveBasePtr && (!baseParsed || !parsedTypeIsDirectArray(baseParsed));
+            if (baseNeedsLoad && target->arrayAccess.array) {
+                ASTNode* baseExpr = target->arrayAccess.array;
+                if ((baseExpr->type == AST_UNARY_EXPRESSION && baseExpr->expr.op &&
+                     strcmp(baseExpr->expr.op, "*") == 0) ||
+                    baseExpr->type == AST_POINTER_DEREFERENCE) {
+                    baseNeedsLoad = false;
+                }
+            }
+            if (baseNeedsLoad) {
                 LLVMTypeRef loadTy = baseType;
                 if (!loadTy) {
                     LLVMTypeRef elem = NULL;
@@ -657,12 +711,19 @@ bool codegenLValue(CodegenContext* ctx,
             }
             return true;
         }
-        case AST_DOT_ACCESS: {
+        case AST_DOT_ACCESS:
+        case AST_STRUCT_FIELD_ACCESS: {
+            ASTNode* baseNode = (target->type == AST_STRUCT_FIELD_ACCESS)
+                ? target->structFieldAccess.structInstance
+                : target->memberAccess.base;
+            const char* fieldName = (target->type == AST_STRUCT_FIELD_ACCESS)
+                ? target->structFieldAccess.fieldName
+                : target->memberAccess.field;
             LLVMValueRef basePtr = NULL;
             LLVMTypeRef baseType = NULL;
             const ParsedType* baseParsed = NULL;
-            if (!codegenLValue(ctx, target->memberAccess.base, &basePtr, &baseType, &baseParsed, NULL)) {
-                LLVMValueRef baseVal = codegenNode(ctx, target->memberAccess.base);
+            if (!codegenLValue(ctx, baseNode, &basePtr, &baseType, &baseParsed, NULL)) {
+                LLVMValueRef baseVal = codegenNode(ctx, baseNode);
                 if (!baseVal) return false;
                 if (LLVMGetTypeKind(LLVMTypeOf(baseVal)) == LLVMPointerTypeKind) {
                     basePtr = baseVal;
@@ -674,7 +735,7 @@ bool codegenLValue(CodegenContext* ctx,
                     baseType = LLVMTypeOf(baseVal);
                 }
                 if (!baseParsed) {
-                    baseParsed = cg_resolve_expression_type(ctx, target->memberAccess.base);
+                    baseParsed = cg_resolve_expression_type(ctx, baseNode);
                 }
             }
 
@@ -685,7 +746,7 @@ bool codegenLValue(CodegenContext* ctx,
 
             LLVMTypeRef fieldType = NULL;
             const ParsedType* fieldParsed = NULL;
-            const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, baseParsed, target->memberAccess.field);
+            const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, baseParsed, fieldName);
             if (lay && lay->isBitfield && lay->widthBits > 0 && outInfo) {
                 unsigned storageBits = (unsigned)(lay->storageUnitBytes ? lay->storageUnitBytes * 8 : 32);
                 LLVMTypeRef storageTy = LLVMIntTypeInContext(ctx->llvmContext, storageBits);
@@ -718,7 +779,7 @@ bool codegenLValue(CodegenContext* ctx,
                                                             basePtr,
                                                             baseType,
                                                             nameHint,
-                                                            target->memberAccess.field,
+                                                            fieldName,
                                                             baseParsed,
                                                             &fieldType,
                                                             &fieldParsed);
@@ -888,12 +949,23 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
     bool isUnion = (node->type == AST_UNION_DEFINITION);
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
     CGStructLLVMInfo* semanticInfo = NULL;
+    bool semanticInfoMatchesNode = false;
+    bool forceScopedTypeName = false;
     if (cache) {
-        if (structName && structName[0]) {
-            semanticInfo = cg_type_cache_get_struct_info(cache, structName);
-        }
-        if (!semanticInfo) {
-            semanticInfo = cg_type_cache_get_struct_by_definition(cache, node);
+        semanticInfo = cg_type_cache_get_struct_by_definition(cache, node);
+        if (semanticInfo) {
+            semanticInfoMatchesNode = true;
+        } else if (structName && structName[0]) {
+            CGStructLLVMInfo* byName = cg_type_cache_get_struct_info(cache, structName);
+            if (byName) {
+                if (byName->definition == node) {
+                    semanticInfo = byName;
+                    semanticInfoMatchesNode = true;
+                } else {
+                    // Same spelling, different definition (block-scope shadowing).
+                    forceScopedTypeName = true;
+                }
+            }
         }
     }
 
@@ -903,13 +975,13 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (!structType) {
-        if (structName && structName[0]) {
+        if (!forceScopedTypeName && structName && structName[0]) {
             structType = ensureStructLLVMTypeByName(ctx, structName, isUnion);
         } else {
-            char anonName[64];
+            char anonName[96];
             snprintf(anonName,
                      sizeof(anonName),
-                     isUnion ? "anon.union.%p" : "anon.struct.%p",
+                     isUnion ? "scoped.union.%p" : "scoped.struct.%p",
                      (void*)node);
             structType = cg_context_lookup_named_type(ctx, anonName);
             if (!structType) {
@@ -920,7 +992,7 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
         }
     }
 
-    if (semanticInfo && !semanticInfo->llvmType) {
+    if (semanticInfo && semanticInfoMatchesNode && !semanticInfo->llvmType) {
         semanticInfo->llvmType = structType;
     }
 

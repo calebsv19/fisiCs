@@ -1,0 +1,27 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: static int
+    IDENTIFIER g_static
+      = NUMBER_LITERAL 7
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER read_static
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: static int
+        IDENTIFIER local_counter
+          = NUMBER_LITERAL 0
+      ASSIGNMENT (=)
+        IDENTIFIER local_counter
+        BINARY EXPRESSION '+'
+          IDENTIFIER local_counter
+          NUMBER_LITERAL 1
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER g_static
+          IDENTIFIER local_counter

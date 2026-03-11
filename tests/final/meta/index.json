@@ -6,15 +6,26 @@
     "02-lexer.json",
     "03-preprocessor.json",
     "04-declarations.json",
+    "04-declarations-wave2.json",
+    "04-declarations-wave3.json",
+    "04-declarations-wave4.json",
+    "04-declarations-wave5.json",
     "05-expressions.json",
+    "05-expressions-wave2.json",
     "06-lvalues-rvalues.json",
     "07-types-conversions.json",
     "08-initializers-layout.json",
     "09-statements-controlflow.json",
+    "09-statements-controlflow-wave2.json",
+    "09-statements-controlflow-wave3.json",
+    "09-statements-controlflow-wave4.json",
+    "09-statements-controlflow-wave5.json",
+    "09-statements-controlflow-wave6.json",
     "10-scopes-linkage.json",
     "11-functions-calls.json",
     "12-diagnostics-recovery.json",
     "13-codegen-ir.json",
-    "14-runtime-surface.json"
+    "14-runtime-surface.json",
+    "15-torture-differential.json"
   ]
 }

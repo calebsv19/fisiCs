@@ -39,6 +39,21 @@ Namespaces, redeclarations, and linkage behavior.
    - extern array size mismatch.
 12) `10__tentative_definition_multi_tu`
    - Multiple tentative definitions across translation units link cleanly.
+13) `10__block_extern_reference`
+   - Block-scope `extern` binds to file-scope symbol while inner shadow remains local.
+14) `10__block_scope_conflicting_types`
+   - Redeclaration with conflicting type in same block scope is rejected.
+15) `10__var_function_name_conflict`
+   - Variable/function name collision in ordinary identifier namespace is rejected.
+16) `10__extern_array_consistent_definition`
+   - File-scope `extern` declaration matched by consistent array definition.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for scope and linkage behavior.
+
+## Probe Backlog
+- `tests/final/probes/diagnostics/10__probe_block_extern_different_type_reject.c`
+  currently accepts block-scope `extern` redeclaration with conflicting type.
+- `tests/final/probes/runtime/10__probe_static_function_then_extern_decl_ok.c`
+  currently rejects valid file-scope `static` function followed by `extern`
+  declaration.

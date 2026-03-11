@@ -1,0 +1,42 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: static int [3]
+    IDENTIFIER storage
+        = NUMBER_LITERAL 1
+
+        = NUMBER_LITERAL 2
+
+        = NUMBER_LITERAL 3
+
+  FUNCTION DEFINITION
+    RETURN TYPE: int* [3]
+    IDENTIFIER ret_array
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        UNARY EXPRESSION '&' (prefix)
+          IDENTIFIER storage
+  VAR_DECL
+    TYPE: int (**)() () [3]
+    IDENTIFIER fp
+      = IDENTIFIER ret_array
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '-'
+          ARRAY_ACCESS
+            UNARY EXPRESSION '*' (prefix)
+              FUNCTION CALL
+                IDENTIFIER fp
+            NUMBER_LITERAL 2
+          NUMBER_LITERAL 3

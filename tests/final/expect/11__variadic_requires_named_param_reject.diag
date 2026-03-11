@@ -1,0 +1,9 @@
+Diagnostics:
+Error: Variadic parameter list requires at least one named parameter at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/11__variadic_requires_named_param_reject.c:1 (got ')')
+Error: Variadic parameter list requires at least one named parameter at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/11__variadic_requires_named_param_reject.c:2 (got ')')
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/11__variadic_requires_named_param_reject.c:2 (got '}')
+Error: invalid statement at line 2 (token=})
+Error: Failed to parse expression at line 2
+Error at (3:25): Undeclared identifier
+   Hint: bad
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/11__variadic_requires_named_param_reject.c:3:25

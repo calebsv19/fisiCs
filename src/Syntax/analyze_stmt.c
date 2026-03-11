@@ -5,6 +5,7 @@
 #include "const_eval.h"
 #include "syntax_errors.h"
 #include "type_checker.h"
+#include "symbol_table.h"
 #include "Parser/Helpers/parsed_type.h"
 #include "Lexer/tokens.h"
 #include <stdlib.h>
@@ -103,8 +104,27 @@ static bool varDeclHasInitOrVLA(ASTNode* node) {
     if (!node || node->type != AST_VARIABLE_DECLARATION) return false;
     for (size_t i = 0; i < node->varDecl.varCount; ++i) {
         const ParsedType* t = astVarDeclTypeAt(node, i);
-        if (t && parsedTypeHasVLA(t)) {
-            return true;
+        if (t) {
+            if (parsedTypeHasVLA(t)) {
+                return true;
+            }
+            for (size_t d = 0; d < t->derivationCount; ++d) {
+                const TypeDerivation* deriv = parsedTypeGetDerivation(t, d);
+                if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY) {
+                    continue;
+                }
+                if (deriv->as.array.isVLA) {
+                    return true;
+                }
+                ASTNode* sizeExpr = deriv->as.array.sizeExpr;
+                if (!sizeExpr) {
+                    continue;
+                }
+                long long ignored = 0;
+                if (!constEvalInteger(sizeExpr, NULL, &ignored, true)) {
+                    return true;
+                }
+            }
         }
         if (node->varDecl.initializers && node->varDecl.initializers[i]) {
             return true;
@@ -352,6 +372,9 @@ void validateGotoScopes(ASTNode* node) {
             }
         }
         if (!label) {
+            char buffer[256];
+            snprintf(buffer, sizeof(buffer), "goto to undefined label '%s'", gt->name ? gt->name : "");
+            addError(gt->line, 0, buffer, NULL);
             continue;
         }
 
@@ -479,6 +502,59 @@ static bool labelTrackerRecord(LabelTracker* tracker,
     return true;
 }
 
+static bool isDeclarationStatementType(ASTNodeType type) {
+    switch (type) {
+        case AST_VARIABLE_DECLARATION:
+        case AST_STRUCT_DEFINITION:
+        case AST_UNION_DEFINITION:
+        case AST_ENUM_DEFINITION:
+        case AST_TYPEDEF:
+        case AST_STATIC_ASSERT:
+        case AST_FUNCTION_DECLARATION:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool isFunctionDesignatorExpr(ASTNode* expr, Scope* scope) {
+    if (!expr || expr->type != AST_IDENTIFIER || !scope || !expr->valueNode.value) {
+        return false;
+    }
+    Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
+    return sym && sym->kind == SYMBOL_FUNCTION;
+}
+
+static bool typeInfoIsScalar(const TypeInfo* info) {
+    return typeInfoIsArithmetic(info) || typeInfoIsPointerLike(info);
+}
+
+static void analyzeControlCondition(ASTNode* expr,
+                                    Scope* scope,
+                                    bool requireInteger,
+                                    int line,
+                                    const char* stmtName) {
+    if (!expr) return;
+    TypeInfo cond = analyzeExpression(expr, scope);
+    cond = decayToRValue(cond);
+    if (cond.category == TYPEINFO_INVALID) {
+        return;
+    }
+    if (requireInteger) {
+        if (!typeInfoIsInteger(&cond)) {
+            char buffer[128];
+            snprintf(buffer, sizeof(buffer), "%s controlling expression must be integer", stmtName);
+            addError(line, 0, buffer, NULL);
+        }
+        return;
+    }
+    if (!typeInfoIsScalar(&cond)) {
+        char buffer[128];
+        snprintf(buffer, sizeof(buffer), "%s controlling expression must be scalar", stmtName);
+        addError(line, 0, buffer, NULL);
+    }
+}
+
 static void analyzeStatementInternal(ASTNode* node,
                                      Scope* scope,
                                      SwitchStack* switchStack,
@@ -486,7 +562,7 @@ static void analyzeStatementInternal(ASTNode* node,
                                      int loopDepth) {
     switch (node->type) {
         case AST_IF_STATEMENT:
-            analyze(node->ifStmt.condition, scope);
+            analyzeControlCondition(node->ifStmt.condition, scope, false, node->line, "if");
             analyzeStatementInternal(node->ifStmt.thenBranch, scope, switchStack, labels, loopDepth);
             if (node->ifStmt.elseBranch) {
                 analyzeStatementInternal(node->ifStmt.elseBranch, scope, switchStack, labels, loopDepth);
@@ -496,7 +572,7 @@ static void analyzeStatementInternal(ASTNode* node,
         case AST_FOR_LOOP: {
             Scope* inner = createScope(scope);
             analyze(node->forLoop.initializer, inner);
-            analyze(node->forLoop.condition, inner);
+            analyzeControlCondition(node->forLoop.condition, inner, false, node->line, "for");
             analyze(node->forLoop.increment, inner);
             analyzeStatementInternal(node->forLoop.body, inner, switchStack, labels, loopDepth + 1);
             destroyScope(inner);
@@ -504,7 +580,11 @@ static void analyzeStatementInternal(ASTNode* node,
         }
 
         case AST_WHILE_LOOP:
-            analyze(node->whileLoop.condition, scope);
+            analyzeControlCondition(node->whileLoop.condition,
+                                    scope,
+                                    false,
+                                    node->line,
+                                    node->whileLoop.isDoWhile ? "do-while" : "while");
             analyzeStatementInternal(node->whileLoop.body, scope, switchStack, labels, loopDepth + 1);
             break;
 
@@ -513,9 +593,22 @@ static void analyzeStatementInternal(ASTNode* node,
                 TypeInfo retVal = analyzeExpression(node->returnStmt.returnValue, scope);
                 retVal = decayToRValue(retVal);
                 if (scope && scope->hasReturnType) {
-                    AssignmentCheckResult res = canAssignTypes(&scope->returnType, &retVal);
-                    if (res == ASSIGN_QUALIFIER_LOSS) {
-                        addError(node->line, 0, "Return discards qualifiers from pointer target", NULL);
+                    if (scope->returnType.category == TYPEINFO_VOID) {
+                        addError(node->line, 0, "Void function should not return a value", NULL);
+                    } else if (retVal.category != TYPEINFO_INVALID) {
+                        AssignmentCheckResult res = canAssignTypes(&scope->returnType, &retVal);
+                        if (res == ASSIGN_INCOMPATIBLE) {
+                            bool allowFunctionDecay = isFunctionDesignatorExpr(node->returnStmt.returnValue, scope) &&
+                                                      (typeInfoIsPointerLike(&scope->returnType) ||
+                                                       scope->returnType.category == TYPEINFO_FUNCTION ||
+                                                       scope->returnType.isFunction ||
+                                                       scope->returnType.pointerDepth > 0);
+                            if (!allowFunctionDecay) {
+                                addError(node->line, 0, "Incompatible return type", NULL);
+                            }
+                        } else if (res == ASSIGN_QUALIFIER_LOSS) {
+                            addError(node->line, 0, "Return discards qualifiers from pointer target", NULL);
+                        }
                     }
                 }
             } else {
@@ -537,7 +630,7 @@ static void analyzeStatementInternal(ASTNode* node,
             break;
 
         case AST_SWITCH: {
-            analyze(node->switchStmt.condition, scope);
+            analyzeControlCondition(node->switchStmt.condition, scope, true, node->line, "switch");
             SwitchFrame* frame = pushSwitchFrame(switchStack);
             for (size_t i = 0; i < node->switchStmt.caseListSize; i++) {
                 analyzeStatementInternal(node->switchStmt.caseList[i], scope, switchStack, labels, loopDepth);
@@ -548,6 +641,15 @@ static void analyzeStatementInternal(ASTNode* node,
         }
 
         case AST_CASE:
+            if (node->caseStmt.caseBodySize > 0 &&
+                node->caseStmt.caseBody &&
+                node->caseStmt.caseBody[0] &&
+                isDeclarationStatementType(node->caseStmt.caseBody[0]->type)) {
+                addError(node->line,
+                         0,
+                         "label before declaration is not allowed in C99; wrap declaration in a block",
+                         NULL);
+            }
             if (node->caseStmt.caseValue) {
                 analyze(node->caseStmt.caseValue, scope);
                 ConstEvalResult res = constEval(node->caseStmt.caseValue, scope, true);
@@ -615,6 +717,12 @@ static void analyzeStatementInternal(ASTNode* node,
                 }
             }
             if (node->label.statement) {
+                if (isDeclarationStatementType(node->label.statement->type)) {
+                    addError(node->line,
+                             0,
+                             "label before declaration is not allowed in C99; wrap declaration in a block",
+                             NULL);
+                }
                 analyze(node->label.statement, scope);
             }
             break;

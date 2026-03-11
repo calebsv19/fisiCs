@@ -20,6 +20,7 @@ static void inferCompoundLiteralArrayLength(ASTNode* node, Scope* scope);
 static bool isArithmeticOperator(const char* op);
 static bool isComparisonOperator(const char* op);
 static bool isLogicalOperator(const char* op);
+static bool typeInfoIsScalar(const TypeInfo* info);
 
 static TypeInfo sizeTypeFromScope(Scope* scope) {
     Symbol* sym = resolveInScopeChain(scope, "size_t");
@@ -43,6 +44,10 @@ static bool pointerTargetsCompatibleForConditional(const TypeInfo* a, const Type
     if (a->userTypeName == b->userTypeName) return true;
     if (!a->userTypeName || !b->userTypeName) return true;
     return strcmp(a->userTypeName, b->userTypeName) == 0;
+}
+
+static bool typeInfoIsScalar(const TypeInfo* info) {
+    return typeInfoIsArithmetic(info) || typeInfoIsPointerLike(info);
 }
 
 static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b) {
@@ -730,8 +735,13 @@ static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {
     }
     CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
     ASTNode* def = NULL;
+    if (base->originalType && base->originalType->inlineStructOrUnionDef) {
+        def = base->originalType->inlineStructOrUnionDef;
+    }
     if (base->userTypeName) {
-        def = cc_tag_definition(scope->ctx, kind, base->userTypeName);
+        if (!def) {
+            def = cc_tag_definition(scope->ctx, kind, base->userTypeName);
+        }
         if (!def) {
             Symbol* typeSym = resolveInScopeChain(scope, base->userTypeName);
             if (typeSym && typeSym->kind == SYMBOL_TYPEDEF) {
@@ -748,9 +758,6 @@ static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {
                 }
             }
         }
-    }
-    if (!def && base->originalType && base->originalType->inlineStructOrUnionDef) {
-        def = base->originalType->inlineStructOrUnionDef;
     }
     if (!def || (def->type != AST_STRUCT_DEFINITION && def->type != AST_UNION_DEFINITION)) {
         return NULL;
@@ -1178,6 +1185,23 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     }
                     return makeInvalidType();
                 }
+                if (strcmp(op, "<<") == 0 || strcmp(op, ">>") == 0) {
+                    long long shiftAmount = 0;
+                    if (constEvalInteger(node->expr.right, scope, &shiftAmount, true)) {
+                        TypeInfo promotedLeft = integerPromote(left);
+                        unsigned lhsBits = promotedLeft.bitWidth ? promotedLeft.bitWidth : scope_int_bits(scope);
+                        if (shiftAmount < 0 || shiftAmount >= (long long)lhsBits) {
+                            char message[128];
+                            snprintf(message,
+                                     sizeof(message),
+                                     "Invalid shift width %lld for %u-bit operand",
+                                     shiftAmount,
+                                     lhsBits);
+                            addError(node->line, 0, message, NULL);
+                            return makeInvalidType();
+                        }
+                    }
+                }
                 bool ok = true;
                 TypeInfo result = usualArithmeticConversion(left, right, &ok);
                 result.isLValue = false;
@@ -1348,7 +1372,14 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
         case AST_CAST_EXPRESSION: {
             TypeInfo target = typeInfoFromParsedType(&node->castExpr.castType, scope);
-            analyzeExpression(node->castExpr.expression, scope);
+            TypeInfo source = analyzeExpression(node->castExpr.expression, scope);
+            source = decayToRValue(source);
+            bool targetIsVoid = target.category == TYPEINFO_VOID;
+            bool targetIsScalar = typeInfoIsArithmetic(&target) || typeInfoIsPointerLike(&target);
+            bool sourceIsScalar = typeInfoIsArithmetic(&source) || typeInfoIsPointerLike(&source);
+            if (!targetIsVoid && (!targetIsScalar || !sourceIsScalar)) {
+                addError(node->line, 0, "Invalid cast between non-scalar types", NULL);
+            }
             target.isLValue = false;
             return target;
         }
@@ -1803,9 +1834,15 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         }
 
         case AST_TERNARY_EXPRESSION: {
-            analyzeExpression(node->ternaryExpr.condition, scope);
+            TypeInfo condInfo = analyzeExpression(node->ternaryExpr.condition, scope);
+            condInfo = decayToRValue(condInfo);
             TypeInfo trueInfo = analyzeExpression(node->ternaryExpr.trueExpr, scope);
             TypeInfo falseInfo = analyzeExpression(node->ternaryExpr.falseExpr, scope);
+            bool conditionValid = true;
+            if (condInfo.category != TYPEINFO_INVALID && !typeInfoIsScalar(&condInfo)) {
+                addError(node->line, 0, "Conditional operator first operand must be scalar", NULL);
+                conditionValid = false;
+            }
             bool ok = true;
             bool truePtr = typeInfoIsPointerLike(&trueInfo);
             bool falsePtr = typeInfoIsPointerLike(&falseInfo);
@@ -1862,7 +1899,9 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 return falsePtrInfo;
             }
 
-            addError(node->line, 0, "Incompatible types in ternary expression", NULL);
+            if (conditionValid) {
+                addError(node->line, 0, "Incompatible types in ternary expression", NULL);
+            }
             return makeInvalidType();
         }
 

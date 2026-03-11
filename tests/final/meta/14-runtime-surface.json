@@ -78,6 +78,282 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "14__runtime_div_mod_edges",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_div_mod_edges.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_div_mod_edges.stdout",
+      "expected_stderr": "expect/14__runtime_div_mod_edges.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "arith",
+        "div-mod"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_pointer_arith",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_pointer_arith.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_pointer_arith.stdout",
+      "expected_stderr": "expect/14__runtime_pointer_arith.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_recursion",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_recursion.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_recursion.stdout",
+      "expected_stderr": "expect/14__runtime_recursion.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "recursion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_return",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_return.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_return.stdout",
+      "expected_stderr": "expect/14__runtime_struct_return.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "struct-return"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_function_pointer",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_function_pointer.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_function_pointer.stdout",
+      "expected_stderr": "expect/14__runtime_function_pointer.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_float_precision",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_float_precision.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_float_precision.stdout",
+      "expected_stderr": "expect/14__runtime_float_precision.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "float",
+        "precision"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_float_infinity",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_float_infinity.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_float_infinity.stdout",
+      "expected_stderr": "expect/14__runtime_float_infinity.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "float",
+        "infinity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_large_stack",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_large_stack.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_large_stack.stdout",
+      "expected_stderr": "expect/14__runtime_large_stack.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "stress",
+        "stack"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_switch_simple",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_switch_simple.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_switch_simple.stdout",
+      "expected_stderr": "expect/14__runtime_switch_simple.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_args_env",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_args_env.c",
+      "expects": [],
+      "run": true,
+      "run_args": [
+        "A",
+        "B"
+      ],
+      "run_env": {
+        "FISICS_T": "42"
+      },
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_args_env.stdout",
+      "expected_stderr": "expect/14__runtime_args_env.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "harness",
+        "args-env"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_stdin",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_stdin.c",
+      "expects": [],
+      "run": true,
+      "run_stdin": "Z\n",
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_stdin.stdout",
+      "expected_stderr": "expect/14__runtime_stdin.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "harness",
+        "stdin"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_calls",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_calls.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_calls.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_calls.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "variadic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_deep_recursion",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_deep_recursion.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_deep_recursion.stdout",
+      "expected_stderr": "expect/14__runtime_deep_recursion.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "stress",
+        "recursion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_layout_alignment",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_layout_alignment.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_layout_alignment.stdout",
+      "expected_stderr": "expect/14__runtime_struct_layout_alignment.stderr",
+      "differential": true,
+      "standard": "c99",
+      "abi_sensitive": true,
+      "tags": [
+        "runtime",
+        "memory",
+        "struct-layout",
+        "alignment"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

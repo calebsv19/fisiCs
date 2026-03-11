@@ -603,7 +603,7 @@ static bool identifierMatchesKnownType(Parser* parser, const char* name) {
     if (!parser || !parser->ctx || !name) {
         return false;
     }
-    if (cc_is_typedef(parser->ctx, name)) {
+    if (parserIsTypedefVisible(parser, name)) {
         return true;
     }
     if (cc_is_builtin_type(parser->ctx, name)) {
@@ -801,6 +801,13 @@ static bool parseInlineEnumBody(Parser* parser,
             free(values);
             return false;
         }
+    }
+
+    if (count == 0) {
+        printParseError("Enum declaration requires at least one enumerator", parser);
+        free(members);
+        free(values);
+        return false;
     }
 
     if (parser->currentToken.type != TOKEN_RBRACE) {

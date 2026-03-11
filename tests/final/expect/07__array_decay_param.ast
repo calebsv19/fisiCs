@@ -1,0 +1,44 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER sum3
+    PARAMETERS
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER arr
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            ARRAY_ACCESS
+              IDENTIFIER arr
+              NUMBER_LITERAL 0
+            ARRAY_ACCESS
+              IDENTIFIER arr
+              NUMBER_LITERAL 1
+          ARRAY_ACCESS
+            IDENTIFIER arr
+            NUMBER_LITERAL 2
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int [3]
+        IDENTIFIER values
+            = NUMBER_LITERAL 1
+
+            = NUMBER_LITERAL 2
+
+            = NUMBER_LITERAL 3
+
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER sum3
+          ARGUMENTS
+            IDENTIFIER values

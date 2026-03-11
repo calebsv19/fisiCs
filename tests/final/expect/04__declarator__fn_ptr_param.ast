@@ -1,0 +1,18 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER apply_callback
+    PARAMETERS
+      VAR_DECL
+        TYPE: int (*)(int) (int)
+        IDENTIFIER cb
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER cb
+          ARGUMENTS
+            IDENTIFIER x

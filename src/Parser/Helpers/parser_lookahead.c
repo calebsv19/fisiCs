@@ -70,7 +70,7 @@ bool looksLikeTypeDeclaration(Parser* parser) {
 
     if (parser->currentToken.type == TOKEN_IDENTIFIER &&
         parser->ctx &&
-        cc_is_typedef(parser->ctx, parser->currentToken.value)) {
+        parserIsTypedefVisible(parser, parser->currentToken.value)) {
         return true;
     }
 

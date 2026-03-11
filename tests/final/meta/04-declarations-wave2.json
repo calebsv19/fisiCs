@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__primitive__complex",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__complex.c",
+      "expects": [
+        "expect/04__primitive__complex.ast",
+        "expect/04__primitive__complex.diag"
+      ],
+      "tags": [
+        "primitive",
+        "complex"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__typedef__complex_type",
+      "bucket": "declarations",
+      "input": "cases/04__typedef__complex_type.c",
+      "expects": [
+        "expect/04__typedef__complex_type.ast",
+        "expect/04__typedef__complex_type.diag"
+      ],
+      "tags": [
+        "typedef",
+        "complex"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__alignas_basic",
+      "bucket": "declarations",
+      "input": "cases/04__alignas_basic.c",
+      "expects": [
+        "expect/04__alignas_basic.ast",
+        "expect/04__alignas_basic.diag"
+      ],
+      "tags": [
+        "alignas"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__alignas_invalid_reject",
+      "bucket": "declarations",
+      "input": "cases/04__alignas_invalid_reject.c",
+      "expects": [
+        "expect/04__alignas_invalid_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "alignas",
+        "negative",
+        "parse-error"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__vla_block_scope",
+      "bucket": "declarations",
+      "input": "cases/04__vla_block_scope.c",
+      "expects": [
+        "expect/04__vla_block_scope.ast",
+        "expect/04__vla_block_scope.diag"
+      ],
+      "tags": [
+        "vla"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__vla_file_scope_reject",
+      "bucket": "declarations",
+      "input": "cases/04__vla_file_scope_reject.c",
+      "expects": [
+        "expect/04__vla_file_scope_reject.diag"
+      ],
+      "tags": [
+        "vla",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__incomplete_type_object_reject",
+      "bucket": "declarations",
+      "input": "cases/04__incomplete_type_object_reject.c",
+      "expects": [
+        "expect/04__incomplete_type_object_reject.diag"
+      ],
+      "tags": [
+        "incomplete-type",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__incomplete_type_pointer_ok",
+      "bucket": "declarations",
+      "input": "cases/04__incomplete_type_pointer_ok.c",
+      "expects": [
+        "expect/04__incomplete_type_pointer_ok.ast",
+        "expect/04__incomplete_type_pointer_ok.diag"
+      ],
+      "tags": [
+        "incomplete-type",
+        "pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__ptr_to_fn_returning_ptr_to_array",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__ptr_to_fn_returning_ptr_to_array.c",
+      "expects": [
+        "expect/04__declarator__ptr_to_fn_returning_ptr_to_array.ast",
+        "expect/04__declarator__ptr_to_fn_returning_ptr_to_array.diag"
+      ],
+      "tags": [
+        "declarators",
+        "function-pointer",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__array_param_vla",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__array_param_vla.c",
+      "expects": [
+        "expect/04__declarator__array_param_vla.ast",
+        "expect/04__declarator__array_param_vla.diag"
+      ],
+      "tags": [
+        "declarators",
+        "vla"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

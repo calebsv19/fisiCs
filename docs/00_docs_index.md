@@ -42,6 +42,18 @@ Baseline and preparation report for the preprocessor bucket. Captures the
 current active preprocessor slice, what it already covers, the main missing
 areas, and the next structured failure-collection workflow.
 
+### `docs/compiler_declarations_bucket_report.md`
+
+Baseline and gap report for the declarations/types bucket. Tracks current
+Wave 1 coverage, added storage/qualifier tests, and confirmed spec-divergence
+items to fix before bucket completion.
+
+### `docs/compiler_parser_probe_backlog.md`
+
+Current blocked parser/declaration/function probe inventory. Central list of
+failing diagnostic and runtime-differential probes to fix in the next parser
+stabilization phase.
+
 ### `docs/compiler_test_coverage_blueprint.md`
 
 Repo-specific structural plan for the compiler test rework. Maps the current

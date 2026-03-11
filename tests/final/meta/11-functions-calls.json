@@ -105,6 +105,85 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "11__prototype_too_many_args",
+      "bucket": "functions-calls",
+      "input": "cases/11__prototype_too_many_args.c",
+      "expects": [
+        "expect/11__prototype_too_many_args.ast",
+        "expect/11__prototype_too_many_args.diag"
+      ],
+      "tags": [
+        "prototype",
+        "args",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__prototype_too_few_args",
+      "bucket": "functions-calls",
+      "input": "cases/11__prototype_too_few_args.c",
+      "expects": [
+        "expect/11__prototype_too_few_args.ast",
+        "expect/11__prototype_too_few_args.diag"
+      ],
+      "tags": [
+        "prototype",
+        "args",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__argument_type_mismatch",
+      "bucket": "functions-calls",
+      "input": "cases/11__argument_type_mismatch.c",
+      "expects": [
+        "expect/11__argument_type_mismatch.ast",
+        "expect/11__argument_type_mismatch.diag"
+      ],
+      "tags": [
+        "prototype",
+        "argument",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__nonvoid_missing_return",
+      "bucket": "functions-calls",
+      "input": "cases/11__nonvoid_missing_return.c",
+      "expects": [
+        "expect/11__nonvoid_missing_return.ast",
+        "expect/11__nonvoid_missing_return.diag"
+      ],
+      "tags": [
+        "return",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__variadic_requires_named_param_reject",
+      "bucket": "functions-calls",
+      "input": "cases/11__variadic_requires_named_param_reject.c",
+      "expects": [
+        "expect/11__variadic_requires_named_param_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "variadic",
+        "negative",
+        "parse-error"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

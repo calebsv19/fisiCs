@@ -1,0 +1,9 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER ImplicitIncrement
+        Member:   IDENTIFIER II_ZERO
+        Member:   IDENTIFIER II_ONE
+        Member:   IDENTIFIER II_TEN
+            Value:  NUMBER_LITERAL 10
+        Member:   IDENTIFIER II_ELEVEN

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (3:11): Conflicting types for variable
+   Hint: x
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_redeclaration_conflict.c:3:11

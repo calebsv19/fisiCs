@@ -1,0 +1,12 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER BitfieldKind
+        Member:   IDENTIFIER BK_ZERO
+        Member:   IDENTIFIER BK_ONE
+  STRUCT
+        Name:     IDENTIFIER EnumBitfield
+    VAR_DECL
+      TYPE: BitfieldKind
+      IDENTIFIER kind
+        BITFIELD : NUMBER_LITERAL 1

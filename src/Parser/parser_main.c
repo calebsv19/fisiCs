@@ -330,6 +330,7 @@ ASTNode* parseBlock(Parser* parser) {
         printf("Error: invalid block at line %d\n", parser->currentToken.line);
         return NULL;
     }
+    parserPushOrdinaryScope(parser);
     advance(parser);  // consume '{'
     size_t capacity = 4, count = 0; 
     ASTNode **statements = malloc(capacity * sizeof(ASTNode*));
@@ -348,6 +349,7 @@ ASTNode* parseBlock(Parser* parser) {
             statements = realloc(statements, capacity * sizeof(ASTNode*));
             if (!statements) {
                 printf("Error: Memory reallocation failed while parsing block.\n");
+                parserPopOrdinaryScope(parser);
                 return NULL;
             }
         }
@@ -358,7 +360,9 @@ ASTNode* parseBlock(Parser* parser) {
     } else {
         advance(parser);  // consume '}'
     }
-    return createBlockNode(statements, count);
+    ASTNode* block = createBlockNode(statements, count);
+    parserPopOrdinaryScope(parser);
+    return block;
 }
 
 ASTNode* parseStatement(Parser* parser) {

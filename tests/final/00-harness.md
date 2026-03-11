@@ -56,6 +56,12 @@ Each shard file uses the per-test schema below:
       "tags": ["macro", "line-mapping"],
       "capture_frontend_diag": false,
       "allow_nonzero_exit": false,
+      "run": false,
+      "expect_exit": 0,
+      "expected_stdout": "expect/<id>.stdout",
+      "expected_stderr": "expect/<id>.stderr",
+      "differential": false,
+      "standard": "c99",
       "requires": [],
       "status": "ok"
     }
@@ -85,3 +91,10 @@ Each shard file uses the per-test schema below:
   explicit layered `-I` include path tests).
 - `env: {...}` sets per-test environment variables (for example macro-expansion
   limit stress checks).
+- `run: true` compiles and links a temporary executable with `fisics -o ...`
+  then validates runtime behavior using `expect_exit`, `expected_stdout`,
+  and `expected_stderr`.
+- `run_args: [...]` and `run_env: {...}` pass runtime CLI args and environment
+  to the produced executable; `run_stdin` can provide input text.
+- `differential: true` additionally compiles/runs with `clang` and compares
+  stdout/stderr/exit exactly. If `ub: true`, differential comparison is skipped.

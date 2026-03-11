@@ -1,0 +1,232 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__long_expr",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__long_expr.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__long_expr.stdout",
+      "expected_stderr": "expect/15__torture__long_expr.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "expression-depth"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__deep_nesting",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__deep_nesting.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__deep_nesting.stdout",
+      "expected_stderr": "expect/15__torture__deep_nesting.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "nesting"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__many_decls",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__many_decls.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__many_decls.stdout",
+      "expected_stderr": "expect/15__torture__many_decls.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "declarations"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__many_globals",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__many_globals.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__many_globals.stdout",
+      "expected_stderr": "expect/15__torture__many_globals.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "globals"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__many_params",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__many_params.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__many_params.stdout",
+      "expected_stderr": "expect/15__torture__many_params.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "calls",
+        "abi"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__large_struct",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__large_struct.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__large_struct.stdout",
+      "expected_stderr": "expect/15__torture__large_struct.stderr",
+      "differential": true,
+      "standard": "c99",
+      "abi_sensitive": true,
+      "tags": [
+        "torture",
+        "runtime",
+        "struct-layout"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__large_array_stress",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__large_array_stress.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__large_array_stress.stdout",
+      "expected_stderr": "expect/15__torture__large_array_stress.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "memory",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__pathological_decl",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__pathological_decl.c",
+      "expects": [
+        "expect/15__torture__pathological_decl.ast",
+        "expect/15__torture__pathological_decl.diag"
+      ],
+      "tags": [
+        "torture",
+        "parser",
+        "declarator"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__path_decl_nested",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__path_decl_nested.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__path_decl_nested.stdout",
+      "expected_stderr": "expect/15__torture__path_decl_nested.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "declarator",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__malformed_unbalanced_block_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_unbalanced_block_no_crash.c",
+      "expects": [
+        "expect/15__torture__malformed_unbalanced_block_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "robustness",
+        "parser"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__malformed_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_no_crash.c",
+      "expects": [
+        "expect/15__torture__malformed_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "robustness"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__malformed_unclosed_comment_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_unclosed_comment_no_crash.c",
+      "expects": [
+        "expect/15__torture__malformed_unclosed_comment_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "robustness",
+        "lexer"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -135,6 +135,67 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "08__array_excess_elements_reject",
+      "bucket": "initializers-layout",
+      "input": "cases/08__array_excess_elements_reject.c",
+      "expects": [
+        "expect/08__array_excess_elements_reject.ast",
+        "expect/08__array_excess_elements_reject.diag"
+      ],
+      "tags": [
+        "array",
+        "negative",
+        "excess"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__mixed_designated_sequence",
+      "bucket": "initializers-layout",
+      "input": "cases/08__mixed_designated_sequence.c",
+      "expects": [
+        "expect/08__mixed_designated_sequence.ast",
+        "expect/08__mixed_designated_sequence.diag"
+      ],
+      "tags": [
+        "designator",
+        "mixed"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__union_designated_init",
+      "bucket": "initializers-layout",
+      "input": "cases/08__union_designated_init.c",
+      "expects": [
+        "expect/08__union_designated_init.ast",
+        "expect/08__union_designated_init.diag"
+      ],
+      "tags": [
+        "union",
+        "designator"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__partial_designated_zero_fill",
+      "bucket": "initializers-layout",
+      "input": "cases/08__partial_designated_zero_fill.c",
+      "expects": [
+        "expect/08__partial_designated_zero_fill.ast",
+        "expect/08__partial_designated_zero_fill.diag"
+      ],
+      "tags": [
+        "designator",
+        "zero-init"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

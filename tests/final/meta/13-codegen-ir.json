@@ -194,6 +194,39 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "13__ir_nested_loops",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_nested_loops.c",
+      "expects": [
+        "expect/13__ir_nested_loops.ast",
+        "expect/13__ir_nested_loops.diag",
+        "expect/13__ir_nested_loops.ir"
+      ],
+      "tags": [
+        "ir",
+        "loop"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_function_pointer_call",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_function_pointer_call.c",
+      "expects": [
+        "expect/13__ir_function_pointer_call.ast",
+        "expect/13__ir_function_pointer_call.diag",
+        "expect/13__ir_function_pointer_call.ir"
+      ],
+      "tags": [
+        "ir",
+        "function-pointer",
+        "call"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

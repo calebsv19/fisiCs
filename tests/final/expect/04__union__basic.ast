@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  UNION
+        Name:     IDENTIFIER BasicUnion
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER as_int
+    VAR_DECL
+      TYPE: float
+      IDENTIFIER as_float

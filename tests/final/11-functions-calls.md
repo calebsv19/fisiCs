@@ -29,7 +29,20 @@ Function types, parameter adjustments, and call checking.
    - Returning a value from void function.
 7) `11__function_pointer_assign`
    - Incompatible function pointer assignment diagnostic.
+8) `11__prototype_too_many_args`
+   - Prototyped call rejects excess arguments.
+9) `11__prototype_too_few_args`
+   - Prototyped call rejects missing arguments.
+10) `11__argument_type_mismatch`
+   - Argument type mismatch at callsite is diagnosed.
+11) `11__nonvoid_missing_return`
+   - Non-void function missing guaranteed return is diagnosed.
+12) `11__variadic_requires_named_param_reject`
+   - Variadic declaration without named parameter is rejected.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for call checking.
 - IR golden for `11__no_prototype_call`.
+
+## Probe Backlog
+- No open probes in this bucket after parameter-rule and parameter-decay fixes.

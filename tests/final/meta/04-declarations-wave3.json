@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__enum__trailing_comma",
+      "bucket": "declarations",
+      "input": "cases/04__enum__trailing_comma.c",
+      "expects": [
+        "expect/04__enum__trailing_comma.ast",
+        "expect/04__enum__trailing_comma.diag"
+      ],
+      "tags": [
+        "enum",
+        "syntax",
+        "trailing-comma"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

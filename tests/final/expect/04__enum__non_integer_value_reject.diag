@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:5): Enumerator value is not a constant expression
+   Hint: NIE_VALUE
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__enum__non_integer_value_reject.c:2:5

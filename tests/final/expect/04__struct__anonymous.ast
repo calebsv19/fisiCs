@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER StructWithAnonymous
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tag
+    VAR_DECL
+      TYPE: struct __anon_struct_0_6
+      IDENTIFIER <unnamed>

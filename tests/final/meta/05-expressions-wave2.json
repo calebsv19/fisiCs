@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__precedence__all_tiers",
+      "bucket": "expressions",
+      "input": "cases/05__precedence__all_tiers.c",
+      "expects": [
+        "expect/05__precedence__all_tiers.ast",
+        "expect/05__precedence__all_tiers.diag"
+      ],
+      "tags": [
+        "precedence",
+        "operators"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__precedence__nested",
+      "bucket": "expressions",
+      "input": "cases/05__precedence__nested.c",
+      "expects": [
+        "expect/05__precedence__nested.ast",
+        "expect/05__precedence__nested.diag"
+      ],
+      "tags": [
+        "precedence",
+        "nested"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__unary__basic",
+      "bucket": "expressions",
+      "input": "cases/05__unary__basic.c",
+      "expects": [
+        "expect/05__unary__basic.ast",
+        "expect/05__unary__basic.diag"
+      ],
+      "tags": [
+        "unary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__unary__address_of",
+      "bucket": "expressions",
+      "input": "cases/05__unary__address_of.c",
+      "expects": [
+        "expect/05__unary__address_of.ast",
+        "expect/05__unary__address_of.diag"
+      ],
+      "tags": [
+        "unary",
+        "address-of"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__unary__deref",
+      "bucket": "expressions",
+      "input": "cases/05__unary__deref.c",
+      "expects": [
+        "expect/05__unary__deref.ast",
+        "expect/05__unary__deref.diag"
+      ],
+      "tags": [
+        "unary",
+        "dereference"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__casts__illegal",
+      "bucket": "expressions",
+      "input": "cases/05__casts__illegal.c",
+      "expects": [
+        "expect/05__casts__illegal.diag"
+      ],
+      "tags": [
+        "casts",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__compound_literal__static_storage",
+      "bucket": "expressions",
+      "input": "cases/05__compound_literal__static_storage.c",
+      "expects": [
+        "expect/05__compound_literal__static_storage.ast",
+        "expect/05__compound_literal__static_storage.diag"
+      ],
+      "tags": [
+        "compound-literal",
+        "static-storage"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__ternary__lvalue",
+      "bucket": "expressions",
+      "input": "cases/05__ternary__lvalue.c",
+      "expects": [
+        "expect/05__ternary__lvalue.diag"
+      ],
+      "tags": [
+        "ternary",
+        "negative",
+        "lvalue"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

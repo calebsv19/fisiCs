@@ -1,0 +1,9 @@
+AST:
+PROGRAM
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER takes_array_ptr
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int* [4]
+        IDENTIFIER __unnamed_param0

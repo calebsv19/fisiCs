@@ -1,0 +1,45 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER i
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER sum
+          = NUMBER_LITERAL 0
+      FOR_LOOP
+        ASSIGNMENT (=)
+          IDENTIFIER i
+          NUMBER_LITERAL 0
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          NUMBER_LITERAL 4
+        UNARY EXPRESSION '++' (prefix)
+          IDENTIFIER i
+        BLOCK
+          SWITCH
+            IDENTIFIER i
+            CASE
+              NUMBER_LITERAL 1
+              CONTINUE
+            CASE
+              DEFAULT
+              ASSIGNMENT (+=)
+                IDENTIFIER sum
+                NUMBER_LITERAL 1
+              BREAK
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '=='
+            IDENTIFIER sum
+            NUMBER_LITERAL 3
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:5): Enumerator value contains an out-of-range integer literal
+   Hint: OLE_VALUE
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__enum__overflow_expr_literal_reject.c:2:5

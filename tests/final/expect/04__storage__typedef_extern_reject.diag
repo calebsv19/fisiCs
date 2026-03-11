@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (1:0): Typedef cannot combine with other storage class specifiers
+   Hint: bad_typedef_t

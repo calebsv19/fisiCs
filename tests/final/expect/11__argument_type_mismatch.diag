@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (4:0): Argument 1 of 'takes_ptr' has incompatible type

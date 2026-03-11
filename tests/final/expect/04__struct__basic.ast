@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER BasicStruct
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER id
+    VAR_DECL
+      TYPE: float
+      IDENTIFIER weight

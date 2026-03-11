@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (0:0): goto to undefined label 'missing_label'
+Warning at (3:0): Unreachable statement
+Error at (1:0): Control reaches end of non-void function 'main'

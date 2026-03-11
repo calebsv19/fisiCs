@@ -1,0 +1,31 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER inc
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int (*)(int) (int)
+        IDENTIFIER fp
+          = IDENTIFIER inc
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER fp
+          ARGUMENTS
+            NUMBER_LITERAL 4

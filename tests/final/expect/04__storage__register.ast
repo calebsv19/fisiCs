@@ -1,0 +1,21 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER inc_register
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      VAR_DECL
+        TYPE: register int
+        IDENTIFIER r
+          = IDENTIFIER x
+      ASSIGNMENT (=)
+        IDENTIFIER r
+        BINARY EXPRESSION '+'
+          IDENTIFIER r
+          NUMBER_LITERAL 1
+      RETURN
+        IDENTIFIER r

@@ -133,6 +133,67 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "09__while_loop_basic",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__while_loop_basic.c",
+      "expects": [
+        "expect/09__while_loop_basic.ast",
+        "expect/09__while_loop_basic.diag"
+      ],
+      "tags": [
+        "while",
+        "loop"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__do_while_loop_basic",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__do_while_loop_basic.c",
+      "expects": [
+        "expect/09__do_while_loop_basic.ast",
+        "expect/09__do_while_loop_basic.diag"
+      ],
+      "tags": [
+        "do-while",
+        "loop"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__for_forms",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__for_forms.c",
+      "expects": [
+        "expect/09__for_forms.ast",
+        "expect/09__for_forms.diag"
+      ],
+      "tags": [
+        "for",
+        "forms"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_nonconst_case",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_nonconst_case.c",
+      "expects": [
+        "expect/09__switch_nonconst_case.ast",
+        "expect/09__switch_nonconst_case.diag"
+      ],
+      "tags": [
+        "switch",
+        "negative",
+        "case"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

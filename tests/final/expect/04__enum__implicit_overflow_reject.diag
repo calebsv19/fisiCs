@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (3:5): Enumerator value is out of range for type 'int'
+   Hint: IO_NEXT
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__enum__implicit_overflow_reject.c:3:5

@@ -1,0 +1,18 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: struct Node*
+    IDENTIFIER ptr
+      = NUMBER_LITERAL 0
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '!='
+          IDENTIFIER ptr
+          NUMBER_LITERAL 0

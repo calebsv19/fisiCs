@@ -1,2 +1,2 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error at (1:0): Void function should not return a value

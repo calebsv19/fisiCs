@@ -1,0 +1,16 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER global_value
+  FUNCTION DEFINITION
+    RETURN TYPE: int*
+    IDENTIFIER returns_ptr
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        UNARY EXPRESSION '&' (prefix)
+          IDENTIFIER global_value

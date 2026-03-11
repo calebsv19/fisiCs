@@ -1,0 +1,26 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER cond
+          = NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: double
+        IDENTIFIER value
+          = 
+            TERNARY_EXPRESSION
+              IDENTIFIER cond
+              NUMBER_LITERAL 3
+              NUMBER_LITERAL 2.5
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          IDENTIFIER value

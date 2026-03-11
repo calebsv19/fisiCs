@@ -1,0 +1,34 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: _Bool
+    IDENTIFIER gb0
+      = NUMBER_LITERAL 0
+  VAR_DECL
+    TYPE: _Bool
+    IDENTIFIER gb1
+      = NUMBER_LITERAL 7
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER bool_mix
+    PARAMETERS
+      VAR_DECL
+        TYPE: _Bool
+        IDENTIFIER in
+    BLOCK
+      VAR_DECL
+        TYPE: _Bool
+        IDENTIFIER local
+          = IDENTIFIER in
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            CAST_EXPRESSION
+                            CAST TYPE: int
+              IDENTIFIER gb0
+            CAST_EXPRESSION
+                            CAST TYPE: int
+              IDENTIFIER gb1
+          CAST_EXPRESSION
+                        CAST TYPE: int
+            IDENTIFIER local

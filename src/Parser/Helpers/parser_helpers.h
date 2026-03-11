@@ -27,6 +27,12 @@ Token peekNextToken(Parser* parser);
 Token peekTwoTokensAhead(Parser* parser);
 Token peekThreeTokensAhead(Parser* parser);
 
+// Parser-local scope tracking for ordinary identifiers (used to disambiguate typedef shadowing)
+void parserPushOrdinaryScope(Parser* parser);
+void parserPopOrdinaryScope(Parser* parser);
+void parserRecordOrdinaryIdentifier(Parser* parser, const char* name);
+bool parserIsTypedefVisible(Parser* parser, const char* name);
+
 // Token classification helpers
 const char* getOperatorString(TokenType type);
 bool isAssignmentOperator(TokenType type);

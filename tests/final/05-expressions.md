@@ -44,6 +44,39 @@ Expression grammar, precedence, associativity, and ambiguous parses.
    - Comma expressions inside the true arm of `?:`.
 14) `05__sizeof_array_type`
    - `sizeof(int[2])` and compound-literal array size.
+15) `05__unary_alignof`
+   - `_Alignof` on primitive types.
+16) `05__compound_literal_struct`
+   - Struct compound literal in block scope.
+17) `05__compound_literal_array`
+   - Array compound literal with pointer decay.
+18) `05__ternary_mixed_types`
+   - Ternary with integer and floating operands.
+19) `05__binary_shift_matrix`
+   - Signed right shift and unsigned left shift composition.
+20) `05__generic_unsupported_reject`
+   - `_Generic` currently treated as explicit unsupported policy (fail-closed).
 
 ## Expected Outputs
 - AST/Diagnostics goldens for expression shape checks.
+
+## Wave 2 Additions
+21) `05__precedence__all_tiers`
+   - Cross-tier precedence chain with arithmetic, shifts, comparisons, and logical ops.
+22) `05__precedence__nested`
+   - Nested grouped expressions across binary tiers.
+23) `05__unary__basic`
+   - Unary `+`, unary `-`, and logical `!` baseline.
+24) `05__unary__address_of`
+   - Address-of baseline with pointer initialization/use.
+25) `05__unary__deref`
+   - Dereference baseline with pointer read.
+26) `05__casts__illegal`
+   - Reject non-scalar cast (`struct` to `int`).
+27) `05__compound_literal__static_storage`
+   - File-scope compound literal initializer baseline.
+28) `05__ternary__lvalue`
+   - Reject assignment to ternary expression result.
+
+## Probe Backlog
+- None open in this bucket. `05__probe_typedef_shadow_parenthesized_expr.c` now resolves and matches clang runtime behavior.

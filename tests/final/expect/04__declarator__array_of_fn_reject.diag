@@ -1,0 +1,4 @@
+Diagnostics:
+Error: Expected identifier in declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__declarator__array_of_fn_reject.c:1 (got ')')
+Error: invalid declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__declarator__array_of_fn_reject.c:1 (got ')')
+Error: expected '(' after function name at line 1

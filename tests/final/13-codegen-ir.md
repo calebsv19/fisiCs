@@ -40,6 +40,10 @@ Lowering semantics once IR/codegen is enabled.
    - comparison lowering to boolean.
 12) `13__ir_global_init`
    - global initializer emission.
+13) `13__ir_nested_loops`
+   - nested loop control-flow lowering.
+14) `13__ir_function_pointer_call`
+   - function pointer call lowering.
 
 ## Expected Outputs
 - IR expectations (`.ir`) for codegen output.

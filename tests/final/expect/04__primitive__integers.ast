@@ -1,0 +1,74 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: short int
+    IDENTIFIER s
+      = 
+        UNARY EXPRESSION '-' (prefix)
+          NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: unsigned short int
+    IDENTIFIER us
+      = NUMBER_LITERAL 2
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER i
+      = NUMBER_LITERAL 3
+  VAR_DECL
+    TYPE: unsigned int
+    IDENTIFIER ui
+      = NUMBER_LITERAL 4u
+  VAR_DECL
+    TYPE: long int
+    IDENTIFIER l
+      = NUMBER_LITERAL 5L
+  VAR_DECL
+    TYPE: unsigned long int
+    IDENTIFIER ul
+      = NUMBER_LITERAL 6UL
+  VAR_DECL
+    TYPE: long int
+    IDENTIFIER ll
+      = NUMBER_LITERAL 7LL
+  VAR_DECL
+    TYPE: unsigned long int
+    IDENTIFIER ull
+      = NUMBER_LITERAL 8ULL
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER sum_primitives
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '+'
+              BINARY EXPRESSION '+'
+                BINARY EXPRESSION '+'
+                  BINARY EXPRESSION '+'
+                    BINARY EXPRESSION '+'
+                      CAST_EXPRESSION
+                                                CAST TYPE: int
+                        IDENTIFIER s
+                      CAST_EXPRESSION
+                                                CAST TYPE: int
+                        IDENTIFIER us
+                    IDENTIFIER i
+                  CAST_EXPRESSION
+                                        CAST TYPE: int
+                    IDENTIFIER ui
+                CAST_EXPRESSION
+                                    CAST TYPE: int
+                  IDENTIFIER l
+              CAST_EXPRESSION
+                                CAST TYPE: int
+                IDENTIFIER ul
+            CAST_EXPRESSION
+                            CAST TYPE: int
+              IDENTIFIER ll
+          CAST_EXPRESSION
+                        CAST TYPE: int
+            IDENTIFIER ull

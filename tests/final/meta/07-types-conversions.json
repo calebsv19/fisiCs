@@ -75,6 +75,67 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "07__array_decay_param",
+      "bucket": "types-conversions",
+      "input": "cases/07__array_decay_param.c",
+      "expects": [
+        "expect/07__array_decay_param.ast",
+        "expect/07__array_decay_param.diag"
+      ],
+      "tags": [
+        "array",
+        "decay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__function_decay_call",
+      "bucket": "types-conversions",
+      "input": "cases/07__function_decay_call.c",
+      "expects": [
+        "expect/07__function_decay_call.ast",
+        "expect/07__function_decay_call.diag"
+      ],
+      "tags": [
+        "function",
+        "decay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__void_pointer_roundtrip",
+      "bucket": "types-conversions",
+      "input": "cases/07__void_pointer_roundtrip.c",
+      "expects": [
+        "expect/07__void_pointer_roundtrip.ast",
+        "expect/07__void_pointer_roundtrip.diag"
+      ],
+      "tags": [
+        "pointer",
+        "conversion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__void_pointer_arith_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__void_pointer_arith_reject.c",
+      "expects": [
+        "expect/07__void_pointer_arith_reject.ast",
+        "expect/07__void_pointer_arith_reject.diag"
+      ],
+      "tags": [
+        "pointer",
+        "arith",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

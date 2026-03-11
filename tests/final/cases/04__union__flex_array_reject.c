@@ -1,0 +1,3 @@
+union FlexUnionReject {
+    int data[];
+};

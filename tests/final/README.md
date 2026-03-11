@@ -21,3 +21,4 @@ be validated (tokens, AST, diagnostics, IR, or runtime output).
 - `13-codegen-ir.md`: IR and lowering semantics (when enabled).
 - `14-runtime-surface.md`: Minimal libc surface and header expectations.
 - `15-conformance-strategy.md`: Feature matrix and intentional gaps.
+- `probes/README.md`: Triage repro fixtures and probe runner (not in `make final`).

@@ -1,0 +1,25 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int*
+    IDENTIFIER global_ptr
+        = NUMBER_LITERAL 10
+
+        = NUMBER_LITERAL 20
+
+        = NUMBER_LITERAL 30
+
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '-'
+          ARRAY_ACCESS
+            IDENTIFIER global_ptr
+            NUMBER_LITERAL 2
+          NUMBER_LITERAL 30

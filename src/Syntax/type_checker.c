@@ -691,14 +691,12 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
             if (!functionPointerTargetsCompatible(dest->originalType, src->originalType)) {
                 return ASSIGN_INCOMPATIBLE;
             }
+            return ASSIGN_OK;
         }
-        // For now allow pointer assignments when depths match; target compatibility
-        // is enforced elsewhere (e.g., struct/union layout or stricter checks).
-        // This also lets array-decayed pointers pass through argument matching.
         if (typesAreEqual(dest, src)) {
             return ASSIGN_OK;
         }
-        return ASSIGN_OK;
+        return ASSIGN_INCOMPATIBLE;
     }
 
     if (typeInfoIsArithmetic(dest) && typeInfoIsArithmetic(src)) {

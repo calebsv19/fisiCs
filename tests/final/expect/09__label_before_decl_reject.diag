@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (3:0): label before declaration is not allowed in C99; wrap declaration in a block

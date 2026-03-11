@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:5): Redefinition of function
+   Hint: x
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/10__var_function_name_conflict.c:2:5

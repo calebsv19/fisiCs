@@ -1,0 +1,53 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int (*)(int) (int)
+        Alias:     IDENTIFIER unary_fn_t
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER increment
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: unary_fn_t
+    IDENTIFIER take_and_return
+    PARAMETERS
+      VAR_DECL
+        TYPE: unary_fn_t
+        IDENTIFIER fn
+    BLOCK
+      RETURN
+        IDENTIFIER fn
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: unary_fn_t
+        IDENTIFIER fn
+          = 
+            FUNCTION CALL
+              IDENTIFIER take_and_return
+              ARGUMENTS
+                IDENTIFIER increment
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '=='
+            FUNCTION CALL
+              IDENTIFIER fn
+              ARGUMENTS
+                NUMBER_LITERAL 4
+            NUMBER_LITERAL 5
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1

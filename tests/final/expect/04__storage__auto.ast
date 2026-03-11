@@ -1,0 +1,22 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER sum_auto
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      VAR_DECL
+        TYPE: auto int
+        IDENTIFIER local
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER a
+              IDENTIFIER b
+      RETURN
+        IDENTIFIER local

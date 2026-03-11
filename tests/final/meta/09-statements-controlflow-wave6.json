@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__continue_in_switch_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__continue_in_switch_reject.c",
+      "expects": [
+        "expect/09__continue_in_switch_reject.diag"
+      ],
+      "tags": [
+        "switch",
+        "continue",
+        "negative",
+        "control-flow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_duplicate_case_folded_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_duplicate_case_folded_reject.c",
+      "expects": [
+        "expect/09__switch_duplicate_case_folded_reject.diag"
+      ],
+      "tags": [
+        "switch",
+        "case",
+        "negative",
+        "constant-folding"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

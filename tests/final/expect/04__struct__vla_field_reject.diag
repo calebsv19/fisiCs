@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (3:0): Variable-length array not allowed in struct/union field

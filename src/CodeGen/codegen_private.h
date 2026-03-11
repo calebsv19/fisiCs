@@ -175,6 +175,7 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
                                          LLVMValueRef rhsPtr,
                                          const ParsedType* lhsParsed);
 const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node);
+const ParsedType* cg_refine_function_call_result_type(CodegenContext* ctx, ASTNode* callNode);
 LLVMTypeRef cg_element_type_from_pointer_parsed(CodegenContext* ctx, const ParsedType* parsed);
 bool cg_is_volatile_object(const ParsedType* parsed);
 LLVMValueRef cg_build_load(CodegenContext* ctx, LLVMTypeRef type, LLVMValueRef ptr, const char* name, const ParsedType* parsed);
@@ -268,6 +269,7 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
                             const ParsedType* returnType,
                             size_t paramCount,
                             LLVMTypeRef* paramTypes,
+                            bool isVariadic,
                             const Symbol* symHint);
 void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node);
 void declareGlobalVariable(CodegenContext* ctx, ASTNode* node);

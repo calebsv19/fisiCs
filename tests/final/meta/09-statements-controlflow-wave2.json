@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__stmt__expr",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__stmt__expr.c",
+      "expects": [
+        "expect/09__stmt__expr.ast",
+        "expect/09__stmt__expr.diag"
+      ],
+      "tags": [
+        "statements",
+        "expression-statement"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__stmt__compound",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__stmt__compound.c",
+      "expects": [
+        "expect/09__stmt__compound.ast",
+        "expect/09__stmt__compound.diag"
+      ],
+      "tags": [
+        "statements",
+        "compound"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__stmt__return_basic",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__stmt__return_basic.c",
+      "expects": [
+        "expect/09__stmt__return_basic.ast",
+        "expect/09__stmt__return_basic.diag"
+      ],
+      "tags": [
+        "statements",
+        "return"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_multiple_default_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_multiple_default_reject.c",
+      "expects": [
+        "expect/09__switch_multiple_default_reject.diag"
+      ],
+      "tags": [
+        "switch",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__continue_in_switch_loop",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__continue_in_switch_loop.c",
+      "expects": [
+        "expect/09__continue_in_switch_loop.ast",
+        "expect/09__continue_in_switch_loop.diag"
+      ],
+      "tags": [
+        "switch",
+        "continue",
+        "loop"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_case_range_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_case_range_reject.c",
+      "expects": [
+        "expect/09__switch_case_range_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "switch",
+        "negative",
+        "parse-error"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

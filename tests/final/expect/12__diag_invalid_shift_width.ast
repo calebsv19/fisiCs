@@ -1,0 +1,19 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = NUMBER_LITERAL 1
+      RETURN
+        BINARY EXPRESSION '<<'
+          IDENTIFIER x
+          UNARY EXPRESSION '-' (prefix)
+            NUMBER_LITERAL 1

@@ -1,0 +1,31 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER g
+      = NUMBER_LITERAL 5
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: extern int
+        IDENTIFIER g
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = IDENTIFIER g
+      BLOCK
+        VAR_DECL
+          TYPE: int
+          IDENTIFIER g
+            = NUMBER_LITERAL 2
+        ASSIGNMENT (+=)
+          IDENTIFIER x
+          IDENTIFIER g
+      RETURN
+        IDENTIFIER x

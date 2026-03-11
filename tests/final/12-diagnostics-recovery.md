@@ -38,6 +38,24 @@ Recovery points and diagnostic quality for IDE usability.
    - Missing initializer recovers and subsequent declaration remains visible.
 12) `12__macro_callsite_dedup`
    - Macro expansion diagnostics point to call site and de-dup identical errors.
+13) `12__diag_type_mismatch`
+   - Non-scalar to scalar assignment reports type mismatch.
+14) `12__diag_undeclared_identifier`
+   - Undeclared identifier diagnostic.
+15) `12__diag_redeclaration_conflict`
+   - Conflicting redeclaration diagnostic.
+16) `12__diag_invalid_storage_class`
+   - Invalid storage class usage at file scope.
+17) `12__diag_invalid_initializer`
+   - Invalid scalar initializer diagnostics.
+18) `12__diag_invalid_shift_width`
+   - Constant shift-width constraint diagnostics (`< 0` or `>=` promoted LHS width).
 
 ## Expected Outputs
-- Diagnostics expectations (`.diag`) for error cases.
+- AST and diagnostics expectations (`.ast` + `.diag`) for deterministic recovery checks.
+
+## Open Gaps (Tracked)
+- `12__diag_incompatible_ptr` (planned): `int *` assigned from `double *`
+  currently compiles without a constraint diagnostic.
+- `12__diag_illegal_cast` (planned): cast from `struct` compound literal to
+  `int` currently compiles and lowers as a bitcast.

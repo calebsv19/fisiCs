@@ -1,0 +1,19 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: extern int
+    IDENTIFIER g_extern
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER g_extern
+      = NUMBER_LITERAL 11
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER read_extern
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        IDENTIFIER g_extern

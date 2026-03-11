@@ -1,0 +1,32 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: float
+    IDENTIFIER gf
+      = NUMBER_LITERAL 1.5f
+  VAR_DECL
+    TYPE: double
+    IDENTIFIER gd
+      = NUMBER_LITERAL 2.25
+  VAR_DECL
+    TYPE: long double
+    IDENTIFIER gld
+      = NUMBER_LITERAL 3.75L
+  FUNCTION DEFINITION
+    RETURN TYPE: double
+    IDENTIFIER sum_floating
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            CAST_EXPRESSION
+                            CAST TYPE: double
+              IDENTIFIER gf
+            IDENTIFIER gd
+          CAST_EXPRESSION
+                        CAST TYPE: double
+            IDENTIFIER gld

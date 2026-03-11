@@ -1,0 +1,6 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/05__generic_unsupported_reject.c:1 (got 'int')
+Error: Invalid initializer in variable declaration at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/05__generic_unsupported_reject.c:1 (got 'int')
+Error: Expected identifier in declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/05__generic_unsupported_reject.c:1 (got ':')
+Error: invalid declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/05__generic_unsupported_reject.c:1 (got ':')
+Error: Invalid function argument at line 1

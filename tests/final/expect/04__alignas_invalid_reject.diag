@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__alignas_invalid_reject.c:1 (got ')')
+Error: Invalid alignas argument at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__alignas_invalid_reject.c:1 (got ')')
+Error: Expected type name at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__alignas_invalid_reject.c:1 (got ')')
+Error: Invalid type in declaration at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__alignas_invalid_reject.c:1 (got ')')

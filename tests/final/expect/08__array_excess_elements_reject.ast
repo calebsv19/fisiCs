@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int [2]
+    IDENTIFIER a
+        = NUMBER_LITERAL 1
+
+        = NUMBER_LITERAL 2
+
+        = NUMBER_LITERAL 3

@@ -205,6 +205,97 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "05__unary_alignof",
+      "bucket": "expressions",
+      "input": "cases/05__unary_alignof.c",
+      "expects": [
+        "expect/05__unary_alignof.ast",
+        "expect/05__unary_alignof.diag"
+      ],
+      "tags": [
+        "unary",
+        "alignof"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__compound_literal_struct",
+      "bucket": "expressions",
+      "input": "cases/05__compound_literal_struct.c",
+      "expects": [
+        "expect/05__compound_literal_struct.ast",
+        "expect/05__compound_literal_struct.diag"
+      ],
+      "tags": [
+        "compound-literal",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__compound_literal_array",
+      "bucket": "expressions",
+      "input": "cases/05__compound_literal_array.c",
+      "expects": [
+        "expect/05__compound_literal_array.ast",
+        "expect/05__compound_literal_array.diag"
+      ],
+      "tags": [
+        "compound-literal",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__ternary_mixed_types",
+      "bucket": "expressions",
+      "input": "cases/05__ternary_mixed_types.c",
+      "expects": [
+        "expect/05__ternary_mixed_types.ast",
+        "expect/05__ternary_mixed_types.diag"
+      ],
+      "tags": [
+        "ternary",
+        "mixed-types"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__binary_shift_matrix",
+      "bucket": "expressions",
+      "input": "cases/05__binary_shift_matrix.c",
+      "expects": [
+        "expect/05__binary_shift_matrix.ast",
+        "expect/05__binary_shift_matrix.diag"
+      ],
+      "tags": [
+        "binary",
+        "shift"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__generic_unsupported_reject",
+      "bucket": "expressions",
+      "input": "cases/05__generic_unsupported_reject.c",
+      "expects": [
+        "expect/05__generic_unsupported_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "generic",
+        "negative",
+        "unsupported"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

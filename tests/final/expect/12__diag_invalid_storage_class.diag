@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (1:0): Invalid storage class at file scope
+   Hint: global_auto
+Error at (4:12): Undeclared identifier
+   Hint: global_auto
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_invalid_storage_class.c:4:12

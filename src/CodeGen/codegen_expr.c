@@ -393,6 +393,41 @@ static LLVMValueRef computeVLAElementCount(CodegenContext* ctx, const ParsedType
     return total ? total : LLVMConstInt(intptrTy, 1, 0);
 }
 
+static ParsedType functionReturnTypeAtDerivation(const ParsedType* type, size_t functionIndex) {
+    ParsedType invalid = {0};
+    invalid.kind = TYPE_INVALID;
+    if (!type) {
+        return invalid;
+    }
+    ParsedType trimmed = parsedTypeClone(type);
+    if (trimmed.kind == TYPE_INVALID || functionIndex >= trimmed.derivationCount) {
+        parsedTypeFree(&trimmed);
+        return invalid;
+    }
+
+    size_t removedPointers = 0;
+    for (size_t i = 0; i < functionIndex; ++i) {
+        const TypeDerivation* d = parsedTypeGetDerivation(&trimmed, i);
+        if (d && d->kind == TYPE_DERIVATION_POINTER) {
+            removedPointers++;
+        }
+    }
+    if (functionIndex > 0) {
+        memmove(trimmed.derivations,
+                trimmed.derivations + functionIndex,
+                (trimmed.derivationCount - functionIndex) * sizeof(TypeDerivation));
+        trimmed.derivationCount -= functionIndex;
+    }
+    if (removedPointers > 0 && trimmed.pointerDepth > 0) {
+        int dec = (int)removedPointers;
+        trimmed.pointerDepth = trimmed.pointerDepth > dec ? (trimmed.pointerDepth - dec) : 0;
+    }
+
+    ParsedType ret = parsedTypeFunctionReturnType(&trimmed);
+    parsedTypeFree(&trimmed);
+    return ret;
+}
+
 static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
                                                  const ParsedType* type,
                                                  size_t fallbackArgCount,
@@ -411,6 +446,7 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
     const ParsedType* paramList = NULL;
     size_t paramCount = 0;
     bool isVariadic = resolved->isVariadicFunction;
+    size_t functionDerivIndex = (size_t)-1;
 
     if (resolved->isFunctionPointer || resolved->fpParamCount > 0) {
         paramList = resolved->fpParams;
@@ -419,10 +455,10 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
         for (size_t i = 0; i < resolved->derivationCount; ++i) {
             const TypeDerivation* deriv = parsedTypeGetDerivation(resolved, i);
             if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
+                functionDerivIndex = i;
                 paramList = deriv->as.function.params;
                 paramCount = deriv->as.function.paramCount;
                 isVariadic = deriv->as.function.isVariadic;
-                break;
             }
         }
         if (!paramList && paramCount == 0) {
@@ -431,32 +467,10 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
     }
 
     LLVMTypeRef returnType = NULL;
-    size_t funcIndex = (size_t)-1;
     if (resolved) {
-        for (size_t i = 0; i < resolved->derivationCount; ++i) {
-            const TypeDerivation* deriv = parsedTypeGetDerivation(resolved, i);
-            if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
-                funcIndex = i;
-                break;
-            }
-        }
-    }
-    if (funcIndex != (size_t)-1) {
-        ParsedType retParsed = parsedTypeClone(resolved);
-        if (funcIndex + 1 < retParsed.derivationCount) {
-            memmove(retParsed.derivations,
-                    retParsed.derivations + funcIndex + 1,
-                    (retParsed.derivationCount - funcIndex - 1) * sizeof(TypeDerivation));
-        }
-        retParsed.derivationCount -= (funcIndex + 1);
-        if (retParsed.derivationCount == 0 && retParsed.derivations) {
-            free(retParsed.derivations);
-            retParsed.derivations = NULL;
-        }
-        retParsed.pointerDepth = 0;
-        retParsed.isFunctionPointer = false;
-        retParsed.fpParamCount = 0;
-        retParsed.fpParams = NULL;
+        ParsedType retParsed = (functionDerivIndex != (size_t)-1)
+            ? functionReturnTypeAtDerivation(resolved, functionDerivIndex)
+            : parsedTypeFunctionReturnType(resolved);
         if (retParsed.kind != TYPE_INVALID) {
             returnType = cg_type_from_parsed(ctx, &retParsed);
         }
@@ -471,6 +485,11 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
             case TOKEN_VOID:   returnType = LLVMVoidTypeInContext(ctx->llvmContext);  break;
             default: break;
         }
+    }
+    if (returnType && LLVMGetTypeKind(returnType) == LLVMFunctionTypeKind) {
+        returnType = LLVMPointerType(returnType, 0);
+    } else if (returnType && LLVMGetTypeKind(returnType) == LLVMArrayTypeKind) {
+        returnType = LLVMPointerType(returnType, 0);
     }
     if (!returnType || LLVMGetTypeKind(returnType) == LLVMVoidTypeKind) {
         returnType = LLVMInt32TypeInContext(ctx->llvmContext);
@@ -696,7 +715,7 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         if (useFloatOps) {
             LLVMRealPredicate pred = LLVMRealOEQ;
             if (strcmp(op, "==") == 0) pred = LLVMRealOEQ;
-            else if (strcmp(op, "!=") == 0) pred = LLVMRealONE;
+            else if (strcmp(op, "!=") == 0) pred = LLVMRealUNE;
             else if (strcmp(op, "<") == 0) pred = LLVMRealOLT;
             else if (strcmp(op, "<=") == 0) pred = LLVMRealOLE;
             else if (strcmp(op, ">") == 0) pred = LLVMRealOGT;
@@ -1302,7 +1321,16 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     /* For pointer variables (not true arrays), arrayPtr currently holds the address of the
        pointer object (e.g., an alloca of `int*`). Load the pointer value so we index the
        pointee rather than the stack slot. */
-    if (haveLVal && arrayPtr && (!arrayParsed || !parsedTypeIsDirectArray(arrayParsed))) {
+    bool baseNeedsLoad = haveLVal && arrayPtr && (!arrayParsed || !parsedTypeIsDirectArray(arrayParsed));
+    if (baseNeedsLoad && node->arrayAccess.array) {
+        ASTNode* baseExpr = node->arrayAccess.array;
+        if ((baseExpr->type == AST_UNARY_EXPRESSION && baseExpr->expr.op &&
+             strcmp(baseExpr->expr.op, "*") == 0) ||
+            baseExpr->type == AST_POINTER_DEREFERENCE) {
+            baseNeedsLoad = false;
+        }
+    }
+    if (baseNeedsLoad) {
         LLVMTypeRef loadTy = arrayType;
         if (!loadTy) {
             LLVMTypeRef elem = NULL;
@@ -1327,6 +1355,11 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
     if (!arrayParsed) {
         arrayParsed = cg_resolve_expression_type(ctx, node->arrayAccess.array);
+    }
+    const ParsedType* refinedCallParsed =
+        cg_refine_function_call_result_type(ctx, node->arrayAccess.array);
+    if (refinedCallParsed) {
+        arrayParsed = refinedCallParsed;
     }
     if (dbgRun && arrayParsed) {
         fprintf(stderr, "[CG] array parsed kind=%d prim=%d name=%s ptrDepth=%d derivs=%zu\n",
@@ -1858,6 +1891,11 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             const Symbol* lookup = semanticModelLookupGlobal(model, calleeName);
             if (lookup) {
                 LLVMTypeRef retType = cg_type_from_parsed(ctx, &lookup->type);
+                if (retType && LLVMGetTypeKind(retType) == LLVMFunctionTypeKind) {
+                    retType = LLVMPointerType(retType, 0);
+                } else if (retType && LLVMGetTypeKind(retType) == LLVMArrayTypeKind) {
+                    retType = LLVMPointerType(retType, 0);
+                }
                 if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
                     retType = LLVMVoidTypeInContext(ctx->llvmContext);
                 }
@@ -1897,6 +1935,11 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         LLVMTypeRef retType = NULL;
         if (sym) {
             retType = cg_type_from_parsed(ctx, &sym->type);
+            if (retType && LLVMGetTypeKind(retType) == LLVMFunctionTypeKind) {
+                retType = LLVMPointerType(retType, 0);
+            } else if (retType && LLVMGetTypeKind(retType) == LLVMArrayTypeKind) {
+                retType = LLVMPointerType(retType, 0);
+            }
         }
         if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
             retType = LLVMVoidTypeInContext(ctx->llvmContext);
@@ -1923,6 +1966,37 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         if (promotedArgs) free(promotedArgs);
         free(args);
         return NULL;
+    }
+
+    if (!noPrototype) {
+        const ParsedType* refinedReturnParsed = cg_refine_function_call_result_type(ctx, node);
+        if (refinedReturnParsed) {
+            LLVMTypeRef refinedReturn = cg_type_from_parsed(ctx, refinedReturnParsed);
+            if (refinedReturn && LLVMGetTypeKind(refinedReturn) == LLVMFunctionTypeKind) {
+                refinedReturn = LLVMPointerType(refinedReturn, 0);
+            } else if (refinedReturn && LLVMGetTypeKind(refinedReturn) == LLVMArrayTypeKind) {
+                refinedReturn = LLVMPointerType(refinedReturn, 0);
+            }
+            if (refinedReturn && LLVMGetTypeKind(refinedReturn) != LLVMVoidTypeKind) {
+                LLVMTypeRef currentReturn = LLVMGetReturnType(calleeType);
+                if (currentReturn != refinedReturn) {
+                    unsigned fixedCount = LLVMCountParamTypes(calleeType);
+                    LLVMTypeRef* fixedTypes = NULL;
+                    if (fixedCount > 0) {
+                        fixedTypes = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * fixedCount);
+                        if (fixedTypes) {
+                            LLVMGetParamTypes(calleeType, fixedTypes);
+                        }
+                    }
+                    bool isVar = LLVMIsFunctionVarArg(calleeType);
+                    LLVMTypeRef rebuilt = LLVMFunctionType(refinedReturn, fixedTypes, fixedCount, isVar ? 1 : 0);
+                    free(fixedTypes);
+                    calleeType = rebuilt;
+                    LLVMTypeRef fnPtrType = LLVMPointerType(calleeType, 0);
+                    function = LLVMBuildBitCast(ctx->builder, function, fnPtrType, "call.retfix.cast");
+                }
+            }
+        }
     }
 
     char* resolvedFnType = LLVMPrintTypeToString(calleeType);

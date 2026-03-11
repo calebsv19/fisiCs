@@ -92,6 +92,71 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "06__array_assignment_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__array_assignment_reject.c",
+      "expects": [
+        "expect/06__array_assignment_reject.ast",
+        "expect/06__array_assignment_reject.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "assign",
+        "array",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__ternary_assignment_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__ternary_assignment_reject.c",
+      "expects": [
+        "expect/06__ternary_assignment_reject.ast",
+        "expect/06__ternary_assignment_reject.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "ternary",
+        "assign",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__const_pointer_write_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__const_pointer_write_reject.c",
+      "expects": [
+        "expect/06__const_pointer_write_reject.ast",
+        "expect/06__const_pointer_write_reject.diag"
+      ],
+      "tags": [
+        "lvalue",
+        "const",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__volatile_read_write",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__volatile_read_write.c",
+      "expects": [
+        "expect/06__volatile_read_write.ast",
+        "expect/06__volatile_read_write.diag"
+      ],
+      "tags": [
+        "volatile",
+        "lvalue"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (2:0): Initializer for static variable 'ptr_to_array' is not a constant expression

@@ -1,0 +1,23 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: void
+    IDENTIFIER mutate_const_pointer
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: int* const
+        IDENTIFIER p
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER x
+      ASSIGNMENT (=)
+        IDENTIFIER p
+        NUMBER_LITERAL 0

@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (2:0): Excess elements in scalar initializer for 'x'

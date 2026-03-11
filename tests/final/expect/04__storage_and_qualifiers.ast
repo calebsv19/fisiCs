@@ -10,11 +10,22 @@ PROGRAM
     TYPE: extern int
     IDENTIFIER shared
   VAR_DECL
-    TYPE: register int
-    IDENTIFIER reg
-  VAR_DECL
     TYPE: restrict int*
     IDENTIFIER rp
   VAR_DECL
     TYPE: ulong_t
     IDENTIFIER value
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER use_register
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: register int
+        IDENTIFIER reg
+          = NUMBER_LITERAL 1
+      RETURN
+        IDENTIFIER reg

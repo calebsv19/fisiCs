@@ -1,2 +1,3 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error at (2:0): Incompatible return type
+Error at (3:0): Incompatible return type

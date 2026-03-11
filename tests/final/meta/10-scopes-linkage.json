@@ -182,6 +182,72 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "10__block_extern_reference",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__block_extern_reference.c",
+      "expects": [
+        "expect/10__block_extern_reference.ast",
+        "expect/10__block_extern_reference.diag"
+      ],
+      "tags": [
+        "scope",
+        "block",
+        "extern"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__block_scope_conflicting_types",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__block_scope_conflicting_types.c",
+      "expects": [
+        "expect/10__block_scope_conflicting_types.ast",
+        "expect/10__block_scope_conflicting_types.diag"
+      ],
+      "tags": [
+        "scope",
+        "block",
+        "redeclaration",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__var_function_name_conflict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__var_function_name_conflict.c",
+      "expects": [
+        "expect/10__var_function_name_conflict.ast",
+        "expect/10__var_function_name_conflict.diag"
+      ],
+      "tags": [
+        "scope",
+        "linkage",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__extern_array_consistent_definition",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__extern_array_consistent_definition.c",
+      "expects": [
+        "expect/10__extern_array_consistent_definition.ast",
+        "expect/10__extern_array_consistent_definition.diag"
+      ],
+      "tags": [
+        "scope",
+        "file",
+        "extern",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

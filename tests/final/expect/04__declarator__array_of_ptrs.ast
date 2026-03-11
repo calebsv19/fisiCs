@@ -1,0 +1,14 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER first_value
+      = NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER second_value
+      = NUMBER_LITERAL 2
+  VAR_DECL
+    TYPE: int* [2]
+    IDENTIFIER array_of_ptrs
+        = &IDENTIFIER first_value        = &IDENTIFIER second_value

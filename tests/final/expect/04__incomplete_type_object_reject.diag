@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:13): Variable has incomplete type
+   Hint: value
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__incomplete_type_object_reject.c:2:13

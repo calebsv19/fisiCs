@@ -1,0 +1,10 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER ExplicitValues
+        Member:   IDENTIFIER EV_ZERO
+            Value:  NUMBER_LITERAL 0
+        Member:   IDENTIFIER EV_FIVE
+            Value:  NUMBER_LITERAL 5
+        Member:   IDENTIFIER EV_TWELVE
+            Value:  NUMBER_LITERAL 12

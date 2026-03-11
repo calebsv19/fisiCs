@@ -34,6 +34,18 @@ Scalar vs aggregate initialization and layout-sensitive rules.
    - String initializer exceeds array bounds.
 9) `08__layout_offsets`
    - Struct/union layout offsets and sizes via pointer comparisons and `sizeof`.
+10) `08__array_excess_elements_reject`
+   - Reject too many elements in a fixed-size array initializer.
+11) `08__mixed_designated_sequence`
+   - Mixed designated/non-designated initializer sequencing.
+12) `08__union_designated_init`
+   - Union member initialized through designated aggregate initializer.
+13) `08__partial_designated_zero_fill`
+   - Omitted designated fields are zero-filled.
 
 ## Expected Outputs
 - AST/Diagnostics goldens for initializer shape and errors.
+
+## Probe Backlog
+- `tests/final/probes/diagnostics/08__probe_designator_unknown_field_reject.c`
+  currently accepts designated initializer field names that do not exist.
