@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (3:0): alignof requires type-name operand

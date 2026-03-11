@@ -40,6 +40,7 @@ typedef struct NamedValue {
     LLVMValueRef value;
     LLVMTypeRef type;
     LLVMTypeRef elementType;
+    LLVMValueRef vlaElementCount;
     const ParsedType* parsedType;
     bool isGlobal;
     bool addressOnly;

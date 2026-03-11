@@ -344,47 +344,47 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| All precedence tiers | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__precedence__all_tiers` | | |
-| Nested combinations | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__precedence__nested` | | |
+| All precedence tiers | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__precedence__all_tiers` | | Runtime differential follow-up still pending |
+| Nested combinations | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__precedence__nested` | | Runtime differential follow-up still pending |
 
 ### 4.2 Unary Operations
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Unary `+`, `-`, `!` | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__unary__basic` | | |
-| Bitwise `~` | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__unary__bitwise_not` | | |
-| Address-of | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `05__unary__address_of` | | |
-| Dereference | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `05__unary__deref` | | |
-| `sizeof` type vs expression | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__unary__sizeof_ambiguity` | | |
-| `_Alignof` | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__unary_alignof` | | Supported and covered with type-name forms |
+| Unary `+`, `-`, `!` | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__unary__basic` | | Runtime differential follow-up still pending |
+| Bitwise `~` | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__unary__bitwise_not` | | Runtime differential follow-up still pending |
+| Address-of | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `05__unary__address_of` | | |
+| Dereference | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `05__unary__deref` | | Runtime differential follow-up still pending |
+| `sizeof` type vs expression | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__unary__sizeof_ambiguity` | Probe `05__probe_sizeof_void_reject` currently accepts `sizeof(void)` without a diagnostic | Typedef-shadow disambiguation anchor now active; invalid-operand constraints still need tightening |
+| `_Alignof` | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__unary_alignof` | Probes `05__probe_alignof_void_reject` and `05__probe_alignof_expr_reject` currently accept invalid operands without diagnostics | Type-name support is active; invalid-operand constraints still need tightening |
 
 ### 4.3 Binary Operations
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Arithmetic | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__binary__arithmetic` | | |
-| Bitwise | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__binary__bitwise` | | |
-| Logical | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `ir` | `05__binary__logical` | | |
-| Relational | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__binary__relational` | | |
-| Equality | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__binary__equality` | | |
+| Arithmetic | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__binary__arithmetic` | | Runtime differential follow-up still pending |
+| Bitwise | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__binary__bitwise` | | Runtime differential follow-up still pending |
+| Logical | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `ir` | `05__binary__logical` | | Runtime/IR side-effect follow-up still pending |
+| Relational | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__binary__relational` | | Runtime differential follow-up still pending |
+| Equality | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__binary__equality` | | Runtime differential follow-up still pending |
 | Shift signed and unsigned | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__binary_shift_matrix` | | UB-sensitive edges still pending |
-| Invalid shift widths | `expressions` | [ ] | [ ] | [x] | `blocked` | `diag` | `05__binary__invalid_shift_width`, `12__probe_invalid_shift_width` | Probe `12__probe_invalid_shift_width` currently emits no diagnostic for `x << -1` | Add active negative anchor once shift-width diagnostics are enforced |
+| Invalid shift widths | `expressions` | [ ] | [x] | [x] | `in_progress` | `diag` | `05__binary__invalid_shift_width`, `12__probe_invalid_shift_width` | | Active negative anchor promoted; probe now resolves |
 
 ### 4.4 Ternary Operator
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Nested ternary | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__ternary__nested` | | |
+| Nested ternary | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__ternary__nested` | Runtime probes `05__probe_nested_ternary_runtime`, `05__probe_nested_ternary_false_chain_runtime`, and `05__probe_nested_ternary_deep_false_chain_runtime` currently mismatch clang (`fisics` exit `1`, clang exit `0`) | Outer-true nested ternary runtime probe resolves; false-arm chain variants remain blocked |
 | Mixed types | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__ternary_mixed_types` | | |
-| Lvalue cases | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag`, `runtime` | `05__ternary__lvalue` | | |
+| Lvalue cases | `expressions` | [ ] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `05__ternary__lvalue` | | |
 
 ### 4.5 Casts
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Explicit casts | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `05__casts__explicit` | | |
-| Illegal casts | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `05__casts__illegal` | | |
-| Cast vs parenthesis ambiguity | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `diag` | `05__casts__ambiguity` | | |
+| Explicit casts | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__casts__explicit` | | Runtime differential follow-up still pending |
+| Illegal casts | `expressions` | [ ] | [x] | [x] | `in_progress` | `diag` | `05__casts__illegal` | | |
+| Cast vs parenthesis ambiguity | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `05__casts__ambiguity` | | Typedef-shadow disambiguation anchor now active |
 
 ### 4.6 Compound Literals
 
@@ -392,7 +392,7 @@ Primary oracles:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Struct literal | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__compound_literal_struct` | | |
 | Array literal | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__compound_literal_array` | | |
-| Static storage compound literal | `expressions` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime`, `ir` | `05__compound_literal__static_storage` | | |
+| Static storage compound literal | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `ir` | `05__compound_literal__static_storage` | | Runtime/IR follow-up still pending |
 
 ### 4.7 `_Generic`
 
@@ -1511,6 +1511,95 @@ Suggested entry format:
   `04__probe_deep_declarator_call_only` (compiler crash `-11`),
   `04__probe_deep_declarator_codegen_hang` (compile timeout),
   `12__probe_invalid_shift_width` (missing diagnostic).
+
+### 2026-03-11 — Bucket: expressions (wave 3 surface expansion)
+
+- Added expression-surface anchors:
+  `05__unary__bitwise_not`,
+  `05__unary__sizeof_ambiguity`,
+  `05__binary__arithmetic`,
+  `05__binary__bitwise`,
+  `05__binary__logical`,
+  `05__binary__relational`,
+  `05__binary__equality`,
+  `05__binary__invalid_shift_width`,
+  `05__ternary__nested`,
+  `05__casts__explicit`,
+  `05__casts__ambiguity`
+- Promoted negative shift-width behavior from probe-only to active suite:
+  `05__binary__invalid_shift_width`
+- Bucket sweep (`05__*`) currently passes with 39/39 green.
+- Added expressions diagnostics probes:
+  `05__probe_shift_width_large_reject`,
+  `05__probe_bitwise_float_reject`,
+  `05__probe_relational_struct_reject`,
+  `05__probe_equality_struct_reject`,
+  `05__probe_add_void_reject`
+- Probe runner snapshot after wave-3 follow-up:
+  blocked=0, resolved=50, skipped=0.
+
+### 2026-03-11 — Bucket: expressions (probe expansion follow-up)
+
+- Added runtime probes:
+  `05__probe_precedence_runtime`,
+  `05__probe_unsigned_arith_conv_runtime`,
+  `05__probe_nested_ternary_runtime`,
+  `05__probe_nested_ternary_outer_true_runtime`,
+  `05__probe_nested_ternary_false_chain_runtime`
+- Added diagnostics probes:
+  `05__probe_address_of_rvalue_reject`,
+  `05__probe_deref_non_pointer_reject`,
+  `05__probe_sizeof_incomplete_type_reject`,
+  `05__probe_sizeof_function_reject`,
+  `05__probe_logical_void_operand_reject`,
+  `05__probe_relational_void_reject`,
+  `05__probe_ternary_struct_condition_reject`,
+  `05__probe_cast_int_to_struct_reject`
+- Probe runner snapshot:
+  blocked=2, resolved=61, skipped=0.
+- Blocked runtime probes:
+  `05__probe_nested_ternary_runtime`,
+  `05__probe_nested_ternary_false_chain_runtime`
+  (both mismatch clang: `fisics` exit `1`, clang exit `0`).
+
+### 2026-03-11 — Bucket: expressions (probe expansion follow-up 2)
+
+- Added runtime probes:
+  `05__probe_short_circuit_and_runtime`,
+  `05__probe_short_circuit_or_runtime`,
+  `05__probe_comma_eval_runtime`
+- Added diagnostics probes:
+  `05__probe_alignof_void_reject`,
+  `05__probe_alignof_incomplete_reject`
+- Probe runner snapshot:
+  blocked=3, resolved=65, skipped=0.
+- New blocked diagnostics probe:
+  `05__probe_alignof_void_reject`
+  (`_Alignof(void)` accepted without diagnostic).
+
+### 2026-03-11 — Bucket: expressions (final probe sweep before fixes)
+
+- Added runtime probes:
+  `05__probe_vla_sizeof_side_effect_runtime`,
+  `05__probe_ternary_side_effect_runtime`,
+  `05__probe_nested_ternary_deep_false_chain_runtime`,
+  `05__probe_compound_literal_array_runtime`
+- Added diagnostics probes:
+  `05__probe_unary_bitnot_float_reject`,
+  `05__probe_unary_plus_struct_reject`,
+  `05__probe_unary_minus_pointer_reject`,
+  `05__probe_sizeof_void_reject`,
+  `05__probe_alignof_expr_reject`
+- Probe runner snapshot:
+  blocked=7, resolved=70, skipped=0.
+- New blocked runtime probes:
+  `05__probe_vla_sizeof_side_effect_runtime`,
+  `05__probe_nested_ternary_deep_false_chain_runtime`
+  (both mismatch clang: `fisics` exit `1`, clang exit `0`).
+- New blocked diagnostics probes:
+  `05__probe_sizeof_void_reject`,
+  `05__probe_alignof_expr_reject`
+  (invalid operand forms accepted without diagnostic).
 
 ## Completion Rule
 

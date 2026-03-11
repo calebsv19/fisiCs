@@ -1,0 +1,28 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER value
+          = NUMBER_LITERAL 0u
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER flipped
+          = 
+            UNARY EXPRESSION '~' (prefix)
+              IDENTIFIER value
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '=='
+            IDENTIFIER flipped
+            UNARY EXPRESSION '~' (prefix)
+              NUMBER_LITERAL 0u
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1

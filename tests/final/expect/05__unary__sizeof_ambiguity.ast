@@ -1,0 +1,41 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER T
+          = NUMBER_LITERAL 7
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER expr_size
+          = 
+            SIZEOF
+                            IDENTIFIER T
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER grouped_expr_size
+          = 
+            SIZEOF
+                            IDENTIFIER T
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER type_size
+          = 
+            SIZEOF
+                            PARSED_TYPE int
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            IDENTIFIER expr_size
+            IDENTIFIER grouped_expr_size
+          IDENTIFIER type_size

@@ -1,0 +1,38 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = NUMBER_LITERAL 12
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
+          = NUMBER_LITERAL 12
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER z
+          = NUMBER_LITERAL 5
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER ok
+          = 
+            BINARY EXPRESSION '&&'
+              BINARY EXPRESSION '=='
+                IDENTIFIER x
+                IDENTIFIER y
+              BINARY EXPRESSION '!='
+                IDENTIFIER x
+                IDENTIFIER z
+      RETURN
+        TERNARY_EXPRESSION
+          IDENTIFIER ok
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1

@@ -1908,6 +1908,10 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_SIZEOF:
             if (node->expr.left) {
                 TypeInfo target = analyzeExpression(node->expr.left, scope);
+                if (target.category == TYPEINFO_VOID && target.pointerDepth == 0 && !target.isFunction) {
+                    addError(node->line, 0, "sizeof applied to void type", NULL);
+                    return makeInvalidType();
+                }
                 if (target.category == TYPEINFO_FUNCTION || target.isFunction) {
                     addError(node->line, 0, "sizeof applied to function type", NULL);
                     return makeInvalidType();
@@ -1941,7 +1945,15 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             return makeIntegerType(64, false, TOKEN_UNSIGNED);
         case AST_ALIGNOF:
             if (node->expr.left) {
+                if (node->expr.left->type != AST_PARSED_TYPE) {
+                    addError(node->line, 0, "alignof requires type-name operand", NULL);
+                    return makeInvalidType();
+                }
                 TypeInfo target = analyzeExpression(node->expr.left, scope);
+                if (target.category == TYPEINFO_VOID && target.pointerDepth == 0 && !target.isFunction) {
+                    addError(node->line, 0, "alignof applied to void type", NULL);
+                    return makeInvalidType();
+                }
                 if ((target.category == TYPEINFO_STRUCT || target.category == TYPEINFO_UNION) && !target.isComplete) {
                     addError(node->line, 0, "alignof applied to incomplete type", NULL);
                     return makeInvalidType();

@@ -78,5 +78,64 @@ Expression grammar, precedence, associativity, and ambiguous parses.
 28) `05__ternary__lvalue`
    - Reject assignment to ternary expression result.
 
-## Probe Backlog
-- None open in this bucket. `05__probe_typedef_shadow_parenthesized_expr.c` now resolves and matches clang runtime behavior.
+## Wave 3 Additions
+29) `05__unary__bitwise_not`
+   - Bitwise unary `~` baseline on unsigned operands.
+30) `05__unary__sizeof_ambiguity`
+   - Distinguish `sizeof` expression-vs-type with typedef shadowing.
+31) `05__binary__arithmetic`
+   - Baseline arithmetic binary operators (`+`, `-`, `*`, `/`, `%`).
+32) `05__binary__bitwise`
+   - Baseline bitwise binary operators (`&`, `|`, `^`).
+33) `05__binary__logical`
+   - Baseline logical binary operators (`&&`, `||`) with unary `!`.
+34) `05__binary__relational`
+   - Baseline relational binary operators (`<`, `<=`, `>`, `>=`).
+35) `05__binary__equality`
+   - Baseline equality binary operators (`==`, `!=`).
+36) `05__binary__invalid_shift_width`
+   - Reject negative shift width (`x << -1`) with semantic diagnostic.
+37) `05__ternary__nested`
+   - Nested ternary parse and binding baseline.
+38) `05__casts__explicit`
+   - Valid scalar explicit cast matrix (`double->int->unsigned->long`).
+39) `05__casts__ambiguity`
+   - Cast-vs-parenthesized expression disambiguation with typedef shadowing.
+
+## Wave 4 Additions (Probe Promotion)
+40) `05__runtime__*` (13 tests)
+   - Promoted runtime probe coverage into active suite with clang differential checks.
+   - Includes nested ternary false-chain variants and VLA `sizeof` side-effect runtime path.
+41) `05__diag__*` (24 tests)
+   - Promoted diagnostic probe coverage into active suite with `.diag` expectations.
+   - Includes strict `_Alignof(void)`, `_Alignof(expr)`, and `sizeof(void)` rejection checks.
+
+## Probe Status
+- `tests/final/probes/run_probes.py` summary now reports:
+  - blocked: `0`
+  - resolved: `77`
+  - skipped: `0`
+- Previously blocked expression probes are now resolved and represented in active suite via `05-expressions-wave4.json`.
+
+## Bucket Status
+- `05` is marked stable for current parser/expression scope and is now part of the active final suite baseline.
+
+## Post-Stable Hardening Checklist (Future 05 Sweep)
+- Conditional operator type merge edges:
+  - pointer-vs-null literal arms (`p ? ptr : 0` / `p ? 0 : ptr`)
+  - qualified pointer merge (`const`/`volatile`) behavior
+  - `void *` compatibility cases
+- Cast diagnostics depth:
+  - function-pointer casts and incompatible-call paths
+  - qualifier-dropping conversions (e.g. `const T*` to `T*`)
+- `sizeof`/`_Alignof` depth:
+  - nested VLA scopes and typedef’d VLA operands
+  - incomplete-type edge variations and typedef indirection
+- Sequencing and side-effect stress:
+  - deeper comma/ternary nesting with side effects
+  - volatile reads/writes in short-circuit paths
+- Stress/recovery:
+  - long expression chains near parser recursion limits
+  - malformed expression recovery variants under bucket 12 diagnostics checks
+- Differential hygiene:
+  - explicitly tag UB/implementation-defined expression cases in runtime tests to avoid noisy differential assertions.

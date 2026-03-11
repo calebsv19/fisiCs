@@ -206,6 +206,7 @@ void cg_scope_insert(CGScope* scope,
             scope->entries[i].isGlobal = isGlobal;
             scope->entries[i].addressOnly = addressOnly;
             scope->entries[i].elementType = elementType;
+            scope->entries[i].vlaElementCount = NULL;
             scope->entries[i].parsedType = parsedType;
             return;
         }
@@ -223,6 +224,7 @@ void cg_scope_insert(CGScope* scope,
     entry->value = value;
     entry->type = type;
     entry->elementType = elementType;
+    entry->vlaElementCount = NULL;
     entry->parsedType = parsedType;
     entry->isGlobal = isGlobal;
     entry->addressOnly = addressOnly;

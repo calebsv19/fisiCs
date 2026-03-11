@@ -1,0 +1,638 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__runtime__comma_eval_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__comma_eval_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__comma_eval_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__comma_eval_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__compound_literal_array_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__compound_literal_array_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__compound_literal_array_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__compound_literal_array_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__nested_ternary_deep_false_chain_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__nested_ternary_deep_false_chain_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__nested_ternary_deep_false_chain_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__nested_ternary_deep_false_chain_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__nested_ternary_false_chain_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__nested_ternary_false_chain_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__nested_ternary_false_chain_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__nested_ternary_false_chain_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__nested_ternary_outer_true_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__nested_ternary_outer_true_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__nested_ternary_outer_true_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__nested_ternary_outer_true_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__nested_ternary_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__nested_ternary_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__nested_ternary_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__nested_ternary_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__precedence_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__precedence_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 23,
+      "expected_stdout": "expect/05__runtime__precedence_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__precedence_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__short_circuit_and_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__short_circuit_and_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__short_circuit_and_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__short_circuit_and_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__short_circuit_or_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__short_circuit_or_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__short_circuit_or_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__short_circuit_or_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__ternary_side_effect_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__ternary_side_effect_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__ternary_side_effect_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__ternary_side_effect_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__typedef_shadow_parenthesized_expr",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__typedef_shadow_parenthesized_expr.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__typedef_shadow_parenthesized_expr.stdout",
+      "expected_stderr": "expect/05__runtime__typedef_shadow_parenthesized_expr.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__unsigned_arith_conv_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__unsigned_arith_conv_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__unsigned_arith_conv_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__unsigned_arith_conv_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__vla_sizeof_side_effect_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__runtime__vla_sizeof_side_effect_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__vla_sizeof_side_effect_runtime.stdout",
+      "expected_stderr": "expect/05__runtime__vla_sizeof_side_effect_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "expressions",
+        "runtime",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__add_void_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__add_void_reject.c",
+      "expects": [
+        "expect/05__diag__add_void_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__address_of_rvalue_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__address_of_rvalue_reject.c",
+      "expects": [
+        "expect/05__diag__address_of_rvalue_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__alignof_expr_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__alignof_expr_reject.c",
+      "expects": [
+        "expect/05__diag__alignof_expr_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__alignof_incomplete_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__alignof_incomplete_reject.c",
+      "expects": [
+        "expect/05__diag__alignof_incomplete_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__alignof_void_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__alignof_void_reject.c",
+      "expects": [
+        "expect/05__diag__alignof_void_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__bitwise_float_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__bitwise_float_reject.c",
+      "expects": [
+        "expect/05__diag__bitwise_float_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__cast_int_to_struct_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__cast_int_to_struct_reject.c",
+      "expects": [
+        "expect/05__diag__cast_int_to_struct_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__conditional_struct_result_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__conditional_struct_result_reject.c",
+      "expects": [
+        "expect/05__diag__conditional_struct_result_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__conditional_void_condition_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__conditional_void_condition_reject.c",
+      "expects": [
+        "expect/05__diag__conditional_void_condition_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__deref_non_pointer_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__deref_non_pointer_reject.c",
+      "expects": [
+        "expect/05__diag__deref_non_pointer_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__equality_struct_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__equality_struct_reject.c",
+      "expects": [
+        "expect/05__diag__equality_struct_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__logical_and_struct_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__logical_and_struct_reject.c",
+      "expects": [
+        "expect/05__diag__logical_and_struct_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__logical_void_operand_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__logical_void_operand_reject.c",
+      "expects": [
+        "expect/05__diag__logical_void_operand_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__relational_struct_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__relational_struct_reject.c",
+      "expects": [
+        "expect/05__diag__relational_struct_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__relational_void_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__relational_void_reject.c",
+      "expects": [
+        "expect/05__diag__relational_void_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__shift_width_large_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__shift_width_large_reject.c",
+      "expects": [
+        "expect/05__diag__shift_width_large_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__sizeof_function_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__sizeof_function_reject.c",
+      "expects": [
+        "expect/05__diag__sizeof_function_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__sizeof_incomplete_type_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__sizeof_incomplete_type_reject.c",
+      "expects": [
+        "expect/05__diag__sizeof_incomplete_type_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__sizeof_void_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__sizeof_void_reject.c",
+      "expects": [
+        "expect/05__diag__sizeof_void_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__ternary_struct_condition_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__ternary_struct_condition_reject.c",
+      "expects": [
+        "expect/05__diag__ternary_struct_condition_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__unary_bitnot_float_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__unary_bitnot_float_reject.c",
+      "expects": [
+        "expect/05__diag__unary_bitnot_float_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__unary_minus_pointer_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__unary_minus_pointer_reject.c",
+      "expects": [
+        "expect/05__diag__unary_minus_pointer_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__unary_not_struct_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__unary_not_struct_reject.c",
+      "expects": [
+        "expect/05__diag__unary_not_struct_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__diag__unary_plus_struct_reject",
+      "bucket": "expressions",
+      "input": "cases/05__diag__unary_plus_struct_reject.c",
+      "expects": [
+        "expect/05__diag__unary_plus_struct_reject.diag"
+      ],
+      "tags": [
+        "expressions",
+        "diagnostic",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

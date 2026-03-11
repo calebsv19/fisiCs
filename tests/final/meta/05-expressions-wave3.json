@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__unary__bitwise_not",
+      "bucket": "expressions",
+      "input": "cases/05__unary__bitwise_not.c",
+      "expects": [
+        "expect/05__unary__bitwise_not.ast",
+        "expect/05__unary__bitwise_not.diag"
+      ],
+      "tags": [
+        "unary",
+        "bitwise-not"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__unary__sizeof_ambiguity",
+      "bucket": "expressions",
+      "input": "cases/05__unary__sizeof_ambiguity.c",
+      "expects": [
+        "expect/05__unary__sizeof_ambiguity.ast",
+        "expect/05__unary__sizeof_ambiguity.diag"
+      ],
+      "tags": [
+        "unary",
+        "sizeof",
+        "ambiguity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__binary__arithmetic",
+      "bucket": "expressions",
+      "input": "cases/05__binary__arithmetic.c",
+      "expects": [
+        "expect/05__binary__arithmetic.ast",
+        "expect/05__binary__arithmetic.diag"
+      ],
+      "tags": [
+        "binary",
+        "arithmetic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__binary__bitwise",
+      "bucket": "expressions",
+      "input": "cases/05__binary__bitwise.c",
+      "expects": [
+        "expect/05__binary__bitwise.ast",
+        "expect/05__binary__bitwise.diag"
+      ],
+      "tags": [
+        "binary",
+        "bitwise"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__binary__logical",
+      "bucket": "expressions",
+      "input": "cases/05__binary__logical.c",
+      "expects": [
+        "expect/05__binary__logical.ast",
+        "expect/05__binary__logical.diag"
+      ],
+      "tags": [
+        "binary",
+        "logical"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__binary__relational",
+      "bucket": "expressions",
+      "input": "cases/05__binary__relational.c",
+      "expects": [
+        "expect/05__binary__relational.ast",
+        "expect/05__binary__relational.diag"
+      ],
+      "tags": [
+        "binary",
+        "relational"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__binary__equality",
+      "bucket": "expressions",
+      "input": "cases/05__binary__equality.c",
+      "expects": [
+        "expect/05__binary__equality.ast",
+        "expect/05__binary__equality.diag"
+      ],
+      "tags": [
+        "binary",
+        "equality"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__binary__invalid_shift_width",
+      "bucket": "expressions",
+      "input": "cases/05__binary__invalid_shift_width.c",
+      "expects": [
+        "expect/05__binary__invalid_shift_width.diag"
+      ],
+      "tags": [
+        "binary",
+        "shift",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__ternary__nested",
+      "bucket": "expressions",
+      "input": "cases/05__ternary__nested.c",
+      "expects": [
+        "expect/05__ternary__nested.ast",
+        "expect/05__ternary__nested.diag"
+      ],
+      "tags": [
+        "ternary",
+        "nested"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__casts__explicit",
+      "bucket": "expressions",
+      "input": "cases/05__casts__explicit.c",
+      "expects": [
+        "expect/05__casts__explicit.ast",
+        "expect/05__casts__explicit.diag"
+      ],
+      "tags": [
+        "casts",
+        "explicit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__casts__ambiguity",
+      "bucket": "expressions",
+      "input": "cases/05__casts__ambiguity.c",
+      "expects": [
+        "expect/05__casts__ambiguity.ast",
+        "expect/05__casts__ambiguity.diag"
+      ],
+      "tags": [
+        "casts",
+        "ambiguity"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

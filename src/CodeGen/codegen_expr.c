@@ -300,10 +300,13 @@ static bool cg_store_bitfield(CodegenContext* ctx,
 static LLVMValueRef ensureIntegerLike(CodegenContext* ctx, LLVMValueRef value) {
     if (!value) return NULL;
     LLVMTypeRef ty = LLVMTypeOf(value);
+    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
     if (ty && LLVMGetTypeKind(ty) == LLVMIntegerTypeKind) {
+        if (ty != intptrTy) {
+            return LLVMBuildIntCast2(ctx->builder, value, intptrTy, 0, "vla.intcast");
+        }
         return value;
     }
-    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
     if (ty && LLVMGetTypeKind(ty) == LLVMPointerTypeKind) {
         return LLVMBuildPtrToInt(ctx->builder, value, intptrTy, "vla.ptrtoint");
     }
@@ -1006,12 +1009,18 @@ LLVMValueRef codegenTernaryExpression(CodegenContext* ctx, ASTNode* node) {
     LLVMPositionBuilderAtEnd(ctx->builder, trueBB);
     LLVMValueRef trueValue = codegenNode(ctx, node->ternaryExpr.trueExpr);
     const ParsedType* trueParsed = cg_resolve_expression_type(ctx, node->ternaryExpr.trueExpr);
-    LLVMBuildBr(ctx->builder, mergeBB);
+    LLVMBasicBlockRef trueEndBB = LLVMGetInsertBlock(ctx->builder);
+    if (!LLVMGetBasicBlockTerminator(trueEndBB)) {
+        LLVMBuildBr(ctx->builder, mergeBB);
+    }
 
     LLVMPositionBuilderAtEnd(ctx->builder, falseBB);
     LLVMValueRef falseValue = codegenNode(ctx, node->ternaryExpr.falseExpr);
     const ParsedType* falseParsed = cg_resolve_expression_type(ctx, node->ternaryExpr.falseExpr);
-    LLVMBuildBr(ctx->builder, mergeBB);
+    LLVMBasicBlockRef falseEndBB = LLVMGetInsertBlock(ctx->builder);
+    if (!LLVMGetBasicBlockTerminator(falseEndBB)) {
+        LLVMBuildBr(ctx->builder, mergeBB);
+    }
 
     LLVMPositionBuilderAtEnd(ctx->builder, mergeBB);
     // If both arms are void, just merge control flow.
@@ -1044,12 +1053,12 @@ LLVMValueRef codegenTernaryExpression(CodegenContext* ctx, ASTNode* node) {
     int count = 0;
     if (trueValue) {
         incomingVals[count] = trueValue;
-        incomingBlocks[count] = trueBB;
+        incomingBlocks[count] = trueEndBB;
         count++;
     }
     if (falseValue) {
         incomingVals[count] = falseValue;
-        incomingBlocks[count] = falseBB;
+        incomingBlocks[count] = falseEndBB;
         count++;
     }
     LLVMAddIncoming(phi, incomingVals, incomingBlocks, count);
@@ -2436,7 +2445,18 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node) {
 
     if (parsed) {
         if (parsedTypeHasVLA(parsed)) {
-            LLVMValueRef elementCount = computeVLAElementCount(ctx, parsed);
+            LLVMValueRef elementCount = NULL;
+            if (node->expr.left && node->expr.left->type == AST_IDENTIFIER && ctx->currentScope) {
+                NamedValue* named = cg_scope_lookup(ctx->currentScope, node->expr.left->valueNode.value);
+                if (named && named->vlaElementCount) {
+                    elementCount = named->vlaElementCount;
+                }
+            }
+            if (!elementCount) {
+                elementCount = computeVLAElementCount(ctx, parsed);
+            }
+            if (!elementCount) return NULL;
+            elementCount = ensureIntegerLike(ctx, elementCount);
             if (!elementCount) return NULL;
             LLVMTypeRef elemType = vlaInnermostElementLLVM(ctx, parsed);
             unsigned long long elemSize = LLVMABISizeOfType(LLVMGetModuleDataLayout(ctx->module), elemType);

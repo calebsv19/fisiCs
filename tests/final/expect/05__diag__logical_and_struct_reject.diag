@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6:30): Operator '&&' requires scalar operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/05__diag__logical_and_struct_reject.c:6:30

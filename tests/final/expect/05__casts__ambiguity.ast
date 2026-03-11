@@ -1,0 +1,36 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER cast_value
+          = 
+            CAST_EXPRESSION
+                            CAST TYPE: T
+              NUMBER_LITERAL 1.75
+      BLOCK
+        VAR_DECL
+          TYPE: int
+          IDENTIFIER T
+            = NUMBER_LITERAL 4
+        VAR_DECL
+          TYPE: int
+          IDENTIFIER grouped_value
+            = 
+              BINARY EXPRESSION '+'
+                IDENTIFIER T
+                NUMBER_LITERAL 1
+        RETURN
+          BINARY EXPRESSION '+'
+            IDENTIFIER cast_value
+            IDENTIFIER grouped_value

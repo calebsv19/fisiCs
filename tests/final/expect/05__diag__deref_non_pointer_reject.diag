@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (3:13): Operator '*' requires pointer operand
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/05__diag__deref_non_pointer_reject.c:3:13

@@ -90,6 +90,66 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / "runtime/05__probe_typedef_shadow_parenthesized_expr.c",
         note="parenthesized identifier should win over cast when typedef is shadowed",
     ),
+    RuntimeProbe(
+        probe_id="05__probe_precedence_runtime",
+        source=PROBE_DIR / "runtime/05__probe_precedence_runtime.c",
+        note="operator precedence runtime result should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_unsigned_arith_conv_runtime",
+        source=PROBE_DIR / "runtime/05__probe_unsigned_arith_conv_runtime.c",
+        note="usual arithmetic conversions for signed/unsigned mix should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_nested_ternary_runtime",
+        source=PROBE_DIR / "runtime/05__probe_nested_ternary_runtime.c",
+        note="nested ternary associativity/runtime behavior should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_nested_ternary_outer_true_runtime",
+        source=PROBE_DIR / "runtime/05__probe_nested_ternary_outer_true_runtime.c",
+        note="nested ternary outer-true path should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_nested_ternary_false_chain_runtime",
+        source=PROBE_DIR / "runtime/05__probe_nested_ternary_false_chain_runtime.c",
+        note="nested ternary false-chain path should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_short_circuit_and_runtime",
+        source=PROBE_DIR / "runtime/05__probe_short_circuit_and_runtime.c",
+        note="logical AND short-circuit side effects should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_short_circuit_or_runtime",
+        source=PROBE_DIR / "runtime/05__probe_short_circuit_or_runtime.c",
+        note="logical OR short-circuit side effects should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_comma_eval_runtime",
+        source=PROBE_DIR / "runtime/05__probe_comma_eval_runtime.c",
+        note="comma operator evaluation/value behavior should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_vla_sizeof_side_effect_runtime",
+        source=PROBE_DIR / "runtime/05__probe_vla_sizeof_side_effect_runtime.c",
+        note="sizeof(VLA) should evaluate bound side effects and match clang runtime",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_ternary_side_effect_runtime",
+        source=PROBE_DIR / "runtime/05__probe_ternary_side_effect_runtime.c",
+        note="conditional operator branch side effects should match clang runtime",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_nested_ternary_deep_false_chain_runtime",
+        source=PROBE_DIR / "runtime/05__probe_nested_ternary_deep_false_chain_runtime.c",
+        note="deep nested ternary false-chain path should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="05__probe_compound_literal_array_runtime",
+        source=PROBE_DIR / "runtime/05__probe_compound_literal_array_runtime.c",
+        note="compound-literal array value/lifetime-in-block behavior should match clang",
+    ),
 ]
 
 DIAG_PROBES = [
@@ -147,6 +207,106 @@ DIAG_PROBES = [
         probe_id="05__probe_unary_not_struct_reject",
         source=PROBE_DIR / "diagnostics/05__probe_unary_not_struct_reject.c",
         note="unary ! operand must be scalar (struct operand should reject)",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_address_of_rvalue_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_address_of_rvalue_reject.c",
+        note="address-of operator should reject non-lvalue operand",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_deref_non_pointer_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_deref_non_pointer_reject.c",
+        note="dereference operator should reject non-pointer operand",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_sizeof_incomplete_type_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_sizeof_incomplete_type_reject.c",
+        note="sizeof should reject incomplete object types",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_sizeof_function_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_sizeof_function_reject.c",
+        note="sizeof should reject function types",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_logical_void_operand_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_logical_void_operand_reject.c",
+        note="logical operators should reject void operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_relational_void_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_relational_void_reject.c",
+        note="relational operators should reject void operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_ternary_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_ternary_struct_condition_reject.c",
+        note="conditional operator first operand must be scalar (struct should reject)",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_cast_int_to_struct_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_cast_int_to_struct_reject.c",
+        note="casts between scalar and non-scalar types should reject",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_alignof_void_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_alignof_void_reject.c",
+        note="_Alignof should reject void type operand",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_alignof_incomplete_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_alignof_incomplete_reject.c",
+        note="_Alignof should reject incomplete type operand",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_shift_width_large_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_shift_width_large_reject.c",
+        note="left/right shift should reject widths >= bit width of promoted lhs",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_bitwise_float_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_bitwise_float_reject.c",
+        note="bitwise operators should reject floating operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_relational_struct_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_relational_struct_reject.c",
+        note="relational operators should reject struct operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_equality_struct_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_equality_struct_reject.c",
+        note="equality operators should reject struct operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_add_void_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_add_void_reject.c",
+        note="arithmetic operators should reject void operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_unary_bitnot_float_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_unary_bitnot_float_reject.c",
+        note="unary bitwise-not should reject floating operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_unary_plus_struct_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_unary_plus_struct_reject.c",
+        note="unary plus should reject struct operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_unary_minus_pointer_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_unary_minus_pointer_reject.c",
+        note="unary minus should reject pointer operands",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_sizeof_void_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_sizeof_void_reject.c",
+        note="sizeof should reject void type operand",
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_alignof_expr_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_alignof_expr_reject.c",
+        note="_Alignof should reject expression operand in strict C mode",
     ),
     DiagnosticProbe(
         probe_id="07__probe_assign_struct_to_int_reject",

@@ -387,9 +387,10 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         }
 
         if (isArray) {
+            LLVMValueRef vlaElementCount = NULL;
             if (hasVLA) {
-                LLVMValueRef elementCount = codegenVLAElementCount(ctx, arrayParsed);
-                if (!elementCount) {
+                vlaElementCount = codegenVLAElementCount(ctx, arrayParsed);
+                if (!vlaElementCount) {
                     fprintf(stderr, "Error: Failed to compute VLA length for '%s'\n", varNameNode->valueNode.value);
                     continue;
                 }
@@ -406,7 +407,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 }
                 storage = LLVMBuildArrayAlloca(ctx->builder,
                                                elementLLVM,
-                                               elementCount,
+                                               vlaElementCount,
                                                varNameNode->valueNode.value);
                 storageType = LLVMTypeOf(storage);
             } else {
@@ -438,6 +439,12 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                             true,
                             elementLLVM,
                             storedParsed);
+            if (hasVLA) {
+                NamedValue* entry = cg_scope_lookup(ctx->currentScope, varNameNode->valueNode.value);
+                if (entry) {
+                    entry->vlaElementCount = vlaElementCount;
+                }
+            }
         } else {
             LLVMTypeRef varType = cg_type_from_parsed(ctx, varParsed);
             if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
