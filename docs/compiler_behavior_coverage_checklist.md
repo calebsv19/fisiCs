@@ -355,8 +355,8 @@ Primary oracles:
 | Bitwise `~` | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__unary__bitwise_not` | | Runtime differential follow-up still pending |
 | Address-of | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `05__unary__address_of` | | |
 | Dereference | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `05__unary__deref` | | Runtime differential follow-up still pending |
-| `sizeof` type vs expression | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__unary__sizeof_ambiguity` | Probe `05__probe_sizeof_void_reject` currently accepts `sizeof(void)` without a diagnostic | Typedef-shadow disambiguation anchor now active; invalid-operand constraints still need tightening |
-| `_Alignof` | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__unary_alignof` | Probes `05__probe_alignof_void_reject` and `05__probe_alignof_expr_reject` currently accept invalid operands without diagnostics | Type-name support is active; invalid-operand constraints still need tightening |
+| `sizeof` type vs expression | `expressions` | [x] | [x] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__unary__sizeof_ambiguity`, `05__diag__sizeof_void_reject` | | Type-vs-expression disambiguation and invalid-operand diagnostics are active; runtime follow-up is promoted in wave 4 |
+| `_Alignof` | `expressions` | [x] | [x] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__unary_alignof`, `05__diag__alignof_void_reject`, `05__diag__alignof_expr_reject` | | Type-name path and invalid-operand diagnostics are active |
 
 ### 4.3 Binary Operations
 
@@ -374,7 +374,7 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Nested ternary | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `05__ternary__nested` | Runtime probes `05__probe_nested_ternary_runtime`, `05__probe_nested_ternary_false_chain_runtime`, and `05__probe_nested_ternary_deep_false_chain_runtime` currently mismatch clang (`fisics` exit `1`, clang exit `0`) | Outer-true nested ternary runtime probe resolves; false-arm chain variants remain blocked |
+| Nested ternary | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `differential` | `05__ternary__nested`, `05__runtime__nested_ternary_runtime`, `05__runtime__nested_ternary_false_chain_runtime`, `05__runtime__nested_ternary_deep_false_chain_runtime` | | Nested false-chain runtime variants now resolve and are promoted in wave 4 |
 | Mixed types | `expressions` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime`, `diag` | `05__ternary_mixed_types` | | |
 | Lvalue cases | `expressions` | [ ] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `05__ternary__lvalue` | | |
 
@@ -479,7 +479,7 @@ Primary oracles:
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Block scope | `scopes-linkage` | [x] | [x] | [x] | `in_progress` | `ast`, `diag` | `10__shadowing_rules`, `10__block_extern_reference`, `10__block_scope_conflicting_types` | | |
-| File scope | `scopes-linkage` | [x] | [x] | [x] | `in_progress` | `ast`, `diag` | `10__extern_array_consistent_definition`, `10__extern_type_mismatch`, `10__var_function_name_conflict` | | `extern int arr[]; int arr[3]={...};` currently crashes and is tracked as pending fix |
+| File scope | `scopes-linkage` | [x] | [x] | [x] | `in_progress` | `ast`, `diag` | `10__extern_array_consistent_definition`, `10__extern_type_mismatch`, `10__var_function_name_conflict` | | Extern-array consistency anchor is active and passing |
 | Shadowing | `scopes-linkage` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag` | `10__shadowing_rules`, `10__block_extern_reference` | | |
 | Tentative definitions | `scopes-linkage` | [x] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `10__tentative_definition`, `10__tentative_definition_multi_tu`, `10__tentative_static_conflict` | | |
 | Multiple definition errors | `scopes-linkage` | [ ] | [x] | [x] | `in_progress` | `diag` | `10__multiple_static_defs`, `10__var_function_name_conflict` | | Multi-file external-definition collision still pending |
@@ -547,7 +547,7 @@ Primary oracles:
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Signed overflow behavior | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `14__arith__signed_overflow` | | UB-tag required |
-| Unsigned wraparound | `runtime` | [ ] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__arith__unsigned_wrap`, `probes/runtime/14__probe_unsigned_wrap.c` | Probe output mismatch: fisics `0 4294967295 0` vs clang `1 4294967295 4294967295` | Likely mixed issue in unsigned-compare semantics and/or `UINT_MAX` constant surface; keep as blocked probe |
+| Unsigned wraparound | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__arith__unsigned_wrap`, `probes/runtime/14__probe_unsigned_wrap.c` | | Differential probe now resolves; active-suite promotion remains pending |
 | Division and modulo edge cases | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `14__runtime_div_mod_edges` | | Division by zero is UB if runtime |
 
 ### 8.2 Floating-Point Correctness
@@ -555,7 +555,7 @@ Primary oracles:
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Precision behavior | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_float_precision` | | Target-specific tolerance may be needed |
-| NaN propagation | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime`, `differential` | `14__float__nan` | Probe: `z/z` NaN self-inequality returned `0` (clang `1`) | Held as blocked probe pending float-semantics fix |
+| NaN propagation | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__float__nan`, `probes/runtime/14__probe_float_nan.c` | | Differential probe now resolves; active-suite promotion remains pending |
 | Infinity behavior | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_float_infinity` | | Active differential runtime anchor added |
 
 ### 8.3 Control Flow
@@ -564,7 +564,7 @@ Primary oracles:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Nested loops | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir` | `13__ir_nested_loops` | | |
 | Short-circuit logic | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_short_circuit`, `13__ir_short_circuit_side_effect` | | |
-| Switch lowering correctness | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_switch`, `14__runtime_switch_simple`, `15__torture__deep_switch` | Probe `15__torture__deep_switch`: runtime mismatch (`fisics=15`, `clang=60`) | Simple switch runtime is green; looped switch path remains blocked |
+| Switch lowering correctness | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_switch`, `14__runtime_switch_simple`, `probes/runtime/15__probe_switch_loop_lite.c`, `probes/runtime/15__probe_switch_loop_mod5.c` | | Simple and looped switch differential probes are currently green |
 
 ### 8.4 Memory
 
@@ -611,8 +611,8 @@ Primary oracle:
 | Type mismatch | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_type_mismatch` | | Active non-scalar-to-scalar assignment mismatch anchor added |
 | Undeclared identifiers | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_undeclared_identifier` | | |
 | Redeclarations | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_redeclaration_conflict` | | |
-| Incompatible pointer types | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag_incompatible_ptr` | Probe: `int* = double*` currently accepted with no diagnostic | Likely missing pointer-compatibility constraint checks in assignment conversions |
-| Illegal casts | `diagnostics-recovery` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `12__diag_illegal_cast` | Probe: `(int)(struct S){1}` currently accepted and lowered via bitcast | Likely missing semantic cast legality checks for non-scalar source types |
+| Incompatible pointer types | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_incompatible_ptr`, `probes/diagnostics/12__probe_incompatible_ptr_assign.c` | | Probe emits expected diagnostic; active-suite promotion remains pending |
+| Illegal casts | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_illegal_cast`, `probes/diagnostics/12__probe_illegal_struct_to_int_cast.c` | | Probe emits expected diagnostic; active-suite promotion remains pending |
 | Invalid storage class usage | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_invalid_storage_class` | | |
 | Invalid initializers | `diagnostics-recovery` | [ ] | [x] | [x] | `in_progress` | `diag` | `12__diag_invalid_initializer` | | |
 
@@ -638,10 +638,10 @@ Primary oracles:
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Extremely long expressions | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `15__torture__long_expr` | | Active runtime stress anchor added (100-term chain) |
-| Deep nesting | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `15__torture__deep_nesting`, `15__torture__deep_switch` | Probe `15__torture__deep_switch`: runtime mismatch (`fisics=15`, `clang=60`) | Active nested-branch anchor is passing; nested-switch probe remains blocked pending control-flow fix |
+| Deep nesting | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag`, `differential` | `15__torture__deep_nesting`, `probes/runtime/15__probe_switch_loop_lite.c`, `probes/runtime/15__probe_switch_loop_mod5.c` | | Nested-switch differential probe set is currently green |
 | Many declarations in one file | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `15__torture__many_decls`, `15__torture__many_globals` | | Active local+global declaration-density anchors |
 | Large struct definitions | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `15__torture__large_struct` | | ABI-sensitive; tagged `abi_sensitive: true` |
-| Pathological declarators | `torture-differential` | [x] | [ ] | [x] | `blocked` | `ast`, `diag` | `15__torture__pathological_decl`, `15__torture__path_decl_nested`, `04__probe_deep_declarator_call_only`, `04__probe_deep_declarator_codegen_hang` | Runtime declarator probes currently blocked (compile crash `-11` and compile timeout on deep function-pointer/array shape); compile-surface anchor active | Keep runtime path in probes until codegen fix lands |
+| Pathological declarators | `torture-differential` | [x] | [ ] | [x] | `in_progress` | `ast`, `diag`, `runtime`, `differential` | `15__torture__pathological_decl`, `15__torture__path_decl_nested`, `04__probe_deep_declarator_call_only`, `04__probe_deep_declarator_codegen_hang` | | Declarator runtime probes now resolve; keep torture expansion as follow-up |
 | Fuzz-compatible harness design | `torture-differential` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `15__torture__fuzz_harness` | | Infrastructure item |
 | Malformed input robustness | `torture-differential` | [ ] | [x] | [x] | `in_progress` | `diag` | `15__torture__malformed_no_crash`, `15__torture__malformed_unclosed_comment_no_crash`, `15__torture__malformed_unbalanced_block_no_crash` | | Must never crash compiler |
 
@@ -670,6 +670,9 @@ Tracking table:
 
 Use this section as the current campaign tracker. Add dated entries as buckets
 are worked.
+
+Entries are historical snapshots at the time they were recorded; older entries
+may describe blockers that were resolved later.
 
 Suggested entry format:
 
@@ -1600,6 +1603,61 @@ Suggested entry format:
   `05__probe_sizeof_void_reject`,
   `05__probe_alignof_expr_reject`
   (invalid operand forms accepted without diagnostic).
+
+### 2026-03-11 — Post-fix probe baseline refresh
+
+- Current probe runner snapshot:
+  `blocked=0, resolved=77, skipped=0`
+- Expressions (`05`) was promoted to active stable baseline with wave 4:
+  runtime differential and diagnostics probe coverage moved into active suite.
+- Previously stale open-probe notes were cleared in:
+  `07-types-conversions.md`,
+  `08-initializers-layout.md`,
+  `09-statements-controlflow.md`,
+  `10-scopes-linkage.md`,
+  `12-diagnostics-recovery.md`,
+  `15-torture-differential.md`.
+- Coverage matrix rows updated to reflect resolved probe state for:
+  expressions invalid `sizeof/_Alignof` diagnostics,
+  nested ternary runtime,
+  scopes file-scope extern-array consistency,
+  runtime unsigned-wrap / NaN probes,
+  switch-loop differential probes,
+  and diagnostics incompatible-pointer / illegal-cast probes.
+
+### 2026-03-11 — Bucket: statements-controlflow (wave 7 + wave 8)
+
+- Promoted resolved diagnostics probes into active suite (wave 7):
+  `09__diag__goto_into_vla_scope_reject`,
+  `09__diag__switch_float_condition_reject`,
+  `09__diag__switch_pointer_condition_reject`,
+  `09__diag__switch_string_condition_reject`,
+  `09__diag__switch_double_condition_reject`,
+  `09__diag__if_void_condition_reject`,
+  `09__diag__if_struct_condition_reject`,
+  `09__diag__while_void_condition_reject`,
+  `09__diag__do_struct_condition_reject`,
+  `09__diag__for_void_condition_reject`,
+  `09__diag__for_struct_condition_reject`.
+- Added runtime+differential control-flow anchors (wave 8):
+  `09__runtime__switch_fallthrough_order`,
+  `09__runtime__nested_loop_switch_control`,
+  `09__runtime__while_for_side_effects`,
+  `09__runtime__goto_forward_backward`,
+  `09__runtime__switch_default_selection`.
+- Active `09__*` bucket sweep is green with these promotions.
+
+### 2026-03-11 — Bucket: statements-controlflow (do-while runtime fix + wave 9)
+
+- Fixed `do-while` runtime executable codegen crash by correcting `AST_WHILE_LOOP`
+  lowering for `isDoWhile=true` in `codegenWhileLoop`.
+- Added runtime+differential active anchor:
+  `09__runtime__do_while_side_effects` (`09-statements-controlflow-wave9.json`).
+- Added/kept dedicated runtime probe fixture:
+  `09__probe_do_while_runtime_codegen_crash`.
+- Probe runner snapshot now:
+  `blocked=0, resolved=78, skipped=0`.
+- Active `09__*` bucket remains green after wave 9 promotion.
 
 ## Completion Rule
 

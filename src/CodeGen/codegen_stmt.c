@@ -630,23 +630,53 @@ LLVMValueRef codegenWhileLoop(CodegenContext* ctx, ASTNode* node) {
     LLVMBasicBlockRef afterBB = LLVMAppendBasicBlock(func, "loopend");
 
     if (!node->whileLoop.isDoWhile) {
-        LLVMBuildBr(ctx->builder, condBB);
-    }
+        LLVMBasicBlockRef current = LLVMGetInsertBlock(ctx->builder);
+        if (current && !LLVMGetBasicBlockTerminator(current)) {
+            LLVMBuildBr(ctx->builder, condBB);
+        }
 
-    LLVMPositionBuilderAtEnd(ctx->builder, condBB);
-    LLVMValueRef cond = codegenNode(ctx, node->whileLoop.condition);
-    cond = cg_build_truthy(ctx, cond, NULL, "loopcond");
-    if (!cond) {
-        fprintf(stderr, "Error: Failed to convert loop condition to boolean\n");
-        return NULL;
-    }
-    LLVMBuildCondBr(ctx->builder, cond, bodyBB, afterBB);
+        LLVMPositionBuilderAtEnd(ctx->builder, condBB);
+        LLVMValueRef cond = codegenNode(ctx, node->whileLoop.condition);
+        cond = cg_build_truthy(ctx, cond, NULL, "loopcond");
+        if (!cond) {
+            fprintf(stderr, "Error: Failed to convert loop condition to boolean\n");
+            return NULL;
+        }
+        LLVMBuildCondBr(ctx->builder, cond, bodyBB, afterBB);
 
-    LLVMPositionBuilderAtEnd(ctx->builder, bodyBB);
-    cg_loop_push(ctx, afterBB, condBB);
-    codegenNode(ctx, node->whileLoop.body);
-    cg_loop_pop(ctx);
-    LLVMBuildBr(ctx->builder, condBB);
+        LLVMPositionBuilderAtEnd(ctx->builder, bodyBB);
+        cg_loop_push(ctx, afterBB, condBB);
+        codegenNode(ctx, node->whileLoop.body);
+        cg_loop_pop(ctx);
+        LLVMBasicBlockRef bodyEnd = LLVMGetInsertBlock(ctx->builder);
+        if (bodyEnd && !LLVMGetBasicBlockTerminator(bodyEnd)) {
+            LLVMBuildBr(ctx->builder, condBB);
+        }
+    } else {
+        // do-while: execute body first, then evaluate the loop condition.
+        LLVMBasicBlockRef current = LLVMGetInsertBlock(ctx->builder);
+        if (current && !LLVMGetBasicBlockTerminator(current)) {
+            LLVMBuildBr(ctx->builder, bodyBB);
+        }
+
+        LLVMPositionBuilderAtEnd(ctx->builder, bodyBB);
+        cg_loop_push(ctx, afterBB, condBB);
+        codegenNode(ctx, node->whileLoop.body);
+        cg_loop_pop(ctx);
+        LLVMBasicBlockRef bodyEnd = LLVMGetInsertBlock(ctx->builder);
+        if (bodyEnd && !LLVMGetBasicBlockTerminator(bodyEnd)) {
+            LLVMBuildBr(ctx->builder, condBB);
+        }
+
+        LLVMPositionBuilderAtEnd(ctx->builder, condBB);
+        LLVMValueRef cond = codegenNode(ctx, node->whileLoop.condition);
+        cond = cg_build_truthy(ctx, cond, NULL, "loopcond");
+        if (!cond) {
+            fprintf(stderr, "Error: Failed to convert do-while condition to boolean\n");
+            return NULL;
+        }
+        LLVMBuildCondBr(ctx->builder, cond, bodyBB, afterBB);
+    }
 
     LLVMPositionBuilderAtEnd(ctx->builder, afterBB);
     return NULL;

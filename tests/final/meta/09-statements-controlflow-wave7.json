@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__diag__goto_into_vla_scope_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__goto_into_vla_scope_reject.c",
+      "expects": [
+        "expect/09__diag__goto_into_vla_scope_reject.diag"
+      ],
+      "tags": [
+        "goto",
+        "vla",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__switch_float_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__switch_float_condition_reject.c",
+      "expects": [
+        "expect/09__diag__switch_float_condition_reject.diag"
+      ],
+      "tags": [
+        "switch",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__switch_pointer_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__switch_pointer_condition_reject.c",
+      "expects": [
+        "expect/09__diag__switch_pointer_condition_reject.diag"
+      ],
+      "tags": [
+        "switch",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__switch_string_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__switch_string_condition_reject.c",
+      "expects": [
+        "expect/09__diag__switch_string_condition_reject.diag"
+      ],
+      "tags": [
+        "switch",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__switch_double_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__switch_double_condition_reject.c",
+      "expects": [
+        "expect/09__diag__switch_double_condition_reject.diag"
+      ],
+      "tags": [
+        "switch",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__if_void_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__if_void_condition_reject.c",
+      "expects": [
+        "expect/09__diag__if_void_condition_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__if_struct_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__if_struct_condition_reject.c",
+      "expects": [
+        "expect/09__diag__if_struct_condition_reject.diag"
+      ],
+      "tags": [
+        "if",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__while_void_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__while_void_condition_reject.c",
+      "expects": [
+        "expect/09__diag__while_void_condition_reject.diag"
+      ],
+      "tags": [
+        "while",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__do_struct_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__do_struct_condition_reject.c",
+      "expects": [
+        "expect/09__diag__do_struct_condition_reject.diag"
+      ],
+      "tags": [
+        "do-while",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__for_void_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__for_void_condition_reject.c",
+      "expects": [
+        "expect/09__diag__for_void_condition_reject.diag"
+      ],
+      "tags": [
+        "for",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__for_struct_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__diag__for_struct_condition_reject.c",
+      "expects": [
+        "expect/09__diag__for_struct_condition_reject.diag"
+      ],
+      "tags": [
+        "for",
+        "condition",
+        "negative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

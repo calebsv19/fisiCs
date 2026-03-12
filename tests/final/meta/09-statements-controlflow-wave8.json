@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_fallthrough_order",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_fallthrough_order.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_fallthrough_order.stdout",
+      "expected_stderr": "expect/09__runtime__switch_fallthrough_order.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "switch",
+        "fallthrough",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__nested_loop_switch_control",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__nested_loop_switch_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__nested_loop_switch_control.stdout",
+      "expected_stderr": "expect/09__runtime__nested_loop_switch_control.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "loop",
+        "switch",
+        "break-continue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__while_for_side_effects",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__while_for_side_effects.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__while_for_side_effects.stdout",
+      "expected_stderr": "expect/09__runtime__while_for_side_effects.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "while",
+        "for"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__goto_forward_backward",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__goto_forward_backward.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__goto_forward_backward.stdout",
+      "expected_stderr": "expect/09__runtime__goto_forward_backward.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "goto",
+        "labels"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_default_selection",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_default_selection.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_default_selection.stdout",
+      "expected_stderr": "expect/09__runtime__switch_default_selection.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "switch",
+        "default"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

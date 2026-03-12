@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (0:0): goto jumps into scope of initialized variable
+   Hint: after_vla
+Warning at (3:0): Unreachable statement

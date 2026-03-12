@@ -10,13 +10,16 @@ python3 tests/final/probes/run_probes.py
 
 Current probe summary:
 - blocked: `0`
-- resolved: `77`
+- resolved: `78`
 - skipped: `0`
 
 ## Remaining Blockers
 
 - None currently. Probe backlog is clear at this snapshot.
 - The previously blocked 05-expression probes were fixed and promoted into active suite coverage (`tests/final/meta/05-expressions-wave4.json`).
+- `09__probe_do_while_runtime_codegen_crash` now resolves and is promoted into
+  active suite as `09__runtime__do_while_side_effects`
+  (`tests/final/meta/09-statements-controlflow-wave9.json`).
 
 Latest additions (expressions diagnostics):
 - `05__probe_shift_width_large_reject`

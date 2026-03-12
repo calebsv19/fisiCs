@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__do_while_side_effects",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__do_while_side_effects.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__do_while_side_effects.stdout",
+      "expected_stderr": "expect/09__runtime__do_while_side_effects.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "do-while",
+        "side-effects",
+        "fix-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

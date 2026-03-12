@@ -90,26 +90,59 @@ Statement grammar, scoping, and control flow legality.
 30) `09__switch_duplicate_case_folded_reject`
    - Reject duplicate `case` values after constant-expression folding.
 
+## Wave 7 Additions
+31) `09__diag__goto_into_vla_scope_reject`
+   - Reject `goto` jumping into VLA scope.
+32) `09__diag__switch_float_condition_reject`
+   - Reject `switch` controlling expression of type `float`.
+33) `09__diag__switch_pointer_condition_reject`
+   - Reject `switch` controlling expression of pointer type.
+34) `09__diag__switch_string_condition_reject`
+   - Reject `switch` controlling expression as string literal.
+35) `09__diag__switch_double_condition_reject`
+   - Reject `switch` controlling expression of type `double`.
+36) `09__diag__if_void_condition_reject`
+   - Reject `if` controlling expression of type `void`.
+37) `09__diag__if_struct_condition_reject`
+   - Reject `if` controlling expression of non-scalar struct type.
+38) `09__diag__while_void_condition_reject`
+   - Reject `while` controlling expression of type `void`.
+39) `09__diag__do_struct_condition_reject`
+   - Reject `do-while` controlling expression of non-scalar struct type.
+40) `09__diag__for_void_condition_reject`
+   - Reject `for` controlling expression of type `void`.
+41) `09__diag__for_struct_condition_reject`
+   - Reject `for` controlling expression of non-scalar struct type.
+
+## Wave 8 Additions
+42) `09__runtime__switch_fallthrough_order`
+   - Runtime/differential switch fallthrough order validation.
+43) `09__runtime__nested_loop_switch_control`
+   - Runtime/differential nested loop + switch `break`/`continue` behavior.
+44) `09__runtime__while_for_side_effects`
+   - Runtime/differential side-effect flow through `while` and `for`.
+45) `09__runtime__goto_forward_backward`
+   - Runtime/differential forward and backward `goto` label flow.
+46) `09__runtime__switch_default_selection`
+   - Runtime/differential default-vs-case selection behavior.
+
+## Wave 9 Additions
+47) `09__runtime__do_while_side_effects`
+   - Runtime/differential `do-while` side-effect and condition re-evaluation behavior.
+
 ## Probe Backlog
-- `tests/final/probes/diagnostics/09__probe_goto_into_vla_scope_reject.c`
-  currently compiles without an error; should reject jumping into VLA scope.
-- `tests/final/probes/diagnostics/09__probe_switch_float_condition_reject.c`
-  currently accepts non-integer `switch` condition (`float`).
-- `tests/final/probes/diagnostics/09__probe_switch_pointer_condition_reject.c`
-  currently accepts non-integer `switch` condition (pointer).
-- `tests/final/probes/diagnostics/09__probe_switch_string_condition_reject.c`
-  currently accepts non-integer `switch` condition (string literal).
-- `tests/final/probes/diagnostics/09__probe_switch_double_condition_reject.c`
-  currently accepts non-integer `switch` condition (`double`).
-- `tests/final/probes/diagnostics/09__probe_if_void_condition_reject.c`
-  currently accepts `if` condition with `void` expression.
-- `tests/final/probes/diagnostics/09__probe_if_struct_condition_reject.c`
-  currently accepts `if` condition with struct expression.
-- `tests/final/probes/diagnostics/09__probe_while_void_condition_reject.c`
-  currently accepts `while` condition with `void` expression.
-- `tests/final/probes/diagnostics/09__probe_do_struct_condition_reject.c`
-  currently accepts `do-while` condition with struct expression.
-- `tests/final/probes/diagnostics/09__probe_for_void_condition_reject.c`
-  currently accepts `for` condition with `void` expression.
-- `tests/final/probes/diagnostics/09__probe_for_struct_condition_reject.c`
-  currently accepts `for` condition with struct expression.
+- No open probes in this bucket at the current baseline.
+- Probe-to-active promotions completed in wave 7 for the full 09 diagnostics probe set.
+- `09__probe_do_while_runtime_codegen_crash` now resolves and its behavior is promoted
+  into active suite via `09__runtime__do_while_side_effects`.
+
+## Next Expansion Targets (Post-Cleanup Plan)
+1) Add control-flow edge diagnostics not yet covered
+   - `goto` to missing label across nested scopes (complex multi-label shape).
+   - duplicate `default` + folded duplicate `case` in mixed constant-expression forms.
+   - label/statement boundary edge cases in nested blocks and after empty statements.
+
+2) Add recovery-focused malformed-statement checks (09 + 12 boundary)
+   - malformed loop headers followed by valid statements (recover and continue).
+   - malformed `switch` body with later valid `case`/`default` recovery.
+   - verify diagnostic category + line anchors remain stable under recovery.

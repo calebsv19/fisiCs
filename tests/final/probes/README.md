@@ -19,6 +19,7 @@ Purpose:
   - `runtime/04__probe_deep_declarator_call_only.c`
   - `runtime/04__probe_deep_declarator_codegen_hang.c`
   - `runtime/05__probe_typedef_shadow_parenthesized_expr.c`
+  - `runtime/09__probe_do_while_runtime_codegen_crash.c`
   - `runtime/10__probe_static_function_then_extern_decl_ok.c`
   - `runtime/11__probe_function_param_function_type_adjust_ok.c`
   - `runtime/14__probe_unsigned_wrap.c`

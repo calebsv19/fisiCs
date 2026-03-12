@@ -150,6 +150,11 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / "runtime/05__probe_compound_literal_array_runtime.c",
         note="compound-literal array value/lifetime-in-block behavior should match clang",
     ),
+    RuntimeProbe(
+        probe_id="09__probe_do_while_runtime_codegen_crash",
+        source=PROBE_DIR / "runtime/09__probe_do_while_runtime_codegen_crash.c",
+        note="minimal do-while runtime executable path should compile/run and match clang",
+    ),
 ]
 
 DIAG_PROBES = [
