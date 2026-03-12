@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__parserdiag__missing_semicolon",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__missing_semicolon.c",
+      "expects": [
+        "expect/12__parserdiag__missing_semicolon.pdiag"
+      ],
+      "tags": [
+        "diag",
+        "parser-diag",
+        "export"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__for_missing_paren",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__for_missing_paren.c",
+      "expects": [
+        "expect/12__parserdiag__for_missing_paren.pdiag"
+      ],
+      "tags": [
+        "diag",
+        "parser-diag",
+        "export"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__bad_paren_expr",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__bad_paren_expr.c",
+      "expects": [
+        "expect/12__parserdiag__bad_paren_expr.pdiag"
+      ],
+      "tags": [
+        "diag",
+        "parser-diag",
+        "export"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__stray_else_recovery",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__stray_else_recovery.c",
+      "expects": [
+        "expect/12__parserdiag__stray_else_recovery.pdiag"
+      ],
+      "tags": [
+        "diag",
+        "parser-diag",
+        "export"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

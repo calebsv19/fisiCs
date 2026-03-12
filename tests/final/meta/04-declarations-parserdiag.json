@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__parserdiag__struct_member_missing_type_reject",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__struct_member_missing_type_reject.c",
+      "expects": [
+        "expect/04__parserdiag__struct_member_missing_type_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "struct",
+        "members"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__bitfield_missing_colon_reject",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__bitfield_missing_colon_reject.c",
+      "expects": [
+        "expect/04__parserdiag__bitfield_missing_colon_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "bitfield"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__enum_missing_rbrace_reject",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__enum_missing_rbrace_reject.c",
+      "expects": [
+        "expect/04__parserdiag__enum_missing_rbrace_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "enum"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__typedef_missing_identifier_reject",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__typedef_missing_identifier_reject.c",
+      "expects": [
+        "expect/04__parserdiag__typedef_missing_identifier_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "typedef"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__declarator_unbalanced_parens_reject",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__declarator_unbalanced_parens_reject.c",
+      "expects": [
+        "expect/04__parserdiag__declarator_unbalanced_parens_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "declarator"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

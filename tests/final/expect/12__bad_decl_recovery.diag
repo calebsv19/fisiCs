@@ -1,2 +1,6 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error: Expected identifier in declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__bad_decl_recovery.c:2 (got '=')
+Error: invalid declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__bad_decl_recovery.c:2 (got '=')
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__bad_decl_recovery.c:2 (got '=')
+Error: Failed to parse expression at line 2
+Error: invalid statement inside block at line 2

@@ -68,6 +68,9 @@ bool compiler_run_frontend(struct CompilerContext* ctx,
                            struct SemanticModel** outModel,
                            size_t* outSemanticErrors);
 
+// Returns 0 on successful frontend completion (semantic errors may still exist).
+// When outResult is provided, it is populated on both success and failure so
+// callers can consume diagnostics from compilerCtx before destroy.
 int compile_translation_unit(const CompileOptions* options, CompileResult* outResult);
 void compile_result_destroy(CompileResult* result);
 

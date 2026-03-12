@@ -110,6 +110,32 @@ Expression grammar, precedence, associativity, and ambiguous parses.
    - Promoted diagnostic probe coverage into active suite with `.diag` expectations.
    - Includes strict `_Alignof(void)`, `_Alignof(expr)`, and `sizeof(void)` rejection checks.
 
+## Wave 5 Additions (Parser Diagnostic Export)
+42) `05__parserdiag__ternary_missing_colon`
+   - Parser diagnostic tuples for malformed conditional operator (`?:`) syntax.
+43) `05__parserdiag__call_missing_rparen`
+   - Parser diagnostic tuples for unterminated call-expression argument list.
+44) `05__parserdiag__subscript_missing_rbracket`
+   - Parser diagnostic tuples for unterminated subscript expression.
+45) `05__parserdiag__cast_missing_rparen`
+   - Parser diagnostic tuples for malformed cast-expression parenthesis closure.
+
+## Wave 6 Additions (Parser Diagnostic Expansion)
+46) `05__parserdiag__member_missing_identifier`
+   - Parser diagnostic tuples for member access missing field identifier.
+47) `05__parserdiag__arrow_missing_identifier`
+   - Parser diagnostic tuples for arrow member access missing field identifier.
+48) `05__parserdiag__call_missing_first_arg`
+   - Parser diagnostic tuples for call-expression missing first argument token.
+49) `05__parserdiag__subscript_missing_index`
+   - Parser diagnostic tuples for subscript expression missing index expression.
+50) `05__parserdiag__ternary_missing_false_expr`
+   - Parser diagnostic tuples for conditional operator missing false arm.
+51) `05__parserdiag__ternary_gnu_omitted_middle_reject`
+   - Parser diagnostic tuples for unsupported GNU omitted-middle ternary form.
+52) `05__parserdiag__nested_group_unclosed`
+   - Parser diagnostic tuples for nested grouping with unclosed parenthesis.
+
 ## Probe Status
 - `tests/final/probes/run_probes.py` summary now reports:
   - blocked: `0`

@@ -48,6 +48,22 @@
       ],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "09__goto_undefined_label_nested_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__goto_undefined_label_nested_reject.c",
+      "expects": [
+        "expect/09__goto_undefined_label_nested_reject.diag"
+      ],
+      "tags": [
+        "goto",
+        "negative",
+        "labels",
+        "nested"
+      ],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }

@@ -44,5 +44,27 @@ Function types, parameter adjustments, and call checking.
 - AST/Diagnostics goldens for call checking.
 - IR golden for `11__no_prototype_call`.
 
+## Wave 2 Additions (Parser Diagnostic Export)
+13) `11__parserdiag__param_missing_comma`
+   - Parser diagnostic tuples for missing comma between parameters.
+14) `11__parserdiag__variadic_ellipsis_not_last`
+   - Parser diagnostic tuples for invalid variadic placement in parameter list.
+15) `11__parserdiag__declarator_missing_rparen`
+   - Parser diagnostic tuples for unterminated function declarator parameter list.
+16) `11__parserdiag__fnptr_param_missing_rparen`
+   - Parser diagnostic tuples for malformed function-pointer parameter declarator.
+
+## Wave 3 Additions (Parser Diagnostic Expansion)
+17) `11__parserdiag__prototype_missing_param_comma`
+   - Parser diagnostic tuples for missing comma between prototype parameters.
+18) `11__parserdiag__prototype_ellipsis_then_param_reject`
+   - Parser diagnostic tuples for invalid parameter after variadic ellipsis.
+19) `11__parserdiag__prototype_double_comma`
+   - Parser diagnostic tuples for duplicate comma token in prototype parameters.
+20) `11__parserdiag__prototype_ellipsis_missing_comma`
+   - Parser diagnostic tuples for malformed variadic marker missing comma delimiter.
+21) `11__parserdiag__prototype_missing_rparen_then_next_decl`
+   - Parser diagnostic tuples for unterminated prototype with follow-up declaration recovery.
+
 ## Probe Backlog
 - No open probes in this bucket after parameter-rule and parameter-decay fixes.

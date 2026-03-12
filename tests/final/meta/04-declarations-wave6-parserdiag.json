@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__parserdiag__storage_missing_declarator",
+      "bucket": "declarations",
+      "input": "cases/04__storage__missing_declarator.c",
+      "expects": [
+        "expect/04__parserdiag__storage_missing_declarator.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "storage"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__qualifier_missing_type",
+      "bucket": "declarations",
+      "input": "cases/04__qualifiers__missing_type.c",
+      "expects": [
+        "expect/04__parserdiag__qualifier_missing_type.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "qualifiers"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__declarator_fn_returns_fn_reject",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__fn_returns_fn_reject.c",
+      "expects": [
+        "expect/04__parserdiag__declarator_fn_returns_fn_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "declarator"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__declarator_array_of_fn_reject",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__array_of_fn_reject.c",
+      "expects": [
+        "expect/04__parserdiag__declarator_array_of_fn_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "declarator"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__declarator_fn_returns_array_reject",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__fn_returns_array_reject.c",
+      "expects": [
+        "expect/04__parserdiag__declarator_fn_returns_array_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "declarator"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__alignas_invalid_reject",
+      "bucket": "declarations",
+      "input": "cases/04__alignas_invalid_reject.c",
+      "expects": [
+        "expect/04__parserdiag__alignas_invalid_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "alignas"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__enum_empty_reject",
+      "bucket": "declarations",
+      "input": "cases/04__enum__empty_reject.c",
+      "expects": [
+        "expect/04__parserdiag__enum_empty_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "enum"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

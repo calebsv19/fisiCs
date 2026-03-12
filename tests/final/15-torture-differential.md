@@ -44,8 +44,8 @@ Stress parser, semantic, and runtime paths with large or pathological shapes.
    - Unbalanced block recovery path reports parser diagnostics without crashing.
 
 ## Open Gaps (Tracked)
-- `15__torture__deep_switch` probe currently mismatches clang runtime output
-  (`fisics=15`, `clang=60`) and is tracked for control-flow fix work.
+- No open probe blockers are tracked in this bucket at the current baseline.
+- Additional switch/loop stress can be added as a follow-up expansion item.
 
 ## Expected Outputs
 - Runtime stdout/stderr/exit expectations for executable stress tests.

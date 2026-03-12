@@ -130,15 +130,69 @@ Statement grammar, scoping, and control flow legality.
 47) `09__runtime__do_while_side_effects`
    - Runtime/differential `do-while` side-effect and condition re-evaluation behavior.
 
+## Wave 10 Additions (Parser Diagnostic Export)
+48) `09__parserdiag__do_while_missing_semicolon_reject`
+   - Parser diagnostic tuples for missing trailing semicolon in `do-while`.
+49) `09__parserdiag__switch_case_range_reject`
+   - Parser diagnostic tuples for unsupported GNU case-range syntax in `switch`.
+50) `09__parserdiag__switch_decl_condition_reject`
+   - Parser diagnostic tuples for declaration in `switch` controlling expression.
+51) `09__parserdiag__if_decl_condition_reject`
+   - Parser diagnostic tuples for declaration in `if` condition.
+52) `09__parserdiag__while_decl_condition_reject`
+   - Parser diagnostic tuples for declaration in `while` condition.
+53) `09__parserdiag__case_outside_switch_reject`
+   - Parser diagnostic tuples for `case` label outside `switch`.
+54) `09__parserdiag__default_outside_switch_reject`
+   - Parser diagnostic tuples for `default` label outside `switch`.
+
+## Wave 11 Additions (Parser Diagnostic Expansion)
+55) `09__parserdiag__if_empty_condition_reject`
+   - Parser diagnostic tuples for empty `if` condition form.
+56) `09__parserdiag__while_empty_condition_reject`
+   - Parser diagnostic tuples for empty `while` condition form.
+57) `09__parserdiag__for_missing_rparen_reject`
+   - Parser diagnostic tuples for malformed `for` header missing closing `)`.
+58) `09__parserdiag__switch_missing_lbrace_reject`
+   - Parser diagnostic tuples for `switch` missing opening body brace.
+59) `09__parserdiag__switch_case_missing_expr_reject`
+   - Parser diagnostic tuples for `case` label missing controlling expression.
+60) `09__parserdiag__label_without_statement_eof_reject`
+   - Parser diagnostic tuples for label with missing required statement at EOF.
+
+## Parserdiag Lane Additions (Current 09 Pass)
+61) `09__parserdiag__if_missing_then_stmt_reject`
+   - Parser diagnostic tuples for `if` missing required controlled statement.
+62) `09__parserdiag__else_missing_stmt_reject`
+   - Parser diagnostic tuples for `else` missing required controlled statement.
+63) `09__parserdiag__switch_missing_rparen_reject`
+   - Parser diagnostic tuples for malformed `switch` header missing closing `)`.
+64) `09__parserdiag__for_missing_first_semicolon_reject`
+   - Parser diagnostic tuples for malformed `for` header missing first `;`.
+
+## Additional Promotion (09 Labels)
+65) `09__goto_undefined_label_nested_reject`
+   - Nested-scope `goto` to missing label rejected with deterministic diagnostics.
+
 ## Probe Backlog
 - No open probes in this bucket at the current baseline.
 - Probe-to-active promotions completed in wave 7 for the full 09 diagnostics probe set.
 - `09__probe_do_while_runtime_codegen_crash` now resolves and its behavior is promoted
   into active suite via `09__runtime__do_while_side_effects`.
+- Current 09 probe sweep (`PROBE_FILTER=09__probe_`) is green:
+  - blocked: `0`
+  - resolved: `17`
+  - skipped: `0`
+- New 09 statement-shape probes added and resolved:
+  - `09__probe_if_missing_then_stmt_reject`
+  - `09__probe_else_missing_stmt_reject`
+  - `09__probe_switch_missing_rparen_reject`
+  - `09__probe_for_missing_first_semicolon_reject`
+  - `09__probe_goto_undefined_label_nested_reject`
 
 ## Next Expansion Targets (Post-Cleanup Plan)
 1) Add control-flow edge diagnostics not yet covered
-   - `goto` to missing label across nested scopes (complex multi-label shape).
+   - promote `goto` missing-label nested-scope probe into active suite with deterministic diagnostic anchor.
    - duplicate `default` + folded duplicate `case` in mixed constant-expression forms.
    - label/statement boundary edge cases in nested blocks and after empty statements.
 

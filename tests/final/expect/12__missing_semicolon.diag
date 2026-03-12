@@ -1,4 +1,7 @@
 Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__missing_semicolon.c:3 (got 'int')
+Error: Failed to parse expression at line 3
+Error: invalid statement inside block at line 3
 Error at (4:12): Undeclared identifier
    Hint: x
    Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__missing_semicolon.c:4:12

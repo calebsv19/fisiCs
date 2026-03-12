@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__parserdiag__member_missing_identifier",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__member_missing_identifier.c",
+      "expects": [
+        "expect/05__parserdiag__member_missing_identifier.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "postfix",
+        "member"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__arrow_missing_identifier",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__arrow_missing_identifier.c",
+      "expects": [
+        "expect/05__parserdiag__arrow_missing_identifier.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "postfix",
+        "arrow"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__call_missing_first_arg",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__call_missing_first_arg.c",
+      "expects": [
+        "expect/05__parserdiag__call_missing_first_arg.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "call"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__subscript_missing_index",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__subscript_missing_index.c",
+      "expects": [
+        "expect/05__parserdiag__subscript_missing_index.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "subscript"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__ternary_missing_false_expr",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__ternary_missing_false_expr.c",
+      "expects": [
+        "expect/05__parserdiag__ternary_missing_false_expr.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "ternary"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__ternary_gnu_omitted_middle_reject",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__ternary_gnu_omitted_middle_reject.c",
+      "expects": [
+        "expect/05__parserdiag__ternary_gnu_omitted_middle_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "ternary",
+        "unsupported"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__nested_group_unclosed",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__nested_group_unclosed.c",
+      "expects": [
+        "expect/05__parserdiag__nested_group_unclosed.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "grouping"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__diag_incompatible_ptr",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_incompatible_ptr.c",
+      "expects": [
+        "expect/12__diag_incompatible_ptr.ast",
+        "expect/12__diag_incompatible_ptr.diag"
+      ],
+      "tags": [
+        "diag",
+        "pointer",
+        "constraints"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_illegal_cast",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_illegal_cast.c",
+      "expects": [
+        "expect/12__diag_illegal_cast.ast",
+        "expect/12__diag_illegal_cast.diag"
+      ],
+      "tags": [
+        "diag",
+        "cast",
+        "constraints"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__recovery__if_missing_rparen_then_followup_stmt",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__if_missing_rparen_then_followup_stmt.c",
+      "expects": [
+        "expect/12__recovery__if_missing_rparen_then_followup_stmt.ast",
+        "expect/12__recovery__if_missing_rparen_then_followup_stmt.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "if"
+      ],
+      "capture_frontend_diag": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__recovery__while_missing_lparen_then_followup_stmt",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__while_missing_lparen_then_followup_stmt.c",
+      "expects": [
+        "expect/12__recovery__while_missing_lparen_then_followup_stmt.ast",
+        "expect/12__recovery__while_missing_lparen_then_followup_stmt.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "while"
+      ],
+      "capture_frontend_diag": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__recovery__for_header_missing_semicolon_then_followup_decl",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c",
+      "expects": [
+        "expect/12__recovery__for_header_missing_semicolon_then_followup_decl.ast",
+        "expect/12__recovery__for_header_missing_semicolon_then_followup_decl.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "for"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__recovery__do_while_missing_semicolon_then_followup_stmt",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__do_while_missing_semicolon_then_followup_stmt.c",
+      "expects": [
+        "expect/12__recovery__do_while_missing_semicolon_then_followup_stmt.ast",
+        "expect/12__recovery__do_while_missing_semicolon_then_followup_stmt.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "do-while"
+      ],
+      "capture_frontend_diag": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__recovery__switch_case_missing_colon_then_followup_case",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__switch_case_missing_colon_then_followup_case.c",
+      "expects": [
+        "expect/12__recovery__switch_case_missing_colon_then_followup_case.ast",
+        "expect/12__recovery__switch_case_missing_colon_then_followup_case.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__recovery__switch_bad_case_expr_then_default",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__switch_bad_case_expr_then_default.c",
+      "expects": [
+        "expect/12__recovery__switch_bad_case_expr_then_default.ast",
+        "expect/12__recovery__switch_bad_case_expr_then_default.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__recovery__goto_missing_label_token_then_followup_label",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__goto_missing_label_token_then_followup_label.c",
+      "expects": [
+        "expect/12__recovery__goto_missing_label_token_then_followup_label.ast",
+        "expect/12__recovery__goto_missing_label_token_then_followup_label.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "goto"
+      ],
+      "capture_frontend_diag": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__recovery__case_outside_switch_then_next_stmt_ok",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__case_outside_switch_then_next_stmt_ok.c",
+      "expects": [
+        "expect/12__recovery__case_outside_switch_then_next_stmt_ok.ast",
+        "expect/12__recovery__case_outside_switch_then_next_stmt_ok.diag"
+      ],
+      "tags": [
+        "diag",
+        "recover",
+        "case"
+      ],
+      "capture_frontend_diag": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

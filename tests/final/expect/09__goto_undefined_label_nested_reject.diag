@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (0:0): goto to undefined label 'missing_inner'

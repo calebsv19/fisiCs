@@ -1,2 +1,3 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error: Expected ')' in grouping at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__bad_paren_expr.c:2 (got ';')
+Error: Invalid initializer in variable declaration at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__bad_paren_expr.c:2 (got ';')

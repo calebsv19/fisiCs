@@ -11,7 +11,8 @@ task.
 1. `compiler_test_system_rearchitecture_context.md`
 2. `compiler_test_coverage_blueprint.md`
 3. `compiler_behavior_coverage_checklist.md`
-4. `compiler_test_workflow_guide.md`
+4. `compiler_behavior_coverage_run_log.md`
+5. `compiler_test_workflow_guide.md`
 
 ## Top-Level Docs
 
@@ -65,6 +66,12 @@ metadata expansion, and rollout phases.
 Execution tracker for the compiler behavior validation campaign. Breaks the
 language and compiler surface into per-feature checklist rows with status,
 coverage type, planned tests, failures seen, and notes.
+
+### `docs/compiler_behavior_coverage_run_log.md`
+
+Rolling dated run log for bucket execution updates and wave-by-wave snapshots.
+Separated from the checklist so ongoing logging does not bloat the core spec
+document.
 
 ### `docs/compiler_test_workflow_guide.md`
 
@@ -136,6 +143,7 @@ Open these docs based on what you are trying to do:
 - Need the compiler test constraints: `compiler_test_system_rearchitecture_context.md`
 - Need the compiler test structure plan: `compiler_test_coverage_blueprint.md`
 - Need the compiler test execution tracker: `compiler_behavior_coverage_checklist.md`
+- Need the rolling execution log: `compiler_behavior_coverage_run_log.md`
 - Need the compiler test operating process: `compiler_test_workflow_guide.md`
 - Need the general validation process: `validation_workflow.md`
 - Need current pass/fail state: `status/PASSING.md`, `status/FAILING.md`, `status/UNVALIDATED.md`

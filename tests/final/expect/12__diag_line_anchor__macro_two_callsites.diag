@@ -1,0 +1,7 @@
+Diagnostics:
+Error at (4:13): Undeclared identifier
+   Hint: missing
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_line_anchor__macro_two_callsites.c:4:13
+Error at (5:13): Undeclared identifier
+   Hint: missing
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_line_anchor__macro_two_callsites.c:5:13

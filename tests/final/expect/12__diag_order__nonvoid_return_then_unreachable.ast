@@ -1,0 +1,15 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER f
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER after
+          = NUMBER_LITERAL 1

@@ -1,2 +1,3 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error: Expected identifier in declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__typedef_recovery.c:1 (got ';')
+Error: Invalid typedef declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__typedef_recovery.c:1 (got ';')

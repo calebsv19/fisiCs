@@ -174,6 +174,27 @@ Phase 3 declarations/types bucket (`tests/final/meta/04-declarations.json`).
 - Struct tag same-scope redefinition negative:
   `04__struct__tag_redefinition_reject`
 
+## Added In Parserdiag Lane Start
+
+- Promoted parser-shape negatives into standardized lane manifest
+  `tests/final/meta/04-declarations-parserdiag.json`:
+  `04__parserdiag__struct_member_missing_type_reject`,
+  `04__parserdiag__bitfield_missing_colon_reject`,
+  `04__parserdiag__enum_missing_rbrace_reject`,
+  `04__parserdiag__typedef_missing_identifier_reject`,
+  `04__parserdiag__declarator_unbalanced_parens_reject`.
+
+## Added In Runtime/Semantic Follow-up
+
+- Added lane manifest:
+  `tests/final/meta/04-declarations-runtime-semantic.json`.
+- Promoted runtime overlap anchor:
+  `04__union__overlap`.
+- Promoted complex legality negatives:
+  `04__primitive__complex_int_reject`,
+  `04__primitive__complex_unsigned_reject`,
+  `04__primitive__complex_missing_base_reject`.
+
 ## Probe Status
 
 - Declaration-related runtime and diagnostics probes are currently resolved.

@@ -798,6 +798,18 @@ int main(int argc, char **argv) {
 
                 CompileResult result;
                 int status = compile_translation_unit(&options, &result);
+                if (diagPath && result.compilerCtx) {
+                    CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagPath);
+                    if (wr.code != CORE_OK) {
+                        fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
+                    }
+                }
+                if (diagPackPathForInput && result.compilerCtx) {
+                    CoreResult wr = compiler_diagnostics_write_core_dataset_pack(result.compilerCtx, diagPackPathForInput);
+                    if (wr.code != CORE_OK) {
+                        fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagPackPathForInput);
+                    }
+                }
                 if (status != 0 || result.semanticErrors > 0 || !result.module) {
                     fprintf(stderr, "Error: compilation failed for %s\n", cPath);
                     free(diagPath);
@@ -805,18 +817,6 @@ int main(int argc, char **argv) {
                     free(objPath);
                     compile_result_destroy(&result);
                     goto fail;
-                }
-                if (diagPath) {
-                    CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagPath);
-                    if (wr.code != CORE_OK) {
-                        fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
-                    }
-                }
-                if (diagPackPathForInput) {
-                    CoreResult wr = compiler_diagnostics_write_core_dataset_pack(result.compilerCtx, diagPackPathForInput);
-                    if (wr.code != CORE_OK) {
-                        fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagPackPathForInput);
-                    }
                 }
                 free(diagPath);
                 free(diagPackPathForInput);
@@ -895,6 +895,18 @@ int main(int argc, char **argv) {
 
                 CompileResult result;
                 int status = compile_translation_unit(&options, &result);
+                if (diagPath && result.compilerCtx) {
+                    CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagPath);
+                    if (wr.code != CORE_OK) {
+                        fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
+                    }
+                }
+                if (diagPackPathForInput && result.compilerCtx) {
+                    CoreResult wr = compiler_diagnostics_write_core_dataset_pack(result.compilerCtx, diagPackPathForInput);
+                    if (wr.code != CORE_OK) {
+                        fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagPackPathForInput);
+                    }
+                }
                 if (status != 0 || result.semanticErrors > 0 || !result.module) {
                     fprintf(stderr, "Error: compilation failed for %s\n", cPath);
                     free(diagPath);
@@ -903,18 +915,6 @@ int main(int argc, char **argv) {
                     compile_result_destroy(&result);
                     allOk = false;
                     break;
-                }
-                if (diagPath) {
-                    CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagPath);
-                    if (wr.code != CORE_OK) {
-                        fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
-                    }
-                }
-                if (diagPackPathForInput) {
-                    CoreResult wr = compiler_diagnostics_write_core_dataset_pack(result.compilerCtx, diagPackPathForInput);
-                    if (wr.code != CORE_OK) {
-                        fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagPackPathForInput);
-                    }
                 }
                 free(diagPath);
                 free(diagPackPathForInput);
@@ -1092,13 +1092,13 @@ int main(int argc, char **argv) {
 
     CompileResult result;
     int status = compile_translation_unit(&options, &result);
-    if (status == 0 && diagsJsonPath && diagsJsonPath[0] != '\0') {
+    if (result.compilerCtx && diagsJsonPath && diagsJsonPath[0] != '\0') {
         CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagsJsonPath);
         if (wr.code != CORE_OK) {
             fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagsJsonPath);
         }
     }
-    if (status == 0 && diagsPackPath && diagsPackPath[0] != '\0') {
+    if (result.compilerCtx && diagsPackPath && diagsPackPath[0] != '\0') {
         CoreResult wr = compiler_diagnostics_write_core_dataset_pack(result.compilerCtx, diagsPackPath);
         if (wr.code != CORE_OK) {
             fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagsPackPath);

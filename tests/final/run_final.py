@@ -169,6 +169,31 @@ def diff_text(expected, actual, path):
     return "".join(difflib.unified_diff(exp_lines, act_lines, fromfile=str(path), tofile="actual"))
 
 
+def normalize_diag_json_text(raw_text):
+    data = json.loads(raw_text)
+    return json.dumps(data, indent=2, sort_keys=True) + "\n"
+
+
+def render_parser_diag_text(raw_text):
+    data = json.loads(raw_text)
+    diagnostics = data.get("diagnostics", [])
+    lines = ["ParserDiagnostics:"]
+    for item in diagnostics:
+        code = int(item.get("code", 0))
+        if code < 1000 or code >= 2000:
+            continue
+        line = int(item.get("line", 0))
+        column = int(item.get("column", 0))
+        length = int(item.get("length", 0))
+        kind = int(item.get("kind", 0))
+        lines.append(
+            f"code={code} line={line} column={column} length={length} kind={kind}"
+        )
+    if len(lines) == 1:
+        lines.append("<none>")
+    return "\n".join(lines) + "\n"
+
+
 def main():
     bin_path = sys.argv[1] if len(sys.argv) > 1 else "./fisics"
     update = os.environ.get("UPDATE_FINAL", "0") == "1" or "--update" in sys.argv
@@ -200,7 +225,9 @@ def main():
         expects = [ROOT / p for p in test.get("expects", [])]
 
         has_ast = any(p.suffix == ".ast" for p in expects)
-        only_diag = all(p.suffix == ".diag" for p in expects)
+        has_diag_json = any(p.suffix == ".diagjson" for p in expects)
+        has_parser_diag = any(p.suffix == ".pdiag" for p in expects)
+        only_diag = all(p.suffix in (".diag", ".diagjson", ".pdiag") for p in expects)
         has_tokens = any(p.suffix == ".tokens" for p in expects)
         has_ir = any(p.suffix == ".ir" for p in expects)
         capture_frontend_diag = test.get("capture_frontend_diag", False)
@@ -239,6 +266,9 @@ def main():
 
         runtime_tmp = None
         runtime_exec_path = None
+        diag_json_tmp = None
+        diag_json_path = None
+        diag_json_raw = None
         if run_enabled:
             if has_tokens:
                 print(f"FAIL {test_id}: run=true tests do not support token expectations")
@@ -247,6 +277,10 @@ def main():
             runtime_tmp = tempfile.TemporaryDirectory(prefix=f"final-{test_id}-")
             runtime_exec_path = Path(runtime_tmp.name) / "a.out"
             cmd = cmd + ["-o", str(runtime_exec_path)]
+        if has_diag_json or has_parser_diag:
+            diag_json_tmp = tempfile.TemporaryDirectory(prefix=f"final-diag-{test_id}-")
+            diag_json_path = Path(diag_json_tmp.name) / "diagnostics.json"
+            cmd = cmd + ["--emit-diags-json", str(diag_json_path)]
 
         try:
             exit_code, output = run_cmd(cmd, env=cmd_env)
@@ -272,6 +306,8 @@ def main():
             ast_text, diag_text, token_text, ir_text = extract_sections(
                 output, capture_frontend_diag=capture_frontend_diag
             )
+            if diag_json_path is not None and diag_json_path.exists():
+                diag_json_raw = diag_json_path.read_text(encoding="utf-8")
 
             test_failed = False
             for expect_path in expects:
@@ -284,6 +320,36 @@ def main():
                     actual = token_text
                 elif ext == ".ir":
                     actual = ir_text
+                elif ext == ".diagjson":
+                    if diag_json_raw is None:
+                        print(f"FAIL {test_id}: missing diagnostics JSON export")
+                        print(output)
+                        failures += 1
+                        test_failed = True
+                        continue
+                    try:
+                        actual = normalize_diag_json_text(diag_json_raw)
+                    except json.JSONDecodeError as exc:
+                        print(f"FAIL {test_id}: invalid diagnostics JSON ({exc})")
+                        print(diag_json_raw)
+                        failures += 1
+                        test_failed = True
+                        continue
+                elif ext == ".pdiag":
+                    if diag_json_raw is None:
+                        print(f"FAIL {test_id}: missing diagnostics JSON export")
+                        print(output)
+                        failures += 1
+                        test_failed = True
+                        continue
+                    try:
+                        actual = render_parser_diag_text(diag_json_raw)
+                    except json.JSONDecodeError as exc:
+                        print(f"FAIL {test_id}: invalid diagnostics JSON ({exc})")
+                        print(diag_json_raw)
+                        failures += 1
+                        test_failed = True
+                        continue
                 else:
                     print(f"SKIP {test_id}: unsupported expectation {expect_path.name}")
                     skipped += 1
@@ -431,6 +497,8 @@ def main():
         finally:
             if runtime_tmp is not None:
                 runtime_tmp.cleanup()
+            if diag_json_tmp is not None:
+                diag_json_tmp.cleanup()
 
     if failures:
         print(f"\n{failures} failing, {skipped} skipped")

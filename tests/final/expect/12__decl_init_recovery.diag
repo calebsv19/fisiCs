@@ -1,2 +1,3 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__decl_init_recovery.c:2 (got ';')
+Error: Invalid initializer in variable declaration at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__decl_init_recovery.c:2 (got ';')

@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__parserdiag__prototype_missing_param_comma",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__prototype_missing_param_comma.c",
+      "expects": [
+        "expect/11__parserdiag__prototype_missing_param_comma.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "prototype",
+        "params"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__parserdiag__prototype_ellipsis_then_param_reject",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__prototype_ellipsis_then_param_reject.c",
+      "expects": [
+        "expect/11__parserdiag__prototype_ellipsis_then_param_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "prototype",
+        "variadic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__parserdiag__prototype_double_comma",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__prototype_double_comma.c",
+      "expects": [
+        "expect/11__parserdiag__prototype_double_comma.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "prototype",
+        "params"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__parserdiag__prototype_ellipsis_missing_comma",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__prototype_ellipsis_missing_comma.c",
+      "expects": [
+        "expect/11__parserdiag__prototype_ellipsis_missing_comma.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "prototype",
+        "variadic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__parserdiag__prototype_missing_rparen_then_next_decl",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__prototype_missing_rparen_then_next_decl.c",
+      "expects": [
+        "expect/11__parserdiag__prototype_missing_rparen_then_next_decl.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "prototype",
+        "recovery"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

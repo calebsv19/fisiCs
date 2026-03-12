@@ -18,6 +18,7 @@ Purpose:
   - `runtime/04__probe_tag_block_shadow_ok.c`
   - `runtime/04__probe_deep_declarator_call_only.c`
   - `runtime/04__probe_deep_declarator_codegen_hang.c`
+  - `runtime/04__probe_union_overlap_runtime.c`
   - `runtime/05__probe_typedef_shadow_parenthesized_expr.c`
   - `runtime/09__probe_do_while_runtime_codegen_crash.c`
   - `runtime/10__probe_static_function_then_extern_decl_ok.c`
@@ -35,6 +36,14 @@ Purpose:
   - `diagnostics/04__probe_enum_const_typedef_conflict_reject.c`
   - `diagnostics/04__probe_enum_const_var_conflict_reject.c`
   - `diagnostics/04__probe_tag_cross_kind_conflict_reject.c`
+  - `diagnostics/04__probe_struct_member_missing_type_reject.c`
+  - `diagnostics/04__probe_bitfield_missing_colon_reject.c`
+  - `diagnostics/04__probe_enum_missing_rbrace_reject.c`
+  - `diagnostics/04__probe_typedef_missing_identifier_reject.c`
+  - `diagnostics/04__probe_declarator_unbalanced_parens_reject.c`
+  - `diagnostics/04__probe_complex_int_reject.c`
+  - `diagnostics/04__probe_complex_unsigned_reject.c`
+  - `diagnostics/04__probe_complex_missing_base_reject.c`
   - `diagnostics/05__probe_conditional_void_condition_reject.c`
   - `diagnostics/05__probe_conditional_struct_result_reject.c`
   - `diagnostics/05__probe_logical_and_struct_reject.c`
@@ -52,6 +61,11 @@ Purpose:
   - `diagnostics/09__probe_do_struct_condition_reject.c`
   - `diagnostics/09__probe_for_void_condition_reject.c`
   - `diagnostics/09__probe_for_struct_condition_reject.c`
+  - `diagnostics/09__probe_if_missing_then_stmt_reject.c`
+  - `diagnostics/09__probe_else_missing_stmt_reject.c`
+  - `diagnostics/09__probe_switch_missing_rparen_reject.c`
+  - `diagnostics/09__probe_for_missing_first_semicolon_reject.c`
+  - `diagnostics/09__probe_goto_undefined_label_nested_reject.c`
   - `diagnostics/10__probe_block_extern_different_type_reject.c`
   - `diagnostics/11__probe_duplicate_param_name_reject.c`
   - `diagnostics/11__probe_param_auto_reject.c`
@@ -61,10 +75,23 @@ Purpose:
   - `diagnostics/12__probe_invalid_shift_width.c`
   - `diagnostics/12__probe_incompatible_ptr_assign.c`
   - `diagnostics/12__probe_illegal_struct_to_int_cast.c`
+  - `diagnostics/12__probe_while_missing_lparen_reject.c`
+  - `diagnostics/12__probe_do_while_missing_semicolon_reject.c`
+  - `diagnostics/12__probe_for_header_missing_semicolon_reject.c`
+  - Runner-only diag-json probes using the same fixtures:
+    `12__probe_diagjson_while_missing_lparen`,
+    `12__probe_diagjson_do_while_missing_semicolon`,
+    `12__probe_diagjson_for_header_missing_semicolon`
 
 ## Run
 ```bash
 python3 tests/final/probes/run_probes.py
+```
+
+Run only a subset by id/prefix:
+
+```bash
+PROBE_FILTER=09__probe_ python3 tests/final/probes/run_probes.py
 ```
 
 `run_probes.py` prints whether each probe currently resolves or is blocked.

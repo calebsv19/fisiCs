@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -29,6 +31,14 @@ class DiagnosticProbe:
     required_substrings: Sequence[str] | None = None
 
 
+@dataclass
+class DiagnosticJsonProbe:
+    probe_id: str
+    source: Path
+    note: str
+    require_any_diagnostic: bool = True
+
+
 RUNTIME_PROBES = [
     RuntimeProbe(
         probe_id="04__probe_fnptr_array_call_runtime",
@@ -49,6 +59,11 @@ RUNTIME_PROBES = [
         probe_id="04__probe_deep_declarator_codegen_hang",
         source=PROBE_DIR / "runtime/04__probe_deep_declarator_codegen_hang.c",
         note="deep declarator runtime path should compile and run (no codegen hang)",
+    ),
+    RuntimeProbe(
+        probe_id="04__probe_union_overlap_runtime",
+        source=PROBE_DIR / "runtime/04__probe_union_overlap_runtime.c",
+        note="union members should overlap storage base address and satisfy size floor checks",
     ),
     RuntimeProbe(
         probe_id="10__probe_static_function_then_extern_decl_ok",
@@ -192,6 +207,46 @@ DIAG_PROBES = [
         probe_id="04__probe_tag_cross_kind_conflict_reject",
         source=PROBE_DIR / "diagnostics/04__probe_tag_cross_kind_conflict_reject.c",
         note="struct/enum tags sharing one name in same scope should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="04__probe_struct_member_missing_type_reject",
+        source=PROBE_DIR / "diagnostics/04__probe_struct_member_missing_type_reject.c",
+        note="struct member declaration missing a type specifier should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="04__probe_bitfield_missing_colon_reject",
+        source=PROBE_DIR / "diagnostics/04__probe_bitfield_missing_colon_reject.c",
+        note="bitfield declaration missing ':' before width should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="04__probe_enum_missing_rbrace_reject",
+        source=PROBE_DIR / "diagnostics/04__probe_enum_missing_rbrace_reject.c",
+        note="enum body missing closing '}' should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="04__probe_typedef_missing_identifier_reject",
+        source=PROBE_DIR / "diagnostics/04__probe_typedef_missing_identifier_reject.c",
+        note="typedef declaration missing declarator identifier should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="04__probe_declarator_unbalanced_parens_reject",
+        source=PROBE_DIR / "diagnostics/04__probe_declarator_unbalanced_parens_reject.c",
+        note="declarator with unbalanced parentheses should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="04__probe_complex_int_reject",
+        source=PROBE_DIR / "diagnostics/04__probe_complex_int_reject.c",
+        note="_Complex int should be rejected (complex base type must be floating)",
+    ),
+    DiagnosticProbe(
+        probe_id="04__probe_complex_unsigned_reject",
+        source=PROBE_DIR / "diagnostics/04__probe_complex_unsigned_reject.c",
+        note="unsigned _Complex double should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="04__probe_complex_missing_base_reject",
+        source=PROBE_DIR / "diagnostics/04__probe_complex_missing_base_reject.c",
+        note="_Complex without floating base type should be rejected",
     ),
     DiagnosticProbe(
         probe_id="05__probe_conditional_void_condition_reject",
@@ -379,6 +434,31 @@ DIAG_PROBES = [
         note="for controlling expression must be scalar (struct expression should reject)",
     ),
     DiagnosticProbe(
+        probe_id="09__probe_if_missing_then_stmt_reject",
+        source=PROBE_DIR / "diagnostics/09__probe_if_missing_then_stmt_reject.c",
+        note="if statement missing required controlled statement should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_else_missing_stmt_reject",
+        source=PROBE_DIR / "diagnostics/09__probe_else_missing_stmt_reject.c",
+        note="else arm missing required statement should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_switch_missing_rparen_reject",
+        source=PROBE_DIR / "diagnostics/09__probe_switch_missing_rparen_reject.c",
+        note="switch controlling expression missing ')' should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_for_missing_first_semicolon_reject",
+        source=PROBE_DIR / "diagnostics/09__probe_for_missing_first_semicolon_reject.c",
+        note="for header missing first ';' separator should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_goto_undefined_label_nested_reject",
+        source=PROBE_DIR / "diagnostics/09__probe_goto_undefined_label_nested_reject.c",
+        note="goto to undefined label in nested control flow should be rejected",
+    ),
+    DiagnosticProbe(
         probe_id="10__probe_block_extern_different_type_reject",
         source=PROBE_DIR / "diagnostics/10__probe_block_extern_different_type_reject.c",
         note="block-scope extern should reject redeclaration with conflicting type",
@@ -425,6 +505,41 @@ DIAG_PROBES = [
         source=PROBE_DIR / "diagnostics/12__probe_illegal_struct_to_int_cast.c",
         note="should emit invalid cast diagnostic",
         required_substrings=("Invalid cast between non-scalar types",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_while_missing_lparen_reject",
+        source=PROBE_DIR / "diagnostics/12__probe_while_missing_lparen_reject.c",
+        note="while statement missing '(' should emit a diagnostic (fail-closed parser recovery)",
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_do_while_missing_semicolon_reject",
+        source=PROBE_DIR / "diagnostics/12__probe_do_while_missing_semicolon_reject.c",
+        note="do-while statement missing trailing ';' should emit a diagnostic",
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_for_header_missing_semicolon_reject",
+        source=PROBE_DIR / "diagnostics/12__probe_for_header_missing_semicolon_reject.c",
+        note="for header missing first ';' should emit a diagnostic",
+        required_substrings=("Undeclared identifier",),
+    ),
+]
+
+
+DIAG_JSON_PROBES = [
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_while_missing_lparen",
+        source=PROBE_DIR / "diagnostics/12__probe_while_missing_lparen_reject.c",
+        note="diagnostics JSON export should include parser diagnostics for missing '(' after while",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_do_while_missing_semicolon",
+        source=PROBE_DIR / "diagnostics/12__probe_do_while_missing_semicolon_reject.c",
+        note="diagnostics JSON export should include parser diagnostics for missing ';' after do-while",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_for_header_missing_semicolon",
+        source=PROBE_DIR / "diagnostics/12__probe_for_header_missing_semicolon_reject.c",
+        note="diagnostics JSON export should include diagnostics for malformed for header",
     ),
 ]
 
@@ -562,6 +677,51 @@ def run_diag_probe(probe):
     return ("BLOCKED", "diagnostic missing", "")
 
 
+def run_diag_json_probe(probe):
+    with tempfile.TemporaryDirectory(prefix=f"probe-diagjson-{probe.probe_id}-") as tmp:
+        json_path = Path(tmp) / "diags.json"
+        exit_code, out, timed_out = run_cmd(
+            [str(FISICS), "--emit-diags-json", str(json_path), str(probe.source)],
+            COMPILE_TIMEOUT_SEC,
+        )
+        if timed_out:
+            return ("BLOCKED", f"compile timeout ({COMPILE_TIMEOUT_SEC}s)", "")
+        if exit_code != 0:
+            return ("BLOCKED", f"compile exited {exit_code}", out.strip())
+        if not json_path.exists():
+            return ("BLOCKED", "diagnostics JSON file missing", "")
+        try:
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            return ("BLOCKED", f"diagnostics JSON unreadable ({exc})", "")
+        diagnostics = data.get("diagnostics", [])
+        if probe.require_any_diagnostic:
+            if diagnostics:
+                return ("RESOLVED", f"diagnostics JSON has {len(diagnostics)} item(s)", "")
+            return ("BLOCKED", "diagnostics JSON unexpectedly empty", "")
+        return ("RESOLVED", "diagnostics JSON exported", "")
+
+
+def parse_probe_filters():
+    raw = os.environ.get("PROBE_FILTER", "").strip()
+    if not raw:
+        return []
+    return [part.strip() for part in raw.split(",") if part.strip()]
+
+
+def probe_selected(probe_id, filters):
+    if not filters:
+        return True
+    for token in filters:
+        if token.endswith("*"):
+            if probe_id.startswith(token[:-1]):
+                return True
+            continue
+        if probe_id == token or probe_id.startswith(token):
+            return True
+    return False
+
+
 def main():
     if not FISICS.exists():
         print(f"fisics binary not found at {FISICS}")
@@ -571,6 +731,11 @@ def main():
     print("Probe Runner")
     print(f"fisics: {FISICS}")
     print(f"clang: {clang_path or 'not found'}")
+    filters = parse_probe_filters()
+    if filters:
+        print(f"probe_filter: {', '.join(filters)}")
+    else:
+        print("probe_filter: <none>")
     print("")
 
     blocked = 0
@@ -579,6 +744,8 @@ def main():
 
     print("[runtime probes]")
     for probe in RUNTIME_PROBES:
+        if not probe_selected(probe.probe_id, filters):
+            continue
         status, summary, detail = run_runtime_probe(probe, clang_path)
         print(f"{status:8s} {probe.probe_id} - {summary}")
         print(f"         note: {probe.note}")
@@ -594,7 +761,26 @@ def main():
     print("")
     print("[diagnostic probes]")
     for probe in DIAG_PROBES:
+        if not probe_selected(probe.probe_id, filters):
+            continue
         status, summary, detail = run_diag_probe(probe)
+        print(f"{status:8s} {probe.probe_id} - {summary}")
+        print(f"         note: {probe.note}")
+        if detail:
+            print(f"         detail: {detail}")
+        if status == "BLOCKED":
+            blocked += 1
+        elif status == "RESOLVED":
+            resolved += 1
+        else:
+            skipped += 1
+
+    print("")
+    print("[diagnostic-json probes]")
+    for probe in DIAG_JSON_PROBES:
+        if not probe_selected(probe.probe_id, filters):
+            continue
+        status, summary, detail = run_diag_json_probe(probe)
         print(f"{status:8s} {probe.probe_id} - {summary}")
         print(f"         note: {probe.note}")
         if detail:

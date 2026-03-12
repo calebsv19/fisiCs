@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__parserdiag__mixed__if_missing_rparen_then_undeclared",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__if_missing_rparen_then_undeclared.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__if_missing_rparen_then_undeclared.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "mixed",
+        "ordering"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__bad_call_then_incompatible_ptr",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__bad_call_then_incompatible_ptr.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__bad_call_then_incompatible_ptr.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "mixed",
+        "ordering"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__switch_case_missing_colon_then_undeclared",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "mixed",
+        "recovery"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "mixed",
+        "cascade"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

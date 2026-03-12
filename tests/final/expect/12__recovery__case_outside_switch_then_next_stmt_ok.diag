@@ -1,0 +1,4 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__case_outside_switch_then_next_stmt_ok.c:2 (got 'case')
+Error: Failed to parse expression at line 2
+Error: invalid statement inside block at line 2

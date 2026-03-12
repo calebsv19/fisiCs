@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__union__overlap",
+      "bucket": "declarations",
+      "input": "cases/04__union__overlap.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "union",
+        "runtime",
+        "overlap",
+        "abi-sensitive"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__complex_int_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__complex_int_reject.c",
+      "expects": [
+        "expect/04__primitive__complex_int_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "complex",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__complex_unsigned_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__complex_unsigned_reject.c",
+      "expects": [
+        "expect/04__primitive__complex_unsigned_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "complex",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__primitive__complex_missing_base_reject",
+      "bucket": "declarations",
+      "input": "cases/04__primitive__complex_missing_base_reject.c",
+      "expects": [
+        "expect/04__primitive__complex_missing_base_reject.diag"
+      ],
+      "tags": [
+        "primitive",
+        "complex",
+        "negative"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

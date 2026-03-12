@@ -430,9 +430,17 @@ ASTNode* parseStatement(Parser* parser) {
     }
 
     // --- Control Flow (if, for, while, return, etc.) ---
+    TokenType controlStartTok = parser->currentToken.type;
     ASTNode* controlStmt = handleControlStatements(parser);
     if (controlStmt) {
         parsed = controlStmt;
+        goto attach_attrs;
+    }
+    // Do-while recovery can leave us on a non-expression token (for example
+    // 'return') when the trailing ';' is missing. In that case, falling into
+    // expression parsing creates duplicate parser diagnostics for the same spot.
+    if (controlStartTok == TOKEN_DO && !isValidExpressionStart(parser->currentToken.type)) {
+        parsed = NULL;
         goto attach_attrs;
     }
 

@@ -1,0 +1,21 @@
+Diagnostics:
+Error at (3:20): Undeclared identifier
+   Hint: i
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c:3:20
+Error at (3:20): Operator '<' requires comparable operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c:3:20
+Error at (3:27): Undeclared identifier
+   Hint: i
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c:3:27
+Error at (3:0): Left operand of '=' must be a modifiable lvalue
+Error at (3:31): Undeclared identifier
+   Hint: i
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c:3:31
+Error at (3:31): Operator '+' requires arithmetic operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c:3:31
+Error at (4:21): Undeclared identifier
+   Hint: i
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c:4:21
+Error at (4:15): Operator '+' requires arithmetic operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c:4:15
+Error at (4:0): Incompatible assignment operands

@@ -1,0 +1,32 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER S
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER h
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+          = NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER q
+          = NUMBER_LITERAL 0
+      ASSIGNMENT (=)
+        IDENTIFIER p
+        IDENTIFIER q
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          COMPOUND_LITERAL
+            TYPE: struct S
+            = NUMBER_LITERAL 1

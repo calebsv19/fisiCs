@@ -1,0 +1,16 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      FUNCTION CALL
+        IDENTIFIER missing_a
+      FUNCTION CALL
+        IDENTIFIER missing_b
+      RETURN
+        NUMBER_LITERAL 0

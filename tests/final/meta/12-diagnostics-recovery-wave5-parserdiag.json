@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__parserdiag__recovery_if_missing_rparen",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__if_missing_rparen_then_followup_stmt.c",
+      "expects": [
+        "expect/12__parserdiag__recovery_if_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "recover",
+        "if"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__recovery_switch_case_missing_colon",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__switch_case_missing_colon_then_followup_case.c",
+      "expects": [
+        "expect/12__parserdiag__recovery_switch_case_missing_colon.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "recover",
+        "switch"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__recovery_switch_bad_case_expr",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__switch_bad_case_expr_then_default.c",
+      "expects": [
+        "expect/12__parserdiag__recovery_switch_bad_case_expr.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "recover",
+        "switch"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__recovery_goto_missing_label",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__goto_missing_label_token_then_followup_label.c",
+      "expects": [
+        "expect/12__parserdiag__recovery_goto_missing_label.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "recover",
+        "goto"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__recovery_case_outside_switch",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__case_outside_switch_then_next_stmt_ok.c",
+      "expects": [
+        "expect/12__parserdiag__recovery_case_outside_switch.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "recover",
+        "case"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

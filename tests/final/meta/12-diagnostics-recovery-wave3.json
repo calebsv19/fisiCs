@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__diag_line_anchor__undeclared_calls",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_line_anchor__undeclared_calls.c",
+      "expects": [
+        "expect/12__diag_line_anchor__undeclared_calls.ast",
+        "expect/12__diag_line_anchor__undeclared_calls.diag"
+      ],
+      "tags": [
+        "diag",
+        "line-anchor",
+        "ordering"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_order__nonvoid_return_then_unreachable",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_order__nonvoid_return_then_unreachable.c",
+      "expects": [
+        "expect/12__diag_order__nonvoid_return_then_unreachable.ast",
+        "expect/12__diag_order__nonvoid_return_then_unreachable.diag"
+      ],
+      "tags": [
+        "diag",
+        "ordering",
+        "follow-on"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_cascade_bound__single_unreachable_region",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_cascade_bound__single_unreachable_region.c",
+      "expects": [
+        "expect/12__diag_cascade_bound__single_unreachable_region.ast",
+        "expect/12__diag_cascade_bound__single_unreachable_region.diag"
+      ],
+      "tags": [
+        "diag",
+        "cascade-bound",
+        "unreachable"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_line_anchor__ptr_then_cast",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_line_anchor__ptr_then_cast.c",
+      "expects": [
+        "expect/12__diag_line_anchor__ptr_then_cast.ast",
+        "expect/12__diag_line_anchor__ptr_then_cast.diag"
+      ],
+      "tags": [
+        "diag",
+        "line-anchor",
+        "ordering",
+        "constraints"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag_line_anchor__macro_two_callsites",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__diag_line_anchor__macro_two_callsites.c",
+      "expects": [
+        "expect/12__diag_line_anchor__macro_two_callsites.ast",
+        "expect/12__diag_line_anchor__macro_two_callsites.diag"
+      ],
+      "tags": [
+        "diag",
+        "line-anchor",
+        "macro",
+        "dedup-bound"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

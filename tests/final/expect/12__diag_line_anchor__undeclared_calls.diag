@@ -1,0 +1,7 @@
+Diagnostics:
+Error at (2:5): Undeclared identifier
+   Hint: missing_a
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_line_anchor__undeclared_calls.c:2:5
+Error at (3:5): Undeclared identifier
+   Hint: missing_b
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_line_anchor__undeclared_calls.c:3:5

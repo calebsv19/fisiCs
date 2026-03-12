@@ -348,22 +348,24 @@ CoreResult compiler_diagnostics_build_core_dataset(const struct CompilerContext*
     r = core_dataset_add_metadata_i64(out_dataset, "note_count", (int64_t)note_count);
     if (r.code != CORE_OK) goto fail;
 
-    col_data[0] = line_col;
-    col_data[1] = column_col;
-    col_data[2] = length_col;
-    col_data[3] = kind_col;
-    col_data[4] = code_col;
-    col_data[5] = has_file_col;
-    col_data[6] = has_message_col;
-    col_data[7] = has_hint_col;
-    r = core_dataset_add_table_typed(out_dataset,
-                                     "diagnostics_v1",
-                                     col_names,
-                                     col_types,
-                                     (uint32_t)(sizeof(col_names) / sizeof(col_names[0])),
-                                     n,
-                                     col_data);
-    if (r.code != CORE_OK) goto fail;
+    if (n > 0u) {
+        col_data[0] = line_col;
+        col_data[1] = column_col;
+        col_data[2] = length_col;
+        col_data[3] = kind_col;
+        col_data[4] = code_col;
+        col_data[5] = has_file_col;
+        col_data[6] = has_message_col;
+        col_data[7] = has_hint_col;
+        r = core_dataset_add_table_typed(out_dataset,
+                                         "diagnostics_v1",
+                                         col_names,
+                                         col_types,
+                                         (uint32_t)(sizeof(col_names) / sizeof(col_names[0])),
+                                         n,
+                                         col_data);
+        if (r.code != CORE_OK) goto fail;
+    }
 
     free(line_col);
     free(column_col);
@@ -493,23 +495,21 @@ CoreResult compiler_diagnostics_write_core_dataset_json(const struct CompilerCon
 
     table_item = core_dataset_find(&dataset, "diagnostics_v1");
     if (!table_item || table_item->kind != CORE_DATA_TABLE_TYPED) {
-        core_dataset_free(&dataset);
-        r.code = CORE_ERR_FORMAT;
-        r.message = "diagnostics table missing";
-        return r;
+        rows = 0u;
+    } else {
+        rows = table_item->as.table_typed.row_count;
+        line_col = find_typed_column(table_item, "line");
+        column_col = find_typed_column(table_item, "column");
+        length_col = find_typed_column(table_item, "length");
+        kind_col = find_typed_column(table_item, "kind");
+        code_col = find_typed_column(table_item, "code");
+        has_file_col = find_typed_column(table_item, "has_file");
+        has_message_col = find_typed_column(table_item, "has_message");
+        has_hint_col = find_typed_column(table_item, "has_hint");
     }
-
-    rows = table_item->as.table_typed.row_count;
-    line_col = find_typed_column(table_item, "line");
-    column_col = find_typed_column(table_item, "column");
-    length_col = find_typed_column(table_item, "length");
-    kind_col = find_typed_column(table_item, "kind");
-    code_col = find_typed_column(table_item, "code");
-    has_file_col = find_typed_column(table_item, "has_file");
-    has_message_col = find_typed_column(table_item, "has_message");
-    has_hint_col = find_typed_column(table_item, "has_hint");
-    if (!line_col || !column_col || !length_col || !kind_col || !code_col ||
-        !has_file_col || !has_message_col || !has_hint_col) {
+    if (rows > 0u &&
+        (!line_col || !column_col || !length_col || !kind_col || !code_col ||
+         !has_file_col || !has_message_col || !has_hint_col)) {
         core_dataset_free(&dataset);
         r.code = CORE_ERR_FORMAT;
         r.message = "diagnostics table schema mismatch";
@@ -600,21 +600,21 @@ CoreResult compiler_diagnostics_write_core_dataset_pack(const struct CompilerCon
 
     table_item = core_dataset_find(&dataset, "diagnostics_v1");
     if (!table_item || table_item->kind != CORE_DATA_TABLE_TYPED) {
-        r.code = CORE_ERR_FORMAT;
-        r.message = "diagnostics table missing";
-        goto fail;
+        row_count = 0u;
+    } else {
+        row_count = table_item->as.table_typed.row_count;
+        line_col = find_typed_column(table_item, "line");
+        column_col = find_typed_column(table_item, "column");
+        length_col = find_typed_column(table_item, "length");
+        kind_col = find_typed_column(table_item, "kind");
+        code_col = find_typed_column(table_item, "code");
+        has_file_col = find_typed_column(table_item, "has_file");
+        has_message_col = find_typed_column(table_item, "has_message");
+        has_hint_col = find_typed_column(table_item, "has_hint");
     }
-    row_count = table_item->as.table_typed.row_count;
-    line_col = find_typed_column(table_item, "line");
-    column_col = find_typed_column(table_item, "column");
-    length_col = find_typed_column(table_item, "length");
-    kind_col = find_typed_column(table_item, "kind");
-    code_col = find_typed_column(table_item, "code");
-    has_file_col = find_typed_column(table_item, "has_file");
-    has_message_col = find_typed_column(table_item, "has_message");
-    has_hint_col = find_typed_column(table_item, "has_hint");
-    if (!line_col || !column_col || !length_col || !kind_col || !code_col ||
-        !has_file_col || !has_message_col || !has_hint_col) {
+    if (row_count > 0u &&
+        (!line_col || !column_col || !length_col || !kind_col || !code_col ||
+         !has_file_col || !has_message_col || !has_hint_col)) {
         r.code = CORE_ERR_FORMAT;
         r.message = "diagnostics table schema mismatch";
         goto fail;

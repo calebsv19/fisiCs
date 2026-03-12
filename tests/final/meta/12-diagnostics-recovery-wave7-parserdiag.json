@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__parserdiag__recovery_while_missing_lparen",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__while_missing_lparen_then_followup_stmt.c",
+      "expects": [
+        "expect/12__parserdiag__recovery_while_missing_lparen.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "recover",
+        "while"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__recovery_do_while_missing_semicolon",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__recovery__do_while_missing_semicolon_then_followup_stmt.c",
+      "expects": [
+        "expect/12__parserdiag__recovery_do_while_missing_semicolon.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "recover",
+        "do-while"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

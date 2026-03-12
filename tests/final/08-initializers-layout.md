@@ -47,5 +47,6 @@ Scalar vs aggregate initialization and layout-sensitive rules.
 - AST/Diagnostics goldens for initializer shape and errors.
 
 ## Probe Backlog
+- No open probes in this bucket at the current baseline.
 - `tests/final/probes/diagnostics/08__probe_designator_unknown_field_reject.c`
-  currently accepts designated initializer field names that do not exist.
+  now resolves with a diagnostic and is ready for active-suite promotion.

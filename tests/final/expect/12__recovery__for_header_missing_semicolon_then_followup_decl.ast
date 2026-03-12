@@ -1,0 +1,37 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER sum
+          = NUMBER_LITERAL 0
+      FOR_LOOP
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          NUMBER_LITERAL 3
+        ASSIGNMENT (=)
+          IDENTIFIER i
+          BINARY EXPRESSION '+'
+            IDENTIFIER i
+            NUMBER_LITERAL 1
+        BLOCK
+          ASSIGNMENT (=)
+            IDENTIFIER sum
+            BINARY EXPRESSION '+'
+              IDENTIFIER sum
+              IDENTIFIER i
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER tail
+          = NUMBER_LITERAL 7
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER tail
+          IDENTIFIER sum

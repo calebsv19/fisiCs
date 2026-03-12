@@ -959,6 +959,19 @@ static bool validatePrimitiveSpecifierUsage(const ParsedType* type,
         return false;
     }
 
+    if (type->isComplex || type->isImaginary) {
+        /*
+         * C complex/imaginary forms require a floating base type
+         * (float, double, or long double). Implicit base is handled
+         * earlier by normalizing to double.
+         */
+        if (type->primitiveType != TOKEN_FLOAT &&
+            type->primitiveType != TOKEN_DOUBLE) {
+            addError(line, 0, "Invalid type specifier combination for _Complex", nameHint);
+            return false;
+        }
+    }
+
     switch (type->primitiveType) {
         case TOKEN_FLOAT:
             if (type->isSigned || type->isUnsigned || type->isShort || type->isLong) {

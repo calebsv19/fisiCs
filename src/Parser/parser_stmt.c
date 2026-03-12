@@ -7,6 +7,24 @@
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 
+static void reportParserDiagAtCurrentToken(Parser* parser, const char* message) {
+    if (!parser || parser->suppressErrors || !parser->ctx || !message) {
+        return;
+    }
+    const Token* tok = &parser->currentToken;
+    const SourceRange* loc = tok ? &tok->location : NULL;
+    if (tok && tok->macroCallSite.start.file) {
+        loc = &tok->macroCallSite;
+    }
+    compiler_report_diag(parser->ctx,
+                         loc ? *loc : (SourceRange){0},
+                         DIAG_ERROR,
+                         CDIAG_PARSER_GENERIC,
+                         NULL,
+                         "%s",
+                         message);
+}
+
 
 ASTNode* handleControlStatements(Parser* parser) {
     // === Type Definitions & Declarations === 
@@ -209,6 +227,7 @@ ASTNode* parseWhileLoop(Parser* parser) {
     advance(parser); // Consume 'while'
     
     if (parser->currentToken.type != TOKEN_LPAREN) {
+        reportParserDiagAtCurrentToken(parser, "expected '(' after 'while'");
         printf("Error: expected '(' after 'while' at line %d\n", parser->currentToken.line);
         return NULL;
     }
@@ -294,6 +313,7 @@ ASTNode* parseDoWhileLoop(Parser* parser) {
     
     // Ensure ';' follows ')'
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
+        reportParserDiagAtCurrentToken(parser, "expected ';' after 'do-while' statement");
         printf("Error: expected ';' after 'do-while' statement at line %d\n", 
 			parser->currentToken.line);
         return NULL;

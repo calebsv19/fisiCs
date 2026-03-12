@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__parserdiag__do_while_missing_semicolon_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__do_while_missing_semicolon_reject.c",
+      "expects": [
+        "expect/09__parserdiag__do_while_missing_semicolon_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "do-while",
+        "recover"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__parserdiag__switch_case_range_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_case_range_reject.c",
+      "expects": [
+        "expect/09__parserdiag__switch_case_range_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "switch",
+        "unsupported"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__parserdiag__switch_decl_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__switch_decl_condition_reject.c",
+      "expects": [
+        "expect/09__parserdiag__switch_decl_condition_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "switch",
+        "condition"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__parserdiag__if_decl_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__if_decl_condition_reject.c",
+      "expects": [
+        "expect/09__parserdiag__if_decl_condition_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "if",
+        "condition"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__parserdiag__while_decl_condition_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__while_decl_condition_reject.c",
+      "expects": [
+        "expect/09__parserdiag__while_decl_condition_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "while",
+        "condition"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__parserdiag__case_outside_switch_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__case_outside_switch_reject.c",
+      "expects": [
+        "expect/09__parserdiag__case_outside_switch_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "case",
+        "switch"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__parserdiag__default_outside_switch_reject",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__default_outside_switch_reject.c",
+      "expects": [
+        "expect/09__parserdiag__default_outside_switch_reject.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "default",
+        "switch"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

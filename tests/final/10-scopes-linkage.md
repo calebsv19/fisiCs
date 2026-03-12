@@ -52,8 +52,7 @@ Namespaces, redeclarations, and linkage behavior.
 - AST/Diagnostics goldens for scope and linkage behavior.
 
 ## Probe Backlog
-- `tests/final/probes/diagnostics/10__probe_block_extern_different_type_reject.c`
-  currently accepts block-scope `extern` redeclaration with conflicting type.
-- `tests/final/probes/runtime/10__probe_static_function_then_extern_decl_ok.c`
-  currently rejects valid file-scope `static` function followed by `extern`
-  declaration.
+- No open probes in this bucket at the current baseline.
+- Resolved probe set:
+  - `10__probe_block_extern_different_type_reject`
+  - `10__probe_static_function_then_extern_decl_ok`

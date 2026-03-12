@@ -219,5 +219,69 @@ Declarators, type qualifiers, aggregates, and C99 declaration features.
 93) `04__struct__tag_redefinition_reject`
     - Reject redefinition of a struct tag in the same scope.
 
+## Wave 6 Additions (Parser Diagnostic Export)
+94) `04__parserdiag__storage_missing_declarator`
+    - Parser diagnostic tuples for missing declarator after storage-class specifier.
+95) `04__parserdiag__qualifier_missing_type`
+    - Parser diagnostic tuples for qualifier-without-type declaration form.
+96) `04__parserdiag__declarator_fn_returns_fn_reject`
+    - Parser diagnostic tuples for invalid function-returning-function declarator.
+97) `04__parserdiag__declarator_array_of_fn_reject`
+    - Parser diagnostic tuples for invalid array-of-function declarator.
+98) `04__parserdiag__declarator_fn_returns_array_reject`
+    - Parser diagnostic tuples for invalid function-returning-array declarator.
+99) `04__parserdiag__alignas_invalid_reject`
+    - Parser diagnostic tuples for malformed `_Alignas` declaration syntax.
+100) `04__parserdiag__enum_empty_reject`
+    - Parser diagnostic tuples for empty enum-body reject path.
+
+## Wave 7 Additions (Parser Diagnostic Expansion)
+101) `04__parserdiag__struct_member_missing_semicolon`
+    - Parser diagnostic tuples for missing semicolon between struct members.
+102) `04__parserdiag__bitfield_missing_width_expr`
+    - Parser diagnostic tuples for bitfield width expression omission.
+103) `04__parserdiag__enum_missing_comma_between_enumerators`
+    - Parser diagnostic tuples for missing comma between enum constants.
+104) `04__parserdiag__declarator_nested_fnptr_missing_rparen`
+    - Parser diagnostic tuples for malformed nested function-pointer declarator.
+105) `04__parserdiag__array_param_static_missing_size`
+    - Parser diagnostic tuples for malformed array-parameter `static` form.
+
+## Parserdiag Lane Additions (Current 04 Pass)
+106) `04__parserdiag__struct_member_missing_type_reject`
+    - Parser diagnostic tuples for struct member declaration missing a type specifier.
+107) `04__parserdiag__bitfield_missing_colon_reject`
+    - Parser diagnostic tuples for bitfield declaration missing `:` before width.
+108) `04__parserdiag__enum_missing_rbrace_reject`
+    - Parser diagnostic tuples for enum body missing closing `}`.
+109) `04__parserdiag__typedef_missing_identifier_reject`
+    - Parser diagnostic tuples for typedef declaration missing declarator identifier.
+110) `04__parserdiag__declarator_unbalanced_parens_reject`
+    - Parser diagnostic tuples for unbalanced declarator parentheses.
+
+## Runtime + Complex Legality Additions
+111) `04__union__overlap`
+    - Runtime/differential anchor that verifies union member base-address overlap and union size floor checks.
+112) `04__primitive__complex_unsigned_reject`
+    - Reject `unsigned _Complex double` declaration form.
+113) `04__primitive__complex_missing_base_reject`
+    - Reject `_Complex` declaration without a valid floating base type.
+114) `04__primitive__complex_int_reject`
+    - Reject `_Complex int` because complex types require a floating base.
+
 ## Probe Backlog
-- None open in this bucket. `04__probe_tag_block_shadow_ok.c` now resolves and matches clang runtime behavior.
+- Current 04 probe sweep (`PROBE_FILTER=04__probe_`) result:
+  - blocked: `0`
+  - resolved: `20`
+  - skipped: `0`
+- Newly added and resolved 04 parser-shape probes:
+  - `04__probe_struct_member_missing_type_reject`
+  - `04__probe_bitfield_missing_colon_reject`
+  - `04__probe_enum_missing_rbrace_reject`
+  - `04__probe_typedef_missing_identifier_reject`
+  - `04__probe_declarator_unbalanced_parens_reject`
+- Newly added and resolved 04 runtime/complex probes:
+  - `04__probe_union_overlap_runtime`
+  - `04__probe_complex_int_reject`
+  - `04__probe_complex_unsigned_reject`
+  - `04__probe_complex_missing_base_reject`

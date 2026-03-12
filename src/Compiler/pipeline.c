@@ -1585,10 +1585,11 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     status = 0;
 
 cleanup:
-    if (status != 0) {
-        compile_result_destroy(&result);
-    } else if (outResult) {
+    if (outResult) {
         *outResult = result;
+        memset(&result, 0, sizeof(result));
+    } else if (status != 0) {
+        compile_result_destroy(&result);
     }
     free(externalSource);
 

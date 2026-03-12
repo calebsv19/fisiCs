@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__parserdiag__ternary_missing_colon",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__ternary_missing_colon.c",
+      "expects": [
+        "expect/05__parserdiag__ternary_missing_colon.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "ternary"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__call_missing_rparen",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__call_missing_rparen.c",
+      "expects": [
+        "expect/05__parserdiag__call_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "call"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__subscript_missing_rbracket",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__subscript_missing_rbracket.c",
+      "expects": [
+        "expect/05__parserdiag__subscript_missing_rbracket.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "subscript"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__parserdiag__cast_missing_rparen",
+      "bucket": "expressions",
+      "input": "cases/05__parserdiag__cast_missing_rparen.c",
+      "expects": [
+        "expect/05__parserdiag__cast_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "cast"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

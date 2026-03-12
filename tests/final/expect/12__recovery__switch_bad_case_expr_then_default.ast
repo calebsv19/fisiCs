@@ -1,0 +1,31 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = NUMBER_LITERAL 0
+      SWITCH
+        IDENTIFIER x
+        CASE
+          BINARY EXPRESSION '+'
+            NUMBER_LITERAL 1
+          ASSIGNMENT (=)
+            IDENTIFIER x
+            NUMBER_LITERAL 1
+          BREAK
+        CASE
+          DEFAULT
+          ASSIGNMENT (=)
+            IDENTIFIER x
+            NUMBER_LITERAL 2
+          BREAK
+      RETURN
+        IDENTIFIER x

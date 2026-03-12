@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__parserdiag__param_missing_comma",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__param_missing_comma.c",
+      "expects": [
+        "expect/11__parserdiag__param_missing_comma.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "params"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__parserdiag__variadic_ellipsis_not_last",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__variadic_ellipsis_not_last.c",
+      "expects": [
+        "expect/11__parserdiag__variadic_ellipsis_not_last.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "variadic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__parserdiag__declarator_missing_rparen",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__declarator_missing_rparen.c",
+      "expects": [
+        "expect/11__parserdiag__declarator_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "declarator"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__parserdiag__fnptr_param_missing_rparen",
+      "bucket": "functions-calls",
+      "input": "cases/11__parserdiag__fnptr_param_missing_rparen.c",
+      "expects": [
+        "expect/11__parserdiag__fnptr_param_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "function-pointer",
+        "params"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

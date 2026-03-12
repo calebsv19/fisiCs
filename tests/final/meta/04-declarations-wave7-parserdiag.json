@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__parserdiag__struct_member_missing_semicolon",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__struct_member_missing_semicolon.c",
+      "expects": [
+        "expect/04__parserdiag__struct_member_missing_semicolon.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "struct",
+        "members"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__bitfield_missing_width_expr",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__bitfield_missing_width_expr.c",
+      "expects": [
+        "expect/04__parserdiag__bitfield_missing_width_expr.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "bitfield"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__enum_missing_comma_between_enumerators",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__enum_missing_comma_between_enumerators.c",
+      "expects": [
+        "expect/04__parserdiag__enum_missing_comma_between_enumerators.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "enum"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__declarator_nested_fnptr_missing_rparen",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__declarator_nested_fnptr_missing_rparen.c",
+      "expects": [
+        "expect/04__parserdiag__declarator_nested_fnptr_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "declarator",
+        "function-pointer"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__parserdiag__array_param_static_missing_size",
+      "bucket": "declarations",
+      "input": "cases/04__parserdiag__array_param_static_missing_size.c",
+      "expects": [
+        "expect/04__parserdiag__array_param_static_missing_size.pdiag"
+      ],
+      "tags": [
+        "parser-diag",
+        "array-params"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

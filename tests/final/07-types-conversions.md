@@ -38,5 +38,6 @@ Integer promotions, usual arithmetic conversions, and pointer rules.
 - AST/Diagnostics goldens for type conversion behavior.
 
 ## Probe Backlog
+- No open probes in this bucket at the current baseline.
 - `tests/final/probes/diagnostics/07__probe_assign_struct_to_int_reject.c`
-  currently accepts assignment from struct value to `int` object.
+  now resolves with a diagnostic and is ready for active-suite promotion.
