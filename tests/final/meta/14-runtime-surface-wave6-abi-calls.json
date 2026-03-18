@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_many_args_mixed_width",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_many_args_mixed_width.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_many_args_mixed_width.stdout",
+      "expected_stderr": "expect/14__runtime_many_args_mixed_width.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "abi",
+        "mixed-width"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_float_cast_roundtrip",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_float_cast_roundtrip.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_float_cast_roundtrip.stdout",
+      "expected_stderr": "expect/14__runtime_float_cast_roundtrip.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "float",
+        "casts",
+        "abi"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_promotions_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_promotions_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_promotions_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_promotions_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "variadic",
+        "promotions",
+        "abi"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_with_array_pass_return",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_with_array_pass_return.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_with_array_pass_return.stdout",
+      "expected_stderr": "expect/14__runtime_struct_with_array_pass_return.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "struct",
+        "pass-return"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_union_payload_roundtrip",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_union_payload_roundtrip.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_union_payload_roundtrip.stdout",
+      "expected_stderr": "expect/14__runtime_union_payload_roundtrip.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "union",
+        "pass-return"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_dispatch_table_mixed",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_dispatch_table_mixed.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_dispatch_table_mixed.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_dispatch_table_mixed.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "function-pointer",
+        "dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

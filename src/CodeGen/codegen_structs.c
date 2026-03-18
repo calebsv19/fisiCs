@@ -143,7 +143,6 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
                                       LLVMTypeRef elementTypeHint,
                                       LLVMTypeRef* outElementType) {
     if (!ctx || !arrayPtr || !index) return NULL;
-    (void)aggregateTypeHint;
     const char* dbgRun = getenv("DEBUG_RUN");
     if (dbgRun) fprintf(stderr, "[CG] buildArrayElementPointer begin\n");
 
@@ -192,9 +191,18 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         elementType = cg_element_type_from_pointer(ctx, baseParsedHint, valueType);
     }
     LLVMTypeRef pointee = LLVMGetElementType(valueType);
+    if (!pointee && aggregateTypeHint) {
+        pointee = aggregateTypeHint;
+    }
     if (!pointee && elementType) {
         /* Opaque pointer with an element hint; accept the hint. */
         pointee = NULL;
+    }
+    if (pointee && LLVMGetTypeKind(pointee) == LLVMFunctionTypeKind) {
+        pointee = LLVMPointerType(pointee, 0);
+    }
+    if (elementType && LLVMGetTypeKind(elementType) == LLVMFunctionTypeKind) {
+        elementType = LLVMPointerType(elementType, 0);
     }
     if (pointee && LLVMGetTypeKind(pointee) == LLVMArrayTypeKind) {
         if (!elementType) {
@@ -203,6 +211,9 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     }
     if (elementType && LLVMGetTypeKind(elementType) == LLVMArrayTypeKind && LLVMGetArrayLength(elementType) == 0) {
         elementType = LLVMGetElementType(elementType);
+    }
+    if (elementType && LLVMGetTypeKind(elementType) == LLVMFunctionTypeKind) {
+        elementType = LLVMPointerType(elementType, 0);
     }
     if (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind ||
         LLVMGetTypeKind(elementType) == LLVMHalfTypeKind) {
@@ -591,7 +602,9 @@ bool codegenLValue(CodegenContext* ctx,
             if (!arrayPtr) return false;
             /* If the base is a pointer variable (not an actual array object), load the pointer
                value so we index the pointee rather than the stack slot. */
-            bool baseNeedsLoad = haveBasePtr && (!baseParsed || !parsedTypeIsDirectArray(baseParsed));
+            bool baseIsDirectArray = (baseParsed && parsedTypeIsDirectArray(baseParsed)) ||
+                                     (baseType && LLVMGetTypeKind(baseType) == LLVMArrayTypeKind);
+            bool baseNeedsLoad = haveBasePtr && !baseIsDirectArray;
             if (baseNeedsLoad && target->arrayAccess.array) {
                 ASTNode* baseExpr = target->arrayAccess.array;
                 if ((baseExpr->type == AST_UNARY_EXPRESSION && baseExpr->expr.op &&
@@ -616,6 +629,8 @@ bool codegenLValue(CodegenContext* ctx,
             LLVMTypeRef aggregateHint = NULL;
             if (baseParsed && parsedTypeIsDirectArray(baseParsed)) {
                 aggregateHint = cg_type_from_parsed(ctx, baseParsed);
+            } else if (baseType && LLVMGetTypeKind(baseType) == LLVMArrayTypeKind) {
+                aggregateHint = baseType;
             }
             LLVMTypeRef elementHint = cg_element_type_hint_from_parsed(ctx, baseParsed);
             LLVMTypeRef elementType = NULL;
@@ -629,6 +644,9 @@ bool codegenLValue(CodegenContext* ctx,
             if (!elementPtr) return false;
             if (!elementType) {
                 elementType = cg_dereference_ptr_type(ctx, LLVMTypeOf(elementPtr), "array element load");
+            }
+            if (elementType && LLVMGetTypeKind(elementType) == LLVMFunctionTypeKind) {
+                elementType = LLVMPointerType(elementType, 0);
             }
             if (outInfo) {
                 outInfo->isFlexElement = baseInfo.isFlexBase || baseInfo.isFlexElement;
