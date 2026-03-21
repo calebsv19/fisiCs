@@ -174,7 +174,8 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
 LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
                                          LLVMValueRef lhsPtr,
                                          LLVMValueRef rhsPtr,
-                                         const ParsedType* lhsParsed);
+                                         const ParsedType* lhsParsed,
+                                         const ParsedType* rhsParsed);
 const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node);
 const ParsedType* cg_refine_function_call_result_type(CodegenContext* ctx, ASTNode* callNode);
 LLVMTypeRef cg_element_type_from_pointer_parsed(CodegenContext* ctx, const ParsedType* parsed);

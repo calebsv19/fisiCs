@@ -345,14 +345,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                     elementLLVM = LLVMInt32TypeInContext(ctx->llvmContext);
                 }
             }
-            const ParsedType* storedParsed = effectiveParsed;
-            if (storedParsed && storedParsed->kind == TYPE_NAMED) {
-                CGTypeCache* cache = cg_context_get_type_cache(ctx);
-                CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, storedParsed->userTypeName);
-                if (info) {
-                    storedParsed = &info->parsedType;
-                }
-            }
+            const ParsedType* storedParsed = resolvedParsed ? resolvedParsed : effectiveParsed;
             cg_scope_insert(ctx->currentScope,
                             varName,
                             global,
@@ -423,14 +416,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 }
                 storage = LLVMBuildAlloca(ctx->builder, storageType, varNameNode->valueNode.value);
             }
-            const ParsedType* storedParsed = varParsed ? varParsed : &node->varDecl.declaredType;
-            if (storedParsed && storedParsed->kind == TYPE_NAMED) {
-                CGTypeCache* cache = cg_context_get_type_cache(ctx);
-                CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, storedParsed->userTypeName);
-                if (info) {
-                    storedParsed = &info->parsedType;
-                }
-            }
+            const ParsedType* storedParsed = arrayParsed ? arrayParsed : effectiveParsed;
             cg_scope_insert(ctx->currentScope,
                             varNameNode->valueNode.value,
                             storage,
@@ -439,6 +425,15 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                             true,
                             elementLLVM,
                             storedParsed);
+            if (getenv("DEBUG_PTR_ARITH")) {
+                fprintf(stderr,
+                        "[ptr-arith] var '%s' storedParsed kind=%d ptrDepth=%d derivs=%zu isVLA=%d\n",
+                        varNameNode && varNameNode->valueNode.value ? varNameNode->valueNode.value : "<anon>",
+                        storedParsed ? storedParsed->kind : -1,
+                        storedParsed ? storedParsed->pointerDepth : -1,
+                        storedParsed ? storedParsed->derivationCount : 0,
+                        (storedParsed && parsedTypeHasVLA(storedParsed)) ? 1 : 0);
+            }
             if (hasVLA) {
                 NamedValue* entry = cg_scope_lookup(ctx->currentScope, varNameNode->valueNode.value);
                 if (entry) {
@@ -446,20 +441,13 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 }
             }
         } else {
-            LLVMTypeRef varType = cg_type_from_parsed(ctx, varParsed);
+            LLVMTypeRef varType = cg_type_from_parsed(ctx, effectiveParsed);
             if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
                 varType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
             }
             storage = LLVMBuildAlloca(ctx->builder, varType, varNameNode->valueNode.value);
             storageType = varType;
-            const ParsedType* storedParsed = varParsed ? varParsed : &node->varDecl.declaredType;
-            if (storedParsed && storedParsed->kind == TYPE_NAMED) {
-                CGTypeCache* cache = cg_context_get_type_cache(ctx);
-                CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, storedParsed->userTypeName);
-                if (info) {
-                    storedParsed = &info->parsedType;
-                }
-            }
+            const ParsedType* storedParsed = resolvedParsed ? resolvedParsed : effectiveParsed;
             LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedParsed);
             cg_scope_insert(ctx->currentScope,
                             varNameNode->valueNode.value,
@@ -469,6 +457,17 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                             false,
                             elementLLVM,
                             storedParsed);
+            if (getenv("DEBUG_PTR_ARITH")) {
+                char* vt = LLVMPrintTypeToString(varType);
+                fprintf(stderr,
+                        "[ptr-arith] var '%s' scalar storedParsed kind=%d ptrDepth=%d derivs=%zu varType=%s\n",
+                        varNameNode && varNameNode->valueNode.value ? varNameNode->valueNode.value : "<anon>",
+                        storedParsed ? storedParsed->kind : -1,
+                        storedParsed ? storedParsed->pointerDepth : -1,
+                        storedParsed ? storedParsed->derivationCount : 0,
+                        vt ? vt : "<null>");
+                if (vt) LLVMDisposeMessage(vt);
+            }
         }
         const ParsedType* alignParsed = varParsed ? varParsed : &node->varDecl.declaredType;
         uint64_t szDummy = 0;

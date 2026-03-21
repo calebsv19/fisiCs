@@ -23,6 +23,19 @@ static void cg_clear_function_pointer_metadata(ParsedType* type) {
     type->isFunctionPointer = false;
 }
 
+static bool cg_parsed_type_has_pointer_layer(const ParsedType* type) {
+    if (!type) return false;
+    if (type->isFunctionPointer) return true;
+    if (type->pointerDepth > 0) return true;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+        if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
+            return true;
+        }
+    }
+    return false;
+}
+
 LLVMTypeRef cg_dereference_ptr_type(CodegenContext* ctx, LLVMTypeRef ptrType, const char* ctxMsg) {
     (void)ctx;
     if (!ptrType || LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
@@ -32,6 +45,9 @@ LLVMTypeRef cg_dereference_ptr_type(CodegenContext* ctx, LLVMTypeRef ptrType, co
             CG_ERROR("Cannot dereference non-pointer");
         }
         return NULL;
+    }
+    if (LLVMPointerTypeIsOpaque(ptrType)) {
+        return LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
     }
     LLVMTypeRef elem = LLVMGetElementType(ptrType);
     if (!elem) {
@@ -229,6 +245,51 @@ static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const Pa
         return &info->parsedType;
     }
     return type;
+}
+
+static bool cg_named_type_has_surface_derivations(const ParsedType* type) {
+    if (!type || type->kind != TYPE_NAMED) {
+        return false;
+    }
+    return type->derivationCount > 0 || type->pointerDepth > 0 || type->isFunctionPointer;
+}
+
+static const ParsedType* cg_resolve_call_surface_type(CodegenContext* ctx, const ParsedType* type) {
+    if (cg_named_type_has_surface_derivations(type)) {
+        return type;
+    }
+    return cg_resolve_typedef_parsed(ctx, type);
+}
+
+static const ParsedType* cg_lookup_function_symbol_return_type(CodegenContext* ctx, ASTNode* callee) {
+    if (!ctx || !callee || callee->type != AST_IDENTIFIER) {
+        if (!ctx || !callee) {
+            return NULL;
+        }
+        if (callee->type == AST_TERNARY_EXPRESSION) {
+            const ParsedType* lhs =
+                cg_lookup_function_symbol_return_type(ctx, callee->ternaryExpr.trueExpr);
+            const ParsedType* rhs =
+                cg_lookup_function_symbol_return_type(ctx, callee->ternaryExpr.falseExpr);
+            if (lhs && rhs && parsedTypesStructurallyEqual(lhs, rhs)) {
+                return lhs;
+            }
+        }
+        return NULL;
+    }
+    const char* name = callee->valueNode.value;
+    if (!name) {
+        return NULL;
+    }
+    const SemanticModel* model = cg_context_get_semantic_model(ctx);
+    if (!model) {
+        return NULL;
+    }
+    const Symbol* sym = semanticModelLookupGlobal(model, name);
+    if (!sym || sym->kind != SYMBOL_FUNCTION) {
+        return NULL;
+    }
+    return &sym->type;
 }
 
 static bool cg_parsed_type_is_complex(const ParsedType* type) {
@@ -500,6 +561,110 @@ bool cg_size_align_for_type(CodegenContext* ctx,
     return false;
 }
 
+static bool cg_pointer_elem_size(CodegenContext* ctx,
+                                 const ParsedType* parsed,
+                                 LLVMTypeRef llvmHint,
+                                 uint64_t* outSize,
+                                 uint32_t* outAlign) {
+    uint64_t semanticSize = 0;
+    uint32_t semanticAlign = 0;
+    bool haveSemantic = cg_size_align_of_parsed(ctx, parsed, &semanticSize, &semanticAlign);
+
+    uint64_t llvmSize = 0;
+    uint32_t llvmAlign = 0;
+    bool haveLLVM = false;
+    LLVMTargetDataRef tdata = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+    if (tdata && llvmHint) {
+        llvmSize = LLVMABISizeOfType(tdata, llvmHint);
+        llvmAlign = (uint32_t)LLVMABIAlignmentOfType(tdata, llvmHint);
+        haveLLVM = true;
+    }
+
+    if (haveLLVM && haveSemantic &&
+        (semanticSize != llvmSize || (semanticAlign && llvmAlign && semanticAlign != llvmAlign))) {
+        if (getenv("FISICS_DEBUG_LAYOUT")) {
+            fprintf(stderr,
+                    "[layout] pointer elem size prefers LLVM: sz=%llu(%llu) align=%u(%u)\n",
+                    (unsigned long long)semanticSize,
+                    (unsigned long long)llvmSize,
+                    semanticAlign,
+                    llvmAlign);
+        }
+        if (outSize) *outSize = llvmSize;
+        if (outAlign) *outAlign = llvmAlign ? llvmAlign : 1;
+        return true;
+    }
+
+    if (haveSemantic) {
+        if (outSize) *outSize = semanticSize;
+        if (outAlign) *outAlign = semanticAlign ? semanticAlign : (haveLLVM ? llvmAlign : 1);
+        return true;
+    }
+
+    if (haveLLVM) {
+        if (outSize) *outSize = llvmSize;
+        if (outAlign) *outAlign = llvmAlign ? llvmAlign : 1;
+        return true;
+    }
+
+    return false;
+}
+
+static LLVMValueRef cg_build_vla_array_size_bytes(CodegenContext* ctx,
+                                                  const ParsedType* arrayParsed) {
+    if (!ctx || !arrayParsed) return NULL;
+    if (!parsedTypeIsDirectArray(arrayParsed) || !parsedTypeHasVLA(arrayParsed)) return NULL;
+
+    LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+    LLVMValueRef elemCount = LLVMConstInt(intptrTy, 1, 0);
+    ParsedType cursor = parsedTypeClone(arrayParsed);
+
+    while (parsedTypeIsDirectArray(&cursor)) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(&cursor, 0);
+        LLVMValueRef dim = NULL;
+        if (deriv && deriv->kind == TYPE_DERIVATION_ARRAY) {
+            if (!deriv->as.array.isVLA &&
+                deriv->as.array.hasConstantSize &&
+                deriv->as.array.constantSize > 0) {
+                dim = LLVMConstInt(intptrTy, (unsigned long long)deriv->as.array.constantSize, 0);
+            } else if (deriv->as.array.sizeExpr) {
+                LLVMValueRef evaluated = codegenNode(ctx, deriv->as.array.sizeExpr);
+                if (evaluated && LLVMGetTypeKind(LLVMTypeOf(evaluated)) == LLVMIntegerTypeKind) {
+                    if (LLVMTypeOf(evaluated) != intptrTy) {
+                        evaluated = LLVMBuildIntCast2(ctx->builder, evaluated, intptrTy, 0, "vla.dim.cast");
+                    }
+                    dim = evaluated;
+                }
+            }
+        }
+        if (!dim) {
+            dim = LLVMConstInt(intptrTy, 1, 0);
+        }
+        elemCount = LLVMBuildMul(ctx->builder, elemCount, dim, "vla.count");
+
+        ParsedType next = parsedTypeArrayElementType(&cursor);
+        parsedTypeFree(&cursor);
+        cursor = next;
+    }
+
+    LLVMTypeRef elemTy = cg_type_from_parsed(ctx, &cursor);
+    uint64_t elemBytes = 0;
+    uint32_t align = 0;
+    if (!cg_size_align_for_type(ctx, &cursor, elemTy, &elemBytes, &align) || elemBytes == 0) {
+        LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+        if (td && elemTy) {
+            elemBytes = LLVMABISizeOfType(td, elemTy);
+        }
+    }
+    parsedTypeFree(&cursor);
+    if (elemBytes == 0) {
+        elemBytes = 1;
+    }
+
+    LLVMValueRef elemSize = LLVMConstInt(intptrTy, elemBytes, 0);
+    return LLVMBuildMul(ctx->builder, elemCount, elemSize, "vla.bytes");
+}
+
 LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
                                          const ParsedType* pointerParsed,
                                          LLVMTypeRef pointerLLVM) {
@@ -586,7 +751,9 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
     /* If we got a pointer-to-array (e.g., the name of an array variable), decay
        to the element pointer before computing offsets. */
     const ParsedType* elemParsed = pointerParsed;
-    if (pointerParsed && parsedTypeIsDirectArray(pointerParsed)) {
+    if (pointerParsed &&
+        !cg_parsed_type_has_pointer_layer(pointerParsed) &&
+        parsedTypeIsDirectArray(pointerParsed)) {
         static ParsedType tmpElem;
         parsedTypeFree(&tmpElem);
         tmpElem = parsedTypeArrayElementType(pointerParsed);
@@ -605,8 +772,19 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
     LLVMTypeRef offsetType = LLVMTypeOf(offsetValue);
     if (offsetType && LLVMGetTypeKind(offsetType) == LLVMIntegerTypeKind) {
         LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
-        if (offsetType != intptrTy) {
-            index = LLVMBuildIntCast2(ctx->builder, offsetValue, intptrTy, 0, "ptr.idx.cast");
+        unsigned offsetBits = LLVMGetIntTypeWidth(offsetType);
+        unsigned intptrBits = LLVMGetIntTypeWidth(intptrTy);
+        if (offsetBits != intptrBits) {
+            bool offsetIsUnsigned = false;
+            if (offsetParsed) {
+                CGValueCategory cat = cg_classify_parsed_type(offsetParsed);
+                offsetIsUnsigned = cg_is_unsigned_category(cat);
+            }
+            index = LLVMBuildIntCast2(ctx->builder,
+                                      offsetValue,
+                                      intptrTy,
+                                      offsetIsUnsigned ? 0 : 1,
+                                      "ptr.idx.cast");
         }
     } else if (LLVMGetTypeKind(offsetType) == LLVMPointerTypeKind) {
         if (getenv("DEBUG_PTR_ARITH")) {
@@ -633,22 +811,32 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
     }
     uint64_t elemSize = 0;
     uint32_t elemAlign = 0;
-    if (!cg_size_align_for_type(ctx, sizeParsed, elementType, &elemSize, &elemAlign) || elemSize == 0) {
-        LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
-        if (td && elementType) {
-            elemSize = LLVMABISizeOfType(td, elementType);
+    LLVMValueRef dynamicElemSize = NULL;
+    if (sizeParsed && parsedTypeIsDirectArray(sizeParsed) && parsedTypeHasVLA(sizeParsed)) {
+        dynamicElemSize = cg_build_vla_array_size_bytes(ctx, sizeParsed);
+    }
+    LLVMTypeRef sizeHintType = cg_type_from_parsed(ctx, sizeParsed);
+    if (!sizeHintType || LLVMGetTypeKind(sizeHintType) == LLVMVoidTypeKind) {
+        sizeHintType = elementType;
+    }
+    if (!dynamicElemSize) {
+        if (!cg_pointer_elem_size(ctx, sizeParsed, sizeHintType, &elemSize, &elemAlign) || elemSize == 0) {
+            LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+            if (td && sizeHintType) {
+                elemSize = LLVMABISizeOfType(td, sizeHintType);
+            }
         }
     }
     if (targetParsed.kind != TYPE_INVALID) {
         parsedTypeFree(&targetParsed);
     }
-    if (elemSize == 0) elemSize = 1;
+    if (!dynamicElemSize && elemSize == 0) elemSize = 1;
 
     LLVMTypeRef i8Type = LLVMInt8TypeInContext(ctx->llvmContext);
     LLVMTypeRef bytePtrTy = LLVMPointerType(i8Type, 0);
     LLVMValueRef baseI8 = LLVMBuildPointerCast(ctx->builder, basePtr, bytePtrTy, "ptr.byte.base");
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
-    LLVMValueRef elemSizeVal = LLVMConstInt(intptrTy, elemSize, 0);
+    LLVMValueRef elemSizeVal = dynamicElemSize ? dynamicElemSize : LLVMConstInt(intptrTy, elemSize, 0);
     LLVMValueRef byteOffset = LLVMBuildMul(ctx->builder, index, elemSizeVal, "ptr.byte.offset");
     LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, i8Type, baseI8, &byteOffset, 1, "ptr.arith");
     if (!gep) return NULL;
@@ -660,7 +848,8 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
 LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
                                          LLVMValueRef lhsPtr,
                                          LLVMValueRef rhsPtr,
-                                         const ParsedType* lhsParsed) {
+                                         const ParsedType* lhsParsed,
+                                         const ParsedType* rhsParsed) {
     if (!ctx || !lhsPtr || !rhsPtr) return NULL;
     LLVMTypeRef lhsType = LLVMTypeOf(lhsPtr);
     LLVMTypeRef rhsType = LLVMTypeOf(rhsPtr);
@@ -683,25 +872,116 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
 
     /* Determine element size without relying on pointer element types (opaque-pointer safe). */
     uint64_t elemBytes = 0;
-    ParsedType elemParsed = {0};
-    bool haveElemParsed = false;
-    LLVMTypeRef elemHint = cg_element_type_hint_from_parsed(ctx, lhsParsed);
+    uint64_t lhsElemBytes = 0;
+    uint64_t rhsElemBytes = 0;
+    bool haveLhsElem = false;
+    bool haveRhsElem = false;
+    bool lhsCharPtr = false;
+    bool rhsCharPtr = false;
+    LLVMValueRef dynamicElemSize = NULL;
+
+    ParsedType lhsTarget = {0};
+    lhsTarget.kind = TYPE_INVALID;
     if (lhsParsed) {
-        if (parsedTypeIsDirectArray(lhsParsed)) {
-            elemParsed = parsedTypeArrayElementType(lhsParsed);
-            haveElemParsed = true;
-        } else {
-            elemParsed = parsedTypePointerTargetType(lhsParsed);
-            haveElemParsed = elemParsed.kind != TYPE_INVALID;
-            if (!haveElemParsed) {
-                parsedTypeFree(&elemParsed);
+        lhsTarget = (parsedTypeIsDirectArray(lhsParsed) && !cg_parsed_type_has_pointer_layer(lhsParsed))
+                        ? parsedTypeArrayElementType(lhsParsed)
+                        : parsedTypePointerTargetType(lhsParsed);
+        if (lhsTarget.kind != TYPE_INVALID) {
+            lhsCharPtr = (lhsTarget.kind == TYPE_PRIMITIVE &&
+                          lhsTarget.primitiveType == TOKEN_CHAR &&
+                          lhsTarget.pointerDepth == 0 &&
+                          !parsedTypeIsDirectArray(&lhsTarget));
+            if (parsedTypeIsDirectArray(&lhsTarget) && parsedTypeHasVLA(&lhsTarget)) {
+                dynamicElemSize = cg_build_vla_array_size_bytes(ctx, &lhsTarget);
+                haveLhsElem = dynamicElemSize != NULL;
+            } else if (parsedTypeIsDirectArray(&lhsTarget)) {
+                uint32_t al = 0;
+                haveLhsElem = cg_size_align_of_parsed(ctx, &lhsTarget, &lhsElemBytes, &al) && lhsElemBytes > 0;
+            }
+            if (!haveLhsElem) {
+                LLVMTypeRef hint = cg_type_from_parsed(ctx, &lhsTarget);
+                uint32_t al = 0;
+                haveLhsElem = cg_pointer_elem_size(ctx, &lhsTarget, hint, &lhsElemBytes, &al) && lhsElemBytes > 0;
             }
         }
+        parsedTypeFree(&lhsTarget);
     }
-    if (haveElemParsed) {
-        uint32_t al = 0;
-        cg_size_align_for_type(ctx, &elemParsed, elemHint, &elemBytes, &al);
-        parsedTypeFree(&elemParsed);
+
+    ParsedType rhsTarget = {0};
+    rhsTarget.kind = TYPE_INVALID;
+    if (rhsParsed) {
+        rhsTarget = (parsedTypeIsDirectArray(rhsParsed) && !cg_parsed_type_has_pointer_layer(rhsParsed))
+                        ? parsedTypeArrayElementType(rhsParsed)
+                        : parsedTypePointerTargetType(rhsParsed);
+        if (rhsTarget.kind != TYPE_INVALID) {
+            rhsCharPtr = (rhsTarget.kind == TYPE_PRIMITIVE &&
+                          rhsTarget.primitiveType == TOKEN_CHAR &&
+                          rhsTarget.pointerDepth == 0 &&
+                          !parsedTypeIsDirectArray(&rhsTarget));
+            if (!dynamicElemSize && parsedTypeIsDirectArray(&rhsTarget) && parsedTypeHasVLA(&rhsTarget)) {
+                dynamicElemSize = cg_build_vla_array_size_bytes(ctx, &rhsTarget);
+                haveRhsElem = dynamicElemSize != NULL;
+            } else if (parsedTypeIsDirectArray(&rhsTarget)) {
+                uint32_t al = 0;
+                haveRhsElem = cg_size_align_of_parsed(ctx, &rhsTarget, &rhsElemBytes, &al) && rhsElemBytes > 0;
+            }
+            if (!haveRhsElem) {
+                LLVMTypeRef hint = cg_type_from_parsed(ctx, &rhsTarget);
+                uint32_t al = 0;
+                haveRhsElem = cg_pointer_elem_size(ctx, &rhsTarget, hint, &rhsElemBytes, &al) && rhsElemBytes > 0;
+            }
+        }
+        parsedTypeFree(&rhsTarget);
+    }
+
+    if (lhsCharPtr || rhsCharPtr) {
+        elemBytes = 1;
+    } else if (haveLhsElem && haveRhsElem) {
+        if (lhsElemBytes == rhsElemBytes) {
+            elemBytes = lhsElemBytes;
+        } else {
+            elemBytes = lhsElemBytes;
+            if (getenv("DEBUG_PTR_ARITH")) {
+                fprintf(stderr,
+                        "[ptr-arith] pointer diff size mismatch lhs=%llu rhs=%llu (using lhs)\n",
+                        (unsigned long long)lhsElemBytes,
+                        (unsigned long long)rhsElemBytes);
+            }
+        }
+    } else if (haveLhsElem) {
+        elemBytes = lhsElemBytes;
+    } else if (haveRhsElem) {
+        elemBytes = rhsElemBytes;
+    }
+    if (getenv("DEBUG_PTR_ARITH")) {
+        if (lhsParsed) {
+            fprintf(stderr,
+                    "[ptr-arith] ptrdiff lhsParsed kind=%d prim=%d ptrDepth=%d derivs=%zu\n",
+                    lhsParsed->kind,
+                    lhsParsed->primitiveType,
+                    lhsParsed->pointerDepth,
+                    lhsParsed->derivationCount);
+        }
+        if (rhsParsed) {
+            fprintf(stderr,
+                    "[ptr-arith] ptrdiff rhsParsed kind=%d prim=%d ptrDepth=%d derivs=%zu\n",
+                    rhsParsed->kind,
+                    rhsParsed->primitiveType,
+                    rhsParsed->pointerDepth,
+                    rhsParsed->derivationCount);
+        }
+        fprintf(stderr,
+                "[ptr-arith] ptrdiff lhsBytes=%llu rhsBytes=%llu lhsChar=%d rhsChar=%d chosen=%llu\n",
+                (unsigned long long)lhsElemBytes,
+                (unsigned long long)rhsElemBytes,
+                lhsCharPtr ? 1 : 0,
+                rhsCharPtr ? 1 : 0,
+                (unsigned long long)elemBytes);
+    }
+
+    LLVMTypeRef elemHint = cg_element_type_hint_from_parsed(ctx, lhsParsed);
+    if (!elemHint) {
+        elemHint = cg_element_type_hint_from_parsed(ctx, rhsParsed);
     }
     if (elemBytes == 0 && elemHint) {
         LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
@@ -709,11 +989,12 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
             elemBytes = LLVMABISizeOfType(td, elemHint);
         }
     }
-    if (elemBytes == 0) {
+    if (!dynamicElemSize && elemBytes == 0) {
         CG_ERROR("Cannot compute element size for pointer difference");
         return NULL;
     }
-    LLVMValueRef elementSize = LLVMConstInt(intptrTy, elemBytes, 0);
+    LLVMValueRef elementSize =
+        dynamicElemSize ? dynamicElemSize : LLVMConstInt(intptrTy, elemBytes, 0);
     return LLVMBuildSDiv(ctx->builder, byteDiff, elementSize, "ptr.diff");
 }
 
@@ -747,6 +1028,13 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
                 return NULL;
             }
             NamedValue* entry = cg_scope_lookup(ctx->currentScope, name);
+            if (getenv("DEBUG_PTR_ARITH")) {
+                fprintf(stderr,
+                        "[ptr-arith] resolve ident '%s' entry=%p parsed=%p\n",
+                        name,
+                        (void*)entry,
+                        (void*)(entry ? entry->parsedType : NULL));
+            }
             if (entry && entry->parsedType) {
                 return entry->parsedType;
             }
@@ -831,6 +1119,17 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             }
             if (strcmp(op, "*") == 0) {
                 const ParsedType* operand = cg_resolve_expression_type(ctx, node->expr.left);
+                if (operand &&
+                    !cg_parsed_type_has_pointer_layer(operand) &&
+                    parsedTypeIsDirectArray(operand)) {
+                    static ParsedType arrayElement;
+                    parsedTypeFree(&arrayElement);
+                    arrayElement = parsedTypeArrayElementType(operand);
+                    if (arrayElement.kind != TYPE_INVALID) {
+                        return &arrayElement;
+                    }
+                    parsedTypeFree(&arrayElement);
+                }
                 ParsedType operandCopy = parsedTypeClone(operand);
                 static ParsedType pointed;
                 parsedTypeFree(&pointed);
@@ -931,6 +1230,10 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
         }
         case AST_FUNCTION_CALL: {
             ASTNode* callee = node->functionCall.callee;
+            const ParsedType* symbolReturn = cg_lookup_function_symbol_return_type(ctx, callee);
+            if (symbolReturn) {
+                return symbolReturn;
+            }
             const ParsedType* calleeType = cg_resolve_expression_type(ctx, callee);
             if (!calleeType && callee && callee->type == AST_IDENTIFIER) {
                 const SemanticModel* model = cg_context_get_semantic_model(ctx);
@@ -941,9 +1244,19 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
                     }
                 }
             }
+            const ParsedType* resolvedCallee = cg_resolve_call_surface_type(ctx, calleeType);
             static ParsedType retType;
             parsedTypeFree(&retType);
-            retType = parsedTypeFunctionReturnType(calleeType);
+            retType = parsedTypeFunctionReturnType(resolvedCallee);
+            if (retType.kind == TYPE_INVALID && resolvedCallee && resolvedCallee->isFunctionPointer) {
+                ParsedType pointed = parsedTypePointerTargetType(resolvedCallee);
+                if (pointed.kind != TYPE_INVALID) {
+                    parsedTypeFree(&retType);
+                    retType = pointed;
+                } else {
+                    parsedTypeFree(&pointed);
+                }
+            }
             cg_clear_function_pointer_metadata(&retType);
             if (retType.kind != TYPE_INVALID) {
                 return &retType;
@@ -953,38 +1266,21 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
         }
         case AST_ARRAY_ACCESS: {
             const ParsedType* base = cg_resolve_expression_type(ctx, node->arrayAccess.array);
-            static ParsedType cached;
-            parsedTypeFree(&cached);
-            cached.kind = TYPE_INVALID;
+            static ParsedType cachedSlots[4];
+            static int cachedIndex = 0;
+            ParsedType* cached = &cachedSlots[cachedIndex];
+            cachedIndex = (cachedIndex + 1) % 4;
+            parsedTypeFree(cached);
+            cached->kind = TYPE_INVALID;
             if (!base) return NULL;
             if (parsedTypeIsDirectArray(base)) {
-                cached = parsedTypeArrayElementType(base);
-                const TypeDerivation* first = parsedTypeGetDerivation(&cached, 0);
-                if (first && first->kind == TYPE_DERIVATION_FUNCTION) {
-                    ParsedType refined = parsedTypeFunctionReturnType(&cached);
-                    if (refined.kind != TYPE_INVALID) {
-                        parsedTypeFree(&cached);
-                        cached = refined;
-                    } else {
-                        parsedTypeFree(&refined);
-                    }
-                }
-                return &cached;
+                *cached = parsedTypeArrayElementType(base);
+                return cached;
             }
             ParsedType pointed = parsedTypePointerTargetType(base);
             if (pointed.kind != TYPE_INVALID) {
-                const TypeDerivation* first = parsedTypeGetDerivation(&pointed, 0);
-                if (first && first->kind == TYPE_DERIVATION_FUNCTION) {
-                    ParsedType refined = parsedTypeFunctionReturnType(&pointed);
-                    if (refined.kind != TYPE_INVALID) {
-                        parsedTypeFree(&pointed);
-                        pointed = refined;
-                    } else {
-                        parsedTypeFree(&refined);
-                    }
-                }
-                cached = pointed;
-                return &cached;
+                *cached = pointed;
+                return cached;
             }
             parsedTypeFree(&pointed);
             return NULL;
@@ -999,14 +1295,29 @@ const ParsedType* cg_refine_function_call_result_type(CodegenContext* ctx, ASTNo
     if (!ctx || !callNode || callNode->type != AST_FUNCTION_CALL) {
         return NULL;
     }
+    const ParsedType* symbolReturn =
+        cg_lookup_function_symbol_return_type(ctx, callNode->functionCall.callee);
+    if (symbolReturn) {
+        return symbolReturn;
+    }
     const ParsedType* calleeType = cg_resolve_expression_type(ctx, callNode->functionCall.callee);
     if (!calleeType) {
         return NULL;
     }
+    const ParsedType* resolvedCallee = cg_resolve_call_surface_type(ctx, calleeType);
 
     static ParsedType refined;
     parsedTypeFree(&refined);
-    refined = parsedTypeFunctionReturnType(calleeType);
+    refined = parsedTypeFunctionReturnType(resolvedCallee);
+    if (refined.kind == TYPE_INVALID && resolvedCallee && resolvedCallee->isFunctionPointer) {
+        ParsedType pointed = parsedTypePointerTargetType(resolvedCallee);
+        if (pointed.kind != TYPE_INVALID) {
+            parsedTypeFree(&refined);
+            refined = pointed;
+        } else {
+            parsedTypeFree(&pointed);
+        }
+    }
     cg_clear_function_pointer_metadata(&refined);
     if (refined.kind == TYPE_INVALID) {
         parsedTypeFree(&refined);

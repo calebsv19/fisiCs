@@ -591,9 +591,22 @@ bool parsedTypeHasVLA(const ParsedType* t) {
         return false;
     }
     for (size_t i = 0; i < t->derivationCount; ++i) {
-        if (t->derivations[i].kind == TYPE_DERIVATION_ARRAY &&
-            t->derivations[i].as.array.isVLA) {
+        if (t->derivations[i].kind != TYPE_DERIVATION_ARRAY) {
+            continue;
+        }
+        const TypeDerivation* arr = &t->derivations[i];
+        if (arr->as.array.isVLA) {
             return true;
+        }
+        /* Treat non-constant array bounds as VLA-like even if the parser did
+         * not explicitly mark the dimension. */
+        if (!arr->as.array.hasConstantSize &&
+            arr->as.array.sizeExpr &&
+            !arr->as.array.isFlexible) {
+            ASTNodeType exprTy = arr->as.array.sizeExpr->type;
+            if (exprTy != AST_NUMBER_LITERAL && exprTy != AST_CHAR_LITERAL) {
+                return true;
+            }
         }
     }
     return false;

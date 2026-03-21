@@ -8,6 +8,34 @@
 #include <stdlib.h>
 #include <string.h>
 
+static bool cg_parsed_type_has_pointer_layer(const ParsedType* type) {
+    if (!type) return false;
+    if (type->isFunctionPointer) return true;
+    if (type->pointerDepth > 0) return true;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+        if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static LLVMTypeRef cg_innermost_array_element_type(CodegenContext* ctx, const ParsedType* parsed) {
+    ParsedType base = parsedTypeClone(parsed);
+    while (parsedTypeIsDirectArray(&base)) {
+        ParsedType next = parsedTypeArrayElementType(&base);
+        parsedTypeFree(&base);
+        base = next;
+    }
+    LLVMTypeRef elem = cg_type_from_parsed(ctx, &base);
+    parsedTypeFree(&base);
+    if (!elem || LLVMGetTypeKind(elem) == LLVMVoidTypeKind) {
+        elem = LLVMInt32TypeInContext(ctx->llvmContext);
+    }
+    return elem;
+}
+
 static const CCTagFieldLayout* cg_lookup_field_layout(CodegenContext* ctx,
                                                       const ParsedType* aggregateParsed,
                                                       const char* fieldName) {
@@ -152,16 +180,19 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     LLVMValueRef basePtr = arrayPtr;
     LLVMTypeKind valueKind = LLVMGetTypeKind(valueType);
     const char* dbg = getenv("DEBUG_FLEX");
-    if (dbg) {
-        char* tstr = LLVMPrintTypeToString(valueType);
-        fprintf(stderr, "[DBG] arrayPtr type=%s\n", tstr ? tstr : "<null>");
-        if (tstr) LLVMDisposeMessage(tstr);
-        LLVMTypeRef pt = LLVMGetElementType(valueType);
-        if (pt) {
-            char* pstr = LLVMPrintTypeToString(pt);
-            fprintf(stderr, "[DBG] pointee=%s\n", pstr ? pstr : "<null>");
-            if (pstr) LLVMDisposeMessage(pstr);
-        }
+        if (dbg) {
+            char* tstr = LLVMPrintTypeToString(valueType);
+            fprintf(stderr, "[DBG] arrayPtr type=%s\n", tstr ? tstr : "<null>");
+            if (tstr) LLVMDisposeMessage(tstr);
+            LLVMTypeRef pt = NULL;
+            if (LLVMGetTypeKind(valueType) == LLVMPointerTypeKind && !LLVMPointerTypeIsOpaque(valueType)) {
+                pt = LLVMGetElementType(valueType);
+            }
+            if (pt) {
+                char* pstr = LLVMPrintTypeToString(pt);
+                fprintf(stderr, "[DBG] pointee=%s\n", pstr ? pstr : "<null>");
+                if (pstr) LLVMDisposeMessage(pstr);
+            }
     }
 
     /* Decay raw array values into an addressable pointer. */
@@ -190,7 +221,10 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     if (!elementType) {
         elementType = cg_element_type_from_pointer(ctx, baseParsedHint, valueType);
     }
-    LLVMTypeRef pointee = LLVMGetElementType(valueType);
+    LLVMTypeRef pointee = NULL;
+    if (!LLVMPointerTypeIsOpaque(valueType)) {
+        pointee = LLVMGetElementType(valueType);
+    }
     if (!pointee && aggregateTypeHint) {
         pointee = aggregateTypeHint;
     }
@@ -225,13 +259,11 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         (!elementType || LLVMGetTypeKind(elementType) == LLVMVoidTypeKind)) {
         elementType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
-    /* If the base is an opaque pointer and we still have a non-integer element (e.g., mis-inferred),
-       fall back to a sane integer element type to avoid LLVM APIs hanging on odd element kinds. */
+    /* Keep aggregate element hints for opaque pointers; downgrading to i32 loses stride semantics. */
     if (LLVMGetTypeKind(valueType) == LLVMPointerTypeKind &&
         LLVMGetElementType(valueType) == NULL &&
         elementType &&
-        LLVMGetTypeKind(elementType) != LLVMIntegerTypeKind &&
-        LLVMGetTypeKind(elementType) != LLVMPointerTypeKind) {
+        LLVMGetTypeKind(elementType) == LLVMHalfTypeKind) {
         elementType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
@@ -240,6 +272,25 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     LLVMTypeRef idxType = LLVMTypeOf(idx64);
     if (!idxType || LLVMGetTypeKind(idxType) != LLVMIntegerTypeKind || LLVMGetIntTypeWidth(idxType) < 64) {
         idx64 = LLVMBuildSExt(ctx->builder, idx64, i64Type, "array.idx64");
+    }
+
+    if (baseParsedHint && cg_parsed_type_has_pointer_layer(baseParsedHint)) {
+        ParsedType pointed = parsedTypePointerTargetType(baseParsedHint);
+        if (pointed.kind != TYPE_INVALID &&
+            parsedTypeIsDirectArray(&pointed) &&
+            parsedTypeHasVLA(&pointed)) {
+            LLVMValueRef stepped = cg_build_pointer_offset(ctx, basePtr, idx64, baseParsedHint, NULL, false);
+            LLVMTypeRef elem = cg_innermost_array_element_type(ctx, &pointed);
+            parsedTypeFree(&pointed);
+            if (!stepped) {
+                return NULL;
+            }
+            if (outElementType) {
+                *outElementType = elem;
+            }
+            return stepped;
+        }
+        parsedTypeFree(&pointed);
     }
 
     /* Prefer typed GEPs to avoid opaque-pointer crashes. */
@@ -259,7 +310,10 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         indexCount = 2;
         LLVMTypeRef baseElem = NULL;
         if (LLVMGetTypeKind(LLVMTypeOf(basePtr)) == LLVMPointerTypeKind) {
-            baseElem = LLVMGetElementType(LLVMTypeOf(basePtr));
+            LLVMTypeRef basePtrTy = LLVMTypeOf(basePtr);
+            if (!LLVMPointerTypeIsOpaque(basePtrTy)) {
+                baseElem = LLVMGetElementType(basePtrTy);
+            }
         }
     if (baseElem && baseElem != pointee) {
         return NULL;
@@ -282,7 +336,10 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     }
     LLVMTypeRef baseElem = NULL;
     if (LLVMGetTypeKind(LLVMTypeOf(baseCasted)) == LLVMPointerTypeKind) {
-        baseElem = LLVMGetElementType(LLVMTypeOf(baseCasted));
+        LLVMTypeRef basePtrTy = LLVMTypeOf(baseCasted);
+        if (!LLVMPointerTypeIsOpaque(basePtrTy)) {
+            baseElem = LLVMGetElementType(basePtrTy);
+        }
     }
     if (!baseElem && !elementType) {
         fprintf(stderr, "Error: opaque pointer array base without element type\n");
@@ -618,7 +675,10 @@ bool codegenLValue(CodegenContext* ctx,
                 if (!loadTy) {
                     LLVMTypeRef elem = NULL;
                     if (arrayPtr && LLVMGetTypeKind(LLVMTypeOf(arrayPtr)) == LLVMPointerTypeKind) {
-                        elem = LLVMGetElementType(LLVMTypeOf(arrayPtr));
+                        LLVMTypeRef arrayPtrTy = LLVMTypeOf(arrayPtr);
+                        if (!LLVMPointerTypeIsOpaque(arrayPtrTy)) {
+                            elem = LLVMGetElementType(arrayPtrTy);
+                        }
                     }
                     loadTy = elem ? elem : LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
                 }
@@ -626,6 +686,99 @@ bool codegenLValue(CodegenContext* ctx,
                 baseType = loadTy;
             }
             LLVMValueRef index = codegenNode(ctx, target->arrayAccess.index);
+            if (baseParsed && parsedTypeIsDirectArray(baseParsed) && parsedTypeHasVLA(baseParsed)) {
+                LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
+                LLVMValueRef offset = index;
+                LLVMTypeRef idxTy = LLVMTypeOf(offset);
+                if (!idxTy || LLVMGetTypeKind(idxTy) != LLVMIntegerTypeKind) {
+                    return false;
+                }
+                if (idxTy != intptrTy) {
+                    offset = LLVMBuildIntCast2(ctx->builder, offset, intptrTy, 0, "vla.idx.cast");
+                }
+
+                size_t arrayDims = 0;
+                for (size_t d = 0; d < baseParsed->derivationCount; ++d) {
+                    const TypeDerivation* deriv = parsedTypeGetDerivation(baseParsed, d);
+                    if (deriv && deriv->kind == TYPE_DERIVATION_ARRAY) {
+                        arrayDims++;
+                    }
+                }
+                if (arrayDims > 1) {
+                    LLVMValueRef stride = LLVMConstInt(intptrTy, 1, 0);
+                    for (size_t d = 1; d < baseParsed->derivationCount; ++d) {
+                        const TypeDerivation* deriv = parsedTypeGetDerivation(baseParsed, d);
+                        if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY) {
+                            continue;
+                        }
+                        LLVMValueRef dim = NULL;
+                        if (!deriv->as.array.isVLA &&
+                            deriv->as.array.hasConstantSize &&
+                            deriv->as.array.constantSize > 0) {
+                            dim = LLVMConstInt(intptrTy, (unsigned long long)deriv->as.array.constantSize, 0);
+                        } else if (deriv->as.array.sizeExpr) {
+                            LLVMValueRef evaluated = codegenNode(ctx, deriv->as.array.sizeExpr);
+                            if (evaluated && LLVMGetTypeKind(LLVMTypeOf(evaluated)) == LLVMIntegerTypeKind) {
+                                if (LLVMTypeOf(evaluated) != intptrTy) {
+                                    evaluated = LLVMBuildIntCast2(ctx->builder, evaluated, intptrTy, 0, "vla.dim.cast");
+                                }
+                                dim = evaluated;
+                            }
+                        }
+                        if (!dim) {
+                            dim = LLVMConstInt(intptrTy, 1, 0);
+                        }
+                        stride = LLVMBuildMul(ctx->builder, stride, dim, "vla.stride");
+                    }
+                    offset = LLVMBuildMul(ctx->builder, offset, stride, "vla.offset");
+                }
+
+                ParsedType remainingParsed = parsedTypeArrayElementType(baseParsed);
+                ParsedType scalarParsed = parsedTypeClone(baseParsed);
+                while (parsedTypeIsDirectArray(&scalarParsed)) {
+                    ParsedType next = parsedTypeArrayElementType(&scalarParsed);
+                    parsedTypeFree(&scalarParsed);
+                    scalarParsed = next;
+                }
+                LLVMTypeRef scalarType = cg_type_from_parsed(ctx, &scalarParsed);
+                if (!scalarType || LLVMGetTypeKind(scalarType) == LLVMVoidTypeKind) {
+                    scalarType = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+                LLVMTypeRef resultType = NULL;
+                if (remainingParsed.kind != TYPE_INVALID) {
+                    resultType = cg_type_from_parsed(ctx, &remainingParsed);
+                }
+                if (!resultType || LLVMGetTypeKind(resultType) == LLVMVoidTypeKind) {
+                    resultType = scalarType;
+                }
+
+                LLVMValueRef elementPtr =
+                    LLVMBuildGEP2(ctx->builder, scalarType, arrayPtr, &offset, 1, "vla.elem.ptr");
+                if (!elementPtr) {
+                    parsedTypeFree(&remainingParsed);
+                    parsedTypeFree(&scalarParsed);
+                    return false;
+                }
+                if (outInfo) {
+                    outInfo->isFlexElement = baseInfo.isFlexBase || baseInfo.isFlexElement;
+                    outInfo->flexElemSize = baseInfo.flexElemSize;
+                }
+                *outPtr = elementPtr;
+                *outType = resultType;
+                if (outParsedType) {
+                    static ParsedType tmp;
+                    parsedTypeFree(&tmp);
+                    if (remainingParsed.kind != TYPE_INVALID) {
+                        tmp = parsedTypeClone(&remainingParsed);
+                    } else {
+                        tmp.kind = TYPE_INVALID;
+                    }
+                    *outParsedType = (tmp.kind != TYPE_INVALID) ? &tmp : NULL;
+                }
+                parsedTypeFree(&remainingParsed);
+                parsedTypeFree(&scalarParsed);
+                return true;
+            }
             LLVMTypeRef aggregateHint = NULL;
             if (baseParsed && parsedTypeIsDirectArray(baseParsed)) {
                 aggregateHint = cg_type_from_parsed(ctx, baseParsed);
@@ -682,6 +835,16 @@ bool codegenLValue(CodegenContext* ctx,
                     parsedTypeFree(&tmp);
                     tmp = parsedTypeArrayElementType(elemParsed);
                     *outParsedType = &tmp;
+                } else if (elemParsed && cg_parsed_type_has_pointer_layer(elemParsed)) {
+                    ParsedType pointed = parsedTypePointerTargetType(elemParsed);
+                    if (pointed.kind != TYPE_INVALID && parsedTypeIsDirectArray(&pointed)) {
+                        static ParsedType tmp;
+                        parsedTypeFree(&tmp);
+                        tmp = pointed;
+                        *outParsedType = &tmp;
+                    } else {
+                        parsedTypeFree(&pointed);
+                    }
                 }
             }
             return true;

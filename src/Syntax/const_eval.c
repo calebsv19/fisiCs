@@ -37,12 +37,27 @@ static bool evalOffsetofField(Scope* scope,
     TypeInfo info = typeInfoFromParsedType(type, scope);
     if (info.category != TYPEINFO_STRUCT && info.category != TYPEINFO_UNION) return false;
     CCTagKind kind = (info.category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    const char* tagName = info.userTypeName ? info.userTypeName : type->userTypeName;
+    if (tagName) {
+        if (!cc_tag_is_defined(scope->ctx, kind, tagName) &&
+            type->inlineStructOrUnionDef) {
+            ASTNode* def = type->inlineStructOrUnionDef;
+            bool kindMatches =
+                (kind == CC_TAG_STRUCT && def->type == AST_STRUCT_DEFINITION) ||
+                (kind == CC_TAG_UNION && def->type == AST_UNION_DEFINITION);
+            if (kindMatches) {
+                (void)cc_define_tag(scope->ctx, kind, tagName, 0, def);
+            }
+        }
+        size_t sz = 0, al = 0;
+        (void)layout_struct_union(scope->ctx, scope, kind, tagName, &sz, &al);
+    }
     const CCTagFieldLayout* layouts = NULL;
     size_t count = 0;
-    if (!cc_get_tag_field_layouts(scope->ctx, kind, info.userTypeName, &layouts, &count) || !layouts) {
+    if (!cc_get_tag_field_layouts(scope->ctx, kind, tagName, &layouts, &count) || !layouts) {
         size_t sz = 0, al = 0;
-        if (!layout_struct_union(scope->ctx, scope, kind, info.userTypeName, &sz, &al)) return false;
-        if (!cc_get_tag_field_layouts(scope->ctx, kind, info.userTypeName, &layouts, &count) || !layouts) {
+        if (!layout_struct_union(scope->ctx, scope, kind, tagName, &sz, &al)) return false;
+        if (!cc_get_tag_field_layouts(scope->ctx, kind, tagName, &layouts, &count) || !layouts) {
             return false;
         }
     }

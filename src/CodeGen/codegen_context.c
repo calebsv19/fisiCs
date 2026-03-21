@@ -269,9 +269,15 @@ LoopTarget cg_loop_peek(const CodegenContext* ctx) {
 }
 
 LoopTarget cg_loop_peek_for_continue(const CodegenContext* ctx) {
-    LoopTarget target = cg_loop_peek(ctx);
-    if (!target.continueBB && target.breakBB) {
-        target.continueBB = target.breakBB;
+    LoopTarget target = {0};
+    if (!ctx || ctx->loopStackSize == 0) {
+        return target;
+    }
+    for (size_t i = ctx->loopStackSize; i > 0; --i) {
+        LoopTarget candidate = ctx->loopStack[i - 1];
+        if (candidate.continueBB) {
+            return candidate;
+        }
     }
     return target;
 }

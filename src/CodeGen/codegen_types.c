@@ -285,8 +285,54 @@ static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* i
     }
 
     if (info->isUnion) {
-        LLVMTypeRef fieldType = cg_type_from_parsed(ctx, &info->fields[0].parsedType);
-        LLVMStructSetBody(info->llvmType, &fieldType, 1, 0);
+        LLVMModuleRef module = cg_context_get_module(ctx);
+        LLVMTargetDataRef td = module ? LLVMGetModuleDataLayout(module) : NULL;
+        LLVMTypeRef maxAlignTy = NULL;
+        uint64_t maxSize = 0;
+        uint32_t maxAlign = 1;
+        uint64_t maxAlignTySize = 0;
+
+        for (size_t i = 0; i < info->fieldCount; ++i) {
+            LLVMTypeRef fieldTy = cg_type_from_parsed(ctx, &info->fields[i].parsedType);
+            if (!fieldTy || LLVMGetTypeKind(fieldTy) == LLVMVoidTypeKind) {
+                fieldTy = LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
+            }
+            uint64_t sz = td ? LLVMABISizeOfType(td, fieldTy) : 0;
+            uint32_t al = td ? (uint32_t)LLVMABIAlignmentOfType(td, fieldTy) : 1;
+            if (al == 0) al = 1;
+            if (sz > maxSize) maxSize = sz;
+            if (!maxAlignTy || al > maxAlign || (al == maxAlign && sz > maxAlignTySize)) {
+                maxAlignTy = fieldTy;
+                maxAlign = al;
+                maxAlignTySize = sz;
+            }
+        }
+
+        if (!maxAlignTy) {
+            maxAlignTy = LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx));
+            maxAlign = 1;
+            maxSize = 1;
+            maxAlignTySize = 1;
+        }
+
+        uint64_t finalSize = maxSize;
+        if (maxAlign > 1) {
+            uint64_t rem = finalSize % (uint64_t)maxAlign;
+            if (rem != 0) finalSize += ((uint64_t)maxAlign - rem);
+        }
+        if (finalSize == 0) finalSize = 1;
+
+        if (maxAlignTySize >= finalSize) {
+            LLVMStructSetBody(info->llvmType, &maxAlignTy, 1, 0);
+            return info->llvmType;
+        }
+
+        uint64_t tailBytes = finalSize - maxAlignTySize;
+        LLVMTypeRef members[2];
+        members[0] = maxAlignTy;
+        members[1] = LLVMArrayType(LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx)),
+                                   (unsigned)tailBytes);
+        LLVMStructSetBody(info->llvmType, members, 2, 0);
         return info->llvmType;
     }
 

@@ -192,8 +192,17 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
                 case TOKEN_INT:
                 case TOKEN_SIGNED:
                 case TOKEN_UNSIGNED: {
+                    size_t bits = defaultIntBits();
+                    TokenType prim = TOKEN_INT;
+                    if (type->isShort) {
+                        bits = 16;
+                        prim = TOKEN_SHORT;
+                    } else if (type->isLong) {
+                        bits = longBits();
+                        prim = TOKEN_LONG;
+                    }
                     bool isSigned = !type->isUnsigned;
-                    TypeInfo info = makeIntegerType(defaultIntBits(), isSigned, TOKEN_INT);
+                    TypeInfo info = makeIntegerType(bits, isSigned, prim);
                     return info;
                 }
                 case TOKEN_LONG: {
@@ -654,6 +663,48 @@ static bool typeInfoIsVoidPointer(const TypeInfo* info) {
     return info->primitive == TOKEN_VOID;
 }
 
+static size_t collectPointerDerivations(const ParsedType* type,
+                                        const TypeDerivation** out,
+                                        size_t maxOut) {
+    if (!type || !out || maxOut == 0) return 0;
+    size_t count = 0;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* d = parsedTypeGetDerivation(type, i);
+        if (!d || d->kind != TYPE_DERIVATION_POINTER) {
+            continue;
+        }
+        if (count < maxOut) {
+            out[count] = d;
+        }
+        count++;
+    }
+    return count;
+}
+
+static bool functionPointerQualifierLoss(const ParsedType* destType, const ParsedType* srcType) {
+    if (!destType || !srcType) return false;
+    const TypeDerivation* destPtrs[TYPEINFO_MAX_POINTER_DEPTH] = {0};
+    const TypeDerivation* srcPtrs[TYPEINFO_MAX_POINTER_DEPTH] = {0};
+    size_t destCount = collectPointerDerivations(destType, destPtrs, TYPEINFO_MAX_POINTER_DEPTH);
+    size_t srcCount = collectPointerDerivations(srcType, srcPtrs, TYPEINFO_MAX_POINTER_DEPTH);
+    size_t pairCount = destCount < srcCount ? destCount : srcCount;
+
+    /* Ignore top-level pointer qualifiers; compare nested pointed-to levels only. */
+    if (pairCount <= 1) {
+        return false;
+    }
+
+    for (size_t i = 0; i + 1 < pairCount; ++i) {
+        const TypeDerivation* d = destPtrs[i];
+        const TypeDerivation* s = srcPtrs[i];
+        if (!d || !s) continue;
+        if (s->as.pointer.isConst && !d->as.pointer.isConst) return true;
+        if (s->as.pointer.isVolatile && !d->as.pointer.isVolatile) return true;
+        if (s->as.pointer.isRestrict && !d->as.pointer.isRestrict) return true;
+    }
+    return false;
+}
+
 AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) {
     if (!dest || !src) return ASSIGN_INCOMPATIBLE;
     if (dest->userTypeName && src->userTypeName &&
@@ -677,6 +728,9 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
         }
         if (dest->pointerDepth != src->pointerDepth) {
             return ASSIGN_INCOMPATIBLE;
+        }
+        if (functionPointerQualifierLoss(dest->originalType, src->originalType)) {
+            return ASSIGN_QUALIFIER_LOSS;
         }
         int depth = dest->pointerDepth;
         int limit = depth < TYPEINFO_MAX_POINTER_DEPTH ? depth : TYPEINFO_MAX_POINTER_DEPTH;

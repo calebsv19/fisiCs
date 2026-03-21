@@ -1,3 +1,2 @@
 Diagnostics:
 Error at (0:0): sizeof applied to incomplete type
-Error at (0:0): Invalid cast between non-scalar types

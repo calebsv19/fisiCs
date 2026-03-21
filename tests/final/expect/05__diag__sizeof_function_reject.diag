@@ -1,3 +1,2 @@
 Diagnostics:
 Error at (6:0): sizeof applied to function type
-Error at (6:0): Invalid cast between non-scalar types

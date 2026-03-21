@@ -36,14 +36,132 @@ static TypeInfo sizeTypeFromScope(Scope* scope) {
     return info;
 }
 
+static bool typeInfoIsFunctionPointerLike(const TypeInfo* info) {
+    if (!info || !info->originalType) return false;
+    if (info->originalType->isFunctionPointer) return true;
+    if (info->pointerDepth <= 0) return false;
+    ParsedType target = parsedTypePointerTargetType(info->originalType);
+    bool hasFunction = false;
+    for (size_t i = 0; i < target.derivationCount; ++i) {
+        const TypeDerivation* d = parsedTypeGetDerivation(&target, i);
+        if (d && d->kind == TYPE_DERIVATION_FUNCTION) {
+            hasFunction = true;
+            break;
+        }
+    }
+    parsedTypeFree(&target);
+    return hasFunction;
+}
+
 static bool pointerTargetsCompatibleForConditional(const TypeInfo* a, const TypeInfo* b) {
     if (!a || !b) return false;
     if (a->pointerDepth != b->pointerDepth) return false;
+    if (typeInfoIsFunctionPointerLike(a) && typeInfoIsFunctionPointerLike(b)) {
+        if (!a->originalType || !b->originalType) {
+            return false;
+        }
+        ParsedType aTarget = parsedTypePointerTargetType(a->originalType);
+        ParsedType bTarget = parsedTypePointerTargetType(b->originalType);
+        if (aTarget.kind == TYPE_INVALID || bTarget.kind == TYPE_INVALID) {
+            parsedTypeFree(&aTarget);
+            parsedTypeFree(&bTarget);
+            return false;
+        }
+
+        const TypeDerivation* aFn = NULL;
+        const TypeDerivation* bFn = NULL;
+        for (size_t i = 0; i < aTarget.derivationCount; ++i) {
+            const TypeDerivation* d = parsedTypeGetDerivation(&aTarget, i);
+            if (d && d->kind == TYPE_DERIVATION_FUNCTION) {
+                aFn = d;
+                break;
+            }
+        }
+        for (size_t i = 0; i < bTarget.derivationCount; ++i) {
+            const TypeDerivation* d = parsedTypeGetDerivation(&bTarget, i);
+            if (d && d->kind == TYPE_DERIVATION_FUNCTION) {
+                bFn = d;
+                break;
+            }
+        }
+        if (!aFn || !bFn) {
+            parsedTypeFree(&aTarget);
+            parsedTypeFree(&bTarget);
+            return false;
+        }
+
+        ParsedType aRet = parsedTypeFunctionReturnType(&aTarget);
+        ParsedType bRet = parsedTypeFunctionReturnType(&bTarget);
+        bool retCompat = parsedTypesStructurallyEqual(&aRet, &bRet);
+        parsedTypeFree(&aRet);
+        parsedTypeFree(&bRet);
+        if (!retCompat) {
+            parsedTypeFree(&aTarget);
+            parsedTypeFree(&bTarget);
+            return false;
+        }
+
+        bool aHasParams = aFn->as.function.paramCount > 0 || aFn->as.function.isVariadic;
+        bool bHasParams = bFn->as.function.paramCount > 0 || bFn->as.function.isVariadic;
+        if (!aHasParams || !bHasParams) {
+            parsedTypeFree(&aTarget);
+            parsedTypeFree(&bTarget);
+            return true;
+        }
+
+        if (aFn->as.function.isVariadic != bFn->as.function.isVariadic ||
+            aFn->as.function.paramCount != bFn->as.function.paramCount) {
+            parsedTypeFree(&aTarget);
+            parsedTypeFree(&bTarget);
+            return false;
+        }
+
+        for (size_t i = 0; i < aFn->as.function.paramCount; ++i) {
+            if (!parsedTypesStructurallyEqual(&aFn->as.function.params[i],
+                                              &bFn->as.function.params[i])) {
+                parsedTypeFree(&aTarget);
+                parsedTypeFree(&bTarget);
+                return false;
+            }
+        }
+
+        parsedTypeFree(&aTarget);
+        parsedTypeFree(&bTarget);
+        return true;
+    }
     if (a->primitive != b->primitive) return false;
     if (a->tag != b->tag) return false;
     if (a->userTypeName == b->userTypeName) return true;
     if (!a->userTypeName || !b->userTypeName) return true;
     return strcmp(a->userTypeName, b->userTypeName) == 0;
+}
+
+static bool buildFunctionDesignatorType(const Symbol* sym, ParsedType* outType) {
+    if (!sym || !outType || sym->kind != SYMBOL_FUNCTION) {
+        return false;
+    }
+    *outType = parsedTypeClone(&sym->type);
+    if (outType->kind == TYPE_INVALID) {
+        return false;
+    }
+    if (!parsedTypeAppendFunction(outType,
+                                  sym->signature.params,
+                                  sym->signature.paramCount,
+                                  sym->signature.isVariadic)) {
+        parsedTypeFree(outType);
+        memset(outType, 0, sizeof(*outType));
+        outType->kind = TYPE_INVALID;
+        return false;
+    }
+    if (outType->derivationCount > 1) {
+        size_t last = outType->derivationCount - 1;
+        TypeDerivation fnDeriv = outType->derivations[last];
+        memmove(outType->derivations + 1,
+                outType->derivations,
+                sizeof(TypeDerivation) * last);
+        outType->derivations[0] = fnDeriv;
+    }
+    return true;
 }
 
 static bool typeInfoIsScalar(const TypeInfo* info) {
@@ -66,6 +184,24 @@ static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b) {
     }
     result.isLValue = false;
     return result;
+}
+
+static bool parsedTypePrependPointer(ParsedType* t) {
+    if (!t) return false;
+    TypeDerivation* grown =
+        (TypeDerivation*)realloc(t->derivations, sizeof(TypeDerivation) * (t->derivationCount + 1));
+    if (!grown) return false;
+    t->derivations = grown;
+    if (t->derivationCount > 0) {
+        memmove(t->derivations + 1, t->derivations, sizeof(TypeDerivation) * t->derivationCount);
+    }
+    t->derivations[0].kind = TYPE_DERIVATION_POINTER;
+    t->derivations[0].as.pointer.isConst = false;
+    t->derivations[0].as.pointer.isVolatile = false;
+    t->derivations[0].as.pointer.isRestrict = false;
+    t->derivationCount += 1;
+    parsedTypeAddPointerDepth(t, 1);
+    return true;
 }
 
 static bool isBitwiseOperator(const char* op);
@@ -862,6 +998,21 @@ static const CCTagFieldLayout* lookupFieldLayout(const TypeInfo* base,
     const CCTagFieldLayout* layouts = NULL;
     size_t count = 0;
     CCTagKind kind = (base->category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    if (base->userTypeName) {
+        if (!cc_tag_is_defined(scope->ctx, kind, base->userTypeName) &&
+            base->originalType &&
+            base->originalType->inlineStructOrUnionDef) {
+            ASTNode* def = base->originalType->inlineStructOrUnionDef;
+            bool kindMatches =
+                (kind == CC_TAG_STRUCT && def->type == AST_STRUCT_DEFINITION) ||
+                (kind == CC_TAG_UNION && def->type == AST_UNION_DEFINITION);
+            if (kindMatches) {
+                (void)cc_define_tag(scope->ctx, kind, base->userTypeName, 0, def);
+            }
+        }
+        size_t sz = 0, al = 0;
+        (void)layout_struct_union(scope->ctx, scope, kind, base->userTypeName, &sz, &al);
+    }
     if (!cc_get_tag_field_layouts(scope->ctx, kind, base->userTypeName, &layouts, &count) || !layouts) {
         return NULL;
     }
@@ -888,6 +1039,16 @@ TypeInfo decayToRValue(TypeInfo info) {
     if (info.category == TYPEINFO_FUNCTION || info.isFunction) {
         info.category = TYPEINFO_POINTER;
         typeInfoPrependPointerLevel(&info, (PointerQualifier){0});
+        if (info.originalType) {
+            ParsedType ptrType = parsedTypeClone(info.originalType);
+            if (ptrType.kind != TYPE_INVALID && parsedTypePrependPointer(&ptrType)) {
+                ptrType.isFunctionPointer = true;
+                typeInfoAdoptParsedType(&info, &ptrType);
+            } else {
+                parsedTypeFree(&ptrType);
+                info.originalType = NULL;
+            }
+        }
         info.isFunction = false;
         info.isLValue = false;
         return info;
@@ -950,6 +1111,15 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 fnInfo.category = TYPEINFO_FUNCTION;
                 fnInfo.isFunction = true;
                 fnInfo.isLValue = false;
+                ParsedType fnParsed;
+                memset(&fnParsed, 0, sizeof(fnParsed));
+                fnParsed.kind = TYPE_INVALID;
+                if (buildFunctionDesignatorType(sym, &fnParsed)) {
+                    typeInfoAdoptParsedType(&fnInfo, &fnParsed);
+                    parsedTypeFree(&fnParsed);
+                } else {
+                    fnInfo.originalType = &sym->type;
+                }
                 return fnInfo;
             }
 
@@ -1005,6 +1175,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             TypeInfo rvalue = decayToRValue(valueInfo);
             const char* op = node->assignment.op ? node->assignment.op : "=";
             AssignmentCheckResult assignResult = ASSIGN_OK;
+            bool suppressIncompatibleDiag = false;
             if (strcmp(op, "=") == 0) {
                 assignResult = canAssignTypes(&targetInfo, &rvalue);
                 if (assignResult == ASSIGN_INCOMPATIBLE &&
@@ -1044,16 +1215,22 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 if (synthetic.expr.op) {
                     synthetic.expr.left = node->assignment.target;
                     synthetic.expr.right = node->assignment.value;
+                    size_t errorsBeforeSynthetic = getErrorCount();
                     TypeInfo combined = analyzeExpression(&synthetic, scope);
+                    size_t errorsAfterSynthetic = getErrorCount();
                     TypeInfo combinedRValue = decayToRValue(combined);
                     assignResult = canAssignTypes(&targetInfo, &combinedRValue);
+                    if (errorsAfterSynthetic > errorsBeforeSynthetic &&
+                        assignResult == ASSIGN_INCOMPATIBLE) {
+                        suppressIncompatibleDiag = true;
+                    }
                 } else {
                     assignResult = canAssignTypes(&targetInfo, &rvalue);
                 }
             }
             if (assignResult == ASSIGN_QUALIFIER_LOSS) {
                 addError(node->line, 0, "Assignment discards qualifiers from pointer target", NULL);
-            } else if (assignResult == ASSIGN_INCOMPATIBLE) {
+            } else if (assignResult == ASSIGN_INCOMPATIBLE && !suppressIncompatibleDiag) {
                 addError(node->line, 0, "Incompatible assignment operands", NULL);
             }
             targetInfo.isLValue = false;
@@ -1071,6 +1248,25 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             if (isArithmeticOperator(op)) {
                 bool leftPtr = typeInfoIsPointerLike(&left);
                 bool rightPtr = typeInfoIsPointerLike(&right);
+
+                if (strcmp(op, "%") == 0) {
+                    if (!typeInfoIsInteger(&left) || !typeInfoIsInteger(&right)) {
+                        if (typeInfoIsKnown(&left) || typeInfoIsKnown(&right)) {
+                            reportOperandError(node, "integer operands", op);
+                        }
+                        return makeInvalidType();
+                    }
+                    bool ok = true;
+                    TypeInfo result = usualArithmeticConversion(left, right, &ok);
+                    if (!ok) {
+                        if (typeInfoIsKnown(&left) || typeInfoIsKnown(&right)) {
+                            reportOperandError(node, "integer operands", op);
+                        }
+                        return makeInvalidType();
+                    }
+                    result.isLValue = false;
+                    return result;
+                }
 
                 if (strcmp(op, "+") == 0) {
                     if (leftPtr && typeInfoIsInteger(&right)) {
@@ -1374,10 +1570,12 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             TypeInfo target = typeInfoFromParsedType(&node->castExpr.castType, scope);
             TypeInfo source = analyzeExpression(node->castExpr.expression, scope);
             source = decayToRValue(source);
+            bool targetKnown = typeInfoIsKnown(&target);
+            bool sourceKnown = typeInfoIsKnown(&source);
             bool targetIsVoid = target.category == TYPEINFO_VOID;
             bool targetIsScalar = typeInfoIsArithmetic(&target) || typeInfoIsPointerLike(&target);
             bool sourceIsScalar = typeInfoIsArithmetic(&source) || typeInfoIsPointerLike(&source);
-            if (!targetIsVoid && (!targetIsScalar || !sourceIsScalar)) {
+            if (!targetIsVoid && targetKnown && sourceKnown && (!targetIsScalar || !sourceIsScalar)) {
                 addError(node->line, 0, "Invalid cast between non-scalar types", NULL);
             }
             target.isLValue = false;
@@ -1640,6 +1838,45 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     fnTarget = parsedTypeClone(calleeInfo.originalType);
                     haveTarget = fnTarget.kind != TYPE_INVALID;
                 }
+
+                if (haveTarget) {
+                    const ParsedFunctionSignature* callSig = NULL;
+                    for (size_t i = 0; i < fnTarget.derivationCount; ++i) {
+                        const TypeDerivation* deriv = parsedTypeGetDerivation(&fnTarget, i);
+                        if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
+                            callSig = &deriv->as.function;
+                            break;
+                        }
+                    }
+
+                    if (callSig) {
+                        size_t expected = callSig->paramCount;
+                        bool tooFew = argCount < expected;
+                        bool tooMany = !callSig->isVariadic && argCount > expected;
+                        if (tooFew) {
+                            reportArgumentCountError(node, calleeName, expected, argCount, true);
+                        }
+                        if (tooMany) {
+                            reportArgumentCountError(node, calleeName, expected, argCount, false);
+                        }
+                    }
+
+                    parsedTypeFree(&fnTarget);
+                }
+            }
+
+            if (result.category == TYPEINFO_INVALID && calleeInfo.originalType) {
+                ParsedType fnTarget;
+                memset(&fnTarget, 0, sizeof(fnTarget));
+                fnTarget.kind = TYPE_INVALID;
+                bool haveTarget = false;
+                if (calleeInfo.category == TYPEINFO_POINTER && calleeInfo.pointerDepth > 0) {
+                    fnTarget = parsedTypePointerTargetType(calleeInfo.originalType);
+                    haveTarget = fnTarget.kind != TYPE_INVALID;
+                } else if (calleeInfo.category == TYPEINFO_FUNCTION || calleeInfo.isFunction) {
+                    fnTarget = parsedTypeClone(calleeInfo.originalType);
+                    haveTarget = fnTarget.kind != TYPE_INVALID;
+                }
                 if (haveTarget) {
                     ParsedType retParsed = parsedTypeFunctionReturnType(&fnTarget);
                     if (retParsed.kind != TYPE_INVALID) {
@@ -1836,8 +2073,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_TERNARY_EXPRESSION: {
             TypeInfo condInfo = analyzeExpression(node->ternaryExpr.condition, scope);
             condInfo = decayToRValue(condInfo);
-            TypeInfo trueInfo = analyzeExpression(node->ternaryExpr.trueExpr, scope);
-            TypeInfo falseInfo = analyzeExpression(node->ternaryExpr.falseExpr, scope);
+            TypeInfo trueInfo = decayToRValue(analyzeExpression(node->ternaryExpr.trueExpr, scope));
+            TypeInfo falseInfo = decayToRValue(analyzeExpression(node->ternaryExpr.falseExpr, scope));
             bool conditionValid = true;
             if (condInfo.category != TYPEINFO_INVALID && !typeInfoIsScalar(&condInfo)) {
                 addError(node->line, 0, "Conditional operator first operand must be scalar", NULL);
@@ -1871,8 +2108,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 return trueInfo;
             }
 
-            TypeInfo truePtrInfo = truePtr ? decayToRValue(trueInfo) : trueInfo;
-            TypeInfo falsePtrInfo = falsePtr ? decayToRValue(falseInfo) : falseInfo;
+            TypeInfo truePtrInfo = trueInfo;
+            TypeInfo falsePtrInfo = falseInfo;
 
             if (truePtr && falsePtr) {
                 /* void* dominates; otherwise require compatibility. */
@@ -1899,7 +2136,9 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 return falsePtrInfo;
             }
 
-            if (conditionValid) {
+            if (conditionValid &&
+                trueInfo.category != TYPEINFO_INVALID &&
+                falseInfo.category != TYPEINFO_INVALID) {
                 addError(node->line, 0, "Incompatible types in ternary expression", NULL);
             }
             return makeInvalidType();
