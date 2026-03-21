@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_impldef_signed_char_narrowing",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_impldef_signed_char_narrowing.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_impldef_signed_char_narrowing.stdout",
+      "expected_stderr": "expect/14__runtime_impldef_signed_char_narrowing.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "impl-defined",
+        "policy",
+        "char",
+        "narrowing"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

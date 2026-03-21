@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_switch_fnptr_dispatch_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_switch_fnptr_dispatch_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_switch_fnptr_dispatch_chain.stdout",
+      "expected_stderr": "expect/14__runtime_switch_fnptr_dispatch_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "switch",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_struct_pointer_pipeline",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_struct_pointer_pipeline.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_struct_pointer_pipeline.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_struct_pointer_pipeline.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "struct-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

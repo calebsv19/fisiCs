@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_fnptr_typedef_return_direct",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_typedef_return_direct.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_typedef_return_direct.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_typedef_return_direct.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "typedef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_typedef_return_ternary_callee",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_typedef_return_ternary_callee.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_typedef_return_ternary_callee.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_typedef_return_ternary_callee.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "ternary-callee"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_expression_callee_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_expression_callee_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_expression_callee_chain.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_expression_callee_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "expression-callee"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_pointer_index_width_signedness",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_pointer_index_width_signedness.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_pointer_index_width_signedness.stdout",
+      "expected_stderr": "expect/14__runtime_pointer_index_width_signedness.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer",
+        "signedness"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_vla_param_mixed_signed_unsigned_indices",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_param_mixed_signed_unsigned_indices.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_param_mixed_signed_unsigned_indices.stdout",
+      "expected_stderr": "expect/14__runtime_vla_param_mixed_signed_unsigned_indices.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "vla",
+        "signedness"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

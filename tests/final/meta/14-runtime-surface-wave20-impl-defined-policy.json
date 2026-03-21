@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_impldef_long_double_size_align",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_impldef_long_double_size_align.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_impldef_long_double_size_align.stdout",
+      "expected_stderr": "expect/14__runtime_impldef_long_double_size_align.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "impl-defined",
+        "policy",
+        "long-double",
+        "alignment"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

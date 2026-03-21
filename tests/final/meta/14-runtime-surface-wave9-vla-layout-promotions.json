@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_vla_stride_indexing",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_stride_indexing.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_stride_indexing.stdout",
+      "expected_stderr": "expect/14__runtime_vla_stride_indexing.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "vla",
+        "indexing"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_alignment_long_double_struct",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_alignment_long_double_struct.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_alignment_long_double_struct.stdout",
+      "expected_stderr": "expect/14__runtime_alignment_long_double_struct.stderr",
+      "differential": true,
+      "standard": "c99",
+      "abi_sensitive": true,
+      "tags": [
+        "runtime",
+        "memory",
+        "struct-layout",
+        "alignment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_array_byte_stride",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_array_byte_stride.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_array_byte_stride.stdout",
+      "expected_stderr": "expect/14__runtime_struct_array_byte_stride.stderr",
+      "differential": true,
+      "standard": "c99",
+      "abi_sensitive": true,
+      "tags": [
+        "runtime",
+        "memory",
+        "struct-layout",
+        "stride"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_union_embedded_alignment",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_union_embedded_alignment.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_union_embedded_alignment.stdout",
+      "expected_stderr": "expect/14__runtime_union_embedded_alignment.stderr",
+      "differential": true,
+      "standard": "c99",
+      "abi_sensitive": true,
+      "tags": [
+        "runtime",
+        "memory",
+        "union",
+        "alignment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_vla_row_pointer_decay",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_row_pointer_decay.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_row_pointer_decay.stdout",
+      "expected_stderr": "expect/14__runtime_vla_row_pointer_decay.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer",
+        "vla",
+        "decay"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

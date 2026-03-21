@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_pointer_negative_offset",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_pointer_negative_offset.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_pointer_negative_offset.stdout",
+      "expected_stderr": "expect/14__runtime_pointer_negative_offset.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer",
+        "negative-offset"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

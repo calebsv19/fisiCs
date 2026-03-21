@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_fnptr_ternary_dispatch_accumulate",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_ternary_dispatch_accumulate.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_ternary_dispatch_accumulate.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_ternary_dispatch_accumulate.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "ternary",
+        "sequence"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_ptrdiff_update_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_ptrdiff_update_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_ptrdiff_update_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_struct_ptrdiff_update_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "struct",
+        "ptrdiff"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

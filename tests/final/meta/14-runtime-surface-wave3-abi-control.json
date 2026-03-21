@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_struct_mixed_width_pass_return",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_mixed_width_pass_return.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_mixed_width_pass_return.stdout",
+      "expected_stderr": "expect/14__runtime_struct_mixed_width_pass_return.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "struct-return",
+        "abi"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_nested_copy_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_nested_copy_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_nested_copy_chain.stdout",
+      "expected_stderr": "expect/14__runtime_struct_nested_copy_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "struct-copy",
+        "aggregate"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_global_designated_sparse",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_global_designated_sparse.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_global_designated_sparse.stdout",
+      "expected_stderr": "expect/14__runtime_global_designated_sparse.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "global",
+        "initialization",
+        "designated"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

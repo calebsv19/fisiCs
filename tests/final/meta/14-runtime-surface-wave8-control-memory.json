@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_nested_switch_fallthrough_loop",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_nested_switch_fallthrough_loop.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_nested_switch_fallthrough_loop.stdout",
+      "expected_stderr": "expect/14__runtime_nested_switch_fallthrough_loop.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "switch",
+        "fallthrough",
+        "loop"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_short_circuit_side_effect_counter",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_short_circuit_side_effect_counter.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_short_circuit_side_effect_counter.stdout",
+      "expected_stderr": "expect/14__runtime_short_circuit_side_effect_counter.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "short-circuit",
+        "side-effects"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_vla_ptrdiff_row_size_dynamic",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_ptrdiff_row_size_dynamic.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_ptrdiff_row_size_dynamic.stdout",
+      "expected_stderr": "expect/14__runtime_vla_ptrdiff_row_size_dynamic.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer",
+        "vla",
+        "ptrdiff"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

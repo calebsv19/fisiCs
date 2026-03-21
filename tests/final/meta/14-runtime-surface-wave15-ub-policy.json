@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_predec_intmin_ub_path",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_predec_intmin_ub_path.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_predec_intmin_ub_path.stdout",
+      "expected_stderr": "expect/14__runtime_predec_intmin_ub_path.stderr",
+      "differential": true,
+      "ub": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "ub",
+        "policy",
+        "signed-overflow",
+        "predec"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_add_assign_intmax_ub_path",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_add_assign_intmax_ub_path.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_add_assign_intmax_ub_path.stdout",
+      "expected_stderr": "expect/14__runtime_add_assign_intmax_ub_path.stderr",
+      "differential": true,
+      "ub": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "ub",
+        "policy",
+        "signed-overflow",
+        "assign-add"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_sub_assign_intmin_ub_path",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_sub_assign_intmin_ub_path.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_sub_assign_intmin_ub_path.stdout",
+      "expected_stderr": "expect/14__runtime_sub_assign_intmin_ub_path.stderr",
+      "differential": true,
+      "ub": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "ub",
+        "policy",
+        "signed-overflow",
+        "assign-sub"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_impldef_signed_right_shift",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_impldef_signed_right_shift.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_impldef_signed_right_shift.stdout",
+      "expected_stderr": "expect/14__runtime_impldef_signed_right_shift.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "impl-defined",
+        "policy",
+        "shift"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_impldef_char_signedness",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_impldef_char_signedness.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_impldef_char_signedness.stdout",
+      "expected_stderr": "expect/14__runtime_impldef_char_signedness.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "impl-defined",
+        "policy",
+        "char"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_impldef_enum_neg_cast",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_impldef_enum_neg_cast.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_impldef_enum_neg_cast.stdout",
+      "expected_stderr": "expect/14__runtime_impldef_enum_neg_cast.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "impl-defined",
+        "policy",
+        "enum"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

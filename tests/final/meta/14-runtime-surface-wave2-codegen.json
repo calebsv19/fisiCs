@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_loop_continue_break_phi",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_loop_continue_break_phi.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_loop_continue_break_phi.stdout",
+      "expected_stderr": "expect/14__runtime_loop_continue_break_phi.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "loop",
+        "phi"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_short_circuit_chain_effects",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_short_circuit_chain_effects.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_short_circuit_chain_effects.stdout",
+      "expected_stderr": "expect/14__runtime_short_circuit_chain_effects.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "short-circuit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_copy_update",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_copy_update.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_copy_update.stdout",
+      "expected_stderr": "expect/14__runtime_struct_copy_update.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "struct-copy",
+        "abi"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_pointer_stride_long_long",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_pointer_stride_long_long.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_pointer_stride_long_long.stdout",
+      "expected_stderr": "expect/14__runtime_pointer_stride_long_long.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer",
+        "stride"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_global_partial_init_zerofill",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_global_partial_init_zerofill.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_global_partial_init_zerofill.stdout",
+      "expected_stderr": "expect/14__runtime_global_partial_init_zerofill.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "global",
+        "initialization",
+        "zerofill"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

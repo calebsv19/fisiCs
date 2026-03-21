@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_ternary_side_effect_phi",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_ternary_side_effect_phi.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_ternary_side_effect_phi.stdout",
+      "expected_stderr": "expect/14__runtime_ternary_side_effect_phi.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "ternary",
+        "side-effects"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_comma_sequence_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_comma_sequence_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_comma_sequence_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_comma_sequence_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "expressions",
+        "comma",
+        "sequence"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

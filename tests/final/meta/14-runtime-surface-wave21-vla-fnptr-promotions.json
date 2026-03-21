@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_vla_param_matrix_reduce",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_param_matrix_reduce.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_param_matrix_reduce.stdout",
+      "expected_stderr": "expect/14__runtime_vla_param_matrix_reduce.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "vla",
+        "parameter"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_struct_by_value_dispatch",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_struct_by_value_dispatch.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_struct_by_value_dispatch.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_struct_by_value_dispatch.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "struct-by-value"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
