@@ -76,6 +76,36 @@ RUNTIME_PROBES = [
         note="function parameter declared as function type should adjust to pointer and accept matching function argument",
     ),
     RuntimeProbe(
+        probe_id="13__probe_phi_continue_runtime",
+        source=PROBE_DIR / "runtime/13__probe_phi_continue_runtime.c",
+        note="loop-carried accumulator with continue/break edges should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="13__probe_short_circuit_chain_runtime",
+        source=PROBE_DIR / "runtime/13__probe_short_circuit_chain_runtime.c",
+        note="nested short-circuit chain side effects should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="13__probe_struct_copy_runtime",
+        source=PROBE_DIR / "runtime/13__probe_struct_copy_runtime.c",
+        note="struct return and by-value copy/update path should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="13__probe_ptr_stride_runtime",
+        source=PROBE_DIR / "runtime/13__probe_ptr_stride_runtime.c",
+        note="pointer-difference scaling and indexed pointer loads should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="13__probe_global_init_runtime",
+        source=PROBE_DIR / "runtime/13__probe_global_init_runtime.c",
+        note="global partial initializer and zero-fill behavior should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="13__probe_fnptr_ternary_decay_runtime",
+        source=PROBE_DIR / "runtime/13__probe_fnptr_ternary_decay_runtime.c",
+        note="function designators in ternary should decay to compatible function pointers",
+    ),
+    RuntimeProbe(
         probe_id="14__probe_unsigned_wrap",
         source=PROBE_DIR / "runtime/14__probe_unsigned_wrap.c",
         note="unsigned wrap behavior should match clang",
@@ -84,6 +114,161 @@ RUNTIME_PROBES = [
         probe_id="14__probe_float_nan",
         source=PROBE_DIR / "runtime/14__probe_float_nan.c",
         note="NaN self-inequality should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_float_cast_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_float_cast_roundtrip.c",
+        note="float-to-int casts should truncate toward zero and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_many_args_mixed_width",
+        source=PROBE_DIR / "runtime/14__probe_many_args_mixed_width.c",
+        note="mixed-width many-arg call ABI should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_promotions_matrix",
+        source=PROBE_DIR / "runtime/14__probe_variadic_promotions_matrix.c",
+        note="default argument promotions across variadic boundary should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_with_array_pass_return",
+        source=PROBE_DIR / "runtime/14__probe_struct_with_array_pass_return.c",
+        note="struct containing array should survive by-value pass/return path",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_union_payload_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_union_payload_roundtrip.c",
+        note="union passed/returned by value should preserve active member value",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_dispatch_table_mixed",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_dispatch_table_mixed.c",
+        note="function-pointer dispatch table calls should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_switch_loop_control_mix",
+        source=PROBE_DIR / "runtime/14__probe_switch_loop_control_mix.c",
+        note="switch+loop with continue/break/goto control edges should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_stride_indexing",
+        source=PROBE_DIR / "runtime/14__probe_vla_stride_indexing.c",
+        note="VLA multidimensional indexing and flattened pointer-difference path should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_alignment_long_double_struct",
+        source=PROBE_DIR / "runtime/14__probe_alignment_long_double_struct.c",
+        note="long-double struct alignment/offset invariants should compile and match clang behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_array_byte_stride",
+        source=PROBE_DIR / "runtime/14__probe_struct_array_byte_stride.c",
+        note="struct-array byte-stride invariants should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_union_embedded_alignment",
+        source=PROBE_DIR / "runtime/14__probe_union_embedded_alignment.c",
+        note="embedded union alignment/offset invariants should compile and match clang behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_row_pointer_decay",
+        source=PROBE_DIR / "runtime/14__probe_vla_row_pointer_decay.c",
+        note="VLA row-pointer decay and row-stride pointer arithmetic should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_nested_switch_fallthrough_loop",
+        source=PROBE_DIR / "runtime/14__probe_nested_switch_fallthrough_loop.c",
+        note="nested switch with loop fallthrough/continue edges should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_short_circuit_side_effect_counter",
+        source=PROBE_DIR / "runtime/14__probe_short_circuit_side_effect_counter.c",
+        note="short-circuit side-effect counter behavior should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_ptrdiff_row_size_dynamic",
+        source=PROBE_DIR / "runtime/14__probe_vla_ptrdiff_row_size_dynamic.c",
+        note="pointer differences over VLA row pointers should scale by runtime row size",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_param_matrix_reduce",
+        source=PROBE_DIR / "runtime/14__probe_vla_param_matrix_reduce.c",
+        note="VLA parameter matrix reduction should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_struct_by_value_dispatch",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_struct_by_value_dispatch.c",
+        note="function-pointer dispatch over struct-by-value args/returns should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_typedef_return_direct",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_typedef_return_direct.c",
+        note="typedef function-pointer returns should preserve callable pointer values in direct call paths",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_typedef_return_ternary_callee",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_typedef_return_ternary_callee.c",
+        note="typedef function-pointer returns should remain callable through ternary callee expressions",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_expression_callee_chain",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_expression_callee_chain.c",
+        note="function-pointer expression callee chains should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_pointer_index_width_signedness",
+        source=PROBE_DIR / "runtime/14__probe_pointer_index_width_signedness.c",
+        note="pointer indexing should preserve signedness and width semantics across int and size_t indices",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_param_mixed_signed_unsigned_indices",
+        source=PROBE_DIR / "runtime/14__probe_vla_param_mixed_signed_unsigned_indices.c",
+        note="VLA parameter indexing with mixed signed/unsigned index paths should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bitfield_unsigned_pack_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_bitfield_unsigned_pack_roundtrip.c",
+        note="unsigned bitfield write/read roundtrip should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_nested_return_dispatch_matrix",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_nested_return_dispatch_matrix.c",
+        note="nested function-pointer return dispatch matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_three_dim_stride_reduce",
+        source=PROBE_DIR / "runtime/14__probe_vla_three_dim_stride_reduce.c",
+        note="3D VLA reduction and slab-stride pointer diff should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_promotion_edges",
+        source=PROBE_DIR / "runtime/14__probe_variadic_promotion_edges.c",
+        note="variadic promotion edges for signed/unsigned char and float should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_chooser_roundtrip_call",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_chooser_roundtrip_call.c",
+        note="chooser function-pointer roundtrip calls should preserve full call signature and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_three_dim_index_stride_basic",
+        source=PROBE_DIR / "runtime/14__probe_vla_three_dim_index_stride_basic.c",
+        note="basic 3D VLA indexing and slab/lane stride pointer differences should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_typedef_alias_chain_dispatch",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_typedef_alias_chain_dispatch.c",
+        note="typedef-alias chooser call chains should preserve nested function-pointer returns",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_chooser_table_ternary_chain",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_chooser_table_ternary_chain.c",
+        note="chooser-table ternary expression callee chains should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_four_dim_stride_matrix",
+        source=PROBE_DIR / "runtime/14__probe_vla_four_dim_stride_matrix.c",
+        note="4D VLA indexing and slab/lane stride pointer differences should match clang",
     ),
     RuntimeProbe(
         probe_id="15__probe_switch_loop_lite",
@@ -521,6 +706,60 @@ DIAG_PROBES = [
         source=PROBE_DIR / "diagnostics/12__probe_for_header_missing_semicolon_reject.c",
         note="for header missing first ';' should emit a diagnostic",
         required_substrings=("Undeclared identifier",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_fnptr_too_many_args_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_fnptr_too_many_args_reject.c",
+        note="function-pointer call should reject too many arguments for fixed-arity target",
+        required_substrings=("Too many arguments",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_fnptr_too_few_args_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_fnptr_too_few_args_reject.c",
+        note="function-pointer call should reject too few arguments for fixed-arity target",
+        required_substrings=("Too few arguments",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_mod_float_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_mod_float_reject.c",
+        note="modulo with floating operand should be rejected",
+        required_substrings=("Operator '%'",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_fnptr_assign_incompatible_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_fnptr_assign_incompatible_reject.c",
+        note="function-pointer assignment with incompatible signature should be rejected",
+        required_substrings=("Incompatible assignment operands",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_fnptr_nested_qualifier_loss_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_fnptr_nested_qualifier_loss_reject.c",
+        note="nested function-pointer assignment should reject qualifier loss at pointee depth",
+        required_substrings=("discards qualifiers",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_voidptr_to_fnptr_assign_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_voidptr_to_fnptr_assign_reject.c",
+        note="assignment from void* to function pointer should be rejected",
+        required_substrings=("Incompatible assignment operands",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_fnptr_to_voidptr_assign_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_fnptr_to_voidptr_assign_reject.c",
+        note="assignment from function pointer to void* should be rejected",
+        required_substrings=("Incompatible assignment operands",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_fnptr_nested_volatile_qualifier_loss_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_fnptr_nested_volatile_qualifier_loss_reject.c",
+        note="nested function-pointer assignment should reject volatile qualifier loss at pointee depth",
+        required_substrings=("discards qualifiers",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_fnptr_deep_const_qualifier_loss_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_fnptr_deep_const_qualifier_loss_reject.c",
+        note="multi-level function-pointer assignment should reject deep const qualifier loss",
+        required_substrings=("discards qualifiers",),
     ),
 ]
 

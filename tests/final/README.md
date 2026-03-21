@@ -22,3 +22,6 @@ be validated (tokens, AST, diagnostics, IR, or runtime output).
 - `14-runtime-surface.md`: Minimal libc surface and header expectations.
 - `15-conformance-strategy.md`: Feature matrix and intentional gaps.
 - `probes/README.md`: Triage repro fixtures and probe runner (not in `make final`).
+
+Related planning docs:
+- `docs/plans/runtime_bucket_14_execution_plan.md`: active wave plan for expanding bucket `14`.

@@ -23,8 +23,31 @@ Purpose:
   - `runtime/09__probe_do_while_runtime_codegen_crash.c`
   - `runtime/10__probe_static_function_then_extern_decl_ok.c`
   - `runtime/11__probe_function_param_function_type_adjust_ok.c`
+  - `runtime/13__probe_phi_continue_runtime.c`
+  - `runtime/13__probe_short_circuit_chain_runtime.c`
+  - `runtime/13__probe_struct_copy_runtime.c`
+  - `runtime/13__probe_ptr_stride_runtime.c`
+  - `runtime/13__probe_global_init_runtime.c`
+  - `runtime/13__probe_fnptr_ternary_decay_runtime.c`
   - `runtime/14__probe_unsigned_wrap.c`
   - `runtime/14__probe_float_nan.c`
+  - `runtime/14__probe_float_cast_roundtrip.c`
+  - `runtime/14__probe_many_args_mixed_width.c`
+  - `runtime/14__probe_variadic_promotions_matrix.c`
+  - `runtime/14__probe_struct_with_array_pass_return.c`
+  - `runtime/14__probe_union_payload_roundtrip.c`
+  - `runtime/14__probe_fnptr_dispatch_table_mixed.c`
+  - `runtime/14__probe_switch_loop_control_mix.c`
+  - `runtime/14__probe_vla_stride_indexing.c`
+  - `runtime/14__probe_alignment_long_double_struct.c`
+  - `runtime/14__probe_struct_array_byte_stride.c`
+  - `runtime/14__probe_union_embedded_alignment.c`
+  - `runtime/14__probe_vla_row_pointer_decay.c`
+  - `runtime/14__probe_nested_switch_fallthrough_loop.c`
+  - `runtime/14__probe_short_circuit_side_effect_counter.c`
+  - `runtime/14__probe_vla_ptrdiff_row_size_dynamic.c`
+  - `runtime/14__probe_vla_param_matrix_reduce.c`
+  - `runtime/14__probe_fnptr_struct_by_value_dispatch.c`
   - `runtime/15__probe_switch_loop_lite.c`
   - `runtime/15__probe_switch_loop_mod5.c`
   - `runtime/15__probe_path_decl_nested_runtime.c`
@@ -78,6 +101,15 @@ Purpose:
   - `diagnostics/12__probe_while_missing_lparen_reject.c`
   - `diagnostics/12__probe_do_while_missing_semicolon_reject.c`
   - `diagnostics/12__probe_for_header_missing_semicolon_reject.c`
+  - `diagnostics/13__probe_fnptr_too_many_args_reject.c`
+  - `diagnostics/13__probe_fnptr_too_few_args_reject.c`
+  - `diagnostics/13__probe_mod_float_reject.c`
+  - `diagnostics/13__probe_fnptr_assign_incompatible_reject.c`
+  - `diagnostics/13__probe_fnptr_nested_qualifier_loss_reject.c`
+  - `diagnostics/13__probe_voidptr_to_fnptr_assign_reject.c`
+  - `diagnostics/13__probe_fnptr_to_voidptr_assign_reject.c`
+  - `diagnostics/13__probe_fnptr_nested_volatile_qualifier_loss_reject.c`
+  - `diagnostics/13__probe_fnptr_deep_const_qualifier_loss_reject.c`
   - Runner-only diag-json probes using the same fixtures:
     `12__probe_diagjson_while_missing_lparen`,
     `12__probe_diagjson_do_while_missing_semicolon`,

@@ -97,4 +97,15 @@ Each shard file uses the per-test schema below:
 - `run_args: [...]` and `run_env: {...}` pass runtime CLI args and environment
   to the produced executable; `run_stdin` can provide input text.
 - `differential: true` additionally compiles/runs with `clang` and compares
-  stdout/stderr/exit exactly. If `ub: true`, differential comparison is skipped.
+  stdout/stderr/exit exactly. If `ub: true` or `impl_defined: true`,
+  differential comparison is skipped by policy.
+
+## Operational Best Practices
+- Keep manifests sharded by wave (`<bucket>-waveN-<topic>.json`) to avoid one
+  oversized per-bucket file.
+- While iterating, run exact-id filters first (`FINAL_FILTER=<test_id> ...`),
+  then rerun a full bucket exact-id sweep before promotion.
+- Keep probe-only repros out of active manifests until fixed; promote only when
+  they pass with intended oracle behavior.
+- For parser/front-end diagnostic paths, use `capture_frontend_diag: true` so
+  malformed-input cases fail closed.

@@ -235,6 +235,7 @@ def main():
         run_enabled = bool(test.get("run", False))
         differential = bool(test.get("differential", False))
         ub = bool(test.get("ub", False))
+        impl_defined = bool(test.get("impl_defined", False))
         standard = str(test.get("standard", "c99"))
 
         expected_stdout_rel = test.get("expected_stdout")
@@ -435,6 +436,9 @@ def main():
                 if differential:
                     if ub:
                         print(f"SKIP {test_id}: differential disabled for ub=true")
+                        skipped += 1
+                    elif impl_defined:
+                        print(f"SKIP {test_id}: differential disabled for impl_defined=true")
                         skipped += 1
                     else:
                         clang = shutil.which(test.get("differential_compiler", "clang"))
