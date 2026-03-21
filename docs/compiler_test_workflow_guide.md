@@ -151,6 +151,26 @@ These are the standing rules for the work:
 - Tag UB, implementation-defined, and ABI-sensitive cases explicitly.
 - Never let a missing expectation silently downgrade into a pass.
 
+## Field-Tested Practices (Keep Doing These)
+
+These techniques came from the lexer/preprocessor/parser/codegen/runtime bucket
+campaign and should remain standard:
+
+- Use shard manifests per wave instead of growing one large bucket JSON file.
+  Keep `tests/final/meta/index.json` as a registry and add wave files like
+  `13-codegen-ir-waveN-*.json` or `14-runtime-surface-waveN-*.json`.
+- Run exact-id filters while iterating:
+  `FINAL_FILTER=<test_id> python3 tests/final/run_final.py`,
+  then re-run a full bucket exact-id sweep before closing a wave.
+- Keep probe repros separate from active passing manifests when oracle behavior
+  is not yet stable. Promote only after the fix is in and the probe is resolved.
+- For parser/front-end diagnostics that may occur before semantic output, enable
+  `capture_frontend_diag: true` so malformed-input tests fail closed.
+- Prefer explicit `status` transitions in docs:
+  `unstarted -> in_progress -> blocked/passing/unsupported`.
+- Log each wave (scope, test ids, blockers, fix notes, verification result) in
+  `docs/compiler_behavior_coverage_run_log.md` so bucket context survives handoff.
+
 ## Bucket Execution Flow
 
 This is the standard per-bucket operating sequence.

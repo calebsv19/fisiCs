@@ -49,6 +49,12 @@ Baseline and gap report for the declarations/types bucket. Tracks current
 Wave 1 coverage, added storage/qualifier tests, and confirmed spec-divergence
 items to fix before bucket completion.
 
+### `docs/compiler_codegen_bucket_report.md`
+
+Wave 0/1 kickoff report for Phase 8 (`codegen-ir` and runtime cross-checks).
+Tracks the current active baseline, newly added `13__probe_*` runtime
+differential set, and the current codegen blocker inventory.
+
 ### `docs/compiler_parser_probe_backlog.md`
 
 Current blocked parser/declaration/function probe inventory. Central list of
@@ -94,6 +100,11 @@ integration details.
 
 Structured triage plan for compiler error investigation and prioritization,
 including how to work through captured failures and reduce the open error set.
+
+### `docs/plans/runtime_bucket_14_execution_plan.md`
+
+Active next-step plan for runtime bucket `14`, including wave-by-wave test
+expansion, execution rules, and completion criteria.
 
 ## `docs/status/`
 
@@ -149,3 +160,4 @@ Open these docs based on what you are trying to do:
 - Need current pass/fail state: `status/PASSING.md`, `status/FAILING.md`, `status/UNVALIDATED.md`
 - Need external-project failure reports: `reports/external/*.md`
 - Need active error triage planning: `plans/fisics_errors_triage_plan.md`
+- Need current runtime-bucket roadmap: `plans/runtime_bucket_14_execution_plan.md`

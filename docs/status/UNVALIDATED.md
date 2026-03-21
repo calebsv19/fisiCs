@@ -9,7 +9,12 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
   `14__runtime_struct_with_array_pass_return`,
   `14__runtime_union_payload_roundtrip`,
   `14__runtime_fnptr_dispatch_table_mixed`.
-- VLA stride/index runtime behavior and deeper alignment stress.
+- Newly added wave7 memory/layout probes are blocked and need fixes:
+  `14__probe_vla_stride_indexing` (compile timeout),
+  `14__probe_alignment_long_double_struct` (offsetof inline-struct field lookup),
+  `14__probe_struct_array_byte_stride` (runtime mismatch vs clang),
+  `14__probe_union_embedded_alignment` (offsetof inline-struct field lookup),
+  `14__probe_vla_row_pointer_decay` (runtime crash / differential mismatch).
 - Nested switch/fallthrough loop control-flow stress.
 - Plan reference: `docs/plans/runtime_bucket_14_execution_plan.md`.
 

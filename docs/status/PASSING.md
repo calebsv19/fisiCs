@@ -2,6 +2,11 @@
 
 These items compiled with no semantic or codegen errors during iterative `make run` tests.
 
+====== Final suite snapshot (tests/final) ======
+- Runtime bucket `14` baseline is currently green (full exact-id bucket sweep).
+- Active runtime manifests: `tests/final/meta/14-runtime-surface*.json` (33 total tests).
+- Current next-step plan for bucket `14`: `docs/plans/runtime_bucket_14_execution_plan.md`.
+
 ====== Translation phases & includes ======
 - Translation units, function definitions, prototypes, and calls parse/compile.
 - Local `#include "shadow.h"`, system-style `#include <pp_sys.h>`, and `#include <stdio.h>` resolve and parse.

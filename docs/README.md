@@ -10,6 +10,7 @@ This directory is organized so active reference material stays at the top level 
 - `compiler_test_system_rearchitecture_context.md`: active working brief for the compiler test-system overhaul
 - `compiler_test_coverage_blueprint.md`: concrete coverage map and harness setup plan for the compiler test suite
 - `compiler_behavior_coverage_checklist.md`: execution tracker for validating each compiler behavior bucket and recording per-feature test status
+- `compiler_behavior_coverage_run_log.md`: rolling wave-by-wave execution log for bucket work, blockers, fixes, and promotions
 - `compiler_test_workflow_guide.md`: operator guide for how to use the compiler test docs together and execute each bucket pass correctly
 - `validation_workflow.md`: primary workflow for full-project validation passes
 - `frontend_api.md`: reusable frontend library API notes
@@ -26,3 +27,4 @@ This directory is organized so active reference material stays at the top level 
 - `status/FAILING.md`
 - `status/UNVALIDATED.md`
 - `plans/fisics_errors_triage_plan.md`
+- `plans/runtime_bucket_14_execution_plan.md`

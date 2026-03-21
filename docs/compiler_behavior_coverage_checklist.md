@@ -542,29 +542,33 @@ Primary oracles:
 - `ir`
 - `differential`
 
+Active expansion plan:
+
+- `docs/plans/runtime_bucket_14_execution_plan.md`
+
 ### 8.1 Arithmetic Correctness
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Signed overflow behavior | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `14__arith__signed_overflow` | | UB-tag required |
-| Unsigned wraparound | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__arith__unsigned_wrap`, `probes/runtime/14__probe_unsigned_wrap.c` | | Differential probe now resolves; active-suite promotion remains pending |
-| Division and modulo edge cases | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `diag` | `14__runtime_div_mod_edges` | | Division by zero is UB if runtime |
+| Signed overflow behavior | `runtime` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `14__runtime_signed_overflow_ub` | | UB-tag required |
+| Unsigned wraparound | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_unsigned_wraparound` | | Promoted from `14__probe_unsigned_wrap` and now active in runtime suite |
+| Division and modulo edge cases | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_div_mod_edges`, `14__runtime_signed_div_mod_sign_matrix` | | Division by zero is UB if runtime |
 
 ### 8.2 Floating-Point Correctness
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Precision behavior | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_float_precision` | | Target-specific tolerance may be needed |
-| NaN propagation | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__float__nan`, `probes/runtime/14__probe_float_nan.c` | | Differential probe now resolves; active-suite promotion remains pending |
+| Precision behavior | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_float_precision`, `14__probe_float_cast_roundtrip` | `14__probe_float_cast_roundtrip` mismatch (`fisics=1 0 1 0`, `clang=1 1 1 1`) | Target-specific tolerance may be needed; cast-roundtrip lane is currently blocked |
+| NaN propagation | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_nan_propagation`, `14__runtime_nan_comparisons` | | Propagation and comparison anchors are now both active in runtime suite |
 | Infinity behavior | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_float_infinity` | | Active differential runtime anchor added |
 
 ### 8.3 Control Flow
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Nested loops | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir` | `13__ir_nested_loops` | | |
-| Short-circuit logic | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_short_circuit`, `13__ir_short_circuit_side_effect` | | |
-| Switch lowering correctness | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_switch`, `14__runtime_switch_simple`, `probes/runtime/15__probe_switch_loop_lite.c`, `probes/runtime/15__probe_switch_loop_mod5.c` | | Simple and looped switch differential probes are currently green |
+| Nested loops | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir` | `13__ir_nested_loops`, `14__runtime_loop_continue_break_phi` | | Runtime differential anchor promoted from probe set |
+| Short-circuit logic | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_short_circuit`, `13__ir_short_circuit_side_effect`, `14__runtime_short_circuit_chain_effects` | | Runtime differential anchor promoted from probe set |
+| Switch lowering correctness | `codegen-ir` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `13__ir_switch`, `14__runtime_switch_simple`, `14__runtime_switch_loop_control_mix` | | Mixed control-edge runtime case was promoted from probe and is stable |
 
 ### 8.4 Memory
 
@@ -573,18 +577,18 @@ Primary oracles:
 | Stack allocation | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir` | `14__runtime_large_stack` | | |
 | Struct layout correctness | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_struct_layout_alignment` | | ABI-sensitive tag active |
 | Array indexing | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_pointer_arith`, `15__torture__large_array_stress` | | Includes larger local-array stress coverage |
-| Pointer arithmetic | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_pointer_arith` | | |
+| Pointer arithmetic | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_pointer_arith`, `14__runtime_pointer_stride_long_long` | | Promoted long-long stride/difference differential anchor; element-width scaling bug fixed |
 | Alignment correctness | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `ir`, `differential` | `14__runtime_struct_layout_alignment` | | Offset-mod-alignment check active |
 
 ### 8.5 Function Calls
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Parameter passing | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_function_pointer`, `14__runtime_struct_return`, `15__torture__many_params` | | Added multi-parameter ABI stress anchor |
+| Parameter passing | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_function_pointer`, `14__runtime_struct_return`, `14__runtime_struct_mixed_width_pass_return`, `15__torture__many_params` | | Added mixed-width aggregate ABI runtime anchor |
 | Variadic calls | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_variadic_calls` | | Active variadic call-site anchor added |
 | Recursion | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime` | `14__runtime_recursion` | | |
 | Function pointers | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_function_pointer` | | |
-| Struct return | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_struct_return` | | ABI-sensitive |
+| Struct return | `runtime` | [x] | [ ] | [x] | `in_progress` | `runtime`, `differential` | `14__runtime_struct_return`, `14__runtime_struct_copy_update`, `14__runtime_struct_mixed_width_pass_return` | | Struct return/copy runtime differential anchors promoted |
 
 ### 8.6 Stress Runtime
 

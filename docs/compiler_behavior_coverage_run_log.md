@@ -59,6 +59,377 @@ Suggested entry format:
 - Fix batch status: pending
 ```
 
+### 2026-03-12 — Buckets: runtime-surface (14), codegen-ir (13)
+
+- Scope:
+  promote resolved switch/loop control-flow probe into active runtime suite and
+  add new IR hardening coverage for pointer scaling and loop/switch edges.
+- Promotion:
+  `14__probe_switch_loop_control_mix` moved to active suite as
+  `14__runtime_switch_loop_control_mix`
+  (`tests/final/meta/14-runtime-surface-wave4-controlflow.json`).
+- Added `13` IR coverage:
+  `13__ir_ptrdiff_long_long`,
+  `13__ir_ptr_add_scaled_i64`,
+  `13__ir_switch_loop_continue`,
+  `13__ir_do_while`
+  (`tests/final/meta/13-codegen-ir-wave2.json`).
+- Verification:
+  all newly added tests pass, and targeted `13__*` sweep is green (`18/18`).
+
+### 2026-03-20 — Bucket: runtime-surface (14) wave-22 probe kickoff
+
+- Scope:
+  start wave-22 probe-first expansion focused on function-pointer return/callee
+  edge paths and signedness-sensitive pointer/VLA indexing.
+- Docs/status refresh:
+  updated `docs/plans/runtime_bucket_14_execution_plan.md` and
+  `tests/final/14-runtime-surface.md` to reflect wave21 baseline and wave22
+  probe targets.
+- Added probes:
+  `14__probe_fnptr_typedef_return_direct`,
+  `14__probe_fnptr_typedef_return_ternary_callee`,
+  `14__probe_fnptr_expression_callee_chain`,
+  `14__probe_pointer_index_width_signedness`,
+  `14__probe_vla_param_mixed_signed_unsigned_indices`.
+- Probe validation:
+  `PROBE_FILTER=14__probe_fnptr_typedef_return_direct,14__probe_fnptr_typedef_return_ternary_callee,14__probe_fnptr_expression_callee_chain,14__probe_pointer_index_width_signedness,14__probe_vla_param_mixed_signed_unsigned_indices python3 tests/final/probes/run_probes.py`
+  reports `blocked=2`, `resolved=3`, `skipped=0`.
+- Resolved:
+  `14__probe_fnptr_typedef_return_direct`,
+  `14__probe_fnptr_expression_callee_chain`,
+  `14__probe_pointer_index_width_signedness`.
+- Blocked (fix-phase candidates):
+  `14__probe_fnptr_typedef_return_ternary_callee`
+  (`fisics: 11 9 1656200`, `clang: 11 9 4`),
+  `14__probe_vla_param_mixed_signed_unsigned_indices`
+  (`fisics: -527774736 11 23`, `clang: 356 11 23`).
+
+### 2026-03-20 — Bucket: runtime-surface (14) wave-22 fix-phase closure
+
+- Scope:
+  resolve remaining wave-22 blockers and verify the full `14__*` probe lane.
+- Codegen fix:
+  updated non-identifier callee call lowering to recover full function
+  signature metadata from semantic symbols (including ternary function-designator
+  callees), so argument passing follows the correct ABI.
+- Validation:
+  `PROBE_FILTER=14__probe_fnptr_typedef_return_ternary_callee python3 tests/final/probes/run_probes.py`
+  now resolves with clang (`stdout=11 9 4`).
+- Bucket probe sweep:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=24`, `skipped=0`.
+- Status:
+  wave-22 probe lane is fully green and ready for promotion into an active
+  runtime shard.
+
+### 2026-03-20 — Bucket: runtime-surface (14) wave-22 promotion closure
+
+- Scope:
+  promote the resolved wave-22 probes into active runtime manifests and
+  validate final-lane stability.
+- Promotion shard added:
+  `tests/final/meta/14-runtime-surface-wave22-fnptr-vla-index-promotions.json`
+  with:
+  `14__runtime_fnptr_typedef_return_direct`,
+  `14__runtime_fnptr_typedef_return_ternary_callee`,
+  `14__runtime_fnptr_expression_callee_chain`,
+  `14__runtime_pointer_index_width_signedness`,
+  `14__runtime_vla_param_mixed_signed_unsigned_indices`.
+- Manifest index updated:
+  `tests/final/meta/index.json` now includes the wave22 shard.
+- Expectations generated (targeted update flow):
+  `UPDATE_FINAL=1 FINAL_FILTER=<wave22-test-id> python3 tests/final/run_final.py`
+  for each promoted test.
+- Targeted verify:
+  each of the five promoted tests passes in final lane with differential checks.
+- Full suite verify:
+  `python3 tests/final/run_final.py` reports `0 failing, 15 skipped`.
+- Status:
+  wave22 is fully integrated into active runtime coverage.
+
+### 2026-03-20 — Bucket: runtime-surface (14) wave-23 probe expansion kickoff
+
+- Scope:
+  continue bucket-14 expansion in probe mode to surface next blocker cluster
+  before promotion.
+- Added probes:
+  `14__probe_bitfield_unsigned_pack_roundtrip`,
+  `14__probe_variadic_promotion_edges`,
+  `14__probe_fnptr_nested_return_dispatch_matrix`,
+  `14__probe_fnptr_chooser_roundtrip_call`,
+  `14__probe_vla_three_dim_stride_reduce`,
+  `14__probe_vla_three_dim_index_stride_basic`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_bitfield_unsigned_pack_roundtrip,14__probe_fnptr_nested_return_dispatch_matrix,14__probe_vla_three_dim_stride_reduce,14__probe_variadic_promotion_edges python3 tests/final/probes/run_probes.py`
+  reports `blocked=2`, `resolved=2`, `skipped=0`.
+- Wave23 diagnosis batch:
+  `PROBE_FILTER=14__probe_fnptr_nested_return_dispatch_matrix,14__probe_vla_three_dim_stride_reduce,14__probe_fnptr_chooser_roundtrip_call,14__probe_vla_three_dim_index_stride_basic python3 tests/final/probes/run_probes.py`
+  reports `blocked=4`, `resolved=0`, `skipped=0`.
+- Current 14-probe snapshot:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=4`, `resolved=26`, `skipped=0`.
+- Blocked inventory:
+  `14__probe_fnptr_nested_return_dispatch_matrix` (`fisics: 1 4 -8`, `clang: 6 4 -8`)
+  `14__probe_fnptr_chooser_roundtrip_call` (`fisics: 1 8`, `clang: 6 8`)
+  `14__probe_vla_three_dim_stride_reduce` (`fisics: <garbage> 4 -8`, `clang: 2814 12 123`)
+  `14__probe_vla_three_dim_index_stride_basic` (`fisics: 0 4 4`, `clang: 123 12 8`).
+- Status:
+  wave23 remains probe-only; no promotion until grouped fix phase resolves both
+  blocker families.
+
+### 2026-03-21 — Bucket: runtime-surface (14) wave-23 fix closure
+
+- Scope:
+  close remaining wave-23 blockers in grouped fix mode, then revalidate full
+  `14__*` probe lane.
+- Codegen fixes:
+  - preserved decorated named-call surface types when resolving callee
+    signatures, preventing alias over-resolution from erasing nested
+    function-pointer returns.
+  - tightened function-pointer signature reconstruction for nested chooser-style
+    call chains.
+- Validation:
+  `PROBE_FILTER=14__probe_fnptr_nested_return_dispatch_matrix,14__probe_fnptr_chooser_roundtrip_call python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Full lane verify:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=30`, `skipped=0`.
+- Status:
+  wave23 probe set is fully green.
+
+### 2026-03-21 — Bucket: runtime-surface (14) wave-24 probe expansion
+
+- Scope:
+  continue probe-first expansion in the same high-risk area (typedef-decorated
+  nested function-pointer chains) and deeper VLA stride/index shapes.
+- Added probes:
+  `14__probe_fnptr_typedef_alias_chain_dispatch`,
+  `14__probe_fnptr_chooser_table_ternary_chain`,
+  `14__probe_vla_four_dim_stride_matrix`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_fnptr_typedef_alias_chain_dispatch,14__probe_fnptr_chooser_table_ternary_chain,14__probe_vla_four_dim_stride_matrix python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Full lane verify after additions:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=33`, `skipped=0`.
+- Notes:
+  first 4D VLA draft used nested loop fill and exposed a separate object-emit
+  crash path (`-o` with invalid IR warning under `CODEGEN_VERIFY=1`), so the
+  probe was minimized to isolate 4D VLA stride/index semantics cleanly for this
+  wave.
+
+### 2026-03-13 — Bucket: runtime-surface (14) planning refresh
+
+- Scope:
+  prepare the next runtime expansion wave with explicit test IDs and execution
+  gates while preserving current stable baseline.
+- Verification snapshot:
+  targeted runtime bucket was green at planning time; current validation uses
+  exact-id bucket sweeps (since `FINAL_FILTER` is exact-match, not prefix).
+- Planning output:
+  added `docs/plans/runtime_bucket_14_execution_plan.md` with wave-by-wave
+  targets (arithmetic/floating, ABI/calls, memory/control-flow stress),
+  promotion flow, and completion criteria.
+- Workflow capture:
+  updated `docs/compiler_test_workflow_guide.md` with field-tested practices
+  (manifest sharding, probe-to-promotion flow, bucket-filter gating, and
+  `capture_frontend_diag` guidance).
+
+### 2026-03-18 — Bucket: runtime-surface (14) wave-5 first promotions
+
+- Scope:
+  begin wave 5 by promoting resolved arithmetic/float probes into active suite.
+- Promoted tests:
+  `14__runtime_unsigned_wraparound`,
+  `14__runtime_nan_propagation`
+  (`tests/final/meta/14-runtime-surface-wave5-arith-float.json`).
+- Probe validation:
+  `PROBE_FILTER=14__probe_ python3 tests/final/probes/run_probes.py`
+  remains fully resolved (`blocked=0`, `resolved=3`, `skipped=0`).
+- Bucket validation:
+  full `14` shard sweep passes (`30/30`) after promotion.
+
+### 2026-03-18 — Bucket: runtime-surface (14) wave-5 expansion (batch 2)
+
+- Scope:
+  add the next arithmetic/float runtime targets and promote only resolved
+  behavior into active manifests.
+- Added/promoted tests:
+  `14__runtime_signed_div_mod_sign_matrix`,
+  `14__runtime_nan_comparisons`
+  (`tests/final/meta/14-runtime-surface-wave5-arith-float.json`).
+- Blocked probe (not promoted):
+  `14__probe_float_cast_roundtrip` with differential mismatch
+  (`fisics=1 0 1 0`, `clang=1 1 1 1`).
+- Probe validation:
+  `PROBE_FILTER=14__probe_ python3 tests/final/probes/run_probes.py`
+  now reports `blocked=1`, `resolved=3`, `skipped=0`.
+- Bucket validation:
+  full active `14` exact-id sweep passes (`32/32`).
+
+### 2026-03-18 — Bucket: runtime-surface (14) wave-6 ABI probes (batch 1)
+
+- Scope:
+  start wave-6 ABI/call stress in probe-first mode, promote only resolved
+  behavior, and expand blocked inventory for grouped fix-phase work.
+- Added new runtime probes:
+  `14__probe_many_args_mixed_width`,
+  `14__probe_variadic_promotions_matrix`,
+  `14__probe_struct_with_array_pass_return`,
+  `14__probe_union_payload_roundtrip`,
+  `14__probe_fnptr_dispatch_table_mixed`.
+- Probe validation:
+  `PROBE_FILTER=14__probe_ python3 tests/final/probes/run_probes.py`
+  reports `blocked=5`, `resolved=4`, `skipped=0`.
+- Promoted:
+  `14__probe_many_args_mixed_width` ->
+  `14__runtime_many_args_mixed_width`
+  (`tests/final/meta/14-runtime-surface-wave6-abi-calls.json`).
+- Blocked probes retained (not promoted):
+  `14__probe_float_cast_roundtrip`,
+  `14__probe_variadic_promotions_matrix`,
+  `14__probe_struct_with_array_pass_return`,
+  `14__probe_union_payload_roundtrip`,
+  `14__probe_fnptr_dispatch_table_mixed`.
+- Bucket validation:
+  full active `14` exact-id sweep passes (`33/33`).
+
+### 2026-03-12 — Bucket: codegen-ir (13) stringent wave
+
+- Scope:
+  deepen `13` with higher-stress CFG and pointer-lowering coverage while
+  staying in one bucket.
+- Added tests:
+  `13__ir_nested_loop_break_continue`,
+  `13__ir_switch_fallthrough_sparse`,
+  `13__ir_do_while_continue_break`,
+  `13__ir_ternary_logical_chain`,
+  `13__ir_ptr_stride_mixed`
+  (`tests/final/meta/13-codegen-ir-wave3.json`).
+- Verification:
+  all 5 new tests pass individually and full targeted `13__*` sweep is green
+  (`23/23`).
+
+### 2026-03-12 — Bucket: codegen-ir (13) negatives expansion
+
+- Scope:
+  continue 13-only expansion with explicit negative coverage and additional CFG
+  shape checks.
+- Added tests:
+  `13__ir_goto_backedge`,
+  `13__ir_loop_if_merge`,
+  `13__ir_reject_pointer_plus_pointer`,
+  `13__ir_reject_subscript_scalar_base`,
+  `13__ir_reject_shift_pointer_operand`,
+  `13__ir_reject_deref_non_pointer`
+  (`tests/final/meta/13-codegen-ir-wave4-negatives.json`).
+- Verification:
+  all 6 new tests pass individually and full targeted `13__*` sweep remains
+  green (`29/29`).
+
+### 2026-03-12 — Bucket: codegen-ir (13) calls/signedness wave
+
+- Scope:
+  extend 13 with deeper call-lowering and signedness paths plus additional
+  invalid-operand negatives.
+- Added tests:
+  `13__ir_switch_signed_cases`,
+  `13__ir_fnptr_array_dispatch`,
+  `13__ir_recursion_factorial`,
+  `13__ir_for_continue_break_accumulate`,
+  `13__ir_signed_unsigned_compare`,
+  `13__ir_reject_mod_pointer_operand`,
+  `13__ir_reject_bitwise_float_operand`,
+  `13__ir_reject_mul_pointer_operand`,
+  `13__ir_reject_shift_float_rhs`
+  (`tests/final/meta/13-codegen-ir-wave5-mixed.json`).
+- Verification:
+  all 9 new tests pass individually and full targeted `13__*` sweep remains
+  green (`38/38`).
+
+### 2026-03-12 — Bucket: codegen-ir (13) variadic/ABI wave
+
+- Scope:
+  continue 13-only expansion with variadic call-site IR coverage, nested
+  switch-loop CFG stress, aggregate by-value lowering, and arity/cast negatives.
+- Added tests:
+  `13__ir_variadic_call_site`,
+  `13__ir_nested_switch_loop_fallthrough_ctrl`,
+  `13__ir_struct_by_value_transform`,
+  `13__ir_mutual_recursion`,
+  `13__ir_reject_nonvariadic_too_many_args`,
+  `13__ir_reject_nonvariadic_too_few_args`,
+  `13__ir_reject_cast_struct_return_to_int`
+  (`tests/final/meta/13-codegen-ir-wave6-calls-cfg.json`).
+- Verification:
+  all 7 new tests pass individually and full targeted `13__*` sweep remains
+  green (`45/45`).
+
+### 2026-03-12 — Bucket: codegen-ir (13) union/volatile wave
+
+- Scope:
+  continue 13-only expansion with union-by-value flow, deeper volatile
+  sequencing, nested switch lowering, and extra lvalue negatives.
+- Added tests:
+  `13__ir_union_by_value_roundtrip`,
+  `13__ir_nested_switch_dispatch`,
+  `13__ir_comma_chain_assign`,
+  `13__ir_volatile_global_sequence`,
+  `13__ir_reject_assign_non_lvalue`,
+  `13__ir_reject_preinc_non_lvalue`
+  (`tests/final/meta/13-codegen-ir-wave7-union-volatile.json`).
+- Verification:
+  all 6 new tests pass individually and full targeted `13__*` sweep remains
+  green (`51/51`).
+- Added blocked-tracking probes (not promoted):
+  `13__probe_fnptr_too_many_args_reject`,
+  `13__probe_fnptr_too_few_args_reject`
+  (`PROBE_FILTER=13__probe_fnptr_` currently `blocked=2`).
+
+### 2026-03-12 — Bucket: codegen-ir (13) function-pointer arity fix
+
+- Scope:
+  close blocked semantic gaps for function-pointer call arity diagnostics.
+- Fix:
+  in `analyzeExpression(AST_FUNCTION_CALL)`, added prototype-arity checking for
+  non-symbol callees resolved from function-pointer/function typed expressions.
+- Probe verification:
+  `PROBE_FILTER=13__probe_fnptr_` now resolves both probes
+  (`blocked=0`, `resolved=2`).
+- Promotion:
+  added active negatives
+  `13__ir_reject_fnptr_too_many_args` and
+  `13__ir_reject_fnptr_too_few_args`
+  (`tests/final/meta/13-codegen-ir-wave8-fnptr-arity.json`).
+- Bucket sweep:
+  full targeted `13__*` remains green (`53/53`).
+
+### 2026-03-12 — Bucket: codegen-ir (13) edge-depth wave
+
+- Scope:
+  continue 13-only expansion with additional signed switch/pointer/null/goto
+  control-flow anchors and more unary/lvalue negatives.
+- Added tests:
+  `13__ir_switch_enum_signed_dispatch`,
+  `13__ir_pointer_null_ternary_index`,
+  `13__ir_while_goto_backedge_accumulate`,
+  `13__ir_struct_array_field_load`,
+  `13__ir_logical_ternary_merge_chain`,
+  `13__ir_unsigned_shift_extract`,
+  `13__ir_reject_postinc_non_lvalue`,
+  `13__ir_reject_unary_plus_pointer`,
+  `13__ir_reject_bitnot_float`
+  (`tests/final/meta/13-codegen-ir-wave9-edge-depth.json`).
+- Verification:
+  all 9 new tests pass individually and full targeted `13__*` sweep remains
+  green (`62/62`).
+- New blocked probe tracking added for remaining semantic gaps:
+  `13__probe_fnptr_ternary_decay_runtime`,
+  `13__probe_mod_float_reject`,
+  `13__probe_fnptr_assign_incompatible_reject`
+  (each currently `blocked=1` when filtered).
+
 ### 2026-03-11 — Bucket: diagnostics-recovery (12) follow-up
 
 - Scope: close diagnostics JSON export blockers for statement-recovery parser errors
@@ -1207,3 +1578,807 @@ Suggested entry format:
   `04__primitive__complex_int_reject`
   (added to `tests/final/meta/04-declarations-runtime-semantic.json`).
 - Full `04__*` active sweep remains green after this fix.
+
+### 2026-03-11 — Bucket: codegen/runtime (Wave 0 baseline + Wave 1 probes)
+
+- Ran targeted active-suite baseline for `13__*` and `14__*`:
+  `selected=33, pass=33, fail=0, skip=0`.
+- Added first codegen-focused runtime differential probes:
+  `13__probe_phi_continue_runtime`,
+  `13__probe_short_circuit_chain_runtime`,
+  `13__probe_struct_copy_runtime`,
+  `13__probe_ptr_stride_runtime`,
+  `13__probe_global_init_runtime`.
+- Probe sweep (`PROBE_FILTER=13__probe_`) result:
+  `blocked=1, resolved=4, skipped=0`.
+- New blocker discovered:
+  `13__probe_ptr_stride_runtime` mismatches clang:
+  `fisics -> 8 6 42949672960`, `clang -> 4 8 6`.
+- Initial interpretation:
+  pointer arithmetic scaling for non-`int` element widths (`long long*`) is
+  incorrect in current codegen path.
+
+### 2026-03-11 — Bucket: codegen/runtime (pointer-stride fix)
+
+- Fixed pointer arithmetic and pointer-difference scaling bug in
+  `cg_build_pointer_offset` / `cg_build_pointer_difference` by using a
+  pointer-op element-size chooser that prefers LLVM ABI size when semantic and
+  LLVM size disagree.
+- Regression check:
+  `PROBE_FILTER=13__probe_ptr_stride_runtime` now resolves and matches clang.
+- Wave 1 probe set status after fix:
+  `PROBE_FILTER=13__probe_` => `blocked=0, resolved=5, skipped=0`.
+- Active bucket sanity check:
+  targeted `13__*` + `14__*` sweep => `selected=33, pass=33, fail=0, skip=0`.
+
+### 2026-03-11 — Bucket: runtime-surface (wave 2 codegen promotion)
+
+- Promoted Wave 1 resolved codegen runtime probes into active suite manifest:
+  `tests/final/meta/14-runtime-surface-wave2-codegen.json`.
+- New active tests:
+  `14__runtime_loop_continue_break_phi`,
+  `14__runtime_short_circuit_chain_effects`,
+  `14__runtime_struct_copy_update`,
+  `14__runtime_pointer_stride_long_long`,
+  `14__runtime_global_partial_init_zerofill`.
+- Each promoted test is runtime + differential (`fisics` vs clang) with explicit
+  stdout/stderr expectations under `tests/final/expect/`.
+- Targeted sweep after promotion:
+  `13__*` + `14__*` => `selected=38, pass=38, fail=0, skip=0`.
+
+### 2026-03-12 — Bucket: runtime-surface (wave 3 ABI/control additions)
+
+- Added active runtime+differential tests:
+  `14__runtime_struct_mixed_width_pass_return`,
+  `14__runtime_struct_nested_copy_chain`,
+  `14__runtime_global_designated_sparse`.
+- Added control-flow stress case as probe-only blocker:
+  `14__probe_switch_loop_control_mix`.
+- Probe result:
+  `PROBE_FILTER=14__probe_switch_loop_control_mix` =>
+  `blocked=1, resolved=0, skipped=0`
+  (`fisics=2278`, `clang=2266`).
+- Active bucket sanity check after wave 3:
+  `13__*` + `14__*` => `selected=41, pass=41, fail=0, skip=0`.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 11 fnptr compatibility hardening)
+
+- Fixed function-designator semantic typing so function identifiers carry full
+  function signatures through decay and assignment checks.
+- Tightened conditional pointer compatibility for function pointers:
+  ternary branches with incompatible function signatures now fail closed.
+- Tightened `%` semantic constraints to require integer operands.
+- Resolved previously blocked probes:
+  `13__probe_fnptr_ternary_decay_runtime`,
+  `13__probe_mod_float_reject`,
+  `13__probe_fnptr_assign_incompatible_reject`.
+- Current `13` probe status:
+  `PROBE_FILTER=13__probe_` => `blocked=0, resolved=10, skipped=0`.
+- Promoted new active tests in
+  `tests/final/meta/13-codegen-ir-wave10-fnptr-compat.json`:
+  `13__ir_fnptr_ternary_decay_dispatch`,
+  `13__ir_reject_fnptr_assign_incompatible`,
+  `13__ir_reject_mod_float_operand`,
+  `13__ir_reject_fnptr_ternary_incompatible`.
+- Full suite regression check:
+  `python3 tests/final/run_final.py` => all active tests pass.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 12 pointer-domain probes/promotions)
+
+- Added new `13` diagnostic probes for pointer-domain assignment behavior:
+  `13__probe_voidptr_to_fnptr_assign_reject`,
+  `13__probe_fnptr_to_voidptr_assign_reject`,
+  `13__probe_fnptr_nested_qualifier_loss_reject`.
+- Probe result:
+  `PROBE_FILTER=13__probe_` => `blocked=1, resolved=12, skipped=0`.
+  - blocked:
+    `13__probe_fnptr_nested_qualifier_loss_reject`
+    (nested function-pointer qualifier-loss not diagnosed)
+- Promoted resolved pointer-domain negatives into active suite via:
+  `tests/final/meta/13-codegen-ir-wave11-pointer-domain.json`
+  - `13__ir_reject_voidptr_to_fnptr_assign`
+  - `13__ir_reject_fnptr_to_voidptr_assign`
+- New active tests pass under targeted runs.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 13 nested fnptr qualifier-loss fix)
+
+- Fixed nested pointer qualifier-loss detection in assignment checks by adding
+  parsed-type pointer-derivation qualifier comparison for non-top-level pointer
+  levels before function-pointer compatibility acceptance.
+- Resolved blocker:
+  `13__probe_fnptr_nested_qualifier_loss_reject`
+  now emits:
+  `Assignment discards qualifiers from pointer target`.
+- Promoted to active suite:
+  `13__ir_reject_fnptr_nested_qualifier_loss`
+  in `tests/final/meta/13-codegen-ir-wave11-pointer-domain.json`.
+- Current `13` probe status:
+  `PROBE_FILTER=13__probe_` => `blocked=0, resolved=13, skipped=0`.
+- Full final suite regression check remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 14 qualifier-loss matrix expansion)
+
+- Added additional qualifier-loss probes for function-pointer pointer chains:
+  `13__probe_fnptr_nested_volatile_qualifier_loss_reject`,
+  `13__probe_fnptr_deep_const_qualifier_loss_reject`.
+- Probe result:
+  `PROBE_FILTER=13__probe_` => `blocked=0, resolved=15, skipped=0`.
+- Promoted resolved negatives into active suite:
+  `13__ir_reject_fnptr_nested_volatile_qualifier_loss`,
+  `13__ir_reject_fnptr_deep_const_qualifier_loss`
+  (manifest: `tests/final/meta/13-codegen-ir-wave11-pointer-domain.json`).
+- Full final suite regression check remains green after promotion.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 15 UB signed-overflow IR stress)
+
+- Added UB-tagged compile/IR-only tests:
+  `13__ir_ub_signed_add_overflow_path`,
+  `13__ir_ub_signed_mul_overflow_path`,
+  `13__ir_ub_signed_sub_overflow_path`.
+- Added manifest:
+  `tests/final/meta/13-codegen-ir-wave12-ub-overflow.json`
+  and registered in `tests/final/meta/index.json`.
+- Fixture metadata marks all three as `ub: true` to keep semantics explicit.
+- Active `13` case count increased to `74`.
+- Probe status remains green:
+  `PROBE_FILTER=13__probe_` => `blocked=0, resolved=15, skipped=0`.
+- Full final suite regression check remains green after promotion.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 16 UB overflow-op expansion)
+
+- Added additional UB-tagged IR-only tests:
+  `13__ir_ub_signed_shl_overflow_path`,
+  `13__ir_ub_negate_intmin_path`,
+  `13__ir_ub_div_intmin_neg1_path`,
+  `13__ir_ub_mixed_overflow_compare_chain`.
+- Added manifest:
+  `tests/final/meta/13-codegen-ir-wave13-ub-overflow-ops.json`
+  and registered in `tests/final/meta/index.json`.
+- Active `13` case count increased to `78`.
+- Probe status remains green:
+  `PROBE_FILTER=13__probe_` => `blocked=0, resolved=15, skipped=0`.
+- Full final suite regression check remains green after promotion.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 17 UB final matrix run)
+
+- Added final UB-tagged IR-only tests:
+  `13__ir_ub_preinc_intmax_path`,
+  `13__ir_ub_predec_intmin_path`,
+  `13__ir_ub_add_assign_intmax_path`,
+  `13__ir_ub_sub_assign_intmin_path`,
+  `13__ir_ub_shift_count_eq_width_path`,
+  `13__ir_ub_shift_count_negative_path`.
+- Added manifest:
+  `tests/final/meta/13-codegen-ir-wave15-ub-final-matrix.json`
+  and registered in `tests/final/meta/index.json`.
+- Active `13` case count increased to `84`.
+- Coverage focus:
+  pre-inc/pre-dec overflow, compound assignment overflow, and shift-count UB.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 18 non-UB shift-width negatives)
+
+- Added strict negative diagnostics tests:
+  `13__ir_reject_shift_count_negative_const`,
+  `13__ir_reject_shift_count_eq_width_const`,
+  `13__ir_reject_shift_count_gt_width_const`.
+- Added manifest:
+  `tests/final/meta/13-codegen-ir-wave16-negatives-shift-width.json`
+  and registered in `tests/final/meta/index.json`.
+- Coverage focus:
+  fail-closed constant shift-width validation (`<0`, `== width`, `> width`)
+  before IR/codegen paths.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 19 assignment-op negatives)
+
+- Added strict assignment-form negatives:
+  `13__ir_reject_shl_assign_count_negative_const`,
+  `13__ir_reject_shl_assign_count_eq_width_const`,
+  `13__ir_reject_shl_assign_count_gt_width_const`,
+  `13__ir_reject_shr_assign_count_negative_const`,
+  `13__ir_reject_shr_assign_count_eq_width_const`,
+  `13__ir_reject_shr_assign_count_gt_width_const`,
+  `13__ir_reject_bitand_assign_float_rhs`,
+  `13__ir_reject_mod_assign_float_rhs`,
+  `13__ir_reject_shl_assign_float_rhs`,
+  `13__ir_reject_shl_assign_pointer_lhs`.
+- Added manifest:
+  `tests/final/meta/13-codegen-ir-wave17-negatives-assign-ops.json`
+  and registered in `tests/final/meta/index.json`.
+- Coverage focus:
+  enforce fail-closed diagnostics for assignment-form integer operators,
+  including constant shift-width checks and float/pointer operand rejection.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 20 `|=`/`^=` assignment negatives)
+
+- Added strict bitwise-assignment negatives:
+  `13__ir_reject_bitor_assign_float_rhs`,
+  `13__ir_reject_bitxor_assign_float_rhs`,
+  `13__ir_reject_bitor_assign_pointer_lhs`,
+  `13__ir_reject_bitxor_assign_pointer_lhs`,
+  `13__ir_reject_bitor_assign_pointer_rhs`,
+  `13__ir_reject_bitxor_assign_pointer_rhs`,
+  `13__ir_reject_bitor_assign_struct_lhs`,
+  `13__ir_reject_bitxor_assign_struct_lhs`,
+  `13__ir_reject_bitor_assign_float_lhs`,
+  `13__ir_reject_bitxor_assign_float_lhs`.
+- Added manifest:
+  `tests/final/meta/13-codegen-ir-wave18-negatives-bitor-bitxor-assign.json`
+  and registered in `tests/final/meta/index.json`.
+- Coverage focus:
+  complete fail-closed diagnostics symmetry for assignment-form bitwise
+  operators (`|=`, `^=`) across float/pointer/struct misuse.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 21 arithmetic assignment negatives)
+
+- Added strict arithmetic-assignment negatives:
+  `13__ir_reject_add_assign_pointer_float_rhs`,
+  `13__ir_reject_add_assign_pointer_rhs`,
+  `13__ir_reject_add_assign_struct_lhs`,
+  `13__ir_reject_add_assign_struct_rhs`,
+  `13__ir_reject_sub_assign_pointer_float_rhs`,
+  `13__ir_reject_sub_assign_pointer_rhs`,
+  `13__ir_reject_mul_assign_pointer_lhs`,
+  `13__ir_reject_div_assign_pointer_rhs`,
+  `13__ir_reject_mod_assign_pointer_lhs`,
+  `13__ir_reject_mod_assign_float_lhs`.
+- Added manifest:
+  `tests/final/meta/13-codegen-ir-wave19-negatives-arith-assign.json`
+  and registered in `tests/final/meta/index.json`.
+- Coverage focus:
+  complete fail-closed diagnostics for assignment-form arithmetic operators
+  (`+=`, `-=`, `*=`, `/=`, `%=`) across pointer/float/struct misuse.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 22 diagnostics-order normalization)
+
+- Semantic normalization implemented in `AST_ASSIGNMENT` analysis:
+  for compound assignments, when synthetic operator validation emits a primary
+  diagnostic (operand-type or shift-width), suppress follow-on
+  `"Incompatible assignment operands"` for the same node.
+- Updated expectations for affected active lanes:
+  `13-codegen-ir-wave17-negatives-assign-ops.json`,
+  `13-codegen-ir-wave18-negatives-bitor-bitxor-assign.json`,
+  `13-codegen-ir-wave19-negatives-arith-assign.json`.
+- Coverage focus:
+  deterministic, less noisy category ordering while preserving fail-closed
+  diagnostics on invalid assignment behavior.
+- Validation:
+  targeted assignment-negative manifests pass, and full
+  `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 23 cast/ternary normalization locks)
+
+- Added diagnostics-order lock tests:
+  `13__ir_reject_cast_invalid_pointer_add_source`,
+  `13__ir_reject_ternary_invalid_branch_suppresses_incompatible`,
+  `13__ir_reject_ternary_invalid_condition_suppresses_incompatible`,
+  `13__ir_reject_ternary_invalid_logical_branch_suppresses_incompatible`.
+- Added manifest:
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`
+  and registered in `tests/final/meta/index.json`.
+- Coverage focus:
+  enforce deterministic primary diagnostics for cast/ternary invalid-source
+  paths, mirroring the assignment-order normalization policy.
+- Validation:
+  full `python3 tests/final/run_final.py` suite passes with new tests active.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 24 mixed parser+semantic ternary recovery lock)
+
+- Added mixed malformed lane:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitwise_float`.
+- Manifest update:
+  appended to `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  lock parser recovery + semantic follow-on ordering in one test by asserting:
+  parser diagnostics (`.pdiag`) for missing ternary `:`, plus deterministic
+  semantic operator rejection (`.diag`) on subsequent `float & int`.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 25 mixed recovery-depth expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_pointer_plus_pointer`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitwise_float`.
+- Manifest update:
+  appended both tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks across a second semantic
+  operator class (pointer+pointer) and deeper nested malformed ternary paths.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 26 mixed recovery semantic-category expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shift_width`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_call_too_few_args`.
+- Manifest update:
+  appended both tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks into constant-expression
+  validators (shift width) and call-arity diagnostics.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 27 mixed recovery call-family + cast expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_few_args`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_invalid_cast`.
+- Manifest update:
+  appended both tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks into function-pointer
+  call-family arity diagnostics and non-scalar cast rejection.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 28 mixed recovery assignment/unary/shift expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_incompatible_assignment`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_unary_plus_pointer`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitnot_float`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_assign_non_lvalue`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shift_pointer`.
+- Manifest update:
+  appended all five tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks across assignment-family,
+  unary-operator-family, and shift-family diagnostics.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 29 mixed recovery logical/subscript expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_and_struct`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_or_struct`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_subscript_scalar_base`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_subscript_scalar_base`.
+- Manifest update:
+  appended all four tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks across logical short-circuit
+  operand validation and subscript base-domain validation, including nested
+  malformed recovery depth.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 30 mixed recovery fnptr-assignment/mod-float expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_assign_incompatible`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_assign_incompatible`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_float`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_float`.
+- Manifest update:
+  appended all four tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks across function-pointer
+  assignment compatibility and arithmetic operator `%` float-operand rejection,
+  including nested malformed recovery depth.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-12 — Bucket: codegen-ir (wave 31 mixed recovery relational/deref expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_relational_struct`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_relational_struct`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_deref_non_pointer`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_deref_non_pointer`.
+- Manifest update:
+  appended all four tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks across comparator-domain
+  diagnostics (struct relational misuse) and unary pointer-domain diagnostics
+  (dereference non-pointer), including nested malformed recovery depth.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 32 mixed recovery equality/fnptr-qualifier expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_equality_struct`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_equality_struct`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_qualifier_loss`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_qualifier_loss`.
+- Manifest update:
+  appended all four tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks across equality comparator
+  misuse on structs and richer function-pointer qualifier-loss assignment
+  diagnostics, including nested malformed recovery depth.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 33 mixed recovery pointer-sub/compound-shift expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_negative_const`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_negative_const`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_eq_width_const`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_eq_width_const`.
+- Manifest update:
+  appended all six tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks across pointer-domain
+  subtraction rejection and compound-assignment shift-width constant
+  validation, including nested malformed recovery depth.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 34 mixed recovery shl-operand/fnptr-arity symmetry)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_many_args`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_too_many_args`.
+- Manifest update:
+  appended all six tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  broaden parser-recovery + semantic-ordering locks across assignment-form
+  integer-operand rejection (`<<=` float/pointer misuse) and complete
+  function-pointer call-arity symmetry (too few + too many) under recovery.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 35 mixed recovery shr-operand/fnptr-qualifier-depth)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_volatile_qualifier_loss`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_volatile_qualifier_loss`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss`.
+- Manifest update:
+  appended all eight tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  complete parser-recovery + semantic-ordering symmetry for shift-assignment
+  operand-domain rejection across both `<<=` and `>>=` families, and broaden
+  recovery lanes for deeper function-pointer qualifier-loss diagnostics.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 36 mixed recovery shift-width/bitwise-assignment completion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_eq_width_const`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_eq_width_const`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_gt_width_const`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_gt_width_const`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_negative_const`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_negative_const`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_gt_width_const`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_gt_width_const`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_lhs`.
+- Manifest update:
+  appended all sixteen tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  complete compound shift-width boundary symmetry under malformed ternary
+  recovery (`<<=` negative/eq/gt and `>>=` negative/eq/gt) and lock
+  parser-recovery bitwise-assignment integer-domain failures for `|=`/`^=`
+  (`float rhs` and `pointer lhs`) across shallow and nested lanes.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 37 mixed recovery assignment-family symmetry extension)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_pointer_lhs`.
+- Manifest update:
+  appended all fourteen tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  extend parser-recovery assignment-family symmetry by locking remaining
+  `|=`/`^=` (`float lhs`, `pointer rhs`) variants and new fail-closed lanes for
+  `&=` and `%=` operand-domain rejection under malformed ternary recovery.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 38 mixed recovery struct-domain and `%=` float-lhs parity)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_struct_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_struct_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_struct_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_struct_lhs`.
+- Manifest update:
+  appended all six tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  complete parser-recovery parity for `%=` float-lhs and mirror existing
+  non-recovery struct-domain bitwise-assignment negatives (`|=`/`^=` struct lhs)
+  under malformed ternary recovery in both shallow and nested lanes.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 39 mixed recovery arithmetic-asymmetry + `&=` parity expansion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_mul_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mul_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_div_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_div_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_float_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_float_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_lhs`.
+- Manifest update:
+  appended all fourteen tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  extend parser-recovery parity for arithmetic-assignment asymmetry edges
+  (`*=`, `/=`, `+=`, `-=` invalid operand domains) and broaden `&=` parity to
+  include pointer-lhs, pointer-rhs, and struct-lhs misuse under malformed
+  ternary recovery.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 40 mixed recovery `+=`/`-=` symmetry completion)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_float_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_float_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_rhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_rhs`.
+- Manifest update:
+  appended all ten tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  complete remaining parser-recovery `+=`/`-=` symmetry lanes by mirroring
+  non-recovery invalid operand-domain cases across shallow and nested malformed
+  ternary paths.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-13 — Bucket: codegen-ir (wave 41 final small `&=` parity closure + stable mark)
+
+- Added mixed malformed lanes:
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_lhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_lhs`,
+  `13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_rhs`,
+  `13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_rhs`.
+- Manifest update:
+  appended all four tests to
+  `tests/final/meta/13-codegen-ir-wave22-diag-normalization.json`.
+- Coverage focus:
+  close the last small `&=` recovery parity edges for current policy scope, then
+  mark bucket `13` as stable for this phase.
+- Validation:
+  full `python3 tests/final/run_final.py` suite remains green.
+
+### 2026-03-18 — Bucket: runtime-surface (14 wave8 probes + promotion)
+
+- Fixed remaining VLA row-pointer differential mismatch by correcting pointer
+  difference element-size selection for direct-array/VLA targets in:
+  `src/CodeGen/codegen_helpers.c` (`cg_build_pointer_difference` now uses
+  semantic/direct-array sizing and runtime VLA byte-size when required).
+- Added new runtime probes:
+  `14__probe_nested_switch_fallthrough_loop`,
+  `14__probe_short_circuit_side_effect_counter`,
+  `14__probe_vla_ptrdiff_row_size_dynamic`.
+- Probe validation:
+  `PROBE_FILTER=14__probe_ python3 tests/final/probes/run_probes.py`
+  is green (`blocked=0`, `resolved=17`, `skipped=0`).
+- Promoted three resolved probes into active suite:
+  `14__runtime_nested_switch_fallthrough_loop`,
+  `14__runtime_short_circuit_side_effect_counter`,
+  `14__runtime_vla_ptrdiff_row_size_dynamic`.
+- Added new manifest shard:
+  `tests/final/meta/14-runtime-surface-wave8-control-memory.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  targeted `FINAL_FILTER` runs for all three new runtime ids pass, and full
+  `python3 tests/final/run_final.py` remains green.
+
+### 2026-03-18 — Bucket: runtime-surface (14 wave9 probe-lane promotions)
+
+- Promoted resolved VLA/layout probe lanes into active final runtime coverage:
+  `14__runtime_vla_stride_indexing`,
+  `14__runtime_alignment_long_double_struct`,
+  `14__runtime_struct_array_byte_stride`,
+  `14__runtime_union_embedded_alignment`,
+  `14__runtime_vla_row_pointer_decay`.
+- Added new manifest shard:
+  `tests/final/meta/14-runtime-surface-wave9-vla-layout-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  each promoted id passes with `FINAL_FILTER=... python3 tests/final/run_final.py`,
+  full probe lane remains green
+  (`PROBE_FILTER=14__probe_` => `blocked=0`, `resolved=17`, `skipped=0`),
+  and full `python3 tests/final/run_final.py` remains green.
+
+### 2026-03-18 — Bucket: runtime-surface (14 wave10 UB policy lane start)
+
+- Added explicit UB-policy runtime test:
+  `14__runtime_signed_overflow_ub_path`
+  (`INT_MAX + 1` and `-INT_MIN` path marker test).
+- Added new manifest shard:
+  `tests/final/meta/14-runtime-surface-wave10-ub-policy.json`
+  and registered it in `tests/final/meta/index.json`.
+- Policy behavior:
+  test is tagged `ub: true` + `differential: true`, so harness compiles/runs
+  and compares expected stdout/stderr/exit, but intentionally skips strict
+  clang differential check.
+- Validation:
+  `FINAL_FILTER=14__runtime_signed_overflow_ub_path python3 tests/final/run_final.py`
+  => `PASS` with expected UB-policy skip message.
+  Full suite remains green: `0 failing, 1 skipped`.
+
+### 2026-03-19 — Bucket: runtime-surface (14 wave10 UB policy lane expansion)
+
+- Added three more UB-policy runtime tests:
+  `14__runtime_signed_mul_overflow_ub_path`,
+  `14__runtime_signed_sub_overflow_ub_path`,
+  `14__runtime_shift_count_ub_path`.
+- Updated
+  `tests/final/meta/14-runtime-surface-wave10-ub-policy.json`
+  to include all four UB policy-lane tests.
+- Validation:
+  each new id passes under `FINAL_FILTER=...` with expected
+  `differential disabled for ub=true` skips, and full
+  `python3 tests/final/run_final.py` remains green:
+  `0 failing, 4 skipped`.
+
+### 2026-03-19 — Bucket: runtime-surface (14 wave11 implementation-defined lane)
+
+- Added `impl_defined` policy support in harness:
+  `tests/final/run_final.py` now skips strict differential checks when
+  `impl_defined: true` is present (analogous to `ub: true` policy).
+- Added implementation-defined runtime tests:
+  `14__runtime_impldef_signed_right_shift`,
+  `14__runtime_impldef_char_signedness`.
+- Added manifest shard:
+  `tests/final/meta/14-runtime-surface-wave11-impl-defined-policy.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  both tests pass under `FINAL_FILTER=...` with expected
+  `differential disabled for impl_defined=true` skip messages, and full
+  `python3 tests/final/run_final.py` remains green:
+  `0 failing, 6 skipped`.
+
+### 2026-03-19 — Bucket: runtime-surface (14 wave12 strict+policy mixed expansion)
+
+- Added strict differential tests:
+  `14__runtime_pointer_diff_compare_matrix`,
+  `14__runtime_bitwise_shift_mask_matrix`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave12-strict-differential.json`).
+- Expanded policy lanes:
+  - UB: added `14__runtime_preinc_intmax_ub_path`
+  - impl-defined: added `14__runtime_impldef_enum_neg_cast`
+- Registered wave12 shard in `tests/final/meta/index.json`.
+- Probe-lane blockers captured (not promoted):
+  `14__probe_vla_param_matrix_reduce`,
+  `14__probe_fnptr_struct_by_value_dispatch`
+  (both mismatch clang runtime).
+- Validation:
+  targeted `FINAL_FILTER` checks pass for promoted tests and full
+  `python3 tests/final/run_final.py` remains green:
+  `0 failing, 8 skipped`.
+
+### 2026-03-19 — Bucket: runtime-surface (14 wave13/14 lane expansion)
+
+- Added strict differential tests:
+  `14__runtime_ternary_side_effect_phi`,
+  `14__runtime_comma_sequence_matrix`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave13-strict-differential.json`).
+- Added implementation-defined policy tests:
+  `14__runtime_impldef_plain_int_bitfield_sign`,
+  `14__runtime_impldef_enum_size_matrix`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave14-impl-defined-policy.json`).
+- Registered both new shards in `tests/final/meta/index.json`.
+- Validation:
+  each new ID passes under exact `FINAL_FILTER=...` checks, and full
+  `python3 tests/final/run_final.py` remains green:
+  `0 failing, 10 skipped`.
+
+### 2026-03-19 — Bucket: runtime-surface (14 wave15/16 lane expansion)
+
+- Added UB-policy overflow-variant tests:
+  `14__runtime_predec_intmin_ub_path`,
+  `14__runtime_add_assign_intmax_ub_path`,
+  `14__runtime_sub_assign_intmin_ub_path`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave15-ub-policy.json`).
+- Added strict differential mixed sequencing/control test:
+  `14__runtime_call_sequence_conditional_mix`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave16-strict-differential.json`).
+- Registered both new shards in `tests/final/meta/index.json`.
+- Validation:
+  each new ID passes under exact `FINAL_FILTER=...` checks, and full
+  `python3 tests/final/run_final.py` remains green:
+  `0 failing, 13 skipped`.
+
+### 2026-03-19 — Bucket: runtime-surface (14 wave17/18 lane expansion)
+
+- Added strict differential tests:
+  `14__runtime_fnptr_ternary_dispatch_accumulate`,
+  `14__runtime_struct_ptrdiff_update_matrix`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave17-strict-differential.json`).
+- Added implementation-defined policy test:
+  `14__runtime_impldef_signed_char_narrowing`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave18-impl-defined-policy.json`).
+- Registered both new shards in `tests/final/meta/index.json`.
+- Validation:
+  each new ID passes under exact `FINAL_FILTER=...` checks, and full
+  `python3 tests/final/run_final.py` remains green:
+  `0 failing, 14 skipped`.
+
+### 2026-03-19 — Bucket: runtime-surface (14 wave19/20 lane expansion)
+
+- Added strict differential tests:
+  `14__runtime_switch_fnptr_dispatch_chain`,
+  `14__runtime_fnptr_struct_pointer_pipeline`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave19-strict-differential.json`).
+- Added implementation-defined policy test:
+  `14__runtime_impldef_long_double_size_align`
+  (new shard:
+  `tests/final/meta/14-runtime-surface-wave20-impl-defined-policy.json`).
+- Registered both new shards in `tests/final/meta/index.json`.
+- Validation:
+  each new ID passes under exact `FINAL_FILTER=...` checks, and full
+  `python3 tests/final/run_final.py` remains green:
+  `0 failing, 15 skipped`.
