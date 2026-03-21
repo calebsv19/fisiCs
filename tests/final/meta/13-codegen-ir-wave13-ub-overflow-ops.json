@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_ub_signed_shl_overflow_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_signed_shl_overflow_path.c",
+      "expects": [
+        "expect/13__ir_ub_signed_shl_overflow_path.ast",
+        "expect/13__ir_ub_signed_shl_overflow_path.diag",
+        "expect/13__ir_ub_signed_shl_overflow_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "shift"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_negate_intmin_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_negate_intmin_path.c",
+      "expects": [
+        "expect/13__ir_ub_negate_intmin_path.ast",
+        "expect/13__ir_ub_negate_intmin_path.diag",
+        "expect/13__ir_ub_negate_intmin_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "unary"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_div_intmin_neg1_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_div_intmin_neg1_path.c",
+      "expects": [
+        "expect/13__ir_ub_div_intmin_neg1_path.ast",
+        "expect/13__ir_ub_div_intmin_neg1_path.diag",
+        "expect/13__ir_ub_div_intmin_neg1_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "division"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_mixed_overflow_compare_chain",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_mixed_overflow_compare_chain.c",
+      "expects": [
+        "expect/13__ir_ub_mixed_overflow_compare_chain.ast",
+        "expect/13__ir_ub_mixed_overflow_compare_chain.diag",
+        "expect/13__ir_ub_mixed_overflow_compare_chain.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "control-flow"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

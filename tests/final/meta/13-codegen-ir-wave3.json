@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_nested_loop_break_continue",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_nested_loop_break_continue.c",
+      "expects": [
+        "expect/13__ir_nested_loop_break_continue.ast",
+        "expect/13__ir_nested_loop_break_continue.diag",
+        "expect/13__ir_nested_loop_break_continue.ir"
+      ],
+      "tags": [
+        "ir",
+        "loop",
+        "nested",
+        "break-continue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_switch_fallthrough_sparse",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_switch_fallthrough_sparse.c",
+      "expects": [
+        "expect/13__ir_switch_fallthrough_sparse.ast",
+        "expect/13__ir_switch_fallthrough_sparse.diag",
+        "expect/13__ir_switch_fallthrough_sparse.ir"
+      ],
+      "tags": [
+        "ir",
+        "switch",
+        "fallthrough",
+        "sparse"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_do_while_continue_break",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_do_while_continue_break.c",
+      "expects": [
+        "expect/13__ir_do_while_continue_break.ast",
+        "expect/13__ir_do_while_continue_break.diag",
+        "expect/13__ir_do_while_continue_break.ir"
+      ],
+      "tags": [
+        "ir",
+        "loop",
+        "do-while",
+        "break-continue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ternary_logical_chain",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ternary_logical_chain.c",
+      "expects": [
+        "expect/13__ir_ternary_logical_chain.ast",
+        "expect/13__ir_ternary_logical_chain.diag",
+        "expect/13__ir_ternary_logical_chain.ir"
+      ],
+      "tags": [
+        "ir",
+        "ternary",
+        "logical",
+        "control-flow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ptr_stride_mixed",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ptr_stride_mixed.c",
+      "expects": [
+        "expect/13__ir_ptr_stride_mixed.ast",
+        "expect/13__ir_ptr_stride_mixed.diag",
+        "expect/13__ir_ptr_stride_mixed.ir"
+      ],
+      "tags": [
+        "ir",
+        "pointer",
+        "stride",
+        "mixed-width"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

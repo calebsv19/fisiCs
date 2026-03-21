@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_switch_signed_cases",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_switch_signed_cases.c",
+      "expects": [
+        "expect/13__ir_switch_signed_cases.ast",
+        "expect/13__ir_switch_signed_cases.diag",
+        "expect/13__ir_switch_signed_cases.ir"
+      ],
+      "tags": [
+        "ir",
+        "switch",
+        "signed"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_fnptr_array_dispatch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_fnptr_array_dispatch.c",
+      "expects": [
+        "expect/13__ir_fnptr_array_dispatch.ast",
+        "expect/13__ir_fnptr_array_dispatch.diag",
+        "expect/13__ir_fnptr_array_dispatch.ir"
+      ],
+      "tags": [
+        "ir",
+        "call",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_recursion_factorial",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_recursion_factorial.c",
+      "expects": [
+        "expect/13__ir_recursion_factorial.ast",
+        "expect/13__ir_recursion_factorial.diag",
+        "expect/13__ir_recursion_factorial.ir"
+      ],
+      "tags": [
+        "ir",
+        "call",
+        "recursion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_for_continue_break_accumulate",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_for_continue_break_accumulate.c",
+      "expects": [
+        "expect/13__ir_for_continue_break_accumulate.ast",
+        "expect/13__ir_for_continue_break_accumulate.diag",
+        "expect/13__ir_for_continue_break_accumulate.ir"
+      ],
+      "tags": [
+        "ir",
+        "loop",
+        "break-continue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_signed_unsigned_compare",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_signed_unsigned_compare.c",
+      "expects": [
+        "expect/13__ir_signed_unsigned_compare.ast",
+        "expect/13__ir_signed_unsigned_compare.diag",
+        "expect/13__ir_signed_unsigned_compare.ir"
+      ],
+      "tags": [
+        "ir",
+        "compare",
+        "signedness"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_mod_pointer_operand",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_mod_pointer_operand.c",
+      "expects": [
+        "expect/13__ir_reject_mod_pointer_operand.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "pointer-arith"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_bitwise_float_operand",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_bitwise_float_operand.c",
+      "expects": [
+        "expect/13__ir_reject_bitwise_float_operand.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "bitwise"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_mul_pointer_operand",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_mul_pointer_operand.c",
+      "expects": [
+        "expect/13__ir_reject_mul_pointer_operand.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "pointer-arith"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shift_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shift_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_shift_float_rhs.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "shift"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

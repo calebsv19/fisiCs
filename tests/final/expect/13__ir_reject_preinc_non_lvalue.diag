@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (3:8): Operator '++' requires modifiable lvalue operand
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_preinc_non_lvalue.c:3:8

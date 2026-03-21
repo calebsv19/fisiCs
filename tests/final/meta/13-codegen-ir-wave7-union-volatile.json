@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_union_by_value_roundtrip",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_union_by_value_roundtrip.c",
+      "expects": [
+        "expect/13__ir_union_by_value_roundtrip.ast",
+        "expect/13__ir_union_by_value_roundtrip.diag",
+        "expect/13__ir_union_by_value_roundtrip.ir"
+      ],
+      "tags": [
+        "ir",
+        "abi",
+        "union-by-value"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_nested_switch_dispatch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_nested_switch_dispatch.c",
+      "expects": [
+        "expect/13__ir_nested_switch_dispatch.ast",
+        "expect/13__ir_nested_switch_dispatch.diag",
+        "expect/13__ir_nested_switch_dispatch.ir"
+      ],
+      "tags": [
+        "ir",
+        "switch",
+        "nested"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_comma_chain_assign",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_comma_chain_assign.c",
+      "expects": [
+        "expect/13__ir_comma_chain_assign.ast",
+        "expect/13__ir_comma_chain_assign.diag",
+        "expect/13__ir_comma_chain_assign.ir"
+      ],
+      "tags": [
+        "ir",
+        "expression",
+        "comma"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_volatile_global_sequence",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_volatile_global_sequence.c",
+      "expects": [
+        "expect/13__ir_volatile_global_sequence.ast",
+        "expect/13__ir_volatile_global_sequence.diag",
+        "expect/13__ir_volatile_global_sequence.ir"
+      ],
+      "tags": [
+        "ir",
+        "volatile",
+        "memory"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_assign_non_lvalue",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_assign_non_lvalue.c",
+      "expects": [
+        "expect/13__ir_reject_assign_non_lvalue.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "lvalue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_preinc_non_lvalue",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_preinc_non_lvalue.c",
+      "expects": [
+        "expect/13__ir_reject_preinc_non_lvalue.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "lvalue"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

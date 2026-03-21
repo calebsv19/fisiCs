@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_add_assign_pointer_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_add_assign_pointer_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_add_assign_pointer_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_add_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_add_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_add_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_add_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_add_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_add_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_add_assign_struct_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_add_assign_struct_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_add_assign_struct_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_sub_assign_pointer_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_sub_assign_pointer_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_sub_assign_pointer_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_sub_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_sub_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_sub_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_mul_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_mul_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_mul_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_div_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_div_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_div_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_mod_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_mod_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_mod_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_mod_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_mod_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_mod_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "arithmetic",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

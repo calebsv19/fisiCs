@@ -1,0 +1,60 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int [8]
+        IDENTIFIER ints
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER pi
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              ARRAY_ACCESS
+                IDENTIFIER ints
+                NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER qi
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              ARRAY_ACCESS
+                IDENTIFIER ints
+                NUMBER_LITERAL 6
+      VAR_DECL
+        TYPE: long int [8]
+        IDENTIFIER longs
+      VAR_DECL
+        TYPE: long int*
+        IDENTIFIER pl
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              ARRAY_ACCESS
+                IDENTIFIER longs
+                NUMBER_LITERAL 2
+      VAR_DECL
+        TYPE: long int*
+        IDENTIFIER ql
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              ARRAY_ACCESS
+                IDENTIFIER longs
+                NUMBER_LITERAL 7
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '*'
+              BINARY EXPRESSION '-'
+                IDENTIFIER qi
+                IDENTIFIER pi
+              NUMBER_LITERAL 10
+            BINARY EXPRESSION '-'
+              IDENTIFIER ql
+              IDENTIFIER pl

@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (9:0): Assignment discards qualifiers from pointer target

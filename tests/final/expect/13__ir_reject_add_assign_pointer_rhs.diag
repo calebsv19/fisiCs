@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (0:0): Operator '+' requires pointer arithmetic (pointer +/- integer)

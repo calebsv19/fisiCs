@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_fnptr_ternary_decay_dispatch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_fnptr_ternary_decay_dispatch.c",
+      "expects": [
+        "expect/13__ir_fnptr_ternary_decay_dispatch.ast",
+        "expect/13__ir_fnptr_ternary_decay_dispatch.diag",
+        "expect/13__ir_fnptr_ternary_decay_dispatch.ir"
+      ],
+      "tags": [
+        "ir",
+        "function-pointer",
+        "ternary",
+        "dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_fnptr_assign_incompatible",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_fnptr_assign_incompatible.c",
+      "expects": [
+        "expect/13__ir_reject_fnptr_assign_incompatible.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "function-pointer",
+        "assignment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_mod_float_operand",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_mod_float_operand.c",
+      "expects": [
+        "expect/13__ir_reject_mod_float_operand.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "arithmetic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_fnptr_ternary_incompatible",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_fnptr_ternary_incompatible.c",
+      "expects": [
+        "expect/13__ir_reject_fnptr_ternary_incompatible.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "function-pointer",
+        "ternary"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

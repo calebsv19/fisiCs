@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_fnptr_too_many_args",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_fnptr_too_many_args.c",
+      "expects": [
+        "expect/13__ir_reject_fnptr_too_many_args.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "call-arity",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_fnptr_too_few_args",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_fnptr_too_few_args.c",
+      "expects": [
+        "expect/13__ir_reject_fnptr_too_few_args.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "call-arity",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

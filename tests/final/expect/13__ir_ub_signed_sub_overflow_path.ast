@@ -1,0 +1,47 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER overflow_sub
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
+          = 
+            BINARY EXPRESSION '-'
+              IDENTIFIER x
+              NUMBER_LITERAL 2
+      IF_STATEMENT
+        BINARY EXPRESSION '>'
+          IDENTIFIER y
+          IDENTIFIER x
+        BLOCK
+          RETURN
+            IDENTIFIER y
+      RETURN
+        BINARY EXPRESSION '-'
+          IDENTIFIER x
+          IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int
+        IDENTIFIER seed
+          = 
+            UNARY EXPRESSION '-' (prefix)
+              NUMBER_LITERAL 2147483647
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER overflow_sub
+          ARGUMENTS
+            IDENTIFIER seed

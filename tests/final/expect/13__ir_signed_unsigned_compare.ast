@@ -1,0 +1,40 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER u
+          = NUMBER_LITERAL 1u
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER s
+          = 
+            UNARY EXPRESSION '-' (prefix)
+              NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            BINARY EXPRESSION '<'
+              IDENTIFIER u
+              IDENTIFIER s
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = 
+            BINARY EXPRESSION '<'
+              IDENTIFIER s
+              IDENTIFIER u
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '*'
+            IDENTIFIER a
+            NUMBER_LITERAL 10
+          IDENTIFIER b

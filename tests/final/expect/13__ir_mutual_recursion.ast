@@ -1,0 +1,66 @@
+AST:
+PROGRAM
+  FUNCTION DECLARATION
+    RETURN TYPE: static int
+    IDENTIFIER odd
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER n
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER even
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER n
+    BLOCK
+      IF_STATEMENT
+        BINARY EXPRESSION '=='
+          IDENTIFIER n
+          NUMBER_LITERAL 0
+        BLOCK
+          RETURN
+            NUMBER_LITERAL 1
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER odd
+          ARGUMENTS
+            BINARY EXPRESSION '-'
+              IDENTIFIER n
+              NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER odd
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER n
+    BLOCK
+      IF_STATEMENT
+        BINARY EXPRESSION '=='
+          IDENTIFIER n
+          NUMBER_LITERAL 0
+        BLOCK
+          RETURN
+            NUMBER_LITERAL 0
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER even
+          ARGUMENTS
+            BINARY EXPRESSION '-'
+              IDENTIFIER n
+              NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER even
+          ARGUMENTS
+            NUMBER_LITERAL 6

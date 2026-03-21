@@ -1,0 +1,67 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER inc
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER dec
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '-'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int (*)(int) [2] (int)
+        IDENTIFIER ops
+            = IDENTIFIER inc
+
+            = IDENTIFIER dec
+
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            FUNCTION CALL
+              ARRAY_ACCESS
+                IDENTIFIER ops
+                NUMBER_LITERAL 0
+              ARGUMENTS
+                NUMBER_LITERAL 7
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = 
+            FUNCTION CALL
+              ARRAY_ACCESS
+                IDENTIFIER ops
+                NUMBER_LITERAL 1
+              ARGUMENTS
+                NUMBER_LITERAL 7
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '*'
+            IDENTIFIER a
+            NUMBER_LITERAL 10
+          IDENTIFIER b

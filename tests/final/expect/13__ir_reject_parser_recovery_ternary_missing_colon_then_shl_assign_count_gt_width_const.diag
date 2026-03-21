@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (5:0): Invalid shift width 33 for 32-bit operand

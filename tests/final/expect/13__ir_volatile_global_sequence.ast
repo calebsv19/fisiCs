@@ -1,0 +1,43 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: volatile int
+    IDENTIFIER g_counter
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int*
+        IDENTIFIER p
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER g_counter
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER p
+        NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            UNARY EXPRESSION '*' (prefix)
+              IDENTIFIER p
+      ASSIGNMENT (=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER p
+        BINARY EXPRESSION '+'
+          IDENTIFIER a
+          NUMBER_LITERAL 3
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = 
+            UNARY EXPRESSION '*' (prefix)
+              IDENTIFIER p
+      RETURN
+        IDENTIFIER b

@@ -1,0 +1,2678 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_cast_invalid_pointer_add_source",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_cast_invalid_pointer_add_source.c",
+      "expects": [
+        "expect/13__ir_reject_cast_invalid_pointer_add_source.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "cast",
+        "diagnostics",
+        "normalization"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_ternary_invalid_branch_suppresses_incompatible",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_ternary_invalid_branch_suppresses_incompatible.c",
+      "expects": [
+        "expect/13__ir_reject_ternary_invalid_branch_suppresses_incompatible.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "diagnostics",
+        "normalization"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_ternary_invalid_condition_suppresses_incompatible",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_ternary_invalid_condition_suppresses_incompatible.c",
+      "expects": [
+        "expect/13__ir_reject_ternary_invalid_condition_suppresses_incompatible.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "diagnostics",
+        "normalization"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_ternary_invalid_logical_branch_suppresses_incompatible",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_ternary_invalid_logical_branch_suppresses_incompatible.c",
+      "expects": [
+        "expect/13__ir_reject_ternary_invalid_logical_branch_suppresses_incompatible.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "logical",
+        "diagnostics",
+        "normalization"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitwise_float",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitwise_float.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitwise_float.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitwise_float.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_pointer_plus_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_pointer_plus_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_pointer_plus_pointer.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_pointer_plus_pointer.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "pointer-arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitwise_float",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitwise_float.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitwise_float.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitwise_float.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shift_width",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shift_width.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shift_width.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shift_width.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_call_too_few_args",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_call_too_few_args.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_call_too_few_args.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_call_too_few_args.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "call-arity"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_few_args",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_few_args.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_few_args.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_few_args.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "function-pointer",
+        "call-arity"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_invalid_cast",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_invalid_cast.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_invalid_cast.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_invalid_cast.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "cast"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_incompatible_assignment",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_incompatible_assignment.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_incompatible_assignment.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_incompatible_assignment.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_unary_plus_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_unary_plus_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_unary_plus_pointer.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_unary_plus_pointer.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "unary"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitnot_float",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitnot_float.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitnot_float.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitnot_float.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "unary"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_assign_non_lvalue",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_assign_non_lvalue.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_assign_non_lvalue.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_assign_non_lvalue.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shift_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shift_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shift_pointer.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shift_pointer.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "shift"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_and_struct",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_and_struct.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_and_struct.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_and_struct.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "logical"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_or_struct",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_or_struct.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_or_struct.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_logical_or_struct.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "logical"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_subscript_scalar_base",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_subscript_scalar_base.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_subscript_scalar_base.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_subscript_scalar_base.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "subscript"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_subscript_scalar_base",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_subscript_scalar_base.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_subscript_scalar_base.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_subscript_scalar_base.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "subscript"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_assign_incompatible",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_assign_incompatible.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_assign_incompatible.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_assign_incompatible.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "function-pointer",
+        "assignment"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_assign_incompatible",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_assign_incompatible.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_assign_incompatible.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_assign_incompatible.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "function-pointer",
+        "assignment"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_float",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_float.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_float.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_float.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_float",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_float.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_float.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_float.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_relational_struct",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_relational_struct.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_relational_struct.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_relational_struct.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "relational"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_relational_struct",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_relational_struct.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_relational_struct.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_relational_struct.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "relational"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_deref_non_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_deref_non_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_deref_non_pointer.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_deref_non_pointer.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "unary"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_deref_non_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_deref_non_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_deref_non_pointer.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_deref_non_pointer.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "unary"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_equality_struct",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_equality_struct.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_equality_struct.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_equality_struct.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "equality"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_equality_struct",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_equality_struct.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_equality_struct.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_equality_struct.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "equality"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_qualifier_loss.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_qualifier_loss.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "function-pointer",
+        "qualifiers"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_qualifier_loss.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_qualifier_loss.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "function-pointer",
+        "qualifiers"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "pointer-arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "pointer-arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_negative_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_negative_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_negative_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_negative_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_negative_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_negative_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_negative_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_negative_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_eq_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_eq_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_eq_width_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_eq_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_eq_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_eq_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_eq_width_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_eq_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "integer-operands"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "integer-operands"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "integer-operands"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "integer-operands"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_many_args",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_many_args.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_many_args.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_too_many_args.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "function-pointer",
+        "call-arity"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_too_many_args",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_too_many_args.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_too_many_args.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_too_many_args.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "function-pointer",
+        "call-arity"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "integer-operands"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "integer-operands"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "integer-operands"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "integer-operands"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_volatile_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_volatile_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_volatile_qualifier_loss.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_volatile_qualifier_loss.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "function-pointer",
+        "qualifiers"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_volatile_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_volatile_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_volatile_qualifier_loss.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_volatile_qualifier_loss.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "function-pointer",
+        "qualifiers"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "function-pointer",
+        "qualifiers"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_fnptr_deep_const_qualifier_loss.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "function-pointer",
+        "qualifiers"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_eq_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_eq_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_eq_width_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_eq_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_eq_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_eq_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_eq_width_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_eq_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_gt_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_gt_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_gt_width_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_gt_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_gt_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_gt_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_gt_width_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shl_assign_count_gt_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_negative_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_negative_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_negative_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_negative_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_negative_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_negative_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_negative_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_negative_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_gt_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_gt_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_gt_width_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_shr_assign_count_gt_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_gt_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_gt_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_gt_width_const.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_shr_assign_count_gt_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "shift-width"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mod_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mod_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitor_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitxor_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitxor_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_mul_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_mul_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mul_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_mul_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mul_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mul_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mul_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_mul_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_div_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_div_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_div_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_div_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_div_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_div_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_div_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_div_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_pointer_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_pointer_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_float_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_pointer_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_struct_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_add_assign_struct_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_sub_assign_struct_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_sub_assign_struct_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "arithmetic"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_lhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_float_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_ternary_missing_colon_then_bitand_assign_struct_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_rhs.pdiag",
+        "expect/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitand_assign_struct_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "ternary",
+        "parser-diag",
+        "semantic",
+        "recovery",
+        "ordering",
+        "nested",
+        "assignment",
+        "bitwise"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

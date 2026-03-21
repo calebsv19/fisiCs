@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_ub_signed_add_overflow_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_signed_add_overflow_path.c",
+      "expects": [
+        "expect/13__ir_ub_signed_add_overflow_path.ast",
+        "expect/13__ir_ub_signed_add_overflow_path.diag",
+        "expect/13__ir_ub_signed_add_overflow_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "control-flow"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_signed_mul_overflow_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_signed_mul_overflow_path.c",
+      "expects": [
+        "expect/13__ir_ub_signed_mul_overflow_path.ast",
+        "expect/13__ir_ub_signed_mul_overflow_path.diag",
+        "expect/13__ir_ub_signed_mul_overflow_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "arithmetic"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_signed_sub_overflow_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_signed_sub_overflow_path.c",
+      "expects": [
+        "expect/13__ir_ub_signed_sub_overflow_path.ast",
+        "expect/13__ir_ub_signed_sub_overflow_path.diag",
+        "expect/13__ir_ub_signed_sub_overflow_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "arithmetic"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

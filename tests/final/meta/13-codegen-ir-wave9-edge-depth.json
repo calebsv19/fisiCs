@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_switch_enum_signed_dispatch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_switch_enum_signed_dispatch.c",
+      "expects": [
+        "expect/13__ir_switch_enum_signed_dispatch.ast",
+        "expect/13__ir_switch_enum_signed_dispatch.diag",
+        "expect/13__ir_switch_enum_signed_dispatch.ir"
+      ],
+      "tags": [
+        "ir",
+        "switch",
+        "enum",
+        "signed"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_pointer_null_ternary_index",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_pointer_null_ternary_index.c",
+      "expects": [
+        "expect/13__ir_pointer_null_ternary_index.ast",
+        "expect/13__ir_pointer_null_ternary_index.diag",
+        "expect/13__ir_pointer_null_ternary_index.ir"
+      ],
+      "tags": [
+        "ir",
+        "pointer",
+        "ternary",
+        "index"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_while_goto_backedge_accumulate",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_while_goto_backedge_accumulate.c",
+      "expects": [
+        "expect/13__ir_while_goto_backedge_accumulate.ast",
+        "expect/13__ir_while_goto_backedge_accumulate.diag",
+        "expect/13__ir_while_goto_backedge_accumulate.ir"
+      ],
+      "tags": [
+        "ir",
+        "loop",
+        "goto",
+        "backedge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_struct_array_field_load",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_struct_array_field_load.c",
+      "expects": [
+        "expect/13__ir_struct_array_field_load.ast",
+        "expect/13__ir_struct_array_field_load.diag",
+        "expect/13__ir_struct_array_field_load.ir"
+      ],
+      "tags": [
+        "ir",
+        "struct",
+        "array-field"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_logical_ternary_merge_chain",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_logical_ternary_merge_chain.c",
+      "expects": [
+        "expect/13__ir_logical_ternary_merge_chain.ast",
+        "expect/13__ir_logical_ternary_merge_chain.diag",
+        "expect/13__ir_logical_ternary_merge_chain.ir"
+      ],
+      "tags": [
+        "ir",
+        "logical",
+        "ternary",
+        "merge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_unsigned_shift_extract",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_unsigned_shift_extract.c",
+      "expects": [
+        "expect/13__ir_unsigned_shift_extract.ast",
+        "expect/13__ir_unsigned_shift_extract.diag",
+        "expect/13__ir_unsigned_shift_extract.ir"
+      ],
+      "tags": [
+        "ir",
+        "shift",
+        "unsigned"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_postinc_non_lvalue",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_postinc_non_lvalue.c",
+      "expects": [
+        "expect/13__ir_reject_postinc_non_lvalue.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "lvalue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_unary_plus_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_unary_plus_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_unary_plus_pointer.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "unary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_bitnot_float",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_bitnot_float.c",
+      "expects": [
+        "expect/13__ir_reject_bitnot_float.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "unary"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

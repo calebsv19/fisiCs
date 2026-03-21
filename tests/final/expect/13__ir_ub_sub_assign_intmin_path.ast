@@ -1,0 +1,44 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER ub_sub_assign
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      ASSIGNMENT (-=)
+        IDENTIFIER x
+        NUMBER_LITERAL 1
+      IF_STATEMENT
+        BINARY EXPRESSION '>'
+          IDENTIFIER x
+          NUMBER_LITERAL 0
+        BLOCK
+          RETURN
+            IDENTIFIER x
+      RETURN
+        BINARY EXPRESSION '-'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int
+        IDENTIFIER seed
+          = 
+            CAST_EXPRESSION
+                            CAST TYPE: int
+              NUMBER_LITERAL 0x80000000u
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER ub_sub_assign
+          ARGUMENTS
+            IDENTIFIER seed

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_ub_signed_mod_intmin_neg1_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_signed_mod_intmin_neg1_path.c",
+      "expects": [
+        "expect/13__ir_ub_signed_mod_intmin_neg1_path.ast",
+        "expect/13__ir_ub_signed_mod_intmin_neg1_path.diag",
+        "expect/13__ir_ub_signed_mod_intmin_neg1_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "modulo"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_signed_shift_negative_lhs_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_signed_shift_negative_lhs_path.c",
+      "expects": [
+        "expect/13__ir_ub_signed_shift_negative_lhs_path.ast",
+        "expect/13__ir_ub_signed_shift_negative_lhs_path.diag",
+        "expect/13__ir_ub_signed_shift_negative_lhs_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "shift"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_postinc_intmax_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_postinc_intmax_path.c",
+      "expects": [
+        "expect/13__ir_ub_postinc_intmax_path.ast",
+        "expect/13__ir_ub_postinc_intmax_path.diag",
+        "expect/13__ir_ub_postinc_intmax_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "increment"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_signed_add_reassoc_chain",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_signed_add_reassoc_chain.c",
+      "expects": [
+        "expect/13__ir_ub_signed_add_reassoc_chain.ast",
+        "expect/13__ir_ub_signed_add_reassoc_chain.diag",
+        "expect/13__ir_ub_signed_add_reassoc_chain.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "arithmetic"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+          = NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
+          = NUMBER_LITERAL 2
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER z
+          = NUMBER_LITERAL 3
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER out
+          = 
+            COMMA_EXPRESSION (3 expressions)
+              Expr[0]:
+                ASSIGNMENT (+=)
+                  IDENTIFIER x
+                  NUMBER_LITERAL 2
+              Expr[1]:
+                ASSIGNMENT (+=)
+                  IDENTIFIER y
+                  IDENTIFIER x
+              Expr[2]:
+                ASSIGNMENT (+=)
+                  IDENTIFIER z
+                  IDENTIFIER y
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '+'
+              IDENTIFIER out
+              IDENTIFIER x
+            IDENTIFIER y
+          IDENTIFIER z

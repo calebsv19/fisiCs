@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_goto_backedge",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_goto_backedge.c",
+      "expects": [
+        "expect/13__ir_goto_backedge.ast",
+        "expect/13__ir_goto_backedge.diag",
+        "expect/13__ir_goto_backedge.ir"
+      ],
+      "tags": [
+        "ir",
+        "goto",
+        "control-flow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_loop_if_merge",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_loop_if_merge.c",
+      "expects": [
+        "expect/13__ir_loop_if_merge.ast",
+        "expect/13__ir_loop_if_merge.diag",
+        "expect/13__ir_loop_if_merge.ir"
+      ],
+      "tags": [
+        "ir",
+        "loop",
+        "branch-merge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_pointer_plus_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_pointer_plus_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_pointer_plus_pointer.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "pointer-arith"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_subscript_scalar_base",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_subscript_scalar_base.c",
+      "expects": [
+        "expect/13__ir_reject_subscript_scalar_base.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "subscript"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shift_pointer_operand",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shift_pointer_operand.c",
+      "expects": [
+        "expect/13__ir_reject_shift_pointer_operand.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "shift"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_deref_non_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_deref_non_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_deref_non_pointer.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "unary"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

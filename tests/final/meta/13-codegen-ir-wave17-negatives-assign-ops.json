@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_shl_assign_count_negative_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shl_assign_count_negative_const.c",
+      "expects": [
+        "expect/13__ir_reject_shl_assign_count_negative_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "shift",
+        "assignment",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shl_assign_count_eq_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shl_assign_count_eq_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_shl_assign_count_eq_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "shift",
+        "assignment",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shl_assign_count_gt_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shl_assign_count_gt_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_shl_assign_count_gt_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "shift",
+        "assignment",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shr_assign_count_negative_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shr_assign_count_negative_const.c",
+      "expects": [
+        "expect/13__ir_reject_shr_assign_count_negative_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "shift",
+        "assignment",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shr_assign_count_eq_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shr_assign_count_eq_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_shr_assign_count_eq_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "shift",
+        "assignment",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shr_assign_count_gt_width_const",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shr_assign_count_gt_width_const.c",
+      "expects": [
+        "expect/13__ir_reject_shr_assign_count_gt_width_const.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "shift",
+        "assignment",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_bitand_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_bitand_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_bitand_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "integer-ops",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_mod_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_mod_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_mod_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "integer-ops",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shl_assign_float_rhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shl_assign_float_rhs.c",
+      "expects": [
+        "expect/13__ir_reject_shl_assign_float_rhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "shift",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_shl_assign_pointer_lhs",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_shl_assign_pointer_lhs.c",
+      "expects": [
+        "expect/13__ir_reject_shl_assign_pointer_lhs.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "assignment",
+        "shift",
+        "diagnostics"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

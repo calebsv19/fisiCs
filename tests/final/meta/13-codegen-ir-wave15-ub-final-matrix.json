@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_ub_preinc_intmax_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_preinc_intmax_path.c",
+      "expects": [
+        "expect/13__ir_ub_preinc_intmax_path.ast",
+        "expect/13__ir_ub_preinc_intmax_path.diag",
+        "expect/13__ir_ub_preinc_intmax_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "increment"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_predec_intmin_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_predec_intmin_path.c",
+      "expects": [
+        "expect/13__ir_ub_predec_intmin_path.ast",
+        "expect/13__ir_ub_predec_intmin_path.diag",
+        "expect/13__ir_ub_predec_intmin_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "decrement"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_add_assign_intmax_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_add_assign_intmax_path.c",
+      "expects": [
+        "expect/13__ir_ub_add_assign_intmax_path.ast",
+        "expect/13__ir_ub_add_assign_intmax_path.diag",
+        "expect/13__ir_ub_add_assign_intmax_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "compound-assign"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_sub_assign_intmin_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_sub_assign_intmin_path.c",
+      "expects": [
+        "expect/13__ir_ub_sub_assign_intmin_path.ast",
+        "expect/13__ir_ub_sub_assign_intmin_path.diag",
+        "expect/13__ir_ub_sub_assign_intmin_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "signed-overflow",
+        "compound-assign"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_shift_count_eq_width_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_shift_count_eq_width_path.c",
+      "expects": [
+        "expect/13__ir_ub_shift_count_eq_width_path.ast",
+        "expect/13__ir_ub_shift_count_eq_width_path.diag",
+        "expect/13__ir_ub_shift_count_eq_width_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "shift",
+        "shift-count"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ub_shift_count_negative_path",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ub_shift_count_negative_path.c",
+      "expects": [
+        "expect/13__ir_ub_shift_count_negative_path.ast",
+        "expect/13__ir_ub_shift_count_negative_path.diag",
+        "expect/13__ir_ub_shift_count_negative_path.ir"
+      ],
+      "tags": [
+        "ir",
+        "ub",
+        "shift",
+        "shift-count"
+      ],
+      "ub": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

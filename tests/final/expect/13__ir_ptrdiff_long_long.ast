@@ -1,0 +1,35 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: long int [8]
+        IDENTIFIER values
+      VAR_DECL
+        TYPE: long int*
+        IDENTIFIER begin
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              ARRAY_ACCESS
+                IDENTIFIER values
+                NUMBER_LITERAL 1
+      VAR_DECL
+        TYPE: long int*
+        IDENTIFIER end
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              ARRAY_ACCESS
+                IDENTIFIER values
+                NUMBER_LITERAL 6
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '-'
+            IDENTIFIER end
+            IDENTIFIER begin

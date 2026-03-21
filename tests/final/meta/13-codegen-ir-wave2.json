@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_ptrdiff_long_long",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ptrdiff_long_long.c",
+      "expects": [
+        "expect/13__ir_ptrdiff_long_long.ast",
+        "expect/13__ir_ptrdiff_long_long.diag",
+        "expect/13__ir_ptrdiff_long_long.ir"
+      ],
+      "tags": [
+        "ir",
+        "pointer",
+        "ptrdiff",
+        "i64"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_ptr_add_scaled_i64",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_ptr_add_scaled_i64.c",
+      "expects": [
+        "expect/13__ir_ptr_add_scaled_i64.ast",
+        "expect/13__ir_ptr_add_scaled_i64.diag",
+        "expect/13__ir_ptr_add_scaled_i64.ir"
+      ],
+      "tags": [
+        "ir",
+        "pointer",
+        "scale",
+        "i64"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_switch_loop_continue",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_switch_loop_continue.c",
+      "expects": [
+        "expect/13__ir_switch_loop_continue.ast",
+        "expect/13__ir_switch_loop_continue.diag",
+        "expect/13__ir_switch_loop_continue.ir"
+      ],
+      "tags": [
+        "ir",
+        "switch",
+        "loop",
+        "continue"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_do_while",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_do_while.c",
+      "expects": [
+        "expect/13__ir_do_while.ast",
+        "expect/13__ir_do_while.diag",
+        "expect/13__ir_do_while.ir"
+      ],
+      "tags": [
+        "ir",
+        "loop",
+        "do-while"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: long int [4]
+        IDENTIFIER values
+      VAR_DECL
+        TYPE: long int*
+        IDENTIFIER p
+          = IDENTIFIER values
+      VAR_DECL
+        TYPE: long int*
+        IDENTIFIER q
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER p
+              NUMBER_LITERAL 3
+      RETURN
+        CAST_EXPRESSION
+                    CAST TYPE: int
+          BINARY EXPRESSION '-'
+            IDENTIFIER q
+            IDENTIFIER p

@@ -1,0 +1,63 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER acc
+          = NUMBER_LITERAL 0
+      FOR_LOOP
+        VAR_DECL
+          TYPE: int
+          IDENTIFIER i
+            = NUMBER_LITERAL 0
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          NUMBER_LITERAL 8
+        UNARY EXPRESSION '++' (prefix)
+          IDENTIFIER i
+        BLOCK
+          SWITCH
+            BINARY EXPRESSION '%'
+              IDENTIFIER i
+              NUMBER_LITERAL 4
+            CASE
+              NUMBER_LITERAL 0
+              ASSIGNMENT (+=)
+                IDENTIFIER acc
+                NUMBER_LITERAL 1
+            CASE
+              NUMBER_LITERAL 1
+              ASSIGNMENT (+=)
+                IDENTIFIER acc
+                NUMBER_LITERAL 10
+              CONTINUE
+            CASE
+              NUMBER_LITERAL 2
+              ASSIGNMENT (+=)
+                IDENTIFIER acc
+                NUMBER_LITERAL 100
+              BREAK
+            CASE
+              DEFAULT
+              ASSIGNMENT (+=)
+                IDENTIFIER acc
+                NUMBER_LITERAL 1000
+              BREAK
+          IF_STATEMENT
+            BINARY EXPRESSION '=='
+              IDENTIFIER i
+              NUMBER_LITERAL 6
+            BLOCK
+              BREAK
+          ASSIGNMENT (+=)
+            IDENTIFIER acc
+            IDENTIFIER i
+      RETURN
+        IDENTIFIER acc

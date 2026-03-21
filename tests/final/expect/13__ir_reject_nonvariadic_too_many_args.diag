@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (6:0): Too many arguments in call to 'id' (expected 1, got 2)

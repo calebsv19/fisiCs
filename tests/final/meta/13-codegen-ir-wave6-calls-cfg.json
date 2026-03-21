@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_variadic_call_site",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_variadic_call_site.c",
+      "expects": [
+        "expect/13__ir_variadic_call_site.ast",
+        "expect/13__ir_variadic_call_site.diag",
+        "expect/13__ir_variadic_call_site.ir"
+      ],
+      "tags": [
+        "ir",
+        "call",
+        "variadic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_nested_switch_loop_fallthrough_ctrl",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_nested_switch_loop_fallthrough_ctrl.c",
+      "expects": [
+        "expect/13__ir_nested_switch_loop_fallthrough_ctrl.ast",
+        "expect/13__ir_nested_switch_loop_fallthrough_ctrl.diag",
+        "expect/13__ir_nested_switch_loop_fallthrough_ctrl.ir"
+      ],
+      "tags": [
+        "ir",
+        "switch",
+        "loop",
+        "fallthrough",
+        "control-flow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_struct_by_value_transform",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_struct_by_value_transform.c",
+      "expects": [
+        "expect/13__ir_struct_by_value_transform.ast",
+        "expect/13__ir_struct_by_value_transform.diag",
+        "expect/13__ir_struct_by_value_transform.ir"
+      ],
+      "tags": [
+        "ir",
+        "abi",
+        "struct-by-value"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_mutual_recursion",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_mutual_recursion.c",
+      "expects": [
+        "expect/13__ir_mutual_recursion.ast",
+        "expect/13__ir_mutual_recursion.diag",
+        "expect/13__ir_mutual_recursion.ir"
+      ],
+      "tags": [
+        "ir",
+        "call",
+        "recursion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_nonvariadic_too_many_args",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_nonvariadic_too_many_args.c",
+      "expects": [
+        "expect/13__ir_reject_nonvariadic_too_many_args.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "call-arity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_nonvariadic_too_few_args",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_nonvariadic_too_few_args.c",
+      "expects": [
+        "expect/13__ir_reject_nonvariadic_too_few_args.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "call-arity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_cast_struct_return_to_int",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_cast_struct_return_to_int.c",
+      "expects": [
+        "expect/13__ir_reject_cast_struct_return_to_int.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "cast"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_voidptr_to_fnptr_assign",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_voidptr_to_fnptr_assign.c",
+      "expects": [
+        "expect/13__ir_reject_voidptr_to_fnptr_assign.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "pointer-domain",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_fnptr_to_voidptr_assign",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_fnptr_to_voidptr_assign.c",
+      "expects": [
+        "expect/13__ir_reject_fnptr_to_voidptr_assign.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "pointer-domain",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_fnptr_nested_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_fnptr_nested_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_fnptr_nested_qualifier_loss.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "qualifiers",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_fnptr_nested_volatile_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_fnptr_nested_volatile_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_fnptr_nested_volatile_qualifier_loss.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "qualifiers",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_fnptr_deep_const_qualifier_loss",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_fnptr_deep_const_qualifier_loss.c",
+      "expects": [
+        "expect/13__ir_reject_fnptr_deep_const_qualifier_loss.diag"
+      ],
+      "tags": [
+        "negative",
+        "semantic",
+        "qualifiers",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

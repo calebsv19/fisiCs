@@ -1,0 +1,57 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER ub_reassoc
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER x
+              NUMBER_LITERAL 1000000000
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER a
+              NUMBER_LITERAL 1000000000
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER c
+          = 
+            BINARY EXPRESSION '-'
+              IDENTIFIER b
+              NUMBER_LITERAL 1000000000
+      IF_STATEMENT
+        BINARY EXPRESSION '<'
+          IDENTIFIER c
+          IDENTIFIER x
+        BLOCK
+          RETURN
+            IDENTIFIER c
+      RETURN
+        IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int
+        IDENTIFIER seed
+          = NUMBER_LITERAL 1500000000
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER ub_reassoc
+          ARGUMENTS
+            IDENTIFIER seed

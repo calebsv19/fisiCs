@@ -1,0 +1,45 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER ub_shift_neg
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
+          = 
+            BINARY EXPRESSION '<<'
+              IDENTIFIER x
+              NUMBER_LITERAL 1
+      IF_STATEMENT
+        BINARY EXPRESSION '<'
+          IDENTIFIER y
+          IDENTIFIER x
+        BLOCK
+          RETURN
+            IDENTIFIER y
+      RETURN
+        IDENTIFIER x
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int
+        IDENTIFIER seed
+          = 
+            UNARY EXPRESSION '-' (prefix)
+              NUMBER_LITERAL 3
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER ub_shift_neg
+          ARGUMENTS
+            IDENTIFIER seed

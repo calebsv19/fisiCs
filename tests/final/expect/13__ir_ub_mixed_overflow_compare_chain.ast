@@ -1,0 +1,50 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER ub_chain
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            BINARY EXPRESSION '+'
+              IDENTIFIER x
+              IDENTIFIER x
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = 
+            BINARY EXPRESSION '-'
+              IDENTIFIER a
+              IDENTIFIER x
+      IF_STATEMENT
+        BINARY EXPRESSION '<'
+          IDENTIFIER a
+          IDENTIFIER b
+        BLOCK
+          RETURN
+            IDENTIFIER a
+      RETURN
+        IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int
+        IDENTIFIER seed
+          = NUMBER_LITERAL 1073741824
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER ub_chain
+          ARGUMENTS
+            IDENTIFIER seed

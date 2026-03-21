@@ -1,0 +1,35 @@
+AST:
+PROGRAM
+  ENUM
+        Name:     IDENTIFIER E
+        Member:   IDENTIFIER EA
+            Value:  UNARY EXPRESSION '-' (prefix)
+    NUMBER_LITERAL 1
+        Member:   IDENTIFIER EB
+            Value:  NUMBER_LITERAL 2
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: E
+        IDENTIFIER e
+          = IDENTIFIER EB
+      SWITCH
+        IDENTIFIER e
+        CASE
+          IDENTIFIER EA
+          RETURN
+            NUMBER_LITERAL 1
+        CASE
+          IDENTIFIER EB
+          RETURN
+            NUMBER_LITERAL 2
+        CASE
+          DEFAULT
+          RETURN
+            NUMBER_LITERAL 3

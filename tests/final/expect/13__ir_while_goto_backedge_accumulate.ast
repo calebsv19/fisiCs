@@ -1,0 +1,40 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER i
+          = NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER acc
+          = NUMBER_LITERAL 0
+      WHILE_LOOP
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          NUMBER_LITERAL 5
+        BLOCK
+          IF_STATEMENT
+            BINARY EXPRESSION '=='
+              IDENTIFIER i
+              NUMBER_LITERAL 2
+            BLOCK
+              UNARY EXPRESSION '++' (prefix)
+                IDENTIFIER i
+              GOTO
+                LABEL after_add
+          ASSIGNMENT (+=)
+            IDENTIFIER acc
+            IDENTIFIER i
+          LABEL: after_add
+            UNARY EXPRESSION '++' (prefix)
+              IDENTIFIER i
+      RETURN
+        IDENTIFIER acc
