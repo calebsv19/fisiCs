@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_vla_ptrdiff_subslice_rebase_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_ptrdiff_subslice_rebase_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_ptrdiff_subslice_rebase_chain.stdout",
+      "expected_stderr": "expect/14__runtime_vla_ptrdiff_subslice_rebase_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "vla",
+        "pointer-difference"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_struct_array_dispatch_pipeline",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_struct_array_dispatch_pipeline.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_struct_array_dispatch_pipeline.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_struct_array_dispatch_pipeline.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_ptrdiff_char_bridge_roundtrip",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_ptrdiff_char_bridge_roundtrip.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_ptrdiff_char_bridge_roundtrip.stdout",
+      "expected_stderr": "expect/14__runtime_ptrdiff_char_bridge_roundtrip.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer-difference",
+        "char-bridge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_volatile_comma_ternary_control_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_volatile_comma_ternary_control_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_volatile_comma_ternary_control_chain.stdout",
+      "expected_stderr": "expect/14__runtime_volatile_comma_ternary_control_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "comma",
+        "volatile"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

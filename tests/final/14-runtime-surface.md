@@ -2,9 +2,9 @@
 
 ## Status Snapshot (2026-03-21)
 
-- Active test count: 78 (`tests/final/meta/14-runtime-surface*.json`)
-- Runtime+differential tests: 73 (`58` strict differential + `8` UB-policy + `7` implementation-defined-policy)
-- Current bucket run: `PROBE_FILTER=14__*` probe lane is green (`33 resolved, 0 blocked`)
+- Active test count: 85 (`tests/final/meta/14-runtime-surface*.json`)
+- Runtime+differential tests: 80 (`65` strict differential + `8` UB-policy + `7` implementation-defined-policy)
+- Current bucket run: `PROBE_FILTER=14__*` probe lane is in expansion (`48 resolved, 7 blocked`)
 - Next expansion plan: `docs/plans/runtime_bucket_14_execution_plan.md`
 
 ## Scope
@@ -64,7 +64,7 @@ Minimal headers and builtin surface to compile real programs.
    - Runtime struct layout and alignment-offset checks.
 
 ## Open Gaps (Tracked)
-- No active probe blockers in the current `14__probe_` lane.
+- No active blockers in the current `14__probe_` lane.
 
 ## Wave 2 Additions (Codegen Probe Promotion)
 20) `14__runtime_loop_continue_break_phi`
@@ -267,6 +267,121 @@ Wave23 status:
 
 Wave24 status:
 - Probe lane additions are green and currently staged for promotion review.
+
+## Wave 25 Probe Expansion (Closed)
+1) `14__probe_fnptr_struct_temporary_chain`
+   - Resolved vs clang (`10 12 7`) after semantic callable-target recovery fix for typedef/function-pointer struct-return call chains.
+2) `14__probe_vla_param_slice_stride_rebase`
+   - Resolved vs clang (`331 12 323`) after pointer-difference lowering moved to `LLVMBuildPtrDiff2` and VLA index cast-width normalization.
+3) `14__probe_volatile_short_circuit_sequence`
+   - Resolved vs clang (`7 975 1 1 24425`).
+
+Wave25 status:
+- Current full probe-lane snapshot:
+  `PROBE_FILTER=14__*` => `resolved=36`, `blocked=0`, `skipped=0`.
+
+## Wave 25 Promotion Closure
+79) `14__runtime_fnptr_struct_temporary_chain`
+   - Promoted from probe lane after grouped semantic/codegen fixes.
+80) `14__runtime_vla_param_slice_stride_rebase`
+   - Promoted from probe lane after VLA ptrdiff lowering fixes.
+81) `14__runtime_volatile_short_circuit_sequence`
+   - Promoted from probe lane as volatile sequencing anchor.
+
+## Wave 26 Probe Expansion (Closed)
+1) `14__probe_vla_ptrdiff_subslice_rebase_chain`
+   - Resolved vs clang (`352 21 172`).
+2) `14__probe_fnptr_struct_array_dispatch_pipeline`
+   - Resolved vs clang (`55 18`).
+3) `14__probe_ptrdiff_char_bridge_roundtrip`
+   - Resolved vs clang (`14 14 5 73`).
+4) `14__probe_volatile_comma_ternary_control_chain`
+   - Resolved vs clang (`9 466 22884 1 160198`).
+5) `14__probe_variadic_width_stress_matrix`
+   - Resolved vs clang (`1238567890392`) after mapping `__builtin_va_list` to
+     pointer-form lowering in codegen type resolution.
+
+Wave26 status:
+- Current full probe-lane snapshot:
+  `PROBE_FILTER=14__*` => `resolved=41`, `blocked=0`, `skipped=0`.
+
+## Wave 26 Promotion Closure
+82) `14__runtime_vla_ptrdiff_subslice_rebase_chain`
+   - Promoted from probe lane as VLA subslice-rebase ptrdiff anchor.
+83) `14__runtime_fnptr_struct_array_dispatch_pipeline`
+   - Promoted from probe lane as struct-wrapped function-pointer dispatch pipeline anchor.
+84) `14__runtime_ptrdiff_char_bridge_roundtrip`
+   - Promoted from probe lane as typed-pointer/byte-pointer delta roundtrip anchor.
+85) `14__runtime_volatile_comma_ternary_control_chain`
+   - Promoted from probe lane as volatile comma/ternary sequencing anchor.
+
+## Wave 27 Probe Expansion (Closed)
+1) `14__probe_variadic_vacopy_forwarder_matrix`
+   - Resolved vs clang (`36666669468`) after builtin `va_copy` lowering fix.
+2) `14__probe_variadic_nested_forwarder_table`
+   - Resolved vs clang (`870`) after builtin `va_copy` lowering fix.
+3) `14__probe_struct_large_return_pipeline`
+   - Resolved vs clang (`-259 -483`) after aggregate assignment typing fixes.
+4) `14__probe_struct_large_return_fnptr_pipeline`
+   - Resolved vs clang (`1262 278`) after aggregate assignment typing fixes.
+5) `14__probe_ptrdiff_struct_char_bridge_matrix`
+   - Resolved vs clang (`6 6 72 74 22 17`) after typedef-surface pointer type preservation.
+6) `14__probe_struct_union_by_value_roundtrip_chain`
+   - Resolved vs clang (`616424 618408`) after union LLVM storage/body fix.
+7) `14__probe_vla_param_cross_function_pipeline`
+   - Resolved vs clang (`2449 23`) after pointer-qualification compatibility normalization.
+8) `14__probe_variadic_fnptr_dispatch_chain`
+   - Resolved vs clang (`443`).
+9) `14__probe_vla_param_negative_ptrdiff_matrix`
+   - Resolved vs clang (`381 -18 27`).
+10) `14__probe_vla_rebased_slice_signed_unsigned_mix`
+    - Resolved vs clang (`1879 40`).
+11) `14__probe_fnptr_stateful_table_loop_matrix`
+    - Resolved vs clang (`298 18`).
+12) `14__probe_fnptr_return_struct_pipeline`
+    - Resolved vs clang (`164 20`).
+13) `14__probe_ptrdiff_reinterpret_longlong_bridge`
+    - Resolved vs clang (`8 8 64 16 5007`).
+14) `14__probe_recursive_fnptr_mix_runtime`
+    - Resolved vs clang (`191 61`).
+
+Wave27 status:
+- Current full probe-lane snapshot:
+  `PROBE_FILTER=14__*` => `resolved=55`, `blocked=0`, `skipped=0`.
+
+## Wave 27 Promotion Closure
+86) `14__runtime_variadic_vacopy_forwarder_matrix`
+   - Promoted from probe lane after builtin `va_copy` lowering fix.
+87) `14__runtime_variadic_nested_forwarder_table`
+   - Promoted from probe lane as nested variadic forwarder anchor.
+88) `14__runtime_ptrdiff_struct_char_bridge_matrix`
+   - Promoted from probe lane as typed-struct/char-bridge pointer-difference anchor.
+89) `14__runtime_struct_union_by_value_roundtrip_chain`
+   - Promoted from probe lane as struct+union by-value roundtrip anchor.
+90) `14__runtime_vla_param_cross_function_pipeline`
+   - Promoted from probe lane as cross-function VLA parameter pipeline anchor.
+
+## Wave 28 Promotion Closure
+91) `14__runtime_variadic_width_stress_matrix`
+   - Promoted from probe lane as width-mix variadic promotion anchor.
+92) `14__runtime_variadic_fnptr_dispatch_chain`
+   - Promoted from probe lane as variadic function-pointer dispatch anchor.
+93) `14__runtime_vla_param_negative_ptrdiff_matrix`
+   - Promoted from probe lane as negative/positive VLA ptrdiff anchor.
+94) `14__runtime_vla_rebased_slice_signed_unsigned_mix`
+   - Promoted from probe lane as mixed signed/unsigned VLA slice anchor.
+95) `14__runtime_fnptr_stateful_table_loop_matrix`
+   - Promoted from probe lane as stateful table-dispatch anchor.
+96) `14__runtime_fnptr_return_struct_pipeline`
+   - Promoted from probe lane as function-pointer selected struct-return anchor.
+97) `14__runtime_ptrdiff_reinterpret_longlong_bridge`
+   - Promoted from probe lane as long-long reinterpret delta bridge anchor.
+98) `14__runtime_recursive_fnptr_mix_runtime`
+   - Promoted from probe lane as recursive function-pointer path anchor.
+99) `14__runtime_struct_large_return_pipeline`
+   - Promoted from probe lane as large-struct by-value return anchor.
+100) `14__runtime_struct_large_return_fnptr_pipeline`
+   - Promoted from probe lane as function-pointer large-struct return anchor.
 
 ## Expected Outputs
 - AST/Diagnostics/IR goldens for compile-surface checks.

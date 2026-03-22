@@ -434,6 +434,11 @@ static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type) {
         CG_TRACE("[TRACE] namedAliasType builtin half=%p\n", (void*)halfTy);
         return halfTy;
     }
+    if (strcmp(aliasName, "__builtin_va_list") == 0) {
+        LLVMTypeRef vaListTy = LLVMPointerType(LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx)), 0);
+        CG_TRACE("[TRACE] namedAliasType builtin va_list=%p\n", (void*)vaListTy);
+        return vaListTy;
+    }
 
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
     if (cache) {

@@ -43,6 +43,10 @@ extract_sections() {
 }
 
 for src in "${TEST_SOURCES[@]}"; do
+  # Negative unsupported-policy test; validated by dedicated syntax harness.
+  if [ "$src" = "tests/syntax/semantic_atomic_qualifier.c" ]; then
+    continue
+  fi
   rel="${src#tests/}"
   if [ -n "$SPEC_FILTER" ] && [ "$rel" != "$SPEC_FILTER" ]; then
     continue

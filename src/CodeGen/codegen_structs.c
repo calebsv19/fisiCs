@@ -217,6 +217,7 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
     }
 
     /* Resolve element type. */
+    bool explicitElementHint = elementTypeHint != NULL;
     LLVMTypeRef elementType = elementTypeHint;
     if (!elementType) {
         elementType = cg_element_type_from_pointer(ctx, baseParsedHint, valueType);
@@ -239,6 +240,14 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
         elementType = LLVMPointerType(elementType, 0);
     }
     if (pointee && LLVMGetTypeKind(pointee) == LLVMArrayTypeKind) {
+        LLVMTypeRef pointeeElement = LLVMGetElementType(pointee);
+        if (pointeeElement && (!elementType || !explicitElementHint)) {
+            /*
+             * When parsed hints are unavailable we may have fallen back to i8 from
+             * an opaque pointer. Prefer the concrete pointee array element type.
+             */
+            elementType = pointeeElement;
+        }
         if (!elementType) {
             elementType = LLVMGetElementType(pointee);
         }
@@ -694,7 +703,11 @@ bool codegenLValue(CodegenContext* ctx,
                     return false;
                 }
                 if (idxTy != intptrTy) {
-                    offset = LLVMBuildIntCast2(ctx->builder, offset, intptrTy, 0, "vla.idx.cast");
+                    unsigned idxBits = LLVMGetIntTypeWidth(idxTy);
+                    unsigned ptrBits = LLVMGetIntTypeWidth(intptrTy);
+                    if (idxBits != ptrBits) {
+                        offset = LLVMBuildIntCast2(ctx->builder, offset, intptrTy, 0, "vla.idx.cast");
+                    }
                 }
 
                 size_t arrayDims = 0;
@@ -720,7 +733,11 @@ bool codegenLValue(CodegenContext* ctx,
                             LLVMValueRef evaluated = codegenNode(ctx, deriv->as.array.sizeExpr);
                             if (evaluated && LLVMGetTypeKind(LLVMTypeOf(evaluated)) == LLVMIntegerTypeKind) {
                                 if (LLVMTypeOf(evaluated) != intptrTy) {
-                                    evaluated = LLVMBuildIntCast2(ctx->builder, evaluated, intptrTy, 0, "vla.dim.cast");
+                                    unsigned evalBits = LLVMGetIntTypeWidth(LLVMTypeOf(evaluated));
+                                    unsigned ptrBits = LLVMGetIntTypeWidth(intptrTy);
+                                    if (evalBits != ptrBits) {
+                                        evaluated = LLVMBuildIntCast2(ctx->builder, evaluated, intptrTy, 0, "vla.dim.cast");
+                                    }
                                 }
                                 dim = evaluated;
                             }
@@ -1238,7 +1255,57 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
         }
     }
 
-    LLVMStructSetBody(structType, fieldTypes, (unsigned)fieldIndex, 0);
+    if (isUnion) {
+        LLVMModuleRef module = cg_context_get_module(ctx);
+        LLVMTargetDataRef td = module ? LLVMGetModuleDataLayout(module) : NULL;
+        LLVMTypeRef maxAlignTy = NULL;
+        uint64_t maxSize = 0;
+        uint32_t maxAlign = 1;
+        uint64_t maxAlignTySize = 0;
+
+        for (size_t i = 0; i < fieldIndex; ++i) {
+            LLVMTypeRef memberTy = fieldTypes[i];
+            if (!memberTy || LLVMGetTypeKind(memberTy) == LLVMVoidTypeKind) {
+                memberTy = LLVMInt8TypeInContext(ctx->llvmContext);
+            }
+            uint64_t sz = td ? LLVMABISizeOfType(td, memberTy) : 0;
+            uint32_t al = td ? (uint32_t)LLVMABIAlignmentOfType(td, memberTy) : 1;
+            if (al == 0) al = 1;
+            if (sz > maxSize) maxSize = sz;
+            if (!maxAlignTy || al > maxAlign || (al == maxAlign && sz > maxAlignTySize)) {
+                maxAlignTy = memberTy;
+                maxAlign = al;
+                maxAlignTySize = sz;
+            }
+        }
+
+        if (!maxAlignTy) {
+            maxAlignTy = LLVMInt8TypeInContext(ctx->llvmContext);
+            maxAlign = 1;
+            maxSize = 1;
+            maxAlignTySize = 1;
+        }
+
+        uint64_t finalSize = maxSize;
+        if (maxAlign > 1) {
+            uint64_t rem = finalSize % (uint64_t)maxAlign;
+            if (rem != 0) finalSize += ((uint64_t)maxAlign - rem);
+        }
+        if (finalSize == 0) finalSize = 1;
+
+        if (maxAlignTySize >= finalSize) {
+            LLVMStructSetBody(structType, &maxAlignTy, 1, 0);
+        } else {
+            uint64_t tailBytes = finalSize - maxAlignTySize;
+            LLVMTypeRef members[2];
+            members[0] = maxAlignTy;
+            members[1] = LLVMArrayType(LLVMInt8TypeInContext(ctx->llvmContext),
+                                       (unsigned)tailBytes);
+            LLVMStructSetBody(structType, members, 2, 0);
+        }
+    } else {
+        LLVMStructSetBody(structType, fieldTypes, (unsigned)fieldIndex, 0);
+    }
     recordStructInfo(ctx, structName, isUnion, infos, fieldIndex, structType);
     free(fieldTypes);
     return structType;

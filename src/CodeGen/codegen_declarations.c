@@ -20,8 +20,18 @@ static bool cg_is_builtin_const_name(const char* name) {
            strcmp(name, "__LDBL_MIN__") == 0;
 }
 
+static bool cg_named_type_has_surface_derivations(const ParsedType* type) {
+    if (!type || type->kind != TYPE_NAMED) {
+        return false;
+    }
+    return type->derivationCount > 0 || type->pointerDepth > 0 || type->isFunctionPointer;
+}
+
 static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const ParsedType* type) {
     if (!ctx || !type || type->kind != TYPE_NAMED || !type->userTypeName) {
+        return type;
+    }
+    if (cg_named_type_has_surface_derivations(type)) {
         return type;
     }
     CGTypeCache* cache = cg_context_get_type_cache(ctx);

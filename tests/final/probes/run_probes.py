@@ -271,6 +271,116 @@ RUNTIME_PROBES = [
         note="4D VLA indexing and slab/lane stride pointer differences should match clang",
     ),
     RuntimeProbe(
+        probe_id="14__probe_fnptr_struct_temporary_chain",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_struct_temporary_chain.c",
+        note="temporary struct returns carrying function pointers should remain callable through chained expressions",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_param_slice_stride_rebase",
+        source=PROBE_DIR / "runtime/14__probe_vla_param_slice_stride_rebase.c",
+        note="VLA parameter slice rebasing and row/element stride math should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_volatile_short_circuit_sequence",
+        source=PROBE_DIR / "runtime/14__probe_volatile_short_circuit_sequence.c",
+        note="volatile state updates across comma/short-circuit sequencing should match clang behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_ptrdiff_subslice_rebase_chain",
+        source=PROBE_DIR / "runtime/14__probe_vla_ptrdiff_subslice_rebase_chain.c",
+        note="VLA subslice rebasing with multi-hop row/element pointer differences should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_struct_array_dispatch_pipeline",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_struct_array_dispatch_pipeline.c",
+        note="struct-wrapped function-pointer dispatch selected through array/ternary pipeline should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_ptrdiff_char_bridge_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_ptrdiff_char_bridge_roundtrip.c",
+        note="typed pointer difference and char-byte bridge roundtrip should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_volatile_comma_ternary_control_chain",
+        source=PROBE_DIR / "runtime/14__probe_volatile_comma_ternary_control_chain.c",
+        note="volatile state updates across comma and ternary control chains should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_width_stress_matrix",
+        source=PROBE_DIR / "runtime/14__probe_variadic_width_stress_matrix.c",
+        note="variadic promotion and width-mix matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_vacopy_forwarder_matrix",
+        source=PROBE_DIR / "runtime/14__probe_variadic_vacopy_forwarder_matrix.c",
+        note="va_copy forwarding across mixed variadic lane tags should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_fnptr_dispatch_chain",
+        source=PROBE_DIR / "runtime/14__probe_variadic_fnptr_dispatch_chain.c",
+        note="variadic function-pointer dispatch chains should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_nested_forwarder_table",
+        source=PROBE_DIR / "runtime/14__probe_variadic_nested_forwarder_table.c",
+        note="nested variadic forwarders with va_copy table dispatch should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_large_return_pipeline",
+        source=PROBE_DIR / "runtime/14__probe_struct_large_return_pipeline.c",
+        note="large struct pass/return merge pipelines should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_large_return_fnptr_pipeline",
+        source=PROBE_DIR / "runtime/14__probe_struct_large_return_fnptr_pipeline.c",
+        note="large struct returns through function-pointer builders should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_param_negative_ptrdiff_matrix",
+        source=PROBE_DIR / "runtime/14__probe_vla_param_negative_ptrdiff_matrix.c",
+        note="VLA parameter row rebasing with negative/positive ptrdiff should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_rebased_slice_signed_unsigned_mix",
+        source=PROBE_DIR / "runtime/14__probe_vla_rebased_slice_signed_unsigned_mix.c",
+        note="VLA rebased slices with signed/unsigned index mixing should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_ptrdiff_struct_char_bridge_matrix",
+        source=PROBE_DIR / "runtime/14__probe_ptrdiff_struct_char_bridge_matrix.c",
+        note="struct-pointer typed and byte-bridge ptrdiff matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_stateful_table_loop_matrix",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_stateful_table_loop_matrix.c",
+        note="stateful function-pointer table loop dispatch should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_union_by_value_roundtrip_chain",
+        source=PROBE_DIR / "runtime/14__probe_struct_union_by_value_roundtrip_chain.c",
+        note="struct+union by-value roundtrip chains should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_return_struct_pipeline",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_return_struct_pipeline.c",
+        note="function-pointer selected struct-return pipelines should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_param_cross_function_pipeline",
+        source=PROBE_DIR / "runtime/14__probe_vla_param_cross_function_pipeline.c",
+        note="cross-function VLA parameter slice pipelines should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_ptrdiff_reinterpret_longlong_bridge",
+        source=PROBE_DIR / "runtime/14__probe_ptrdiff_reinterpret_longlong_bridge.c",
+        note="long-long pointer/byte reinterpret delta bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_recursive_fnptr_mix_runtime",
+        source=PROBE_DIR / "runtime/14__probe_recursive_fnptr_mix_runtime.c",
+        note="recursive function-pointer stepping paths should match clang runtime behavior",
+    ),
+    RuntimeProbe(
         probe_id="15__probe_switch_loop_lite",
         source=PROBE_DIR / "runtime/15__probe_switch_loop_lite.c",
         note="loop+switch lowering should match clang",

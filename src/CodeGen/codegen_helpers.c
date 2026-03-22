@@ -234,8 +234,13 @@ static bool cg_parsed_type_is_pointer(const ParsedType* type) {
     return type->pointerDepth > 0;
 }
 
+static bool cg_named_type_has_surface_derivations(const ParsedType* type);
+
 static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const ParsedType* type) {
     if (!ctx || !type || type->kind != TYPE_NAMED || !type->userTypeName) {
+        return type;
+    }
+    if (cg_named_type_has_surface_derivations(type)) {
         return type;
     }
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
@@ -503,12 +508,25 @@ bool cg_size_align_of_parsed(CodegenContext* ctx,
                              uint64_t* outSize,
                              uint32_t* outAlign) {
     if (!ctx || !parsed) return false;
+    const ParsedType* surfaceParsed = cg_resolve_call_surface_type(ctx, parsed);
+    if (!surfaceParsed) {
+        surfaceParsed = parsed;
+    }
     const SemanticModel* model = cg_context_get_semantic_model(ctx);
     if (!model) return false;
+    const ParsedType* modelResolved = surfaceParsed;
+    if (surfaceParsed->kind == TYPE_NAMED &&
+        surfaceParsed->userTypeName &&
+        !cg_named_type_has_surface_derivations(surfaceParsed)) {
+        const Symbol* aliasSym = semanticModelLookupGlobal(model, surfaceParsed->userTypeName);
+        if (aliasSym && aliasSym->kind == SYMBOL_TYPEDEF) {
+            modelResolved = &aliasSym->type;
+        }
+    }
     CompilerContext* cctx = semanticModelGetContext(model);
     struct Scope* gscope = semanticModelGetGlobalScope(model);
     if (!cctx || !gscope) return false;
-    ParsedType copy = *parsed;
+    ParsedType copy = *modelResolved;
     size_t sz = 0, al = 0;
     if (!size_align_of_parsed_type(&copy, gscope, &sz, &al)) {
         return false;
@@ -700,14 +718,28 @@ LLVMTypeRef cg_element_type_hint_from_parsed(CodegenContext* ctx, const ParsedTy
     if (!ctx || !parsedType) {
         return NULL;
     }
+    const ParsedType* surfaceParsed = cg_resolve_call_surface_type(ctx, parsedType);
+    if (!surfaceParsed) {
+        surfaceParsed = parsedType;
+    }
+    const SemanticModel* model = cg_context_get_semantic_model(ctx);
+    if (model &&
+        surfaceParsed->kind == TYPE_NAMED &&
+        surfaceParsed->userTypeName &&
+        !cg_named_type_has_surface_derivations(surfaceParsed)) {
+        const Symbol* aliasSym = semanticModelLookupGlobal(model, surfaceParsed->userTypeName);
+        if (aliasSym && aliasSym->kind == SYMBOL_TYPEDEF) {
+            surfaceParsed = &aliasSym->type;
+        }
+    }
 
     LLVMTypeRef hint = NULL;
-    if (parsedTypeIsDirectArray(parsedType)) {
-        ParsedType element = parsedTypeArrayElementType(parsedType);
+    if (parsedTypeIsDirectArray(surfaceParsed)) {
+        ParsedType element = parsedTypeArrayElementType(surfaceParsed);
         hint = cg_type_from_parsed(ctx, &element);
         parsedTypeFree(&element);
     } else {
-        ParsedType pointed = parsedTypePointerTargetType(parsedType);
+        ParsedType pointed = parsedTypePointerTargetType(surfaceParsed);
         if (pointed.kind != TYPE_INVALID) {
             hint = cg_type_from_parsed(ctx, &pointed);
         }
@@ -866,9 +898,7 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
     LLVMValueRef rhsByte = LLVMBuildPointerCast(ctx->builder, rhsPtr, bytePtrTy, "ptr.diff.rhs.byte");
 
     LLVMTypeRef intptrTy = cg_get_intptr_type(ctx);
-    LLVMValueRef lhsInt = LLVMBuildPtrToInt(ctx->builder, lhsByte, intptrTy, "ptr.diff.lhs");
-    LLVMValueRef rhsInt = LLVMBuildPtrToInt(ctx->builder, rhsByte, intptrTy, "ptr.diff.rhs");
-    LLVMValueRef byteDiff = LLVMBuildSub(ctx->builder, lhsInt, rhsInt, "ptr.diff.bytes");
+    LLVMValueRef byteDiff = LLVMBuildPtrDiff2(ctx->builder, i8Type, lhsByte, rhsByte, "ptr.diff.bytes");
 
     /* Determine element size without relying on pointer element types (opaque-pointer safe). */
     uint64_t elemBytes = 0;

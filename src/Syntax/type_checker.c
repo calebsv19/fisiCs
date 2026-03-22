@@ -681,6 +681,39 @@ static size_t collectPointerDerivations(const ParsedType* type,
     return count;
 }
 
+static void clearParsedTypeQualifiers(ParsedType* type) {
+    if (!type) return;
+    type->isConst = false;
+    type->isVolatile = false;
+    type->isRestrict = false;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        TypeDerivation* deriv = &type->derivations[i];
+        if (deriv->kind == TYPE_DERIVATION_POINTER) {
+            deriv->as.pointer.isConst = false;
+            deriv->as.pointer.isVolatile = false;
+            deriv->as.pointer.isRestrict = false;
+        } else if (deriv->kind == TYPE_DERIVATION_ARRAY) {
+            bool vlaLike = deriv->as.array.isVLA ||
+                           (!deriv->as.array.hasConstantSize &&
+                            deriv->as.array.sizeExpr &&
+                            !deriv->as.array.isFlexible);
+            deriv->as.array.isVLA = vlaLike;
+        }
+    }
+}
+
+static bool parsedTypesEqualIgnoringQualifiers(const ParsedType* lhs, const ParsedType* rhs) {
+    if (!lhs || !rhs) return false;
+    ParsedType lhsCopy = parsedTypeClone(lhs);
+    ParsedType rhsCopy = parsedTypeClone(rhs);
+    clearParsedTypeQualifiers(&lhsCopy);
+    clearParsedTypeQualifiers(&rhsCopy);
+    bool equal = parsedTypesStructurallyEqual(&lhsCopy, &rhsCopy);
+    parsedTypeFree(&lhsCopy);
+    parsedTypeFree(&rhsCopy);
+    return equal;
+}
+
 static bool functionPointerQualifierLoss(const ParsedType* destType, const ParsedType* srcType) {
     if (!destType || !srcType) return false;
     const TypeDerivation* destPtrs[TYPEINFO_MAX_POINTER_DEPTH] = {0};
@@ -745,6 +778,9 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
             if (!functionPointerTargetsCompatible(dest->originalType, src->originalType)) {
                 return ASSIGN_INCOMPATIBLE;
             }
+            return ASSIGN_OK;
+        }
+        if (parsedTypesEqualIgnoringQualifiers(dest->originalType, src->originalType)) {
             return ASSIGN_OK;
         }
         if (typesAreEqual(dest, src)) {

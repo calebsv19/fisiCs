@@ -219,6 +219,102 @@ Suggested entry format:
   probe was minimized to isolate 4D VLA stride/index semantics cleanly for this
   wave.
 
+### 2026-03-21 — Bucket: runtime-surface (14) wave-25 probe expansion kickoff
+
+- Scope:
+  continue probe-first expansion into two remaining risk lanes:
+  temporary struct-return call chains and VLA parameter slice rebasing.
+- Added probes:
+  `14__probe_fnptr_struct_temporary_chain`,
+  `14__probe_vla_param_slice_stride_rebase`,
+  `14__probe_volatile_short_circuit_sequence`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_fnptr_struct_temporary_chain,14__probe_vla_param_slice_stride_rebase,14__probe_volatile_short_circuit_sequence python3 tests/final/probes/run_probes.py`
+  reports `blocked=2`, `resolved=1`, `skipped=0`.
+- Full lane verify after additions:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=2`, `resolved=34`, `skipped=0`.
+- Blocked inventory:
+  `14__probe_fnptr_struct_temporary_chain`
+  (semantic: `Error at (40:0): Argument 1 of 'apply' has incompatible type`),
+  `14__probe_vla_param_slice_stride_rebase`
+  (runtime: `fisics=536871241 12 323`, `clang=331 12 323`).
+- Resolved:
+  `14__probe_volatile_short_circuit_sequence`
+  (`stdout=7 975 1 1 24425`).
+- Status:
+  wave25 remains probe-only pending grouped fix phase for both blockers.
+
+### 2026-03-21 — Bucket: runtime-surface (14) wave-25 fix-phase closure
+
+- Scope:
+  resolve the two wave-25 blockers in grouped fix mode and re-verify the full
+  `14__*` probe lane.
+- Semantic fix:
+  improved callable-target recovery for function calls through typedef-named
+  function-pointer chains, including temporary struct-return expression callees.
+- Codegen fix:
+  switched pointer-difference lowering to `LLVMBuildPtrDiff2` and normalized VLA
+  index cast-width checks to avoid same-width no-op int-cast emission.
+- Targeted validation:
+  `PROBE_FILTER=14__probe_vla_param_slice_stride_rebase python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=1`, `skipped=0`.
+- Full lane verify:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=36`, `skipped=0`.
+- Status:
+  wave-25 probe set is fully green and ready for promotion review.
+
+### 2026-03-21 — Bucket: runtime-surface (14) wave-25 promotion closure
+
+- Scope:
+  promote the resolved wave-25 probes into active runtime manifests.
+- Promotion shard:
+  added `tests/final/meta/14-runtime-surface-wave25-probe-promotions.json` with:
+  `14__runtime_fnptr_struct_temporary_chain`,
+  `14__runtime_vla_param_slice_stride_rebase`,
+  `14__runtime_volatile_short_circuit_sequence`.
+- Manifest index update:
+  registered the new shard in `tests/final/meta/index.json`.
+- Expectations:
+  generated via targeted updates:
+  `UPDATE_FINAL=1 FINAL_FILTER=<id> python3 tests/final/run_final.py`.
+- Verification:
+  targeted checks for all three promoted IDs passed, and full suite sweep
+  `python3 tests/final/run_final.py` is green (`0 failing, 15 skipped`).
+- Status:
+  wave-25 is now fully integrated into active bucket-14 coverage.
+
+### 2026-03-21 — Bucket: runtime-surface (14) wave-26 probe expansion kickoff
+
+- Scope:
+  add next high-value runtime probes centered on VLA subslice ptrdiff chains,
+  function-pointer struct dispatch pipelines, pointer-byte bridge invariants,
+  volatile sequencing chains, and wider variadic promotion stress.
+- Added probes:
+  `14__probe_vla_ptrdiff_subslice_rebase_chain`,
+  `14__probe_fnptr_struct_array_dispatch_pipeline`,
+  `14__probe_ptrdiff_char_bridge_roundtrip`,
+  `14__probe_volatile_comma_ternary_control_chain`,
+  `14__probe_variadic_width_stress_matrix`.
+- Targeted validation:
+  `PROBE_FILTER=14__probe_vla_ptrdiff_subslice_rebase_chain,14__probe_fnptr_struct_array_dispatch_pipeline,14__probe_ptrdiff_char_bridge_roundtrip,14__probe_volatile_comma_ternary_control_chain,14__probe_variadic_width_stress_matrix python3 tests/final/probes/run_probes.py`
+  reports `blocked=1`, `resolved=4`, `skipped=0`.
+- Full lane verify after additions:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=1`, `resolved=40`, `skipped=0`.
+- Resolved:
+  `14__probe_vla_ptrdiff_subslice_rebase_chain`,
+  `14__probe_fnptr_struct_array_dispatch_pipeline`,
+  `14__probe_ptrdiff_char_bridge_roundtrip`,
+  `14__probe_volatile_comma_ternary_control_chain`.
+- Blocked:
+  `14__probe_variadic_width_stress_matrix`
+  (`fisics` compile crash in `-o` flow, exit `-11`; not promoted).
+- Status:
+  wave26 remains probe-only pending grouped fix-phase handling for the new
+  variadic crash.
+
 ### 2026-03-13 — Bucket: runtime-surface (14) planning refresh
 
 - Scope:
@@ -2382,3 +2478,114 @@ Suggested entry format:
   each new ID passes under exact `FINAL_FILTER=...` checks, and full
   `python3 tests/final/run_final.py` remains green:
   `0 failing, 15 skipped`.
+
+### 2026-03-21 — Bucket: runtime-surface (14 wave26 varargs fix + promotion)
+
+- Fixed blocked probe `14__probe_variadic_width_stress_matrix` by updating
+  codegen named-alias type lowering:
+  `src/CodeGen/codegen_types.c` now maps `__builtin_va_list` to pointer-form
+  lowering, which removes backend crash in object emission.
+- Probe validation:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  is green (`resolved=41`, `blocked=0`, `skipped=0`).
+- Promoted resolved wave26 probes into active suite:
+  `14__runtime_vla_ptrdiff_subslice_rebase_chain`,
+  `14__runtime_fnptr_struct_array_dispatch_pipeline`,
+  `14__runtime_ptrdiff_char_bridge_roundtrip`,
+  `14__runtime_volatile_comma_ternary_control_chain`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave26-probe-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  targeted `FINAL_FILTER=...` checks pass for all promoted ids, and full
+  `make final` is green (`0 failing, 15 skipped`).
+
+### 2026-03-21 — Bucket: runtime-surface (14 wave27 broad probe-add collection)
+
+- Scope:
+  deep probe-add mode for bucket-14 to maximize blocked inventory before next
+  grouped fix cycle.
+- Added runtime probes:
+  `14__probe_variadic_vacopy_forwarder_matrix`,
+  `14__probe_variadic_fnptr_dispatch_chain`,
+  `14__probe_variadic_nested_forwarder_table`,
+  `14__probe_struct_large_return_pipeline`,
+  `14__probe_struct_large_return_fnptr_pipeline`,
+  `14__probe_vla_param_negative_ptrdiff_matrix`,
+  `14__probe_vla_rebased_slice_signed_unsigned_mix`,
+  `14__probe_ptrdiff_struct_char_bridge_matrix`,
+  `14__probe_fnptr_stateful_table_loop_matrix`,
+  `14__probe_struct_union_by_value_roundtrip_chain`,
+  `14__probe_fnptr_return_struct_pipeline`,
+  `14__probe_vla_param_cross_function_pipeline`,
+  `14__probe_ptrdiff_reinterpret_longlong_bridge`,
+  `14__probe_recursive_fnptr_mix_runtime`.
+- Targeted probe batch validation:
+  `PROBE_FILTER=14__probe_variadic_,14__probe_struct_large_return_,14__probe_vla_param_negative_ptrdiff_matrix,14__probe_vla_rebased_slice_signed_unsigned_mix,14__probe_ptrdiff_struct_char_bridge_matrix,14__probe_fnptr_stateful_table_loop_matrix,14__probe_struct_union_by_value_roundtrip_chain,14__probe_fnptr_return_struct_pipeline,14__probe_vla_param_cross_function_pipeline,14__probe_ptrdiff_reinterpret_longlong_bridge,14__probe_recursive_fnptr_mix_runtime python3 tests/final/probes/run_probes.py`
+  reports `blocked=7`, `resolved=10`, `skipped=0`.
+- Full lane snapshot after additions:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=7`, `resolved=48`, `skipped=0`.
+- Blockers captured:
+  - `14__probe_variadic_vacopy_forwarder_matrix`: unresolved
+    `___builtin_va_copy` symbol at link.
+  - `14__probe_variadic_nested_forwarder_table`: unresolved
+    `___builtin_va_copy` symbol at link.
+  - `14__probe_struct_large_return_pipeline`: runtime mismatch vs clang.
+  - `14__probe_struct_large_return_fnptr_pipeline`: runtime mismatch vs clang.
+  - `14__probe_ptrdiff_struct_char_bridge_matrix`: runtime mismatch vs clang
+    (typed struct pointer-difference corruption).
+  - `14__probe_struct_union_by_value_roundtrip_chain`: runtime mismatch vs
+    clang.
+  - `14__probe_vla_param_cross_function_pipeline`: semantic mismatch on VLA
+    argument compatibility.
+- Status:
+  wave27 remains probe-only by design; no promotions performed.
+
+### 2026-03-21 — Bucket: runtime-surface (14 wave27 grouped fixes + promotion)
+
+- Resolved wave27 blocker set with grouped backend/semantic fixes:
+  - Added `__builtin_va_copy` lowering in function-call codegen path.
+  - Preserved typedef surface derivations (pointer/array/function layers) during
+    codegen typedef resolution so pointer arithmetic uses correct element sizing.
+  - Normalized pointer assignment compatibility for qualifier/VLA-like array
+    surface differences in semantic assignment checks.
+  - Corrected union LLVM body materialization in `codegenStructDefinition` so
+    union storage size/alignment matches semantic layout for by-value flows.
+- Targeted blocker validation:
+  `PROBE_FILTER=14__probe_variadic_vacopy_forwarder_matrix,14__probe_variadic_nested_forwarder_table,14__probe_ptrdiff_struct_char_bridge_matrix,14__probe_struct_union_by_value_roundtrip_chain,14__probe_vla_param_cross_function_pipeline python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=5`, `skipped=0`.
+- Full probe-lane snapshot after fixes:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=55`, `skipped=0`.
+- Promoted resolved wave27 probes into active runtime suite:
+  `14__runtime_variadic_vacopy_forwarder_matrix`,
+  `14__runtime_variadic_nested_forwarder_table`,
+  `14__runtime_ptrdiff_struct_char_bridge_matrix`,
+  `14__runtime_struct_union_by_value_roundtrip_chain`,
+  `14__runtime_vla_param_cross_function_pipeline`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave27-probe-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  full `make final` is green after promotion (`0 failing, 15 skipped`).
+
+### 2026-03-21 — Bucket: runtime-surface (14 wave28 promotion completion pass)
+
+- Promoted additional resolved probe-only runtime tests that were still not in
+  active manifests:
+  `14__runtime_variadic_width_stress_matrix`,
+  `14__runtime_variadic_fnptr_dispatch_chain`,
+  `14__runtime_vla_param_negative_ptrdiff_matrix`,
+  `14__runtime_vla_rebased_slice_signed_unsigned_mix`,
+  `14__runtime_fnptr_stateful_table_loop_matrix`,
+  `14__runtime_fnptr_return_struct_pipeline`,
+  `14__runtime_ptrdiff_reinterpret_longlong_bridge`,
+  `14__runtime_recursive_fnptr_mix_runtime`,
+  `14__runtime_struct_large_return_pipeline`,
+  `14__runtime_struct_large_return_fnptr_pipeline`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave28-probe-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  full `make final` remains green after wave28 promotion integration.

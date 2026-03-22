@@ -186,6 +186,61 @@ static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b) {
     return result;
 }
 
+static bool callableTargetFromTypeInfo(const TypeInfo* calleeInfo, Scope* scope, ParsedType* outTarget) {
+    if (!calleeInfo || !calleeInfo->originalType || !outTarget) {
+        return false;
+    }
+
+    memset(outTarget, 0, sizeof(*outTarget));
+    outTarget->kind = TYPE_INVALID;
+
+    ParsedType resolved = parsedTypeClone(calleeInfo->originalType);
+    if (resolved.kind == TYPE_INVALID) {
+        parsedTypeFree(&resolved);
+        return false;
+    }
+
+    int depthGuard = 0;
+    while (resolved.kind == TYPE_NAMED &&
+           resolved.userTypeName &&
+           resolved.derivationCount == 0 &&
+           resolved.pointerDepth == 0 &&
+           scope &&
+           depthGuard < 32) {
+        Symbol* sym = resolveInScopeChain(scope, resolved.userTypeName);
+        if (!sym || sym->kind != SYMBOL_TYPEDEF) {
+            break;
+        }
+        ParsedType next = parsedTypeClone(&sym->type);
+        if (next.kind == TYPE_INVALID) {
+            parsedTypeFree(&next);
+            break;
+        }
+        parsedTypeFree(&resolved);
+        resolved = next;
+        depthGuard++;
+    }
+
+    if (calleeInfo->category == TYPEINFO_POINTER && calleeInfo->pointerDepth > 0) {
+        ParsedType target = parsedTypePointerTargetType(&resolved);
+        parsedTypeFree(&resolved);
+        if (target.kind == TYPE_INVALID) {
+            parsedTypeFree(&target);
+            return false;
+        }
+        *outTarget = target;
+        return true;
+    }
+
+    if (calleeInfo->category == TYPEINFO_FUNCTION || calleeInfo->isFunction) {
+        *outTarget = resolved;
+        return true;
+    }
+
+    parsedTypeFree(&resolved);
+    return false;
+}
+
 static bool parsedTypePrependPointer(ParsedType* t) {
     if (!t) return false;
     TypeDerivation* grown =
@@ -1826,18 +1881,9 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 }
             }
 
-            if (result.category == TYPEINFO_INVALID && calleeInfo.originalType) {
+            if (result.category == TYPEINFO_INVALID) {
                 ParsedType fnTarget;
-                memset(&fnTarget, 0, sizeof(fnTarget));
-                fnTarget.kind = TYPE_INVALID;
-                bool haveTarget = false;
-                if (calleeInfo.category == TYPEINFO_POINTER && calleeInfo.pointerDepth > 0) {
-                    fnTarget = parsedTypePointerTargetType(calleeInfo.originalType);
-                    haveTarget = fnTarget.kind != TYPE_INVALID;
-                } else if (calleeInfo.category == TYPEINFO_FUNCTION || calleeInfo.isFunction) {
-                    fnTarget = parsedTypeClone(calleeInfo.originalType);
-                    haveTarget = fnTarget.kind != TYPE_INVALID;
-                }
+                bool haveTarget = callableTargetFromTypeInfo(&calleeInfo, scope, &fnTarget);
 
                 if (haveTarget) {
                     const ParsedFunctionSignature* callSig = NULL;
@@ -1865,18 +1911,9 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 }
             }
 
-            if (result.category == TYPEINFO_INVALID && calleeInfo.originalType) {
+            if (result.category == TYPEINFO_INVALID) {
                 ParsedType fnTarget;
-                memset(&fnTarget, 0, sizeof(fnTarget));
-                fnTarget.kind = TYPE_INVALID;
-                bool haveTarget = false;
-                if (calleeInfo.category == TYPEINFO_POINTER && calleeInfo.pointerDepth > 0) {
-                    fnTarget = parsedTypePointerTargetType(calleeInfo.originalType);
-                    haveTarget = fnTarget.kind != TYPE_INVALID;
-                } else if (calleeInfo.category == TYPEINFO_FUNCTION || calleeInfo.isFunction) {
-                    fnTarget = parsedTypeClone(calleeInfo.originalType);
-                    haveTarget = fnTarget.kind != TYPE_INVALID;
-                }
+                bool haveTarget = callableTargetFromTypeInfo(&calleeInfo, scope, &fnTarget);
                 if (haveTarget) {
                     ParsedType retParsed = parsedTypeFunctionReturnType(&fnTarget);
                     if (retParsed.kind != TYPE_INVALID) {

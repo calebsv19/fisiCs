@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_variadic_vacopy_forwarder_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_vacopy_forwarder_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_vacopy_forwarder_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_vacopy_forwarder_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "variadic",
+        "va_copy"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_nested_forwarder_table",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_nested_forwarder_table.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_nested_forwarder_table.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_nested_forwarder_table.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "variadic",
+        "va_copy"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_ptrdiff_struct_char_bridge_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_ptrdiff_struct_char_bridge_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_ptrdiff_struct_char_bridge_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_ptrdiff_struct_char_bridge_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer-difference",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_union_by_value_roundtrip_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_union_by_value_roundtrip_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_union_by_value_roundtrip_chain.stdout",
+      "expected_stderr": "expect/14__runtime_struct_union_by_value_roundtrip_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "struct",
+        "union"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_vla_param_cross_function_pipeline",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_param_cross_function_pipeline.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_param_cross_function_pipeline.stdout",
+      "expected_stderr": "expect/14__runtime_vla_param_cross_function_pipeline.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "vla",
+        "calls"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

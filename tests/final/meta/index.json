@@ -88,6 +88,10 @@
     "14-runtime-surface-wave20-impl-defined-policy.json",
     "14-runtime-surface-wave21-vla-fnptr-promotions.json",
     "14-runtime-surface-wave22-fnptr-vla-index-promotions.json",
+    "14-runtime-surface-wave25-probe-promotions.json",
+    "14-runtime-surface-wave26-probe-promotions.json",
+    "14-runtime-surface-wave27-probe-promotions.json",
+    "14-runtime-surface-wave28-probe-promotions.json",
     "15-torture-differential.json"
   ]
 }

@@ -1376,7 +1376,6 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         if (bits > 64) bits = 64;
         storeType = LLVMIntTypeInContext(ctx->llvmContext, bits);
     }
-
     LLVMValueRef storedValue = value;
 
     if (op && strcmp(op, "=") != 0) {
@@ -2019,17 +2018,35 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
 
     // Opaque-pointer friendly: prefer semantic signature, only peel one level of pointer-to-function.
 
+    bool isVaStartBuiltin = calleeName &&
+        (strcmp(calleeName, "va_start") == 0 || strcmp(calleeName, "__builtin_va_start") == 0);
+    bool isVaArgBuiltin = calleeName &&
+        (strcmp(calleeName, "__builtin_va_arg") == 0 || strcmp(calleeName, "va_arg") == 0);
+    bool isVaEndBuiltin = calleeName &&
+        (strcmp(calleeName, "va_end") == 0 || strcmp(calleeName, "__builtin_va_end") == 0);
+    bool isVaCopyBuiltin = calleeName &&
+        (strcmp(calleeName, "__builtin_va_copy") == 0 || strcmp(calleeName, "va_copy") == 0);
+
     LLVMValueRef* args = NULL;
     if (node->functionCall.argumentCount > 0) {
         args = (LLVMValueRef*)malloc(sizeof(LLVMValueRef) * node->functionCall.argumentCount);
         if (!args) return NULL;
         for (size_t i = 0; i < node->functionCall.argumentCount; i++) {
+            if ((isVaStartBuiltin || isVaArgBuiltin || isVaEndBuiltin) && i == 0) {
+                /* Keep va_list operand as an lvalue pointer for builtin varargs lowering. */
+                args[i] = NULL;
+                continue;
+            }
+            if (isVaCopyBuiltin && i < 2) {
+                /* va_copy operands should be handled via lvalue loads/stores. */
+                args[i] = NULL;
+                continue;
+            }
             args[i] = codegenNode(ctx, node->functionCall.arguments[i]);
         }
     }
 
-    if (calleeName &&
-        (strcmp(calleeName, "va_start") == 0 || strcmp(calleeName, "__builtin_va_start") == 0)) {
+    if (isVaStartBuiltin) {
         LLVMValueRef result = NULL;
         if (node->functionCall.argumentCount >= 1) {
             LLVMValueRef listPtr = NULL;
@@ -2045,23 +2062,28 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         if (result) return result;
         return LLVMConstNull(LLVMInt32TypeInContext(ctx->llvmContext));
     }
-    if (calleeName &&
-        (strcmp(calleeName, "__builtin_va_arg") == 0 || strcmp(calleeName, "va_arg") == 0)) {
+    if (isVaArgBuiltin) {
         LLVMValueRef val = NULL;
         if (node->functionCall.argumentCount >= 2 &&
             node->functionCall.arguments[1] &&
             node->functionCall.arguments[1]->type == AST_PARSED_TYPE) {
             LLVMTypeRef resTy = cg_type_from_parsed(ctx, &node->functionCall.arguments[1]->parsedTypeNode.parsed);
-            if (resTy && args) {
-                val = LLVMBuildVAArg(ctx->builder, args[0], resTy, "vaarg");
+            if (resTy) {
+                LLVMValueRef listPtr = NULL;
+                LLVMTypeRef listTy = NULL;
+                CGLValueInfo linfo;
+                if (codegenLValue(ctx, node->functionCall.arguments[0], &listPtr, &listTy, NULL, &linfo)) {
+                    val = LLVMBuildVAArg(ctx->builder, listPtr, resTy, "vaarg");
+                } else if (args && node->functionCall.argumentCount >= 1 && args[0]) {
+                    val = LLVMBuildVAArg(ctx->builder, args[0], resTy, "vaarg");
+                }
             }
         }
         free(args);
         if (val) return val;
         return LLVMConstNull(LLVMInt32TypeInContext(ctx->llvmContext));
     }
-    if (calleeName &&
-        (strcmp(calleeName, "va_end") == 0 || strcmp(calleeName, "__builtin_va_end") == 0)) {
+    if (isVaEndBuiltin) {
         LLVMValueRef result = NULL;
         if (node->functionCall.argumentCount >= 1) {
             LLVMValueRef listPtr = NULL;
@@ -2071,6 +2093,57 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                 result = cg_emit_va_intrinsic(ctx, "llvm.va_end", listPtr);
             } else if (args) {
                 result = cg_emit_va_intrinsic(ctx, "llvm.va_end", args[0]);
+            }
+        }
+        free(args);
+        if (result) return result;
+        return LLVMConstNull(LLVMInt32TypeInContext(ctx->llvmContext));
+    }
+    if (isVaCopyBuiltin) {
+        LLVMValueRef result = NULL;
+        if (node->functionCall.argumentCount >= 2) {
+            LLVMValueRef dstPtr = NULL;
+            LLVMTypeRef dstTy = NULL;
+            CGLValueInfo dstInfo;
+            LLVMValueRef srcPtr = NULL;
+            LLVMTypeRef srcTy = NULL;
+            CGLValueInfo srcInfo;
+            LLVMValueRef srcVal = NULL;
+
+            bool haveDst = codegenLValue(ctx, node->functionCall.arguments[0], &dstPtr, &dstTy, NULL, &dstInfo);
+            bool haveSrc = codegenLValue(ctx, node->functionCall.arguments[1], &srcPtr, &srcTy, NULL, &srcInfo);
+
+            if (haveSrc && srcPtr) {
+                LLVMTypeRef loadTy = srcTy;
+                if (!loadTy) {
+                    loadTy = cg_dereference_ptr_type(ctx, LLVMTypeOf(srcPtr), "va_copy src");
+                }
+                if (loadTy && LLVMGetTypeKind(loadTy) != LLVMVoidTypeKind) {
+                    srcVal = LLVMBuildLoad2(ctx->builder, loadTy, srcPtr, "va.copy.load");
+                }
+            } else if (args) {
+                srcVal = args[1];
+            }
+
+            if (haveDst && dstPtr && srcVal) {
+                LLVMTypeRef storeTy = dstTy;
+                if (!storeTy) {
+                    storeTy = cg_dereference_ptr_type(ctx, LLVMTypeOf(dstPtr), "va_copy dst");
+                }
+                if (!storeTy || LLVMGetTypeKind(storeTy) == LLVMVoidTypeKind) {
+                    storeTy = LLVMTypeOf(srcVal);
+                }
+                if (storeTy && LLVMTypeOf(srcVal) != storeTy) {
+                    LLVMTypeKind srcKind = LLVMGetTypeKind(LLVMTypeOf(srcVal));
+                    LLVMTypeKind dstKind = LLVMGetTypeKind(storeTy);
+                    if (srcKind == LLVMPointerTypeKind && dstKind == LLVMPointerTypeKind) {
+                        srcVal = LLVMBuildBitCast(ctx->builder, srcVal, storeTy, "va.copy.cast");
+                    } else if (srcKind == LLVMIntegerTypeKind && dstKind == LLVMIntegerTypeKind) {
+                        bool srcSigned = !cg_expression_is_unsigned(ctx, node->functionCall.arguments[1]);
+                        srcVal = LLVMBuildIntCast2(ctx->builder, srcVal, storeTy, srcSigned, "va.copy.cast");
+                    }
+                }
+                result = LLVMBuildStore(ctx->builder, srcVal, dstPtr);
             }
         }
         free(args);
