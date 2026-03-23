@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_variadic_promotion_edges",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_promotion_edges.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_promotion_edges.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_promotion_edges.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "variadic",
+        "promotions"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_promote_char_short_float_mix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_promote_char_short_float_mix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_promote_char_short_float_mix.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_promote_char_short_float_mix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "variadic",
+        "promotions"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_signed_unsigned_char_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_signed_unsigned_char_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_signed_unsigned_char_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_signed_unsigned_char_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "variadic",
+        "promotions"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_small_types_forward_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_small_types_forward_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_small_types_forward_chain.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_small_types_forward_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "variadic",
+        "forwarding"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -3,15 +3,16 @@
 This is the active execution plan for `tests/final` bucket `14` (runtime
 surface) after the current baseline stabilization.
 
-Date: 2026-03-21
+Date: 2026-03-22
 
 ## Current Baseline
 
-- Active manifests: `tests/final/meta/14-runtime-surface*.json` (23 shards)
-- Active tests: 85
-- Runtime+differential tests: 80 (`65` strict + `8` UB policy-lane + `7` implementation-defined policy-lane)
-- Current targeted run status: full `python3 tests/final/run_final.py` sweep is green
-  with wave22 promotion integrated (`0 failing, 15 skipped`).
+- Active manifests: `tests/final/meta/14-runtime-surface*.json` (30 shards)
+- Active tests: 121
+- Runtime+differential tests: 116 (`101` strict + `8` UB policy-lane + `7` implementation-defined policy-lane)
+- Current targeted run status:
+  - `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py` -> `resolved=67`, `blocked=0`, `skipped=0`
+  - `make final` -> `0 failing, 15 skipped`
 
 ## Objective
 
@@ -42,21 +43,8 @@ control flow, and memory layout.
 
 Current blocked probes:
 
-- `14__probe_variadic_vacopy_forwarder_matrix`
-  - unresolved `___builtin_va_copy` symbol at link.
-- `14__probe_variadic_nested_forwarder_table`
-  - unresolved `___builtin_va_copy` symbol at link.
-- `14__probe_struct_large_return_pipeline`
-  - runtime mismatch vs clang.
-- `14__probe_struct_large_return_fnptr_pipeline`
-  - runtime mismatch vs clang.
-- `14__probe_ptrdiff_struct_char_bridge_matrix`
-  - runtime mismatch vs clang (`typed ptrdiff` corruption on struct pointers).
-- `14__probe_struct_union_by_value_roundtrip_chain`
-  - runtime mismatch vs clang.
-- `14__probe_vla_param_cross_function_pipeline`
-  - semantic mismatch on VLA argument compatibility.
-- Current probe-lane snapshot: `PROBE_FILTER=14__*` => `resolved=48`, `blocked=7`.
+- None.
+- Current probe-lane snapshot: `PROBE_FILTER=14__*` => `resolved=67`, `blocked=0`, `skipped=0`.
 
 ## Wave Plan
 
@@ -538,6 +526,83 @@ Promoted resolved probe-only tests that were still missing from active suite:
 Promotion artifact:
 
 - `tests/final/meta/14-runtime-surface-wave28-probe-promotions.json`
+
+### Wave 29: Bitfield Probe Promotion (Closed)
+
+Promoted from probe lane:
+
+- `14__runtime_bitfield_unsigned_pack_roundtrip`
+- `14__runtime_bitfield_truncation_struct_flow`
+- `14__runtime_bitfield_unsigned_mask_merge_chain`
+- `14__runtime_bitfield_by_value_roundtrip_simple`
+
+Promotion artifact:
+
+- `tests/final/meta/14-runtime-surface-wave29-bitfield-promotions.json`
+
+Validation:
+
+- Exact-id checks pass for all 4 promoted ids via `FINAL_FILTER=<id>`.
+- Full suite remains green: `make final` => `0 failing, 15 skipped`.
+
+### Wave 30: Function-Pointer Alias Promotions (Closed)
+
+Promoted from probe lane:
+
+- `14__runtime_fnptr_alias_chooser_struct_chain`
+- `14__runtime_fnptr_alias_conditional_factory_simple`
+- `14__runtime_fnptr_alias_indirect_dispatch`
+- `14__runtime_fnptr_typedef_alias_chain_dispatch`
+- `14__runtime_fnptr_chooser_roundtrip_call`
+- `14__runtime_fnptr_chooser_table_ternary_chain`
+- `14__runtime_fnptr_nested_return_dispatch_matrix`
+
+Promotion artifact:
+
+- `tests/final/meta/14-runtime-surface-wave30-fnptr-alias-promotions.json`
+
+Validation:
+
+- Exact-id checks pass for all 7 promoted ids via `FINAL_FILTER=<id>`.
+- Full suite remains green: `make final` => `0 failing, 15 skipped`.
+
+### Wave 31: Variadic Promotion Edge Promotions (Closed)
+
+Promoted from probe lane:
+
+- `14__runtime_variadic_promotion_edges`
+- `14__runtime_variadic_promote_char_short_float_mix`
+- `14__runtime_variadic_signed_unsigned_char_matrix`
+- `14__runtime_variadic_small_types_forward_chain`
+
+Promotion artifact:
+
+- `tests/final/meta/14-runtime-surface-wave31-variadic-edge-promotions.json`
+
+Validation:
+
+- Exact-id checks pass for all 4 promoted ids via `FINAL_FILTER=<id>`.
+- Full suite remains green: `make final` => `0 failing, 15 skipped`.
+
+### Wave 32: 3D/4D VLA Promotion Set (Closed)
+
+Promoted from probe lane:
+
+- `14__runtime_vla_three_dim_index_stride_basic`
+- `14__runtime_vla_three_dim_stride_reduce`
+- `14__runtime_vla_four_dim_stride_matrix`
+- `14__runtime_vla_four_dim_slice_rebase_runtime`
+- `14__runtime_vla_four_dim_param_handoff_reduce`
+- `14__runtime_vla_four_dim_rebase_weighted_reduce`
+
+Promotion artifact:
+
+- `tests/final/meta/14-runtime-surface-wave32-vla-depth-promotions.json`
+
+Validation:
+
+- Exact-id checks pass for all 6 promoted ids via `FINAL_FILTER=<id>`.
+- Full suite remains green: `make final` => `0 failing, 15 skipped`.
 
 ## Execution Flow Per Wave
 

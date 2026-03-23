@@ -92,6 +92,10 @@
     "14-runtime-surface-wave26-probe-promotions.json",
     "14-runtime-surface-wave27-probe-promotions.json",
     "14-runtime-surface-wave28-probe-promotions.json",
+    "14-runtime-surface-wave29-bitfield-promotions.json",
+    "14-runtime-surface-wave30-fnptr-alias-promotions.json",
+    "14-runtime-surface-wave31-variadic-edge-promotions.json",
+    "14-runtime-surface-wave32-vla-depth-promotions.json",
     "15-torture-differential.json"
   ]
 }

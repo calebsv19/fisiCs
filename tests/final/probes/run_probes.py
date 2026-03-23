@@ -381,6 +381,66 @@ RUNTIME_PROBES = [
         note="recursive function-pointer stepping paths should match clang runtime behavior",
     ),
     RuntimeProbe(
+        probe_id="14__probe_vla_four_dim_slice_rebase_runtime",
+        source=PROBE_DIR / "runtime/14__probe_vla_four_dim_slice_rebase_runtime.c",
+        note="4D VLA slice rebasing and stride deltas should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_alias_chooser_struct_chain",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_alias_chooser_struct_chain.c",
+        note="function-pointer alias chooser chains through struct lanes should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_small_types_forward_chain",
+        source=PROBE_DIR / "runtime/14__probe_variadic_small_types_forward_chain.c",
+        note="small-integer variadic promotion forwarding with va_copy should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bitfield_truncation_struct_flow",
+        source=PROBE_DIR / "runtime/14__probe_bitfield_truncation_struct_flow.c",
+        note="bitfield truncation and by-value struct flow should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_four_dim_param_handoff_reduce",
+        source=PROBE_DIR / "runtime/14__probe_vla_four_dim_param_handoff_reduce.c",
+        note="4D VLA parameter handoff and reduction paths should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_alias_indirect_dispatch",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_alias_indirect_dispatch.c",
+        note="function-pointer alias indirect chooser dispatch should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_promote_char_short_float_mix",
+        source=PROBE_DIR / "runtime/14__probe_variadic_promote_char_short_float_mix.c",
+        note="variadic char/short/float promotion mix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bitfield_unsigned_mask_merge_chain",
+        source=PROBE_DIR / "runtime/14__probe_bitfield_unsigned_mask_merge_chain.c",
+        note="unsigned bitfield mask/merge mutation chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_four_dim_rebase_weighted_reduce",
+        source=PROBE_DIR / "runtime/14__probe_vla_four_dim_rebase_weighted_reduce.c",
+        note="4D VLA weighted reduction with rebased stride deltas should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_alias_conditional_factory_simple",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_alias_conditional_factory_simple.c",
+        note="function-pointer alias conditional factory chains should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_signed_unsigned_char_matrix",
+        source=PROBE_DIR / "runtime/14__probe_variadic_signed_unsigned_char_matrix.c",
+        note="variadic signed/unsigned char and short promotion matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bitfield_by_value_roundtrip_simple",
+        source=PROBE_DIR / "runtime/14__probe_bitfield_by_value_roundtrip_simple.c",
+        note="bitfield by-value roundtrip copy should match clang runtime behavior",
+    ),
+    RuntimeProbe(
         probe_id="15__probe_switch_loop_lite",
         source=PROBE_DIR / "runtime/15__probe_switch_loop_lite.c",
         note="loop+switch lowering should match clang",

@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_bitfield_unsigned_pack_roundtrip",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitfield_unsigned_pack_roundtrip.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitfield_unsigned_pack_roundtrip.stdout",
+      "expected_stderr": "expect/14__runtime_bitfield_unsigned_pack_roundtrip.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "bitfield",
+        "layout"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_bitfield_truncation_struct_flow",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitfield_truncation_struct_flow.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitfield_truncation_struct_flow.stdout",
+      "expected_stderr": "expect/14__runtime_bitfield_truncation_struct_flow.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "bitfield",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_bitfield_unsigned_mask_merge_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitfield_unsigned_mask_merge_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitfield_unsigned_mask_merge_chain.stdout",
+      "expected_stderr": "expect/14__runtime_bitfield_unsigned_mask_merge_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "bitfield",
+        "mutation"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_bitfield_by_value_roundtrip_simple",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitfield_by_value_roundtrip_simple.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitfield_by_value_roundtrip_simple.stdout",
+      "expected_stderr": "expect/14__runtime_bitfield_by_value_roundtrip_simple.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "bitfield",
+        "by-value"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

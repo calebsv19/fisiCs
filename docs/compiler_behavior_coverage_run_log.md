@@ -2589,3 +2589,121 @@ Suggested entry format:
   and registered it in `tests/final/meta/index.json`.
 - Validation:
   full `make final` remains green after wave28 promotion integration.
+
+### 2026-03-21 — Bucket: runtime-surface (14 wave29-31 probe expansion)
+
+- Scope:
+  continue probe-first runtime expansion in ordered lanes:
+  VLA 4D, function-pointer alias chains, variadic promotions, bitfield by-value flow.
+- Added runtime probes:
+  `14__probe_vla_four_dim_slice_rebase_runtime`,
+  `14__probe_fnptr_alias_chooser_struct_chain`,
+  `14__probe_variadic_small_types_forward_chain`,
+  `14__probe_bitfield_truncation_struct_flow`,
+  `14__probe_vla_four_dim_param_handoff_reduce`,
+  `14__probe_fnptr_alias_indirect_dispatch`,
+  `14__probe_variadic_promote_char_short_float_mix`,
+  `14__probe_bitfield_unsigned_mask_merge_chain`,
+  `14__probe_vla_four_dim_rebase_weighted_reduce`,
+  `14__probe_fnptr_alias_conditional_factory_simple`,
+  `14__probe_variadic_signed_unsigned_char_matrix`,
+  `14__probe_bitfield_by_value_roundtrip_simple`.
+- Targeted validation highlights:
+  - VLA lane additions resolved against clang.
+  - Variadic lane additions resolved against clang.
+  - Most function-pointer alias additions resolved; one alias-chain tail-call
+    shape remains blocked.
+  - Bitfield by-value/mutation lane exposes stable mismatches.
+- Full lane snapshot after wave31 additions:
+  `PROBE_FILTER=14__* python3 tests/final/probes/run_probes.py`
+  reports `blocked=4`, `resolved=63`, `skipped=0`.
+- Active blockers:
+  - `14__probe_fnptr_alias_chooser_struct_chain`: runtime mismatch vs clang
+    (unstable garbage tail value).
+  - `14__probe_bitfield_truncation_struct_flow`: runtime mismatch vs clang.
+  - `14__probe_bitfield_unsigned_mask_merge_chain`: runtime mismatch vs clang.
+  - `14__probe_bitfield_by_value_roundtrip_simple`: runtime mismatch vs clang.
+- Status:
+  wave29-31 remains probe-only; no promotions performed during this expansion pass.
+
+### 2026-03-22 — Bucket: runtime-surface (14 wave29 bitfield promotion closure)
+
+- Promoted resolved bitfield probes into active runtime suite:
+  `14__runtime_bitfield_unsigned_pack_roundtrip`,
+  `14__runtime_bitfield_truncation_struct_flow`,
+  `14__runtime_bitfield_unsigned_mask_merge_chain`,
+  `14__runtime_bitfield_by_value_roundtrip_simple`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave29-bitfield-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  exact-id checks pass for all 4 promoted ids via `FINAL_FILTER=<id>`,
+  and full `make final` is green (`0 failing, 15 skipped`).
+- Probe-lane snapshot after closure:
+  `PROBE_FILTER=14__*` reports `resolved=67`, `blocked=0`, `skipped=0`.
+- Next queued promotion waves persisted in plan/docs:
+  - Wave 30: function-pointer alias/callee-chain promotions.
+  - Wave 31: variadic promotion-edge promotions.
+  - Wave 32: 3D/4D VLA promotion set.
+
+### 2026-03-22 — Bucket: runtime-surface (14 wave30 fnptr alias promotion closure)
+
+- Promoted resolved function-pointer alias/callee-chain probes into active runtime suite:
+  `14__runtime_fnptr_alias_chooser_struct_chain`,
+  `14__runtime_fnptr_alias_conditional_factory_simple`,
+  `14__runtime_fnptr_alias_indirect_dispatch`,
+  `14__runtime_fnptr_typedef_alias_chain_dispatch`,
+  `14__runtime_fnptr_chooser_roundtrip_call`,
+  `14__runtime_fnptr_chooser_table_ternary_chain`,
+  `14__runtime_fnptr_nested_return_dispatch_matrix`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave30-fnptr-alias-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  exact-id checks pass for all 7 promoted ids via `FINAL_FILTER=<id>`,
+  and full `make final` is green (`0 failing, 15 skipped`).
+- Probe validation snapshot for promoted wave30 ids:
+  `blocked=0`, `resolved=7`, `skipped=0`.
+- Remaining queued promotion waves:
+  - Wave 31: variadic promotion-edge promotions.
+  - Wave 32: 3D/4D VLA promotion set.
+
+### 2026-03-22 — Bucket: runtime-surface (14 wave31 variadic edge promotion closure)
+
+- Promoted resolved variadic edge probes into active runtime suite:
+  `14__runtime_variadic_promotion_edges`,
+  `14__runtime_variadic_promote_char_short_float_mix`,
+  `14__runtime_variadic_signed_unsigned_char_matrix`,
+  `14__runtime_variadic_small_types_forward_chain`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave31-variadic-edge-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  exact-id checks pass for all 4 promoted ids via `FINAL_FILTER=<id>`.
+  full `make final` is green (`0 failing, 15 skipped`).
+- Targeted probe snapshot for promoted wave31 ids:
+  `blocked=0`, `resolved=4`, `skipped=0`.
+- Remaining queued promotion wave:
+  - Wave 32: 3D/4D VLA promotion set.
+
+### 2026-03-22 — Bucket: runtime-surface (14 wave32 VLA depth promotion closure)
+
+- Promoted resolved 3D/4D VLA probes into active runtime suite:
+  `14__runtime_vla_three_dim_index_stride_basic`,
+  `14__runtime_vla_three_dim_stride_reduce`,
+  `14__runtime_vla_four_dim_stride_matrix`,
+  `14__runtime_vla_four_dim_slice_rebase_runtime`,
+  `14__runtime_vla_four_dim_param_handoff_reduce`,
+  `14__runtime_vla_four_dim_rebase_weighted_reduce`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave32-vla-depth-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  exact-id checks pass for all 6 promoted ids via `FINAL_FILTER=<id>`.
+  full `make final` is green (`0 failing, 15 skipped`).
+- Targeted probe snapshot for promoted wave32 ids:
+  `blocked=0`, `resolved=6`, `skipped=0`.
+- Full probe-lane snapshot:
+  `PROBE_FILTER=14__*` reports `blocked=0`, `resolved=67`, `skipped=0`.
+- Status:
+  planned wave30-32 promotion queue is fully closed.

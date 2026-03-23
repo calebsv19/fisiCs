@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_fnptr_alias_chooser_struct_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_alias_chooser_struct_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_alias_chooser_struct_chain.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_alias_chooser_struct_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "alias"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_alias_conditional_factory_simple",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_alias_conditional_factory_simple.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_alias_conditional_factory_simple.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_alias_conditional_factory_simple.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "alias"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_alias_indirect_dispatch",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_alias_indirect_dispatch.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_alias_indirect_dispatch.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_alias_indirect_dispatch.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_typedef_alias_chain_dispatch",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_typedef_alias_chain_dispatch.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_typedef_alias_chain_dispatch.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_typedef_alias_chain_dispatch.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "typedef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_chooser_roundtrip_call",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_chooser_roundtrip_call.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_chooser_roundtrip_call.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_chooser_roundtrip_call.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "roundtrip"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_chooser_table_ternary_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_chooser_table_ternary_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_chooser_table_ternary_chain.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_chooser_table_ternary_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "ternary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_nested_return_dispatch_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_nested_return_dispatch_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_nested_return_dispatch_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_nested_return_dispatch_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "function-pointer",
+        "dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

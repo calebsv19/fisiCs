@@ -1,10 +1,12 @@
 # Runtime / Library Surface
 
-## Status Snapshot (2026-03-21)
+## Status Snapshot (2026-03-22)
 
-- Active test count: 85 (`tests/final/meta/14-runtime-surface*.json`)
-- Runtime+differential tests: 80 (`65` strict differential + `8` UB-policy + `7` implementation-defined-policy)
-- Current bucket run: `PROBE_FILTER=14__*` probe lane is in expansion (`48 resolved, 7 blocked`)
+- Active test count: 121 (`tests/final/meta/14-runtime-surface*.json`)
+- Runtime+differential tests: 116 (`101` strict differential + `8` UB-policy + `7` implementation-defined-policy)
+- Current bucket run:
+  - `PROBE_FILTER=14__*` -> `resolved=67`, `blocked=0`, `skipped=0`
+  - `make final` -> `0 failing, 15 skipped`
 - Next expansion plan: `docs/plans/runtime_bucket_14_execution_plan.md`
 
 ## Scope
@@ -64,7 +66,8 @@ Minimal headers and builtin surface to compile real programs.
    - Runtime struct layout and alignment-offset checks.
 
 ## Open Gaps (Tracked)
-- No active blockers in the current `14__probe_` lane.
+- No blocked runtime probes currently.
+- Wave 30/31/32 promotion queue is closed.
 
 ## Wave 2 Additions (Codegen Probe Promotion)
 20) `14__runtime_loop_continue_break_phi`
@@ -382,6 +385,80 @@ Wave27 status:
    - Promoted from probe lane as large-struct by-value return anchor.
 100) `14__runtime_struct_large_return_fnptr_pipeline`
    - Promoted from probe lane as function-pointer large-struct return anchor.
+
+## Wave 29 Promotion Closure
+101) `14__runtime_bitfield_unsigned_pack_roundtrip`
+   - Promoted from probe lane as unsigned bitfield pack/unpack roundtrip anchor.
+102) `14__runtime_bitfield_truncation_struct_flow`
+   - Promoted from probe lane as bitfield truncation + by-value struct flow anchor.
+103) `14__runtime_bitfield_unsigned_mask_merge_chain`
+   - Promoted from probe lane as unsigned bitfield mask/merge mutation anchor.
+104) `14__runtime_bitfield_by_value_roundtrip_simple`
+   - Promoted from probe lane as by-value bitfield roundtrip/copy anchor.
+
+Wave29 status:
+- Current full probe-lane snapshot:
+  `PROBE_FILTER=14__*` => `resolved=67`, `blocked=0`, `skipped=0`.
+- Full final suite snapshot:
+  `make final` => `0 failing`, `15 skipped`.
+
+## Wave 30 Promotion Closure
+105) `14__runtime_fnptr_alias_chooser_struct_chain`
+   - Promoted from probe lane as alias chooser-chain through struct lanes.
+106) `14__runtime_fnptr_alias_conditional_factory_simple`
+   - Promoted from probe lane as alias conditional factory call-chain anchor.
+107) `14__runtime_fnptr_alias_indirect_dispatch`
+   - Promoted from probe lane as alias indirect dispatch/chooser anchor.
+108) `14__runtime_fnptr_typedef_alias_chain_dispatch`
+   - Promoted from probe lane as typedef-alias chooser chain anchor.
+109) `14__runtime_fnptr_chooser_roundtrip_call`
+   - Promoted from probe lane as chooser roundtrip call-surface anchor.
+110) `14__runtime_fnptr_chooser_table_ternary_chain`
+   - Promoted from probe lane as table + ternary function-callee chain anchor.
+111) `14__runtime_fnptr_nested_return_dispatch_matrix`
+   - Promoted from probe lane as nested return-dispatch matrix anchor.
+
+Wave30 status:
+- Full final suite snapshot:
+  `make final` => `0 failing`, `15 skipped`.
+- Targeted probe snapshot (wave30 ids):
+  `resolved=7`, `blocked=0`, `skipped=0`.
+
+## Wave 31 Promotion Closure
+112) `14__runtime_variadic_promotion_edges`
+   - Promoted from probe lane as variadic promotion edge anchor.
+113) `14__runtime_variadic_promote_char_short_float_mix`
+   - Promoted from probe lane as char/short/float promotion-mix anchor.
+114) `14__runtime_variadic_signed_unsigned_char_matrix`
+   - Promoted from probe lane as signed/unsigned char promotion matrix anchor.
+115) `14__runtime_variadic_small_types_forward_chain`
+   - Promoted from probe lane as small-types forwarding with `va_copy` anchor.
+
+Wave31 status:
+- Full final suite snapshot:
+  `make final` => `0 failing`, `15 skipped`.
+- Targeted probe snapshot (wave31 ids):
+  `resolved=4`, `blocked=0`, `skipped=0`.
+
+## Wave 32 Promotion Closure
+116) `14__runtime_vla_three_dim_index_stride_basic`
+   - Promoted from probe lane as 3D VLA indexing and slab/lane stride anchor.
+117) `14__runtime_vla_three_dim_stride_reduce`
+   - Promoted from probe lane as 3D VLA reduction + stride anchor.
+118) `14__runtime_vla_four_dim_stride_matrix`
+   - Promoted from probe lane as 4D VLA stride matrix anchor.
+119) `14__runtime_vla_four_dim_slice_rebase_runtime`
+   - Promoted from probe lane as 4D VLA slice-rebase pointer-delta anchor.
+120) `14__runtime_vla_four_dim_param_handoff_reduce`
+   - Promoted from probe lane as 4D VLA parameter handoff/reduction anchor.
+121) `14__runtime_vla_four_dim_rebase_weighted_reduce`
+   - Promoted from probe lane as weighted 4D VLA rebase reduction anchor.
+
+Wave32 status:
+- Full final suite snapshot:
+  `make final` => `0 failing`, `15 skipped`.
+- Targeted probe snapshot (wave32 ids):
+  `resolved=6`, `blocked=0`, `skipped=0`.
 
 ## Expected Outputs
 - AST/Diagnostics/IR goldens for compile-surface checks.
