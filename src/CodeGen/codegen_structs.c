@@ -8,6 +8,53 @@
 #include <stdlib.h>
 #include <string.h>
 
+static LLVMValueRef cg_structs_bitfield_mask(LLVMTypeRef storageTy, unsigned width) {
+    unsigned storageBits = LLVMGetIntTypeWidth(storageTy);
+    if (width == 0) {
+        return LLVMConstInt(storageTy, 0, 0);
+    }
+    if (width >= storageBits) {
+        return LLVMConstAllOnes(storageTy);
+    }
+    uint64_t mask = (width >= 64) ? ~0ULL : ((1ULL << width) - 1ULL);
+    return LLVMConstInt(storageTy, mask, 0);
+}
+
+static LLVMValueRef cg_structs_load_bitfield(CodegenContext* ctx,
+                                             const CGLValueInfo* info,
+                                             LLVMTypeRef resultType) {
+    if (!ctx || !info || !info->isBitfield) return NULL;
+    LLVMValueRef raw = LLVMBuildLoad2(ctx->builder, info->storageType, info->storagePtr, "bf.load");
+    unsigned bitOffset = (unsigned)info->layout.bitOffset;
+    LLVMTypeRef storageTy = info->storageType;
+    LLVMValueRef shifted = raw;
+    if (bitOffset > 0) {
+        LLVMValueRef sh = LLVMConstInt(storageTy, bitOffset, 0);
+        shifted = LLVMBuildLShr(ctx->builder, raw, sh, "bf.shr");
+    }
+    LLVMValueRef mask = cg_structs_bitfield_mask(storageTy, (unsigned)info->layout.widthBits);
+    LLVMValueRef masked = LLVMBuildAnd(ctx->builder, shifted, mask, "bf.mask");
+    if (!resultType) {
+        unsigned width = info->layout.widthBits ? (unsigned)info->layout.widthBits : LLVMGetIntTypeWidth(storageTy);
+        if (width == 0) width = LLVMGetIntTypeWidth(storageTy);
+        resultType = LLVMIntTypeInContext(ctx->llvmContext, width);
+    }
+    if (LLVMGetTypeKind(resultType) != LLVMIntegerTypeKind) {
+        return LLVMBuildBitCast(ctx->builder, masked, resultType, "bf.cast");
+    }
+    unsigned destBits = LLVMGetIntTypeWidth(resultType);
+    if (destBits > LLVMGetIntTypeWidth(storageTy)) {
+        if (info->layout.isSigned) {
+            return LLVMBuildSExt(ctx->builder, masked, resultType, "bf.sext");
+        }
+        return LLVMBuildZExt(ctx->builder, masked, resultType, "bf.zext");
+    }
+    if (destBits < LLVMGetIntTypeWidth(storageTy)) {
+        return LLVMBuildTrunc(ctx->builder, masked, resultType, "bf.trunc");
+    }
+    return masked;
+}
+
 static bool cg_parsed_type_has_pointer_layer(const ParsedType* type) {
     if (!type) return false;
     if (type->isFunctionPointer) return true;
@@ -40,16 +87,46 @@ static const CCTagFieldLayout* cg_lookup_field_layout(CodegenContext* ctx,
                                                       const ParsedType* aggregateParsed,
                                                       const char* fieldName) {
     if (!ctx || !aggregateParsed || !fieldName) return NULL;
-    if (aggregateParsed->tag != TAG_STRUCT && aggregateParsed->tag != TAG_UNION) return NULL;
+    const ParsedType* resolved = aggregateParsed;
+    size_t guard = 0;
+    while (resolved &&
+           resolved->tag != TAG_STRUCT &&
+           resolved->tag != TAG_UNION &&
+           resolved->kind == TYPE_NAMED &&
+           resolved->userTypeName &&
+           guard++ < 8) {
+        const ParsedType* next = NULL;
+        if (ctx->typeCache) {
+            CGNamedLLVMType* info = cg_type_cache_get_typedef_info(ctx->typeCache, resolved->userTypeName);
+            if (info && info->parsedType.kind != TYPE_INVALID) {
+                next = &info->parsedType;
+            }
+        }
+        if (!next) {
+            const SemanticModel* model = cg_context_get_semantic_model(ctx);
+            if (model) {
+                const Symbol* sym = semanticModelLookupGlobal(model, resolved->userTypeName);
+                if (sym && sym->kind == SYMBOL_TYPEDEF) {
+                    next = &sym->type;
+                }
+            }
+        }
+        if (!next || next == resolved) {
+            break;
+        }
+        resolved = next;
+    }
+    if (!resolved || (resolved->tag != TAG_STRUCT && resolved->tag != TAG_UNION)) return NULL;
+    if (!resolved->userTypeName) return NULL;
     CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
     if (!cctx) return NULL;
     const CCTagFieldLayout* layouts = NULL;
     size_t count = 0;
-    CCTagKind kind = (aggregateParsed->tag == TAG_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
-    if (!cc_get_tag_field_layouts(cctx, kind, aggregateParsed->userTypeName, &layouts, &count)) {
+    CCTagKind kind = (resolved->tag == TAG_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    if (!cc_get_tag_field_layouts(cctx, kind, resolved->userTypeName, &layouts, &count)) {
         Scope* globalScope = semanticModelGetGlobalScope(ctx->semanticModel);
-        layout_struct_union(cctx, globalScope, kind, aggregateParsed->userTypeName, NULL, NULL);
-        cc_get_tag_field_layouts(cctx, kind, aggregateParsed->userTypeName, &layouts, &count);
+        layout_struct_union(cctx, globalScope, kind, resolved->userTypeName, NULL, NULL);
+        cc_get_tag_field_layouts(cctx, kind, resolved->userTypeName, &layouts, &count);
     }
     for (size_t i = 0; i < count; ++i) {
         const CCTagFieldLayout* lay = &layouts[i];
@@ -550,6 +627,37 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
     if (!isFlexArrayField && fieldLLVMType && LLVMGetTypeKind(fieldLLVMType) == LLVMArrayTypeKind &&
         LLVMGetArrayLength(fieldLLVMType) == 0) {
         isFlexArrayField = true;
+    }
+
+    const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, structHint, fieldName);
+    if (lay && !lay->isBitfield) {
+        LLVMTypeRef pointeeTy = fieldLLVMType;
+        if (!pointeeTy || LLVMGetTypeKind(pointeeTy) == LLVMVoidTypeKind) {
+            pointeeTy = LLVMInt32TypeInContext(ctx->llvmContext);
+        }
+        if (isFlexArrayField && LLVMGetTypeKind(pointeeTy) == LLVMArrayTypeKind) {
+            LLVMTypeRef elemTy = LLVMGetElementType(pointeeTy);
+            if (!elemTy || LLVMGetTypeKind(elemTy) == LLVMVoidTypeKind) {
+                elemTy = LLVMInt8TypeInContext(ctx->llvmContext);
+            }
+            pointeeTy = elemTy;
+        }
+
+        LLVMTypeRef i8Ty = LLVMInt8TypeInContext(ctx->llvmContext);
+        LLVMValueRef baseI8 = LLVMBuildBitCast(ctx->builder, basePtr, LLVMPointerType(i8Ty, 0), "field.base.i8");
+        LLVMValueRef offsetVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), lay->byteOffset, 0);
+        LLVMValueRef ptrI8 = LLVMBuildGEP2(ctx->builder, i8Ty, baseI8, &offsetVal, 1, "field.byte.gep");
+        LLVMValueRef ptr = LLVMBuildBitCast(ctx->builder,
+                                            ptrI8,
+                                            LLVMPointerType(pointeeTy, 0),
+                                            "field.byte.ptr");
+        if (outFieldType) {
+            *outFieldType = pointeeTy;
+        }
+        if (havePointedScratch) {
+            parsedTypeFree(&pointedScratch);
+        }
+        return ptr;
     }
 
     LLVMValueRef ptr = LLVMBuildStructGEP2(ctx->builder, aggregateType, basePtr, fieldIndex, "fieldPtr");
@@ -1131,7 +1239,6 @@ bool codegenLValue(CodegenContext* ctx,
         default:
             break;
     }
-    fprintf(stderr, "Error: expression is not assignable\n");
     return false;
 }
 
@@ -1317,47 +1424,27 @@ LLVMValueRef codegenStructFieldAccess(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: Invalid node type for codegenStructFieldAccess\n");
         return NULL;
     }
-
-    LLVMValueRef structPtr = NULL;
-    LLVMTypeRef baseType = NULL;
-    const ParsedType* baseParsed = NULL;
-    if (!codegenLValue(ctx, node->structFieldAccess.structInstance, &structPtr, &baseType, &baseParsed, NULL)) {
-        structPtr = codegenNode(ctx, node->structFieldAccess.structInstance);
-        if (!structPtr) {
-            fprintf(stderr, "Error: Failed to generate struct instance\n");
-            return NULL;
-        }
-        baseType = LLVMTypeOf(structPtr);
-        if (LLVMGetTypeKind(baseType) == LLVMPointerTypeKind) {
-            baseType = cg_dereference_ptr_type(ctx, baseType, "struct field access");
-        }
-        if (!baseParsed) {
-            baseParsed = cg_resolve_expression_type(ctx, node->structFieldAccess.structInstance);
-        }
-    }
-
-    const char* nameHint = NULL;
-    if (baseType && LLVMGetTypeKind(baseType) == LLVMStructTypeKind) {
-        nameHint = LLVMGetStructName(baseType);
-    }
-
+    LLVMValueRef fieldPtr = NULL;
     LLVMTypeRef fieldType = NULL;
-    LLVMValueRef fieldPtr = buildStructFieldPointer(ctx,
-                                                    structPtr,
-                                                    baseType,
-                                                    nameHint,
-                                                    node->structFieldAccess.fieldName,
-                                                    baseParsed,
-                                                    &fieldType,
-                                                    NULL);
-    if (!fieldPtr) {
+    const ParsedType* fieldParsed = NULL;
+    CGLValueInfo info;
+    if (!codegenLValue(ctx, node, &fieldPtr, &fieldType, &fieldParsed, &info)) {
         fprintf(stderr, "Error: Unknown struct field %s\n", node->structFieldAccess.fieldName);
         return NULL;
     }
-
+    if (info.isBitfield) {
+        unsigned width = info.layout.widthBits ? (unsigned)info.layout.widthBits : LLVMGetIntTypeWidth(info.storageType);
+        if (width == 0) width = LLVMGetIntTypeWidth(info.storageType);
+        LLVMTypeRef resultTy = LLVMIntTypeInContext(ctx->llvmContext, width);
+        return cg_structs_load_bitfield(ctx, &info, resultTy);
+    }
+    if (fieldType && LLVMGetTypeKind(fieldType) == LLVMArrayTypeKind) {
+        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+        LLVMValueRef idxs[2] = { zero, zero };
+        return LLVMBuildGEP2(ctx->builder, fieldType, fieldPtr, idxs, 2, "struct_field_decay");
+    }
     if (!fieldType || LLVMGetTypeKind(fieldType) == LLVMVoidTypeKind) {
         fieldType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
-
     return LLVMBuildLoad2(ctx->builder, fieldType, fieldPtr, "fieldLoad");
 }

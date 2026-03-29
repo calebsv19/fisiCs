@@ -190,7 +190,14 @@ static bool size_align_of_typeinfo(TypeInfo info, Scope* scope, size_t* sizeOut,
             if (info.bitWidth >= tl->longDoubleBits) {
                 align = tl->longDoubleAlign;
             }
-            sizeAlignFromBits(tl, bits, align, sizeOut, alignOut);
+            size_t baseSize = 0;
+            size_t baseAlign = 0;
+            sizeAlignFromBits(tl, bits, align, &baseSize, &baseAlign);
+            if (info.isComplex) {
+                baseSize *= 2;
+            }
+            if (sizeOut) *sizeOut = baseSize;
+            if (alignOut) *alignOut = baseAlign;
             return true;
         }
         case TYPEINFO_POINTER: {

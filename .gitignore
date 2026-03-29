@@ -1,6 +1,7 @@
 *.o
 *.out
 *.exe
+*.a
 *.h2
 *.log
 *.dSYM
@@ -9,3 +10,11 @@
 ide_files/
 build/
 .vscode/
+
+# local compiler/build artifacts
+fisics
+libfisics_frontend.a
+
+# python cache artifacts
+__pycache__/
+*.pyc

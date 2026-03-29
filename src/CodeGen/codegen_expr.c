@@ -5,6 +5,7 @@
 #include "literal_utils.h"
 #include "Syntax/type_checker.h"
 #include "Syntax/layout.h"
+#include "Syntax/analyze_expr.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -32,46 +33,41 @@ static bool cg_eval_builtin_offsetof(CodegenContext* ctx,
     CompilerContext* cctx = model ? semanticModelGetContext(model) : NULL;
     Scope* scope = model ? semanticModelGetGlobalScope(model) : NULL;
     if (!cctx || !scope) return false;
-    TypeInfo info = typeInfoFromParsedType(type, scope);
-    if (info.category != TYPEINFO_STRUCT && info.category != TYPEINFO_UNION) return false;
-    CCTagKind kind = (info.category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
-    const char* tagName = info.userTypeName ? info.userTypeName : type->userTypeName;
-    if (tagName) {
-        if (!cc_tag_is_defined(cctx, kind, tagName) && type->inlineStructOrUnionDef) {
-            ASTNode* def = type->inlineStructOrUnionDef;
-            bool kindMatches =
-                (kind == CC_TAG_STRUCT && def->type == AST_STRUCT_DEFINITION) ||
-                (kind == CC_TAG_UNION && def->type == AST_UNION_DEFINITION);
-            if (kindMatches) {
-                (void)cc_define_tag(cctx, kind, tagName, 0, def);
-            }
-        }
-        size_t sz = 0, al = 0;
-        (void)layout_struct_union(cctx, scope, kind, tagName, &sz, &al);
-    }
-    const CCTagFieldLayout* layouts = NULL;
-    size_t count = 0;
-    if (!cc_get_tag_field_layouts(cctx, kind, tagName, &layouts, &count) || !layouts) {
-        size_t sz = 0, al = 0;
-        if (!layout_struct_union(cctx, scope, kind, tagName, &sz, &al)) return false;
-        if (!cc_get_tag_field_layouts(cctx, kind, tagName, &layouts, &count) || !layouts) {
-            return false;
-        }
-    }
-    for (size_t i = 0; i < count; ++i) {
-        const CCTagFieldLayout* lay = &layouts[i];
-        if (!lay->name) continue;
-        if (strcmp(lay->name, fieldName) == 0) {
-            if (lay->isBitfield && !lay->isZeroWidth) return false;
-            *offsetOut = lay->byteOffset;
-            return true;
-        }
-    }
-    return false;
+    return evalOffsetofFieldPath(type, fieldName, scope, offsetOut, NULL);
 }
 
 static bool cg_parsed_type_is_complex_value(const ParsedType* t) {
     return t && (t->isComplex || t->isImaginary);
+}
+
+static bool cg_llvm_type_is_complex_value(LLVMTypeRef ty) {
+    if (!ty || LLVMGetTypeKind(ty) != LLVMStructTypeKind) {
+        return false;
+    }
+    if (LLVMCountStructElementTypes(ty) != 2) {
+        return false;
+    }
+    LLVMTypeRef elems[2] = {0};
+    LLVMGetStructElementTypes(ty, elems);
+    if (!elems[0] || !elems[1]) {
+        return false;
+    }
+    if (elems[0] != elems[1]) {
+        return false;
+    }
+    LLVMTypeKind kind = LLVMGetTypeKind(elems[0]);
+    return kind == LLVMHalfTypeKind || kind == LLVMFloatTypeKind ||
+           kind == LLVMDoubleTypeKind || kind == LLVMX86_FP80TypeKind ||
+           kind == LLVMFP128TypeKind || kind == LLVMPPC_FP128TypeKind;
+}
+
+static LLVMTypeRef cg_complex_element_type_from_llvm(LLVMTypeRef complexType) {
+    if (!cg_llvm_type_is_complex_value(complexType)) {
+        return NULL;
+    }
+    LLVMTypeRef elems[2] = {0};
+    LLVMGetStructElementTypes(complexType, elems);
+    return elems[0];
 }
 
 static LLVMTypeRef cg_complex_element_type(CodegenContext* ctx, const ParsedType* type) {
@@ -214,6 +210,40 @@ static LLVMValueRef cg_build_complex_addsub(CodegenContext* ctx,
         ? LLVMBuildFSub(ctx->builder, lhsImag, rhsImag, "complex.sub.i")
         : LLVMBuildFAdd(ctx->builder, lhsImag, rhsImag, "complex.add.i");
     return cg_build_complex_value(ctx, real, imag, complexType, "complex.addsub");
+}
+
+static LLVMValueRef cg_build_complex_muldiv(CodegenContext* ctx,
+                                            LLVMValueRef lhs,
+                                            LLVMValueRef rhs,
+                                            LLVMTypeRef complexType,
+                                            bool isDiv) {
+    LLVMValueRef lhsReal = LLVMBuildExtractValue(ctx->builder, lhs, 0, "complex.lhs.r");
+    LLVMValueRef lhsImag = LLVMBuildExtractValue(ctx->builder, lhs, 1, "complex.lhs.i");
+    LLVMValueRef rhsReal = LLVMBuildExtractValue(ctx->builder, rhs, 0, "complex.rhs.r");
+    LLVMValueRef rhsImag = LLVMBuildExtractValue(ctx->builder, rhs, 1, "complex.rhs.i");
+
+    if (!isDiv) {
+        LLVMValueRef ac = LLVMBuildFMul(ctx->builder, lhsReal, rhsReal, "complex.mul.ac");
+        LLVMValueRef bd = LLVMBuildFMul(ctx->builder, lhsImag, rhsImag, "complex.mul.bd");
+        LLVMValueRef ad = LLVMBuildFMul(ctx->builder, lhsReal, rhsImag, "complex.mul.ad");
+        LLVMValueRef bc = LLVMBuildFMul(ctx->builder, lhsImag, rhsReal, "complex.mul.bc");
+        LLVMValueRef real = LLVMBuildFSub(ctx->builder, ac, bd, "complex.mul.r");
+        LLVMValueRef imag = LLVMBuildFAdd(ctx->builder, ad, bc, "complex.mul.i");
+        return cg_build_complex_value(ctx, real, imag, complexType, "complex.mul");
+    }
+
+    LLVMValueRef rr = LLVMBuildFMul(ctx->builder, rhsReal, rhsReal, "complex.div.rr");
+    LLVMValueRef ii = LLVMBuildFMul(ctx->builder, rhsImag, rhsImag, "complex.div.ii");
+    LLVMValueRef denom = LLVMBuildFAdd(ctx->builder, rr, ii, "complex.div.den");
+    LLVMValueRef ac = LLVMBuildFMul(ctx->builder, lhsReal, rhsReal, "complex.div.ac");
+    LLVMValueRef bd = LLVMBuildFMul(ctx->builder, lhsImag, rhsImag, "complex.div.bd");
+    LLVMValueRef bc = LLVMBuildFMul(ctx->builder, lhsImag, rhsReal, "complex.div.bc");
+    LLVMValueRef ad = LLVMBuildFMul(ctx->builder, lhsReal, rhsImag, "complex.div.ad");
+    LLVMValueRef numerReal = LLVMBuildFAdd(ctx->builder, ac, bd, "complex.div.nr");
+    LLVMValueRef numerImag = LLVMBuildFSub(ctx->builder, bc, ad, "complex.div.ni");
+    LLVMValueRef real = LLVMBuildFDiv(ctx->builder, numerReal, denom, "complex.div.r");
+    LLVMValueRef imag = LLVMBuildFDiv(ctx->builder, numerImag, denom, "complex.div.i");
+    return cg_build_complex_value(ctx, real, imag, complexType, "complex.div");
 }
 
 static LLVMValueRef cg_build_complex_eq(CodegenContext* ctx,
@@ -768,6 +798,12 @@ LLVMValueRef codegenBinaryExpression(CodegenContext* ctx, ASTNode* node) {
         }
         if (strcmp(op, "-") == 0) {
             return cg_build_complex_addsub(ctx, lhsC, rhsC, complexType, true);
+        }
+        if (strcmp(op, "*") == 0) {
+            return cg_build_complex_muldiv(ctx, lhsC, rhsC, complexType, false);
+        }
+        if (strcmp(op, "/") == 0) {
+            return cg_build_complex_muldiv(ctx, lhsC, rhsC, complexType, true);
         }
         if (strcmp(op, "==") == 0) {
             return cg_build_complex_eq(ctx, lhsC, rhsC, false);
@@ -1329,11 +1365,65 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
     const ParsedType* valueParsed = cg_resolve_expression_type(ctx, node->assignment.value);
+    const char* op = node->assignment.op ? node->assignment.op : "=";
 
     bool destIsAggregate = targetType && (LLVMGetTypeKind(targetType) == LLVMStructTypeKind ||
                                           LLVMGetTypeKind(targetType) == LLVMArrayTypeKind);
     if (destIsAggregate) {
-        if (!codegenLValue(ctx, node->assignment.value, &srcPtr, &srcType, &srcParsed, NULL)) {
+        bool isComplexTarget =
+            cg_parsed_type_is_complex_value(targetParsed) || cg_llvm_type_is_complex_value(targetType);
+
+        if (strcmp(op, "=") != 0) {
+            if (!isComplexTarget ||
+                (strcmp(op, "+=") != 0 && strcmp(op, "-=") != 0 &&
+                 strcmp(op, "*=") != 0 && strcmp(op, "/=") != 0)) {
+                fprintf(stderr, "Error: Unsupported compound assignment operator %s for aggregate target\n", op);
+                return NULL;
+            }
+
+            LLVMValueRef current = cg_build_load(ctx, targetType, targetPtr, "complex.compound.load", targetParsed);
+            if (!current) {
+                fprintf(stderr, "Error: Failed to load complex target for compound assignment\n");
+                return NULL;
+            }
+
+            LLVMTypeRef complexType = targetType;
+            LLVMTypeRef elemType = cg_complex_element_type(ctx, targetParsed);
+            LLVMTypeRef inferredElemType = cg_complex_element_type_from_llvm(complexType);
+            if (inferredElemType) {
+                elemType = inferredElemType;
+            }
+            LLVMValueRef lhsComplex = cg_promote_to_complex(ctx, current, targetParsed, complexType, elemType);
+            LLVMValueRef rhsComplex = cg_promote_to_complex(ctx, value, valueParsed, complexType, elemType);
+            if (!lhsComplex || !rhsComplex) {
+                fprintf(stderr, "Error: Failed to promote complex operands for compound assignment\n");
+                return NULL;
+            }
+
+            LLVMValueRef result = NULL;
+            if (strcmp(op, "+=") == 0 || strcmp(op, "-=") == 0) {
+                bool isSub = (strcmp(op, "-=") == 0);
+                result = cg_build_complex_addsub(ctx, lhsComplex, rhsComplex, complexType, isSub);
+            } else if (strcmp(op, "*=") == 0) {
+                result = cg_build_complex_muldiv(ctx, lhsComplex, rhsComplex, complexType, false);
+            } else if (strcmp(op, "/=") == 0) {
+                result = cg_build_complex_muldiv(ctx, lhsComplex, rhsComplex, complexType, true);
+            }
+            if (!result) {
+                fprintf(stderr, "Error: Failed to build complex compound assignment result\n");
+                return NULL;
+            }
+            cg_build_store(ctx, result, targetPtr, targetParsed);
+            return result;
+        }
+
+        bool rhsIsLValue = node->assignment.value &&
+                           (node->assignment.value->type == AST_IDENTIFIER ||
+                            node->assignment.value->type == AST_ARRAY_ACCESS ||
+                            node->assignment.value->type == AST_POINTER_ACCESS ||
+                            node->assignment.value->type == AST_DOT_ACCESS ||
+                            node->assignment.value->type == AST_COMPOUND_LITERAL);
+        if (!rhsIsLValue || !codegenLValue(ctx, node->assignment.value, &srcPtr, &srcType, &srcParsed, NULL)) {
             LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, targetType, "agg.tmp");
             LLVMBuildStore(ctx->builder, value, tmp);
             srcPtr = tmp;
@@ -1357,7 +1447,6 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         return value ? value : targetPtr;
     }
 
-    const char* op = node->assignment.op ? node->assignment.op : "=";
     LLVMTypeRef storeType = targetType;
     if (lvalInfo.isBitfield) {
         unsigned width = lvalInfo.layout.widthBits ? (unsigned)lvalInfo.layout.widthBits : LLVMGetIntTypeWidth(lvalInfo.storageType);
@@ -2320,7 +2409,28 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             }
             if (refinedReturn && LLVMGetTypeKind(refinedReturn) != LLVMVoidTypeKind) {
                 LLVMTypeRef currentReturn = LLVMGetReturnType(calleeType);
-                if (currentReturn != refinedReturn) {
+                const ParsedType* semanticCallResult = cg_resolve_expression_type(ctx, node);
+                bool semanticResultPointerish = false;
+                if (semanticCallResult) {
+                    if (semanticCallResult->pointerDepth > 0 || semanticCallResult->isFunctionPointer) {
+                        semanticResultPointerish = true;
+                    } else {
+                        for (size_t d = 0; d < semanticCallResult->derivationCount; ++d) {
+                            const TypeDerivation* deriv = parsedTypeGetDerivation(semanticCallResult, d);
+                            if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
+                                semanticResultPointerish = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                bool unsafePointerDowngrade =
+                    semanticResultPointerish &&
+                    currentReturn &&
+                    refinedReturn &&
+                    LLVMGetTypeKind(currentReturn) == LLVMPointerTypeKind &&
+                    LLVMGetTypeKind(refinedReturn) != LLVMPointerTypeKind;
+                if (!unsafePointerDowngrade && currentReturn != refinedReturn) {
                     unsigned fixedCount = LLVMCountParamTypes(calleeType);
                     LLVMTypeRef* fixedTypes = NULL;
                     if (fixedCount > 0) {

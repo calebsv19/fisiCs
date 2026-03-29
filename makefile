@@ -175,12 +175,50 @@ integration-diags-pack: $(BIN)
 integration: integration-compile-only integration-compile-link
 
 # Final C99 behavior suite
-.PHONY: final final-update
+.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime
 final: $(BIN)
 	@python3 tests/final/run_final.py ./$(BIN)
 
 final-update: $(BIN)
 	@UPDATE_FINAL=1 python3 tests/final/run_final.py ./$(BIN)
+
+# Exact-id slice (example: make final-id ID=14__runtime_multitu_mixed_abi_call_chain)
+final-id: $(BIN)
+	@if [ -z "$(ID)" ]; then echo "ERROR: provide ID=<test_id>"; exit 2; fi
+	@FINAL_FILTER="$(ID)" python3 tests/final/run_final.py ./$(BIN)
+
+# Prefix slice (example: make final-prefix PREFIX=14__)
+final-prefix: $(BIN)
+	@if [ -z "$(PREFIX)" ]; then echo "ERROR: provide PREFIX=<id_prefix>"; exit 2; fi
+	@FINAL_PREFIX="$(PREFIX)" python3 tests/final/run_final.py ./$(BIN)
+
+# Glob slice (example: make final-glob GLOB='14__runtime_multitu_*')
+final-glob: $(BIN)
+	@if [ -z "$(GLOB)" ]; then echo "ERROR: provide GLOB=<fnmatch_pattern>"; exit 2; fi
+	@FINAL_GLOB="$(GLOB)" python3 tests/final/run_final.py ./$(BIN)
+
+# Bucket slice by metadata bucket field (example: make final-bucket BUCKET=runtime-surface)
+final-bucket: $(BIN)
+	@if [ -z "$(BUCKET)" ]; then echo "ERROR: provide BUCKET=<bucket_name>"; exit 2; fi
+	@FINAL_BUCKET="$(BUCKET)" python3 tests/final/run_final.py ./$(BIN)
+
+# Manifest shard slice (example: make final-manifest MANIFEST=14-runtime-surface-wave43-multitu-abi-stress-promotions.json)
+final-manifest: $(BIN)
+	@if [ -z "$(MANIFEST)" ]; then echo "ERROR: provide MANIFEST=<manifest_name_or_token>"; exit 2; fi
+	@FINAL_MANIFEST="$(MANIFEST)" python3 tests/final/run_final.py ./$(BIN)
+
+# Wave slice (runtime-focused by default).
+# Examples:
+#   make final-wave WAVE=43
+#   make final-wave WAVE=43 WAVE_BUCKET=14-runtime-surface
+WAVE_BUCKET ?= 14-runtime-surface
+final-wave: $(BIN)
+	@if [ -z "$(WAVE)" ]; then echo "ERROR: provide WAVE=<number>"; exit 2; fi
+	@FINAL_MANIFEST_GLOB="$(WAVE_BUCKET)-wave$(WAVE)-*.json" python3 tests/final/run_final.py ./$(BIN)
+
+# Runtime convenience slice (all bucket-14 tests)
+final-runtime: $(BIN)
+	@FINAL_PREFIX="14__" python3 tests/final/run_final.py ./$(BIN)
 
 # === Run the compiled binary ===
 run: src/Lexer/keyword_lookup.c $(BIN)

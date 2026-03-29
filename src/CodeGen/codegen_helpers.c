@@ -1365,6 +1365,7 @@ const ParsedType* cg_refine_function_call_result_type(CodegenContext* ctx, ASTNo
             parsedTypeFree(&next);
         }
     }
+
     return &refined;
 }
 
@@ -1470,6 +1471,24 @@ LLVMValueRef cg_cast_value(CodegenContext* ctx,
 
     bool srcUnsigned = cg_should_treat_as_unsigned(fromParsed, sourceType);
     bool dstUnsigned = cg_should_treat_as_unsigned(toParsed, targetType);
+
+    if (dstKind == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(targetType) == 1) {
+        if (srcKind == LLVMIntegerTypeKind) {
+            if (LLVMGetIntTypeWidth(sourceType) == 1) {
+                return value;
+            }
+            LLVMValueRef zero = LLVMConstInt(sourceType, 0, 0);
+            return LLVMBuildICmp(ctx->builder, LLVMIntNE, value, zero, tag);
+        }
+        if (srcKind == LLVMPointerTypeKind) {
+            LLVMValueRef nullPtr = LLVMConstPointerNull(sourceType);
+            return LLVMBuildICmp(ctx->builder, LLVMIntNE, value, nullPtr, tag);
+        }
+        if (cg_kind_is_float(srcKind)) {
+            LLVMValueRef zero = LLVMConstNull(sourceType);
+            return LLVMBuildFCmp(ctx->builder, LLVMRealUNE, value, zero, tag);
+        }
+    }
 
     if (cg_parsed_type_is_complex(toParsed)) {
         LLVMTypeRef elemTy = cg_complex_element_type(ctx, toParsed);

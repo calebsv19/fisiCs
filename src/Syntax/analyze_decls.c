@@ -2202,6 +2202,93 @@ static bool typeInfoIsCharLike(const TypeInfo* info) {
     return info && info->category == TYPEINFO_INTEGER && info->bitWidth == 8;
 }
 
+static const TypeDerivation* findFunctionDerivationInType(const ParsedType* type) {
+    if (!type) return NULL;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+        if (deriv && deriv->kind == TYPE_DERIVATION_FUNCTION) {
+            return deriv;
+        }
+    }
+    return NULL;
+}
+
+static bool parsedTypeIsFunctionPointerLike(const ParsedType* type) {
+    if (!type) return false;
+    if (type->isFunctionPointer) return true;
+    if (findFunctionDerivationInType(type) != NULL) return true;
+    ParsedType target = parsedTypePointerTargetType(type);
+    bool hasFunction = false;
+    if (target.kind != TYPE_INVALID) {
+        hasFunction = findFunctionDerivationInType(&target) != NULL;
+    }
+    parsedTypeFree(&target);
+    return hasFunction;
+}
+
+static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destType,
+                                                         const ParsedType* srcType) {
+    if (!destType || !srcType) return false;
+
+    ParsedType destTarget = parsedTypePointerTargetType(destType);
+    if (destTarget.kind == TYPE_INVALID) {
+        parsedTypeFree(&destTarget);
+        destTarget = parsedTypeClone(destType);
+    }
+    ParsedType srcTarget = parsedTypePointerTargetType(srcType);
+    if (srcTarget.kind == TYPE_INVALID) {
+        parsedTypeFree(&srcTarget);
+        srcTarget = parsedTypeClone(srcType);
+    }
+
+    const TypeDerivation* destFn = findFunctionDerivationInType(&destTarget);
+    const TypeDerivation* srcFn = findFunctionDerivationInType(&srcTarget);
+    if (!destFn || !srcFn) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return false;
+    }
+
+    ParsedType destRet = parsedTypeFunctionReturnType(&destTarget);
+    ParsedType srcRet = parsedTypeFunctionReturnType(&srcTarget);
+    bool retCompat = parsedTypesStructurallyEqual(&destRet, &srcRet);
+    parsedTypeFree(&destRet);
+    parsedTypeFree(&srcRet);
+    if (!retCompat) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return false;
+    }
+
+    bool destHasParams = destFn->as.function.paramCount > 0 || destFn->as.function.isVariadic;
+    bool srcHasParams = srcFn->as.function.paramCount > 0 || srcFn->as.function.isVariadic;
+    if (!destHasParams || !srcHasParams) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return true;
+    }
+
+    if (destFn->as.function.isVariadic != srcFn->as.function.isVariadic ||
+        destFn->as.function.paramCount != srcFn->as.function.paramCount) {
+        parsedTypeFree(&destTarget);
+        parsedTypeFree(&srcTarget);
+        return false;
+    }
+
+    for (size_t i = 0; i < destFn->as.function.paramCount; ++i) {
+        if (!parsedTypesStructurallyEqual(&destFn->as.function.params[i],
+                                          &srcFn->as.function.params[i])) {
+            parsedTypeFree(&destTarget);
+            parsedTypeFree(&srcTarget);
+            return false;
+        }
+    }
+
+    parsedTypeFree(&destTarget);
+    parsedTypeFree(&srcTarget);
+    return true;
+}
+
 static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope) {
     if (!expr || !scope) return false;
     ASTNode* target = expr;
@@ -2281,15 +2368,14 @@ static void validateArrayInitializerEntries(ParsedType* type,
         *outInferredLength = -1;
     }
 
-    TypeInfo elementInfo = typeInfoFromParsedType(type, scope);
     ParsedType elementParsed = parsedTypeClone(type);
     if (parsedTypeIsDirectArray(type)) {
         ParsedType elementType = parsedTypeArrayElementType(type);
         parsedTypeFree(&elementParsed);
         elementParsed = parsedTypeClone(&elementType);
-        elementInfo = typeInfoFromParsedType(&elementType, scope);
         parsedTypeFree(&elementType);
     }
+    TypeInfo elementInfo = typeInfoFromParsedType(&elementParsed, scope);
     bool elementIsArray = parsedTypeIsDirectArray(&elementParsed);
     bool treatAsChar = typeInfoIsCharLike(&elementInfo);
     bool treatAsWideChar = elementInfo.category == TYPEINFO_INTEGER && elementInfo.bitWidth > 8;
@@ -2430,6 +2516,44 @@ static void validateArrayInitializerEntries(ParsedType* type,
                                                 NULL);
             } else if (!typeInfoIsStructLike(&elementInfo)) {
                 validateScalarCompoundLiteral(init->expression, contextNode, arrayName);
+            }
+        } else if (!elementIsArray && init->expression) {
+            TypeInfo rhs = analyzeExpression(init->expression, scope);
+            rhs = decayToRValue(rhs);
+            if (rhs.category != TYPEINFO_INVALID) {
+                AssignmentCheckResult assign = canAssignTypes(&elementInfo, &rhs);
+                if (assign == ASSIGN_INCOMPATIBLE &&
+                    typeInfoIsPointerLike(&elementInfo) &&
+                    typeInfoIsInteger(&rhs)) {
+                    long long zero = 1;
+                    if (constEvalInteger(init->expression, scope, &zero, true) && zero == 0) {
+                        assign = ASSIGN_OK;
+                    }
+                }
+                if (assign == ASSIGN_OK &&
+                    typeInfoIsPointerLike(&elementInfo) &&
+                    typeInfoIsPointerLike(&rhs) &&
+                    elementInfo.originalType &&
+                    rhs.originalType &&
+                    parsedTypeIsFunctionPointerLike(elementInfo.originalType) &&
+                    parsedTypeIsFunctionPointerLike(rhs.originalType) &&
+                    !functionPointerTypesCompatibleForInitializer(elementInfo.originalType,
+                                                                  rhs.originalType)) {
+                    assign = ASSIGN_INCOMPATIBLE;
+                }
+                if (assign == ASSIGN_INCOMPATIBLE) {
+                    char buffer[256];
+                    snprintf(buffer, sizeof(buffer),
+                             "Incompatible initializer type for '%s'",
+                             arrayName ? arrayName : "<unnamed>");
+                    addError(init->expression->line, 0, buffer, NULL);
+                } else if (assign == ASSIGN_QUALIFIER_LOSS) {
+                    char buffer[256];
+                    snprintf(buffer, sizeof(buffer),
+                             "Initializer for '%s' discards qualifiers from pointer target",
+                             arrayName ? arrayName : "<unnamed>");
+                    addError(init->expression->line, 0, buffer, NULL);
+                }
             }
         }
     }

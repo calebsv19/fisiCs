@@ -56,11 +56,33 @@ static const TargetLayout layout_llp64_fp64 = {
     .supportsDllStorage = true
 };
 
+static const TargetLayout layout_lp64_fp64 = {
+    .charBits = 8,  .shortBits = 16, .intBits = 32, .longBits = 64, .longLongBits = 64,
+    .floatBits = 32, .doubleBits = 64, .longDoubleBits = 64,
+    .pointerBits = 64,
+    .charAlign = 1, .shortAlign = 2, .intAlign = 4, .longAlign = 8, .longLongAlign = 8,
+    .floatAlign = 4, .doubleAlign = 8, .longDoubleAlign = 8,
+    .pointerAlign = 8,
+    .maxAlign = 16,
+    .bitfieldUnitBits = 32,
+    .bitfieldUnitAlign = 4,
+    .endianness = TL_ENDIAN_LITTLE,
+    .longDoubleKind = TL_LONG_DOUBLE_64,
+    .supportsStdcall = false,
+    .supportsFastcall = false,
+    .supportsDllStorage = false
+};
+
 const TargetLayout* tl_default(void) {
 #if defined(_WIN64) || defined(__WIN64__)
     return &layout_llp64_fp64;
 #elif defined(__aarch64__) || defined(__arm64__)
+#if defined(__APPLE__)
+    /* Apple arm64 uses 64-bit long double (same as double). */
+    return &layout_lp64_fp64;
+#else
     return &layout_lp64_fp128;
+#endif
 #elif defined(__x86_64__) || defined(_M_X64)
     return &layout_lp64_fp80;
 #elif defined(__riscv) && (__riscv_xlen == 64)
@@ -82,7 +104,11 @@ const TargetLayout* tl_from_triple(const char* triple) {
         return &layout_lp64_fp80;
     }
     if (strstr(triple, "aarch64") || strstr(triple, "arm64")) {
-        /* Most aarch64 toolchains use 128-bit long double (quad) */
+        /* Apple arm64 matches clang's 64-bit long double ABI. */
+        if (strstr(triple, "apple") || strstr(triple, "darwin")) {
+            return &layout_lp64_fp64;
+        }
+        /* Most non-Apple aarch64 toolchains use 128-bit long double (quad). */
         return &layout_lp64_fp128;
     }
     if (strstr(triple, "riscv64")) {

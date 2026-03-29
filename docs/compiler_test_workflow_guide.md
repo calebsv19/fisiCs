@@ -160,8 +160,13 @@ campaign and should remain standard:
   Keep `tests/final/meta/index.json` as a registry and add wave files like
   `13-codegen-ir-waveN-*.json` or `14-runtime-surface-waveN-*.json`.
 - Run exact-id filters while iterating:
-  `FINAL_FILTER=<test_id> python3 tests/final/run_final.py`,
+  `make final-id ID=<test_id>` (or `FINAL_FILTER=<test_id> ...`),
   then re-run a full bucket exact-id sweep before closing a wave.
+- Use shard/bucket slices while building a wave:
+  `make final-wave WAVE=<n>`,
+  `make final-manifest MANIFEST=<bucket-wave-file>.json`,
+  `make final-bucket BUCKET=<bucket_name>`,
+  `make final-prefix PREFIX=<bucket_id_prefix>`.
 - Keep probe repros separate from active passing manifests when oracle behavior
   is not yet stable. Promote only after the fix is in and the probe is resolved.
 - For parser/front-end diagnostics that may occur before semantic output, enable
@@ -170,6 +175,23 @@ campaign and should remain standard:
   `unstarted -> in_progress -> blocked/passing/unsupported`.
 - Log each wave (scope, test ids, blockers, fix notes, verification result) in
   `docs/compiler_behavior_coverage_run_log.md` so bucket context survives handoff.
+
+### Final Harness Run Cadence
+
+Use this cadence to keep iteration fast and deterministic as the suite grows:
+
+1. During test add/fix loops:
+   `make final-id` / `make final-wave` / `make final-manifest`.
+2. Before promoting a wave:
+   run a full bucket slice (`make final-runtime` for bucket 14, or
+   `make final-prefix PREFIX=<bucket-id-prefix>` for other buckets).
+3. Before large integration commits and after major batch fixes:
+   run `make final`.
+
+Fail closed rule:
+
+- If a selector matches zero tests, treat that as a failure and fix the selector
+  before continuing.
 
 ## Bucket Execution Flow
 

@@ -19,6 +19,7 @@ static bool tryEvaluateArrayLengthExpr(ASTNode* sizeExpr, Scope* scope, size_t* 
 static void inferCompoundLiteralArrayLength(ASTNode* node, Scope* scope);
 static bool isArithmeticOperator(const char* op);
 static bool isComparisonOperator(const char* op);
+static bool isRelationalComparisonOperator(const char* op);
 static bool isLogicalOperator(const char* op);
 static bool typeInfoIsScalar(const TypeInfo* info);
 
@@ -166,6 +167,10 @@ static bool buildFunctionDesignatorType(const Symbol* sym, ParsedType* outType) 
 
 static bool typeInfoIsScalar(const TypeInfo* info) {
     return typeInfoIsArithmetic(info) || typeInfoIsPointerLike(info);
+}
+
+static bool typeInfoIsComplexLike(const TypeInfo* info) {
+    return info && typeInfoIsFloating(info) && (info->isComplex || info->isImaginary);
 }
 
 static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b) {
@@ -687,6 +692,14 @@ static bool isComparisonOperator(const char* op) {
            strcmp(op, ">=") == 0;
 }
 
+static bool isRelationalComparisonOperator(const char* op) {
+    if (!op) return false;
+    return strcmp(op, "<") == 0  ||
+           strcmp(op, "<=") == 0 ||
+           strcmp(op, ">") == 0  ||
+           strcmp(op, ">=") == 0;
+}
+
 static bool isLogicalOperator(const char* op) {
     if (!op) return false;
     return strcmp(op, "&&") == 0 || strcmp(op, "||") == 0;
@@ -1081,6 +1094,70 @@ static const CCTagFieldLayout* lookupFieldLayout(const TypeInfo* base,
     return NULL;
 }
 
+bool evalOffsetofFieldPath(const ParsedType* baseType,
+                           const char* fieldPath,
+                           Scope* scope,
+                           size_t* offsetOut,
+                           bool* bitfieldOut) {
+    if (bitfieldOut) *bitfieldOut = false;
+    if (!baseType || !fieldPath || !scope || !scope->ctx || !offsetOut) {
+        return false;
+    }
+
+    TypeInfo current = typeInfoFromParsedType(baseType, scope);
+    if (current.category != TYPEINFO_STRUCT && current.category != TYPEINFO_UNION) {
+        return false;
+    }
+
+    size_t totalOffset = 0;
+    const char* cursor = fieldPath;
+    while (*cursor) {
+        const char* dot = strchr(cursor, '.');
+        size_t segLen = dot ? (size_t)(dot - cursor) : strlen(cursor);
+        if (segLen == 0) {
+            return false;
+        }
+
+        char* segment = (char*)malloc(segLen + 1);
+        if (!segment) {
+            return false;
+        }
+        memcpy(segment, cursor, segLen);
+        segment[segLen] = '\0';
+
+        const CCTagFieldLayout* lay = lookupFieldLayout(&current, segment, scope);
+        if (!lay) {
+            free(segment);
+            return false;
+        }
+        if (lay->isBitfield && !lay->isZeroWidth) {
+            if (bitfieldOut) *bitfieldOut = true;
+            free(segment);
+            return false;
+        }
+        totalOffset += lay->byteOffset;
+
+        if (!dot) {
+            free(segment);
+            break;
+        }
+
+        const ParsedType* nested = lookupFieldType(&current, segment, scope);
+        free(segment);
+        if (!nested) {
+            return false;
+        }
+        current = typeInfoFromParsedType(nested, scope);
+        if (current.category != TYPEINFO_STRUCT && current.category != TYPEINFO_UNION) {
+            return false;
+        }
+        cursor = dot + 1;
+    }
+
+    *offsetOut = totalOffset;
+    return true;
+}
+
 TypeInfo decayToRValue(TypeInfo info) {
     if (info.isArray) {
         info.category = TYPEINFO_POINTER;
@@ -1391,6 +1468,11 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             }
 
             if (isComparisonOperator(op)) {
+                if (isRelationalComparisonOperator(op) &&
+                    (typeInfoIsComplexLike(&left) || typeInfoIsComplexLike(&right))) {
+                    reportOperandError(node, "real (non-complex) comparable operands", op);
+                    return makeInvalidType();
+                }
                 if (typeInfoIsPointerLike(&left) && typeInfoIsPointerLike(&right)) {
                     return makeBoolType();
                 }
@@ -1664,18 +1746,18 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                         addError(node->line, 0, "__builtin_offsetof expects a struct or union type", NULL);
                         return sizeTypeFromScope(scope);
                     }
-                    CCTagKind kind = (base.category == TYPEINFO_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
-                    size_t sz = 0, al = 0;
-                    if (base.userTypeName) {
-                        layout_struct_union(scope->ctx, scope, kind, base.userTypeName, &sz, &al);
-                    }
-                    const CCTagFieldLayout* lay = lookupFieldLayout(&base, fieldArg->valueNode.value, scope);
-                    if (!lay) {
-                        addError(node->line, 0, "Unknown field in __builtin_offsetof", fieldArg->valueNode.value);
-                        return sizeTypeFromScope(scope);
-                    }
-                    if (lay->isBitfield && !lay->isZeroWidth) {
-                        addError(node->line, 0, "__builtin_offsetof cannot be used on bitfields", fieldArg->valueNode.value);
+                    size_t ignoredOffset = 0;
+                    bool bitfieldPath = false;
+                    if (!evalOffsetofFieldPath(&typeArg->parsedTypeNode.parsed,
+                                               fieldArg->valueNode.value,
+                                               scope,
+                                               &ignoredOffset,
+                                               &bitfieldPath)) {
+                        if (bitfieldPath) {
+                            addError(node->line, 0, "__builtin_offsetof cannot be used on bitfields", fieldArg->valueNode.value);
+                        } else {
+                            addError(node->line, 0, "Unknown field in __builtin_offsetof", fieldArg->valueNode.value);
+                        }
                         return sizeTypeFromScope(scope);
                     }
                     return sizeTypeFromScope(scope);

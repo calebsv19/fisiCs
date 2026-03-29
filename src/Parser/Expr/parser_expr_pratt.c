@@ -699,8 +699,45 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
                 arg = createParsedTypeNode(ty);
             } else if (isBuiltinOffsetof && argCount == 1) {
                 if (parser->currentToken.type == TOKEN_IDENTIFIER) {
-                    arg = createIdentifierNode(parser->currentToken.value);
+                    size_t cap = strlen(parser->currentToken.value) + 1;
+                    char* path = (char*)malloc(cap);
+                    if (!path) {
+                        printf("Error: Memory allocation failed for __builtin_offsetof field path\n");
+                        free(argList);
+                        return NULL;
+                    }
+                    strcpy(path, parser->currentToken.value);
                     advance(parser);
+
+                    while (parser->currentToken.type == TOKEN_DOT) {
+                        advance(parser);
+                        if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+                            printParseError("Expected field name after '.' in __builtin_offsetof", parser);
+                            free(path);
+                            free(argList);
+                            return NULL;
+                        }
+                        size_t segLen = strlen(parser->currentToken.value);
+                        size_t curLen = strlen(path);
+                        size_t needed = curLen + 1 + segLen + 1;
+                        if (needed > cap) {
+                            char* grown = (char*)realloc(path, needed);
+                            if (!grown) {
+                                printf("Error: Memory allocation failed for __builtin_offsetof field path\n");
+                                free(path);
+                                free(argList);
+                                return NULL;
+                            }
+                            path = grown;
+                            cap = needed;
+                        }
+                        path[curLen] = '.';
+                        memcpy(path + curLen + 1, parser->currentToken.value, segLen + 1);
+                        advance(parser);
+                    }
+
+                    arg = createIdentifierNode(path);
+                    free(path);
                 } else {
                     printParseError("Expected field name in __builtin_offsetof", parser);
                     free(argList);

@@ -7,5 +7,10 @@
 
 TypeInfo analyzeExpression(ASTNode* node, Scope* scope);
 TypeInfo decayToRValue(TypeInfo info);
+bool evalOffsetofFieldPath(const ParsedType* baseType,
+                           const char* fieldPath,
+                           Scope* scope,
+                           size_t* offsetOut,
+                           bool* bitfieldOut);
 
 #endif // ANALYZE_EXPR_H
