@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_float_nan_inf_order_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_float_nan_inf_order_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_float_nan_inf_order_chain.stdout",
+      "expected_stderr": "expect/14__runtime_float_nan_inf_order_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "floating",
+        "nan",
+        "infinity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_null_ptrdiff_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_null_ptrdiff_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_null_ptrdiff_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_header_null_ptrdiff_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "headers",
+        "null",
+        "ptrdiff"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_union_array_overlay_roundtrip",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_union_array_overlay_roundtrip.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_union_array_overlay_roundtrip.stdout",
+      "expected_stderr": "expect/14__runtime_struct_union_array_overlay_roundtrip.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "struct",
+        "union"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_long_width_crosscheck",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_long_width_crosscheck.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_long_width_crosscheck.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_long_width_crosscheck.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "calls",
+        "variadic",
+        "width"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_smoke_expr_eval_driver",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_smoke_expr_eval_driver.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_smoke_expr_eval_driver.stdout",
+      "expected_stderr": "expect/14__runtime_smoke_expr_eval_driver.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "smoke", "driver", "expr", "deterministic"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_smoke_dispatch_table_driver",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_smoke_dispatch_table_driver.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_smoke_dispatch_table_driver.stdout",
+      "expected_stderr": "expect/14__runtime_smoke_dispatch_table_driver.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "smoke", "driver", "fnptr", "dispatch", "deterministic"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_smoke_multitu_config_driver",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_smoke_multitu_config_driver_main.c",
+      "inputs": [
+        "cases/14__runtime_smoke_multitu_config_driver_main.c",
+        "cases/14__runtime_smoke_multitu_config_driver_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_smoke_multitu_config_driver.stdout",
+      "expected_stderr": "expect/14__runtime_smoke_multitu_config_driver.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "smoke", "driver", "multitu", "config", "deterministic"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

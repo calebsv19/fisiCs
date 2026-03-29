@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_struct_ternary_by_value_select_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_ternary_by_value_select_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_ternary_by_value_select_chain.stdout",
+      "expected_stderr": "expect/14__runtime_struct_ternary_by_value_select_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "struct",
+        "ternary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_switch_sparse_signed_case_ladder",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_switch_sparse_signed_case_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_switch_sparse_signed_case_ladder.stdout",
+      "expected_stderr": "expect/14__runtime_switch_sparse_signed_case_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control",
+        "switch",
+        "signed"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_bitwise_compound_recurrence_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitwise_compound_recurrence_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitwise_compound_recurrence_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_bitwise_compound_recurrence_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "bitwise",
+        "compound",
+        "arithmetic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_offsetof_nested_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_offsetof_nested_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_offsetof_nested_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_header_offsetof_nested_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "headers",
+        "offsetof",
+        "nested"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

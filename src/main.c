@@ -250,6 +250,90 @@ static char* derive_diag_pack_path(const char* basePath, size_t index, size_t to
     return out;
 }
 
+static bool json_write_escaped_string(FILE* fp, const char* text) {
+    if (!fp) return false;
+    if (!text) text = "";
+    if (fputc('"', fp) == EOF) return false;
+    for (const unsigned char* p = (const unsigned char*)text; *p; ++p) {
+        const unsigned char ch = *p;
+        switch (ch) {
+            case '\"': if (fputs("\\\"", fp) == EOF) return false; break;
+            case '\\': if (fputs("\\\\", fp) == EOF) return false; break;
+            case '\b': if (fputs("\\b", fp) == EOF) return false; break;
+            case '\f': if (fputs("\\f", fp) == EOF) return false; break;
+            case '\n': if (fputs("\\n", fp) == EOF) return false; break;
+            case '\r': if (fputs("\\r", fp) == EOF) return false; break;
+            case '\t': if (fputs("\\t", fp) == EOF) return false; break;
+            default:
+                if (ch < 0x20u) {
+                    if (fprintf(fp, "\\u%04x", (unsigned)ch) < 0) return false;
+                } else if (fputc((int)ch, fp) == EOF) {
+                    return false;
+                }
+                break;
+        }
+    }
+    if (fputc('"', fp) == EOF) return false;
+    return true;
+}
+
+static bool write_link_stage_diag_json(const char* outPath,
+                                       int exitCode,
+                                       const char* linkerName,
+                                       const char* outputName,
+                                       size_t inputCount) {
+    enum { LINK_STAGE_DIAG_CODE = 4001 };
+    if (!outPath || outPath[0] == '\0') return false;
+
+    FILE* fp = fopen(outPath, "wb");
+    if (!fp) return false;
+
+    char message[512];
+    char hint[512];
+    const char* linker = (linkerName && linkerName[0] != '\0') ? linkerName : "clang";
+    (void)outputName;
+    snprintf(message,
+             sizeof(message),
+             "Link stage failed (linker=%s, exit=%d, inputs=%zu)",
+             linker,
+             exitCode,
+             inputCount);
+    snprintf(hint,
+             sizeof(hint),
+             "Inspect linker stderr output and [link] argv for symbol/type conflicts.");
+
+    bool ok = true;
+    ok = ok && (fputs("{\n", fp) != EOF);
+    ok = ok && (fputs("  \"profile\": \"fisics_diagnostics_v1\",\n", fp) != EOF);
+    ok = ok && (fputs("  \"schema_version\": 1,\n", fp) != EOF);
+    ok = ok && (fputs("  \"diag_count\": 1,\n", fp) != EOF);
+    ok = ok && (fputs("  \"error_count\": 1,\n", fp) != EOF);
+    ok = ok && (fputs("  \"warning_count\": 0,\n", fp) != EOF);
+    ok = ok && (fputs("  \"note_count\": 0,\n", fp) != EOF);
+    ok = ok && (fputs("  \"diagnostics\": [\n", fp) != EOF);
+    ok = ok && (fputs("    {\n", fp) != EOF);
+    ok = ok && (fputs("      \"line\": 0,\n", fp) != EOF);
+    ok = ok && (fputs("      \"column\": 0,\n", fp) != EOF);
+    ok = ok && (fputs("      \"length\": 0,\n", fp) != EOF);
+    ok = ok && (fputs("      \"kind\": 0,\n", fp) != EOF);
+    ok = ok && (fprintf(fp, "      \"code\": %d,\n", LINK_STAGE_DIAG_CODE) >= 0);
+    ok = ok && (fputs("      \"has_message\": true,\n", fp) != EOF);
+    ok = ok && (fputs("      \"message\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, message);
+    ok = ok && (fputs(",\n", fp) != EOF);
+    ok = ok && (fputs("      \"has_hint\": true,\n", fp) != EOF);
+    ok = ok && (fputs("      \"hint\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, hint);
+    ok = ok && (fputs(",\n", fp) != EOF);
+    ok = ok && (fputs("      \"has_file\": false\n", fp) != EOF);
+    ok = ok && (fputs("    }\n", fp) != EOF);
+    ok = ok && (fputs("  ]\n", fp) != EOF);
+    ok = ok && (fputs("}\n", fp) != EOF);
+
+    if (fclose(fp) != 0) ok = false;
+    return ok;
+}
+
 static bool dir_exists(const char* path) {
     if (!path || !*path) return false;
     struct stat st;
@@ -1042,6 +1126,18 @@ int main(int argc, char **argv) {
             } else {
                 fprintf(stderr, "Linker terminated abnormally\n");
                 statusCode = 1;
+            }
+            if (statusCode != 0 && diagsJsonPath && diagsJsonPath[0] != '\0') {
+                if (!write_link_stage_diag_json(
+                        diagsJsonPath,
+                        statusCode,
+                        linker,
+                        finalOutput,
+                        inputOFiles.count + inputCFiles.count)) {
+                    fprintf(stderr,
+                            "Warning: failed to write link-stage diagnostics JSON to %s\n",
+                            diagsJsonPath);
+                }
             }
 
             for (size_t i = 0; i < tempObjects.count; ++i) {

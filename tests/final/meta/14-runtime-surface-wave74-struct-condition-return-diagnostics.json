@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diag__switch_struct_condition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__switch_struct_condition_reject.c",
+      "expects": [
+        "expect/14__diag__switch_struct_condition_reject.diag",
+        "expect/14__diag__switch_struct_condition_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__if_struct_condition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__if_struct_condition_reject.c",
+      "expects": [
+        "expect/14__diag__if_struct_condition_reject.diag",
+        "expect/14__diag__if_struct_condition_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__while_struct_condition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__while_struct_condition_reject.c",
+      "expects": [
+        "expect/14__diag__while_struct_condition_reject.diag",
+        "expect/14__diag__while_struct_condition_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__return_struct_to_int_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__return_struct_to_int_reject.c",
+      "expects": [
+        "expect/14__diag__return_struct_to_int_reject.diag",
+        "expect/14__diag__return_struct_to_int_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "semantic"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

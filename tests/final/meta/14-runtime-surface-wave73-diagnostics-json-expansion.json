@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diagjson__file_scope_vla_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__file_scope_vla_reject.c",
+      "expects": [
+        "expect/14__diagjson__file_scope_vla_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "layout", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__offsetof_bitfield_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__offsetof_bitfield_reject.c",
+      "expects": [
+        "expect/14__diagjson__offsetof_bitfield_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "layout", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__ternary_struct_condition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__ternary_struct_condition_reject.c",
+      "expects": [
+        "expect/14__diagjson__ternary_struct_condition_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__fnptr_table_too_few_args_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_table_too_few_args_reject.c",
+      "expects": [
+        "expect/14__diagjson__fnptr_table_too_few_args_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

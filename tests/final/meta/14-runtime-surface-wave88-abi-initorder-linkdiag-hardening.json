@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_abi_long_double_variadic_regstack_hardening",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_abi_long_double_variadic_regstack_hardening.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_abi_long_double_variadic_regstack_hardening.stdout",
+      "expected_stderr": "expect/14__runtime_abi_long_double_variadic_regstack_hardening.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "long-double", "variadic", "reg-stack", "hardening"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_static_init_order_depth_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_static_init_order_depth_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_static_init_order_depth_bridge_main.c",
+        "cases/14__runtime_multitu_static_init_order_depth_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_static_init_order_depth_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_static_init_order_depth_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "static-init", "init-order", "depth", "hardening"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__multitu_duplicate_function_definition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__multitu_duplicate_function_definition_reject_main.c",
+      "inputs": [
+        "cases/14__diag__multitu_duplicate_function_definition_reject_main.c",
+        "cases/14__diag__multitu_duplicate_function_definition_reject_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave88-link.out"],
+      "expects": [
+        "expect/14__diag__multitu_duplicate_function_definition_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": ["runtime", "diagnostic", "negative", "multitu", "linkage", "text-only"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

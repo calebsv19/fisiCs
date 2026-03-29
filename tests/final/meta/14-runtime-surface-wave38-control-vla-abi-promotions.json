@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_control_do_while_switch_phi_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_control_do_while_switch_phi_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_control_do_while_switch_phi_chain.stdout",
+      "expected_stderr": "expect/14__runtime_control_do_while_switch_phi_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "control-flow",
+        "switch",
+        "do-while"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_struct_array_double_by_value_roundtrip",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_struct_array_double_by_value_roundtrip.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_struct_array_double_by_value_roundtrip.stdout",
+      "expected_stderr": "expect/14__runtime_struct_array_double_by_value_roundtrip.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "struct",
+        "by-value"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_vla_dim_recompute_stride_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_dim_recompute_stride_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_dim_recompute_stride_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_vla_dim_recompute_stride_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "vla",
+        "stride"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_pointer_byte_rebase_roundtrip_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_pointer_byte_rebase_roundtrip_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_pointer_byte_rebase_roundtrip_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_pointer_byte_rebase_roundtrip_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "memory",
+        "pointer",
+        "byte-rebase"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

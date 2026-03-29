@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_fnptr_rotation_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_fnptr_rotation_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_fnptr_rotation_bridge_main.c",
+        "cases/14__runtime_multitu_fnptr_rotation_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_fnptr_rotation_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_fnptr_rotation_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "fnptr", "rotation"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_pair_fold_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_pair_fold_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_pair_fold_bridge_main.c",
+        "cases/14__runtime_multitu_pair_fold_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_pair_fold_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_pair_fold_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "struct", "fold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_vla_column_pointer_stride_mix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_vla_column_pointer_stride_mix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_vla_column_pointer_stride_mix.stdout",
+      "expected_stderr": "expect/14__runtime_vla_column_pointer_stride_mix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "vla", "pointer", "stride"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_switch_goto_reentry_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_switch_goto_reentry_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_switch_goto_reentry_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_switch_goto_reentry_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "control", "switch", "goto"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

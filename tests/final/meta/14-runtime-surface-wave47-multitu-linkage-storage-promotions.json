@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_tentative_def_zero_init_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_tentative_def_zero_init_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_tentative_def_zero_init_bridge_main.c",
+        "cases/14__runtime_multitu_tentative_def_zero_init_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_tentative_def_zero_init_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_tentative_def_zero_init_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "linkage", "storage"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_extern_array_size_consistency",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_extern_array_size_consistency_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_extern_array_size_consistency_main.c",
+        "cases/14__runtime_multitu_extern_array_size_consistency_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_extern_array_size_consistency.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_extern_array_size_consistency.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "extern", "array"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_static_extern_partition",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_static_extern_partition_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_static_extern_partition_main.c",
+        "cases/14__runtime_multitu_static_extern_partition_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_static_extern_partition.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_static_extern_partition.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "static", "extern"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_global_struct_init_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_global_struct_init_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_global_struct_init_bridge_main.c",
+        "cases/14__runtime_multitu_global_struct_init_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_global_struct_init_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_global_struct_init_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "global", "struct"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

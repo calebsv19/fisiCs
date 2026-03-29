@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import difflib
+import fnmatch
 import json
 import os
 import shutil
@@ -154,10 +155,12 @@ def load_meta():
         manifest = load_json(manifest_path)
         tests = manifest.get("tests", [])
         for test in tests:
+            test = dict(test)
             test_id = test.get("id")
             if test_id in seen_ids:
                 raise ValueError(f"duplicate final test id '{test_id}' in {manifest_path}")
             seen_ids.add(test_id)
+            test["__manifest"] = manifest_path.name
             merged["tests"].append(test)
 
     return merged
@@ -194,10 +197,34 @@ def render_parser_diag_text(raw_text):
     return "\n".join(lines) + "\n"
 
 
+def parse_csv_env(name):
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return []
+    return [value.strip() for value in raw.split(",") if value.strip()]
+
+
 def main():
     bin_path = sys.argv[1] if len(sys.argv) > 1 else "./fisics"
     update = os.environ.get("UPDATE_FINAL", "0") == "1" or "--update" in sys.argv
-    filt = os.environ.get("FINAL_FILTER", "")
+    filt = os.environ.get("FINAL_FILTER", "").strip()
+    prefix_filters = parse_csv_env("FINAL_PREFIX")
+    glob_filters = parse_csv_env("FINAL_GLOB")
+    bucket_filters = parse_csv_env("FINAL_BUCKET")
+    tag_filters = parse_csv_env("FINAL_TAG")
+    manifest_filters = parse_csv_env("FINAL_MANIFEST")
+    manifest_glob_filters = parse_csv_env("FINAL_MANIFEST_GLOB")
+    has_selector = any(
+        [
+            filt,
+            prefix_filters,
+            glob_filters,
+            bucket_filters,
+            tag_filters,
+            manifest_filters,
+            manifest_glob_filters,
+        ]
+    )
     enable_token_dump = os.environ.get("ENABLE_TOKEN_DUMP", "1") == "1"
 
     meta = load_meta()
@@ -205,11 +232,35 @@ def main():
 
     failures = 0
     skipped = 0
+    selected = 0
 
     for test in tests:
         test_id = test["id"]
+        test_manifest = str(test.get("__manifest", ""))
+        test_bucket = str(test.get("bucket", ""))
+        tags = {str(tag) for tag in test.get("tags", [])}
+
         if filt and test_id != filt:
             continue
+        if prefix_filters and not any(test_id.startswith(prefix) for prefix in prefix_filters):
+            continue
+        if glob_filters and not any(fnmatch.fnmatch(test_id, pattern) for pattern in glob_filters):
+            continue
+        if bucket_filters and test_bucket not in bucket_filters:
+            continue
+        if tag_filters and not all(tag in tags for tag in tag_filters):
+            continue
+        if manifest_filters and not any(
+            test_manifest == token or test_manifest.endswith(token) or token in test_manifest
+            for token in manifest_filters
+        ):
+            continue
+        if manifest_glob_filters and not any(
+            fnmatch.fnmatch(test_manifest, pattern) for pattern in manifest_glob_filters
+        ):
+            continue
+
+        selected += 1
 
         requires = set(test.get("requires", []))
         if "token-dump" in requires and not enable_token_dump:
@@ -506,6 +557,13 @@ def main():
 
     if failures:
         print(f"\n{failures} failing, {skipped} skipped")
+        return 1
+    if has_selector and selected == 0:
+        print(
+            "FAIL: selector matched 0 tests "
+            "(FINAL_FILTER / FINAL_PREFIX / FINAL_GLOB / FINAL_BUCKET / "
+            "FINAL_TAG / FINAL_MANIFEST / FINAL_MANIFEST_GLOB)"
+        )
         return 1
     if skipped:
         print(f"\n0 failing, {skipped} skipped")

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_complex_mul_div_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_complex_mul_div_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_complex_mul_div_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_complex_mul_div_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "complex", "arith", "mul", "div", "expression"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_complex_scalar_mul_div_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_complex_scalar_mul_div_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_complex_scalar_mul_div_chain.stdout",
+      "expected_stderr": "expect/14__runtime_complex_scalar_mul_div_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "complex", "scalar", "mul", "div", "promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

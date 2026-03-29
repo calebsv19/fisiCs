@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_static_local_init_once_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_static_local_init_once_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_static_local_init_once_chain.stdout",
+      "expected_stderr": "expect/14__runtime_static_local_init_once_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "static-local", "state", "reentrancy"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_static_local_init_recursion_gate",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_static_local_init_recursion_gate.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_static_local_init_recursion_gate.stdout",
+      "expected_stderr": "expect/14__runtime_static_local_init_recursion_gate.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "static-local", "recursion", "state"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_static_init_visibility_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_static_init_visibility_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_static_init_visibility_bridge_main.c",
+        "cases/14__runtime_multitu_static_init_visibility_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_static_init_visibility_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_static_init_visibility_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "static-local", "visibility"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

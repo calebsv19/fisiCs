@@ -79,7 +79,25 @@ Each shard file uses the per-test schema below:
 - `make final` runs the suite against `tests/final/meta/index.json`, which now
   acts as a registry for one or more manifest shard files.
 - `make final-update` regenerates `.ast` and `.diag` expectations from current output.
-- `FINAL_FILTER=01__line_directive_diag_location make final` runs one test.
+- `make final-id ID=01__line_directive_diag_location` runs one exact id.
+- `make final-prefix PREFIX=14__` runs an id-prefix slice (for example, all runtime ids).
+- `make final-glob GLOB='14__runtime_multitu_*'` runs a fnmatch-glob slice.
+- `make final-bucket BUCKET=runtime-surface` runs one metadata bucket.
+- `make final-manifest MANIFEST=14-runtime-surface-wave43-multitu-abi-stress-promotions.json`
+  runs one manifest shard.
+- `make final-wave WAVE=43` runs one runtime wave shard (`WAVE_BUCKET` defaults
+  to `14-runtime-surface`; override with `WAVE_BUCKET=<bucket-prefix>` if needed).
+- `make final-runtime` runs all bucket-14 runtime ids via prefix selection.
+- Equivalent env selectors for direct harness calls:
+  - `FINAL_FILTER=<id>`
+  - `FINAL_PREFIX=<prefix>[,<prefix>...]`
+  - `FINAL_GLOB=<pattern>[,<pattern>...]`
+  - `FINAL_BUCKET=<bucket>[,<bucket>...]`
+  - `FINAL_MANIFEST=<token>[,<token>...]`
+  - `FINAL_MANIFEST_GLOB=<pattern>[,<pattern>...]`
+  - `FINAL_TAG=<tag>[,<tag>...]`
+- Selector safety: if a selector is provided and matches zero tests, the run
+  fails closed.
 - Token expectations use `--dump-tokens` on the compiler when needed.
 - IR expectations use `--dump-ir` on the compiler when needed.
 - `capture_frontend_diag: true` records early `Error:` / `Warning:` lines that
@@ -103,8 +121,10 @@ Each shard file uses the per-test schema below:
 ## Operational Best Practices
 - Keep manifests sharded by wave (`<bucket>-waveN-<topic>.json`) to avoid one
   oversized per-bucket file.
-- While iterating, run exact-id filters first (`FINAL_FILTER=<test_id> ...`),
-  then rerun a full bucket exact-id sweep before promotion.
+- While iterating, run fast slices first (`final-id`/`final-wave`/`final-bucket`),
+  then rerun the full bucket (`final-runtime` or equivalent) before promotion.
+- Reserve `make final` for checkpoint runs (pre-commit integration and
+  post-fix/batch closure), not every incremental test add.
 - Keep probe-only repros out of active manifests until fixed; promote only when
   they pass with intended oracle behavior.
 - For parser/front-end diagnostic paths, use `capture_frontend_diag: true` so

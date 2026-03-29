@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_complex_ptr_field_writeback_direct",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_complex_ptr_field_writeback_direct.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_complex_ptr_field_writeback_direct.stdout",
+      "expected_stderr": "expect/14__runtime_complex_ptr_field_writeback_direct.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "complex", "pointer", "member", "writeback", "assignment"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_complex_ptr_field_compound_writeback",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_complex_ptr_field_compound_writeback.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_complex_ptr_field_compound_writeback.stdout",
+      "expected_stderr": "expect/14__runtime_complex_ptr_field_compound_writeback.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "complex", "pointer", "member", "writeback", "compound-assignment"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

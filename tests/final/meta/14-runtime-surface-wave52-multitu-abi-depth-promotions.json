@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_fnptr_table_state_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_fnptr_table_state_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_fnptr_table_state_bridge_main.c",
+        "cases/14__runtime_multitu_fnptr_table_state_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_fnptr_table_state_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_fnptr_table_state_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "abi", "fnptr"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_variadic_fold_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_variadic_fold_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_variadic_fold_bridge_main.c",
+        "cases/14__runtime_multitu_variadic_fold_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_variadic_fold_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_variadic_fold_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "abi", "fold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_vla_window_reduce_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_vla_window_reduce_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_vla_window_reduce_bridge_main.c",
+        "cases/14__runtime_multitu_vla_window_reduce_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_vla_window_reduce_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_vla_window_reduce_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "vla", "layout"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_struct_union_route_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_struct_union_route_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_struct_union_route_bridge_main.c",
+        "cases/14__runtime_multitu_struct_union_route_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_struct_union_route_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_struct_union_route_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "struct", "union"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

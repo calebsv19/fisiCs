@@ -21,6 +21,7 @@ class RuntimeProbe:
     probe_id: str
     source: Path
     note: str
+    inputs: Sequence[Path] | None = None
 
 
 @dataclass
@@ -29,6 +30,7 @@ class DiagnosticProbe:
     source: Path
     note: str
     required_substrings: Sequence[str] | None = None
+    inputs: Sequence[Path] | None = None
 
 
 @dataclass
@@ -37,6 +39,9 @@ class DiagnosticJsonProbe:
     source: Path
     note: str
     require_any_diagnostic: bool = True
+    expected_codes: Sequence[int] | None = None
+    expected_line: int | None = None
+    inputs: Sequence[Path] | None = None
 
 
 RUNTIME_PROBES = [
@@ -441,6 +446,353 @@ RUNTIME_PROBES = [
         note="bitfield by-value roundtrip copy should match clang runtime behavior",
     ),
     RuntimeProbe(
+        probe_id="14__probe_unsigned_div_mod_extremes_matrix",
+        source=PROBE_DIR / "runtime/14__probe_unsigned_div_mod_extremes_matrix.c",
+        note="unsigned division/modulo near max-width boundaries should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_signed_unsigned_cmp_boundary_matrix",
+        source=PROBE_DIR / "runtime/14__probe_signed_unsigned_cmp_boundary_matrix.c",
+        note="signed/unsigned comparison boundary matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_float_signed_zero_inf_matrix",
+        source=PROBE_DIR / "runtime/14__probe_float_signed_zero_inf_matrix.c",
+        note="signed zero and infinity comparison matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_cast_chain_width_sign_matrix",
+        source=PROBE_DIR / "runtime/14__probe_cast_chain_width_sign_matrix.c",
+        note="signed/unsigned width cast-chain matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_stddef_ptrdiff_size_t_bridge",
+        source=PROBE_DIR / "runtime/14__probe_header_stddef_ptrdiff_size_t_bridge.c",
+        note="stddef bridge for ptrdiff_t/size_t/offsetof should compile and match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_stdint_intptr_uintptr_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_header_stdint_intptr_uintptr_roundtrip.c",
+        note="stdint intptr/uintptr pointer roundtrip bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_limits_llong_matrix",
+        source=PROBE_DIR / "runtime/14__probe_header_limits_llong_matrix.c",
+        note="limits.h long-long boundary macro usage should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_stdbool_int_bridge",
+        source=PROBE_DIR / "runtime/14__probe_header_stdbool_int_bridge.c",
+        note="stdbool bool/int bridge semantics should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_stdalign_bridge",
+        source=PROBE_DIR / "runtime/14__probe_header_stdalign_bridge.c",
+        note="stdalign bridge semantics should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_stdint_limits_crosscheck",
+        source=PROBE_DIR / "runtime/14__probe_header_stdint_limits_crosscheck.c",
+        note="stdint limits crosscheck should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_null_sizeof_ptrdiff_bridge",
+        source=PROBE_DIR / "runtime/14__probe_header_null_sizeof_ptrdiff_bridge.c",
+        note="NULL/sizeof/ptrdiff header bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_bitfield_mixed_pass_return",
+        source=PROBE_DIR / "runtime/14__probe_struct_bitfield_mixed_pass_return.c",
+        note="mixed-width bitfield struct pass/return paths should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_double_int_padding_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_struct_double_int_padding_roundtrip.c",
+        note="double/int padded struct by-value roundtrip should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_variadic_dispatch_bridge",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_variadic_dispatch_bridge.c",
+        note="function-pointer variadic dispatch bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_many_args_struct_scalar_mix",
+        source=PROBE_DIR / "runtime/14__probe_many_args_struct_scalar_mix.c",
+        note="many-argument struct/scalar ABI mix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_float_negzero_propagation_chain",
+        source=PROBE_DIR / "runtime/14__probe_float_negzero_propagation_chain.c",
+        note="negative-zero propagation across float arithmetic chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_ptrdiff_one_past_end_matrix",
+        source=PROBE_DIR / "runtime/14__probe_ptrdiff_one_past_end_matrix.c",
+        note="one-past-end pointer comparisons and ptrdiff scaling should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_many_args_float_int_struct_mix",
+        source=PROBE_DIR / "runtime/14__probe_many_args_float_int_struct_mix.c",
+        note="many-arg ABI lane with struct/int/double mix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_abi_reg_stack_frontier_matrix",
+        source=PROBE_DIR / "runtime/14__probe_abi_reg_stack_frontier_matrix.c",
+        note="ABI reg/stack frontier matrix across mixed scalar+struct arguments should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_abi_mixed_struct_float_boundary",
+        source=PROBE_DIR / "runtime/14__probe_abi_mixed_struct_float_boundary.c",
+        note="mixed struct/float boundary pass-return ABI behavior should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_abi_reg_stack_frontier",
+        source=PROBE_DIR / "runtime/14__probe_variadic_abi_reg_stack_frontier.c",
+        note="variadic ABI reg/stack frontier behavior should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_static_local_init_once_chain",
+        source=PROBE_DIR / "runtime/14__probe_static_local_init_once_chain.c",
+        note="static local state init/persistence chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_static_local_init_recursion_gate",
+        source=PROBE_DIR / "runtime/14__probe_static_local_init_recursion_gate.c",
+        note="static local recursion gate and state persistence should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_static_init_visibility_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_static_init_visibility_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_static_init_visibility_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_static_init_visibility_bridge_lib.c",
+        ),
+        note="multi-TU static local + file-static visibility bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_param_nested_handoff_matrix",
+        source=PROBE_DIR / "runtime/14__probe_vla_param_nested_handoff_matrix.c",
+        note="VLA nested parameter handoff matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_stride_rebind_cross_fn_chain",
+        source=PROBE_DIR / "runtime/14__probe_vla_stride_rebind_cross_fn_chain.c",
+        note="VLA stride rebind across helper-function chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_ptrdiff_cross_scope_matrix",
+        source=PROBE_DIR / "runtime/14__probe_vla_ptrdiff_cross_scope_matrix.c",
+        note="VLA ptrdiff cross-scope matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_intptr_roundtrip_offset_matrix",
+        source=PROBE_DIR / "runtime/14__probe_intptr_roundtrip_offset_matrix.c",
+        note="intptr_t pointer roundtrip offset matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_uintptr_mask_rebase_matrix",
+        source=PROBE_DIR / "runtime/14__probe_uintptr_mask_rebase_matrix.c",
+        note="uintptr_t mask/rebase reconstruction matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_ptrdiff_boundary_crosscheck_matrix",
+        source=PROBE_DIR / "runtime/14__probe_ptrdiff_boundary_crosscheck_matrix.c",
+        note="ptrdiff_t boundary crosscheck matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_llong_double_bridge",
+        source=PROBE_DIR / "runtime/14__probe_variadic_llong_double_bridge.c",
+        note="variadic long-long/double width bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_control_do_while_switch_phi_chain",
+        source=PROBE_DIR / "runtime/14__probe_control_do_while_switch_phi_chain.c",
+        note="do-while + switch + continue/goto phi paths should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_array_double_by_value_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_struct_array_double_by_value_roundtrip.c",
+        note="struct with array+double by-value roundtrip should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_dim_recompute_stride_matrix",
+        source=PROBE_DIR / "runtime/14__probe_vla_dim_recompute_stride_matrix.c",
+        note="VLA dimension recompute and stride matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_pointer_byte_rebase_roundtrip_matrix",
+        source=PROBE_DIR / "runtime/14__probe_pointer_byte_rebase_roundtrip_matrix.c",
+        note="pointer byte-rebase roundtrip and element ptrdiff scaling should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_float_nan_inf_order_chain",
+        source=PROBE_DIR / "runtime/14__probe_float_nan_inf_order_chain.c",
+        note="NaN/infinity ordering and comparison chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_null_ptrdiff_bridge",
+        source=PROBE_DIR / "runtime/14__probe_header_null_ptrdiff_bridge.c",
+        note="header NULL + ptrdiff bridge semantics should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_union_array_overlay_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_struct_union_array_overlay_roundtrip.c",
+        note="struct+union+array by-value roundtrip overlay should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_long_width_crosscheck",
+        source=PROBE_DIR / "runtime/14__probe_variadic_long_width_crosscheck.c",
+        note="variadic long/unsigned-long/long-long width crosscheck should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_struct_ternary_by_value_select_chain",
+        source=PROBE_DIR / "runtime/14__probe_struct_ternary_by_value_select_chain.c",
+        note="struct ternary by-value selection chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_header_offsetof_nested_matrix",
+        source=PROBE_DIR / "runtime/14__probe_header_offsetof_nested_matrix.c",
+        note="nested offsetof header surface should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_switch_sparse_signed_case_ladder",
+        source=PROBE_DIR / "runtime/14__probe_switch_sparse_signed_case_ladder.c",
+        note="sparse signed switch case ladder should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bitwise_compound_recurrence_matrix",
+        source=PROBE_DIR / "runtime/14__probe_bitwise_compound_recurrence_matrix.c",
+        note="bitwise compound recurrence matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bool_scalar_conversion_matrix",
+        source=PROBE_DIR / "runtime/14__probe_bool_scalar_conversion_matrix.c",
+        note="scalar-to-bool conversion matrix across int/float/pointer lanes should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bitfield_signed_promotion_matrix",
+        source=PROBE_DIR / "runtime/14__probe_bitfield_signed_promotion_matrix.c",
+        note="signed bitfield promotion/update matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bitfield_compound_assign_bridge",
+        source=PROBE_DIR / "runtime/14__probe_bitfield_compound_assign_bridge.c",
+        note="unsigned bitfield compound update bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bitfield_bool_bridge_matrix",
+        source=PROBE_DIR / "runtime/14__probe_bitfield_bool_bridge_matrix.c",
+        note="bitfield and bool bridge paths should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_fnptr_table_state_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_fnptr_table_state_bridge_main.c",
+        note="multi-TU function-pointer table state bridge should match clang runtime behavior",
+        inputs=[
+            PROBE_DIR / "runtime/14__probe_multitu_fnptr_table_state_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_fnptr_table_state_bridge_lib.c",
+        ],
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_variadic_fold_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_variadic_fold_bridge_main.c",
+        note="multi-TU mixed-width fold bridge should match clang runtime behavior",
+        inputs=[
+            PROBE_DIR / "runtime/14__probe_multitu_variadic_fold_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_variadic_fold_bridge_lib.c",
+        ],
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_vla_window_reduce_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_vla_window_reduce_bridge_main.c",
+        note="multi-TU VLA window reduction bridge should match clang runtime behavior",
+        inputs=[
+            PROBE_DIR / "runtime/14__probe_multitu_vla_window_reduce_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_vla_window_reduce_bridge_lib.c",
+        ],
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_struct_union_route_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_struct_union_route_bridge_main.c",
+        note="multi-TU struct/union route bridge should match clang runtime behavior",
+        inputs=[
+            PROBE_DIR / "runtime/14__probe_multitu_struct_union_route_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_struct_union_route_bridge_lib.c",
+        ],
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_control_switch_do_for_state_machine",
+        source=PROBE_DIR / "runtime/14__probe_control_switch_do_for_state_machine.c",
+        note="control-flow state machine across for/do/switch should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_layout_offset_stride_bridge",
+        source=PROBE_DIR / "runtime/14__probe_layout_offset_stride_bridge.c",
+        note="layout offsetof/stride bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_pointer_stride_rebase_control_mix",
+        source=PROBE_DIR / "runtime/14__probe_pointer_stride_rebase_control_mix.c",
+        note="pointer-stride rebasing with mixed control flow should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_bool_bitmask_control_chain",
+        source=PROBE_DIR / "runtime/14__probe_bool_bitmask_control_chain.c",
+        note="bool-bitmask control chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_smoke_expr_eval_driver",
+        source=PROBE_DIR / "runtime/14__probe_smoke_expr_eval_driver.c",
+        note="deterministic expression-evaluator mini-driver should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_smoke_dispatch_table_driver",
+        source=PROBE_DIR / "runtime/14__probe_smoke_dispatch_table_driver.c",
+        note="deterministic function-pointer dispatch mini-driver should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_smoke_multitu_config_driver",
+        source=PROBE_DIR / "runtime/14__probe_smoke_multitu_config_driver_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_smoke_multitu_config_driver_main.c",
+            PROBE_DIR / "runtime/14__probe_smoke_multitu_config_driver_lib.c",
+        ),
+        note="deterministic multi-TU config mini-driver should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_repeatable_output_hash_matrix",
+        source=PROBE_DIR / "runtime/14__probe_repeatable_output_hash_matrix.c",
+        note="repeated same-input executions should produce stable runtime output hash matrix",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_repeatable_diagjson_hash_matrix",
+        source=PROBE_DIR / "runtime/14__probe_repeatable_diagjson_hash_matrix.c",
+        note="diagnostic-record modeling hash matrix should be stable across repeated builds",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_repeatable_multitu_link_hash_matrix",
+        source=PROBE_DIR / "runtime/14__probe_repeatable_multitu_link_hash_matrix_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_repeatable_multitu_link_hash_matrix_main.c",
+            PROBE_DIR / "runtime/14__probe_repeatable_multitu_link_hash_matrix_lib.c",
+        ),
+        note="multi-TU link-path hash matrix should remain stable across repeated calls",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_abi_long_double_variadic_regstack_hardening",
+        source=PROBE_DIR / "runtime/14__probe_abi_long_double_variadic_regstack_hardening.c",
+        note="long-double variadic ABI mix should be repeatable and match clang at reg/stack boundaries",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_static_init_order_depth_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_static_init_order_depth_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_static_init_order_depth_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_static_init_order_depth_bridge_lib.c",
+        ),
+        note="multi-TU static init/order depth bridge should remain deterministic and match clang",
+    ),
+    RuntimeProbe(
         probe_id="15__probe_switch_loop_lite",
         source=PROBE_DIR / "runtime/15__probe_switch_loop_lite.c",
         note="loop+switch lowering should match clang",
@@ -519,6 +871,286 @@ RUNTIME_PROBES = [
         probe_id="05__probe_compound_literal_array_runtime",
         source=PROBE_DIR / "runtime/05__probe_compound_literal_array_runtime.c",
         note="compound-literal array value/lifetime-in-block behavior should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_control_goto_cleanup_counter_matrix",
+        source=PROBE_DIR / "runtime/14__probe_control_goto_cleanup_counter_matrix.c",
+        note="goto cleanup edges across nested loops should preserve deterministic control/data flow",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_sizeof_rebind_stride_matrix",
+        source=PROBE_DIR / "runtime/14__probe_vla_sizeof_rebind_stride_matrix.c",
+        note="VLA rebind + sizeof(row) stride behavior should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_array_ternary_reseed_matrix",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_array_ternary_reseed_matrix.c",
+        note="function-pointer array + ternary reseed chain should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_ptrdiff_signed_index_rebase_matrix",
+        source=PROBE_DIR / "runtime/14__probe_ptrdiff_signed_index_rebase_matrix.c",
+        note="signed/unsigned index rebasing and ptrdiff scaling should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_static_local_counter_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_static_local_counter_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_static_local_counter_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_static_local_counter_bridge_lib.c",
+        ),
+        note="multi-TU static local state should persist across calls and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_static_storage_slice_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_static_storage_slice_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_static_storage_slice_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_static_storage_slice_bridge_lib.c",
+        ),
+        note="multi-TU static storage slice updates should remain deterministic and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_row_pointer_handoff_rebase_matrix",
+        source=PROBE_DIR / "runtime/14__probe_vla_row_pointer_handoff_rebase_matrix.c",
+        note="VLA row-pointer handoff/rebase and stride math should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_struct_state_reseed_loop_matrix",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_struct_state_reseed_loop_matrix.c",
+        note="function-pointer struct state reseed loops should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_fnptr_rotation_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_fnptr_rotation_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_fnptr_rotation_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_fnptr_rotation_bridge_lib.c",
+        ),
+        note="multi-TU function-pointer rotation bridge should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_pair_fold_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_pair_fold_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_pair_fold_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_pair_fold_bridge_lib.c",
+        ),
+        note="multi-TU struct pair fold/update bridge should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_vla_column_pointer_stride_mix",
+        source=PROBE_DIR / "runtime/14__probe_vla_column_pointer_stride_mix.c",
+        note="VLA column-pointer stride arithmetic should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_switch_goto_reentry_matrix",
+        source=PROBE_DIR / "runtime/14__probe_switch_goto_reentry_matrix.c",
+        note="switch+goto reentry control-flow matrix should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_restrict_nonoverlap_accumulate_matrix",
+        source=PROBE_DIR / "runtime/14__probe_restrict_nonoverlap_accumulate_matrix.c",
+        note="restrict-qualified non-overlap accumulate matrix should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_restrict_vla_window_stride_matrix",
+        source=PROBE_DIR / "runtime/14__probe_restrict_vla_window_stride_matrix.c",
+        note="restrict-qualified VLA window/stride matrix should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_restrict_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_restrict_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_restrict_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_restrict_bridge_lib.c",
+        ),
+        note="multi-TU restrict bridge pipeline should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_restrict_alias_overlap_ub_path",
+        source=PROBE_DIR / "runtime/14__probe_restrict_alias_overlap_ub_path.c",
+        note="restrict overlap UB lane should be tracked deterministically",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_volatile_restrict_store_order_matrix",
+        source=PROBE_DIR / "runtime/14__probe_volatile_restrict_store_order_matrix.c",
+        note="volatile+restrict store-order matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_restrict_nonoverlap_rebind_chain",
+        source=PROBE_DIR / "runtime/14__probe_restrict_nonoverlap_rebind_chain.c",
+        note="restrict non-overlap rebind chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_volatile_fnptr_control_chain",
+        source=PROBE_DIR / "runtime/14__probe_volatile_fnptr_control_chain.c",
+        note="volatile-gated function-pointer control chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_long_double_call_chain_matrix",
+        source=PROBE_DIR / "runtime/14__probe_long_double_call_chain_matrix.c",
+        note="long double call-chain arithmetic should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_long_double_variadic_bridge",
+        source=PROBE_DIR / "runtime/14__probe_long_double_variadic_bridge.c",
+        note="long double variadic bridge should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_long_double_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_long_double_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_long_double_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_long_double_bridge_lib.c",
+        ),
+        note="multi-TU long double bridge should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_long_double_struct_pass_return",
+        source=PROBE_DIR / "runtime/14__probe_long_double_struct_pass_return.c",
+        note="long double struct pass/return ABI path should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_long_double_variadic_struct_bridge",
+        source=PROBE_DIR / "runtime/14__probe_long_double_variadic_struct_bridge.c",
+        note="long double variadic struct bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_long_double_bridge_matrix",
+        source=PROBE_DIR / "runtime/14__probe_complex_long_double_bridge_matrix.c",
+        note="complex<long double> bridge matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_long_double_variadic_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_long_double_variadic_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_long_double_variadic_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_long_double_variadic_bridge_lib.c",
+        ),
+        note="multi-TU long double variadic bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_addsub_eq_matrix",
+        source=PROBE_DIR / "runtime/14__probe_complex_addsub_eq_matrix.c",
+        note="complex add/sub and equality matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_unary_scalar_promotion_chain",
+        source=PROBE_DIR / "runtime/14__probe_complex_unary_scalar_promotion_chain.c",
+        note="complex unary and scalar-promotion chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_param_return_bridge",
+        source=PROBE_DIR / "runtime/14__probe_complex_param_return_bridge.c",
+        note="complex function parameter/return bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_complex_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_complex_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_complex_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_complex_bridge_lib.c",
+        ),
+        note="multi-TU complex call bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_struct_pass_return_bridge",
+        source=PROBE_DIR / "runtime/14__probe_complex_struct_pass_return_bridge.c",
+        note="complex-field struct pass/return bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_struct_array_pass_return_chain",
+        source=PROBE_DIR / "runtime/14__probe_complex_struct_array_pass_return_chain.c",
+        note="complex-array struct pass/return chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_nested_struct_field_bridge",
+        source=PROBE_DIR / "runtime/14__probe_complex_nested_struct_field_bridge.c",
+        note="nested struct field path with complex values should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_struct_ternary_select_bridge",
+        source=PROBE_DIR / "runtime/14__probe_complex_struct_ternary_select_bridge.c",
+        note="ternary selection over structs carrying complex values should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_complex_struct_pass_return",
+        source=PROBE_DIR / "runtime/14__probe_multitu_complex_struct_pass_return_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_complex_struct_pass_return_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_complex_struct_pass_return_lib.c",
+        ),
+        note="multi-TU complex-field struct pass/return should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_complex_nested_route",
+        source=PROBE_DIR / "runtime/14__probe_multitu_complex_nested_route_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_complex_nested_route_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_complex_nested_route_lib.c",
+        ),
+        note="multi-TU nested struct route with complex field should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_struct_pointer_roundtrip_bridge",
+        source=PROBE_DIR / "runtime/14__probe_complex_struct_pointer_roundtrip_bridge.c",
+        note="pointer roundtrip reads over struct complex fields should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_ptr_field_writeback_direct",
+        source=PROBE_DIR / "runtime/14__probe_complex_ptr_field_writeback_direct.c",
+        note="direct pointer-member writeback over complex fields should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_ptr_field_compound_writeback",
+        source=PROBE_DIR / "runtime/14__probe_complex_ptr_field_compound_writeback.c",
+        note="compound pointer-member writeback over complex fields should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_ptr_field_mul_writeback",
+        source=PROBE_DIR / "runtime/14__probe_complex_ptr_field_mul_writeback.c",
+        note="complex pointer-member '*=' writeback should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_ptr_field_div_writeback",
+        source=PROBE_DIR / "runtime/14__probe_complex_ptr_field_div_writeback.c",
+        note="complex pointer-member '/=' writeback should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_mul_div_matrix",
+        source=PROBE_DIR / "runtime/14__probe_complex_mul_div_matrix.c",
+        note="complex multiply/divide matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_scalar_mul_div_chain",
+        source=PROBE_DIR / "runtime/14__probe_complex_scalar_mul_div_chain.c",
+        note="complex scalar multiply/divide promotion chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_struct_copy_assign_chain",
+        source=PROBE_DIR / "runtime/14__probe_complex_struct_copy_assign_chain.c",
+        note="copy/assign chains over struct complex fields should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_layout_size_align_matrix",
+        source=PROBE_DIR / "runtime/14__probe_complex_layout_size_align_matrix.c",
+        note="complex size/alignment and field-offset matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_layout_nested_offset_matrix",
+        source=PROBE_DIR / "runtime/14__probe_complex_layout_nested_offset_matrix.c",
+        note="nested struct offsets around complex fields should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_layout_array_stride_matrix",
+        source=PROBE_DIR / "runtime/14__probe_complex_layout_array_stride_matrix.c",
+        note="array stride and aggregate value flow for structs with complex fields should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_complex_layout_union_overlay_roundtrip",
+        source=PROBE_DIR / "runtime/14__probe_complex_layout_union_overlay_roundtrip.c",
+        note="union overlay roundtrip through struct/flat complex views should match clang runtime behavior",
     ),
     RuntimeProbe(
         probe_id="09__probe_do_while_runtime_codegen_crash",
@@ -931,6 +1563,178 @@ DIAG_PROBES = [
         note="multi-level function-pointer assignment should reject deep const qualifier loss",
         required_substrings=("discards qualifiers",),
     ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_fnptr_table_incompatible_assign_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_table_incompatible_assign_reject.c",
+        note="runtime fnptr table lane should reject too-few-arguments call through function pointer",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_fnptr_table_too_many_args_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_table_too_many_args_reject.c",
+        note="runtime fnptr table lane should reject too-many-arguments call through function pointer",
+        required_substrings=("Too many arguments",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_fnptr_table_incompatible_signature_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_table_incompatible_signature_reject.c",
+        note="runtime fnptr table lane should reject incompatible function-pointer initializer signatures",
+        required_substrings=("Incompatible initializer type",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_fnptr_struct_arg_incompatible_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_struct_arg_incompatible_reject.c",
+        note="runtime fnptr lane should reject struct argument passed where function pointer is required",
+        required_substrings=("has incompatible type",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_fnptr_param_noncallable_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_param_noncallable_reject.c",
+        note="runtime fnptr lane should reject non-callable argument passed as function-pointer parameter",
+        required_substrings=("has incompatible type",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_offsetof_bitfield_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_offsetof_bitfield_reject.c",
+        note="layout lane should reject offsetof on bitfield member",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_vla_non_integer_bound_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_vla_non_integer_bound_reject.c",
+        note="layout lane should reject file-scope VLA with non-constant bound",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_ternary_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_ternary_struct_condition_reject.c",
+        note="control lane should reject ternary struct condition operand",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_switch_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_switch_struct_condition_reject.c",
+        note="control lane should reject switch with non-integer struct condition",
+        required_substrings=("switch controlling expression must be integer",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_if_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_if_struct_condition_reject.c",
+        note="control lane should reject if with non-scalar struct condition",
+        required_substrings=("if controlling expression must be scalar",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_while_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_while_struct_condition_reject.c",
+        note="control lane should reject while with non-scalar struct condition",
+        required_substrings=("while controlling expression must be scalar",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_return_struct_to_int_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_return_struct_to_int_reject.c",
+        note="semantic lane should reject returning struct from int function",
+        required_substrings=("Incompatible return type",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_continue_outside_loop_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_continue_outside_loop_reject.c",
+        note="control lane should reject continue outside iterative statements",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_break_outside_loop_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_break_outside_loop_reject.c",
+        note="control lane should reject break outside loop/switch statements",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_case_outside_switch_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_case_outside_switch_reject.c",
+        note="control lane should reject case labels outside switch statements",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_default_outside_switch_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_default_outside_switch_reject.c",
+        note="control lane should reject default labels outside switch statements",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_switch_duplicate_default_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_switch_duplicate_default_reject.c",
+        note="control lane should reject duplicate default labels in switch statements",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_switch_duplicate_case_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_switch_duplicate_case_reject.c",
+        note="control lane should reject duplicate case labels in switch statements",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_switch_nonconst_case_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_switch_nonconst_case_reject.c",
+        note="control lane should reject non-constant case labels",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_continue_in_switch_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_continue_in_switch_reject.c",
+        note="control lane should reject continue inside switch without an enclosing loop",
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_complex_lt_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_complex_lt_reject.c",
+        note="complex relational '<' should be rejected with a semantic diagnostic",
+        required_substrings=("real (non-complex) comparable operands",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_complex_le_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_complex_le_reject.c",
+        note="complex relational '<=' should be rejected with a semantic diagnostic",
+        required_substrings=("real (non-complex) comparable operands",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_complex_gt_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_complex_gt_reject.c",
+        note="complex relational '>' should be rejected with a semantic diagnostic",
+        required_substrings=("real (non-complex) comparable operands",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_complex_ge_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_complex_ge_reject.c",
+        note="complex relational '>=' should be rejected with a semantic diagnostic",
+        required_substrings=("real (non-complex) comparable operands",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_multitu_duplicate_external_definition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_main.c",
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_lib.c",
+        ),
+        note="multi-TU lane should reject duplicate external definitions at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_multitu_extern_type_mismatch_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_main.c",
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_lib.c",
+        ),
+        note="multi-TU lane should reject conflicting extern types that collide at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_multitu_duplicate_tentative_type_conflict_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_main.c",
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_lib.c",
+        ),
+        note="multi-TU lane should reject conflicting external definitions with mismatched types",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_multitu_duplicate_function_definition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_main.c",
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_lib.c",
+        ),
+        note="multi-TU lane should reject duplicate function definitions at link stage (text diagnostics only)",
+        required_substrings=("duplicate symbol",),
+    ),
 ]
 
 
@@ -949,6 +1753,212 @@ DIAG_JSON_PROBES = [
         probe_id="12__probe_diagjson_for_header_missing_semicolon",
         source=PROBE_DIR / "diagnostics/12__probe_for_header_missing_semicolon_reject.c",
         note="diagnostics JSON export should include diagnostics for malformed for header",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_complex_lt_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_complex_lt_reject.c",
+        note="diagnostics JSON should include semantic relational-complex rejection for '<'",
+        expected_codes=(2000,),
+        expected_line=4,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_complex_le_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_complex_le_reject.c",
+        note="diagnostics JSON should include semantic relational-complex rejection for '<='",
+        expected_codes=(2000,),
+        expected_line=4,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_complex_gt_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_complex_gt_reject.c",
+        note="diagnostics JSON should include semantic relational-complex rejection for '>'",
+        expected_codes=(2000,),
+        expected_line=4,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_complex_ge_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_complex_ge_reject.c",
+        note="diagnostics JSON should include semantic relational-complex rejection for '>='",
+        expected_codes=(2000,),
+        expected_line=4,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_continue_outside_loop_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_continue_outside_loop_reject.c",
+        note="diagnostics JSON should include control-flow rejection for continue outside loop",
+        expected_codes=(2000,),
+        expected_line=3,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_break_outside_loop_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_break_outside_loop_reject.c",
+        note="diagnostics JSON should include control-flow rejection for break outside loop/switch",
+        expected_codes=(2000,),
+        expected_line=3,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_case_outside_switch_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_case_outside_switch_reject.c",
+        note="diagnostics JSON should include control-flow rejection for case outside switch",
+        expected_codes=(1000,),
+        expected_line=2,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_default_outside_switch_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_default_outside_switch_reject.c",
+        note="diagnostics JSON should include control-flow rejection for default outside switch",
+        expected_codes=(1000,),
+        expected_line=2,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_switch_duplicate_default_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_switch_duplicate_default_reject.c",
+        note="diagnostics JSON should include duplicate default-label rejection",
+        expected_codes=(2000,),
+        expected_line=9,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_switch_duplicate_case_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_switch_duplicate_case_reject.c",
+        note="diagnostics JSON should include duplicate case-label rejection",
+        expected_codes=(2000,),
+        expected_line=8,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_switch_nonconst_case_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_switch_nonconst_case_reject.c",
+        note="diagnostics JSON should include non-constant case-label rejection",
+        expected_codes=(2000,),
+        expected_line=6,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_continue_in_switch_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_continue_in_switch_reject.c",
+        note="diagnostics JSON should include continue-in-switch rejection diagnostic",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_fnptr_table_too_many_args_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_table_too_many_args_reject.c",
+        note="diagnostics JSON should include fnptr too-many-args rejection",
+        expected_codes=(2000,),
+        expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_fnptr_table_incompatible_signature_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_table_incompatible_signature_reject.c",
+        note="diagnostics JSON should include fnptr incompatible-initializer-signature rejection",
+        expected_codes=(2000,),
+        expected_line=4,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_fnptr_struct_arg_incompatible_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_struct_arg_incompatible_reject.c",
+        note="diagnostics JSON should include fnptr incompatible-struct-argument rejection",
+        expected_codes=(2000,),
+        expected_line=12,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_fnptr_param_noncallable_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_param_noncallable_reject.c",
+        note="diagnostics JSON should include fnptr non-callable argument rejection",
+        expected_codes=(2000,),
+        expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_file_scope_vla_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_vla_non_integer_bound_reject.c",
+        note="diagnostics JSON should include file-scope VLA static-duration rejection",
+        expected_codes=(2000,),
+        expected_line=2,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_offsetof_bitfield_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_offsetof_bitfield_reject.c",
+        note="diagnostics JSON should include offsetof bitfield rejection",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_ternary_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_ternary_struct_condition_reject.c",
+        note="diagnostics JSON should include ternary struct-condition rejection",
+        expected_codes=(2000,),
+        expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_fnptr_table_too_few_args_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_table_incompatible_assign_reject.c",
+        note="diagnostics JSON should include fnptr too-few-args rejection",
+        expected_codes=(2000,),
+        expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_switch_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_switch_struct_condition_reject.c",
+        note="diagnostics JSON should include switch non-integer condition rejection",
+        expected_codes=(2000,),
+        expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_if_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_if_struct_condition_reject.c",
+        note="diagnostics JSON should include if non-scalar condition rejection",
+        expected_codes=(2000,),
+        expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_while_struct_condition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_while_struct_condition_reject.c",
+        note="diagnostics JSON should include while non-scalar condition rejection",
+        expected_codes=(2000,),
+        expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_return_struct_to_int_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_return_struct_to_int_reject.c",
+        note="diagnostics JSON should include return-type mismatch rejection",
+        expected_codes=(2000,),
+        expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_multitu_duplicate_external_definition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_main.c",
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_lib.c",
+        ),
+        note="diagnostics JSON should be exported for multi-TU duplicate external definition link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_multitu_extern_type_mismatch_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_main.c",
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_lib.c",
+        ),
+        note="diagnostics JSON should be exported for multi-TU extern-type mismatch link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_multitu_duplicate_tentative_type_conflict_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_main.c",
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_lib.c",
+        ),
+        note="diagnostics JSON should be exported for multi-TU tentative-definition type conflict link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_multitu_duplicate_function_definition_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_main.c",
+            PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_lib.c",
+        ),
+        note="diagnostics JSON should be exported for multi-TU duplicate function definition link failures",
+        expected_codes=(4001,),
     ),
 ]
 
@@ -989,9 +1999,10 @@ def run_runtime_probe(probe, clang_path):
         tmp_dir = Path(tmp)
         fisics_exe = tmp_dir / "fisics.out"
         clang_exe = tmp_dir / "clang.out"
+        sources = list(probe.inputs) if probe.inputs else [probe.source]
 
         fisics_compile_exit, fisics_compile_out, fisics_compile_timeout = run_cmd(
-            [str(FISICS), str(probe.source), "-o", str(fisics_exe)],
+            [str(FISICS)] + [str(src) for src in sources] + ["-o", str(fisics_exe)],
             COMPILE_TIMEOUT_SEC,
         )
         if fisics_compile_timeout:
@@ -1025,7 +2036,7 @@ def run_runtime_probe(probe, clang_path):
             )
 
         clang_compile_exit, clang_compile_out, clang_compile_timeout = run_cmd(
-            [clang_path, "-std=c99", "-O0", str(probe.source), "-o", str(clang_exe)],
+            [clang_path, "-std=c99", "-O0"] + [str(src) for src in sources] + ["-o", str(clang_exe)],
             COMPILE_TIMEOUT_SEC,
         )
         if clang_compile_timeout:
@@ -1072,7 +2083,13 @@ def run_runtime_probe(probe, clang_path):
 
 
 def run_diag_probe(probe):
-    _, out, _ = run_cmd([str(FISICS), str(probe.source)], COMPILE_TIMEOUT_SEC)
+    sources = list(probe.inputs) if probe.inputs else [probe.source]
+    with tempfile.TemporaryDirectory(prefix=f"probe-diag-{probe.probe_id}-") as tmp:
+        cmd = [str(FISICS)] + [str(src) for src in sources]
+        if len(sources) > 1:
+            # Force full multi-input compilation/linking path for cross-TU diagnostics.
+            cmd += ["-o", str(Path(tmp) / "diag.out")]
+        _, out, _ = run_cmd(cmd, COMPILE_TIMEOUT_SEC)
     if probe.required_substrings:
         lowered = out.lower()
         for needle in probe.required_substrings:
@@ -1089,15 +2106,20 @@ def run_diag_probe(probe):
 def run_diag_json_probe(probe):
     with tempfile.TemporaryDirectory(prefix=f"probe-diagjson-{probe.probe_id}-") as tmp:
         json_path = Path(tmp) / "diags.json"
+        sources = list(probe.inputs) if probe.inputs else [probe.source]
+        cmd = [str(FISICS), "--emit-diags-json", str(json_path)] + [str(src) for src in sources]
+        if len(sources) > 1:
+            # Force full multi-input compilation/linking path for cross-TU diagnostics.
+            cmd += ["-o", str(Path(tmp) / "diagjson.out")]
         exit_code, out, timed_out = run_cmd(
-            [str(FISICS), "--emit-diags-json", str(json_path), str(probe.source)],
+            cmd,
             COMPILE_TIMEOUT_SEC,
         )
         if timed_out:
             return ("BLOCKED", f"compile timeout ({COMPILE_TIMEOUT_SEC}s)", "")
-        if exit_code != 0:
-            return ("BLOCKED", f"compile exited {exit_code}", out.strip())
         if not json_path.exists():
+            if exit_code != 0:
+                return ("BLOCKED", f"compile exited {exit_code}", out.strip())
             return ("BLOCKED", "diagnostics JSON file missing", "")
         try:
             data = json.loads(json_path.read_text(encoding="utf-8"))
@@ -1106,6 +2128,15 @@ def run_diag_json_probe(probe):
         diagnostics = data.get("diagnostics", [])
         if probe.require_any_diagnostic:
             if diagnostics:
+                if probe.expected_codes:
+                    actual_codes = [int(item.get("code", -1)) for item in diagnostics]
+                    missing_codes = [code for code in probe.expected_codes if code not in actual_codes]
+                    if missing_codes:
+                        return ("BLOCKED", f"diagnostics JSON missing expected code(s): {missing_codes}", "")
+                if probe.expected_line is not None:
+                    actual_lines = [int(item.get("line", -1)) for item in diagnostics]
+                    if probe.expected_line not in actual_lines:
+                        return ("BLOCKED", f"diagnostics JSON missing expected line {probe.expected_line}", "")
                 return ("RESOLVED", f"diagnostics JSON has {len(diagnostics)} item(s)", "")
             return ("BLOCKED", "diagnostics JSON unexpectedly empty", "")
         return ("RESOLVED", "diagnostics JSON exported", "")

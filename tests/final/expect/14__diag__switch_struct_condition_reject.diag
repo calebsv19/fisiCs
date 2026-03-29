@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (7:0): switch controlling expression must be integer

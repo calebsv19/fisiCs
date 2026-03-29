@@ -4,6 +4,14 @@ This directory is a clean, separate test suite for full C99 behavior coverage.
 Each file below describes one bucket, what it covers, and how the tests should
 be validated (tokens, AST, diagnostics, IR, or runtime output).
 
+Quick run entrypoints:
+- `make final`: full suite (checkpoint/integration run).
+- `make final-id ID=<test_id>`: one test id.
+- `make final-wave WAVE=<n>`: one runtime wave shard (`14-runtime-surface` default).
+- `make final-manifest MANIFEST=<manifest.json>`: one manifest shard.
+- `make final-prefix PREFIX=<id_prefix>`: one id-prefix slice.
+- `make final-runtime`: bucket-14 runtime slice.
+
 ## Files
 - `00-harness.md`: How this suite is run and how expected outputs are stored.
 - `01-translation-phases.md`: Translation phases and pipeline integrity.

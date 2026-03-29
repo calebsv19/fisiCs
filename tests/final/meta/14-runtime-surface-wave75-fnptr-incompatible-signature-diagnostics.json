@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diag__fnptr_table_incompatible_signature_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_table_incompatible_signature_reject.c",
+      "expects": [
+        "expect/14__diag__fnptr_table_incompatible_signature_reject.diag",
+        "expect/14__diag__fnptr_table_incompatible_signature_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

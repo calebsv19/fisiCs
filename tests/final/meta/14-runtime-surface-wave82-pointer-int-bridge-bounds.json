@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_intptr_roundtrip_offset_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_intptr_roundtrip_offset_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_intptr_roundtrip_offset_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_intptr_roundtrip_offset_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "intptr", "roundtrip", "offset", "matrix"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_uintptr_mask_rebase_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_uintptr_mask_rebase_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_uintptr_mask_rebase_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_uintptr_mask_rebase_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "uintptr", "mask", "rebase", "matrix"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_ptrdiff_boundary_crosscheck_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_ptrdiff_boundary_crosscheck_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_ptrdiff_boundary_crosscheck_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_ptrdiff_boundary_crosscheck_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "ptrdiff", "boundary", "crosscheck", "matrix"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

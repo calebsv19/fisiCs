@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diagjson__fnptr_table_too_many_args_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_table_too_many_args_reject.c",
+      "expects": [
+        "expect/14__diagjson__fnptr_table_too_many_args_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__fnptr_struct_arg_incompatible_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_struct_arg_incompatible_reject.c",
+      "expects": [
+        "expect/14__diagjson__fnptr_struct_arg_incompatible_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__fnptr_param_noncallable_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_param_noncallable_reject.c",
+      "expects": [
+        "expect/14__diagjson__fnptr_param_noncallable_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

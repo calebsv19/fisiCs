@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diagjson__fnptr_table_incompatible_signature_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_table_incompatible_signature_reject.c",
+      "expects": [
+        "expect/14__diag__fnptr_table_incompatible_signature_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__switch_struct_condition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__switch_struct_condition_reject.c",
+      "expects": [
+        "expect/14__diag__switch_struct_condition_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__if_struct_condition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__if_struct_condition_reject.c",
+      "expects": [
+        "expect/14__diag__if_struct_condition_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__while_struct_condition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__while_struct_condition_reject.c",
+      "expects": [
+        "expect/14__diag__while_struct_condition_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__return_struct_to_int_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__return_struct_to_int_reject.c",
+      "expects": [
+        "expect/14__diag__return_struct_to_int_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "semantic", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

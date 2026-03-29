@@ -1,12 +1,15 @@
 # Runtime / Library Surface
 
-## Status Snapshot (2026-03-22)
+## Status Snapshot (2026-03-28)
 
-- Active test count: 121 (`tests/final/meta/14-runtime-surface*.json`)
-- Runtime+differential tests: 116 (`101` strict differential + `8` UB-policy + `7` implementation-defined-policy)
+- Active test count: 329 (`tests/final/meta/14-runtime-surface*.json`)
+- Runtime executables: 268 (`264` differential-flagged; includes policy-lane tests)
+- Policy lanes: `11` UB + `11` implementation-defined
+- Negative diagnostics: 56 (`28` `.diag` + `28` `.diagjson`)
 - Current bucket run:
-  - `PROBE_FILTER=14__*` -> `resolved=67`, `blocked=0`, `skipped=0`
-  - `make final` -> `0 failing, 15 skipped`
+  - `PROBE_FILTER=14__probe_*` -> `resolved=234`, `blocked=0`, `skipped=0`
+  - Wave42/Wave43/Wave44/Wave45/Wave46/Wave47/Wave48/Wave49/Wave50/Wave52/Wave53/Wave54/Wave55/Wave56/Wave57/Wave58/Wave59/Wave60/Wave61/Wave62/Wave63/Wave64/Wave65/Wave66/Wave67/Wave68/Wave69/Wave70/Wave71/Wave72/Wave73/Wave74/Wave75/Wave76/Wave77/Wave78/Wave79/Wave80/Wave81/Wave82/Wave83/Wave84/Wave85/Wave86/Wave87/Wave88/Wave89 exact-id checks -> all pass
+  - `make final-runtime` -> `0 failing, 22 skipped`
 - Next expansion plan: `docs/plans/runtime_bucket_14_execution_plan.md`
 
 ## Scope
@@ -67,7 +70,22 @@ Minimal headers and builtin surface to compile real programs.
 
 ## Open Gaps (Tracked)
 - No blocked runtime probes currently.
-- Wave 30/31/32 promotion queue is closed.
+- Runtime linking realism now has explicit multi-TU conflict lanes, and
+  link-stage diagnostics-json export is now supported through a deterministic
+  driver-level fallback (`code=4001`) when linker exits non-zero.
+- ABI boundary coverage now includes explicit hardening lanes for reg/stack +
+  `long double` + variadic mixes, but direct struct `va_arg` retrieval remains
+  outside supported behavior in this toolchain lane.
+- Variadic header/runtime frontier still has a tracked edge:
+  `<stdarg.h>` preprocessing is unstable in this toolchain lane and direct
+  struct retrieval via `va_arg(ap, struct ...)` can crash.
+- Header/init frontier has a tracked edge:
+  some struct-array `{0}` shorthand initializer paths are still brittle in this
+  compiler lane (Wave85 stabilized this by avoiding that shorthand).
+- Startup/initialization semantics now include deeper multi-TU init-order
+  depth stress lanes; further expansion here is optional rather than required
+  for bucket-14 stabilization.
+- Deterministic mini-binary and repeatability hardening lanes are now active.
 
 ## Wave 2 Additions (Codegen Probe Promotion)
 20) `14__runtime_loop_continue_break_phi`
@@ -459,6 +477,880 @@ Wave32 status:
   `make final` => `0 failing`, `15 skipped`.
 - Targeted probe snapshot (wave32 ids):
   `resolved=6`, `blocked=0`, `skipped=0`.
+
+## Wave 33 Promotion Closure
+122) `14__runtime_unsigned_div_mod_extremes_matrix`
+   - Promoted from probe lane as unsigned max-width divide/mod remainder anchor.
+123) `14__runtime_signed_unsigned_cmp_boundary_matrix`
+   - Promoted from probe lane as signed/unsigned boundary-compare anchor.
+124) `14__runtime_float_signed_zero_inf_matrix`
+   - Promoted from probe lane as signed-zero and infinity comparison anchor.
+125) `14__runtime_cast_chain_width_sign_matrix`
+   - Promoted from probe lane as signed/unsigned cast-width chain anchor.
+
+Wave33 status:
+- Targeted probe snapshot (wave33 ids):
+  `resolved=4`, `blocked=0`, `skipped=0`.
+
+## Wave 34 Promotion Closure
+126) `14__runtime_header_stddef_ptrdiff_size_t_bridge`
+   - Promoted from probe lane as `stddef.h` ptrdiff/size_t/offsetof runtime bridge anchor.
+127) `14__runtime_header_stdint_intptr_uintptr_roundtrip`
+   - Promoted from probe lane as `stdint.h` intptr/uintptr pointer roundtrip anchor.
+128) `14__runtime_header_limits_llong_matrix`
+   - Promoted from probe lane as `limits.h` long-long boundary macro usage anchor.
+129) `14__runtime_header_stdbool_int_bridge`
+   - Promoted from probe lane as `stdbool.h` bool/int conversion bridge anchor.
+
+Wave34 status:
+- One blocker was fixed during probe closure:
+  `_Bool` cast lowering now uses truthiness conversion (`!= 0`) instead of integer truncation.
+- Targeted probe snapshot (wave34 ids):
+  `resolved=4`, `blocked=0`, `skipped=0`.
+
+## Wave 35 Promotion Closure
+130) `14__runtime_struct_bitfield_mixed_pass_return`
+   - Promoted from probe lane as mixed-width bitfield by-value pass/return anchor.
+131) `14__runtime_struct_double_int_padding_roundtrip`
+   - Promoted from probe lane as padded struct by-value roundtrip/layout anchor.
+132) `14__runtime_fnptr_variadic_dispatch_bridge`
+   - Promoted from probe lane as function-pointer variadic dispatch anchor.
+133) `14__runtime_many_args_struct_scalar_mix`
+   - Promoted from probe lane as many-argument struct/scalar ABI mix anchor.
+
+Wave35 status:
+- Targeted probe snapshot (wave35 ids):
+  `resolved=4`, `blocked=0`, `skipped=0`.
+
+## Wave 36 Policy-Lane Expansion
+134) `14__runtime_impldef_plain_int_bitfield_signedness_matrix`
+   - Added as implementation-defined policy-lane coverage for plain-`int` bitfield signedness.
+135) `14__runtime_impldef_signed_shift_char_matrix`
+   - Added as implementation-defined policy-lane coverage for signed right-shift and plain-char signedness.
+136) `14__runtime_ub_left_shift_negative_lhs_path`
+   - Added as UB policy-lane coverage for left-shift of negative operands.
+137) `14__runtime_ub_negate_intmin_path`
+   - Added as UB policy-lane coverage for `-INT_MIN` overflow path.
+
+Wave36 status:
+- All four tests pass in targeted runs with expected policy-lane differential skips.
+- Full final suite snapshot:
+  `make final` => `0 failing`, `19 skipped`.
+
+## Wave 37 Promotion Closure
+138) `14__runtime_float_negzero_propagation_chain`
+   - Promoted from probe lane as signed-zero propagation-chain anchor.
+139) `14__runtime_ptrdiff_one_past_end_matrix`
+   - Promoted from probe lane as one-past-end pointer/ptrdiff matrix anchor.
+140) `14__runtime_many_args_float_int_struct_mix`
+   - Promoted from probe lane as mixed struct/int/double many-arg ABI anchor.
+141) `14__runtime_variadic_llong_double_bridge`
+   - Promoted from probe lane as variadic long-long/double width bridge anchor.
+
+Wave37 status:
+- Targeted probe snapshot (wave37 ids):
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe-lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=87`, `blocked=0`, `skipped=0`.
+- Exact-id runtime checks pass for all 4 promoted ids.
+
+## Wave 38 Promotion Closure
+142) `14__runtime_control_do_while_switch_phi_chain`
+   - Promoted from probe lane as do-while + switch + continue/goto phi anchor.
+143) `14__runtime_struct_array_double_by_value_roundtrip`
+   - Promoted from probe lane as struct(array+double) by-value roundtrip anchor.
+144) `14__runtime_vla_dim_recompute_stride_matrix`
+   - Promoted from probe lane as VLA dimension-recompute stride anchor.
+145) `14__runtime_pointer_byte_rebase_roundtrip_matrix`
+   - Promoted from probe lane as byte-rebase pointer roundtrip/ptrdiff anchor.
+
+Wave38 status:
+- Targeted probe snapshot (wave38 ids):
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe-lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=91`, `blocked=0`, `skipped=0`.
+- Exact-id runtime checks pass for all 4 promoted ids.
+
+## Wave 39 Promotion Closure
+146) `14__runtime_float_nan_inf_order_chain`
+   - Promoted from probe lane as NaN/Infinity ordering chain anchor.
+147) `14__runtime_header_null_ptrdiff_bridge`
+   - Promoted from probe lane as NULL + ptrdiff header bridge anchor.
+148) `14__runtime_struct_union_array_overlay_roundtrip`
+   - Promoted from probe lane as struct/union/array overlay by-value roundtrip anchor.
+149) `14__runtime_variadic_long_width_crosscheck`
+   - Promoted from probe lane as variadic long-width crosscheck anchor.
+
+Wave39 status:
+- Targeted probe snapshot (wave39 ids):
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe-lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=91`, `blocked=0`, `skipped=0`.
+- Full final suite snapshot:
+  `make final` => `0 failing`, `19 skipped`.
+
+## Wave 40 Promotion Closure
+150) `14__runtime_struct_ternary_by_value_select_chain`
+   - Promoted from probe lane as struct ternary by-value selection anchor.
+151) `14__runtime_switch_sparse_signed_case_ladder`
+   - Promoted from probe lane as sparse signed switch dispatch anchor.
+152) `14__runtime_bitwise_compound_recurrence_matrix`
+   - Promoted from probe lane as bitwise compound recurrence anchor.
+153) `14__runtime_header_offsetof_nested_matrix`
+   - Promoted from probe lane as nested `offsetof` member-designator anchor.
+
+Wave40 status:
+- Targeted probe snapshot (wave40 ids):
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe-lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=95`, `blocked=0`, `skipped=0`.
+- Full final suite snapshot:
+  `make final` => `0 failing`, `19 skipped`.
+
+## Wave 41 Promotion Closure
+154) `14__runtime_harness_exit_stderr_nonzero_arg`
+   - Added as harness contract anchor for non-zero runtime exit + non-empty runtime stderr.
+155) `14__runtime_harness_env_stderr_nonzero`
+   - Added as harness contract anchor for stdin-driven non-zero runtime exit + non-empty runtime stderr.
+156) `14__runtime_multitu_struct_return_bridge`
+   - Added as true multi-TU struct-return ABI bridge anchor.
+157) `14__runtime_multitu_variadic_bridge`
+   - Added as true multi-TU variadic ABI bridge anchor.
+
+Wave41 status:
+- Targeted exact-id checks:
+  all 4 Wave41 tests pass.
+- Full probe-lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=95`, `blocked=0`, `skipped=0`.
+- Full final suite snapshot:
+  `make final` => `0 failing`, `19 skipped`.
+
+## Wave 42 Promotion Closure
+158) `14__runtime_harness_args_stderr_exit13`
+   - Added as harness contract anchor for argv-driven non-zero runtime exit + non-empty runtime stderr.
+159) `14__runtime_harness_stdin_stderr_exit17`
+   - Added as harness contract anchor for stdin-driven non-zero runtime exit + non-empty runtime stderr.
+160) `14__runtime_multitu_fnptr_callback_accumulate`
+   - Added as true multi-TU function-pointer callback/accumulate ABI anchor.
+161) `14__runtime_multitu_union_struct_dispatch`
+   - Added as true multi-TU union+struct dispatch/return ABI anchor.
+162) `14__runtime_multitu_vla_param_bridge`
+   - Added as true multi-TU VLA parameter bridge ABI anchor.
+
+Wave42 status:
+- Targeted exact-id checks:
+  all 5 Wave42 tests pass.
+
+## Wave 43 Promotion Closure
+163) `14__runtime_multitu_struct_array_return_chain`
+   - Added as true multi-TU struct-with-array by-value return/call chain ABI anchor.
+164) `14__runtime_multitu_mixed_abi_call_chain`
+   - Added as true multi-TU mixed scalar/floating/aggregate call ABI anchor.
+165) `14__runtime_multitu_fnptr_struct_fold_pipeline`
+   - Added as true multi-TU function-pointer + struct-config fold pipeline ABI anchor.
+166) `14__runtime_multitu_nested_aggregate_roundtrip`
+   - Added as true multi-TU nested aggregate by-value roundtrip ABI anchor.
+
+Wave43 status:
+- Targeted exact-id checks:
+  all 4 Wave43 tests pass.
+
+## Wave 44 Promotion Closure
+167) `14__runtime_many_args_reg_stack_split_matrix`
+   - Added as many-argument mixed scalar/aggregate register+stack split ABI anchor.
+168) `14__runtime_variadic_kind_fold_matrix`
+   - Added as variadic kind-tag folding matrix anchor across int/unsigned/double/long long lanes.
+169) `14__runtime_large_struct_return_select_chain`
+   - Added as large-struct return and ternary selection chain ABI anchor.
+170) `14__runtime_bitfield_pack_rewrite_matrix`
+   - Added as unsigned bitfield pack/rewrite mutation-chain anchor.
+
+Wave44 status:
+- `make final-wave WAVE=44`:
+  all 4 Wave44 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `19 skipped`.
+
+## Wave 45 Promotion Closure
+171) `14__runtime_multitu_large_struct_return_select`
+   - Added as deep multi-TU large-struct return/select ABI anchor.
+172) `14__runtime_multitu_variadic_route_table`
+   - Added as deep multi-TU variadic route-table + `va_copy` ABI anchor.
+173) `14__runtime_multitu_fnptr_return_ladder`
+   - Added as deep multi-TU function-pointer return ladder ABI anchor.
+174) `14__runtime_multitu_vla_stride_bridge`
+   - Added as deep multi-TU VLA stride bridge ABI anchor.
+
+Wave45 status:
+- `make final-wave WAVE=45`:
+  all 4 Wave45 tests pass.
+
+## Wave 46 Promotion Closure
+175) `14__runtime_layout_stride_invariants_matrix`
+   - Added as runtime layout offset/stride invariant matrix anchor.
+176) `14__runtime_layout_nested_offset_consistency`
+   - Added as runtime nested-aggregate offset-consistency anchor.
+177) `14__runtime_layout_union_byte_rewrite_invariants`
+   - Added as runtime object-representation byte rewrite invariant anchor.
+178) `14__runtime_layout_vla_subslice_stride_matrix`
+   - Added as runtime VLA subslice stride/layout matrix anchor.
+
+Wave46 status:
+- `make final-wave WAVE=46`:
+  all 4 Wave46 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `19 skipped`.
+
+## Wave 47 Promotion Closure
+179) `14__runtime_multitu_tentative_def_zero_init_bridge`
+   - Added as multi-TU tentative-definition zero-init linkage anchor.
+180) `14__runtime_multitu_extern_array_size_consistency`
+   - Added as multi-TU extern array size/shape consistency anchor.
+181) `14__runtime_multitu_static_extern_partition`
+   - Added as multi-TU static vs extern partition behavior anchor.
+182) `14__runtime_multitu_global_struct_init_bridge`
+   - Added as multi-TU global struct initialization/update bridge anchor.
+
+Wave47 status:
+- `make final-wave WAVE=47`:
+  all 4 Wave47 tests pass.
+
+## Wave 48 Promotion Closure
+183) `14__runtime_multitu_fnptr_qualifier_decay_bridge`
+   - Added as multi-TU function-pointer qualifier/decay bridge anchor.
+184) `14__runtime_multitu_array_param_decay_stride`
+   - Added as multi-TU array-parameter decay + row-stride bridge anchor.
+185) `14__runtime_multitu_const_volatile_ptr_pipeline`
+   - Added as multi-TU const-pointer pipeline anchor (qualifier-safe call path).
+186) `14__runtime_multitu_struct_with_fnptr_return_chain`
+   - Added as multi-TU struct-with-function-pointer return chain anchor.
+
+Wave48 status:
+- `make final-wave WAVE=48`:
+  all 4 Wave48 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `19 skipped`.
+
+## Wave 49 Promotion Closure
+187) `14__runtime_layout_bitfield_container_boundary_matrix`
+   - Added as implementation-defined bitfield-container boundary policy lane (`impl_defined: true`).
+188) `14__runtime_layout_enum_underlying_width_bridge`
+   - Added as implementation-defined enum underlying-width policy lane (`impl_defined: true`).
+189) `14__runtime_layout_ptrdiff_large_span_matrix`
+   - Added as strict differential large-span ptrdiff/layout anchor.
+190) `14__runtime_layout_nested_vla_rowcol_stride_bridge`
+   - Added as strict differential nested VLA row/column stride bridge anchor.
+
+Wave49 status:
+- `make final-wave WAVE=49`:
+  all 4 Wave49 tests pass (`2` expected policy skips).
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `21 skipped`.
+- Full final suite:
+  `make final` => `0 failing`, `21 skipped`.
+
+## Wave 50 Promotion Closure
+191) `14__runtime_bool_scalar_conversion_matrix`
+   - Added as strict differential scalar-to-bool conversion matrix anchor across int/float/pointer lanes.
+192) `14__runtime_bitfield_signed_promotion_matrix`
+   - Added as strict differential signed-bitfield promotion/update matrix anchor.
+193) `14__runtime_bitfield_compound_assign_bridge`
+   - Added as strict differential unsigned-bitfield compound-update bridge anchor.
+194) `14__runtime_bitfield_bool_bridge_matrix`
+   - Added as strict differential bitfield+bool bridge/control anchor.
+
+Wave50 status:
+- Probe lane:
+  `PROBE_FILTER=14__probe_*` => `resolved=99`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=50`:
+  all 4 Wave50 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `21 skipped`.
+- Full final suite:
+  `make final` => `0 failing`, `21 skipped`.
+
+## Wave 52 Promotion Closure
+195) `14__runtime_multitu_fnptr_table_state_bridge`
+   - Added as strict differential multi-TU function-pointer table/state bridge anchor.
+196) `14__runtime_multitu_variadic_fold_bridge`
+   - Added as strict differential multi-TU mixed-width fold bridge anchor.
+197) `14__runtime_multitu_vla_window_reduce_bridge`
+   - Added as strict differential multi-TU VLA window-reduction bridge anchor.
+198) `14__runtime_multitu_struct_union_route_bridge`
+   - Added as strict differential multi-TU struct/union route bridge anchor.
+
+Wave52 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=52`:
+  all 4 Wave52 tests pass.
+
+## Wave 53 Promotion Closure
+199) `14__runtime_control_switch_do_for_state_machine`
+   - Added as strict differential control-flow state-machine anchor across `for`/`do`/`switch`.
+200) `14__runtime_layout_offset_stride_bridge`
+   - Added as strict differential `offsetof`/stride bridge anchor.
+201) `14__runtime_pointer_stride_rebase_control_mix`
+   - Added as strict differential pointer-stride rebasing + mixed-control anchor.
+202) `14__runtime_bool_bitmask_control_chain`
+   - Added as strict differential bool-bitmask control chain anchor.
+
+Wave53 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe lane:
+  `PROBE_FILTER=14__probe_*` => `resolved=107`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=53`:
+  all 4 Wave53 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `21 skipped`.
+- Full final suite:
+  `make final` => `0 failing`, `21 skipped`.
+
+## Wave 54 Promotion Closure
+203) `14__runtime_control_goto_cleanup_counter_matrix`
+   - Added as strict differential nested-loop `goto` cleanup control-flow anchor.
+204) `14__runtime_vla_sizeof_rebind_stride_matrix`
+   - Added as strict differential VLA rebind + `sizeof(row)` stride anchor.
+205) `14__runtime_fnptr_array_ternary_reseed_matrix`
+   - Added as strict differential function-pointer array + ternary reseed anchor.
+206) `14__runtime_ptrdiff_signed_index_rebase_matrix`
+   - Added as strict differential signed/unsigned index rebasing + ptrdiff anchor.
+
+Wave54 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=54`:
+  all 4 Wave54 tests pass.
+
+## Wave 55 Promotion Closure
+207) `14__diag__continue_outside_loop_reject`
+   - Added as control diagnostics hardening anchor for `continue` outside iterative statements.
+208) `14__diag__break_outside_loop_reject`
+   - Added as control diagnostics hardening anchor for `break` outside loop/switch statements.
+209) `14__diag__case_outside_switch_reject`
+   - Added as control diagnostics hardening anchor for `case` label outside switch statements.
+210) `14__diag__default_outside_switch_reject`
+   - Added as control diagnostics hardening anchor for `default` label outside switch statements.
+
+Wave55 status:
+- Targeted diagnostics probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe lane:
+  `PROBE_FILTER=14__probe_*` => `resolved=119`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=55`:
+  all 4 Wave55 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `21 skipped`.
+
+## Wave 56 Promotion Closure
+211) `14__runtime_multitu_static_local_counter_bridge`
+   - Added as strict differential multi-TU static-local function-state persistence anchor.
+212) `14__runtime_multitu_static_storage_slice_bridge`
+   - Added as strict differential multi-TU static storage slice/update bridge anchor.
+213) `14__runtime_vla_row_pointer_handoff_rebase_matrix`
+   - Added as strict differential VLA row-pointer handoff/rebase stride anchor.
+214) `14__runtime_fnptr_struct_state_reseed_loop_matrix`
+   - Added as strict differential function-pointer struct-state reseed loop anchor.
+
+Wave56 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe lane:
+  `PROBE_FILTER=14__probe_*` => `resolved=123`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=56`:
+  all 4 Wave56 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `21 skipped`.
+
+## Wave 57 Promotion Closure
+215) `14__diag__switch_duplicate_default_reject`
+   - Added as diagnostics hardening anchor for duplicate `default` labels in one switch.
+216) `14__diag__switch_duplicate_case_reject`
+   - Added as diagnostics hardening anchor for duplicate `case` labels in one switch.
+217) `14__diag__switch_nonconst_case_reject`
+   - Added as diagnostics hardening anchor for non-constant `case` labels.
+218) `14__diag__continue_in_switch_reject`
+   - Added as diagnostics hardening anchor for `continue` inside switch without an enclosing loop.
+
+Wave57 status:
+- Targeted diagnostics probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe lane:
+  `PROBE_FILTER=14__probe_*` => `resolved=127`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=57`:
+  all 4 Wave57 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `21 skipped`.
+
+## Wave 58 Promotion Closure
+219) `14__runtime_multitu_fnptr_rotation_bridge`
+   - Added as strict differential multi-TU function-pointer rotation/dispatch ABI anchor.
+220) `14__runtime_multitu_pair_fold_bridge`
+   - Added as strict differential multi-TU struct pair fold/update bridge anchor.
+221) `14__runtime_vla_column_pointer_stride_mix`
+   - Added as strict differential VLA column-pointer stride arithmetic anchor.
+222) `14__runtime_switch_goto_reentry_matrix`
+   - Added as strict differential switch/goto reentry control-flow matrix anchor.
+
+Wave58 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Full probe lane:
+  `PROBE_FILTER=14__probe_*` => `resolved=131`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=58`:
+  all 4 Wave58 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `21 skipped`.
+- Full final suite:
+  `make final` => `0 failing`, `21 skipped`.
+
+## Wave 59 Promotion Closure
+223) `14__runtime_restrict_nonoverlap_accumulate_matrix`
+   - Added as strict differential restrict-qualified non-overlap accumulation matrix anchor.
+224) `14__runtime_restrict_vla_window_stride_matrix`
+   - Added as strict differential restrict-qualified VLA window/stride anchor.
+225) `14__runtime_multitu_restrict_bridge`
+   - Added as strict differential multi-TU restrict bridge pipeline anchor.
+226) `14__runtime_restrict_alias_overlap_ub_path`
+   - Added as UB-policy restrict-overlap lane (`ub: true`, differential intentionally skipped).
+
+Wave59 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=59`:
+  `3` strict differential passes + `1` expected UB-policy skip.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 60 Promotion Closure
+227) `14__runtime_long_double_call_chain_matrix`
+   - Added as strict differential long-double representation/hash call-chain anchor.
+228) `14__runtime_long_double_variadic_bridge`
+   - Added as strict differential long-double variadic ABI bridge anchor.
+229) `14__runtime_multitu_long_double_bridge`
+   - Added as strict differential multi-TU long-double ABI transfer anchor.
+230) `14__runtime_long_double_struct_pass_return`
+   - Added as strict differential long-double struct pass/return ABI anchor.
+
+Wave60 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=60`:
+  all 4 Wave60 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+- Full probe lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=139`, `blocked=0`, `skipped=0`.
+
+## Wave 61 Promotion Closure
+231) `14__runtime_complex_addsub_eq_matrix`
+   - Added as strict differential complex add/sub + equality matrix anchor.
+232) `14__runtime_complex_unary_scalar_promotion_chain`
+   - Added as strict differential complex unary + scalar-promotion anchor.
+233) `14__runtime_complex_param_return_bridge`
+   - Added as strict differential complex parameter/return bridge anchor.
+234) `14__runtime_multitu_complex_bridge`
+   - Added as strict differential multi-TU complex bridge anchor.
+
+Wave61 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=61`:
+  all 4 Wave61 tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 62 Promotion Closure
+235) `14__diag__fnptr_table_too_many_args_reject`
+   - Added as fnptr diagnostics hardening anchor for too-many-arguments calls.
+236) `14__diag__fnptr_struct_arg_incompatible_reject`
+   - Added as fnptr diagnostics hardening anchor for non-callable struct argument.
+237) `14__diag__fnptr_param_noncallable_reject`
+   - Added as fnptr diagnostics hardening anchor for non-callable integer argument.
+
+Wave62 status:
+- Targeted diagnostics probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=62`:
+  all 3 Wave62 diagnostics tests pass.
+- Full probe lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=146`, `blocked=0`, `skipped=0`.
+
+## Wave 63 Promotion Closure
+238) `14__runtime_complex_struct_pass_return_bridge`
+   - Added as strict differential by-value struct pass/return lane with `_Complex` fields.
+239) `14__runtime_complex_struct_array_pass_return_chain`
+   - Added as strict differential struct-with-complex-array pass/return chain lane.
+240) `14__runtime_complex_nested_struct_field_bridge`
+   - Added as strict differential nested-struct field bridge lane with `_Complex` payloads.
+241) `14__runtime_complex_struct_ternary_select_bridge`
+   - Added as strict differential ternary selection lane over structs carrying `_Complex` fields.
+
+Wave63 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=63`:
+  all 4 Wave63 tests pass.
+
+## Wave 64 Promotion Closure
+242) `14__runtime_multitu_complex_struct_pass_return`
+   - Added as strict differential multi-TU by-value struct pass/return lane with `_Complex` fields.
+243) `14__runtime_multitu_complex_nested_route`
+   - Added as strict differential multi-TU nested route lane with `_Complex` payloads.
+244) `14__runtime_complex_struct_pointer_roundtrip_bridge`
+   - Added as strict differential pointer roundtrip read lane over structs containing `_Complex` fields.
+245) `14__runtime_complex_struct_copy_assign_chain`
+   - Added as strict differential copy/assign chain lane over structs containing `_Complex` fields.
+
+Wave64 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=64`:
+  all 4 Wave64 tests pass.
+
+## Wave 65 Promotion Closure
+246) `14__runtime_complex_layout_size_align_matrix`
+   - Added as strict differential `_Complex` size/alignment and field-offset matrix lane.
+247) `14__runtime_complex_layout_nested_offset_matrix`
+   - Added as strict differential nested offset lane around `_Complex` fields.
+248) `14__runtime_complex_layout_array_stride_matrix`
+   - Added as strict differential array-stride lane for structs containing `_Complex` fields.
+249) `14__runtime_complex_layout_union_overlay_roundtrip`
+   - Added as strict differential union overlay roundtrip lane through struct/flat complex views.
+
+Wave65 status:
+- Targeted wave probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=65`:
+  all 4 Wave65 tests pass.
+- Full probe lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=158`, `blocked=0`, `skipped=0`.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 70 Promotion Closure
+250) `14__diagjson__continue_outside_loop_reject`
+   - Added as diagnostics-JSON assertion lane for `continue` outside loop rejection.
+251) `14__diagjson__break_outside_loop_reject`
+   - Added as diagnostics-JSON assertion lane for `break` outside loop/switch rejection.
+252) `14__diagjson__case_outside_switch_reject`
+   - Added as diagnostics-JSON assertion lane for `case` outside switch rejection.
+253) `14__diagjson__default_outside_switch_reject`
+   - Added as diagnostics-JSON assertion lane for `default` outside switch rejection.
+
+Wave70 status:
+- Targeted diagnostic-json probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=70`:
+  all 4 Wave70 diagnostics-json tests pass.
+- Full probe lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=176`, `blocked=0`, `skipped=0`.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 71 Promotion Closure
+254) `14__diagjson__switch_duplicate_default_reject`
+   - Added as diagnostics-JSON assertion lane for duplicate `default` labels in switch.
+255) `14__diagjson__switch_duplicate_case_reject`
+   - Added as diagnostics-JSON assertion lane for duplicate `case` labels in switch.
+256) `14__diagjson__switch_nonconst_case_reject`
+   - Added as diagnostics-JSON assertion lane for non-constant `case` label rejection.
+257) `14__diagjson__continue_in_switch_reject`
+   - Added as diagnostics-JSON assertion lane for `continue` in switch without loop.
+
+Wave71 status:
+- Targeted diagnostic-json probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=71`:
+  all 4 Wave71 diagnostics-json tests pass.
+
+## Wave 72 Promotion Closure
+258) `14__diagjson__fnptr_table_too_many_args_reject`
+   - Added as diagnostics-JSON assertion lane for function-pointer too-many-arguments rejection.
+259) `14__diagjson__fnptr_struct_arg_incompatible_reject`
+   - Added as diagnostics-JSON assertion lane for function-pointer incompatible struct-argument rejection.
+260) `14__diagjson__fnptr_param_noncallable_reject`
+   - Added as diagnostics-JSON assertion lane for function-pointer non-callable-argument rejection.
+
+Wave72 status:
+- Targeted diagnostic-json probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=72`:
+  all 3 Wave72 diagnostics-json tests pass.
+- Full probe lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=183`, `blocked=0`, `skipped=0`.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 73 Promotion Closure
+261) `14__diagjson__file_scope_vla_reject`
+   - Added as diagnostics-JSON assertion lane for file-scope VLA static-duration rejection.
+262) `14__diagjson__offsetof_bitfield_reject`
+   - Added as diagnostics-JSON assertion lane for `offsetof` on bitfield rejection.
+263) `14__diagjson__ternary_struct_condition_reject`
+   - Added as diagnostics-JSON assertion lane for ternary non-scalar condition rejection.
+264) `14__diagjson__fnptr_table_too_few_args_reject`
+   - Added as diagnostics-JSON assertion lane for function-pointer too-few-args rejection.
+
+Wave73 status:
+- Targeted diagnostic-json probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=73`:
+  all 4 Wave73 diagnostics-json tests pass.
+- Full probe lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=187`, `blocked=0`, `skipped=0`.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 74 Promotion Closure
+265) `14__diag__switch_struct_condition_reject`
+   - Added as diagnostics lane for switch with non-integer struct controlling expression.
+266) `14__diag__if_struct_condition_reject`
+   - Added as diagnostics lane for if with non-scalar struct controlling expression.
+267) `14__diag__while_struct_condition_reject`
+   - Added as diagnostics lane for while with non-scalar struct controlling expression.
+268) `14__diag__return_struct_to_int_reject`
+   - Added as diagnostics lane for incompatible return type (struct returned from int function).
+
+Wave74 status:
+- Targeted diagnostics probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- Targeted diagnostic-json probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=74`:
+  all 4 Wave74 diagnostic tests pass (`.diag` + `.diagjson`).
+- Full probe lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=195`, `blocked=0`, `skipped=0`.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 75 Promotion Closure
+269) `14__diag__fnptr_table_incompatible_signature_reject`
+   - Added as diagnostics lane for incompatible function-pointer initializer
+     signature in array table setup.
+
+Wave75 status:
+- Targeted diagnostics probe run:
+  `resolved=1`, `blocked=0`, `skipped=0`.
+- Targeted diagnostic-json probe run:
+  `resolved=1`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=75`:
+  Wave75 diagnostic test passes (`.diag` + `.diagjson`).
+- Full probe lane snapshot:
+  `PROBE_FILTER=14__probe_*` => `resolved=197`, `blocked=0`, `skipped=0`.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 76 Promotion Closure
+270) `14__diagjson__fnptr_table_incompatible_signature_reject`
+271) `14__diagjson__switch_struct_condition_reject`
+272) `14__diagjson__if_struct_condition_reject`
+273) `14__diagjson__while_struct_condition_reject`
+274) `14__diagjson__return_struct_to_int_reject`
+
+Wave76 status:
+- Targeted diagnostic-json probe run:
+  `resolved=5`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=76`:
+  all 5 Wave76 diagnostics-json tests pass.
+
+## Wave 77 Promotion Closure
+275) `14__diagjson__complex_lt_reject`
+276) `14__diagjson__complex_le_reject`
+277) `14__diagjson__complex_gt_reject`
+278) `14__diagjson__complex_ge_reject`
+
+Wave77 status:
+- Targeted diagnostic-json probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=77`:
+  all 4 Wave77 diagnostics-json tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 78 Promotion Closure
+279) `14__runtime_abi_reg_stack_frontier_matrix`
+280) `14__runtime_abi_mixed_struct_float_boundary`
+281) `14__runtime_variadic_abi_reg_stack_frontier`
+
+Wave78 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=78`:
+  all 3 Wave78 ABI frontier tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 79 Promotion Closure
+282) `14__diag__multitu_duplicate_external_definition_reject`
+283) `14__diag__multitu_extern_type_mismatch_reject`
+284) `14__diag__multitu_duplicate_tentative_type_conflict_reject`
+
+Wave79 status:
+- Targeted diagnostics probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=79`:
+  all 3 Wave79 link-conflict diagnostics tests pass.
+- Note:
+  Wave79 established text `.diag` link-conflict anchors; Wave89 later adds
+  explicit `.diagjson` parity for the same link-failure classes.
+
+## Wave 80 Promotion Closure
+285) `14__runtime_static_local_init_once_chain`
+286) `14__runtime_static_local_init_recursion_gate`
+287) `14__runtime_multitu_static_init_visibility_bridge`
+
+Wave80 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=80`:
+  all 3 Wave80 static-local/re-entrancy tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 81 Promotion Closure
+288) `14__runtime_vla_param_nested_handoff_matrix`
+289) `14__runtime_vla_stride_rebind_cross_fn_chain`
+290) `14__runtime_vla_ptrdiff_cross_scope_matrix`
+
+Wave81 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=81`:
+  all 3 Wave81 VLA depth/stress tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 82 Promotion Closure
+291) `14__runtime_intptr_roundtrip_offset_matrix`
+292) `14__runtime_uintptr_mask_rebase_matrix`
+293) `14__runtime_ptrdiff_boundary_crosscheck_matrix`
+
+Wave82 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=82`:
+  all 3 Wave82 pointer/int bridge tests pass.
+- Blocker memory (fixed before promotion):
+  initial `uintptr` probe compared raw pointer low bits and mismatched clang due
+  address-layout variance; fixed by reconstructing pointers from
+  base-relative masked deltas (`delta = p - base`) instead of raw addresses.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 83 Promotion Closure
+294) `14__runtime_long_double_variadic_struct_bridge`
+295) `14__runtime_complex_long_double_bridge_matrix`
+296) `14__runtime_multitu_long_double_variadic_bridge`
+
+Wave83 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=83`:
+  all 3 Wave83 long-double/complex ABI tests pass.
+- Blocker memory (fixed before promotion):
+  initial probe lane hit two issues:
+  1) `<stdarg.h>` preprocessing failed (`invalid #if expression`) in this toolchain path.
+  2) direct `va_arg(ap, struct ...)` lane crashed compiler (`exit -11`).
+  Wave83 promotion was stabilized by switching to builtin vararg macros
+  (`__builtin_va_list` family) and restructuring the first lane to combine
+  long-double variadics with struct return bridging (without struct `va_arg`).
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 84 Promotion Closure
+297) `14__runtime_volatile_restrict_store_order_matrix`
+298) `14__runtime_restrict_nonoverlap_rebind_chain`
+299) `14__runtime_volatile_fnptr_control_chain`
+
+Wave84 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=84`:
+  all 3 Wave84 volatile/restrict sequencing tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 85 Promotion Closure
+300) `14__runtime_header_stdalign_bridge`
+301) `14__runtime_header_stdint_limits_crosscheck`
+302) `14__runtime_header_null_sizeof_ptrdiff_bridge`
+
+Wave85 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=85`:
+  all 3 Wave85 header/builtin expansion tests pass.
+- Blocker memory (fixed before promotion):
+  initial `NULL/sizeof/ptrdiff` lane used `struct-array = {0}` shorthand which
+  this compiler path currently rejects in this context; lane was stabilized with
+  equivalent non-initialized storage since values are unused.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 86 Promotion Closure
+303) `14__runtime_smoke_expr_eval_driver`
+304) `14__runtime_smoke_dispatch_table_driver`
+305) `14__runtime_smoke_multitu_config_driver`
+
+Wave86 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=86`:
+  all 3 Wave86 deterministic smoke-driver tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 87 Promotion Closure
+306) `14__runtime_repeatable_output_hash_matrix`
+307) `14__runtime_repeatable_diagjson_hash_matrix`
+308) `14__runtime_repeatable_multitu_link_hash_matrix`
+
+Wave87 status:
+- Targeted runtime probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=87`:
+  all 3 Wave87 repeatability/oracle-hardening tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 88 Promotion Closure
+309) `14__runtime_abi_long_double_variadic_regstack_hardening`
+310) `14__runtime_multitu_static_init_order_depth_bridge`
+311) `14__diag__multitu_duplicate_function_definition_reject`
+
+Wave88 status:
+- Targeted probe run:
+  `resolved=3`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=88`:
+  all 3 Wave88 ABI/init-order/link-diagnostic hardening tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Wave 89 Promotion Closure
+312) `14__diagjson__multitu_duplicate_external_definition_reject`
+313) `14__diagjson__multitu_extern_type_mismatch_reject`
+314) `14__diagjson__multitu_duplicate_tentative_type_conflict_reject`
+315) `14__diagjson__multitu_duplicate_function_definition_reject`
+
+Wave89 status:
+- Targeted diagnostics-json probe run:
+  `resolved=4`, `blocked=0`, `skipped=0`.
+- `make final-wave WAVE=89`:
+  all 4 Wave89 link-stage diagnostics-json parity tests pass.
+- Full bucket-14 slice:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+## Planned Expansion Roadmap (Post-Wave89)
+
+Wave89 closure complete.
+Next runtime-surface wave targets are currently unassigned/TBD.
+
+Wave execution rule:
+for each wave, land probes first, gather all blocked results, fix in grouped
+batch, then promote only after exact-id + `make final-wave` + `make final-runtime`
+are green.
 
 ## Expected Outputs
 - AST/Diagnostics/IR goldens for compile-surface checks.

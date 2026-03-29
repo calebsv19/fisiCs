@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_bool_scalar_conversion_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bool_scalar_conversion_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bool_scalar_conversion_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_bool_scalar_conversion_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "bool", "conversions"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_bitfield_signed_promotion_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitfield_signed_promotion_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitfield_signed_promotion_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_bitfield_signed_promotion_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "bitfield", "signed", "promotions"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_bitfield_compound_assign_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitfield_compound_assign_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitfield_compound_assign_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_bitfield_compound_assign_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "bitfield", "compound-assign"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_bitfield_bool_bridge_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitfield_bool_bridge_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitfield_bool_bridge_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_bitfield_bool_bridge_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "bitfield", "bool"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

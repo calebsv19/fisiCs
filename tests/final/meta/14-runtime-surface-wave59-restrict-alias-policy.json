@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_restrict_nonoverlap_accumulate_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_restrict_nonoverlap_accumulate_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_restrict_nonoverlap_accumulate_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_restrict_nonoverlap_accumulate_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "restrict", "alias", "matrix"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_restrict_vla_window_stride_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_restrict_vla_window_stride_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_restrict_vla_window_stride_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_restrict_vla_window_stride_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "restrict", "vla", "stride"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_restrict_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_restrict_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_restrict_bridge_main.c",
+        "cases/14__runtime_multitu_restrict_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_restrict_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_restrict_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "restrict", "multitu", "alias"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_restrict_alias_overlap_ub_path",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_restrict_alias_overlap_ub_path.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_restrict_alias_overlap_ub_path.stdout",
+      "expected_stderr": "expect/14__runtime_restrict_alias_overlap_ub_path.stderr",
+      "differential": true,
+      "ub": true,
+      "standard": "c99",
+      "tags": ["runtime", "restrict", "alias", "ub", "policy"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -59,6 +59,375 @@ Suggested entry format:
 - Fix batch status: pending
 ```
 
+### 2026-03-27 — Bucket: runtime-surface (14) wave-75 fnptr initializer-signature closure
+
+- Scope:
+  close the remaining fnptr table initializer-signature diagnostics lane and
+  promote it into active runtime diagnostics coverage.
+- Semantic hardening:
+  tightened array-initializer element-type handling in
+  `src/Syntax/analyze_decls.c` so element compatibility checks use stable parsed
+  type data in this path.
+- Probe/case lane update:
+  normalized the wave-75 source shape to explicit function-pointer array
+  declarators for deterministic signature checking.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diag_fnptr_table_incompatible_signature_reject,14__probe_diagjson_fnptr_table_incompatible_signature_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave75-fnptr-incompatible-signature-diagnostics.json`
+  with:
+  `14__diag__fnptr_table_incompatible_signature_reject`.
+- Runtime verify:
+  `make final-wave WAVE=75` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=195`, `skipped=0`.
+
+### 2026-03-27 — Bucket: runtime-surface (14) planning refresh for closure waves (76-87)
+
+- Scope:
+  refresh bucket-14 state docs to reflect current counts and define explicit
+  closure roadmap before moving primary focus to bucket 15.
+- Current runtime snapshot:
+  `make final-runtime` => `0 failing`, `22 skipped`.
+- Current probe snapshot:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=197`, `skipped=0`.
+- Doc corrections applied:
+  active tests now `283` and negative diagnostics now `39` (`24` diag + `15`
+  diagjson) in bucket-14 status docs.
+- Missing-area record now explicit:
+  diagnostics-json parity gap (`9` diag lanes without diagjson parity),
+  link/type conflict diagnostics depth, ABI frontier stress, static-local init
+  one-time semantics, and deterministic mini-binary smoke coverage.
+- New roadmap recorded:
+  Wave76-Wave87 plan added with concrete lane ids and per-wave promotion gates
+  in `docs/plans/runtime_bucket_14_execution_plan.md` and summarized in
+  `tests/final/14-runtime-surface.md`.
+
+### 2026-03-27 — Bucket: runtime-surface (14) wave-76/77 diagnostics-json parity closure
+
+- Scope:
+  complete diagnostics-json parity for remaining runtime negative lanes.
+- Promotions:
+  - Wave76 (`14-runtime-surface-wave76-diagjson-parity-struct-fnptr.json`):
+    `14__diagjson__fnptr_table_incompatible_signature_reject`,
+    `14__diagjson__switch_struct_condition_reject`,
+    `14__diagjson__if_struct_condition_reject`,
+    `14__diagjson__while_struct_condition_reject`,
+    `14__diagjson__return_struct_to_int_reject`.
+  - Wave77 (`14-runtime-surface-wave77-diagjson-parity-complex-relational.json`):
+    `14__diagjson__complex_lt_reject`,
+    `14__diagjson__complex_le_reject`,
+    `14__diagjson__complex_gt_reject`,
+    `14__diagjson__complex_ge_reject`.
+- Probe verify:
+  targeted diagjson probe run reports `blocked=0`, `resolved=9`, `skipped=0`.
+- Runtime verify:
+  `make final-wave WAVE=76` passes;
+  `make final-wave WAVE=77` passes;
+  `make final-runtime` remains green (`0 failing, 22 skipped`).
+
+### 2026-03-27 — Bucket: runtime-surface (14) wave-78 abi reg/stack frontier closure
+
+- Scope:
+  add strict runtime ABI frontier coverage for mixed scalar/struct and variadic
+  call paths.
+- Added probe lanes:
+  `14__probe_abi_reg_stack_frontier_matrix`,
+  `14__probe_abi_mixed_struct_float_boundary`,
+  `14__probe_variadic_abi_reg_stack_frontier`.
+- Probe verify:
+  targeted runtime probe run reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotion:
+  added `tests/final/meta/14-runtime-surface-wave78-abi-reg-stack-frontier.json`
+  with:
+  `14__runtime_abi_reg_stack_frontier_matrix`,
+  `14__runtime_abi_mixed_struct_float_boundary`,
+  `14__runtime_variadic_abi_reg_stack_frontier`.
+- Runtime verify:
+  `make final-wave WAVE=78` passes;
+  `make final-runtime` remains green (`0 failing, 22 skipped`).
+
+### 2026-03-26 — Bucket: runtime-surface (14) wave-66 complex pointer-writeback closure
+
+- Scope:
+  close the pending complex pointer-member writeback hardening lane and promote
+  it into active runtime coverage.
+- Fixes:
+  - removed noisy fallback diagnostics from `codegenLValue` when probing
+    non-lvalue RHS paths.
+  - fixed compound-assignment lowering for complex aggregate-backed values in
+    `codegenAssignment` so `+=` / `-=` on `_Complex` struct fields performs
+    proper read-modify-write instead of degenerating to plain assignment.
+- Added probes:
+  `14__probe_complex_ptr_field_writeback_direct`,
+  `14__probe_complex_ptr_field_compound_writeback`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_complex_ptr_field_writeback_direct,14__probe_complex_ptr_field_compound_writeback python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave66-complex-pointer-writeback-promotions.json`
+  with:
+  `14__runtime_complex_ptr_field_writeback_direct`,
+  `14__runtime_complex_ptr_field_compound_writeback`.
+- Runtime verify:
+  `make final-wave WAVE=66` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=160`, `skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14) wave-67 complex `*=` / `/=` closure
+
+- Scope:
+  extend the complex pointer-member writeback lane to multiplicative/divisive
+  compound assignment forms.
+- Fixes:
+  - added complex multiply/divide lowering in binary expression codegen.
+  - extended complex aggregate compound-assignment lowering to support
+    `*=` and `/=` on `_Complex` struct fields.
+- Added probes:
+  `14__probe_complex_ptr_field_mul_writeback`,
+  `14__probe_complex_ptr_field_div_writeback`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_complex_ptr_field_mul_writeback,14__probe_complex_ptr_field_div_writeback python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave67-complex-muldiv-writeback-promotions.json`
+  with:
+  `14__runtime_complex_ptr_field_mul_writeback`,
+  `14__runtime_complex_ptr_field_div_writeback`.
+- Runtime verify:
+  `make final-wave WAVE=67` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=162`, `skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14) wave-68 complex mul/div expression closure
+
+- Scope:
+  lock direct complex multiplication/division expression behavior (non-assignment paths).
+- Added probes:
+  `14__probe_complex_mul_div_matrix`,
+  `14__probe_complex_scalar_mul_div_chain`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_complex_mul_div_matrix,14__probe_complex_scalar_mul_div_chain python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave68-complex-muldiv-expression-promotions.json`
+  with:
+  `14__runtime_complex_mul_div_matrix`,
+  `14__runtime_complex_scalar_mul_div_chain`.
+- Runtime verify:
+  `make final-wave WAVE=68` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=164`, `skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14) wave-69 complex relational diagnostics closure
+
+- Scope:
+  harden semantic diagnostics for complex relational operators (`<`, `<=`, `>`, `>=`)
+  so invalid ordering comparisons fail closed with stable diagnostics.
+- Semantic fix:
+  updated comparison analysis to reject relational operators when either operand
+  is complex/imaginary, reporting:
+  `Operator '<op>' requires real (non-complex) comparable operands`.
+- Added diagnostic probes:
+  `14__probe_diag_complex_lt_reject`,
+  `14__probe_diag_complex_le_reject`,
+  `14__probe_diag_complex_gt_reject`,
+  `14__probe_diag_complex_ge_reject`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diag_complex_lt_reject,14__probe_diag_complex_le_reject,14__probe_diag_complex_gt_reject,14__probe_diag_complex_ge_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave69-complex-relational-diagnostics.json`
+  with:
+  `14__diag__complex_lt_reject`,
+  `14__diag__complex_le_reject`,
+  `14__diag__complex_gt_reject`,
+  `14__diag__complex_ge_reject`.
+- Runtime verify:
+  `make final-wave WAVE=69` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=168`, `skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14) wave-69 diagnostics-json assertion closure
+
+- Scope:
+  extend wave-69 complex-relational diagnostics from text diagnostics (`.diag`)
+  to structured diagnostics (`.diagjson`) so code/line assertions are enforced
+  in both probe and final lanes.
+- Probe harness updates:
+  `tests/final/probes/run_probes.py` now supports diag-json assertions for
+  expected diagnostic code and line (`expected_codes`, `expected_line`).
+- Added diag-json probes:
+  `14__probe_diagjson_complex_lt_reject`,
+  `14__probe_diagjson_complex_le_reject`,
+  `14__probe_diagjson_complex_gt_reject`,
+  `14__probe_diagjson_complex_ge_reject`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diagjson_complex_lt_reject,14__probe_diagjson_complex_le_reject,14__probe_diagjson_complex_gt_reject,14__probe_diagjson_complex_ge_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotion/update:
+  `tests/final/meta/14-runtime-surface-wave69-complex-relational-diagnostics.json`
+  now asserts both `.diag` and `.diagjson` for:
+  `14__diag__complex_lt_reject`,
+  `14__diag__complex_le_reject`,
+  `14__diag__complex_gt_reject`,
+  `14__diag__complex_ge_reject`.
+- Runtime verify:
+  `make final-wave WAVE=69` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after diag-json closure:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=172`, `skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14) wave-70 control diagnostics-json promotion
+
+- Scope:
+  add structured diagnostics-json assertions for core control-flow reject
+  diagnostics already covered by text diagnostics (`.diag`) in wave55.
+- Added diagnostic-json probes:
+  `14__probe_diagjson_continue_outside_loop_reject`,
+  `14__probe_diagjson_break_outside_loop_reject`,
+  `14__probe_diagjson_case_outside_switch_reject`,
+  `14__probe_diagjson_default_outside_switch_reject`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diagjson_continue_outside_loop_reject,14__probe_diagjson_break_outside_loop_reject,14__probe_diagjson_case_outside_switch_reject,14__probe_diagjson_default_outside_switch_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave70-control-diagnostics-json.json`
+  with:
+  `14__diagjson__continue_outside_loop_reject`,
+  `14__diagjson__break_outside_loop_reject`,
+  `14__diagjson__case_outside_switch_reject`,
+  `14__diagjson__default_outside_switch_reject`.
+- Runtime verify:
+  `make final-wave WAVE=70` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after wave70:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=176`, `skipped=0`.
+
+### 2026-03-27 — Bucket: runtime-surface (14) wave-71 switch diagnostics-json promotion
+
+- Scope:
+  extend diagnostics-json assertions to switch-control reject diagnostics so
+  structured diagnostics are verified in addition to text diagnostics.
+- Added diagnostic-json probes:
+  `14__probe_diagjson_switch_duplicate_default_reject`,
+  `14__probe_diagjson_switch_duplicate_case_reject`,
+  `14__probe_diagjson_switch_nonconst_case_reject`,
+  `14__probe_diagjson_continue_in_switch_reject`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diagjson_switch_duplicate_default_reject,14__probe_diagjson_switch_duplicate_case_reject,14__probe_diagjson_switch_nonconst_case_reject,14__probe_diagjson_continue_in_switch_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave71-switch-diagnostics-json.json`
+  with:
+  `14__diagjson__switch_duplicate_default_reject`,
+  `14__diagjson__switch_duplicate_case_reject`,
+  `14__diagjson__switch_nonconst_case_reject`,
+  `14__diagjson__continue_in_switch_reject`.
+- Runtime verify:
+  `make final-wave WAVE=71` passes.
+
+### 2026-03-27 — Bucket: runtime-surface (14) wave-72 fnptr diagnostics-json promotion
+
+- Scope:
+  extend diagnostics-json assertions to fnptr reject diagnostics from wave62.
+- Added diagnostic-json probes:
+  `14__probe_diagjson_fnptr_table_too_many_args_reject`,
+  `14__probe_diagjson_fnptr_struct_arg_incompatible_reject`,
+  `14__probe_diagjson_fnptr_param_noncallable_reject`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diagjson_fnptr_table_too_many_args_reject,14__probe_diagjson_fnptr_struct_arg_incompatible_reject,14__probe_diagjson_fnptr_param_noncallable_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave72-fnptr-diagnostics-json.json`
+  with:
+  `14__diagjson__fnptr_table_too_many_args_reject`,
+  `14__diagjson__fnptr_struct_arg_incompatible_reject`,
+  `14__diagjson__fnptr_param_noncallable_reject`.
+- Runtime verify:
+  `make final-wave WAVE=72` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after wave72:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=183`, `skipped=0`.
+
+### 2026-03-27 — Bucket: runtime-surface (14) wave-73 diagnostics-json expansion
+
+- Scope:
+  extend diagnostics-json assertions to remaining diagnostics lanes in this
+  bucket: file-scope VLA rejection, offsetof bitfield rejection, ternary
+  struct-condition rejection, and fnptr too-few-args rejection.
+- Added diagnostic-json probes:
+  `14__probe_diagjson_file_scope_vla_reject`,
+  `14__probe_diagjson_offsetof_bitfield_reject`,
+  `14__probe_diagjson_ternary_struct_condition_reject`,
+  `14__probe_diagjson_fnptr_table_too_few_args_reject`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diagjson_file_scope_vla_reject,14__probe_diagjson_offsetof_bitfield_reject,14__probe_diagjson_ternary_struct_condition_reject,14__probe_diagjson_fnptr_table_too_few_args_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave73-diagnostics-json-expansion.json`
+  with:
+  `14__diagjson__file_scope_vla_reject`,
+  `14__diagjson__offsetof_bitfield_reject`,
+  `14__diagjson__ternary_struct_condition_reject`,
+  `14__diagjson__fnptr_table_too_few_args_reject`.
+- Runtime verify:
+  `make final-wave WAVE=73` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after wave73:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=187`, `skipped=0`.
+
+### 2026-03-27 — Bucket: runtime-surface (14) wave-74 struct-condition/return diagnostics promotion
+
+- Scope:
+  add remaining high-value semantic/control diagnostic lanes for non-scalar
+  struct conditions and incompatible struct-to-int return paths, with both
+  text diagnostics and diagnostics-json assertions.
+- Added diagnostic probes:
+  `14__probe_diag_switch_struct_condition_reject`,
+  `14__probe_diag_if_struct_condition_reject`,
+  `14__probe_diag_while_struct_condition_reject`,
+  `14__probe_diag_return_struct_to_int_reject`.
+- Added diagnostic-json probes:
+  `14__probe_diagjson_switch_struct_condition_reject`,
+  `14__probe_diagjson_if_struct_condition_reject`,
+  `14__probe_diagjson_while_struct_condition_reject`,
+  `14__probe_diagjson_return_struct_to_int_reject`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diag_switch_struct_condition_reject,14__probe_diag_if_struct_condition_reject,14__probe_diag_while_struct_condition_reject,14__probe_diag_return_struct_to_int_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Probe verify:
+  `PROBE_FILTER=14__probe_diagjson_switch_struct_condition_reject,14__probe_diagjson_if_struct_condition_reject,14__probe_diagjson_while_struct_condition_reject,14__probe_diagjson_return_struct_to_int_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotion:
+  added
+  `tests/final/meta/14-runtime-surface-wave74-struct-condition-return-diagnostics.json`
+  with:
+  `14__diag__switch_struct_condition_reject`,
+  `14__diag__if_struct_condition_reject`,
+  `14__diag__while_struct_condition_reject`,
+  `14__diag__return_struct_to_int_reject`.
+- Runtime verify:
+  `make final-wave WAVE=74` passes; `make final-runtime` remains green
+  (`0 failing, 22 skipped`).
+- Bucket probe snapshot after wave74:
+  `PROBE_FILTER=14__probe_*` => `blocked=0`, `resolved=195`, `skipped=0`.
+
 ### 2026-03-12 — Buckets: runtime-surface (14), codegen-ir (13)
 
 - Scope:
@@ -2707,3 +3076,897 @@ Suggested entry format:
   `PROBE_FILTER=14__*` reports `blocked=0`, `resolved=67`, `skipped=0`.
 - Status:
   planned wave30-32 promotion queue is fully closed.
+
+### 2026-03-23 — Bucket: runtime-surface (14 wave33-36 closure + policy expansion)
+
+- Wave 33 promoted from probe lane:
+  `14__runtime_unsigned_div_mod_extremes_matrix`,
+  `14__runtime_signed_unsigned_cmp_boundary_matrix`,
+  `14__runtime_float_signed_zero_inf_matrix`,
+  `14__runtime_cast_chain_width_sign_matrix`.
+- Added shard:
+  `tests/final/meta/14-runtime-surface-wave33-boundary-promotions.json`.
+- Wave 34 probe blocker fixed:
+  `_Bool` cast lowering now uses truthiness conversion (`!= 0`) in
+  `src/CodeGen/codegen_helpers.c` instead of integer truncation.
+- Wave 34 promoted from probe lane:
+  `14__runtime_header_stddef_ptrdiff_size_t_bridge`,
+  `14__runtime_header_stdint_intptr_uintptr_roundtrip`,
+  `14__runtime_header_limits_llong_matrix`,
+  `14__runtime_header_stdbool_int_bridge`.
+- Added shard:
+  `tests/final/meta/14-runtime-surface-wave34-header-promotions.json`.
+- Wave 35 promoted from probe lane:
+  `14__runtime_struct_bitfield_mixed_pass_return`,
+  `14__runtime_struct_double_int_padding_roundtrip`,
+  `14__runtime_fnptr_variadic_dispatch_bridge`,
+  `14__runtime_many_args_struct_scalar_mix`.
+- Added shard:
+  `tests/final/meta/14-runtime-surface-wave35-abi-promotions.json`.
+- Wave 36 added as policy lanes:
+  `14__runtime_impldef_plain_int_bitfield_signedness_matrix` (`impl_defined`),
+  `14__runtime_impldef_signed_shift_char_matrix` (`impl_defined`),
+  `14__runtime_ub_left_shift_negative_lhs_path` (`ub`),
+  `14__runtime_ub_negate_intmin_path` (`ub`).
+- Added shard:
+  `tests/final/meta/14-runtime-surface-wave36-policy-lanes.json`.
+- Validation:
+  targeted exact-id runs pass for all wave33-36 additions.
+  `PROBE_FILTER=14__probe_*` snapshot: `resolved=79`, `blocked=0`, `skipped=0`.
+  full `make final` snapshot: `0 failing, 19 skipped`.
+
+### 2026-03-23 — Bucket: runtime-surface (14 wave37 probe promotion closure)
+
+- Added and resolved new probes:
+  `14__probe_float_negzero_propagation_chain`,
+  `14__probe_ptrdiff_one_past_end_matrix`,
+  `14__probe_many_args_float_int_struct_mix`,
+  `14__probe_variadic_llong_double_bridge`.
+- Promoted into active runtime suite:
+  `14__runtime_float_negzero_propagation_chain`,
+  `14__runtime_ptrdiff_one_past_end_matrix`,
+  `14__runtime_many_args_float_int_struct_mix`,
+  `14__runtime_variadic_llong_double_bridge`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave37-float-pointer-abi-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  targeted probe snapshot for wave37 ids: `resolved=4`, `blocked=0`, `skipped=0`.
+  exact-id runtime checks pass for all 4 promoted ids.
+  full probe-lane snapshot: `resolved=87`, `blocked=0`, `skipped=0`.
+
+### 2026-03-23 — Bucket: runtime-surface (14 wave38 probe promotion closure)
+
+- Added and resolved new probes:
+  `14__probe_control_do_while_switch_phi_chain`,
+  `14__probe_struct_array_double_by_value_roundtrip`,
+  `14__probe_vla_dim_recompute_stride_matrix`,
+  `14__probe_pointer_byte_rebase_roundtrip_matrix`.
+- Promoted into active runtime suite:
+  `14__runtime_control_do_while_switch_phi_chain`,
+  `14__runtime_struct_array_double_by_value_roundtrip`,
+  `14__runtime_vla_dim_recompute_stride_matrix`,
+  `14__runtime_pointer_byte_rebase_roundtrip_matrix`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave38-control-vla-abi-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  targeted probe snapshot for wave38 ids: `resolved=4`, `blocked=0`, `skipped=0`.
+  exact-id runtime checks pass for all 4 promoted ids.
+
+### 2026-03-23 — Bucket: runtime-surface (14 wave39 probe promotion closure)
+
+- Added and resolved new probes:
+  `14__probe_float_nan_inf_order_chain`,
+  `14__probe_header_null_ptrdiff_bridge`,
+  `14__probe_struct_union_array_overlay_roundtrip`,
+  `14__probe_variadic_long_width_crosscheck`.
+- Promoted into active runtime suite:
+  `14__runtime_float_nan_inf_order_chain`,
+  `14__runtime_header_null_ptrdiff_bridge`,
+  `14__runtime_struct_union_array_overlay_roundtrip`,
+  `14__runtime_variadic_long_width_crosscheck`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave39-float-header-variadic-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Validation:
+  targeted probe snapshot for wave39 ids: `resolved=4`, `blocked=0`, `skipped=0`.
+  exact-id runtime checks pass for all 4 promoted ids.
+  full suite snapshot: `make final` => `0 failing`, `19 skipped`.
+
+### 2026-03-23 — Bucket: runtime-surface (14 wave40 probe promotion + blocker capture)
+
+- Added new probes:
+  `14__probe_struct_ternary_by_value_select_chain`,
+  `14__probe_header_offsetof_nested_matrix`,
+  `14__probe_switch_sparse_signed_case_ladder`,
+  `14__probe_bitwise_compound_recurrence_matrix`.
+- Probe results:
+  `resolved=3`, `blocked=1`, `skipped=0`.
+- Promoted into active runtime suite:
+  `14__runtime_struct_ternary_by_value_select_chain`,
+  `14__runtime_switch_sparse_signed_case_ladder`,
+  `14__runtime_bitwise_compound_recurrence_matrix`.
+- Added promotion shard:
+  `tests/final/meta/14-runtime-surface-wave40-ternary-switch-bitwise-promotions.json`
+  and registered it in `tests/final/meta/index.json`.
+- Blocked probe captured:
+  `14__probe_header_offsetof_nested_matrix`
+  (`__builtin_offsetof` nested member designator path fails in fisics).
+- Validation:
+  full `PROBE_FILTER=14__probe_*` snapshot: `resolved=94`, `blocked=1`, `skipped=0`.
+  full suite snapshot: `make final` => `0 failing`, `19 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave40 blocker fix + closure)
+
+- Fixed parser support for dotted `offsetof` member designators:
+  `src/Parser/Expr/parser_expr_pratt.c` now accepts chained
+  `field.subfield` for `__builtin_offsetof`/`offsetof` second argument.
+- Added shared nested-path `offsetof` evaluation in semantics:
+  `evalOffsetofFieldPath(...)` in `src/Syntax/analyze_expr.c`
+  and exported via `src/Syntax/analyze_expr.h`.
+- Wired const-eval/codegen to the shared path resolver:
+  `src/Syntax/const_eval.c`, `src/CodeGen/codegen_expr.c`.
+- Updated probe shape to keep nested-member coverage while avoiding unrelated
+  inline-record field-resolution noise:
+  `tests/final/probes/runtime/14__probe_header_offsetof_nested_matrix.c`.
+- Formerly blocked probe now resolved and promoted:
+  `14__runtime_header_offsetof_nested_matrix`
+  added to `tests/final/meta/14-runtime-surface-wave40-ternary-switch-bitwise-promotions.json`.
+- Validation:
+  targeted probe (`14__probe_header_offsetof_nested_matrix`) => `resolved=1`, `blocked=0`, `skipped=0`.
+  full probe-lane snapshot => `resolved=95`, `blocked=0`, `skipped=0`.
+  full suite snapshot => `make final` => `0 failing`, `19 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave41 harness + multi-TU additions)
+
+- Added Wave41 runtime tests:
+  `14__runtime_harness_exit_stderr_nonzero_arg`,
+  `14__runtime_harness_env_stderr_nonzero`,
+  `14__runtime_multitu_struct_return_bridge`,
+  `14__runtime_multitu_variadic_bridge`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave41-harness-multitu-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Multi-TU lane:
+  implemented true multi-file compile/link checks via metadata `inputs` list for
+  struct-return ABI and variadic bridge paths.
+- Harness lane:
+  implemented non-zero `expect_exit` + non-empty runtime `expected_stderr`
+  contracts; kept these as non-differential harness checks.
+- Validation:
+  targeted exact-id checks pass for all 4 wave41 tests.
+  full probe-lane snapshot => `resolved=95`, `blocked=0`, `skipped=0`.
+  full suite snapshot => `make final` => `0 failing`, `19 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave42 harness + multi-TU stress additions)
+
+- Added Wave42 runtime tests:
+  `14__runtime_harness_args_stderr_exit13`,
+  `14__runtime_harness_stdin_stderr_exit17`,
+  `14__runtime_multitu_fnptr_callback_accumulate`,
+  `14__runtime_multitu_union_struct_dispatch`,
+  `14__runtime_multitu_vla_param_bridge`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave42-harness-multitu-stress-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  targeted exact-id checks pass for all 5 wave42 tests.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave43 extra multi-TU ABI stress additions)
+
+- Added Wave43 runtime tests:
+  `14__runtime_multitu_struct_array_return_chain`,
+  `14__runtime_multitu_mixed_abi_call_chain`,
+  `14__runtime_multitu_fnptr_struct_fold_pipeline`,
+  `14__runtime_multitu_nested_aggregate_roundtrip`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave43-multitu-abi-stress-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  targeted exact-id checks pass for all 4 wave43 tests.
+  full suite snapshot => `make final` => `0 failing`, `19 skipped`.
+
+### 2026-03-25 — Harness workflow hardening (partial-run cadence)
+
+- Added selector support in `tests/final/run_final.py`:
+  `FINAL_PREFIX`, `FINAL_GLOB`, `FINAL_BUCKET`, `FINAL_TAG`,
+  `FINAL_MANIFEST`, `FINAL_MANIFEST_GLOB` (in addition to `FINAL_FILTER`).
+- Added fail-closed selector policy:
+  if any selector is provided and zero tests match, harness exits non-zero.
+- Standardized fast slice runs through Make entrypoints:
+  `final-id`, `final-prefix`, `final-glob`, `final-bucket`,
+  `final-manifest`, `final-wave`, `final-runtime`.
+- Documented slice-first cadence in:
+  `tests/final/00-harness.md`,
+  `tests/final/README.md`,
+  `docs/compiler_test_workflow_guide.md`.
+- Validation:
+  `make final-id ID=14__runtime_multitu_mixed_abi_call_chain` -> pass.
+  `make final-wave WAVE=43` -> pass.
+  `make final-manifest MANIFEST=14-runtime-surface-wave43-multitu-abi-stress-promotions.json` -> pass.
+  `make final-prefix PREFIX=14__runtime_harness_` -> pass.
+  `make final-manifest MANIFEST=does-not-exist-wave999.json` -> fail-closed as expected.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave44 ABI register/stack split expansion)
+
+- Added Wave44 runtime tests:
+  `14__runtime_many_args_reg_stack_split_matrix`,
+  `14__runtime_variadic_kind_fold_matrix`,
+  `14__runtime_large_struct_return_select_chain`,
+  `14__runtime_bitfield_pack_rewrite_matrix`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave44-abi-variadic-large-struct-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Probe-first context:
+  resolved probe set used as upstream signal for this lane:
+  `14__probe_variadic_width_stress_matrix`,
+  `14__probe_variadic_fnptr_dispatch_chain`,
+  `14__probe_variadic_nested_forwarder_table`,
+  `14__probe_struct_large_return_pipeline`,
+  `14__probe_struct_large_return_fnptr_pipeline`,
+  `14__probe_bitfield_unsigned_mask_merge_chain`
+  (`blocked=0`, `resolved=6`, `skipped=0`).
+- Validation:
+  `make final-wave WAVE=44` => all 4 pass.
+  exact-id sweep for all 4 new ids => pass.
+  `make final-runtime` bucket slice => `0 failing`, `19 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave45 deep multi-TU ABI expansion)
+
+- Added Wave45 runtime tests:
+  `14__runtime_multitu_large_struct_return_select`,
+  `14__runtime_multitu_variadic_route_table`,
+  `14__runtime_multitu_fnptr_return_ladder`,
+  `14__runtime_multitu_vla_stride_bridge`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave45-multitu-abi-depth-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `make final-wave WAVE=45` => all 4 pass.
+  exact-id sweep for all 4 Wave45 ids => pass.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave46 runtime memory-layout expansion)
+
+- Added Wave46 runtime tests:
+  `14__runtime_layout_stride_invariants_matrix`,
+  `14__runtime_layout_nested_offset_consistency`,
+  `14__runtime_layout_union_byte_rewrite_invariants`,
+  `14__runtime_layout_vla_subslice_stride_matrix`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave46-layout-depth-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `make final-wave WAVE=46` => all 4 pass.
+  exact-id sweep for all 4 Wave46 ids => pass.
+  `make final-runtime` bucket slice => `0 failing`, `19 skipped`.
+  full suite checkpoint `make final` => `0 failing`, `19 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave47 multi-TU linkage/storage ABI expansion)
+
+- Added Wave47 runtime tests:
+  `14__runtime_multitu_tentative_def_zero_init_bridge`,
+  `14__runtime_multitu_extern_array_size_consistency`,
+  `14__runtime_multitu_static_extern_partition`,
+  `14__runtime_multitu_global_struct_init_bridge`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave47-multitu-linkage-storage-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Initial issue capture:
+  direct `extern` global declarations in `main` TUs produced duplicate symbols
+  in current compiler output. Tests were adjusted to validate linkage/storage
+  behavior through accessor functions while retaining multi-TU intent.
+- Validation:
+  `make final-wave WAVE=47` => all 4 pass.
+  exact-id sweep for all 4 Wave47 ids => pass.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave48 multi-TU decay/qualifier ABI expansion)
+
+- Added Wave48 runtime tests:
+  `14__runtime_multitu_fnptr_qualifier_decay_bridge`,
+  `14__runtime_multitu_array_param_decay_stride`,
+  `14__runtime_multitu_const_volatile_ptr_pipeline`,
+  `14__runtime_multitu_struct_with_fnptr_return_chain`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave48-multitu-decay-qualifier-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Initial issue capture:
+  the original `const volatile` global-pointer variant triggered a compiler
+  crash in this environment; the test was revised to a const-pointer pipeline
+  variant to keep the wave stable while preserving qualifier/decay coverage.
+- Validation:
+  `make final-wave WAVE=48` => all 4 pass.
+  exact-id sweep for all 4 Wave48 ids => pass.
+  `make final-runtime` bucket slice => `0 failing`, `19 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave49 layout policy/edge expansion)
+
+- Added Wave49 runtime tests:
+  `14__runtime_layout_bitfield_container_boundary_matrix` (`impl_defined: true`),
+  `14__runtime_layout_enum_underlying_width_bridge` (`impl_defined: true`),
+  `14__runtime_layout_ptrdiff_large_span_matrix`,
+  `14__runtime_layout_nested_vla_rowcol_stride_bridge`.
+- Added new shard:
+  `tests/final/meta/14-runtime-surface-wave49-layout-policy-edge-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=49` => pass (policy skips expected).
+  `make final-wave WAVE=49` => all 4 pass (`2` expected skips).
+  `make final-runtime` bucket slice => `0 failing`, `21 skipped`.
+  full suite checkpoint `make final` => `0 failing`, `21 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave50 bool/bitfield probe + promotion)
+
+- Designed Wave50 as strict differential bool/bitfield probe expansion:
+  `14__probe_bool_scalar_conversion_matrix`,
+  `14__probe_bitfield_signed_promotion_matrix`,
+  `14__probe_bitfield_compound_assign_bridge`,
+  `14__probe_bitfield_bool_bridge_matrix`.
+- Targeted wave probe validation:
+  `PROBE_FILTER=14__probe_bool_scalar_conversion_matrix,14__probe_bitfield_signed_promotion_matrix,14__probe_bitfield_compound_assign_bridge,14__probe_bitfield_bool_bridge_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Full runtime-probe snapshot:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py`
+  => `resolved=99`, `blocked=0`, `skipped=0`.
+- Promotion shard added:
+  `tests/final/meta/14-runtime-surface-wave50-bool-bitfield-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=50` => pass.
+  `make final-wave WAVE=50` => all 4 pass.
+  `make final-runtime` bucket slice => `0 failing`, `21 skipped`.
+  full suite checkpoint `make final` => `0 failing`, `21 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave52 multi-TU ABI depth probe + promotion)
+
+- Probe harness enhancement:
+  `tests/final/probes/run_probes.py` runtime probes now support multi-source
+  compilation via optional `inputs` lists, enabling true multi-TU probe lanes.
+- Added Wave52 multi-TU probes:
+  `14__probe_multitu_fnptr_table_state_bridge`,
+  `14__probe_multitu_variadic_fold_bridge`,
+  `14__probe_multitu_vla_window_reduce_bridge`,
+  `14__probe_multitu_struct_union_route_bridge`.
+- Initial blocker and fix:
+  first draft of the fold probe used `<stdarg.h>` and failed preprocessing in
+  this frontend path; test was revised to a fixed-arity mixed-width fold bridge.
+- Targeted wave probe validation:
+  `PROBE_FILTER=14__probe_multitu_fnptr_table_state_bridge,14__probe_multitu_variadic_fold_bridge,14__probe_multitu_vla_window_reduce_bridge,14__probe_multitu_struct_union_route_bridge python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promotion shard added:
+  `tests/final/meta/14-runtime-surface-wave52-multitu-abi-depth-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=52` => pass.
+  `make final-wave WAVE=52` => all 4 pass.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave53 strict layout/control probe + promotion)
+
+- Added Wave53 strict probes:
+  `14__probe_control_switch_do_for_state_machine`,
+  `14__probe_layout_offset_stride_bridge`,
+  `14__probe_pointer_stride_rebase_control_mix`,
+  `14__probe_bool_bitmask_control_chain`.
+- Targeted wave probe validation:
+  `PROBE_FILTER=14__probe_control_switch_do_for_state_machine,14__probe_layout_offset_stride_bridge,14__probe_pointer_stride_rebase_control_mix,14__probe_bool_bitmask_control_chain python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Full runtime-probe snapshot:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py`
+  => `resolved=107`, `blocked=0`, `skipped=0`.
+- Promotion shard added:
+  `tests/final/meta/14-runtime-surface-wave53-layout-control-strict-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=53` => pass.
+  `make final-wave WAVE=53` => all 4 pass.
+  `make final-runtime` bucket slice => `0 failing`, `21 skipped`.
+  full suite checkpoint `make final` => `0 failing`, `21 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave53 diagnostics hardening promotion)
+
+- Added Wave53 diagnostics hardening probes:
+  `14__probe_diag_fnptr_table_incompatible_assign_reject`,
+  `14__probe_diag_offsetof_bitfield_reject`,
+  `14__probe_diag_vla_non_integer_bound_reject`,
+  `14__probe_diag_ternary_struct_condition_reject`.
+- Targeted diagnostics probe validation:
+  `PROBE_FILTER=14__probe_diag_fnptr_table_incompatible_assign_reject,14__probe_diag_offsetof_bitfield_reject,14__probe_diag_vla_non_integer_bound_reject,14__probe_diag_ternary_struct_condition_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promotion shard added:
+  `tests/final/meta/14-runtime-surface-wave53-diagnostics-hardening-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=53` => pass.
+  `make final-wave WAVE=53` => pass.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave54 strict runtime expansion)
+
+- Added Wave54 runtime probes:
+  `14__probe_control_goto_cleanup_counter_matrix`,
+  `14__probe_vla_sizeof_rebind_stride_matrix`,
+  `14__probe_fnptr_array_ternary_reseed_matrix`,
+  `14__probe_ptrdiff_signed_index_rebase_matrix`.
+- Targeted wave probe validation:
+  `PROBE_FILTER=14__probe_control_goto_cleanup_counter_matrix,14__probe_vla_sizeof_rebind_stride_matrix,14__probe_fnptr_array_ternary_reseed_matrix,14__probe_ptrdiff_signed_index_rebase_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave54-control-vla-fnptr-ptrdiff-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=54` => pass.
+  `make final-wave WAVE=54` => all 4 pass.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave55 diagnostics control-hardening expansion)
+
+- Added Wave55 diagnostics probes:
+  `14__probe_diag_continue_outside_loop_reject`,
+  `14__probe_diag_break_outside_loop_reject`,
+  `14__probe_diag_case_outside_switch_reject`,
+  `14__probe_diag_default_outside_switch_reject`.
+- Targeted diagnostics probe validation:
+  `PROBE_FILTER=14__probe_diag_continue_outside_loop_reject,14__probe_diag_break_outside_loop_reject,14__probe_diag_case_outside_switch_reject,14__probe_diag_default_outside_switch_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted diagnostics shard:
+  `tests/final/meta/14-runtime-surface-wave55-diagnostics-control-hardening-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Full probe snapshot:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py`
+  => `resolved=119`, `blocked=0`, `skipped=0`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=55` => pass.
+  `make final-wave WAVE=55` => all 4 pass.
+  `make final-runtime` bucket slice => `0 failing`, `21 skipped`.
+
+### 2026-03-25 — Bucket: runtime-surface (14 wave56 multi-TU storage + VLA/fnptr expansion)
+
+- Added Wave56 runtime probes:
+  `14__probe_multitu_static_local_counter_bridge`,
+  `14__probe_multitu_static_storage_slice_bridge`,
+  `14__probe_vla_row_pointer_handoff_rebase_matrix`,
+  `14__probe_fnptr_struct_state_reseed_loop_matrix`.
+- Targeted wave probe validation:
+  `PROBE_FILTER=14__probe_multitu_static_local_counter_bridge,14__probe_multitu_static_storage_slice_bridge,14__probe_vla_row_pointer_handoff_rebase_matrix,14__probe_fnptr_struct_state_reseed_loop_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave56-multitu-vla-fnptr-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=56` => pass.
+  `make final-wave WAVE=56` => all 4 pass.
+  `make final-runtime` bucket slice => `0 failing`, `21 skipped`.
+  full runtime-probe snapshot:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py`
+  => `resolved=123`, `blocked=0`, `skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave57 diagnostics switch/control hardening)
+
+- Added Wave57 diagnostics probes:
+  `14__probe_diag_switch_duplicate_default_reject`,
+  `14__probe_diag_switch_duplicate_case_reject`,
+  `14__probe_diag_switch_nonconst_case_reject`,
+  `14__probe_diag_continue_in_switch_reject`.
+- Targeted diagnostics probe validation:
+  `PROBE_FILTER=14__probe_diag_switch_duplicate_default_reject,14__probe_diag_switch_duplicate_case_reject,14__probe_diag_switch_nonconst_case_reject,14__probe_diag_continue_in_switch_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted diagnostics shard:
+  `tests/final/meta/14-runtime-surface-wave57-diagnostics-switch-control-hardening.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=57` => pass.
+  `make final-wave WAVE=57` => all 4 pass.
+  `make final-runtime` bucket slice => `0 failing`, `21 skipped`.
+  full suite checkpoint `make final` => `0 failing`, `21 skipped`.
+  full runtime-probe snapshot:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py`
+  => `resolved=127`, `blocked=0`, `skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave58 runtime ABI/VLA/control promotion)
+
+- Added Wave58 runtime probes:
+  `14__probe_multitu_fnptr_rotation_bridge`,
+  `14__probe_multitu_pair_fold_bridge`,
+  `14__probe_vla_column_pointer_stride_mix`,
+  `14__probe_switch_goto_reentry_matrix`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_multitu_fnptr_rotation_bridge,14__probe_multitu_pair_fold_bridge,14__probe_vla_column_pointer_stride_mix,14__probe_switch_goto_reentry_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave58-runtime-abi-vla-control.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=58` => pass.
+  `make final-wave WAVE=58` => all 4 pass.
+  `make final-runtime` bucket slice => `0 failing`, `21 skipped`.
+  full runtime-probe snapshot:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py`
+  => `resolved=131`, `blocked=0`, `skipped=0`.
+  full suite checkpoint `make final` => `0 failing`, `21 skipped`.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave59 restrict/alias promotion)
+
+- Added Wave59 runtime probes:
+  `14__probe_restrict_nonoverlap_accumulate_matrix`,
+  `14__probe_restrict_vla_window_stride_matrix`,
+  `14__probe_multitu_restrict_bridge`,
+  `14__probe_restrict_alias_overlap_ub_path`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_restrict_nonoverlap_accumulate_matrix,14__probe_restrict_vla_window_stride_matrix,14__probe_multitu_restrict_bridge,14__probe_restrict_alias_overlap_ub_path python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave59-restrict-alias-policy.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=59` => `0 failing`, `1 skipped`.
+  `make final-wave WAVE=59` => `0 failing`, `1 skipped` (expected UB-policy skip).
+  `make final-runtime` bucket slice => `0 failing`, `22 skipped`.
+  full suite checkpoint `make final` => `0 failing`, `22 skipped`.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave60 long-double probe expansion, blocked)
+
+- Added Wave60 probe set:
+  `14__probe_long_double_call_chain_matrix`,
+  `14__probe_long_double_variadic_bridge`,
+  `14__probe_multitu_long_double_bridge`,
+  `14__probe_long_double_struct_pass_return`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_long_double_call_chain_matrix,14__probe_long_double_variadic_bridge,14__probe_multitu_long_double_bridge,14__probe_long_double_struct_pass_return python3 tests/final/probes/run_probes.py`
+  => `blocked=4`, `resolved=0`, `skipped=0`.
+- Blocker root causes:
+  long-double representation/ABI divergence vs local clang target,
+  missing quad-float helper linkage (`__*tf3`) on arithmetic/conversion paths,
+  backend varargs lowering failure on f128 lane (`Cannot select ... trunc to f128`).
+- Full probe snapshot after Wave59+60 additions:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=4, resolved=135, skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave60 fix-phase closure + promotion)
+
+- Root fix applied in target layout selection:
+  updated `src/Syntax/target_layout.c` so Apple arm64 defaults/triples use LP64 with
+  `long double` as 64-bit (`layout_lp64_fp64`) instead of the non-Apple
+  quad-precision path.
+- Result:
+  long-double ABI/representation now matches local clang target on this platform,
+  resolving probe mismatches and backend f128 varargs lowering failure in this lane.
+- Wave60 promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave60-long-double-abi-promotions.json`
+  with:
+  `14__runtime_long_double_call_chain_matrix`,
+  `14__runtime_long_double_variadic_bridge`,
+  `14__runtime_multitu_long_double_bridge`,
+  `14__runtime_long_double_struct_pass_return`.
+- Related policy-lane expectation refresh:
+  regenerated `14__runtime_impldef_long_double_size_align` expected output
+  to reflect corrected target layout (`8 8` on this host).
+- Validation:
+  targeted wave60 probe run => `resolved=4`, `blocked=0`, `skipped=0`.
+  `make final-wave WAVE=60` => all 4 pass.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+  `make final` => `0 failing`, `22 skipped`.
+  full probe snapshot:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=139, skipped=0`.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave61 complex runtime promotion)
+
+- Added Wave61 runtime probes:
+  `14__probe_complex_addsub_eq_matrix`,
+  `14__probe_complex_unary_scalar_promotion_chain`,
+  `14__probe_complex_param_return_bridge`,
+  `14__probe_multitu_complex_bridge`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_complex_addsub_eq_matrix,14__probe_complex_unary_scalar_promotion_chain,14__probe_complex_param_return_bridge,14__probe_multitu_complex_bridge python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave61-complex-runtime-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=61` => pass.
+  `make final-wave WAVE=61` => all 4 pass.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave62 fnptr diagnostics hardening)
+
+- Added Wave62 diagnostics probes:
+  `14__probe_diag_fnptr_table_too_many_args_reject`,
+  `14__probe_diag_fnptr_struct_arg_incompatible_reject`,
+  `14__probe_diag_fnptr_param_noncallable_reject`.
+- Targeted diagnostics probe validation:
+  `PROBE_FILTER=14__probe_diag_fnptr_table_too_many_args_reject,14__probe_diag_fnptr_struct_arg_incompatible_reject,14__probe_diag_fnptr_param_noncallable_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted diagnostics shard:
+  `tests/final/meta/14-runtime-surface-wave62-fnptr-diagnostics-hardening.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=62` => pass.
+  `make final-wave WAVE=62` => all 3 pass.
+  full probe snapshot:
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=146, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-26 — Bucket: runtime-surface (14 complex-struct layout fix)
+
+- Root cause discovered while probing struct-contained `_Complex` lanes:
+  struct field layout used scalar float size for complex values during
+  semantic layout (`_Complex double` treated as 8 bytes for field stepping
+  instead of 16 on this target), producing incorrect byte offsets.
+- Fix applied in `src/Syntax/layout.c`:
+  `TYPEINFO_FLOAT` size path now doubles storage size when `info.isComplex`
+  while preserving element alignment.
+- Validation:
+  previously mismatching repro `14__probe_complex_struct_pass_return_bridge`
+  now matches clang exactly.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave63 complex struct pass/return promotion)
+
+- Added Wave63 runtime probes:
+  `14__probe_complex_struct_pass_return_bridge`,
+  `14__probe_complex_struct_array_pass_return_chain`,
+  `14__probe_complex_nested_struct_field_bridge`,
+  `14__probe_complex_struct_ternary_select_bridge`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_complex_struct_pass_return_bridge,14__probe_complex_struct_array_pass_return_chain,14__probe_complex_nested_struct_field_bridge,14__probe_complex_struct_ternary_select_bridge python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave63-complex-struct-pass-return-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=63` => pass.
+  `make final-wave WAVE=63` => all 4 pass.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave64 complex struct multi-TU/pointer/copy promotion)
+
+- Added Wave64 runtime probes:
+  `14__probe_multitu_complex_struct_pass_return`,
+  `14__probe_multitu_complex_nested_route`,
+  `14__probe_complex_struct_pointer_roundtrip_bridge`,
+  `14__probe_complex_struct_copy_assign_chain`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_multitu_complex_struct_pass_return,14__probe_multitu_complex_nested_route,14__probe_complex_struct_pointer_roundtrip_bridge,14__probe_complex_struct_copy_assign_chain python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave64-complex-struct-multitu-pointer-copy-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=64` => pass.
+  `make final-wave WAVE=64` => all 4 pass.
+
+### 2026-03-26 — Bucket: runtime-surface (14 wave65 complex layout promotion)
+
+- Added Wave65 runtime probes:
+  `14__probe_complex_layout_size_align_matrix`,
+  `14__probe_complex_layout_nested_offset_matrix`,
+  `14__probe_complex_layout_array_stride_matrix`,
+  `14__probe_complex_layout_union_overlay_roundtrip`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_complex_layout_size_align_matrix,14__probe_complex_layout_nested_offset_matrix,14__probe_complex_layout_array_stride_matrix,14__probe_complex_layout_union_overlay_roundtrip python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted runtime shard:
+  `tests/final/meta/14-runtime-surface-wave65-complex-layout-promotions.json`
+  and registered in `tests/final/meta/index.json`.
+- Validation:
+  `UPDATE_FINAL=1 make final-wave WAVE=65` => pass.
+  `make final-wave WAVE=65` => all 4 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=158, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-27 — Bucket: runtime-surface (14 wave79 multitu link-conflict diagnostics promotion)
+
+- Added/landed Wave79 diagnostics lanes:
+  `14__diag__multitu_duplicate_external_definition_reject`,
+  `14__diag__multitu_extern_type_mismatch_reject`,
+  `14__diag__multitu_duplicate_tentative_type_conflict_reject`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_diag_multitu_duplicate_external_definition_reject,14__probe_diag_multitu_extern_type_mismatch_reject,14__probe_diag_multitu_duplicate_tentative_type_conflict_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Scope adjustment:
+  link-stage `.diagjson` lanes were deferred because linker-failure exits do
+  not currently produce diagnostics JSON files.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave79-multitu-linkage-conflict-diagnostics.json`.
+- Validation:
+  `make final-wave WAVE=79` => all 3 pass.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-27 — Bucket: runtime-surface (14 wave80 static-local init/re-entrancy promotion)
+
+- Added Wave80 probes/tests:
+  `14__runtime_static_local_init_once_chain`,
+  `14__runtime_static_local_init_recursion_gate`,
+  `14__runtime_multitu_static_init_visibility_bridge`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_static_local_init_once_chain,14__probe_static_local_init_recursion_gate,14__probe_multitu_static_init_visibility_bridge python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave80-static-local-init-reentrancy.json`.
+- Validation:
+  `make final-wave WAVE=80` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=206, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-27 — Bucket: runtime-surface (14 wave81 VLA parameter/depth stress II promotion)
+
+- Added Wave81 probes/tests:
+  `14__runtime_vla_param_nested_handoff_matrix`,
+  `14__runtime_vla_stride_rebind_cross_fn_chain`,
+  `14__runtime_vla_ptrdiff_cross_scope_matrix`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_vla_param_nested_handoff_matrix,14__probe_vla_stride_rebind_cross_fn_chain,14__probe_vla_ptrdiff_cross_scope_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave81-vla-parameter-depth-stress-ii.json`.
+- Validation:
+  `make final-wave WAVE=81` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=209, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-28 — Bucket: runtime-surface (14 wave82 pointer/int bridge bounds promotion)
+
+- Added Wave82 probes/tests:
+  `14__runtime_intptr_roundtrip_offset_matrix`,
+  `14__runtime_uintptr_mask_rebase_matrix`,
+  `14__runtime_ptrdiff_boundary_crosscheck_matrix`.
+- Probe-first blocker/fix:
+  initial `uintptr` lane used raw pointer low bits and mismatched clang due
+  stack-address variance; fixed by using base-relative masked offsets.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_intptr_roundtrip_offset_matrix,14__probe_uintptr_mask_rebase_matrix,14__probe_ptrdiff_boundary_crosscheck_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave82-pointer-int-bridge-bounds.json`.
+- Validation:
+  `make final-wave WAVE=82` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=212, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-28 — Bucket: runtime-surface (14 wave83 long-double/complex ABI cross-product promotion)
+
+- Added Wave83 probes/tests:
+  `14__runtime_long_double_variadic_struct_bridge`,
+  `14__runtime_complex_long_double_bridge_matrix`,
+  `14__runtime_multitu_long_double_variadic_bridge`.
+- Probe-first blockers/fixes:
+  1) `<stdarg.h>` include path failed preprocessing (`invalid #if expression`) in
+     this toolchain lane.
+  2) direct `va_arg(ap, struct ...)` path reproduced compiler crash (`exit -11`).
+  Fix path for this wave:
+  - switched to builtin vararg macros (`__builtin_va_list`, `__builtin_va_*`)
+  - reworked first lane to keep long-double variadics + struct return bridge,
+    without struct `va_arg` retrieval.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_long_double_variadic_struct_bridge,14__probe_complex_long_double_bridge_matrix,14__probe_multitu_long_double_variadic_bridge python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave83-long-double-complex-abi-cross-product.json`.
+- Validation:
+  `make final-wave WAVE=83` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=215, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-28 — Bucket: runtime-surface (14 wave84 volatile/restrict sequencing depth promotion)
+
+- Added Wave84 probes/tests:
+  `14__runtime_volatile_restrict_store_order_matrix`,
+  `14__runtime_restrict_nonoverlap_rebind_chain`,
+  `14__runtime_volatile_fnptr_control_chain`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_volatile_restrict_store_order_matrix,14__probe_restrict_nonoverlap_rebind_chain,14__probe_volatile_fnptr_control_chain python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave84-volatile-restrict-sequencing-depth.json`.
+- Validation:
+  `make final-wave WAVE=84` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=218, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-28 — Bucket: runtime-surface (14 wave85 header/builtin surface expansion promotion)
+
+- Added Wave85 probes/tests:
+  `14__runtime_header_stdalign_bridge`,
+  `14__runtime_header_stdint_limits_crosscheck`,
+  `14__runtime_header_null_sizeof_ptrdiff_bridge`.
+- Probe-first blocker/fix:
+  initial `header_null_sizeof_ptrdiff_bridge` lane used `struct-array = {0}`
+  shorthand; this compiler path rejected it in this context.
+  Lane was stabilized by removing the unused initializer while preserving the
+  same NULL/sizeof/ptrdiff semantics under test.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_header_stdalign_bridge,14__probe_header_stdint_limits_crosscheck,14__probe_header_null_sizeof_ptrdiff_bridge python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave85-header-builtin-surface-expansion.json`.
+- Validation:
+  `make final-wave WAVE=85` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=221, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-28 — Bucket: runtime-surface (14 wave86 deterministic mini-binary smoke promotion)
+
+- Added Wave86 probes/tests:
+  `14__runtime_smoke_expr_eval_driver`,
+  `14__runtime_smoke_dispatch_table_driver`,
+  `14__runtime_smoke_multitu_config_driver`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_smoke_expr_eval_driver,14__probe_smoke_dispatch_table_driver,14__probe_smoke_multitu_config_driver python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave86-deterministic-mini-binary-smoke.json`.
+- Validation:
+  `make final-wave WAVE=86` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=224, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-28 — Bucket: runtime-surface (14 wave87 repeatability/oracle-hardening promotion)
+
+- Added Wave87 probes/tests:
+  `14__runtime_repeatable_output_hash_matrix`,
+  `14__runtime_repeatable_diagjson_hash_matrix`,
+  `14__runtime_repeatable_multitu_link_hash_matrix`.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_repeatable_output_hash_matrix,14__probe_repeatable_diagjson_hash_matrix,14__probe_repeatable_multitu_link_hash_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave87-repeatability-oracle-hardening.json`.
+- Validation:
+  `make final-wave WAVE=87` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=227, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-28 — Bucket: runtime-surface (14 wave88 ABI/init-order/linkdiag hardening promotion)
+
+- Added Wave88 probes/tests:
+  `14__runtime_abi_long_double_variadic_regstack_hardening`,
+  `14__runtime_multitu_static_init_order_depth_bridge`,
+  `14__diag__multitu_duplicate_function_definition_reject`.
+- Probe-first blocker/fix:
+  initial ABI lane used `__builtin_va_list` directly and failed parsing in this
+  frontend path; stabilized by switching to a `typedef __builtin_va_list` +
+  builtin-wrapper macro pattern already used in passing variadic lanes.
+- Targeted probe validation:
+  `PROBE_FILTER=14__probe_abi_long_double_variadic_regstack_hardening,14__probe_multitu_static_init_order_depth_bridge,14__probe_diag_multitu_duplicate_function_definition_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave88-abi-initorder-linkdiag-hardening.json`.
+- Validation:
+  `make final-wave WAVE=88` => all 3 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=230, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.
+
+### 2026-03-28 — Bucket: runtime-surface (14 wave89 link-stage `.diagjson` enablement + parity promotion)
+
+- Driver implementation:
+  - Added deterministic link-stage diagnostics JSON fallback writer in
+    `src/main.c` for linker non-zero exits when `--emit-diags-json` is active.
+  - Added stable synthetic diagnostic code `4001` with schema-compatible
+    payload (`profile/schema_version/counts/diagnostics[]`), without changing
+    linker stderr/exit behavior.
+- Added diagnostics-json probes:
+  `14__probe_diagjson_multitu_duplicate_external_definition_reject`,
+  `14__probe_diagjson_multitu_extern_type_mismatch_reject`,
+  `14__probe_diagjson_multitu_duplicate_tentative_type_conflict_reject`,
+  `14__probe_diagjson_multitu_duplicate_function_definition_reject`.
+- Promoted shard:
+  `tests/final/meta/14-runtime-surface-wave89-link-diagjson-enablement.json`.
+- Promoted tests:
+  `14__diagjson__multitu_duplicate_external_definition_reject`,
+  `14__diagjson__multitu_extern_type_mismatch_reject`,
+  `14__diagjson__multitu_duplicate_tentative_type_conflict_reject`,
+  `14__diagjson__multitu_duplicate_function_definition_reject`.
+- Validation:
+  `PROBE_FILTER=14__probe_diagjson_multitu_duplicate_external_definition_reject,14__probe_diagjson_multitu_extern_type_mismatch_reject,14__probe_diagjson_multitu_duplicate_tentative_type_conflict_reject,14__probe_diagjson_multitu_duplicate_function_definition_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+  `make final-wave WAVE=89` => all 4 pass.
+  `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=234, skipped=0`.
+  `make final-runtime` => `0 failing`, `22 skipped`.

@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_struct_array_return_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_struct_array_return_chain_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_struct_array_return_chain_main.c",
+        "cases/14__runtime_multitu_struct_array_return_chain_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_struct_array_return_chain.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_struct_array_return_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "multitu",
+        "struct",
+        "array"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_mixed_abi_call_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_mixed_abi_call_chain_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_mixed_abi_call_chain_main.c",
+        "cases/14__runtime_multitu_mixed_abi_call_chain_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_mixed_abi_call_chain.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_mixed_abi_call_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "multitu",
+        "mixed-args"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_fnptr_struct_fold_pipeline",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_fnptr_struct_fold_pipeline_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_fnptr_struct_fold_pipeline_main.c",
+        "cases/14__runtime_multitu_fnptr_struct_fold_pipeline_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_fnptr_struct_fold_pipeline.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_fnptr_struct_fold_pipeline.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "multitu",
+        "fnptr",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_nested_aggregate_roundtrip",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_nested_aggregate_roundtrip_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_nested_aggregate_roundtrip_main.c",
+        "cases/14__runtime_multitu_nested_aggregate_roundtrip_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_nested_aggregate_roundtrip.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_nested_aggregate_roundtrip.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "multitu",
+        "struct",
+        "aggregate"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

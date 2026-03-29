@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_harness_exit_stderr_nonzero_arg",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_harness_exit_stderr_nonzero_arg.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 37,
+      "run_args": [
+        "37"
+      ],
+      "expected_stdout": "expect/14__runtime_harness_exit_stderr_nonzero_arg.stdout",
+      "expected_stderr": "expect/14__runtime_harness_exit_stderr_nonzero_arg.stderr",
+      "differential": false,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "harness",
+        "stderr",
+        "exit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_harness_env_stderr_nonzero",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_harness_env_stderr_nonzero.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 9,
+      "run_stdin": "x\n",
+      "expected_stdout": "expect/14__runtime_harness_env_stderr_nonzero.stdout",
+      "expected_stderr": "expect/14__runtime_harness_env_stderr_nonzero.stderr",
+      "differential": false,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "harness",
+        "stdin",
+        "stderr",
+        "exit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_struct_return_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_struct_return_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_struct_return_bridge_main.c",
+        "cases/14__runtime_multitu_struct_return_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_struct_return_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_struct_return_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "multitu",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_variadic_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_variadic_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_variadic_bridge_main.c",
+        "cases/14__runtime_multitu_variadic_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_variadic_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_variadic_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "multitu",
+        "variadic"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

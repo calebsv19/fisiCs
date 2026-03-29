@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diagjson__multitu_duplicate_external_definition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__multitu_duplicate_external_definition_reject_main.c",
+      "inputs": [
+        "cases/14__diag__multitu_duplicate_external_definition_reject_main.c",
+        "cases/14__diag__multitu_duplicate_external_definition_reject_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave89-link.out"],
+      "expects": [
+        "expect/14__diagjson__multitu_duplicate_external_definition_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": ["runtime", "diagnostic", "negative", "multitu", "linkage", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__multitu_extern_type_mismatch_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__multitu_extern_type_mismatch_reject_main.c",
+      "inputs": [
+        "cases/14__diag__multitu_extern_type_mismatch_reject_main.c",
+        "cases/14__diag__multitu_extern_type_mismatch_reject_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave89-link.out"],
+      "expects": [
+        "expect/14__diagjson__multitu_extern_type_mismatch_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": ["runtime", "diagnostic", "negative", "multitu", "linkage", "diagjson", "extern"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__multitu_duplicate_tentative_type_conflict_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__multitu_duplicate_tentative_type_conflict_reject_main.c",
+      "inputs": [
+        "cases/14__diag__multitu_duplicate_tentative_type_conflict_reject_main.c",
+        "cases/14__diag__multitu_duplicate_tentative_type_conflict_reject_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave89-link.out"],
+      "expects": [
+        "expect/14__diagjson__multitu_duplicate_tentative_type_conflict_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": ["runtime", "diagnostic", "negative", "multitu", "linkage", "diagjson", "type-mismatch"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__multitu_duplicate_function_definition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__multitu_duplicate_function_definition_reject_main.c",
+      "inputs": [
+        "cases/14__diag__multitu_duplicate_function_definition_reject_main.c",
+        "cases/14__diag__multitu_duplicate_function_definition_reject_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave89-link.out"],
+      "expects": [
+        "expect/14__diagjson__multitu_duplicate_function_definition_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": ["runtime", "diagnostic", "negative", "multitu", "linkage", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

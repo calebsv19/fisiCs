@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_fnptr_qualifier_decay_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_fnptr_qualifier_decay_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_fnptr_qualifier_decay_bridge_main.c",
+        "cases/14__runtime_multitu_fnptr_qualifier_decay_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_fnptr_qualifier_decay_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_fnptr_qualifier_decay_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "fnptr", "qualifier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_array_param_decay_stride",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_array_param_decay_stride_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_array_param_decay_stride_main.c",
+        "cases/14__runtime_multitu_array_param_decay_stride_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_array_param_decay_stride.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_array_param_decay_stride.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "array-decay", "stride"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_const_volatile_ptr_pipeline",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_const_volatile_ptr_pipeline_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_const_volatile_ptr_pipeline_main.c",
+        "cases/14__runtime_multitu_const_volatile_ptr_pipeline_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_const_volatile_ptr_pipeline.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_const_volatile_ptr_pipeline.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "const", "volatile", "pointer"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_struct_with_fnptr_return_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_struct_with_fnptr_return_chain_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_struct_with_fnptr_return_chain_main.c",
+        "cases/14__runtime_multitu_struct_with_fnptr_return_chain_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_struct_with_fnptr_return_chain.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_struct_with_fnptr_return_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "multitu", "struct", "fnptr"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

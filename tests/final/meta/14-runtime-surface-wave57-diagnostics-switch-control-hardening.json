@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diag__switch_duplicate_default_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__switch_duplicate_default_reject.c",
+      "expects": [
+        "expect/14__diag__switch_duplicate_default_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "switch", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__switch_duplicate_case_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__switch_duplicate_case_reject.c",
+      "expects": [
+        "expect/14__diag__switch_duplicate_case_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "switch", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__switch_nonconst_case_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__switch_nonconst_case_reject.c",
+      "expects": [
+        "expect/14__diag__switch_nonconst_case_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "switch", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__continue_in_switch_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__continue_in_switch_reject.c",
+      "expects": [
+        "expect/14__diag__continue_in_switch_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "switch", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

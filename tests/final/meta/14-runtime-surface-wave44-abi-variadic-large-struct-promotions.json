@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_many_args_reg_stack_split_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_many_args_reg_stack_split_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_many_args_reg_stack_split_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_many_args_reg_stack_split_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "many-args"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_kind_fold_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_kind_fold_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_kind_fold_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_kind_fold_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "variadic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_large_struct_return_select_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_large_struct_return_select_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_large_struct_return_select_chain.stdout",
+      "expected_stderr": "expect/14__runtime_large_struct_return_select_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "struct",
+        "large-return"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_bitfield_pack_rewrite_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_bitfield_pack_rewrite_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_bitfield_pack_rewrite_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_bitfield_pack_rewrite_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "abi",
+        "bitfield"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diag__complex_lt_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__complex_lt_reject.c",
+      "expects": [
+        "expect/14__diag__complex_lt_reject.diag",
+        "expect/14__diag__complex_lt_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "complex", "relational"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__complex_le_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__complex_le_reject.c",
+      "expects": [
+        "expect/14__diag__complex_le_reject.diag",
+        "expect/14__diag__complex_le_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "complex", "relational"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__complex_gt_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__complex_gt_reject.c",
+      "expects": [
+        "expect/14__diag__complex_gt_reject.diag",
+        "expect/14__diag__complex_gt_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "complex", "relational"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__complex_ge_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__complex_ge_reject.c",
+      "expects": [
+        "expect/14__diag__complex_ge_reject.diag",
+        "expect/14__diag__complex_ge_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "complex", "relational"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diagjson__continue_outside_loop_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__continue_outside_loop_reject.c",
+      "expects": [
+        "expect/14__diagjson__continue_outside_loop_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__break_outside_loop_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__break_outside_loop_reject.c",
+      "expects": [
+        "expect/14__diagjson__break_outside_loop_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__case_outside_switch_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__case_outside_switch_reject.c",
+      "expects": [
+        "expect/14__diagjson__case_outside_switch_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__default_outside_switch_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__default_outside_switch_reject.c",
+      "expects": [
+        "expect/14__diagjson__default_outside_switch_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

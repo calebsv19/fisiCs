@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_abi_reg_stack_frontier_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_abi_reg_stack_frontier_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_abi_reg_stack_frontier_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_abi_reg_stack_frontier_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "many-args", "reg-stack"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_abi_mixed_struct_float_boundary",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_abi_mixed_struct_float_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_abi_mixed_struct_float_boundary.stdout",
+      "expected_stderr": "expect/14__runtime_abi_mixed_struct_float_boundary.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "struct", "float"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_abi_reg_stack_frontier",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_variadic_abi_reg_stack_frontier.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_abi_reg_stack_frontier.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_abi_reg_stack_frontier.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "abi", "variadic", "reg-stack"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

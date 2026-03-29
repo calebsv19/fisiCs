@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diag__fnptr_table_too_few_args_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_table_too_few_args_reject.c",
+      "expects": [
+        "expect/14__diag__fnptr_table_too_few_args_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__offsetof_bitfield_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__offsetof_bitfield_reject.c",
+      "expects": [
+        "expect/14__diag__offsetof_bitfield_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "layout"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__file_scope_vla_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__file_scope_vla_reject.c",
+      "expects": [
+        "expect/14__diag__file_scope_vla_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "vla"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__ternary_struct_condition_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__ternary_struct_condition_reject.c",
+      "expects": [
+        "expect/14__diag__ternary_struct_condition_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

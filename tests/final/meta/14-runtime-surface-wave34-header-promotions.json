@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_header_stddef_ptrdiff_size_t_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_stddef_ptrdiff_size_t_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_stddef_ptrdiff_size_t_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_header_stddef_ptrdiff_size_t_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "headers",
+        "stddef",
+        "ptrdiff"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_stdint_intptr_uintptr_roundtrip",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_stdint_intptr_uintptr_roundtrip.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_stdint_intptr_uintptr_roundtrip.stdout",
+      "expected_stderr": "expect/14__runtime_header_stdint_intptr_uintptr_roundtrip.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "headers",
+        "stdint",
+        "intptr"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_limits_llong_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_limits_llong_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_limits_llong_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_header_limits_llong_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "headers",
+        "limits",
+        "llong"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_stdbool_int_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_stdbool_int_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_stdbool_int_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_header_stdbool_int_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "headers",
+        "stdbool",
+        "bool"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
