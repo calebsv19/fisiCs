@@ -51,6 +51,20 @@ Purpose:
   - `runtime/15__probe_switch_loop_lite.c`
   - `runtime/15__probe_switch_loop_mod5.c`
   - `runtime/15__probe_path_decl_nested_runtime.c`
+  - `runtime/15__probe_deep_switch_loop_state_machine.c`
+  - `runtime/15__probe_switch_sparse_case_jump_table.c`
+  - `runtime/15__probe_declarator_depth_runtime_chain.c`
+  - `runtime/15__probe_multitu_many_globals_crossref_main.c`
+  - `runtime/15__probe_multitu_fnptr_dispatch_grid_main.c`
+  - `runtime/15__probe_deep_recursion_stack_pressure.c`
+  - `runtime/15__probe_large_vla_stride_pressure.c`
+  - `runtime/15__probe_many_args_regstack_pressure.c`
+  - `runtime/15__probe_seeded_expr_fuzz_smoke.c`
+  - `runtime/15__probe_seeded_stmt_fuzz_smoke.c`
+  - `runtime/15__probe_corpus_micro_compile_smoke.c`
+  - `runtime/15__probe_control_rebind_dispatch_lattice.c`
+  - `runtime/15__probe_large_struct_array_checksum_grid.c`
+  - `runtime/15__probe_multitu_const_table_crc_main.c`
 - Diagnostics:
   - `diagnostics/04__probe_block_extern_initializer_reject.c`
   - `diagnostics/04__probe_param_extern_reject.c`

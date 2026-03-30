@@ -11,6 +11,7 @@ Quick run entrypoints:
 - `make final-manifest MANIFEST=<manifest.json>`: one manifest shard.
 - `make final-prefix PREFIX=<id_prefix>`: one id-prefix slice.
 - `make final-runtime`: bucket-14 runtime slice.
+- `make final-bucket BUCKET=torture-differential`: bucket-15 torture slice.
 
 ## Files
 - `00-harness.md`: How this suite is run and how expected outputs are stored.
@@ -28,8 +29,10 @@ Quick run entrypoints:
 - `12-diagnostics-recovery.md`: Error recovery and diagnostic quality.
 - `13-codegen-ir.md`: IR and lowering semantics (when enabled).
 - `14-runtime-surface.md`: Minimal libc surface and header expectations.
-- `15-conformance-strategy.md`: Feature matrix and intentional gaps.
+- `15-torture-differential.md`: Stress/differential torture coverage and expansion plan.
+- `15-conformance-strategy.md`: Feature matrix and intentional support gaps.
 - `probes/README.md`: Triage repro fixtures and probe runner (not in `make final`).
 
 Related planning docs:
 - `docs/plans/runtime_bucket_14_execution_plan.md`: active wave plan for expanding bucket `14`.
+- `docs/plans/torture_bucket_15_execution_plan.md`: active wave plan for expanding bucket `15`.

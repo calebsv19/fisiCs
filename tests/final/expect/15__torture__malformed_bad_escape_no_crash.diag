@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid escape in string literal at tests/final/cases/15__torture__malformed_bad_escape_no_crash.c:2:21 (got '\q')

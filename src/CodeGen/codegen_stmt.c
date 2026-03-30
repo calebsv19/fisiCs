@@ -1,6 +1,8 @@
 #include "codegen_private.h"
 
 #include "codegen_types.h"
+#include "Syntax/const_eval.h"
+#include "Syntax/scope.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -176,6 +178,79 @@ static bool cg_init_pointer_from_compound_literal(CodegenContext* ctx,
     }
     LLVMBuildStore(ctx->builder, casted, storage);
     return true;
+}
+
+static bool cg_extract_constant_int(LLVMValueRef value, long long* outValue) {
+    if (!value || !outValue) return false;
+    LLVMTypeRef valueType = LLVMTypeOf(value);
+    if (!valueType || LLVMGetTypeKind(valueType) != LLVMIntegerTypeKind) {
+        return false;
+    }
+
+    if (LLVMIsAConstantInt(value)) {
+        *outValue = (long long)LLVMConstIntGetSExtValue(value);
+        return true;
+    }
+    return false;
+}
+
+static bool cg_add_eval_const_symbol(Scope* scope, const char* name, long long value) {
+    if (!scope || !name || name[0] == '\0') return false;
+    if (lookupSymbol(&scope->table, name)) {
+        return true;
+    }
+
+    Symbol* sym = (Symbol*)calloc(1, sizeof(Symbol));
+    if (!sym) return false;
+    sym->name = strdup(name);
+    if (!sym->name) {
+        free(sym);
+        return false;
+    }
+    sym->kind = SYMBOL_VARIABLE;
+    sym->hasConstValue = true;
+    sym->constValue = value;
+    sym->type.kind = TYPE_PRIMITIVE;
+    sym->type.primitiveType = TOKEN_INT;
+    sym->type.isUnsigned = false;
+
+    if (!addToScope(scope, sym)) {
+        free(sym->name);
+        free(sym);
+        return false;
+    }
+    return true;
+}
+
+static void cg_seed_eval_scope_from_codegen_scope(CodegenContext* ctx, Scope* evalScope) {
+    if (!ctx || !evalScope) return;
+    for (CGScope* scope = ctx->currentScope; scope; scope = scope->parent) {
+        for (size_t i = 0; i < scope->count; ++i) {
+            const NamedValue* entry = &scope->entries[i];
+            if (!entry->name || !entry->addressOnly || !entry->value) {
+                continue;
+            }
+            long long value = 0;
+            if (!cg_extract_constant_int(entry->value, &value)) {
+                continue;
+            }
+            (void)cg_add_eval_const_symbol(evalScope, entry->name, value);
+        }
+    }
+}
+
+static bool cg_eval_enum_explicit_value(CodegenContext* ctx,
+                                        Scope* evalScope,
+                                        ASTNode* valueExpr,
+                                        long long* outValue) {
+    if (!ctx || !valueExpr || !outValue) return false;
+
+    if (evalScope && constEvalInteger(valueExpr, evalScope, outValue, true)) {
+        return true;
+    }
+
+    LLVMValueRef value = codegenNode(ctx, valueExpr);
+    return cg_extract_constant_int(value, outValue);
 }
 
 static bool cg_node_is_expression_type(ASTNodeType type) {
@@ -942,8 +1017,70 @@ LLVMValueRef codegenEnumDefinition(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: Invalid node type for codegenEnumDefinition\n");
         return NULL;
     }
-    (void)ctx;
-    /* Currently enums only contribute constants during semantics; IR emission is a no-op. */
+    if (!ctx->currentScope || !node->enumDef.members || node->enumDef.memberCount == 0) {
+        return NULL;
+    }
+
+    const SemanticModel* model = cg_context_get_semantic_model(ctx);
+    Scope* globalScope = model ? semanticModelGetGlobalScope(model) : NULL;
+    Scope* evalScope = createScope(globalScope);
+    if (evalScope) {
+        cg_seed_eval_scope_from_codegen_scope(ctx, evalScope);
+    }
+
+    long long currentValue = 0;
+    bool haveCurrentValue = false;
+    LLVMTypeRef enumValueType = LLVMInt32TypeInContext(ctx->llvmContext);
+
+    for (size_t i = 0; i < node->enumDef.memberCount; ++i) {
+        ASTNode* member = node->enumDef.members[i];
+        if (!member || member->type != AST_IDENTIFIER || !member->valueNode.value) {
+            continue;
+        }
+
+        ASTNode* explicitExpr = (node->enumDef.values && i < node->enumDef.memberCount)
+            ? node->enumDef.values[i]
+            : NULL;
+        if (explicitExpr) {
+            long long explicitValue = 0;
+            if (!cg_eval_enum_explicit_value(ctx, evalScope, explicitExpr, &explicitValue)) {
+                fprintf(stderr,
+                        "Error: Failed to evaluate enum constant %s\n",
+                        member->valueNode.value);
+                if (!haveCurrentValue) {
+                    currentValue = 0;
+                } else {
+                    currentValue += 1;
+                }
+            } else {
+                currentValue = explicitValue;
+            }
+            haveCurrentValue = true;
+        } else if (!haveCurrentValue) {
+            currentValue = 0;
+            haveCurrentValue = true;
+        } else {
+            currentValue += 1;
+        }
+
+        LLVMValueRef constValue = LLVMConstInt(enumValueType, (unsigned long long)currentValue, 1);
+        cg_scope_insert(ctx->currentScope,
+                        member->valueNode.value,
+                        constValue,
+                        enumValueType,
+                        false,
+                        true,
+                        NULL,
+                        NULL);
+        if (evalScope) {
+            (void)cg_add_eval_const_symbol(evalScope, member->valueNode.value, currentValue);
+        }
+    }
+
+    if (evalScope) {
+        destroyScope(evalScope);
+    }
+
     return NULL;
 }
 

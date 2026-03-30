@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__deep_recursion_stack_pressure",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__deep_recursion_stack_pressure.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__deep_recursion_stack_pressure.stdout",
+      "expected_stderr": "expect/15__torture__deep_recursion_stack_pressure.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "pressure",
+        "recursion",
+        "stack"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__large_vla_stride_pressure",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__large_vla_stride_pressure.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__large_vla_stride_pressure.stdout",
+      "expected_stderr": "expect/15__torture__large_vla_stride_pressure.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "pressure",
+        "vla",
+        "stride"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__many_args_regstack_pressure",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__many_args_regstack_pressure.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__many_args_regstack_pressure.stdout",
+      "expected_stderr": "expect/15__torture__many_args_regstack_pressure.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "pressure",
+        "abi",
+        "regstack"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

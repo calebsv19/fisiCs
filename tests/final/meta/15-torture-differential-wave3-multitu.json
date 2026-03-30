@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__multitu_many_globals_crossref",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__multitu_many_globals_crossref_main.c",
+      "inputs": [
+        "cases/15__torture__multitu_many_globals_crossref_main.c",
+        "cases/15__torture__multitu_many_globals_crossref_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_many_globals_crossref.stdout",
+      "expected_stderr": "expect/15__torture__multitu_many_globals_crossref.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "globals",
+        "crossref"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_fnptr_dispatch_grid",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__multitu_fnptr_dispatch_grid_main.c",
+      "inputs": [
+        "cases/15__torture__multitu_fnptr_dispatch_grid_main.c",
+        "cases/15__torture__multitu_fnptr_dispatch_grid_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_fnptr_dispatch_grid.stdout",
+      "expected_stderr": "expect/15__torture__multitu_fnptr_dispatch_grid.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "function-pointer",
+        "dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_duplicate_symbol_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__multitu_duplicate_symbol_reject_main.c",
+      "inputs": [
+        "cases/15__torture__multitu_duplicate_symbol_reject_main.c",
+        "cases/15__torture__multitu_duplicate_symbol_reject_lib.c"
+      ],
+      "args": [
+        "-o",
+        "tests/final/.wave3-link.out"
+      ],
+      "expects": [
+        "expect/15__torture__multitu_duplicate_symbol_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "linkage",
+        "duplicate-symbol"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__multitu_duplicate_symbol_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__multitu_duplicate_symbol_reject_main.c",
+      "inputs": [
+        "cases/15__torture__multitu_duplicate_symbol_reject_main.c",
+        "cases/15__torture__multitu_duplicate_symbol_reject_lib.c"
+      ],
+      "args": [
+        "-o",
+        "tests/final/.wave3-link.out"
+      ],
+      "expects": [
+        "expect/15__diagjson__multitu_duplicate_symbol_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "linkage",
+        "duplicate-symbol",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

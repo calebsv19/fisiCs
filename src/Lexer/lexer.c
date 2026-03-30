@@ -5,12 +5,14 @@
 #include <stdbool.h>
 #include "lexer.h"
 
+#include "Compiler/diagnostics.h"
 #include "Lexer/keyword_lookup.h"
 
 #define _POSIX_C_SOURCE 200809L
 #include <unistd.h>
 
 int print_statements = 0;
+static struct CompilerContext* g_lexer_diag_ctx = NULL;
 
 static int lexer_debug_flag = -1;
 static int lexer_debug_enabled(void) {
@@ -58,6 +60,10 @@ static inline int lexer_compute_column(int position, int lineStart) {
     return (column < 1) ? 1 : column;
 }
 
+void lexer_set_diag_context(struct CompilerContext* ctx) {
+    g_lexer_diag_ctx = ctx;
+}
+
 static void report_lexer_error(Lexer* lexer, LexerMark start, const char* message, const char* got) {
     if (!lexer || !message) return;
     char fileScratch[4096];
@@ -78,6 +84,31 @@ static void report_lexer_error(Lexer* lexer, LexerMark start, const char* messag
                 file,
                 start.line,
                 column);
+    }
+    if (g_lexer_diag_ctx) {
+        SourceRange loc;
+        loc.start.file = lexer_file_path(lexer);
+        loc.start.line = start.line;
+        loc.start.column = column;
+        loc.end = loc.start;
+        if (got && got[0] != '\0') {
+            compiler_report_diag(g_lexer_diag_ctx,
+                                 loc,
+                                 DIAG_ERROR,
+                                 CDIAG_GENERIC,
+                                 NULL,
+                                 "%s (got '%s')",
+                                 message,
+                                 got);
+        } else {
+            compiler_report_diag(g_lexer_diag_ctx,
+                                 loc,
+                                 DIAG_ERROR,
+                                 CDIAG_GENERIC,
+                                 NULL,
+                                 "%s",
+                                 message);
+        }
     }
     lexer->fatalErrorCount += 1;
 }

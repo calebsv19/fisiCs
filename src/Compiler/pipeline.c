@@ -80,6 +80,9 @@ static void pipeline_print_diagnostics(CompilerContext* ctx) {
     const FisicsDiagnostic* diags = compiler_diagnostics_data(ctx, &count);
     for (size_t i = 0; i < count; ++i) {
         const FisicsDiagnostic* d = &diags[i];
+        if (d->code == CDIAG_GENERIC) {
+            continue;
+        }
         const char* path = d->file_path ? d->file_path : "<unknown>";
         fprintf(stderr, "%s:%d:%d: %s: %s\n",
                 path,
@@ -1039,6 +1042,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
     bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
     initErrorList(ctx);
+    lexer_set_diag_context(ctx);
 
     TokenBuffer tokenBuffer;
     token_buffer_init(&tokenBuffer);
@@ -1225,6 +1229,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         freeErrorList();
         preprocessor_destroy(&preprocessor);
         token_buffer_destroy(&parserTokens);
+        lexer_set_diag_context(NULL);
         return false;
     }
     size_t diagErrors = compiler_diagnostics_error_count(ctx);
@@ -1235,6 +1240,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         freeErrorList();
         preprocessor_destroy(&preprocessor);
         token_buffer_destroy(&parserTokens);
+        lexer_set_diag_context(NULL);
         return false;
     }
     cc_set_translation_unit(ctx, root);
@@ -1277,6 +1283,7 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
 
     preprocessor_destroy(&preprocessor);
     token_buffer_destroy(&parserTokens);
+    lexer_set_diag_context(NULL);
     return true;
 
 cleanup:
@@ -1290,6 +1297,7 @@ cleanup:
     }
     (void)root;
 
+    lexer_set_diag_context(NULL);
     return false;
 }
 

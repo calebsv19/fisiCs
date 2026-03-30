@@ -4,6 +4,8 @@
 
 #include "tokens.h"
 
+struct CompilerContext;
+
 typedef struct {
     const char* source;
     const char* filePath;
@@ -19,6 +21,7 @@ typedef struct {
 // Function declarations
 void initLexer(Lexer* lexer, const char* source, const char* filePath, bool enableTrigraphs);
 void destroyLexer(Lexer* lexer);
+void lexer_set_diag_context(struct CompilerContext* ctx);
 Token getNextToken(Lexer* lexer);
 void skipWhitespace(Lexer* lexer);
 int isEOF(Lexer* lexer);

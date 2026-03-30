@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Unterminated string literal at tests/final/cases/15__torture__malformed_unterminated_string_no_crash.c:2:21 (got '"')

@@ -153,6 +153,12 @@
     "14-runtime-surface-wave87-repeatability-oracle-hardening.json",
     "14-runtime-surface-wave88-abi-initorder-linkdiag-hardening.json",
     "14-runtime-surface-wave89-link-diagjson-enablement.json",
-    "15-torture-differential.json"
+    "15-torture-differential.json",
+    "15-torture-differential-wave1-control-decl-depth.json",
+    "15-torture-differential-wave2-malformed-diagjson.json",
+    "15-torture-differential-wave3-multitu.json",
+    "15-torture-differential-wave4-pressure.json",
+    "15-torture-differential-wave5-fuzz-corpus-hooks.json",
+    "15-torture-differential-wave6-control-layout-multitu.json"
   ]
 }

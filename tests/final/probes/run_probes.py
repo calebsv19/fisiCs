@@ -808,6 +808,88 @@ RUNTIME_PROBES = [
         note="function-pointer runtime call path should not crash",
     ),
     RuntimeProbe(
+        probe_id="15__probe_deep_switch_loop_state_machine",
+        source=PROBE_DIR / "runtime/15__probe_deep_switch_loop_state_machine.c",
+        note="deep loop+switch state machine should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_switch_sparse_case_jump_table",
+        source=PROBE_DIR / "runtime/15__probe_switch_sparse_case_jump_table.c",
+        note="sparse-case switch control lowering should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_declarator_depth_runtime_chain",
+        source=PROBE_DIR / "runtime/15__probe_declarator_depth_runtime_chain.c",
+        note="declarator-depth function-pointer runtime chain should match clang behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_many_globals_crossref",
+        source=PROBE_DIR / "runtime/15__probe_multitu_many_globals_crossref_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_many_globals_crossref_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_many_globals_crossref_lib.c",
+        ),
+        note="multi-TU many-globals cross-reference path should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_fnptr_dispatch_grid",
+        source=PROBE_DIR / "runtime/15__probe_multitu_fnptr_dispatch_grid_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_fnptr_dispatch_grid_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_fnptr_dispatch_grid_lib.c",
+        ),
+        note="multi-TU function-pointer dispatch grid should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_deep_recursion_stack_pressure",
+        source=PROBE_DIR / "runtime/15__probe_deep_recursion_stack_pressure.c",
+        note="deep recursion with per-frame stack payload should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_large_vla_stride_pressure",
+        source=PROBE_DIR / "runtime/15__probe_large_vla_stride_pressure.c",
+        note="large local VLA row-stride and pointer-delta stress path should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_many_args_regstack_pressure",
+        source=PROBE_DIR / "runtime/15__probe_many_args_regstack_pressure.c",
+        note="high-arity mixed scalar+struct call pressure should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_seeded_expr_fuzz_smoke",
+        source=PROBE_DIR / "runtime/15__probe_seeded_expr_fuzz_smoke.c",
+        note="deterministic seeded expression stress lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_seeded_stmt_fuzz_smoke",
+        source=PROBE_DIR / "runtime/15__probe_seeded_stmt_fuzz_smoke.c",
+        note="deterministic seeded statement/control stress lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_micro_compile_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_micro_compile_smoke.c",
+        note="deterministic corpus-style micro workload should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_control_rebind_dispatch_lattice",
+        source=PROBE_DIR / "runtime/15__probe_control_rebind_dispatch_lattice.c",
+        note="deep control-flow with function-pointer rebinding lattice should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_large_struct_array_checksum_grid",
+        source=PROBE_DIR / "runtime/15__probe_large_struct_array_checksum_grid.c",
+        note="large local struct-array checksum grid should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_const_table_crc",
+        source=PROBE_DIR / "runtime/15__probe_multitu_const_table_crc_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_const_table_crc_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_const_table_crc_lib.c",
+        ),
+        note="multi-TU const-table CRC fold path should match clang runtime behavior",
+    ),
+    RuntimeProbe(
         probe_id="05__probe_typedef_shadow_parenthesized_expr",
         source=PROBE_DIR / "runtime/05__probe_typedef_shadow_parenthesized_expr.c",
         note="parenthesized identifier should win over cast when typedef is shadowed",
@@ -1735,6 +1817,34 @@ DIAG_PROBES = [
         note="multi-TU lane should reject duplicate function definitions at link stage (text diagnostics only)",
         required_substrings=("duplicate symbol",),
     ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_unterminated_string_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_unterminated_string_no_crash.c",
+        note="malformed unterminated-string input should fail closed without crashing",
+        required_substrings=("Unterminated string literal",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_bad_escape_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_bad_escape_no_crash.c",
+        note="malformed bad-escape input should fail closed without crashing",
+        required_substrings=("Invalid escape in string literal",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_pp_directive_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_directive_no_crash.c",
+        note="malformed preprocessor directive should fail closed without crashing",
+        required_substrings=("invalid parameter list in #define",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_multitu_duplicate_symbol_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_symbol_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_symbol_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_symbol_reject_lib.c",
+        ),
+        note="multi-TU duplicate external symbol definitions should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
 ]
 
 
@@ -1958,6 +2068,27 @@ DIAG_JSON_PROBES = [
             PROBE_DIR / "diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_lib.c",
         ),
         note="diagnostics JSON should be exported for multi-TU duplicate function definition link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_unbalanced_block_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diagjson_malformed_unbalanced_block_no_crash.c",
+        note="diagnostics JSON should be emitted for malformed unbalanced-block torture lane",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_unclosed_comment_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diagjson_malformed_unclosed_comment_no_crash.c",
+        note="diagnostics JSON should be emitted for malformed unclosed-comment torture lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_multitu_duplicate_symbol_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_symbol_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_symbol_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_symbol_reject_lib.c",
+        ),
+        note="diagnostics JSON should be exported for multi-TU duplicate-symbol link failures",
         expected_codes=(4001,),
     ),
 ]
