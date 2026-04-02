@@ -1,0 +1,42 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Pair
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER y
+  UNION
+        Name:     IDENTIFIER Payload
+    VAR_DECL
+      TYPE: struct Pair
+      IDENTIFIER pair
+    VAR_DECL
+      TYPE: int [2]
+      IDENTIFIER raw
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: union Payload
+        IDENTIFIER p
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          DOT_ACCESS '.'
+            IDENTIFIER p
+            FIELD pair
+          FIELD x
+        NUMBER_LITERAL 1
+      RETURN
+        DOT_ACCESS '.'
+          POINTER_ACCESS '->'
+            IDENTIFIER p
+            FIELD pair
+          FIELD x

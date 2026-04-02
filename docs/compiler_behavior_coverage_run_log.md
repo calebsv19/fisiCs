@@ -5173,3 +5173,527 @@ Suggested entry format:
   => all 7 pass.
   `make final-prefix PREFIX=07__`
   => all 16 pass.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-3 conversion+diagjson expansion
+
+- Scope:
+  expand conversion-negative lanes, add signedness runtime boundary coverage,
+  and promote diagjson parity lanes for semantic rejects.
+- Added probes:
+  - runtime:
+    `07__probe_signed_unsigned_compare_boundary_runtime`,
+    `07__probe_agg_nested_offsets_runtime`
+  - diagnostics:
+    `07__probe_conv_pointer_assign_float_reject`,
+    `07__probe_conv_pointer_init_struct_reject`
+  - diagjson:
+    `07__probe_diagjson_assign_struct_to_int_reject`,
+    `07__probe_diagjson_agg_invalid_member_reject`,
+    `07__probe_diagjson_constexpr_array_size_reject`,
+    `07__probe_diagjson_constexpr_case_label_reject`,
+    `07__probe_diagjson_constexpr_static_init_reject`,
+    `07__probe_diagjson_conv_pointer_assign_float_reject`,
+    `07__probe_diagjson_conv_pointer_init_struct_reject`.
+- Probe verify:
+  `PROBE_FILTER=07__probe_* python3 tests/final/probes/run_probes.py`
+  => `blocked=1`, `resolved=17`, `skipped=0`.
+- Remaining blocked lane:
+  `07__probe_diagjson_agg_invalid_member_reject`
+  (`diagnostics JSON unexpectedly empty`).
+- Promotions:
+  added `tests/final/meta/07-types-conversions-wave3-conv-diagjson.json` with:
+  `07__conv__pointer_assign_float_reject`,
+  `07__conv__pointer_init_struct_reject`,
+  `07__signed_unsigned_compare_boundary_runtime`,
+  `07__agg_nested_offsets_runtime`,
+  `07__diagjson__assign_struct_to_int_reject`,
+  `07__diagjson__constexpr_array_size_reject`,
+  `07__diagjson__constexpr_case_label_reject`,
+  `07__diagjson__constexpr_static_init_reject`,
+  `07__diagjson__conv_pointer_assign_float_reject`,
+  `07__diagjson__conv_pointer_init_struct_reject`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave3-conv-diagjson.json`
+  => all 10 pass.
+  `make final-prefix PREFIX=07__`
+  => all 26 pass.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-4 conversion matrix expansion
+
+- Scope:
+  deepen pointer/integer conversion negatives and signedness boundary runtime
+  coverage; keep blocked lanes explicit for follow-up fix phase.
+- Added probes:
+  - runtime:
+    `07__probe_signed_unsigned_compare_long_boundary_runtime`,
+    `07__probe_null_pointer_constant_runtime`
+  - diagnostics:
+    `07__probe_conv_pointer_init_nonzero_int_reject`,
+    `07__probe_conv_assign_pointer_to_int_reject`
+  - diagjson:
+    `07__probe_diagjson_conv_pointer_init_nonzero_int_reject`,
+    `07__probe_diagjson_conv_assign_pointer_to_int_reject`.
+- Probe verify:
+  `PROBE_FILTER=07__probe_* python3 tests/final/probes/run_probes.py`
+  => `blocked=2`, `resolved=22`, `skipped=0`.
+- Blocked lanes:
+  - `07__probe_diagjson_agg_invalid_member_reject`
+    (diagjson still empty for invalid member reject),
+  - `07__probe_null_pointer_constant_runtime`
+    (semantic rejects ternary `0 ? &x : 0` as incompatible types).
+- Promotions:
+  added `tests/final/meta/07-types-conversions-wave4-conv-matrix.json` with:
+  `07__signed_unsigned_compare_long_boundary_runtime`,
+  `07__conv__pointer_init_nonzero_int_reject`,
+  `07__conv__assign_pointer_to_int_reject`,
+  `07__diagjson__conv_pointer_init_nonzero_int_reject`,
+  `07__diagjson__conv_assign_pointer_to_int_reject`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave4-conv-matrix.json`
+  => all 5 pass.
+  `make final-wave WAVE=4 WAVE_BUCKET=07-types-conversions`
+  => all 5 pass.
+  `make final-prefix PREFIX=07__`
+  => all 31 pass.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-5 blocker-fix promotion
+
+- Scope:
+  close the two open wave-4 blockers and promote them into active suite.
+- Compiler fixes:
+  - `src/Syntax/analyze_expr.c`
+    - ternary null-pointer constant detection switched to
+      `isNullPointerConstant(...)` for branch operands,
+    - invalid struct/union member access now emits semantic diagnostic
+      (`Unknown field in member access`) instead of falling through.
+- Targeted blocker verify:
+  `PROBE_FILTER='07__probe_null_pointer_constant_runtime,07__probe_diagjson_agg_invalid_member_reject,07__probe_agg_invalid_member_reject'`
+  => `blocked=0`, `resolved=3`, `skipped=0`.
+- Full bucket probe verify:
+  `PROBE_FILTER=07__probe_* python3 tests/final/probes/run_probes.py`
+  => `blocked=0`, `resolved=24`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/07-types-conversions-wave5-blocker-fixes.json` with:
+  `07__null_pointer_constant_runtime`,
+  `07__diagjson__agg_invalid_member_reject`.
+- Golden refresh:
+  updated `07__agg__invalid_member_reject.diag` to semantic diagnostic output.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave5-blocker-fixes.json`
+  => all 2 pass.
+  `make final-wave WAVE=5 WAVE_BUCKET=07-types-conversions`
+  => all 2 pass.
+  `make final-prefix PREFIX=07__`
+  => all 33 pass.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-6 constexpr-positive promotion
+
+- Scope:
+  add positive runtime validation for integer constant-expression acceptance in
+  array sizes, case labels, and static-storage initializers.
+- Added probes:
+  - runtime:
+    `07__probe_constexpr_array_size_positive_runtime`,
+    `07__probe_constexpr_case_label_positive_runtime`,
+    `07__probe_constexpr_static_init_positive_runtime`.
+- Probe verify:
+  `PROBE_FILTER=07__probe_* python3 tests/final/probes/run_probes.py`
+  => `blocked=0`, `resolved=27`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/07-types-conversions-wave6-constexpr-positive.json` with:
+  `07__constexpr_array_size_positive_runtime`,
+  `07__constexpr_case_label_positive_runtime`,
+  `07__constexpr_static_init_positive_runtime`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave6-constexpr-positive.json`
+  => all 3 pass.
+  `make final-wave WAVE=6 WAVE_BUCKET=07-types-conversions`
+  => all 3 pass.
+  `make final-prefix PREFIX=07__`
+  => all 36 pass.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-7 aggregate/union depth promotion
+
+- Scope:
+  deepen struct/union semantic coverage with nested runtime member paths and
+  additional aggregate-negative diagnostics lanes.
+- Added probes:
+  - runtime:
+    `07__probe_agg_union_nested_member_runtime`,
+    `07__probe_agg_union_copy_update_runtime`
+  - diagnostics:
+    `07__probe_agg_union_missing_nested_field_reject`,
+    `07__probe_agg_union_arrow_nonptr_reject`
+  - diagjson:
+    `07__probe_diagjson_agg_union_missing_nested_field_reject`.
+- Probe verify:
+  `PROBE_FILTER=07__probe_* python3 tests/final/probes/run_probes.py`
+  => `blocked=0`, `resolved=32`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/07-types-conversions-wave7-aggregate-union-depth.json` with:
+  `07__agg_union_nested_member_runtime`,
+  `07__agg_union_copy_update_runtime`,
+  `07__agg_union_missing_nested_field_reject`,
+  `07__agg_union_arrow_nonptr_reject`,
+  `07__diagjson__agg_union_missing_nested_field_reject`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave7-aggregate-union-depth.json`
+  => all 5 pass.
+  `make final-wave WAVE=7 WAVE_BUCKET=07-types-conversions`
+  => all 5 pass.
+  `make final-prefix PREFIX=07__`
+  => all 41 pass.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-8 cast-policy + constexpr-edge promotion
+
+- Scope:
+  add explicit-cast conversion policy lanes plus deeper constexpr edge coverage
+  (enum/cast/sizeof chain and stress-sized bounds).
+- Added probes:
+  - runtime:
+    `07__probe_cast_ptr_uintptr_roundtrip_runtime`,
+    `07__probe_constexpr_enum_cast_sizeof_runtime`,
+    `07__probe_constexpr_large_bound_runtime`
+  - diagnostics:
+    `07__probe_cast_struct_to_int_reject`,
+    `07__probe_cast_int_to_struct_reject`
+  - diagjson:
+    `07__probe_diagjson_cast_struct_to_int_reject`,
+    `07__probe_diagjson_cast_int_to_struct_reject`.
+- Probe verify:
+  `PROBE_FILTER=07__probe_* python3 tests/final/probes/run_probes.py`
+  => `blocked=0`, `resolved=39`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/07-types-conversions-wave8-cast-constexpr-edge.json` with:
+  `07__cast_ptr_uintptr_roundtrip_runtime`,
+  `07__constexpr_enum_cast_sizeof_runtime`,
+  `07__constexpr_large_bound_runtime`,
+  `07__cast_struct_to_int_reject`,
+  `07__cast_int_to_struct_reject`,
+  `07__diagjson__cast_struct_to_int_reject`,
+  `07__diagjson__cast_int_to_struct_reject`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave8-cast-constexpr-edge.json`
+  => all 7 pass.
+  `make final-wave WAVE=8 WAVE_BUCKET=07-types-conversions`
+  => all 7 pass.
+  `make final-prefix PREFIX=07__`
+  => all 48 pass.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-9 policy+aggregate-edge promotion
+
+- Scope:
+  add impl-defined conversion policy lanes and close aggregate member-access
+  edge negatives with semantic-stage diagnostics + diagjson parity.
+- Added probes:
+  - runtime:
+    `07__probe_policy_impldef_ptr_ulong_roundtrip_runtime`,
+    `07__probe_policy_impldef_int_to_ptr_nonzero_runtime`,
+    `07__probe_constexpr_fold_ternary_bitwise_runtime`
+  - diagnostics:
+    `07__probe_agg_dot_scalar_base_reject`,
+    `07__probe_agg_arrow_ptr_to_scalar_reject`,
+    `07__probe_agg_dot_array_base_reject`
+  - diagjson:
+    `07__probe_diagjson_agg_dot_scalar_base_reject`,
+    `07__probe_diagjson_agg_arrow_ptr_to_scalar_reject`.
+- Probe-first blocker/fix:
+  - initial run had 5 blocked lanes (expected semantic substrings/diagjson missing)
+    for `.`/`->` on non-aggregate bases;
+  - fixed in `src/Syntax/analyze_expr.c` by enforcing aggregate-base checks for
+    member access and emitting operator diagnostics at semantic stage.
+- Probe verify after fix:
+  `PROBE_FILTER=07__probe_* python3 tests/final/probes/run_probes.py`
+  => `blocked=0`, `resolved=47`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/07-types-conversions-wave9-policy-aggregate-edge.json` with:
+  `07__policy_impldef_ptr_ulong_roundtrip_runtime`,
+  `07__policy_impldef_int_to_ptr_nonzero_runtime`,
+  `07__constexpr_fold_ternary_bitwise_runtime`,
+  `07__agg_dot_scalar_base_reject`,
+  `07__agg_arrow_ptr_to_scalar_reject`,
+  `07__agg_dot_array_base_reject`,
+  `07__diagjson__agg_dot_scalar_base_reject`,
+  `07__diagjson__agg_arrow_ptr_to_scalar_reject`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave9-policy-aggregate-edge.json`
+  => `0 failing, 2 skipped` (impl-defined policy lanes).
+  `make final-wave WAVE=9 WAVE_BUCKET=07-types-conversions`
+  => `0 failing, 2 skipped`.
+  `make final-prefix PREFIX=07__`
+  => `0 failing, 2 skipped`.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-10 policy/designator/constexpr-depth promotion
+
+- Scope:
+  expand conversion-policy depth (signed-width impl-defined lanes), add
+  designator-edge diagnostics (index legality + nested unknown-field path),
+  and extend constexpr stress with multi-dimensional fold coverage.
+- Added probes:
+  - runtime:
+    `07__probe_policy_impldef_ptr_slong_roundtrip_runtime`,
+    `07__probe_policy_explicit_nonzero_int_cast_ptr_runtime`,
+    `07__probe_constexpr_multidim_fold_runtime`
+  - diagnostics:
+    `07__probe_designator_array_index_nonconst_reject`,
+    `07__probe_designator_array_index_negative_reject`,
+    `07__probe_designator_array_index_oob_reject`,
+    `07__probe_designator_nested_unknown_field_reject`
+  - diagjson:
+    `07__probe_diagjson_designator_array_index_nonconst_reject`,
+    `07__probe_diagjson_designator_array_index_oob_reject`.
+- Probe-first blocker/fix:
+  - initial targeted run reported one blocker:
+    `07__probe_designator_nested_unknown_field_reject` was accepted silently;
+  - fixed in `src/Syntax/analyze_decls.c` by recursively validating
+    designated-field paths in nested aggregate initializers.
+- Probe verify after fix:
+  targeted Wave10 probe run => `blocked=0`, `resolved=9`, `skipped=0`;
+  full `PROBE_FILTER=07__probe_*` run => `blocked=0`, `resolved=56`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave10-policy-designator-constexpr-depth.json`
+  with:
+  `07__policy_impldef_ptr_slong_roundtrip_runtime`,
+  `07__policy_explicit_nonzero_int_cast_ptr_runtime`,
+  `07__constexpr_multidim_fold_runtime`,
+  `07__designator_array_index_nonconst_reject`,
+  `07__designator_array_index_negative_reject`,
+  `07__designator_array_index_oob_reject`,
+  `07__designator_nested_unknown_field_reject`,
+  `07__diagjson__designator_array_index_nonconst_reject`,
+  `07__diagjson__designator_array_index_oob_reject`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave10-policy-designator-constexpr-depth.json`
+  => `0 failing, 2 skipped` (impl-defined policy lanes).
+  `make final-wave WAVE=10 WAVE_BUCKET=07-types-conversions`
+  => `0 failing, 2 skipped`.
+  `make final-prefix PREFIX=07__`
+  => `0 failing, 4 skipped`.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-11 constexpr+diagjson-depth promotion
+
+- Scope:
+  extend constexpr-depth coverage in array-size/case-label runtime surfaces and
+  add diagjson parity for nested designator unknown-field rejection.
+- Added probes:
+  - runtime:
+    `07__probe_constexpr_array_chain_depth_runtime`,
+    `07__probe_constexpr_case_chain_depth_runtime` (tri-reference: clang+gcc)
+  - diagjson:
+    `07__probe_diagjson_designator_nested_unknown_field_reject`.
+- Probe verify:
+  targeted Wave11 probe run => `blocked=0`, `resolved=3`, `skipped=0`;
+  full `PROBE_FILTER=07__probe_*` run => `blocked=0`, `resolved=59`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave11-constexpr-diagjson-depth.json`
+  with:
+  `07__constexpr_array_chain_depth_runtime`,
+  `07__constexpr_case_chain_depth_runtime`,
+  `07__diagjson__designator_nested_unknown_field_reject`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave11-constexpr-diagjson-depth.json`
+  => all 3 pass.
+  `make final-wave WAVE=11 WAVE_BUCKET=07-types-conversions`
+  => all 3 pass.
+  `make final-prefix PREFIX=07__`
+  => `0 failing, 4 skipped`.
+
+### 2026-04-02 — Bucket: types-conversions (07) wave-12 strict-diff+diagjson-strict+constexpr-frontier promotion
+
+- Scope:
+  add a strict policy-safe tri-reference conversion lane, extend constexpr ICE
+  frontier into static-initializer and cast/sizeof switch-selector surfaces,
+  and add strict code/line `.diagjson` parity checks for designator-edge diagnostics.
+- Added probes:
+  - runtime:
+    `07__probe_policy_strict_zero_cast_matrix_runtime` (clang+gcc),
+    `07__probe_constexpr_static_chain_depth_runtime`,
+    `07__probe_constexpr_switch_cast_sizeof_depth_runtime`
+  - diagjson strict:
+    `07__probe_diagjson_designator_array_index_nonconst_reject_strict`,
+    `07__probe_diagjson_designator_array_index_oob_reject_strict`,
+    `07__probe_diagjson_designator_nested_unknown_field_reject_strict`.
+- Probe verify:
+  targeted Wave12 probe run => `blocked=0`, `resolved=6`, `skipped=0`;
+  full `PROBE_FILTER=07__probe_*` run => `blocked=0`, `resolved=65`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave12-diff-diagjson-constexpr-frontier.json`
+  with:
+  `07__policy_strict_zero_cast_matrix_runtime`,
+  `07__constexpr_static_chain_depth_runtime`,
+  `07__constexpr_switch_cast_sizeof_depth_runtime`,
+  `07__diagjson__designator_array_index_nonconst_reject_strict`,
+  `07__diagjson__designator_array_index_oob_reject_strict`,
+  `07__diagjson__designator_nested_unknown_field_reject_strict`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave12-diff-diagjson-constexpr-frontier.json`
+  => all 6 pass.
+  `make final-wave WAVE=12 WAVE_BUCKET=07-types-conversions`
+  => all 6 pass.
+  `make final-prefix PREFIX=07__`
+  => `0 failing, 4 skipped`.
+
+### 2026-04-02 — Bucket: types-conversions (07) wave-13 strict-pointer-boundary+memberdiag-strict+constexpr-frontier promotion
+
+- Scope:
+  add strict tri-reference pointer-domain conversion lanes, extend strict
+  `.diagjson` code/line parity to operator-specific member-access rejects,
+  and add deeper static-initializer ICE ternary/bitwise/cast coverage.
+- Added probes:
+  - runtime:
+    `07__probe_policy_strict_fnptr_decay_null_runtime` (clang+gcc),
+    `07__probe_policy_strict_array_decay_ptrdiff_runtime` (clang+gcc),
+    `07__probe_constexpr_static_ternary_bitcast_depth_runtime`
+  - diagjson strict:
+    `07__probe_diagjson_agg_dot_scalar_base_reject_strict`,
+    `07__probe_diagjson_agg_arrow_ptr_to_scalar_reject_strict`,
+    `07__probe_diagjson_agg_dot_array_base_reject_strict`.
+- Probe-first note:
+  initial array-decay lane used `*ap` and mismatched clang output in probe mode;
+  probe expression was tightened to `&(*ap)[0]` for strict cross-compiler parity.
+- Probe verify:
+  targeted Wave13 probe run => `blocked=0`, `resolved=6`, `skipped=0`;
+  full `PROBE_FILTER=07__probe_*` run => `blocked=0`, `resolved=71`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave13-strict-memberdiag-constexpr-depth.json`
+  with:
+  `07__policy_strict_fnptr_decay_null_runtime`,
+  `07__policy_strict_array_decay_ptrdiff_runtime`,
+  `07__constexpr_static_ternary_bitcast_depth_runtime`,
+  `07__diagjson__agg_dot_scalar_base_reject_strict`,
+  `07__diagjson__agg_arrow_ptr_to_scalar_reject_strict`,
+  `07__diagjson__agg_dot_array_base_reject_strict`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave13-strict-memberdiag-constexpr-depth.json`
+  => all 6 pass.
+  `make final-wave WAVE=13 WAVE_BUCKET=07-types-conversions`
+  => all 6 pass.
+  `make final-prefix PREFIX=07__`
+  => `0 failing, 4 skipped`.
+
+### 2026-04-02 — Bucket: types-conversions (07) wave-14 strict-conversion+diagjson-strict+constexpr-frontier promotion
+
+- Scope:
+  add strict pointer-domain conversion lanes (const-qualified pointer roundtrip,
+  null-conditional matrix, and function-pointer table null-dispatch), extend
+  strict `.diagjson` parity to conversion incompatibility diagnostics, and add
+  a deeper constexpr frontier set spanning array bound + switch label + static
+  initializer ICE forms.
+- Added probes:
+  - runtime:
+    `07__probe_policy_strict_const_ptr_roundtrip_runtime` (clang+gcc),
+    `07__probe_policy_strict_null_conditional_matrix_runtime` (clang+gcc),
+    `07__probe_policy_strict_fnptr_table_null_dispatch_runtime` (clang+gcc),
+    `07__probe_constexpr_array_static_shared_chain_depth_runtime`,
+    `07__probe_constexpr_switch_nested_ternary_bitwise_depth_runtime`,
+    `07__probe_constexpr_static_cast_sizeof_ternary_depth_runtime`
+  - diagjson strict:
+    `07__probe_diagjson_conv_pointer_assign_float_reject_strict`,
+    `07__probe_diagjson_conv_pointer_init_struct_reject_strict`,
+    `07__probe_diagjson_conv_pointer_init_nonzero_int_reject_strict`,
+    `07__probe_diagjson_conv_assign_pointer_to_int_reject_strict`.
+- Probe verify:
+  targeted Wave14 probe run => `blocked=0`, `resolved=10`, `skipped=0`;
+  full `PROBE_FILTER=07__probe_*` run => `blocked=0`, `resolved=81`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave14-strict-conv-diagjson-constexpr-frontier.json`
+  with:
+  `07__policy_strict_const_ptr_roundtrip_runtime`,
+  `07__policy_strict_null_conditional_matrix_runtime`,
+  `07__policy_strict_fnptr_table_null_dispatch_runtime`,
+  `07__constexpr_array_static_shared_chain_depth_runtime`,
+  `07__constexpr_switch_nested_ternary_bitwise_depth_runtime`,
+  `07__constexpr_static_cast_sizeof_ternary_depth_runtime`,
+  `07__diagjson__conv_pointer_assign_float_reject_strict`,
+  `07__diagjson__conv_pointer_init_struct_reject_strict`,
+  `07__diagjson__conv_pointer_init_nonzero_int_reject_strict`,
+  `07__diagjson__conv_assign_pointer_to_int_reject_strict`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave14-strict-conv-diagjson-constexpr-frontier.json`
+  => all 10 pass.
+  `make final-wave WAVE=14 WAVE_BUCKET=07-types-conversions`
+  => all 10 pass.
+  `make final-prefix PREFIX=07__`
+  => `0 failing, 4 skipped`.
+
+### 2026-04-02 — Bucket: types-conversions (07) wave-15 strict pointer-differential depth promotion
+
+- Scope:
+  deepen strict pointer-domain runtime coverage around const-qualified pointer
+  assignment/comparison legality and one-past pointer ordering.
+- Added probes:
+  `07__probe_policy_strict_const_compare_matrix_runtime` (clang+gcc),
+  `07__probe_policy_strict_const_chain_assignment_runtime` (clang+gcc),
+  `07__probe_policy_strict_ptr_compare_one_past_runtime` (clang+gcc).
+- Probe verify:
+  targeted Wave15 probe run => `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave15-strict-pointer-diff-depth.json`
+  with:
+  `07__policy_strict_const_compare_matrix_runtime`,
+  `07__policy_strict_const_chain_assignment_runtime`,
+  `07__policy_strict_ptr_compare_one_past_runtime`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave15-strict-pointer-diff-depth.json`
+  => all 3 pass.
+  `make final-wave WAVE=15 WAVE_BUCKET=07-types-conversions`
+  => all 3 pass.
+
+### 2026-04-02 — Bucket: types-conversions (07) wave-16 strict diagjson cast+aggregate depth promotion
+
+- Scope:
+  extend strict code/line `.diagjson` parity to cast non-scalar incompatibility
+  diagnostics and nested aggregate-member unknown-field diagnostics.
+- Added probes:
+  `07__probe_diagjson_cast_struct_to_int_reject_strict`,
+  `07__probe_diagjson_cast_int_to_struct_reject_strict`,
+  `07__probe_diagjson_agg_union_missing_nested_field_reject_strict`,
+  `07__probe_diagjson_agg_invalid_member_reject_strict`.
+- Probe verify:
+  targeted Wave16 probe run => `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave16-strict-diagjson-cast-aggregate-depth.json`
+  with:
+  `07__diagjson__cast_struct_to_int_reject_strict`,
+  `07__diagjson__cast_int_to_struct_reject_strict`,
+  `07__diagjson__agg_union_missing_nested_field_reject_strict`,
+  `07__diagjson__agg_invalid_member_reject_strict`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave16-strict-diagjson-cast-aggregate-depth.json`
+  => all 4 pass.
+  `make final-wave WAVE=16 WAVE_BUCKET=07-types-conversions`
+  => all 4 pass.
+
+### 2026-04-02 — Bucket: types-conversions (07) wave-17 constexpr coupled ICE frontier promotion
+
+- Scope:
+  add deeper shared constant-expression matrices coupling array-size, case-label,
+  and static-initializer ICE surfaces in the same runtime lanes.
+- Added probes:
+  `07__probe_constexpr_shared_ice_matrix_runtime`,
+  `07__probe_constexpr_shared_ice_matrix_nested_runtime`,
+  `07__probe_constexpr_shared_ice_cross_surface_depth_runtime`.
+- Probe verify:
+  targeted Wave17 probe run => `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave17-constexpr-coupled-ice-depth.json`
+  with:
+  `07__constexpr_shared_ice_matrix_runtime`,
+  `07__constexpr_shared_ice_matrix_nested_runtime`,
+  `07__constexpr_shared_ice_cross_surface_depth_runtime`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave17-constexpr-coupled-ice-depth.json`
+  => all 3 pass.
+  `make final-wave WAVE=17 WAVE_BUCKET=07-types-conversions`
+  => all 3 pass.
+  `make final-prefix PREFIX=07__`
+  => `0 failing, 4 skipped`.
+  full `PROBE_FILTER=07__probe_*` run => `blocked=0`, `resolved=91`, `skipped=0`.

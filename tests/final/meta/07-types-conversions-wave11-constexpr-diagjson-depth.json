@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__constexpr_array_chain_depth_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_array_chain_depth_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_array_chain_depth_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_array_chain_depth_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_case_chain_depth_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_case_chain_depth_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_case_chain_depth_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_case_chain_depth_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__designator_nested_unknown_field_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__designator_nested_unknown_field_reject.c",
+      "expects": [
+        "expect/07__diagjson__designator_nested_unknown_field_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "designator",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
+

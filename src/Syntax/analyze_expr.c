@@ -2053,8 +2053,9 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
 
         case AST_DOT_ACCESS:
         case AST_POINTER_ACCESS: {
+            bool isArrowAccess = (node->type == AST_POINTER_ACCESS);
             TypeInfo base = analyzeExpression(node->memberAccess.base, scope);
-            if (node->type == AST_POINTER_ACCESS) {
+            if (isArrowAccess) {
                 if (base.isArray) {
                     // Arrays decay to pointers in expression contexts, including `arr->field`.
                     base = decayToRValue(base);
@@ -2070,6 +2071,13 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     reportOperandError(node, "pointer operand", "->");
                     return makeInvalidType();
                 }
+            }
+
+            if (!(base.category == TYPEINFO_STRUCT || base.category == TYPEINFO_UNION)) {
+                if (typeInfoIsKnown(&base)) {
+                    reportOperandError(node, "struct/union operand", isArrowAccess ? "->" : ".");
+                }
+                return makeInvalidType();
             }
 
             const ParsedType* fieldType = lookupFieldType(&base, node->memberAccess.field, scope);
@@ -2099,10 +2107,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 return fieldInfo;
             }
 
-            TypeInfo field = makeIntegerType(32, true, TOKEN_INT);
-            field.isLValue = true;
-            field.isConst = base.isConst;
-            return field;
+            addError(node->line, 0, "Unknown field in member access", NULL);
+            return makeInvalidType();
         }
 
         case AST_ARRAY_ACCESS: {
@@ -2202,8 +2208,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             bool ok = true;
             bool truePtr = typeInfoIsPointerLike(&trueInfo);
             bool falsePtr = typeInfoIsPointerLike(&falseInfo);
-            bool trueNull = typeInfoIsInteger(&trueInfo) && trueInfo.bitWidth == 0;
-            bool falseNull = typeInfoIsInteger(&falseInfo) && falseInfo.bitWidth == 0;
+            bool trueNull = isNullPointerConstant(node->ternaryExpr.trueExpr, scope);
+            bool falseNull = isNullPointerConstant(node->ternaryExpr.falseExpr, scope);
 
             if (typeInfoIsArithmetic(&trueInfo) && typeInfoIsArithmetic(&falseInfo)) {
                 TypeInfo merged = usualArithmeticConversion(trueInfo, falseInfo, &ok);

@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__policy_strict_const_ptr_roundtrip_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_strict_const_ptr_roundtrip_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_strict_const_ptr_roundtrip_runtime.stdout",
+      "expected_stderr": "expect/07__policy_strict_const_ptr_roundtrip_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "policy",
+        "runtime",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__policy_strict_null_conditional_matrix_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_strict_null_conditional_matrix_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_strict_null_conditional_matrix_runtime.stdout",
+      "expected_stderr": "expect/07__policy_strict_null_conditional_matrix_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "policy",
+        "runtime",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__policy_strict_fnptr_table_null_dispatch_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_strict_fnptr_table_null_dispatch_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_strict_fnptr_table_null_dispatch_runtime.stdout",
+      "expected_stderr": "expect/07__policy_strict_fnptr_table_null_dispatch_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "policy",
+        "runtime",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_array_static_shared_chain_depth_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_array_static_shared_chain_depth_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_array_static_shared_chain_depth_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_array_static_shared_chain_depth_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_switch_nested_ternary_bitwise_depth_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_switch_nested_ternary_bitwise_depth_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_switch_nested_ternary_bitwise_depth_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_switch_nested_ternary_bitwise_depth_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_static_cast_sizeof_ternary_depth_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_static_cast_sizeof_ternary_depth_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_static_cast_sizeof_ternary_depth_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_static_cast_sizeof_ternary_depth_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__conv_pointer_assign_float_reject_strict",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_assign_float_reject.c",
+      "expects": [
+        "expect/07__diagjson__conv_pointer_assign_float_reject_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__conv_pointer_init_struct_reject_strict",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_init_struct_reject.c",
+      "expects": [
+        "expect/07__diagjson__conv_pointer_init_struct_reject_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__conv_pointer_init_nonzero_int_reject_strict",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_init_nonzero_int_reject.c",
+      "expects": [
+        "expect/07__diagjson__conv_pointer_init_nonzero_int_reject_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__conv_assign_pointer_to_int_reject_strict",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__assign_pointer_to_int_reject.c",
+      "expects": [
+        "expect/07__diagjson__conv_assign_pointer_to_int_reject_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
+

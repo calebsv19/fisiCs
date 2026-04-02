@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__constexpr_shared_ice_matrix_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_shared_ice_matrix_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_shared_ice_matrix_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_shared_ice_matrix_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_shared_ice_matrix_nested_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_shared_ice_matrix_nested_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_shared_ice_matrix_nested_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_shared_ice_matrix_nested_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_shared_ice_cross_surface_depth_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_shared_ice_cross_surface_depth_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_shared_ice_cross_surface_depth_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_shared_ice_cross_surface_depth_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

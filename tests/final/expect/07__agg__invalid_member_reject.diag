@@ -1,2 +1,2 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error at (8:0): Unknown field in member access

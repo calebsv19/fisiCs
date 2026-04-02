@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__policy_strict_fnptr_decay_null_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_strict_fnptr_decay_null_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_strict_fnptr_decay_null_runtime.stdout",
+      "expected_stderr": "expect/07__policy_strict_fnptr_decay_null_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "policy",
+        "runtime",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__policy_strict_array_decay_ptrdiff_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_strict_array_decay_ptrdiff_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_strict_array_decay_ptrdiff_runtime.stdout",
+      "expected_stderr": "expect/07__policy_strict_array_decay_ptrdiff_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "policy",
+        "runtime",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_static_ternary_bitcast_depth_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_static_ternary_bitcast_depth_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_static_ternary_bitcast_depth_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_static_ternary_bitcast_depth_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__agg_dot_scalar_base_reject_strict",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_dot_scalar_base_reject.c",
+      "expects": [
+        "expect/07__diagjson__agg_dot_scalar_base_reject_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative",
+        "diagjson",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__agg_arrow_ptr_to_scalar_reject_strict",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_arrow_ptr_to_scalar_reject.c",
+      "expects": [
+        "expect/07__diagjson__agg_arrow_ptr_to_scalar_reject_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative",
+        "diagjson",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__agg_dot_array_base_reject_strict",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_dot_array_base_reject.c",
+      "expects": [
+        "expect/07__diagjson__agg_dot_array_base_reject_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative",
+        "diagjson",
+        "strict"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
+

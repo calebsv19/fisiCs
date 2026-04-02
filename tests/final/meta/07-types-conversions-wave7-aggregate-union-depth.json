@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__agg_union_nested_member_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_union_nested_member_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__agg_union_nested_member_runtime.stdout",
+      "expected_stderr": "expect/07__agg_union_nested_member_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "aggregate",
+        "union",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg_union_copy_update_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_union_copy_update_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__agg_union_copy_update_runtime.stdout",
+      "expected_stderr": "expect/07__agg_union_copy_update_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "aggregate",
+        "union",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg_union_missing_nested_field_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_union_missing_nested_field_reject.c",
+      "expects": [
+        "expect/07__agg_union_missing_nested_field_reject.ast",
+        "expect/07__agg_union_missing_nested_field_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "union",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg_union_arrow_nonptr_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_union_arrow_nonptr_reject.c",
+      "expects": [
+        "expect/07__agg_union_arrow_nonptr_reject.ast",
+        "expect/07__agg_union_arrow_nonptr_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "union",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__agg_union_missing_nested_field_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_union_missing_nested_field_reject.c",
+      "expects": [
+        "expect/07__diagjson__agg_union_missing_nested_field_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "union",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (1:0): Array 'arr' designator index 3 is out of bounds (size 2)

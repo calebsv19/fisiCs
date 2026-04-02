@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__conv__pointer_assign_float_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_assign_float_reject.c",
+      "expects": [
+        "expect/07__conv__pointer_assign_float_reject.ast",
+        "expect/07__conv__pointer_assign_float_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__conv__pointer_init_struct_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_init_struct_reject.c",
+      "expects": [
+        "expect/07__conv__pointer_init_struct_reject.ast",
+        "expect/07__conv__pointer_init_struct_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__signed_unsigned_compare_boundary_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__signed_unsigned_compare_boundary_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__signed_unsigned_compare_boundary_runtime.stdout",
+      "expected_stderr": "expect/07__signed_unsigned_compare_boundary_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "runtime",
+        "signedness"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg_nested_offsets_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_nested_offsets_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__agg_nested_offsets_runtime.stdout",
+      "expected_stderr": "expect/07__agg_nested_offsets_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "runtime",
+        "aggregate",
+        "offsets"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__assign_struct_to_int_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__assign_struct_to_int_reject.c",
+      "expects": [
+        "expect/07__diagjson__assign_struct_to_int_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__constexpr_array_size_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr__array_size_reject.c",
+      "expects": [
+        "expect/07__diagjson__constexpr_array_size_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "constexpr",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__constexpr_case_label_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr__case_label_reject.c",
+      "expects": [
+        "expect/07__diagjson__constexpr_case_label_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "constexpr",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__constexpr_static_init_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr__static_init_reject.c",
+      "expects": [
+        "expect/07__diagjson__constexpr_static_init_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "constexpr",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__conv_pointer_assign_float_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_assign_float_reject.c",
+      "expects": [
+        "expect/07__diagjson__conv_pointer_assign_float_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__conv_pointer_init_struct_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_init_struct_reject.c",
+      "expects": [
+        "expect/07__diagjson__conv_pointer_init_struct_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

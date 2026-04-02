@@ -1,0 +1,29 @@
+AST:
+PROGRAM
+  UNION
+        Name:     IDENTIFIER U
+    VAR_DECL
+      TYPE: int [2]
+      IDENTIFIER raw
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: union U
+        IDENTIFIER u
+            = 
+              = NUMBER_LITERAL 1
+
+              = NUMBER_LITERAL 2
+
+      RETURN
+        DOT_ACCESS '.'
+          DOT_ACCESS '.'
+            IDENTIFIER u
+            FIELD raw
+          FIELD missing

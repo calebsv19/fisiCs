@@ -490,10 +490,10 @@ Primary oracles:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Integer promotions | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__integer_promotions`, `07__usual_arith_conversions` | | |
 | Usual arithmetic conversions | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__usual_arith_conversions` | | |
-| Signed vs unsigned comparisons | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__mixed_signed_unsigned_compare` | | |
-| Pointer conversions | `semantic` | [x] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `07__void_pointer_roundtrip`, `07__void_pointer_arith_reject` | | |
+| Signed vs unsigned comparisons | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__mixed_signed_unsigned_compare`, `07__signed_unsigned_compare_boundary_runtime`, `07__signed_unsigned_compare_long_boundary_runtime` | | |
+| Pointer conversions | `semantic` | [x] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `07__void_pointer_roundtrip`, `07__void_pointer_arith_reject`, `07__conv__pointer_assign_float_reject`, `07__conv__pointer_init_struct_reject`, `07__conv__pointer_init_nonzero_int_reject`, `07__conv__assign_pointer_to_int_reject`, `07__diagjson__conv_pointer_assign_float_reject_strict`, `07__diagjson__conv_pointer_init_struct_reject_strict`, `07__diagjson__conv_pointer_init_nonzero_int_reject_strict`, `07__diagjson__conv_assign_pointer_to_int_reject_strict`, `07__null_pointer_constant_runtime`, `07__cast_ptr_uintptr_roundtrip_runtime`, `07__cast_struct_to_int_reject`, `07__cast_int_to_struct_reject`, `07__diagjson__cast_struct_to_int_reject`, `07__diagjson__cast_int_to_struct_reject`, `07__diagjson__cast_struct_to_int_reject_strict`, `07__diagjson__cast_int_to_struct_reject_strict`, `07__policy_impldef_ptr_ulong_roundtrip_runtime`, `07__policy_impldef_int_to_ptr_nonzero_runtime`, `07__policy_impldef_ptr_slong_roundtrip_runtime`, `07__policy_explicit_nonzero_int_cast_ptr_runtime`, `07__policy_strict_zero_cast_matrix_runtime`, `07__policy_strict_array_decay_ptrdiff_runtime`, `07__policy_strict_const_ptr_roundtrip_runtime`, `07__policy_strict_null_conditional_matrix_runtime`, `07__policy_strict_const_compare_matrix_runtime`, `07__policy_strict_const_chain_assignment_runtime`, `07__policy_strict_ptr_compare_one_past_runtime` | | includes impl-defined policy-tag lanes plus strict tri-reference policy-safe conversion matrix lanes and strict conversion diagjson parity |
 | Array-to-pointer decay | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__array_decay_param` | | |
-| Function-to-pointer decay | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__function_decay_call` | | |
+| Function-to-pointer decay | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__function_decay_call`, `07__policy_strict_fnptr_decay_null_runtime`, `07__policy_strict_fnptr_table_null_dispatch_runtime` | | |
 
 ### 7.3 Lvalue and Rvalue Correctness
 
@@ -516,17 +516,17 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Member access correctness | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__agg__member_access` | | |
-| Invalid member access | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__agg__invalid_member_reject` | | |
+| Member access correctness | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__agg__member_access`, `07__agg_union_nested_member_runtime`, `07__agg_union_copy_update_runtime` | | |
+| Invalid member access | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__agg__invalid_member_reject`, `07__diagjson__agg_invalid_member_reject`, `07__diagjson__agg_invalid_member_reject_strict`, `07__agg_union_missing_nested_field_reject`, `07__diagjson__agg_union_missing_nested_field_reject`, `07__diagjson__agg_union_missing_nested_field_reject_strict`, `07__agg_union_arrow_nonptr_reject`, `07__agg_dot_scalar_base_reject`, `07__agg_arrow_ptr_to_scalar_reject`, `07__agg_dot_array_base_reject`, `07__diagjson__agg_dot_scalar_base_reject`, `07__diagjson__agg_arrow_ptr_to_scalar_reject`, `07__diagjson__agg_dot_scalar_base_reject_strict`, `07__diagjson__agg_arrow_ptr_to_scalar_reject_strict`, `07__diagjson__agg_dot_array_base_reject_strict`, `07__designator_nested_unknown_field_reject`, `07__diagjson__designator_nested_unknown_field_reject`, `07__diagjson__designator_nested_unknown_field_reject_strict` | | semantic+diagjson parity now aligned, including strict code/line parity for nested-designator and operator-specific member-access rejections |
 | Offset correctness | `semantic` | [x] | [ ] | [x] | `in_progress` | `runtime` | `07__agg__offsets` | | ABI-sensitive |
 
 ### 7.6 Constant Expressions
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Required in array size | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__constexpr__array_size_reject` | | |
-| Required in case labels | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__constexpr__case_label_reject` | | |
-| Required in static initializer | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__constexpr__static_init_reject` | | |
+| Required in array size | `semantic` | [x] | [x] | [x] | `in_progress` | `diag`, `runtime` | `07__constexpr__array_size_reject`, `07__diagjson__constexpr_array_size_reject`, `07__constexpr_array_size_positive_runtime`, `07__constexpr_large_bound_runtime`, `07__constexpr_multidim_fold_runtime`, `07__constexpr_array_chain_depth_runtime`, `07__constexpr_array_static_shared_chain_depth_runtime`, `07__constexpr_shared_ice_matrix_runtime`, `07__constexpr_shared_ice_matrix_nested_runtime`, `07__constexpr_shared_ice_cross_surface_depth_runtime` | | |
+| Required in case labels | `semantic` | [x] | [x] | [x] | `in_progress` | `diag`, `runtime` | `07__constexpr__case_label_reject`, `07__diagjson__constexpr_case_label_reject`, `07__constexpr_case_label_positive_runtime`, `07__constexpr_enum_cast_sizeof_runtime`, `07__constexpr_fold_ternary_bitwise_runtime`, `07__constexpr_case_chain_depth_runtime`, `07__constexpr_switch_cast_sizeof_depth_runtime`, `07__constexpr_switch_nested_ternary_bitwise_depth_runtime`, `07__constexpr_shared_ice_matrix_runtime`, `07__constexpr_shared_ice_matrix_nested_runtime`, `07__constexpr_shared_ice_cross_surface_depth_runtime` | | |
+| Required in static initializer | `semantic` | [x] | [x] | [x] | `in_progress` | `diag`, `runtime` | `07__constexpr__static_init_reject`, `07__diagjson__constexpr_static_init_reject`, `07__constexpr_static_init_positive_runtime`, `07__constexpr_enum_cast_sizeof_runtime`, `07__constexpr_static_chain_depth_runtime`, `07__constexpr_static_ternary_bitcast_depth_runtime`, `07__constexpr_static_cast_sizeof_ternary_depth_runtime`, `07__constexpr_array_static_shared_chain_depth_runtime`, `07__constexpr_shared_ice_matrix_runtime`, `07__constexpr_shared_ice_matrix_nested_runtime`, `07__constexpr_shared_ice_cross_surface_depth_runtime` | | |
 
 ## Phase 8 — Code Generation and Runtime
 

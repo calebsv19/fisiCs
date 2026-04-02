@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__policy_impldef_ptr_slong_roundtrip_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_impldef_ptr_slong_roundtrip_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_impldef_ptr_slong_roundtrip_runtime.stdout",
+      "expected_stderr": "expect/07__policy_impldef_ptr_slong_roundtrip_runtime.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "policy",
+        "impl-defined",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__policy_explicit_nonzero_int_cast_ptr_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_explicit_nonzero_int_cast_ptr_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_explicit_nonzero_int_cast_ptr_runtime.stdout",
+      "expected_stderr": "expect/07__policy_explicit_nonzero_int_cast_ptr_runtime.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "cast",
+        "policy",
+        "impl-defined",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_multidim_fold_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_multidim_fold_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_multidim_fold_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_multidim_fold_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__designator_array_index_nonconst_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__designator_array_index_nonconst_reject.c",
+      "expects": [
+        "expect/07__designator_array_index_nonconst_reject.ast",
+        "expect/07__designator_array_index_nonconst_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "designator",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__designator_array_index_negative_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__designator_array_index_negative_reject.c",
+      "expects": [
+        "expect/07__designator_array_index_negative_reject.ast",
+        "expect/07__designator_array_index_negative_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "designator",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__designator_array_index_oob_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__designator_array_index_oob_reject.c",
+      "expects": [
+        "expect/07__designator_array_index_oob_reject.ast",
+        "expect/07__designator_array_index_oob_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "designator",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__designator_nested_unknown_field_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__designator_nested_unknown_field_reject.c",
+      "expects": [
+        "expect/07__designator_nested_unknown_field_reject.ast",
+        "expect/07__designator_nested_unknown_field_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "designator",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__designator_array_index_nonconst_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__designator_array_index_nonconst_reject.c",
+      "expects": [
+        "expect/07__diagjson__designator_array_index_nonconst_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "designator",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__designator_array_index_oob_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__designator_array_index_oob_reject.c",
+      "expects": [
+        "expect/07__diagjson__designator_array_index_oob_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "designator",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
+

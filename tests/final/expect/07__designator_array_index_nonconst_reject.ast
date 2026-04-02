@@ -1,0 +1,23 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER idx
+      = NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: int [3]
+    IDENTIFIER arr
+        [IDENTIFIER idx] = NUMBER_LITERAL 7
+
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        ARRAY_ACCESS
+          IDENTIFIER arr
+          NUMBER_LITERAL 0

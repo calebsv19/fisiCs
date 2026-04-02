@@ -1,0 +1,26 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Wrap
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Wrap
+        IDENTIFIER w
+            = NUMBER_LITERAL 3
+
+      RETURN
+        DOT_ACCESS '.'
+          DOT_ACCESS '.'
+            IDENTIFIER w
+            FIELD value
+          FIELD missing

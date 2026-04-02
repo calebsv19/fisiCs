@@ -31,19 +31,19 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
   - missing-return policy lane,
   - wrong-return-type statement lane.
 - Semantic phase (`07`) coverage:
-  - bucket is now active (Wave2 promoted),
-  - still missing deeper negative matrices for conversions/comparisons,
-  - still missing diagnostic-json parity lanes for semantic rejects.
+  - bucket is active through Wave17 (`100` tests total),
+  - all current 07 probe lanes are resolved (`resolved=91, blocked=0`),
+  - remaining work is optional depth extension (not a blocker for current baseline).
 - Runtime policy:
   - explicit signed-overflow UB policy lane still listed as unstarted in the checklist.
 - Torture infrastructure:
   - explicit high-volume fuzz-harness lane remains marked unstarted.
 
 ====== Recommended next execution order ======
-1. Continue semantic bucket (`07`) with Wave3 conversion-negative and diagjson parity lanes.
-2. Close lexer boundary leftovers (`02`) so token/literal policy is complete.
-3. Add statement return diagnostics (`09`) with explicit warning/error policy.
-4. Add torture harness infra lane (`15`) for bounded high-volume fuzz replay shards.
+1. Close lexer boundary leftovers (`02`) so token/literal policy is complete.
+2. Add statement return diagnostics (`09`) with explicit warning/error policy.
+3. Add torture harness infra lane (`15`) for bounded high-volume fuzz replay shards.
+4. Optionally extend semantic bucket (`07`) with Wave18+ depth-only lanes.
 
 ====== Preprocessor ======
 - Macro self-expansion suppression and re-scan behavior.

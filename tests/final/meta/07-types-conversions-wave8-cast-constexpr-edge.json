@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__cast_ptr_uintptr_roundtrip_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__cast_ptr_uintptr_roundtrip_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__cast_ptr_uintptr_roundtrip_runtime.stdout",
+      "expected_stderr": "expect/07__cast_ptr_uintptr_roundtrip_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "cast",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_enum_cast_sizeof_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_enum_cast_sizeof_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_enum_cast_sizeof_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_enum_cast_sizeof_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "edge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_large_bound_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_large_bound_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_large_bound_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_large_bound_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "stress"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__cast_struct_to_int_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__cast_struct_to_int_reject.c",
+      "expects": [
+        "expect/07__cast_struct_to_int_reject.ast",
+        "expect/07__cast_struct_to_int_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "cast",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__cast_int_to_struct_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__cast_int_to_struct_reject.c",
+      "expects": [
+        "expect/07__cast_int_to_struct_reject.ast",
+        "expect/07__cast_int_to_struct_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "cast",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__cast_struct_to_int_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__cast_struct_to_int_reject.c",
+      "expects": [
+        "expect/07__diagjson__cast_struct_to_int_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "cast",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__cast_int_to_struct_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__cast_int_to_struct_reject.c",
+      "expects": [
+        "expect/07__diagjson__cast_int_to_struct_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "cast",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

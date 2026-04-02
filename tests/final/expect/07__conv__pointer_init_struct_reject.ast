@@ -1,0 +1,28 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Payload
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER value
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Payload
+        IDENTIFIER payload
+            = NUMBER_LITERAL 7
+
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+          = IDENTIFIER payload
+      RETURN
+        BINARY EXPRESSION '!='
+          IDENTIFIER p
+          NUMBER_LITERAL 0

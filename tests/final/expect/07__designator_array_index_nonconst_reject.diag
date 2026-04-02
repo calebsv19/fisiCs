@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (2:0): Array 'arr' designator index must be a constant expression

@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__signed_unsigned_compare_long_boundary_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__signed_unsigned_compare_long_boundary_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__signed_unsigned_compare_long_boundary_runtime.stdout",
+      "expected_stderr": "expect/07__signed_unsigned_compare_long_boundary_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "runtime",
+        "signedness"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__conv__pointer_init_nonzero_int_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_init_nonzero_int_reject.c",
+      "expects": [
+        "expect/07__conv__pointer_init_nonzero_int_reject.ast",
+        "expect/07__conv__pointer_init_nonzero_int_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__conv__assign_pointer_to_int_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__assign_pointer_to_int_reject.c",
+      "expects": [
+        "expect/07__conv__assign_pointer_to_int_reject.ast",
+        "expect/07__conv__assign_pointer_to_int_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__conv_pointer_init_nonzero_int_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__pointer_init_nonzero_int_reject.c",
+      "expects": [
+        "expect/07__diagjson__conv_pointer_init_nonzero_int_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__conv_assign_pointer_to_int_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__conv__assign_pointer_to_int_reject.c",
+      "expects": [
+        "expect/07__diagjson__conv_assign_pointer_to_int_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

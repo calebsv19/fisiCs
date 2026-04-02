@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__null_pointer_constant_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__null_pointer_constant_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__null_pointer_constant_runtime.stdout",
+      "expected_stderr": "expect/07__null_pointer_constant_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "runtime",
+        "conversion",
+        "null-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__agg_invalid_member_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg__invalid_member_reject.c",
+      "expects": [
+        "expect/07__diagjson__agg_invalid_member_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

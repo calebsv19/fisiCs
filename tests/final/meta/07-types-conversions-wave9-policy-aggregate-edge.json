@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__policy_impldef_ptr_ulong_roundtrip_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_impldef_ptr_ulong_roundtrip_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_impldef_ptr_ulong_roundtrip_runtime.stdout",
+      "expected_stderr": "expect/07__policy_impldef_ptr_ulong_roundtrip_runtime.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "policy",
+        "impl-defined",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__policy_impldef_int_to_ptr_nonzero_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__policy_impldef_int_to_ptr_nonzero_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__policy_impldef_int_to_ptr_nonzero_runtime.stdout",
+      "expected_stderr": "expect/07__policy_impldef_int_to_ptr_nonzero_runtime.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "policy",
+        "impl-defined",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr_fold_ternary_bitwise_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr_fold_ternary_bitwise_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__constexpr_fold_ternary_bitwise_runtime.stdout",
+      "expected_stderr": "expect/07__constexpr_fold_ternary_bitwise_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "constexpr",
+        "runtime",
+        "edge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg_dot_scalar_base_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_dot_scalar_base_reject.c",
+      "expects": [
+        "expect/07__agg_dot_scalar_base_reject.ast",
+        "expect/07__agg_dot_scalar_base_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg_arrow_ptr_to_scalar_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_arrow_ptr_to_scalar_reject.c",
+      "expects": [
+        "expect/07__agg_arrow_ptr_to_scalar_reject.ast",
+        "expect/07__agg_arrow_ptr_to_scalar_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg_dot_array_base_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_dot_array_base_reject.c",
+      "expects": [
+        "expect/07__agg_dot_array_base_reject.ast",
+        "expect/07__agg_dot_array_base_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__agg_dot_scalar_base_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_dot_scalar_base_reject.c",
+      "expects": [
+        "expect/07__diagjson__agg_dot_scalar_base_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diagjson__agg_arrow_ptr_to_scalar_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_arrow_ptr_to_scalar_reject.c",
+      "expects": [
+        "expect/07__diagjson__agg_arrow_ptr_to_scalar_reject.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
