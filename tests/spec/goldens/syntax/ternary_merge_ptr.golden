@@ -52,5 +52,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (4:0): Incompatible types in ternary expression
+Semantic analysis: no issues found.
 

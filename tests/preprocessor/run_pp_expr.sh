@@ -14,7 +14,13 @@ if [ ! -f "$ROOT_DIR/src/Lexer/keyword_lookup.c" ]; then
 fi
 
 cc -Wall -Wextra -std=c99 \
-  -Isrc -Isrc/Lexer -Isrc/Preprocessor \
+  -I"$ROOT_DIR/src" \
+  -I"$ROOT_DIR/src/Lexer" \
+  -I"$ROOT_DIR/src/Preprocessor" \
+  -I"$ROOT_DIR/../shared/core/core_base/include" \
+  -I"$ROOT_DIR/../shared/core/core_io/include" \
+  -I"$ROOT_DIR/../shared/core/core_data/include" \
+  -I"$ROOT_DIR/../shared/core/core_pack/include" \
   "$SRC_EXPR" \
   "$ROOT_DIR/src/Preprocessor/pp_expr.c" \
   "$ROOT_DIR/src/Preprocessor/macro_table.c" \

@@ -1,5 +1,5 @@
 {
-  "diag_count": 6,
+  "diag_count": 5,
   "diagnostics": [
     {
       "code": 1000,
@@ -50,19 +50,9 @@
       "kind": 0,
       "length": 5,
       "line": 19
-    },
-    {
-      "code": 2000,
-      "column": 12,
-      "has_file": true,
-      "has_hint": false,
-      "has_message": true,
-      "kind": 0,
-      "length": 5,
-      "line": 19
     }
   ],
-  "error_count": 6,
+  "error_count": 5,
   "note_count": 0,
   "profile": "fisics_diagnostics_v1",
   "schema_version": 1,

@@ -1736,15 +1736,6 @@ PROGRAM
     TYPE: extern int
     IDENTIFIER __mb_cur_max
   TYPEDEF
-        TYPE: __darwin_ptrdiff_t
-        Alias:     IDENTIFIER ptrdiff_t
-  TYPEDEF
-        TYPE: __darwin_size_t
-        Alias:     IDENTIFIER rsize_t
-  TYPEDEF
-        TYPE: __darwin_wint_t
-        Alias:     IDENTIFIER wint_t
-  TYPEDEF
         TYPE: unsigned long int
         Alias:     IDENTIFIER malloc_type_id_t
   FUNCTION DECLARATION

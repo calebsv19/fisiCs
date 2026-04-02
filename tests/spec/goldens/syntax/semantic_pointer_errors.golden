@@ -66,6 +66,7 @@ PROGRAM
 Diagnostics:
 Error at (7:15): Operator '+' requires pointer arithmetic (pointer +/- integer)
    Spelling: tests/syntax/semantic_pointer_errors.c:7:15
+Error at (8:0): Incompatible initializer type for 'diff'
 Error at (9:15): Operator '<' requires comparable operands
    Spelling: tests/syntax/semantic_pointer_errors.c:9:15
 

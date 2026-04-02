@@ -30,5 +30,5 @@ PROGRAM
 
 
 Diagnostics:
-Semantic analysis: no issues found.
+Error at (5:0): alignof requires type-name operand
 

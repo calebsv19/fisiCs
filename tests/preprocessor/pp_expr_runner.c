@@ -6,6 +6,23 @@
 #include "Lexer/token_buffer.h"
 #include "Preprocessor/macro_table.h"
 #include "Preprocessor/pp_expr.h"
+#include "Compiler/diagnostics.h"
+
+bool compiler_report_diag(struct CompilerContext* ctx,
+                          SourceRange loc,
+                          DiagKind kind,
+                          int code,
+                          const char* hint,
+                          const char* fmt,
+                          ...) {
+    (void)ctx;
+    (void)loc;
+    (void)kind;
+    (void)code;
+    (void)hint;
+    (void)fmt;
+    return true;
+}
 
 static bool eval_expr(MacroTable* table,
                       const char* expr,

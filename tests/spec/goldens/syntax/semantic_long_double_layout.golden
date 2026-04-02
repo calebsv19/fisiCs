@@ -380,6 +380,5 @@ PROGRAM
 
 
 Diagnostics:
-Error at (7:0): Variable-length array 'check_size_t' is not allowed at static storage duration
-Error at (8:0): Variable-length array 'check_ptrdiff_t' is not allowed at static storage duration
+Semantic analysis: no issues found.
 

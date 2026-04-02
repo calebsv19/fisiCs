@@ -64,8 +64,12 @@ Diagnostics:
 Error at (15:12): Redefinition of variable
    Hint: s
    Spelling: tests/syntax/semantic_storage.c:15:12
-Error at (18:11): Cannot take address of register object
+Error at (17:0): Invalid storage class at file scope
    Hint: regvar
+Error at (18:11): Undeclared identifier
+   Hint: regvar
+   Spelling: tests/syntax/semantic_storage.c:18:11
+Error at (18:11): Operator '&' requires lvalue operand
    Spelling: tests/syntax/semantic_storage.c:18:11
 Error at (18:0): Initializer for static variable 'p' is not a constant expression
 

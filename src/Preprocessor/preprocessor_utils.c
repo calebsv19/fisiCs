@@ -280,9 +280,10 @@ bool pp_prepare_expr_tokens(Preprocessor* pp,
     size_t i = 0;
     while (i < count) {
         const Token* tok = &tokens[i];
-        if (pp && pp->lenientMissingIncludes &&
-            tok->type == TOKEN_IDENTIFIER && tok->value &&
-            strcmp(tok->value, "__has_include") == 0) {
+        if (pp && tok->value &&
+            (strcmp(tok->value, "__has_include") == 0 ||
+             strcmp(tok->value, "__has_include_next") == 0)) {
+            bool isIncludeNext = strcmp(tok->value, "__has_include_next") == 0;
             size_t j = i + 1;
             bool hasParen = false;
             if (j < count && tokens[j].type == TOKEN_LPAREN) {
@@ -339,7 +340,7 @@ bool pp_prepare_expr_tokens(Preprocessor* pp,
                                                                parent,
                                                                nameBuf,
                                                                isSystem,
-                                                               false,
+                                                               isIncludeNext,
                                                                &origin,
                                                                &originIndex);
                 present = (inc != NULL) ? 1 : 0;
@@ -374,8 +375,10 @@ bool pp_prepare_expr_tokens(Preprocessor* pp,
         size_t start = i;
         while (i < count) {
             const Token* t = &tokens[i];
-            if (t->type == TOKEN_IDENTIFIER && t->value &&
-                strcmp(t->value, "defined") == 0) {
+            if (t->value &&
+                (strcmp(t->value, "defined") == 0 ||
+                 strcmp(t->value, "__has_include") == 0 ||
+                 strcmp(t->value, "__has_include_next") == 0)) {
                 break;
             }
             if (t->type == TOKEN_EOF) {
