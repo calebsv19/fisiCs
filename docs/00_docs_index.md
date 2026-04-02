@@ -112,6 +112,17 @@ Phased implementation plan for enabling structured diagnostics JSON output on
 link-stage failures (`--emit-diags-json`), including driver integration points,
 risk controls, rollout gates, and bucket-14 promotion strategy.
 
+### `docs/plans/torture_bucket_15_execution_plan.md`
+
+Active wave plan for bucket `15` (`torture-differential`), including current
+coverage baseline, priority gaps, proposed wave shards, and promotion gates.
+
+### `docs/plans/semantic_bucket_07_execution_plan.md`
+
+Wave-based execution plan for bucket `07` (`types-conversions`), including
+probe-first promotion workflow, completed semantic expansion waves, and queued
+next-wave targets.
+
 ## `docs/status/`
 
 ### `docs/status/PASSING.md`
@@ -168,3 +179,5 @@ Open these docs based on what you are trying to do:
 - Need active error triage planning: `plans/fisics_errors_triage_plan.md`
 - Need current runtime-bucket roadmap: `plans/runtime_bucket_14_execution_plan.md`
 - Need link-stage `.diagjson` implementation roadmap: `plans/link_stage_diagjson_enablement_plan.md`
+- Need current torture-bucket roadmap: `plans/torture_bucket_15_execution_plan.md`
+- Need current semantic-bucket roadmap: `plans/semantic_bucket_07_execution_plan.md`

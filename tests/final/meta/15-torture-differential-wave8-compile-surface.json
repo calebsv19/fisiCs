@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__pathological_type_graph",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__pathological_type_graph.c",
+      "expects": [
+        "expect/15__torture__pathological_type_graph.ast",
+        "expect/15__torture__pathological_type_graph.diag"
+      ],
+      "tags": [
+        "torture",
+        "compile-surface",
+        "ast",
+        "type-graph"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__pathological_initializer_shape_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__pathological_initializer_shape_reject.c",
+      "expects": [
+        "expect/15__torture__pathological_initializer_shape_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "compile-surface",
+        "initializer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__pathological_initializer_shape_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__pathological_initializer_shape_reject.c",
+      "expects": [
+        "expect/15__diagjson__pathological_initializer_shape_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "compile-surface",
+        "initializer",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

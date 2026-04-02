@@ -1,0 +1,7 @@
+#ifndef CASE_MALFORMED_HEADER_GUARD_TAIL_MISMATCH_CHAIN_A_EXPECTED_H
+#define CASE_MALFORMED_HEADER_GUARD_TAIL_MISMATCH_CHAIN_A_ACTUAL_H
+
+#include "15__torture__malformed_header_guard_tail_mismatch_chain_no_crash_b.h"
+static int case_header_guard_tail_chain_value(void) { return 43; }
+
+#endif

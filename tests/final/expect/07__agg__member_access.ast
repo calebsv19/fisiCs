@@ -1,0 +1,70 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Pair
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER x
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER y
+  STRUCT
+        Name:     IDENTIFIER Box
+    VAR_DECL
+      TYPE: struct Pair
+      IDENTIFIER p
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER sum_box
+    PARAMETERS
+      VAR_DECL
+        TYPE: struct Box
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          DOT_ACCESS '.'
+            DOT_ACCESS '.'
+              IDENTIFIER b
+              FIELD p
+            FIELD x
+          DOT_ACCESS '.'
+            DOT_ACCESS '.'
+              IDENTIFIER b
+              FIELD p
+            FIELD y
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Box
+        IDENTIFIER box
+            = 
+              = NUMBER_LITERAL 3
+
+              = NUMBER_LITERAL 4
+
+      VAR_DECL
+        TYPE: struct Box*
+        IDENTIFIER ptr
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER box
+      ASSIGNMENT (+=)
+        DOT_ACCESS '.'
+          POINTER_ACCESS '->'
+            IDENTIFIER ptr
+            FIELD p
+          FIELD x
+        NUMBER_LITERAL 6
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER sum_box
+          ARGUMENTS
+            UNARY EXPRESSION '*' (prefix)
+              IDENTIFIER ptr

@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__policy_impldef_signed_shift_matrix_tagged",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__policy_impldef_signed_shift_matrix_tagged.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__policy_impldef_signed_shift_matrix_tagged.stdout",
+      "expected_stderr": "expect/15__torture__policy_impldef_signed_shift_matrix_tagged.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "policy",
+        "impl-defined",
+        "signed-shift"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__policy_impldef_signed_char_matrix_tagged",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__policy_impldef_signed_char_matrix_tagged.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__policy_impldef_signed_char_matrix_tagged.stdout",
+      "expected_stderr": "expect/15__torture__policy_impldef_signed_char_matrix_tagged.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "policy",
+        "impl-defined",
+        "signed-char"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__policy_ub_unsequenced_write_tagged",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__policy_ub_unsequenced_write_tagged.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__policy_ub_unsequenced_write_tagged.stdout",
+      "expected_stderr": "expect/15__torture__policy_ub_unsequenced_write_tagged.stderr",
+      "differential": true,
+      "ub": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "policy",
+        "ub",
+        "unsequenced-write"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__policy_ub_alias_overlap_tagged",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__policy_ub_alias_overlap_tagged.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__policy_ub_alias_overlap_tagged.stdout",
+      "expected_stderr": "expect/15__torture__policy_ub_alias_overlap_tagged.stderr",
+      "differential": true,
+      "ub": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "policy",
+        "ub",
+        "alias-overlap"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

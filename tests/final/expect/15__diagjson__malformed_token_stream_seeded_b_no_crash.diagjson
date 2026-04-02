@@ -1,0 +1,20 @@
+{
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "code": 1000,
+      "column": 20,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 3
+    }
+  ],
+  "error_count": 1,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

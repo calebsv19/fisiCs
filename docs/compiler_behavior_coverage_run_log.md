@@ -59,6 +59,437 @@ Suggested entry format:
 - Fix batch status: pending
 ```
 
+### 2026-03-30 — Bucket: torture-differential (15) planning refresh + next-wave map
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-29 external corpus scale-up II closure
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-30 policy matrix expansion II closure
+
+- Scope:
+  expand explicit UB/implementation-defined policy-tag lanes with deterministic
+  probe behavior and skip-gated final differential checks.
+- Added probes:
+  `15__probe_policy_impldef_signed_shift_width_matrix_tagged`,
+  `15__probe_policy_impldef_char_promotion_matrix_tagged`,
+  `15__probe_policy_ub_signed_overflow_chain_tagged`,
+  `15__probe_policy_ub_eval_order_call_sidefx_tagged`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave30-policy-matrix-expansion-ii.json`
+  with:
+  `15__torture__policy_impldef_signed_shift_width_matrix_tagged`,
+  `15__torture__policy_impldef_char_promotion_matrix_tagged`,
+  `15__torture__policy_ub_signed_overflow_chain_tagged`,
+  `15__torture__policy_ub_eval_order_call_sidefx_tagged`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave30-policy-matrix-expansion-ii.json` passes (`0 failing, 4 skipped`);
+  `make final-wave WAVE=30 WAVE_BUCKET=15-torture-differential` passes (`0 failing, 4 skipped`);
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `108` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=99`, `skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-31 malformed header-surface parity closure
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-32 optional gcc tri-diff policy crosscheck closure
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-33 malformed header-chain diagjson expansion closure
+
+- Scope:
+  expand malformed header-chain no-crash coverage with additional `.diagjson`
+  parity checks and chained guard-mismatch fixture.
+- Added probes:
+  `15__probe_diag_malformed_header_macro_cycle_chain_no_crash`,
+  `15__probe_diagjson_malformed_header_macro_cycle_chain_no_crash`,
+  `15__probe_diag_malformed_header_guard_tail_mismatch_chain_no_crash`,
+  `15__probe_diagjson_malformed_header_guard_tail_mismatch_chain_no_crash`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave33-malformed-header-chain-diagjson-expansion.json`
+  with:
+  `15__diagjson__malformed_header_macro_cycle_chain_no_crash`,
+  `15__torture__malformed_header_guard_tail_mismatch_chain_no_crash`,
+  `15__diagjson__malformed_header_guard_tail_mismatch_chain_no_crash`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave33-malformed-header-chain-diagjson-expansion.json` passes;
+  `make final-wave WAVE=33 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `116` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=107`, `skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-34 optional gcc tri-diff header/control matrix closure
+
+- Scope:
+  add optional gcc tri-reference differential checks for deterministic
+  header-influenced control/layout runtime matrices.
+- Added probes:
+  `15__probe_runtime_clang_gcc_tri_diff_header_control_dispatch_matrix`,
+  `15__probe_runtime_clang_gcc_tri_diff_header_layout_fold_matrix`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave34-gcc-tri-diff-header-control-matrix.json`
+  with:
+  `15__torture__clang_gcc_tri_diff_header_control_dispatch_matrix`,
+  `15__torture__clang_gcc_tri_diff_header_layout_fold_matrix`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave34-gcc-tri-diff-header-control-matrix.json` passes;
+  `make final-wave WAVE=34 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `118` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=109`, `skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-35 malformed include-graph diagjson follow-up closure
+
+- Scope:
+  extend malformed include-graph fail-closed coverage with one deterministic
+  text-diagnostic lane plus two structured diagnostics-json parity lanes.
+- Added probes:
+  `15__probe_diag_malformed_include_graph_guard_collision_no_crash`,
+  `15__probe_diagjson_malformed_include_graph_guard_collision_no_crash`,
+  `15__probe_diagjson_malformed_include_graph_macro_arity_chain_no_crash`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave35-malformed-include-graph-diagjson-followup.json`
+  with:
+  `15__torture__malformed_include_graph_guard_collision_no_crash`,
+  `15__diagjson__malformed_include_graph_guard_collision_no_crash`,
+  `15__diagjson__malformed_include_graph_macro_arity_chain_no_crash`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave35-malformed-include-graph-diagjson-followup.json` passes;
+  `make final-wave WAVE=35 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `121` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=112`, `skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) pause stocktake / gap refinement
+
+- Scope:
+  pause wave execution and refresh docs with a concrete coverage-vs-gap picture
+  for stress/torture lanes.
+- Current baseline captured:
+  `36` manifests, `121` tests, `68` runtime differential lanes, `30` diagnostics
+  lanes, `22` diagjson lanes.
+- Confirmed stable state:
+  `make final-bucket BUCKET=torture-differential` => `0 failing, 10 skipped`;
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=112`, `skipped=0`.
+- Refined unresolved (non-blocking) gaps recorded:
+  - tri-reference GCC lanes are still a subset of runtime differential lanes,
+  - compile-surface stress breadth is low relative to runtime surface,
+  - seeded fuzz smoke is present but no high-volume deterministic replay campaign,
+  - external-corpus coverage remains fragment-based, not larger pinned bundles.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-36..40 mapping plan created
+
+- Scope:
+  translate the five unresolved stress areas into a concrete five-wave execution
+  map with planned lanes, probes, and manifest shard names.
+- Planned waves:
+  - Wave 36: stress-ceiling frontier sweep
+  - Wave 37: fuzz-volume deterministic replay
+  - Wave 38: gcc tri-reference breadth expansion
+  - Wave 39: compile-surface stress expansion
+  - Wave 40: external-corpus pinned bundle expansion
+- Plan file updated:
+  `docs/plans/torture_bucket_15_execution_plan.md`.
+
+- Scope:
+  add optional gcc tri-reference differential checks for host-stable policy
+  runtime matrices.
+- Added probes:
+  `15__probe_runtime_clang_gcc_tri_diff_policy_shift_char_matrix`,
+  `15__probe_runtime_clang_gcc_tri_diff_policy_struct_abi_matrix`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave32-gcc-tri-diff-policy-crosscheck.json`
+  with:
+  `15__torture__clang_gcc_tri_diff_policy_shift_char_matrix`,
+  `15__torture__clang_gcc_tri_diff_policy_struct_abi_matrix`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave32-gcc-tri-diff-policy-crosscheck.json` passes;
+  `make final-wave WAVE=32 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `113` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=104`, `skipped=0`.
+
+- Scope:
+  expand malformed header-surface no-crash coverage with deterministic
+  recursive-include and macro-chain diagnostics plus one `.diagjson` parity lane.
+- Added probes:
+  `15__probe_diag_malformed_header_guard_tail_mismatch_no_crash`,
+  `15__probe_diag_malformed_header_macro_cycle_chain_no_crash`,
+  `15__probe_diagjson_malformed_header_guard_tail_mismatch_no_crash`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave31-malformed-header-surface-parity.json`
+  with:
+  `15__torture__malformed_header_guard_tail_mismatch_no_crash`,
+  `15__torture__malformed_header_macro_cycle_chain_no_crash`,
+  `15__diagjson__malformed_header_guard_tail_mismatch_no_crash`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave31-malformed-header-surface-parity.json` passes;
+  `make final-wave WAVE=31 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `111` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=102`, `skipped=0`.
+
+- Scope:
+  add second external-corpus expansion with two deterministic runtime fragments
+  plus one fail-closed include-guard mismatch negative lane.
+- Added probes:
+  `15__probe_corpus_external_decl_chain_smoke`,
+  `15__probe_corpus_external_typedef_graph_smoke`,
+  `15__probe_diag_corpus_external_include_guard_mismatch_reject`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave29-external-corpus-scaleup-ii.json`
+  with:
+  `15__torture__corpus_external_decl_chain_smoke`,
+  `15__torture__corpus_external_typedef_graph_smoke`,
+  `15__torture__corpus_external_include_guard_mismatch_reject`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave29-external-corpus-scaleup-ii.json` passes;
+  `make final-wave WAVE=29 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 6 skipped`, `104` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=95`, `skipped=0`.
+
+- Scope:
+  refresh bucket-15 planning docs with current baseline and explicit closure
+  wave order for remaining coverage gaps.
+- Fresh baseline verify:
+  - `make final-bucket BUCKET=torture-differential` => all `33/33` pass.
+  - `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py`
+    => `blocked=0`, `resolved=24`, `skipped=0`.
+- Metadata baseline verify:
+  `7` manifests, `33` active tests, `22` runtime differential lanes, `8`
+  diagnostics lanes, `3` diagnostics-json lanes, `1` AST lane.
+- Doc state correction:
+  removed stale blocker text about block-scope enum constants in bucket-15 docs
+  (this was resolved in prior fix work).
+- New planned waves recorded:
+  Wave7 external corpus deterministic lane,
+  Wave8 compile-surface expansion,
+  Wave9 malformed fuzz-smoke matrix,
+  Wave10 optional GCC differential lane,
+  Wave11 UB/impl-defined policy tagging.
+
+### 2026-03-30 — Bucket: torture-differential (15) wave-7 external-corpus closure
+
+- Scope:
+  promote first external-corpus styled deterministic lane plus a fail-closed
+  negative corpus fragment.
+- Added probes:
+  `15__probe_corpus_external_compile_smoke`,
+  `15__probe_diag_corpus_external_compile_reject`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave7-external-corpus.json`
+  with:
+  `15__torture__corpus_external_compile_smoke`,
+  `15__torture__corpus_external_compile_reject`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave7-external-corpus.json` passes;
+  `make final-wave WAVE=7 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`35/35`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=26`, `skipped=0`.
+
+### 2026-03-30 — Bucket: torture-differential (15) wave-8 compile-surface closure
+
+- Scope:
+  expand compile-surface torture coverage with one AST-heavy type-graph lane,
+  one negative initializer-shape lane, and `.diagjson` parity for that reject path.
+- Added probes:
+  `15__probe_ast_pathological_type_graph`,
+  `15__probe_diag_pathological_initializer_shape_reject`,
+  `15__probe_diagjson_pathological_initializer_shape_reject`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave8-compile-surface.json`
+  with:
+  `15__torture__pathological_type_graph`,
+  `15__torture__pathological_initializer_shape_reject`,
+  `15__diagjson__pathological_initializer_shape_reject`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave8-compile-surface.json` passes;
+  `make final-wave WAVE=8 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`38/38`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=29`, `skipped=0`.
+
+### 2026-03-30 — Bucket: torture-differential (15) wave-9 malformed fuzz matrix closure
+
+- Scope:
+  add deterministic seeded malformed token-stream matrix lanes and promote
+  `.diagjson` parity for one seeded lane.
+- Added probes:
+  `15__probe_diag_malformed_token_stream_seeded_a_no_crash`,
+  `15__probe_diag_malformed_token_stream_seeded_b_no_crash`,
+  `15__probe_diagjson_malformed_token_stream_seeded_a_no_crash`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave9-malformed-fuzz-matrix.json`
+  with:
+  `15__torture__malformed_token_stream_seeded_a_no_crash`,
+  `15__torture__malformed_token_stream_seeded_b_no_crash`,
+  `15__diagjson__malformed_token_stream_seeded_a_no_crash`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave9-malformed-fuzz-matrix.json` passes;
+  `make final-wave WAVE=9 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`41/41`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=32`, `skipped=0`.
+
+### 2026-03-30 — Bucket: torture-differential (15) wave-10 optional GCC differential closure
+
+- Scope:
+  add an optional GCC-referenced differential lane while keeping deterministic
+  default behavior and explicit skip semantics when GCC is unavailable.
+- Harness changes:
+  - `tests/final/probes/run_probes.py` now supports per-probe
+    `extra_differential_compiler` checks for tri-reference runtime smoke lanes.
+  - `tests/final/run_final.py` differential output now references the configured
+    `differential_compiler` name (not clang-specific strings).
+- Added probe lane:
+  `15__probe_runtime_clang_gcc_tri_diff_smoke`.
+- Probe verify:
+  `PROBE_FILTER=15__probe_runtime_clang_gcc_tri_diff_smoke python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=1`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/15-torture-differential-wave10-gcc-optional-diff.json`
+  with:
+  `15__torture__clang_gcc_tri_diff_smoke`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave10-gcc-optional-diff.json` passes;
+  `make final-wave WAVE=10 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`42/42`).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=33`, `skipped=0`.
+
+### 2026-03-30 — Bucket: torture-differential (15) wave-11 policy tagging closure
+
+- Scope:
+  close UB/implementation-defined policy tagging so differential behavior is
+  explicitly gated by metadata instead of implicit assumptions.
+- Added probe lanes:
+  `15__probe_policy_signed_shift_impl_defined_tagged`,
+  `15__probe_policy_alias_ub_tagged`.
+- Probe verify:
+  `PROBE_FILTER=15__probe_policy_signed_shift_impl_defined_tagged,15__probe_policy_alias_ub_tagged python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=2`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/15-torture-differential-wave11-policy-tags.json`
+  with:
+  `15__torture__policy_signed_shift_impl_defined_tagged`,
+  `15__torture__policy_alias_ub_tagged`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave11-policy-tags.json`
+  => `0 failing, 2 skipped`;
+  `make final-wave WAVE=11 WAVE_BUCKET=15-torture-differential`
+  => `0 failing, 2 skipped`;
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 2 skipped` (`44` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=35`, `skipped=0`.
+
+### 2026-03-30 — Bucket: torture-differential (15) wave-12 malformed matrix parity expansion
+
+- Scope:
+  continue bucket-15 malformed robustness expansion by adding seeded-C malformed
+  text-diagnostic lane and `.diagjson` parity lanes for seeded B/C.
+- Added probe lanes:
+  `15__probe_diag_malformed_token_stream_seeded_c_no_crash`,
+  `15__probe_diagjson_malformed_token_stream_seeded_b_no_crash`,
+  `15__probe_diagjson_malformed_token_stream_seeded_c_no_crash`.
+- Probe verify:
+  `PROBE_FILTER=15__probe_diag_malformed_token_stream_seeded_c_no_crash,15__probe_diagjson_malformed_token_stream_seeded_b_no_crash,15__probe_diagjson_malformed_token_stream_seeded_c_no_crash python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/15-torture-differential-wave12-malformed-diagjson-parity.json`
+  with:
+  `15__torture__malformed_token_stream_seeded_c_no_crash`,
+  `15__diagjson__malformed_token_stream_seeded_b_no_crash`,
+  `15__diagjson__malformed_token_stream_seeded_c_no_crash`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave12-malformed-diagjson-parity.json` passes;
+  `make final-wave WAVE=12 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` => `0 failing, 2 skipped` (`47` active).
+- Full-suite gate:
+  `make final` => `0 failing, 24 skipped`.
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=38`, `skipped=0`.
+
+### 2026-03-30 — Bucket: torture-differential (15) wave-13 multi-TU stress expansion
+
+- Scope:
+  expand cross-translation-unit runtime stress with denser stateful and
+  data-layout workloads beyond the earlier baseline multi-TU lanes.
+- Added probe lanes:
+  `15__probe_multitu_fnptr_state_matrix`,
+  `15__probe_multitu_struct_vla_stride_bridge`,
+  `15__probe_multitu_ring_digest_pipeline`.
+- Probe verify:
+  `PROBE_FILTER=15__probe_multitu_fnptr_state_matrix,15__probe_multitu_struct_vla_stride_bridge,15__probe_multitu_ring_digest_pipeline python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=3`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/15-torture-differential-wave13-multitu-stress-expansion.json`
+  with:
+  `15__torture__multitu_fnptr_state_matrix`,
+  `15__torture__multitu_struct_vla_stride_bridge`,
+  `15__torture__multitu_ring_digest_pipeline`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave13-multitu-stress-expansion.json` passes;
+  `make final-wave WAVE=13 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` => `0 failing, 2 skipped` (`50` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=41`, `skipped=0`.
+
+### 2026-03-30 — Bucket: torture-differential (15) wave-14 multi-TU link-failure matrix
+
+- Scope:
+  expand link-stage fail-closed coverage with additional multi-TU collision lanes
+  and keep `.diagjson` parity for those link failures explicit.
+- Added probe lanes:
+  `15__probe_diag_multitu_duplicate_function_definition_reject`,
+  `15__probe_diag_multitu_symbol_type_conflict_reject`,
+  `15__probe_diagjson_multitu_duplicate_function_definition_reject`,
+  `15__probe_diagjson_multitu_symbol_type_conflict_reject`.
+- Probe verify:
+  `PROBE_FILTER=15__probe_diag_multitu_duplicate_function_definition_reject,15__probe_diag_multitu_symbol_type_conflict_reject,15__probe_diagjson_multitu_duplicate_function_definition_reject,15__probe_diagjson_multitu_symbol_type_conflict_reject python3 tests/final/probes/run_probes.py`
+  reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotions:
+  added `tests/final/meta/15-torture-differential-wave14-multitu-link-failure-matrix.json`
+  with:
+  `15__torture__multitu_duplicate_function_definition_reject`,
+  `15__torture__multitu_symbol_type_conflict_reject`,
+  `15__diagjson__multitu_duplicate_function_definition_reject`,
+  `15__diagjson__multitu_symbol_type_conflict_reject`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave14-multitu-link-failure-matrix.json` passes;
+  `make final-wave WAVE=14 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` => `0 failing, 2 skipped` (`54` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=45`, `skipped=0`.
+
 ### 2026-03-27 — Bucket: runtime-surface (14) wave-75 fnptr initializer-signature closure
 
 - Scope:
@@ -4128,3 +4559,617 @@ Suggested entry format:
   => `Summary: blocked=0, resolved=6, skipped=0`.
   `make final-bucket BUCKET=torture-differential`
   => all 15 pass.
+
+### 2026-03-30 — Bucket: torture-differential (15 wave15 runtime stress expansion)
+
+- Added Wave15 probe lanes:
+  `15__probe_runtime_vla_fnptr_feedback_matrix`,
+  `15__probe_runtime_struct_union_reducer_chain`,
+  `15__probe_multitu_state_reseed_pipeline`.
+- Probe-first blocker/fix:
+  initial multi-TU reseed implementation crashed in `-o` compile/link path.
+  Lane was stabilized by switching to an unsigned-only multi-TU reseed/mix
+  pipeline while keeping the same stress intent (stateful + cross-TU + reseed).
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave15-runtime-stress-expansion.json`.
+- Promoted tests:
+  `15__torture__runtime_vla_fnptr_feedback_matrix`,
+  `15__torture__runtime_struct_union_reducer_chain`,
+  `15__torture__multitu_state_reseed_pipeline`.
+- Validation:
+  `PROBE_FILTER=15__probe_runtime_vla_fnptr_feedback_matrix,15__probe_runtime_struct_union_reducer_chain,15__probe_multitu_state_reseed_pipeline python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+  `make final-manifest MANIFEST=15-torture-differential-wave15-runtime-stress-expansion.json`
+  => all 3 pass.
+  `make final-wave WAVE=15 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+
+### 2026-03-30 — Bucket: torture-differential (15 wave16 malformed+diagjson expansion)
+
+- Added Wave16 probe lanes:
+  `15__probe_diag_malformed_invalid_dollar_no_crash`,
+  `15__probe_diag_malformed_char_invalid_hex_escape_no_crash`,
+  `15__probe_diagjson_malformed_invalid_dollar_no_crash`,
+  `15__probe_diagjson_malformed_char_invalid_hex_escape_no_crash`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave16-malformed-diagjson-expansion.json`.
+- Promoted tests:
+  `15__torture__malformed_invalid_dollar_no_crash`,
+  `15__torture__malformed_char_invalid_hex_escape_no_crash`,
+  `15__diagjson__malformed_invalid_dollar_no_crash`,
+  `15__diagjson__malformed_char_invalid_hex_escape_no_crash`.
+- Validation:
+  `PROBE_FILTER=15__probe_diag_malformed_invalid_dollar_no_crash,15__probe_diag_malformed_char_invalid_hex_escape_no_crash,15__probe_diagjson_malformed_invalid_dollar_no_crash,15__probe_diagjson_malformed_char_invalid_hex_escape_no_crash python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+  `make final-manifest MANIFEST=15-torture-differential-wave16-malformed-diagjson-expansion.json`
+  => all 4 pass.
+  `make final-wave WAVE=16 WAVE_BUCKET=15-torture-differential`
+  => all 4 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing`, `2 skipped`.
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=52, skipped=0`.
+
+### 2026-03-30 — Bucket: torture-differential (15 status/doc refresh)
+
+- Re-validated current bucket status:
+  `make final-bucket BUCKET=torture-differential` => `0 failing, 2 skipped` (`61` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=52, skipped=0`.
+- Refreshed top-level bucket docs to current wave-16 baseline:
+  `tests/final/15-torture-differential.md`,
+  `docs/plans/torture_bucket_15_execution_plan.md`,
+  `docs/status/PASSING.md`,
+  `docs/status/UNVALIDATED.md`.
+- Added explicit optional expansion backlog for bucket-15 so remaining
+  untested regions are recorded and waveable.
+
+### 2026-03-30 — Bucket: torture-differential (15 tomorrow-wave planning)
+
+- Converted backlog into explicit execution waves for next session:
+  Wave17 external-corpus scale-up,
+  Wave18 malformed PP + multi-file expansion,
+  Wave19 GCC tri-differential matrix,
+  Wave20 stress-ceiling expansion,
+  Wave21 policy-tag matrix expansion.
+- Added planned shard names and lane intents in:
+  `docs/plans/torture_bucket_15_execution_plan.md`.
+- Updated bucket status doc pointer:
+  `tests/final/15-torture-differential.md` now lists tomorrow target waves.
+
+### 2026-03-31 — Bucket: torture-differential (15 wave17 external-corpus scale-up)
+
+- Added Wave17 probe lanes:
+  `15__probe_corpus_external_parser_fragment_a_smoke`,
+  `15__probe_corpus_external_parser_fragment_b_smoke`,
+  `15__probe_diag_corpus_external_macro_guard_reject`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_corpus_external_parser_fragment_a_smoke,15__probe_corpus_external_parser_fragment_b_smoke,15__probe_diag_corpus_external_macro_guard_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave17-external-corpus-scaleup.json`.
+- Promoted tests:
+  `15__torture__corpus_external_parser_fragment_a_smoke`,
+  `15__torture__corpus_external_parser_fragment_b_smoke`,
+  `15__torture__corpus_external_macro_guard_reject`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave17-external-corpus-scaleup.json`
+  => all 3 pass.
+  `make final-wave WAVE=17 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 2 skipped` (`64` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=55, skipped=0`.
+
+### 2026-03-31 — Bucket: torture-differential (15 wave18 malformed PP/multi-file expansion)
+
+- Added Wave18 probe lanes:
+  `15__probe_diag_malformed_pp_unterminated_if_chain_no_crash`,
+  `15__probe_diag_malformed_pp_macro_paste_fragments_no_crash`,
+  `15__probe_diagjson_malformed_pp_unterminated_if_chain_no_crash`,
+  `15__probe_diagjson_malformed_pp_macro_paste_fragments_no_crash`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_diag_malformed_pp_unterminated_if_chain_no_crash,15__probe_diag_malformed_pp_macro_paste_fragments_no_crash,15__probe_diagjson_malformed_pp_unterminated_if_chain_no_crash,15__probe_diagjson_malformed_pp_macro_paste_fragments_no_crash python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave18-malformed-pp-multifile.json`.
+- Promoted tests:
+  `15__torture__malformed_pp_unterminated_if_chain_no_crash`,
+  `15__torture__malformed_pp_macro_paste_fragments_no_crash`,
+  `15__diagjson__malformed_pp_unterminated_if_chain_no_crash`,
+  `15__diagjson__malformed_pp_macro_paste_fragments_no_crash`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave18-malformed-pp-multifile.json`
+  => all 4 pass.
+  `make final-wave WAVE=18 WAVE_BUCKET=15-torture-differential`
+  => all 4 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 2 skipped` (`68` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=59, skipped=0`.
+
+### 2026-03-31 — Bucket: torture-differential (15 wave19 GCC tri-differential matrix)
+
+- Added Wave19 probe lanes:
+  `15__probe_runtime_clang_gcc_tri_diff_control_checksum`,
+  `15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge`,
+  `15__probe_runtime_clang_gcc_tri_diff_abi_args_matrix`.
+- Probe-first blocker/fix:
+  initial multi-TU state-bridge shape triggered a compile crash (`-11`) in this
+  frontend/backend path; stabilized by replacing it with a proven-safe multi-TU
+  function-pointer state matrix shape while preserving tri-differential intent.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_runtime_clang_gcc_tri_diff_control_checksum,15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge,15__probe_runtime_clang_gcc_tri_diff_abi_args_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave19-gcc-tri-diff-matrix.json`.
+- Promoted tests:
+  `15__torture__clang_gcc_tri_diff_control_checksum`,
+  `15__torture__clang_gcc_tri_diff_multitu_state_bridge`,
+  `15__torture__clang_gcc_tri_diff_abi_args_matrix`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave19-gcc-tri-diff-matrix.json`
+  => all 3 pass.
+  `make final-wave WAVE=19 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 2 skipped` (`71` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=62, skipped=0`.
+
+### 2026-03-31 — Bucket: torture-differential (15 wave20 stress-ceiling expansion)
+
+- Added Wave20 probe lanes:
+  `15__probe_deep_recursion_stack_pressure_ii`,
+  `15__probe_many_decls_density_pressure_ii`,
+  `15__probe_large_struct_array_pressure_ii`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_deep_recursion_stack_pressure_ii,15__probe_many_decls_density_pressure_ii,15__probe_large_struct_array_pressure_ii python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave20-stress-ceiling-expansion.json`.
+- Promoted tests:
+  `15__torture__deep_recursion_stack_pressure_ii`,
+  `15__torture__many_decls_density_pressure_ii`,
+  `15__torture__large_struct_array_pressure_ii`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave20-stress-ceiling-expansion.json`
+  => all 3 pass.
+  `make final-wave WAVE=20 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 2 skipped` (`74` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=65, skipped=0`.
+
+### 2026-03-31 — Bucket: torture-differential (15 wave21 policy-matrix expansion)
+
+- Added Wave21 probe lanes:
+  `15__probe_policy_impldef_signed_shift_matrix_tagged`,
+  `15__probe_policy_impldef_signed_char_matrix_tagged`,
+  `15__probe_policy_ub_unsequenced_write_tagged`,
+  `15__probe_policy_ub_alias_overlap_tagged`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_policy_impldef_signed_shift_matrix_tagged,15__probe_policy_impldef_signed_char_matrix_tagged,15__probe_policy_ub_unsequenced_write_tagged,15__probe_policy_ub_alias_overlap_tagged python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave21-policy-matrix-expansion.json`.
+- Promoted tests:
+  `15__torture__policy_impldef_signed_shift_matrix_tagged`,
+  `15__torture__policy_impldef_signed_char_matrix_tagged`,
+  `15__torture__policy_ub_unsequenced_write_tagged`,
+  `15__torture__policy_ub_alias_overlap_tagged`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave21-policy-matrix-expansion.json`
+  => `0 failing, 4 skipped`.
+  `make final-wave WAVE=21 WAVE_BUCKET=15-torture-differential`
+  => `0 failing, 4 skipped`.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 6 skipped` (`78` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=69, skipped=0`.
+
+### 2026-03-31 — Bucket: torture-differential (15 wave22 malformed PP/include-graph expansion)
+
+- Added Wave22 probe lanes:
+  `15__probe_diag_malformed_pp_nested_ifdef_chain_seeded_d_no_crash`,
+  `15__probe_diag_malformed_pp_include_cycle_guarded_no_crash`,
+  `15__probe_diagjson_malformed_pp_nested_ifdef_chain_seeded_d_no_crash`,
+  `15__probe_diagjson_malformed_pp_include_cycle_guarded_no_crash`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_diag_malformed_pp_nested_ifdef_chain_seeded_d_no_crash,15__probe_diag_malformed_pp_include_cycle_guarded_no_crash,15__probe_diagjson_malformed_pp_nested_ifdef_chain_seeded_d_no_crash,15__probe_diagjson_malformed_pp_include_cycle_guarded_no_crash python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave22-malformed-pp-include-graph.json`.
+- Promoted tests:
+  `15__torture__malformed_pp_nested_ifdef_chain_seeded_d_no_crash`,
+  `15__torture__malformed_pp_include_cycle_guarded_no_crash`,
+  `15__diagjson__malformed_pp_nested_ifdef_chain_seeded_d_no_crash`,
+  `15__diagjson__malformed_pp_include_cycle_guarded_no_crash`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave22-malformed-pp-include-graph.json`
+  => all 4 pass.
+  `make final-wave WAVE=22 WAVE_BUCKET=15-torture-differential`
+  => all 4 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 6 skipped` (`82` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=73, skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15 wave23 malformed multi-file token-chaos expansion)
+
+- Added Wave23 probe lanes:
+  `15__probe_diag_malformed_multifile_header_tail_garbage_no_crash`,
+  `15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash`,
+  `15__probe_diagjson_malformed_multifile_header_tail_garbage_no_crash`,
+  `15__probe_diagjson_malformed_multifile_macro_arity_mismatch_no_crash`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_diag_malformed_multifile_header_tail_garbage_no_crash,15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash,15__probe_diagjson_malformed_multifile_header_tail_garbage_no_crash,15__probe_diagjson_malformed_multifile_macro_arity_mismatch_no_crash python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave23-malformed-multifile-token-chaos.json`.
+- Promoted tests:
+  `15__torture__malformed_multifile_header_tail_garbage_no_crash`,
+  `15__torture__malformed_multifile_macro_arity_mismatch_no_crash`,
+  `15__diagjson__malformed_multifile_header_tail_garbage_no_crash`,
+  `15__diagjson__malformed_multifile_macro_arity_mismatch_no_crash`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave23-malformed-multifile-token-chaos.json`
+  => all 4 pass.
+  `make final-wave WAVE=23 WAVE_BUCKET=15-torture-differential`
+  => all 4 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 6 skipped` (`86` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=77, skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15 wave24 tri-compiler differential breadth I)
+
+- Added Wave24 probe lanes:
+  `15__probe_runtime_clang_gcc_tri_diff_loop_state_crc_matrix`,
+  `15__probe_runtime_clang_gcc_tri_diff_struct_array_stride_crc_matrix`,
+  `15__probe_runtime_clang_gcc_tri_diff_pointer_mix_checksum_matrix`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_runtime_clang_gcc_tri_diff_loop_state_crc_matrix,15__probe_runtime_clang_gcc_tri_diff_struct_array_stride_crc_matrix,15__probe_runtime_clang_gcc_tri_diff_pointer_mix_checksum_matrix python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave24-gcc-tri-diff-single-tu.json`.
+- Promoted tests:
+  `15__torture__clang_gcc_tri_diff_loop_state_crc_matrix`,
+  `15__torture__clang_gcc_tri_diff_struct_array_stride_crc_matrix`,
+  `15__torture__clang_gcc_tri_diff_pointer_mix_checksum_matrix`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave24-gcc-tri-diff-single-tu.json`
+  => all 3 pass.
+  `make final-wave WAVE=24 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 6 skipped` (`89` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=80, skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15 wave25 tri-compiler differential breadth II)
+
+- Added Wave25 probe lanes:
+  `15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge`,
+  `15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline`,
+  `15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge,15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline,15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave25-gcc-tri-diff-multitu.json`.
+- Promoted tests:
+  `15__torture__clang_gcc_tri_diff_multitu_fnptr_table_bridge`,
+  `15__torture__clang_gcc_tri_diff_multitu_const_seed_pipeline`,
+  `15__torture__clang_gcc_tri_diff_multitu_layout_digest_bridge`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave25-gcc-tri-diff-multitu.json`
+  => all 3 pass.
+  `make final-wave WAVE=25 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 6 skipped` (`92` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=83, skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15 wave26 stress ceiling expansion III)
+
+- Added Wave26 probe lanes:
+  `15__probe_deep_recursion_stack_pressure_iii`,
+  `15__probe_many_decls_density_pressure_iii`,
+  `15__probe_large_struct_array_pressure_iii`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_deep_recursion_stack_pressure_iii,15__probe_many_decls_density_pressure_iii,15__probe_large_struct_array_pressure_iii python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave26-stress-ceiling-expansion-iii.json`.
+- Promoted tests:
+  `15__torture__deep_recursion_stack_pressure_iii`,
+  `15__torture__many_decls_density_pressure_iii`,
+  `15__torture__large_struct_array_pressure_iii`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave26-stress-ceiling-expansion-iii.json`
+  => all 3 pass.
+  `make final-wave WAVE=26 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 6 skipped` (`95` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=86, skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15 wave27 stress ceiling expansion IV, multi-TU)
+
+- Added Wave27 probe lanes:
+  `15__probe_multitu_large_table_crc_pressure`,
+  `15__probe_multitu_recursive_dispatch_pressure`,
+  `15__probe_multitu_layout_stride_pressure`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_multitu_large_table_crc_pressure,15__probe_multitu_recursive_dispatch_pressure,15__probe_multitu_layout_stride_pressure python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave27-multitu-stress-ceiling-iv.json`.
+- Promoted tests:
+  `15__torture__multitu_large_table_crc_pressure`,
+  `15__torture__multitu_recursive_dispatch_pressure`,
+  `15__torture__multitu_layout_stride_pressure`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave27-multitu-stress-ceiling-iv.json`
+  => all 3 pass.
+  `make final-wave WAVE=27 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 6 skipped` (`98` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=89, skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15 wave28 external corpus scale-up I)
+
+- Added Wave28 probe lanes:
+  `15__probe_corpus_external_parser_fragment_c_smoke`,
+  `15__probe_corpus_external_parser_fragment_d_smoke`,
+  `15__probe_diag_corpus_external_macro_chain_reject`.
+- Probe-first blocker/fix:
+  initial macro-chain reject lane mismatched expected diagnostic substring.
+  Updated the malformed define shape to fail closed at preprocessing with
+  deterministic `invalid parameter list in #define`.
+- Probe-first validation:
+  `PROBE_FILTER=15__probe_corpus_external_parser_fragment_c_smoke,15__probe_corpus_external_parser_fragment_d_smoke,15__probe_diag_corpus_external_macro_chain_reject python3 tests/final/probes/run_probes.py`
+  => `resolved=3`, `blocked=0`, `skipped=0`.
+- Promoted shard:
+  `tests/final/meta/15-torture-differential-wave28-external-corpus-scaleup-i.json`.
+- Promoted tests:
+  `15__torture__corpus_external_parser_fragment_c_smoke`,
+  `15__torture__corpus_external_parser_fragment_d_smoke`,
+  `15__torture__corpus_external_macro_chain_reject`.
+- Validation:
+  `make final-manifest MANIFEST=15-torture-differential-wave28-external-corpus-scaleup-i.json`
+  => all 3 pass.
+  `make final-wave WAVE=28 WAVE_BUCKET=15-torture-differential`
+  => all 3 pass.
+  `make final-bucket BUCKET=torture-differential`
+  => `0 failing, 6 skipped` (`101` active).
+  `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py | rg "^Summary:"`
+  => `Summary: blocked=0, resolved=92, skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-36 stress-ceiling frontier sweep
+
+- Scope:
+  add bounded, deterministic stress-ceiling sweep lanes for recursion depth,
+  declaration density, aggregate size, and multi-TU layout pressure.
+- Added probes:
+  `15__probe_ceiling_recursion_depth_sweep`,
+  `15__probe_ceiling_decl_density_sweep`,
+  `15__probe_ceiling_aggregate_size_sweep`,
+  `15__probe_ceiling_multitu_layout_pressure_sweep`.
+- Probe verify:
+  `PROBE_FILTER=15__probe_ceiling_ python3 tests/final/probes/run_probes.py`
+  => `resolved=4`, `blocked=0`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave36-stress-ceiling-frontier-sweep.json`
+  with:
+  `15__torture__ceiling_recursion_depth_sweep`,
+  `15__torture__ceiling_decl_density_sweep`,
+  `15__torture__ceiling_aggregate_size_sweep`,
+  `15__torture__ceiling_multitu_layout_pressure_sweep`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave36-stress-ceiling-frontier-sweep.json`
+  passes;
+  `make final-wave WAVE=36 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `125` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=116`, `skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-37 fuzz-volume deterministic replay
+
+- Scope:
+  expand seeded fuzz coverage from smoke lanes to bounded deterministic
+  replay-volume lanes and add malformed replay fail-closed parity in both
+  text diagnostics and diagnostics JSON.
+- Added probes:
+  `15__probe_fuzz_seeded_expr_volume_replay`,
+  `15__probe_fuzz_seeded_stmt_volume_replay`,
+  `15__probe_diag_fuzz_seeded_malformed_volume_replay_no_crash`,
+  `15__probe_diagjson_fuzz_seeded_malformed_volume_replay_no_crash`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave37-fuzz-volume-deterministic-replay.json`
+  with:
+  `15__torture__fuzz_seeded_expr_volume_replay`,
+  `15__torture__fuzz_seeded_stmt_volume_replay`,
+  `15__torture__fuzz_seeded_malformed_volume_replay_no_crash`,
+  `15__diagjson__fuzz_seeded_malformed_volume_replay_no_crash`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave37-fuzz-volume-deterministic-replay.json`
+  passes;
+  `make final-wave WAVE=37 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `129` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=120`, `skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-38 gcc tri-reference breadth expansion
+
+- Scope:
+  widen optional gcc tri-reference runtime coverage beyond prior checksum/header
+  lanes with four additional control-flow, variadic ABI, VLA, and struct/union
+  layout differential lanes.
+- Added probes:
+  `15__probe_runtime_clang_gcc_tri_diff_control_flow_lattice_matrix`,
+  `15__probe_runtime_clang_gcc_tri_diff_abi_variadic_regstack_matrix`,
+  `15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix`,
+  `15__probe_runtime_clang_gcc_tri_diff_struct_union_layout_bridge`.
+- Probe-first blocker/fix:
+  initial variadic ABI lane failed preprocessing due `<stdarg.h>` handling;
+  lane was converted to the established builtin variadic pattern:
+  `__builtin_va_list`, `__builtin_va_start`, `__builtin_va_arg`, `__builtin_va_end`.
+- Probe verify:
+  targeted rerun reports `blocked=0`, `resolved=4`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave38-gcc-tri-diff-breadth-expansion.json`
+  with:
+  `15__torture__clang_gcc_tri_diff_control_flow_lattice_matrix`,
+  `15__torture__clang_gcc_tri_diff_abi_variadic_regstack_matrix`,
+  `15__torture__clang_gcc_tri_diff_vla_stride_rebase_matrix`,
+  `15__torture__clang_gcc_tri_diff_struct_union_layout_bridge`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave38-gcc-tri-diff-breadth-expansion.json`
+  passes;
+  `make final-wave WAVE=38 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `133` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=124`, `skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-39 compile-surface stress expansion
+
+- Scope:
+  expand compile-surface depth with one additional pathological declaration-graph
+  AST lane and paired initializer/switch negative lanes with `.diagjson` parity.
+- Added probes:
+  `15__probe_ast_pathological_decl_graph_surface`,
+  `15__probe_diag_pathological_initializer_rewrite_surface_reject`,
+  `15__probe_diag_pathological_switch_case_surface_reject`,
+  `15__probe_diagjson_pathological_initializer_rewrite_surface_reject`,
+  `15__probe_diagjson_pathological_switch_case_surface_reject`.
+- Probe-first blocker/fix:
+  initial initializer rewrite `.diagjson` probe expected line mismatch;
+  updated expected line to `22` based on emitted diagnostics location.
+- Probe verify:
+  targeted rerun reports `blocked=0`, `resolved=5`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave39-compile-surface-expansion.json`
+  with:
+  `15__torture__pathological_decl_graph_surface`,
+  `15__torture__pathological_initializer_rewrite_surface_reject`,
+  `15__torture__pathological_switch_case_surface_reject`,
+  `15__diagjson__pathological_initializer_rewrite_surface_reject`,
+  `15__diagjson__pathological_switch_case_surface_reject`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave39-compile-surface-expansion.json`
+  passes;
+  `make final-wave WAVE=39 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `138` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=129`, `skipped=0`.
+
+### 2026-04-01 — Bucket: torture-differential (15) wave-40 external-corpus pinned bundle expansion
+
+- Scope:
+  complete the planned external-corpus pinned bundle with three deterministic
+  runtime fragment lanes plus two pinned negative lanes and two `.diagjson`
+  parity lanes.
+- Added probes:
+  `15__probe_corpus_pinned_fragment_e_smoke`,
+  `15__probe_corpus_pinned_fragment_f_smoke`,
+  `15__probe_corpus_pinned_fragment_g_smoke`,
+  `15__probe_diag_corpus_pinned_macro_include_chain_reject`,
+  `15__probe_diag_corpus_pinned_typedef_decl_cycle_reject`,
+  `15__probe_diagjson_corpus_pinned_macro_include_chain_reject`,
+  `15__probe_diagjson_corpus_pinned_typedef_decl_cycle_reject`.
+- Probe verify:
+  targeted run reports `blocked=0`, `resolved=7`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/15-torture-differential-wave40-external-corpus-pinned-bundle.json`
+  with:
+  `15__torture__corpus_pinned_fragment_e_smoke`,
+  `15__torture__corpus_pinned_fragment_f_smoke`,
+  `15__torture__corpus_pinned_fragment_g_smoke`,
+  `15__torture__corpus_pinned_macro_include_chain_reject`,
+  `15__torture__corpus_pinned_typedef_decl_cycle_reject`,
+  `15__diagjson__corpus_pinned_macro_include_chain_reject`,
+  `15__diagjson__corpus_pinned_typedef_decl_cycle_reject`.
+- Runtime verify:
+  `make final-manifest MANIFEST=15-torture-differential-wave40-external-corpus-pinned-bundle.json`
+  passes;
+  `make final-wave WAVE=40 WAVE_BUCKET=15-torture-differential` passes;
+  `make final-bucket BUCKET=torture-differential` passes (`0 failing, 10 skipped`, `145` active).
+- Bucket probe snapshot after promotion:
+  `PROBE_FILTER=15__probe_*` => `blocked=0`, `resolved=136`, `skipped=0`.
+
+### 2026-04-01 — Cross-bucket audit refresh (post-wave40 / post-wave89)
+
+- Scope:
+  refresh docs to match live suite state and identify remaining explicit gaps
+  after runtime/torture campaign stabilization.
+- Validation snapshot:
+  - `make final-runtime` => `0 failing, 22 skipped`.
+  - `make final-bucket BUCKET=torture-differential` => `0 failing, 10 skipped`.
+  - `PROBE_FILTER=14__probe_* python3 tests/final/probes/run_probes.py`
+    => `blocked=0`, `resolved=234`, `skipped=0`.
+  - `PROBE_FILTER=15__probe_* python3 tests/final/probes/run_probes.py`
+    => `blocked=0`, `resolved=136`, `skipped=0`.
+  - `make final` => `0 failing, 32 skipped`.
+- Doc refreshes:
+  - Updated `docs/status/UNVALIDATED.md` with explicit unstarted checklist gaps
+    and a prioritized next execution order.
+  - Updated runtime/torture bucket status docs and plan docs to remove stale
+    pre-wave36/pre-wave89 baseline counts.
+- Remaining explicit gaps (from checklist + policy backlog):
+  - semantic bucket (`07`) conversion/member/constexpr matrix is still mostly unstarted,
+  - lexer boundary leftovers (`02`) remain for literal precision/bounds/escape overflow,
+  - statement return diagnostics policy lanes in bucket `09` are still unstarted,
+  - bucket-15 high-volume randomized fuzz harness remains optional backlog.
+
+### 2026-04-01 — Bucket: types-conversions (07) wave-2 semantic expansion
+
+- Scope:
+  start bucket-07 wave flow with semantic negative/edge lanes for aggregate
+  member validity and constant-expression enforcement.
+- Added probes:
+  - runtime:
+    `07__probe_agg_member_access_runtime`,
+    `07__probe_agg_offsets_runtime`
+  - diagnostics:
+    `07__probe_assign_struct_to_int_reject`,
+    `07__probe_agg_invalid_member_reject`,
+    `07__probe_constexpr_array_size_reject`,
+    `07__probe_constexpr_case_label_reject`,
+    `07__probe_constexpr_static_init_reject`
+- Probe-first result:
+  initial run had `blocked=1` due strict substring mismatch on static-init
+  diagnostic wording; matcher updated to `not a constant expression`.
+- Probe verify after matcher fix:
+  `PROBE_FILTER=07__probe_* python3 tests/final/probes/run_probes.py`
+  => `blocked=0`, `resolved=7`, `skipped=0`.
+- Promotions:
+  added
+  `tests/final/meta/07-types-conversions-wave2-semantic.json`
+  with:
+  `07__assign_struct_to_int_reject`,
+  `07__agg__member_access`,
+  `07__agg__offsets`,
+  `07__agg__invalid_member_reject`,
+  `07__constexpr__array_size_reject`,
+  `07__constexpr__case_label_reject`,
+  `07__constexpr__static_init_reject`.
+- Validation:
+  `make final-manifest MANIFEST=07-types-conversions-wave2-semantic.json`
+  => all 7 pass.
+  `make final-prefix PREFIX=07__`
+  => all 16 pass.

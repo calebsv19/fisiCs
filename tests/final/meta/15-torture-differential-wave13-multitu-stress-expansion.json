@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__multitu_fnptr_state_matrix",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_fnptr_state_matrix_main.c",
+        "cases/15__torture__multitu_fnptr_state_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_fnptr_state_matrix.stdout",
+      "expected_stderr": "expect/15__torture__multitu_fnptr_state_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "function-pointer",
+        "stateful"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_struct_vla_stride_bridge",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_struct_vla_stride_bridge_main.c",
+        "cases/15__torture__multitu_struct_vla_stride_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_struct_vla_stride_bridge.stdout",
+      "expected_stderr": "expect/15__torture__multitu_struct_vla_stride_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "vla",
+        "struct-layout"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_ring_digest_pipeline",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_ring_digest_pipeline_main.c",
+        "cases/15__torture__multitu_ring_digest_pipeline_lib.c",
+        "cases/15__torture__multitu_ring_digest_pipeline_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_ring_digest_pipeline.stdout",
+      "expected_stderr": "expect/15__torture__multitu_ring_digest_pipeline.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "static-state",
+        "pipeline"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

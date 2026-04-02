@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_token_stream_seeded_a_no_crash.c:3 (got '^')
+Error at (3:10): Operator '^' requires integer operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_token_stream_seeded_a_no_crash.c:3:10
+Error at (3:0): Incompatible assignment operands

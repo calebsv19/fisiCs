@@ -1,0 +1,6 @@
+#ifndef CASE_MALFORMED_INCLUDE_GRAPH_MACRO_ARITY_CHAIN_C_H
+#define CASE_MALFORMED_INCLUDE_GRAPH_MACRO_ARITY_CHAIN_C_H
+
+int case_macro_arity_chain_value = CASE_NEED2(1);
+
+#endif

@@ -1,5 +1,14 @@
 # Type System & Conversions
 
+## Status Snapshot (2026-04-01)
+
+- Active tests: `16`
+  (`tests/final/meta/07-types-conversions.json` +
+  `tests/final/meta/07-types-conversions-wave2-semantic.json`)
+- Current bucket run:
+  - `make final-prefix PREFIX=07__` -> all pass
+  - `PROBE_FILTER=07__probe_*` -> `resolved=7`, `blocked=0`, `skipped=0`
+
 ## Scope
 Integer promotions, usual arithmetic conversions, and pointer rules.
 
@@ -39,5 +48,19 @@ Integer promotions, usual arithmetic conversions, and pointer rules.
 
 ## Probe Backlog
 - No open probes in this bucket at the current baseline.
-- `tests/final/probes/diagnostics/07__probe_assign_struct_to_int_reject.c`
-  now resolves with a diagnostic and is ready for active-suite promotion.
+
+## Wave 2 Additions (Semantic Expansion)
+1) `07__assign_struct_to_int_reject`
+   - Reject assigning struct value to scalar int object.
+2) `07__agg__member_access`
+   - Nested member access using both `.` and `->`.
+3) `07__agg__offsets`
+   - Aggregate member-offset ordering via `offsetof`.
+4) `07__agg__invalid_member_reject`
+   - Reject unknown struct member access.
+5) `07__constexpr__array_size_reject`
+   - Reject non-constant file-scope array size.
+6) `07__constexpr__case_label_reject`
+   - Reject non-constant `case` label expression.
+7) `07__constexpr__static_init_reject`
+   - Reject non-constant static-storage initializer.

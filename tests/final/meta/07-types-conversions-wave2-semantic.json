@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__assign_struct_to_int_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__assign_struct_to_int_reject.c",
+      "expects": [
+        "expect/07__assign_struct_to_int_reject.ast",
+        "expect/07__assign_struct_to_int_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg__member_access",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg__member_access.c",
+      "expects": [
+        "expect/07__agg__member_access.ast",
+        "expect/07__agg__member_access.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg__offsets",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg__offsets.c",
+      "expects": [
+        "expect/07__agg__offsets.ast",
+        "expect/07__agg__offsets.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "offsets"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg__invalid_member_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg__invalid_member_reject.c",
+      "expects": [
+        "expect/07__agg__invalid_member_reject.ast",
+        "expect/07__agg__invalid_member_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr__array_size_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr__array_size_reject.c",
+      "expects": [
+        "expect/07__constexpr__array_size_reject.ast",
+        "expect/07__constexpr__array_size_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "constexpr",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr__case_label_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr__case_label_reject.c",
+      "expects": [
+        "expect/07__constexpr__case_label_reject.ast",
+        "expect/07__constexpr__case_label_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "constexpr",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__constexpr__static_init_reject",
+      "bucket": "types-conversions",
+      "input": "cases/07__constexpr__static_init_reject.c",
+      "expects": [
+        "expect/07__constexpr__static_init_reject.ast",
+        "expect/07__constexpr__static_init_reject.diag"
+      ],
+      "tags": [
+        "semantic",
+        "constexpr",
+        "negative"
+      ],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

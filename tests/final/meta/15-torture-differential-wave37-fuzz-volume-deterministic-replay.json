@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__fuzz_seeded_expr_volume_replay",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__fuzz_seeded_expr_volume_replay.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__fuzz_seeded_expr_volume_replay.stdout",
+      "expected_stderr": "expect/15__torture__fuzz_seeded_expr_volume_replay.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "fuzz-volume",
+        "seeded",
+        "expressions",
+        "replay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__fuzz_seeded_stmt_volume_replay",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__fuzz_seeded_stmt_volume_replay.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__fuzz_seeded_stmt_volume_replay.stdout",
+      "expected_stderr": "expect/15__torture__fuzz_seeded_stmt_volume_replay.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "fuzz-volume",
+        "seeded",
+        "statements",
+        "control-flow",
+        "replay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__fuzz_seeded_malformed_volume_replay_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__fuzz_seeded_malformed_volume_replay_no_crash.c",
+      "expects": [
+        "expect/15__torture__fuzz_seeded_malformed_volume_replay_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "fuzz-volume",
+        "seeded",
+        "replay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__fuzz_seeded_malformed_volume_replay_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__fuzz_seeded_malformed_volume_replay_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__fuzz_seeded_malformed_volume_replay_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "fuzz-volume",
+        "seeded",
+        "replay",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__multitu_large_table_crc_pressure",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_large_table_crc_pressure_main.c",
+        "cases/15__torture__multitu_large_table_crc_pressure_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_large_table_crc_pressure.stdout",
+      "expected_stderr": "expect/15__torture__multitu_large_table_crc_pressure.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "pressure",
+        "multitu",
+        "const-table"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_recursive_dispatch_pressure",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_recursive_dispatch_pressure_main.c",
+        "cases/15__torture__multitu_recursive_dispatch_pressure_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_recursive_dispatch_pressure.stdout",
+      "expected_stderr": "expect/15__torture__multitu_recursive_dispatch_pressure.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "pressure",
+        "multitu",
+        "recursive-dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_layout_stride_pressure",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_layout_stride_pressure_main.c",
+        "cases/15__torture__multitu_layout_stride_pressure_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_layout_stride_pressure.stdout",
+      "expected_stderr": "expect/15__torture__multitu_layout_stride_pressure.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "pressure",
+        "multitu",
+        "layout-stride"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

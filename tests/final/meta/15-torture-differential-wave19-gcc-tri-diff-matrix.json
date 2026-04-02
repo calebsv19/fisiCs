@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__clang_gcc_tri_diff_control_checksum",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_control_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_control_checksum.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_control_checksum.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_multitu_state_bridge",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__clang_gcc_tri_diff_multitu_state_bridge_main.c",
+        "cases/15__torture__clang_gcc_tri_diff_multitu_state_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_multitu_state_bridge.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_multitu_state_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_abi_args_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_abi_args_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_abi_args_matrix.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_abi_args_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "abi"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

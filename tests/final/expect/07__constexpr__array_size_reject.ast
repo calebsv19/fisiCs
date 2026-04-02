@@ -1,0 +1,21 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER size
+      = NUMBER_LITERAL 4
+  VAR_DECL
+    TYPE: int [IDENTIFIER size]
+    IDENTIFIER values
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        ARRAY_ACCESS
+          IDENTIFIER values
+          NUMBER_LITERAL 0

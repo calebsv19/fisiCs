@@ -492,54 +492,68 @@ def main():
                         print(f"SKIP {test_id}: differential disabled for impl_defined=true")
                         skipped += 1
                     else:
-                        clang = shutil.which(test.get("differential_compiler", "clang"))
-                        if not clang:
-                            print(f"SKIP {test_id}: differential requested but clang not found")
+                        reference_compiler_name = str(test.get("differential_compiler", "clang"))
+                        reference_compiler = shutil.which(reference_compiler_name)
+                        if not reference_compiler:
+                            print(
+                                f"SKIP {test_id}: differential requested but {reference_compiler_name} not found"
+                            )
                             skipped += 1
                         else:
-                            with tempfile.TemporaryDirectory(prefix=f"final-diff-{test_id}-") as clang_tmp:
-                                clang_exec = Path(clang_tmp) / "clang.out"
-                                clang_args = [str(a) for a in test.get("clang_args", [])]
-                                clang_cmd = [
-                                    clang,
+                            with tempfile.TemporaryDirectory(
+                                prefix=f"final-diff-{test_id}-{reference_compiler_name}-"
+                            ) as reference_tmp:
+                                reference_exec = Path(reference_tmp) / f"{reference_compiler_name}.out"
+                                reference_args = [
+                                    str(a)
+                                    for a in test.get("reference_args", test.get("clang_args", []))
+                                ]
+                                reference_cmd = [
+                                    reference_compiler,
                                     f"-std={standard}",
                                     "-O0",
-                                ] + clang_args + [str(p) for p in input_paths] + ["-o", str(clang_exec)]
-                                clang_compile_exit, clang_compile_output = run_cmd(clang_cmd)
-                                if clang_compile_exit != 0:
-                                    print(f"FAIL {test_id}: clang compile failed ({clang_compile_exit})")
-                                    print(clang_compile_output)
+                                ] + reference_args + [str(p) for p in input_paths] + [
+                                    "-o",
+                                    str(reference_exec),
+                                ]
+                                reference_compile_exit, reference_compile_output = run_cmd(reference_cmd)
+                                if reference_compile_exit != 0:
+                                    print(
+                                        f"FAIL {test_id}: {reference_compiler_name} compile failed "
+                                        f"({reference_compile_exit})"
+                                    )
+                                    print(reference_compile_output)
                                     failures += 1
                                     test_failed = True
                                 else:
-                                    clang_exit, clang_stdout, clang_stderr = run_program(
-                                        [str(clang_exec)] + run_args,
+                                    reference_exit, reference_stdout, reference_stderr = run_program(
+                                        [str(reference_exec)] + run_args,
                                         env=runtime_env,
                                         stdin_text=run_stdin,
                                     )
-                                    if clang_exit != run_exit:
+                                    if reference_exit != run_exit:
                                         print(
                                             f"FAIL {test_id}: differential exit mismatch "
-                                            f"(fisics={run_exit}, clang={clang_exit})"
+                                            f"(fisics={run_exit}, {reference_compiler_name}={reference_exit})"
                                         )
                                         failures += 1
                                         test_failed = True
-                                    if clang_stdout != run_stdout:
+                                    if reference_stdout != run_stdout:
                                         print(f"FAIL {test_id}: differential stdout mismatch")
                                         print(
                                             diff_text(
-                                                clang_stdout,
+                                                reference_stdout,
                                                 run_stdout,
                                                 Path(f"{test_id}.stdout"),
                                             )
                                         )
                                         failures += 1
                                         test_failed = True
-                                    if clang_stderr != run_stderr:
+                                    if reference_stderr != run_stderr:
                                         print(f"FAIL {test_id}: differential stderr mismatch")
                                         print(
                                             diff_text(
-                                                clang_stderr,
+                                                reference_stderr,
                                                 run_stderr,
                                                 Path(f"{test_id}.stderr"),
                                             )

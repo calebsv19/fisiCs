@@ -17,17 +17,17 @@ instead of text-only `.diag`.
 This should be done with minimal code-path duplication and without regressing
 current frontend diagnostic JSON behavior.
 
-## Current State (Observed)
+## Historical Baseline (Pre-Wave89)
 
-- Frontend compile paths already emit JSON via:
+- Frontend compile paths already emitted JSON via:
   `compiler_diagnostics_write_core_dataset_json(...)`.
 - In link-driver mode (`src/main.c`), each `.c` input can emit per-input JSON,
-  but linker failures currently only print text (`Linker exited with status ...`)
-  and return non-zero.
-- Existing link-conflict negative tests therefore rely on `.diag` text-only
+  but linker failures only printed text (`Linker exited with status ...`) and
+  returned non-zero.
+- Existing link-conflict negative tests therefore relied on `.diag` text-only
   expectations (`capture_frontend_diag: true`, `allow_nonzero_exit: true`).
-- `.diagjson` expectations fail today for pure link-stage errors because no
-  structured file is written on linker failure.
+- `.diagjson` expectations failed for pure link-stage errors because no
+  structured file was written on linker failure.
 
 ## Design Constraints
 

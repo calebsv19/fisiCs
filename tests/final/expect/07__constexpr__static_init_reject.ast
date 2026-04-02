@@ -1,0 +1,20 @@
+AST:
+PROGRAM
+  VAR_DECL
+    TYPE: int
+    IDENTIFIER seed
+      = NUMBER_LITERAL 3
+  VAR_DECL
+    TYPE: static int
+    IDENTIFIER global_value
+      = IDENTIFIER seed
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        IDENTIFIER global_value

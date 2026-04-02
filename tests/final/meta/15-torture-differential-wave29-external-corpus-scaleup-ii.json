@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__corpus_external_decl_chain_smoke",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_decl_chain_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_external_decl_chain_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_external_decl_chain_smoke.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "external-corpus",
+        "deterministic",
+        "decl-chain"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_external_typedef_graph_smoke",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_typedef_graph_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_external_typedef_graph_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_external_typedef_graph_smoke.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "external-corpus",
+        "deterministic",
+        "typedef-graph"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_external_include_guard_mismatch_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_include_guard_mismatch_reject.c",
+      "expects": [
+        "expect/15__torture__corpus_external_include_guard_mismatch_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "preprocessor",
+        "include-guard"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

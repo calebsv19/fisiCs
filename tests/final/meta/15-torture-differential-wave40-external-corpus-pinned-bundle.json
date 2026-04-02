@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__corpus_pinned_fragment_e_smoke",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_fragment_e_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_pinned_fragment_e_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_pinned_fragment_e_smoke.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "external-corpus",
+        "pinned",
+        "fragment-e"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_pinned_fragment_f_smoke",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_fragment_f_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_pinned_fragment_f_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_pinned_fragment_f_smoke.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "external-corpus",
+        "pinned",
+        "fragment-f"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_pinned_fragment_g_smoke",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_fragment_g_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_pinned_fragment_g_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_pinned_fragment_g_smoke.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "external-corpus",
+        "pinned",
+        "fragment-g"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_pinned_macro_include_chain_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_macro_include_chain_reject.c",
+      "expects": [
+        "expect/15__torture__corpus_pinned_macro_include_chain_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "pinned",
+        "preprocessor",
+        "macro-chain"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_pinned_typedef_decl_cycle_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_typedef_decl_cycle_reject.c",
+      "expects": [
+        "expect/15__torture__corpus_pinned_typedef_decl_cycle_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "pinned",
+        "typedef-decl-cycle"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__corpus_pinned_macro_include_chain_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_macro_include_chain_reject.c",
+      "expects": [
+        "expect/15__diagjson__corpus_pinned_macro_include_chain_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "pinned",
+        "preprocessor",
+        "macro-chain",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__corpus_pinned_typedef_decl_cycle_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_typedef_decl_cycle_reject.c",
+      "expects": [
+        "expect/15__diagjson__corpus_pinned_typedef_decl_cycle_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "pinned",
+        "typedef-decl-cycle",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

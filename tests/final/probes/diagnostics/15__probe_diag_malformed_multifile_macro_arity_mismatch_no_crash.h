@@ -1,0 +1,6 @@
+#ifndef PROBE_MALFORMED_MACRO_ARITY_MISMATCH_H
+#define PROBE_MALFORMED_MACRO_ARITY_MISMATCH_H
+
+#define NEED2(a, b) ((a) + (b))
+
+#endif

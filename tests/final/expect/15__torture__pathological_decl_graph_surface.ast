@@ -1,0 +1,2250 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER __int8_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER __uint8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER __int16_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER __uint16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __int32_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __uint32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __int64_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __uint64_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_intptr_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_natural_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_ct_rune_t
+  TYPEDEF
+        TYPE: union __anon_union_0_70
+        Alias:     IDENTIFIER __mbstate_t
+  TYPEDEF
+        TYPE: __mbstate_t
+        Alias:     IDENTIFIER __darwin_mbstate_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ptrdiff_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_size_t
+  TYPEDEF
+        TYPE: __builtin_va_list
+        Alias:     IDENTIFIER __darwin_va_list
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wchar_t
+  TYPEDEF
+        TYPE: __darwin_wchar_t
+        Alias:     IDENTIFIER __darwin_rune_t
+  TYPEDEF
+        TYPE: __darwin_ct_rune_t
+        Alias:     IDENTIFIER __darwin_wint_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_clock_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_socklen_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_ssize_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER __darwin_time_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_blkcnt_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_blksize_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_dev_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsblkcnt_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER __darwin_fsfilcnt_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_gid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_id_t
+  TYPEDEF
+        TYPE: __uint64_t
+        Alias:     IDENTIFIER __darwin_ino64_t
+  TYPEDEF
+        TYPE: __darwin_ino64_t
+        Alias:     IDENTIFIER __darwin_ino_t
+  TYPEDEF
+        TYPE: __darwin_natural_t
+        Alias:     IDENTIFIER __darwin_mach_port_name_t
+  TYPEDEF
+        TYPE: __darwin_mach_port_name_t
+        Alias:     IDENTIFIER __darwin_mach_port_t
+  TYPEDEF
+        TYPE: __uint16_t
+        Alias:     IDENTIFIER __darwin_mode_t
+  TYPEDEF
+        TYPE: __int64_t
+        Alias:     IDENTIFIER __darwin_off_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_pid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_sigset_t
+  TYPEDEF
+        TYPE: __int32_t
+        Alias:     IDENTIFIER __darwin_suseconds_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_uid_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_useconds_t
+  TYPEDEF
+        TYPE: unsigned char [16]
+        Alias:     IDENTIFIER __darwin_uuid_t
+  TYPEDEF
+        TYPE: char [37]
+        Alias:     IDENTIFIER __darwin_uuid_string_t
+  STRUCT
+        Name:     IDENTIFIER __darwin_pthread_handler_rec
+    VAR_DECL
+      TYPE: void (*)(void*) (void*)
+      IDENTIFIER __routine
+    VAR_DECL
+      TYPE: void*
+      IDENTIFIER __arg
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __next
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_attr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_cond_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [40]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_condattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutex_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [56]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_mutexattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_once_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [8]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlock_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [192]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_rwlockattr_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: char [16]
+      IDENTIFIER __opaque
+  STRUCT
+        Name:     IDENTIFIER _opaque_pthread_t
+    VAR_DECL
+      TYPE: long int
+      IDENTIFIER __sig
+    VAR_DECL
+      TYPE: struct __darwin_pthread_handler_rec*
+      IDENTIFIER __cleanup_stack
+    VAR_DECL
+      TYPE: char [8176]
+      IDENTIFIER __opaque
+  TYPEDEF
+        TYPE: struct _opaque_pthread_attr_t
+        Alias:     IDENTIFIER __darwin_pthread_attr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_cond_t
+        Alias:     IDENTIFIER __darwin_pthread_cond_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_condattr_t
+        Alias:     IDENTIFIER __darwin_pthread_condattr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER __darwin_pthread_key_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutex_t
+        Alias:     IDENTIFIER __darwin_pthread_mutex_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_mutexattr_t
+        Alias:     IDENTIFIER __darwin_pthread_mutexattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_once_t
+        Alias:     IDENTIFIER __darwin_pthread_once_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlock_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlock_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_rwlockattr_t
+        Alias:     IDENTIFIER __darwin_pthread_rwlockattr_t
+  TYPEDEF
+        TYPE: struct _opaque_pthread_t*
+        Alias:     IDENTIFIER __darwin_pthread_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_nl_item
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER __darwin_wctrans_t
+  TYPEDEF
+        TYPE: __uint32_t
+        Alias:     IDENTIFIER __darwin_wctype_t
+  TYPEDEF
+        TYPE: signed char
+        Alias:     IDENTIFIER int8_t
+  TYPEDEF
+        TYPE: short int
+        Alias:     IDENTIFIER int16_t
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER int32_t
+  TYPEDEF
+        TYPE: long int
+        Alias:     IDENTIFIER int64_t
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER u_int8_t
+  TYPEDEF
+        TYPE: unsigned short int
+        Alias:     IDENTIFIER u_int16_t
+  TYPEDEF
+        TYPE: unsigned int
+        Alias:     IDENTIFIER u_int32_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER u_int64_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER register_t
+  TYPEDEF
+        TYPE: __darwin_intptr_t
+        Alias:     IDENTIFIER intptr_t
+  TYPEDEF
+        TYPE: unsigned long int
+        Alias:     IDENTIFIER uintptr_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_addr_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_size_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_ssize_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_long_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER user_ulong_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_time_t
+  TYPEDEF
+        TYPE: int64_t
+        Alias:     IDENTIFIER user_off_t
+  TYPEDEF
+        TYPE: u_int64_t
+        Alias:     IDENTIFIER syscall_arg_t
+  TYPEDEF
+        TYPE: __darwin_va_list
+        Alias:     IDENTIFIER va_list
+  TYPEDEF
+        TYPE: __darwin_size_t
+        Alias:     IDENTIFIER size_t
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER renameat
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param2
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param3
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER renamex_np
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER renameatx_np
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param2
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param3
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER __unnamed_param4
+  ATTRIBUTE [GNU] __format__(__printf__,1,2)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER printf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param0
+    VARIADIC: yes
+  TYPEDEF
+        TYPE: __darwin_off_t
+        Alias:     IDENTIFIER fpos_t
+  STRUCT
+        Name:     IDENTIFIER __sbuf
+    VAR_DECL
+      TYPE: unsigned char*
+      IDENTIFIER _base
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER _size
+  TYPEDEF
+        TYPE: struct __sFILE
+        Alias:     IDENTIFIER FILE
+  VAR_DECL
+    TYPE: extern FILE*
+    IDENTIFIER __stdinp
+  VAR_DECL
+    TYPE: extern FILE*
+    IDENTIFIER __stdoutp
+  VAR_DECL
+    TYPE: extern FILE*
+    IDENTIFIER __stderrp
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER clearerr
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fclose
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER feof
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER ferror
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fflush
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fgetc
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fgetpos
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: fpos_t*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER fgets
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __size
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: FILE*
+    IDENTIFIER fopen
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __filename
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __mode
+  ATTRIBUTE [GNU] __format__(__printf__,2,3)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+    VARIADIC: yes
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fputc
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fputs
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER fread
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void* restrict
+        IDENTIFIER __ptr
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __size
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __nitems
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __stream
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: FILE*
+    IDENTIFIER freopen
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __unnamed_param2
+  ATTRIBUTE [GNU] __format__(__scanf__,2,3)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fscanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+    VARIADIC: yes
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fseek
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: long int
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fsetpos
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const fpos_t*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: long int
+    IDENTIFIER ftell
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: size_t
+    IDENTIFIER fwrite
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void* restrict
+        IDENTIFIER __ptr
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __size
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __nitems
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __stream
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER getc
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER getchar
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __deprecated__
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER gets
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER perror
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER putc
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER putchar
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER puts
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER remove
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER rename
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __old
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __new
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER rewind
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __format__(__scanf__,1,2)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER scanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param0
+    VARIADIC: yes
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER setbuf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER setvbuf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param2
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __size
+  ATTRIBUTE [GNU] __deprecated__
+  ATTRIBUTE [GNU] __format__(__printf__,2,3)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+    VARIADIC: yes
+  ATTRIBUTE [GNU] __format__(__scanf__,2,3)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER sscanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+    VARIADIC: yes
+  FUNCTION DECLARATION
+    RETURN TYPE: FILE*
+    IDENTIFIER tmpfile
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __deprecated__
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER tmpnam
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER ungetc
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] __format__(__printf__,2,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vfprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param2
+  ATTRIBUTE [GNU] __format__(__printf__,1,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] __deprecated__
+  ATTRIBUTE [GNU] __format__(__printf__,2,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vsprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER ctermid
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: FILE*
+    IDENTIFIER fdopen
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fileno
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER pclose
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: FILE*
+    IDENTIFIER popen
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER __srget
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __format__(__scanf__,2,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER __svfscanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER __swbuf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER flockfile
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER ftrylockfile
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER funlockfile
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER getc_unlocked
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER getchar_unlocked
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER putc_unlocked
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER putchar_unlocked
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER getw
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER putw
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param1
+  ATTRIBUTE [GNU] __deprecated__
+  ATTRIBUTE [GNU] "_""x"
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER tempnam
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __dir
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __prefix
+  TYPEDEF
+        TYPE: __darwin_off_t
+        Alias:     IDENTIFIER off_t
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fseeko
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __stream
+      VAR_DECL
+        TYPE: off_t
+        IDENTIFIER __offset
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __whence
+  FUNCTION DECLARATION
+    RETURN TYPE: off_t
+    IDENTIFIER ftello
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __stream
+  ATTRIBUTE [GNU] __format__(__printf__,3,4)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER snprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __str
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __size
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __format
+    VARIADIC: yes
+  ATTRIBUTE [GNU] __format__(__scanf__,2,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vfscanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __stream
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __format
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __format__(__scanf__,1,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vscanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __format
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __format__(__printf__,3,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vsnprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __str
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __size
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __format
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __format__(__scanf__,2,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vsscanf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __str
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __format
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param0
+  TYPEDEF
+        TYPE: __darwin_ssize_t
+        Alias:     IDENTIFIER ssize_t
+  ATTRIBUTE [GNU] __format__(__printf__,2,3)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER dprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+    VARIADIC: yes
+  ATTRIBUTE [GNU] __format__(__printf__,2,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vdprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: ssize_t
+    IDENTIFIER getdelim
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char** restrict
+        IDENTIFIER __linep
+      VAR_DECL
+        TYPE: size_t* restrict
+        IDENTIFIER __linecapp
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __delimiter
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __stream
+  FUNCTION DECLARATION
+    RETURN TYPE: ssize_t
+    IDENTIFIER getline
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char** restrict
+        IDENTIFIER __linep
+      VAR_DECL
+        TYPE: size_t* restrict
+        IDENTIFIER __linecapp
+      VAR_DECL
+        TYPE: FILE* restrict
+        IDENTIFIER __stream
+  FUNCTION DECLARATION
+    RETURN TYPE: FILE*
+    IDENTIFIER fmemopen
+    PARAMETERS:
+      VAR_DECL
+        TYPE: void* restrict
+        IDENTIFIER __buf
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __size
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __mode
+  FUNCTION DECLARATION
+    RETURN TYPE: FILE*
+    IDENTIFIER open_memstream
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char**
+        IDENTIFIER __bufp
+      VAR_DECL
+        TYPE: size_t*
+        IDENTIFIER __sizep
+  VAR_DECL
+    TYPE: extern const int
+    IDENTIFIER sys_nerr
+  VAR_DECL
+    TYPE: extern const char* const [?]
+    IDENTIFIER sys_errlist
+  ATTRIBUTE [GNU] __format__(__printf__,2,3)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER asprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char** restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+    VARIADIC: yes
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER ctermid_r
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: char*
+    IDENTIFIER fgetln
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: size_t*
+        IDENTIFIER __len
+  ATTRIBUTE [GNU] format_arg(2)
+  FUNCTION DECLARATION
+    RETURN TYPE: const char*
+    IDENTIFIER fmtcheck
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char*
+        IDENTIFIER __unnamed_param1
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER fpurge
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  FUNCTION DECLARATION
+    RETURN TYPE: void
+    IDENTIFIER setbuffer
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: char*
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __size
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER setlinebuf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: FILE*
+        IDENTIFIER __unnamed_param0
+  ATTRIBUTE [GNU] __format__(__printf__,2,0)
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER vasprintf
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char** restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param2
+  FUNCTION DECLARATION
+    RETURN TYPE: FILE*
+    IDENTIFIER funopen
+    PARAMETERS:
+      VAR_DECL
+        TYPE: const void*
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int (*)(void*, char*, int) (void*, char*, int)
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: int (*)(void*, const char*, int) (void*, const char*, int)
+        IDENTIFIER __unnamed_param2
+      VAR_DECL
+        TYPE: fpos_t (*)(void*, fpos_t, int) (void*, fpos_t, int)
+        IDENTIFIER __unnamed_param3
+      VAR_DECL
+        TYPE: int (*)(void*) (void*)
+        IDENTIFIER __unnamed_param4
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER __sprintf_chk
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __unnamed_param2
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param3
+    VARIADIC: yes
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER __snprintf_chk
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __maxlen
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __unnamed_param2
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param3
+    VARIADIC: yes
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER __vsprintf_chk
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __unnamed_param2
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param3
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param4
+  FUNCTION DECLARATION
+    RETURN TYPE: extern int
+    IDENTIFIER __vsnprintf_chk
+    PARAMETERS:
+      VAR_DECL
+        TYPE: char* restrict
+        IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __maxlen
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER __unnamed_param1
+      VAR_DECL
+        TYPE: size_t
+        IDENTIFIER __unnamed_param2
+      VAR_DECL
+        TYPE: const char* restrict
+        IDENTIFIER __unnamed_param3
+      VAR_DECL
+        TYPE: va_list
+        IDENTIFIER __unnamed_param4
+  TYPEDEF
+        TYPE: int (*)(int, int) (int, int)
+        Alias:     IDENTIFIER Op
+  TYPEDEF
+        TYPE: Op [3]
+        Alias:     IDENTIFIER OpVec
+  TYPEDEF
+        TYPE: struct Layer
+        Alias:     IDENTIFIER Layer
+  TYPEDEF
+        TYPE: struct __anon_struct_1_12
+        Alias:     IDENTIFIER Frame
+  STRUCT
+        Name:     IDENTIFIER Layer
+    VAR_DECL
+      TYPE: Frame
+      IDENTIFIER frame
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER bias
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER op_add
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+%Layer = type { %__anon_struct_1_12, i32 }
+%__anon_struct_1_12 = type { i32, [3 x ptr], ptr }
+
+@__stdinp = global ptr null, align 8
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@__stdoutp = global ptr null, align 8
+@NULL = internal global ptr null, align 8
+@sys_errlist = global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@true = internal global i32 0, align 4
+@__stderrp = global ptr null, align 8
+@false = internal global i32 0, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+@sys_nerr = global i32 0, align 4
+@.str.0 = private unnamed_addr constant [7 x i8] c"%d %d\0A\00"
+
+declare i32 @putc(i32 %0, ptr %1)
+
+declare i32 @vasprintf(ptr %0, ptr %1, ptr %2)
+
+declare i32 @fseeko(ptr %0, i64 %1, i32 %2)
+
+declare i32 @fileno(ptr %0)
+
+declare i64 @atomic_load_explicit(...)
+
+declare ptr @__builtin___memmove_chk(ptr %0, ptr %1, i64 %2, i64 %3)
+
+declare i32 @feof(ptr %0)
+
+declare i64 @__c11_atomic_exchange(...)
+
+declare ptr @popen(ptr %0, ptr %1)
+
+declare i32 @fputc(i32 %0, ptr %1)
+
+declare i32 @renameatx_np(i32 %0, ptr %1, i32 %2, ptr %3, i32 %4)
+
+define i32 @op_fold(i32 %0, i32 %1) {
+entry:
+  %a = alloca i32, align 4
+  store i32 %0, ptr %a, align 4
+  %b = alloca i32, align 4
+  store i32 %1, ptr %b, align 4
+  %a1 = load i32, ptr %a, align 4
+  %multmp = mul i32 %a1, 5
+  %b2 = load i32, ptr %b, align 4
+  %xortmp = xor i32 %b2, 11
+  %addtmp = add i32 %multmp, %xortmp
+  ret i32 %addtmp
+}
+
+declare i32 @__srget(ptr %0)
+
+declare i32 @getc(ptr %0)
+
+declare i64 @__builtin_object_size(ptr %0, i32 %1)
+
+declare i32 @sprintf(ptr %0, ptr %1, ...)
+
+declare i32 @fgetc(ptr %0)
+
+declare i32 @vsnprintf(ptr %0, i64 %1, ptr %2, ptr %3)
+
+declare i32 @puts(ptr %0)
+
+declare i32 @vdprintf(i32 %0, ptr %1, ptr %2)
+
+declare i32 @vfprintf(ptr %0, ptr %1, ptr %2)
+
+declare i32 @putw(i32 %0, ptr %1)
+
+declare i64 @fwrite(ptr %0, i64 %1, i64 %2, ptr %3)
+
+declare i32 @fscanf(ptr %0, ptr %1, ...)
+
+declare ptr @tempnam(ptr %0, ptr %1)
+
+declare i32 @fputs(ptr %0, ptr %1)
+
+declare ptr @gets(ptr %0)
+
+declare i32 @getw(ptr %0)
+
+declare i32 @getc_unlocked(ptr %0)
+
+declare float @__builtin_inff()
+
+declare i32 @rename(ptr %0, ptr %1)
+
+declare i32 @fgetpos(ptr %0, ptr %1)
+
+declare void @__builtin_va_start(...)
+
+declare i32 @__sprintf_chk(ptr %0, i32 %1, i64 %2, ptr %3, ...)
+
+declare ptr @ctermid_r(ptr %0)
+
+declare ptr @fgets(ptr %0, i32 %1, ptr %2)
+
+declare ptr @__builtin___strncpy_chk(ptr %0, ptr %1, i64 %2, i64 %3)
+
+declare i32 @__builtin___snprintf_chk(ptr %0, i64 %1, i32 %2, i64 %3, ptr %4, ...)
+
+declare i32 @fclose(ptr %0)
+
+declare i32 @__vsnprintf_chk(ptr %0, i64 %1, i32 %2, i64 %3, ptr %4, ptr %5)
+
+declare double @__builtin_infl()
+
+declare i32 @setvbuf(ptr %0, ptr %1, i32 %2, i64 %3)
+
+declare i64 @atomic_exchange_explicit(...)
+
+declare i32 @vscanf(ptr %0, ptr %1)
+
+declare i32 @fsetpos(ptr %0, ptr %1)
+
+declare i32 @__swbuf(i32 %0, ptr %1)
+
+declare void @__builtin_va_copy(...)
+
+define i32 @run_graph(ptr %0, ptr %1, i32 %2) {
+entry:
+  %head = alloca ptr, align 8
+  store ptr %0, ptr %head, align 8
+  %values = alloca ptr, align 8
+  store ptr %1, ptr %values, align 8
+  %n = alloca i32, align 4
+  store i32 %2, ptr %n, align 4
+  %acc = alloca i32, align 4
+  store i32 17, ptr %acc, align 4
+  %cur = alloca ptr, align 8
+  %head1 = load ptr, ptr %head, align 8
+  store ptr %head1, ptr %cur, align 8
+  %i = alloca i32, align 4
+  store i32 0, ptr %i, align 4
+  br label %forcond
+
+forcond:                                          ; preds = %forinc, %entry
+  %i2 = load i32, ptr %i, align 4
+  %n3 = load i32, ptr %n, align 4
+  %cmptmp = icmp ult i32 %i2, %n3
+  %cmp.int = zext i1 %cmptmp to i32
+  %forcond4 = icmp ne i32 %cmp.int, 0
+  br i1 %forcond4, label %forbody, label %forend
+
+forbody:                                          ; preds = %forcond
+  %lane = alloca i32, align 4
+  %f0 = alloca ptr, align 8
+  %f1 = alloca ptr, align 8
+  %x = alloca i32, align 4
+  %y = alloca i32, align 4
+  %cur5 = load ptr, ptr %cur, align 8
+  %ptr.cmp.lhs = ptrtoint ptr %cur5 to i64
+  %ptrcmp = icmp eq i64 %ptr.cmp.lhs, 0
+  %ptrcmp.int = zext i1 %ptrcmp to i32
+  %ifcond = icmp ne i32 %ptrcmp.int, 0
+  br i1 %ifcond, label %then, label %ifcont
+
+forinc:                                           ; preds = %ifcont54
+  %unary.load = load i32, ptr %i, align 4
+  %unary.inc = add i32 %unary.load, 1
+  store i32 %unary.inc, ptr %i, align 4
+  br label %forcond
+
+forend:                                           ; preds = %then, %forcond
+  %acc59 = load i32, ptr %acc, align 4
+  ret i32 %acc59
+
+then:                                             ; preds = %forbody
+  br label %forend
+
+ifcont:                                           ; preds = %forbody
+  %cur6 = load ptr, ptr %cur, align 8
+  %fieldPtr = getelementptr inbounds nuw %Layer, ptr %cur6, i32 0, i32 0
+  %fieldPtr7 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr, i32 0, i32 0
+  %dot_field = load i32, ptr %fieldPtr7, align 4
+  %i8 = load i32, ptr %i, align 4
+  %xortmp = xor i32 %dot_field, %i8
+  %modtmp = srem i32 %xortmp, 3
+  store i32 %modtmp, ptr %lane, align 4
+  %cur9 = load ptr, ptr %cur, align 8
+  %fieldPtr10 = getelementptr inbounds nuw %Layer, ptr %cur9, i32 0, i32 0
+  %fieldPtr11 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr10, i32 0, i32 1
+  %lane12 = load i32, ptr %lane, align 4
+  %array.idx64 = sext i32 %lane12 to i64
+  %arrayElemPtr = getelementptr [3 x ptr], ptr %fieldPtr11, i64 0, i64 %array.idx64
+  %arrayLoad = load ptr, ptr %arrayElemPtr, align 8
+  store ptr %arrayLoad, ptr %f0, align 8
+  %cur13 = load ptr, ptr %cur, align 8
+  %fieldPtr14 = getelementptr inbounds nuw %Layer, ptr %cur13, i32 0, i32 0
+  %fieldPtr15 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr14, i32 0, i32 1
+  %lane16 = load i32, ptr %lane, align 4
+  %addtmp = add i32 %lane16, 1
+  %modtmp17 = urem i32 %addtmp, 3
+  %array.idx6418 = sext i32 %modtmp17 to i64
+  %arrayElemPtr19 = getelementptr [3 x ptr], ptr %fieldPtr15, i64 0, i64 %array.idx6418
+  %arrayLoad20 = load ptr, ptr %arrayElemPtr19, align 8
+  store ptr %arrayLoad20, ptr %f1, align 8
+  %f021 = load ptr, ptr %f0, align 8
+  %array.ptr.load = load ptr, ptr %values, align 8
+  %i22 = load i32, ptr %i, align 4
+  %array.idx6423 = sext i32 %i22 to i64
+  %arrayElemPtr24 = getelementptr i32, ptr %array.ptr.load, i64 %array.idx6423
+  %arrayLoad25 = load i32, ptr %arrayElemPtr24, align 4
+  %cur26 = load ptr, ptr %cur, align 8
+  %fieldPtr27 = getelementptr inbounds nuw %Layer, ptr %cur26, i32 0, i32 0
+  %fieldPtr28 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr27, i32 0, i32 0
+  %dot_field29 = load i32, ptr %fieldPtr28, align 4
+  %cur30 = load ptr, ptr %cur, align 8
+  %fieldPtr31 = getelementptr inbounds nuw %Layer, ptr %cur30, i32 0, i32 1
+  %ptr_field = load i32, ptr %fieldPtr31, align 4
+  %addtmp32 = add i32 %dot_field29, %ptr_field
+  %calltmp = call i32 %f021(i32 %arrayLoad25, i32 %addtmp32)
+  store i32 %calltmp, ptr %x, align 4
+  %f133 = load ptr, ptr %f1, align 8
+  %x34 = load i32, ptr %x, align 4
+  %i35 = load i32, ptr %i, align 4
+  %cur36 = load ptr, ptr %cur, align 8
+  %fieldPtr37 = getelementptr inbounds nuw %Layer, ptr %cur36, i32 0, i32 1
+  %ptr_field38 = load i32, ptr %fieldPtr37, align 4
+  %addtmp39 = add i32 %i35, %ptr_field38
+  %calltmp40 = call i32 %f133(i32 %x34, i32 %addtmp39)
+  store i32 %calltmp40, ptr %y, align 4
+  %acc41 = load i32, ptr %acc, align 4
+  %multmp = mul i32 %acc41, 131
+  %y42 = load i32, ptr %y, align 4
+  %cur43 = load ptr, ptr %cur, align 8
+  %fieldPtr44 = getelementptr inbounds nuw %Layer, ptr %cur43, i32 0, i32 1
+  %ptr_field45 = load i32, ptr %fieldPtr44, align 4
+  %multmp46 = mul i32 %ptr_field45, 7
+  %addtmp47 = add i32 %y42, %multmp46
+  %xortmp48 = xor i32 %multmp, %addtmp47
+  store i32 %xortmp48, ptr %acc, align 4
+  %i49 = load i32, ptr %i, align 4
+  %andtmp = and i32 %i49, 1
+  %cmptmp50 = icmp ne i32 %andtmp, 0
+  %cmp.int51 = zext i1 %cmptmp50 to i32
+  %ifcond52 = icmp ne i32 %cmp.int51, 0
+  br i1 %ifcond52, label %then53, label %ifcont54
+
+then53:                                           ; preds = %ifcont
+  %cur55 = load ptr, ptr %cur, align 8
+  %fieldPtr56 = getelementptr inbounds nuw %Layer, ptr %cur55, i32 0, i32 0
+  %fieldPtr57 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr56, i32 0, i32 2
+  %dot_field58 = load ptr, ptr %fieldPtr57, align 8
+  store ptr %dot_field58, ptr %cur, align 8
+  br label %ifcont54
+
+ifcont54:                                         ; preds = %then53, %ifcont
+  br label %forinc
+}
+
+declare ptr @__builtin___strncat_chk(ptr %0, ptr %1, i64 %2, i64 %3)
+
+declare i32 @vfscanf(ptr %0, ptr %1, ptr %2)
+
+define i32 @op_sub(i32 %0, i32 %1) {
+entry:
+  %a = alloca i32, align 4
+  store i32 %0, ptr %a, align 4
+  %b = alloca i32, align 4
+  store i32 %1, ptr %b, align 4
+  %a1 = load i32, ptr %a, align 4
+  %b2 = load i32, ptr %b, align 4
+  %subtmp = sub i32 %a1, %b2
+  ret i32 %subtmp
+}
+
+declare i64 @getline(ptr %0, ptr %1, ptr %2)
+
+declare ptr @ctermid(ptr %0)
+
+declare i32 @fflush(ptr %0)
+
+declare void @rewind(ptr %0)
+
+declare i64 @getdelim(ptr %0, ptr %1, i32 %2, ptr %3)
+
+define i32 @op_mix(i32 %0, i32 %1) {
+entry:
+  %a = alloca i32, align 4
+  store i32 %0, ptr %a, align 4
+  %b = alloca i32, align 4
+  store i32 %1, ptr %b, align 4
+  %a1 = load i32, ptr %a, align 4
+  %shltmp = shl i32 %a1, 1
+  %b2 = load i32, ptr %b, align 4
+  %multmp = mul i32 %b2, 3
+  %addtmp = add i32 %multmp, 7
+  %xortmp = xor i32 %shltmp, %addtmp
+  ret i32 %xortmp
+}
+
+declare i32 @ftrylockfile(ptr %0)
+
+declare i32 @fseek(ptr %0, i64 %1, i32 %2)
+
+declare i32 @__vsprintf_chk(ptr %0, i32 %1, i64 %2, ptr %3, ptr %4)
+
+declare i32 @putc_unlocked(i32 %0, ptr %1)
+
+declare i32 @ferror(ptr %0)
+
+declare double @__builtin_fabs(double %0)
+
+declare void @atomic_init(...)
+
+declare void @funlockfile(ptr %0)
+
+declare ptr @__builtin___memcpy_chk(ptr %0, ptr %1, i64 %2, i64 %3)
+
+declare i32 @printf(ptr %0, ...)
+
+declare float @__builtin_fabsf(float %0)
+
+declare ptr @fmemopen(ptr %0, i64 %1, ptr %2)
+
+declare i32 @dprintf(i32 %0, ptr %1, ...)
+
+declare i32 @putchar(i32 %0)
+
+declare float @__builtin_nanf(ptr %0)
+
+declare i32 @__svfscanf(ptr %0, ptr %1, ptr %2)
+
+declare i32 @fprintf(ptr %0, ptr %1, ...)
+
+declare void @exit()
+
+declare ptr @funopen(ptr %0, ptr %1, ptr %2, ptr %3, ptr %4)
+
+declare i64 @__builtin_bswap64(i64 %0)
+
+declare ptr @fdopen(i32 %0, ptr %1)
+
+declare double @__builtin_fabsl(double %0)
+
+declare i32 @sscanf(ptr %0, ptr %1, ...)
+
+declare i64 @__c11_atomic_load(...)
+
+declare ptr @strncat(ptr %0, ptr %1, i64 %2)
+
+declare ptr @__builtin_alloca(i64 %0)
+
+declare i64 @fread(ptr %0, i64 %1, i64 %2, ptr %3)
+
+declare i32 @ungetc(i32 %0, ptr %1)
+
+declare i32 @__snprintf_chk(ptr %0, i64 %1, i32 %2, i64 %3, ptr %4, ...)
+
+declare i32 @fpurge(ptr %0)
+
+declare i32 @vprintf(ptr %0, ptr %1)
+
+declare void @setbuf(ptr %0, ptr %1)
+
+declare i32 @putchar_unlocked(i32 %0)
+
+declare i32 @scanf(ptr %0, ...)
+
+declare void @__c11_atomic_store(...)
+
+declare i32 @renamex_np(ptr %0, ptr %1, i32 %2)
+
+declare i32 @renameat(i32 %0, ptr %1, i32 %2, ptr %3)
+
+declare i32 @__builtin_constant_p(...)
+
+declare ptr @freopen(ptr %0, ptr %1, ptr %2)
+
+declare void @clearerr(ptr %0)
+
+declare ptr @strcat(ptr %0, ptr %1)
+
+declare i32 @getchar_unlocked()
+
+declare ptr @__builtin___memset_chk(ptr %0, i32 %1, i64 %2, i64 %3)
+
+declare i32 @vsscanf(ptr %0, ptr %1, ptr %2)
+
+declare void @__builtin_bzero(ptr %0, i64 %1)
+
+declare i32 @__builtin_bswap32(i32 %0)
+
+declare ptr @open_memstream(ptr %0, ptr %1)
+
+declare i32 @vsprintf(ptr %0, ptr %1, ptr %2)
+
+declare i64 @__builtin_expect(i64 %0, i64 %1)
+
+declare i32 @getchar()
+
+declare ptr @fgetln(ptr %0, ptr %1)
+
+declare void @__builtin_va_end(...)
+
+declare i32 @__builtin_va_arg(ptr %0, i32 %1, ...)
+
+define i32 @main() {
+entry:
+  %values = alloca [7 x i32], align 4
+  %init.elem = getelementptr [7 x i32], ptr %values, i32 0, i32 0
+  store i32 3, ptr %init.elem, align 4
+  %init.elem1 = getelementptr [7 x i32], ptr %values, i32 0, i32 1
+  store i32 5, ptr %init.elem1, align 4
+  %init.elem2 = getelementptr [7 x i32], ptr %values, i32 0, i32 2
+  store i32 8, ptr %init.elem2, align 4
+  %init.elem3 = getelementptr [7 x i32], ptr %values, i32 0, i32 3
+  store i32 13, ptr %init.elem3, align 4
+  %init.elem4 = getelementptr [7 x i32], ptr %values, i32 0, i32 4
+  store i32 21, ptr %init.elem4, align 4
+  %init.elem5 = getelementptr [7 x i32], ptr %values, i32 0, i32 5
+  store i32 34, ptr %init.elem5, align 4
+  %init.elem6 = getelementptr [7 x i32], ptr %values, i32 0, i32 6
+  store i32 55, ptr %init.elem6, align 4
+  %l3 = alloca %Layer, align 8
+  %fieldPtr = getelementptr inbounds nuw %Layer, ptr %l3, i32 0, i32 0
+  %fieldPtr7 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr, i32 0, i32 0
+  store i32 4, ptr %fieldPtr7, align 4
+  %fieldPtr8 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr, i32 0, i32 1
+  %init.elem9 = getelementptr [3 x ptr], ptr %fieldPtr8, i32 0, i32 0
+  store ptr @op_mix, ptr %init.elem9, align 8
+  %init.elem10 = getelementptr [3 x ptr], ptr %fieldPtr8, i32 0, i32 1
+  store ptr @op_fold, ptr %init.elem10, align 8
+  %init.elem11 = getelementptr [3 x ptr], ptr %fieldPtr8, i32 0, i32 2
+  store ptr @op_add, ptr %init.elem11, align 8
+  %fieldPtr12 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr, i32 0, i32 2
+  store ptr null, ptr %fieldPtr12, align 8
+  %fieldPtr13 = getelementptr inbounds nuw %Layer, ptr %l3, i32 0, i32 1
+  store i32 9, ptr %fieldPtr13, align 4
+  %l2 = alloca %Layer, align 8
+  %fieldPtr14 = getelementptr inbounds nuw %Layer, ptr %l2, i32 0, i32 0
+  %fieldPtr15 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr14, i32 0, i32 0
+  store i32 3, ptr %fieldPtr15, align 4
+  %fieldPtr16 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr14, i32 0, i32 1
+  %init.elem17 = getelementptr [3 x ptr], ptr %fieldPtr16, i32 0, i32 0
+  store ptr @op_sub, ptr %init.elem17, align 8
+  %init.elem18 = getelementptr [3 x ptr], ptr %fieldPtr16, i32 0, i32 1
+  store ptr @op_add, ptr %init.elem18, align 8
+  %init.elem19 = getelementptr [3 x ptr], ptr %fieldPtr16, i32 0, i32 2
+  store ptr @op_mix, ptr %init.elem19, align 8
+  %fieldPtr20 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr14, i32 0, i32 2
+  store ptr %l3, ptr %fieldPtr20, align 8
+  %fieldPtr21 = getelementptr inbounds nuw %Layer, ptr %l2, i32 0, i32 1
+  store i32 7, ptr %fieldPtr21, align 4
+  %l1 = alloca %Layer, align 8
+  %fieldPtr22 = getelementptr inbounds nuw %Layer, ptr %l1, i32 0, i32 0
+  %fieldPtr23 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr22, i32 0, i32 0
+  store i32 2, ptr %fieldPtr23, align 4
+  %fieldPtr24 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr22, i32 0, i32 1
+  %init.elem25 = getelementptr [3 x ptr], ptr %fieldPtr24, i32 0, i32 0
+  store ptr @op_fold, ptr %init.elem25, align 8
+  %init.elem26 = getelementptr [3 x ptr], ptr %fieldPtr24, i32 0, i32 1
+  store ptr @op_sub, ptr %init.elem26, align 8
+  %init.elem27 = getelementptr [3 x ptr], ptr %fieldPtr24, i32 0, i32 2
+  store ptr @op_add, ptr %init.elem27, align 8
+  %fieldPtr28 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr22, i32 0, i32 2
+  store ptr %l2, ptr %fieldPtr28, align 8
+  %fieldPtr29 = getelementptr inbounds nuw %Layer, ptr %l1, i32 0, i32 1
+  store i32 5, ptr %fieldPtr29, align 4
+  %l0 = alloca %Layer, align 8
+  %fieldPtr30 = getelementptr inbounds nuw %Layer, ptr %l0, i32 0, i32 0
+  %fieldPtr31 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr30, i32 0, i32 0
+  store i32 1, ptr %fieldPtr31, align 4
+  %fieldPtr32 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr30, i32 0, i32 1
+  %init.elem33 = getelementptr [3 x ptr], ptr %fieldPtr32, i32 0, i32 0
+  store ptr @op_add, ptr %init.elem33, align 8
+  %init.elem34 = getelementptr [3 x ptr], ptr %fieldPtr32, i32 0, i32 1
+  store ptr @op_mix, ptr %init.elem34, align 8
+  %init.elem35 = getelementptr [3 x ptr], ptr %fieldPtr32, i32 0, i32 2
+  store ptr @op_fold, ptr %init.elem35, align 8
+  %fieldPtr36 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr30, i32 0, i32 2
+  store ptr %l1, ptr %fieldPtr36, align 8
+  %fieldPtr37 = getelementptr inbounds nuw %Layer, ptr %l0, i32 0, i32 1
+  store i32 3, ptr %fieldPtr37, align 4
+  %a = alloca i32, align 4
+  %calltmp = call i32 @run_graph(ptr %l0, ptr %values, i32 7)
+  store i32 %calltmp, ptr %a, align 4
+  %b = alloca i32, align 4
+  %ptr.arith = getelementptr i8, ptr %values, i64 4
+  %calltmp38 = call i32 @run_graph(ptr %l1, ptr %ptr.arith, i32 trunc (i64 sub (i64 7, i64 bitcast (i64 1 to i64)) to i32))
+  store i32 %calltmp38, ptr %b, align 4
+  %a39 = load i32, ptr %a, align 4
+  %a40 = load i32, ptr %a, align 4
+  %b41 = load i32, ptr %b, align 4
+  %multmp = mul i32 %b41, 3
+  %addtmp = add i32 %multmp, 17
+  %xortmp = xor i32 %a40, %addtmp
+  %calltmp42 = call i32 (ptr, ...) @printf(ptr @.str.0, i32 %a39, i32 %xortmp)
+  ret i32 0
+}
+
+declare ptr @fmtcheck(ptr %0, ptr %1)
+
+declare void @setbuffer(ptr %0, ptr %1, i32 %2)
+
+declare i64 @ftello(ptr %0)
+
+declare i32 @pclose(ptr %0)
+
+define i32 @op_add(i32 %0, i32 %1) {
+entry:
+  %a = alloca i32, align 4
+  store i32 %0, ptr %a, align 4
+  %b = alloca i32, align 4
+  store i32 %1, ptr %b, align 4
+  %a1 = load i32, ptr %a, align 4
+  %b2 = load i32, ptr %b, align 4
+  %addtmp = add i32 %a1, %b2
+  ret i32 %addtmp
+}
+
+declare i32 @asprintf(ptr %0, ptr %1, ...)
+
+declare void @atomic_store_explicit(...)
+
+declare ptr @__builtin___strcpy_chk(ptr %0, ptr %1, i64 %2)
+
+declare ptr @tmpnam(ptr %0)
+
+declare i32 @__builtin___sprintf_chk(ptr %0, i32 %1, i64 %2, ptr %3, ...)
+
+declare i32 @remove(ptr %0)
+
+declare void @flockfile(ptr %0)
+
+declare i32 @setlinebuf(ptr %0)
+
+declare ptr @tmpfile()
+
+declare double @__builtin_inf()
+
+declare i32 @__builtin___vsnprintf_chk(...)
+
+declare void @__c11_atomic_init(...)
+
+declare i32 @snprintf(ptr %0, i64 %1, ptr %2, ...)
+
+declare i32 @__builtin_mul_overflow(...)
+
+declare i64 @ftell(ptr %0)
+
+declare ptr @fopen(ptr %0, ptr %1)
+
+declare ptr @__builtin___strcat_chk(ptr %0, ptr %1, i64 %2)
+
+declare void @perror(ptr %0)
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER a
+          IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER op_sub
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '-'
+          IDENTIFIER a
+          IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER op_mix
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '^'
+          BINARY EXPRESSION '<<'
+            IDENTIFIER a
+            NUMBER_LITERAL 1
+          BINARY EXPRESSION '+'
+            BINARY EXPRESSION '*'
+              IDENTIFIER b
+              NUMBER_LITERAL 3
+            NUMBER_LITERAL 7
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER op_fold
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          BINARY EXPRESSION '*'
+            IDENTIFIER a
+            NUMBER_LITERAL 5
+          BINARY EXPRESSION '^'
+            IDENTIFIER b
+            NUMBER_LITERAL 11
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER run_graph
+    PARAMETERS
+      VAR_DECL
+        TYPE: const Layer*
+        IDENTIFIER head
+      VAR_DECL
+        TYPE: const int*
+        IDENTIFIER values
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER n
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER acc
+          = NUMBER_LITERAL 17
+      VAR_DECL
+        TYPE: const Layer*
+        IDENTIFIER cur
+          = IDENTIFIER head
+      FOR_LOOP
+        VAR_DECL
+          TYPE: unsigned int
+          IDENTIFIER i
+            = NUMBER_LITERAL 0u
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          IDENTIFIER n
+        UNARY EXPRESSION '++' (prefix)
+          IDENTIFIER i
+        BLOCK
+          VAR_DECL
+            TYPE: unsigned int
+            IDENTIFIER lane
+          VAR_DECL
+            TYPE: Op
+            IDENTIFIER f0
+          VAR_DECL
+            TYPE: Op
+            IDENTIFIER f1
+          VAR_DECL
+            TYPE: int
+            IDENTIFIER x
+          VAR_DECL
+            TYPE: int
+            IDENTIFIER y
+          IF_STATEMENT
+            BINARY EXPRESSION '=='
+              IDENTIFIER cur
+              CAST_EXPRESSION
+                                CAST TYPE: const Layer*
+                NUMBER_LITERAL 0
+            BLOCK
+              BREAK
+          ASSIGNMENT (=)
+            IDENTIFIER lane
+            CAST_EXPRESSION
+                            CAST TYPE: unsigned int
+              BINARY EXPRESSION '%'
+                BINARY EXPRESSION '^'
+                  DOT_ACCESS '.'
+                    POINTER_ACCESS '->'
+                      IDENTIFIER cur
+                      FIELD frame
+                    FIELD seed
+                  CAST_EXPRESSION
+                                        CAST TYPE: int
+                    IDENTIFIER i
+                NUMBER_LITERAL 3
+          ASSIGNMENT (=)
+            IDENTIFIER f0
+            ARRAY_ACCESS
+              DOT_ACCESS '.'
+                POINTER_ACCESS '->'
+                  IDENTIFIER cur
+                  FIELD frame
+                FIELD ops
+              IDENTIFIER lane
+          ASSIGNMENT (=)
+            IDENTIFIER f1
+            ARRAY_ACCESS
+              DOT_ACCESS '.'
+                POINTER_ACCESS '->'
+                  IDENTIFIER cur
+                  FIELD frame
+                FIELD ops
+              BINARY EXPRESSION '%'
+                BINARY EXPRESSION '+'
+                  IDENTIFIER lane
+                  NUMBER_LITERAL 1u
+                NUMBER_LITERAL 3u
+          ASSIGNMENT (=)
+            IDENTIFIER x
+            FUNCTION CALL
+              IDENTIFIER f0
+              ARGUMENTS
+                ARRAY_ACCESS
+                  IDENTIFIER values
+                  IDENTIFIER i
+                BINARY EXPRESSION '+'
+                  DOT_ACCESS '.'
+                    POINTER_ACCESS '->'
+                      IDENTIFIER cur
+                      FIELD frame
+                    FIELD seed
+                  POINTER_ACCESS '->'
+                    IDENTIFIER cur
+                    FIELD bias
+          ASSIGNMENT (=)
+            IDENTIFIER y
+            FUNCTION CALL
+              IDENTIFIER f1
+              ARGUMENTS
+                IDENTIFIER x
+                BINARY EXPRESSION '+'
+                  CAST_EXPRESSION
+                                        CAST TYPE: int
+                    IDENTIFIER i
+                  POINTER_ACCESS '->'
+                    IDENTIFIER cur
+                    FIELD bias
+          ASSIGNMENT (=)
+            IDENTIFIER acc
+            BINARY EXPRESSION '^'
+              BINARY EXPRESSION '*'
+                IDENTIFIER acc
+                NUMBER_LITERAL 131
+              BINARY EXPRESSION '+'
+                IDENTIFIER y
+                BINARY EXPRESSION '*'
+                  POINTER_ACCESS '->'
+                    IDENTIFIER cur
+                    FIELD bias
+                  NUMBER_LITERAL 7
+          IF_STATEMENT
+            BINARY EXPRESSION '!='
+              BINARY EXPRESSION '&'
+                IDENTIFIER i
+                NUMBER_LITERAL 1u
+              NUMBER_LITERAL 0u
+            BLOCK
+              ASSIGNMENT (=)
+                IDENTIFIER cur
+                DOT_ACCESS '.'
+                  POINTER_ACCESS '->'
+                    IDENTIFIER cur
+                    FIELD frame
+                  FIELD next
+      RETURN
+        IDENTIFIER acc
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int [?]
+        IDENTIFIER values
+            = NUMBER_LITERAL 3
+
+            = NUMBER_LITERAL 5
+
+            = NUMBER_LITERAL 8
+
+            = NUMBER_LITERAL 13
+
+            = NUMBER_LITERAL 21
+
+            = NUMBER_LITERAL 34
+
+            = NUMBER_LITERAL 55
+
+      VAR_DECL
+        TYPE: Layer
+        IDENTIFIER l3
+            = 
+              = NUMBER_LITERAL 4
+
+              = 
+                = IDENTIFIER op_mix
+
+                = IDENTIFIER op_fold
+
+                = IDENTIFIER op_add
+
+              = (Unrecognized for inline: type 22)            = NUMBER_LITERAL 9
+
+      VAR_DECL
+        TYPE: Layer
+        IDENTIFIER l2
+            = 
+              = NUMBER_LITERAL 3
+
+              = 
+                = IDENTIFIER op_sub
+
+                = IDENTIFIER op_add
+
+                = IDENTIFIER op_mix
+
+              = &IDENTIFIER l3            = NUMBER_LITERAL 7
+
+      VAR_DECL
+        TYPE: Layer
+        IDENTIFIER l1
+            = 
+              = NUMBER_LITERAL 2
+
+              = 
+                = IDENTIFIER op_fold
+
+                = IDENTIFIER op_sub
+
+                = IDENTIFIER op_add
+
+              = &IDENTIFIER l2            = NUMBER_LITERAL 5
+
+      VAR_DECL
+        TYPE: Layer
+        IDENTIFIER l0
+            = 
+              = NUMBER_LITERAL 1
+
+              = 
+                = IDENTIFIER op_add
+
+                = IDENTIFIER op_mix
+
+                = IDENTIFIER op_fold
+
+              = &IDENTIFIER l1            = NUMBER_LITERAL 3
+
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+          = 
+            FUNCTION CALL
+              IDENTIFIER run_graph
+              ARGUMENTS
+                UNARY EXPRESSION '&' (prefix)
+                  IDENTIFIER l0
+                IDENTIFIER values
+                CAST_EXPRESSION
+                                    CAST TYPE: unsigned int
+                  BINARY EXPRESSION '/'
+                    SIZEOF
+                                            IDENTIFIER values
+                    SIZEOF
+                                            ARRAY_ACCESS
+                        IDENTIFIER values
+                        NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+          = 
+            FUNCTION CALL
+              IDENTIFIER run_graph
+              ARGUMENTS
+                UNARY EXPRESSION '&' (prefix)
+                  IDENTIFIER l1
+                BINARY EXPRESSION '+'
+                  IDENTIFIER values
+                  NUMBER_LITERAL 1
+                CAST_EXPRESSION
+                                    CAST TYPE: unsigned int
+                  BINARY EXPRESSION '-'
+                    BINARY EXPRESSION '/'
+                      SIZEOF
+                                                IDENTIFIER values
+                      SIZEOF
+                                                ARRAY_ACCESS
+                          IDENTIFIER values
+                          NUMBER_LITERAL 0
+                    NUMBER_LITERAL 1u
+      FUNCTION CALL
+        IDENTIFIER printf
+        ARGUMENTS
+          STRING_LITERAL %d %d\n
+          IDENTIFIER a
+          BINARY EXPRESSION '^'
+            IDENTIFIER a
+            BINARY EXPRESSION '+'
+              BINARY EXPRESSION '*'
+                IDENTIFIER b
+                NUMBER_LITERAL 3
+              NUMBER_LITERAL 17
+      RETURN
+        NUMBER_LITERAL 0

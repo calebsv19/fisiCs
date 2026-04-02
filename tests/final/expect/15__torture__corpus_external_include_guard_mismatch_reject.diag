@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_include_guard_mismatch_reject.h:8:10: error: detected recursive include of '/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_include_guard_mismatch_reject.h'
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_include_guard_mismatch_reject.h:8:10: error: detected recursive include of '/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_include_guard_mismatch_reject.h'

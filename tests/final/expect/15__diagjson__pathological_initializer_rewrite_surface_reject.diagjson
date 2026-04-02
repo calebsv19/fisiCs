@@ -1,0 +1,80 @@
+{
+  "diag_count": 7,
+  "diagnostics": [
+    {
+      "code": 1000,
+      "column": 34,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 22
+    },
+    {
+      "code": 1000,
+      "column": 34,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 22
+    },
+    {
+      "code": 1000,
+      "column": 34,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 22
+    },
+    {
+      "code": 1000,
+      "column": 9,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 23
+    },
+    {
+      "code": 1000,
+      "column": 10,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 23
+    },
+    {
+      "code": 1000,
+      "column": 1,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 26
+    },
+    {
+      "code": 2000,
+      "column": 12,
+      "has_file": true,
+      "has_hint": true,
+      "has_message": true,
+      "kind": 0,
+      "length": 7,
+      "line": 29
+    }
+  ],
+  "error_count": 7,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

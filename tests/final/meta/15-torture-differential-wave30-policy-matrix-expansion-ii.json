@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__policy_impldef_signed_shift_width_matrix_tagged",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__policy_impldef_signed_shift_width_matrix_tagged.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__policy_impldef_signed_shift_width_matrix_tagged.stdout",
+      "expected_stderr": "expect/15__torture__policy_impldef_signed_shift_width_matrix_tagged.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "policy",
+        "impl-defined",
+        "signed-shift-width"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__policy_impldef_char_promotion_matrix_tagged",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__policy_impldef_char_promotion_matrix_tagged.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__policy_impldef_char_promotion_matrix_tagged.stdout",
+      "expected_stderr": "expect/15__torture__policy_impldef_char_promotion_matrix_tagged.stderr",
+      "differential": true,
+      "impl_defined": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "policy",
+        "impl-defined",
+        "char-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__policy_ub_signed_overflow_chain_tagged",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__policy_ub_signed_overflow_chain_tagged.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__policy_ub_signed_overflow_chain_tagged.stdout",
+      "expected_stderr": "expect/15__torture__policy_ub_signed_overflow_chain_tagged.stderr",
+      "differential": true,
+      "ub": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "policy",
+        "ub",
+        "signed-overflow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__policy_ub_eval_order_call_sidefx_tagged",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__policy_ub_eval_order_call_sidefx_tagged.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__policy_ub_eval_order_call_sidefx_tagged.stdout",
+      "expected_stderr": "expect/15__torture__policy_ub_eval_order_call_sidefx_tagged.stderr",
+      "differential": true,
+      "ub": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "policy",
+        "ub",
+        "eval-order-call-sidefx"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

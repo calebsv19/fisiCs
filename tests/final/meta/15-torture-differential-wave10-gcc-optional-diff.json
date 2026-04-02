@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__clang_gcc_tri_diff_smoke",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_smoke.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference-smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+#ifndef PROBE_MALFORMED_HEADER_GUARD_TAIL_MISMATCH_CHAIN_B_H
+#define PROBE_MALFORMED_HEADER_GUARD_TAIL_MISMATCH_CHAIN_B_H
+
+#include "15__probe_diag_malformed_header_guard_tail_mismatch_chain_no_crash_a.h"
+
+#endif

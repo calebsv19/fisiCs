@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__corpus_external_parser_fragment_c_smoke",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_parser_fragment_c_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_external_parser_fragment_c_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_external_parser_fragment_c_smoke.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "external-corpus",
+        "deterministic",
+        "parser-fragment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_external_parser_fragment_d_smoke",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_parser_fragment_d_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_external_parser_fragment_d_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_external_parser_fragment_d_smoke.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "external-corpus",
+        "deterministic",
+        "parser-fragment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_external_macro_chain_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_macro_chain_reject.c",
+      "expects": [
+        "expect/15__torture__corpus_external_macro_chain_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "preprocessor",
+        "macro-chain"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

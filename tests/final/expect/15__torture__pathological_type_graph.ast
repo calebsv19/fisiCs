@@ -1,0 +1,293 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int (*)(int, int) (int, int)
+        Alias:     IDENTIFIER BinOp
+  TYPEDEF
+        TYPE: BinOp [2]
+        Alias:     IDENTIFIER BinPair
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER op_add
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER a
+          IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER op_sub
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '-'
+          IDENTIFIER a
+          IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER op_mul
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '*'
+          IDENTIFIER a
+          IDENTIFIER b
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER op_mix
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER a
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '^'
+          BINARY EXPRESSION '<<'
+            IDENTIFIER a
+            NUMBER_LITERAL 1
+          BINARY EXPRESSION '+'
+            IDENTIFIER b
+            NUMBER_LITERAL 7
+  VAR_DECL
+    TYPE: static BinPair
+    IDENTIFIER g_pair0
+        = IDENTIFIER op_add
+
+        = IDENTIFIER op_sub
+
+  VAR_DECL
+    TYPE: static BinPair
+    IDENTIFIER g_pair1
+        = IDENTIFIER op_mul
+
+        = IDENTIFIER op_mix
+
+  TYPEDEF
+        TYPE: struct Node
+        Alias:     IDENTIFIER Node
+  STRUCT
+        Name:     IDENTIFIER Node
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER seed
+    VAR_DECL
+      TYPE: BinOp
+      IDENTIFIER blend
+    VAR_DECL
+      TYPE: Node*
+      IDENTIFIER next
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER fold_chain
+    PARAMETERS
+      VAR_DECL
+        TYPE: Node*
+        IDENTIFIER head
+      VAR_DECL
+        TYPE: const int*
+        IDENTIFIER xs
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER n
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER acc
+          = NUMBER_LITERAL 17
+      VAR_DECL
+        TYPE: unsigned int
+        IDENTIFIER i
+      VAR_DECL
+        TYPE: Node*
+        IDENTIFIER cur
+          = IDENTIFIER head
+      FOR_LOOP
+        ASSIGNMENT (=)
+          IDENTIFIER i
+          NUMBER_LITERAL 0
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          IDENTIFIER n
+        UNARY EXPRESSION '++' (prefix)
+          IDENTIFIER i
+        BLOCK
+          VAR_DECL
+            TYPE: BinOp
+            IDENTIFIER f
+          VAR_DECL
+            TYPE: int
+            IDENTIFIER a
+          VAR_DECL
+            TYPE: int
+            IDENTIFIER b
+          IF_STATEMENT
+            BINARY EXPRESSION '=='
+              IDENTIFIER cur
+              CAST_EXPRESSION
+                                CAST TYPE: Node*
+                NUMBER_LITERAL 0
+            BLOCK
+              BREAK
+          IF_STATEMENT
+            BINARY EXPRESSION '&'
+              POINTER_ACCESS '->'
+                IDENTIFIER cur
+                FIELD seed
+              NUMBER_LITERAL 1
+            BLOCK
+              ASSIGNMENT (=)
+                IDENTIFIER f
+                ARRAY_ACCESS
+                  IDENTIFIER g_pair1
+                  CAST_EXPRESSION
+                                        CAST TYPE: unsigned int
+                    BINARY EXPRESSION '&'
+                      POINTER_ACCESS '->'
+                        IDENTIFIER cur
+                        FIELD seed
+                      NUMBER_LITERAL 1
+          ELSE_STATEMENT
+            BLOCK
+              ASSIGNMENT (=)
+                IDENTIFIER f
+                ARRAY_ACCESS
+                  IDENTIFIER g_pair0
+                  CAST_EXPRESSION
+                                        CAST TYPE: unsigned int
+                    BINARY EXPRESSION '&'
+                      POINTER_ACCESS '->'
+                        IDENTIFIER cur
+                        FIELD seed
+                      NUMBER_LITERAL 1
+          ASSIGNMENT (=)
+            IDENTIFIER a
+            FUNCTION CALL
+              IDENTIFIER f
+              ARGUMENTS
+                ARRAY_ACCESS
+                  IDENTIFIER xs
+                  IDENTIFIER i
+                POINTER_ACCESS '->'
+                  IDENTIFIER cur
+                  FIELD seed
+          ASSIGNMENT (=)
+            IDENTIFIER b
+            FUNCTION CALL
+              POINTER_ACCESS '->'
+                IDENTIFIER cur
+                FIELD blend
+              ARGUMENTS
+                IDENTIFIER a
+                BINARY EXPRESSION '+'
+                  CAST_EXPRESSION
+                                        CAST TYPE: int
+                    IDENTIFIER i
+                  NUMBER_LITERAL 3
+          ASSIGNMENT (=)
+            IDENTIFIER acc
+            BINARY EXPRESSION '^'
+              BINARY EXPRESSION '*'
+                IDENTIFIER acc
+                NUMBER_LITERAL 131
+              IDENTIFIER b
+          ASSIGNMENT (=)
+            IDENTIFIER cur
+            POINTER_ACCESS '->'
+              IDENTIFIER cur
+              FIELD next
+      RETURN
+        IDENTIFIER acc
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int [?]
+        IDENTIFIER values
+            = NUMBER_LITERAL 3
+
+            = NUMBER_LITERAL 5
+
+            = NUMBER_LITERAL 8
+
+            = NUMBER_LITERAL 13
+
+            = NUMBER_LITERAL 21
+
+      VAR_DECL
+        TYPE: Node
+        IDENTIFIER n3
+            = NUMBER_LITERAL 4
+
+            = IDENTIFIER op_mix
+
+            = (Unrecognized for inline: type 22)      VAR_DECL
+        TYPE: Node
+        IDENTIFIER n2
+            = NUMBER_LITERAL 3
+
+            = IDENTIFIER op_mul
+
+            = &IDENTIFIER n3      VAR_DECL
+        TYPE: Node
+        IDENTIFIER n1
+            = NUMBER_LITERAL 2
+
+            = IDENTIFIER op_sub
+
+            = &IDENTIFIER n2      VAR_DECL
+        TYPE: Node
+        IDENTIFIER n0
+            = NUMBER_LITERAL 1
+
+            = IDENTIFIER op_add
+
+            = &IDENTIFIER n1      VAR_DECL
+        TYPE: int
+        IDENTIFIER out
+          = 
+            FUNCTION CALL
+              IDENTIFIER fold_chain
+              ARGUMENTS
+                UNARY EXPRESSION '&' (prefix)
+                  IDENTIFIER n0
+                IDENTIFIER values
+                CAST_EXPRESSION
+                                    CAST TYPE: unsigned int
+                  BINARY EXPRESSION '/'
+                    SIZEOF
+                                            IDENTIFIER values
+                    SIZEOF
+                                            ARRAY_ACCESS
+                        IDENTIFIER values
+                        NUMBER_LITERAL 0
+      RETURN
+        BINARY EXPRESSION '&'
+          IDENTIFIER out
+          NUMBER_LITERAL 255

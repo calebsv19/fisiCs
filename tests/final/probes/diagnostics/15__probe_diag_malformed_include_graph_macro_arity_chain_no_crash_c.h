@@ -1,0 +1,6 @@
+#ifndef PROBE_MALFORMED_INCLUDE_GRAPH_MACRO_ARITY_CHAIN_C_H
+#define PROBE_MALFORMED_INCLUDE_GRAPH_MACRO_ARITY_CHAIN_C_H
+
+int probe_macro_arity_chain_value = PROBE_NEED2(1);
+
+#endif

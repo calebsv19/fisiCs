@@ -2,21 +2,48 @@
 
 These items are not yet explicitly validated via `include/test.txt`/`make run` and should be exercised with focused snippets.
 
-====== Final suite (bucket 14) next validation targets ======
-- Previous ABI/call probe blockers were fixed and promoted:
-  `14__runtime_float_cast_roundtrip`,
-  `14__runtime_variadic_promotions_matrix`,
-  `14__runtime_struct_with_array_pass_return`,
-  `14__runtime_union_payload_roundtrip`,
-  `14__runtime_fnptr_dispatch_table_mixed`.
-- Newly added wave7 memory/layout probes are blocked and need fixes:
-  `14__probe_vla_stride_indexing` (compile timeout),
-  `14__probe_alignment_long_double_struct` (offsetof inline-struct field lookup),
-  `14__probe_struct_array_byte_stride` (runtime mismatch vs clang),
-  `14__probe_union_embedded_alignment` (offsetof inline-struct field lookup),
-  `14__probe_vla_row_pointer_decay` (runtime crash / differential mismatch).
-- Nested switch/fallthrough loop control-flow stress.
-- Plan reference: `docs/plans/runtime_bucket_14_execution_plan.md`.
+====== Final suite bucket focus ======
+- Bucket `14` runtime-surface is currently stable:
+  `make final-runtime` => `0 failing, 22 skipped`,
+  and `PROBE_FILTER=14__probe_*` => `resolved=234, blocked=0, skipped=0`.
+- Bucket `15` torture/differential wave campaign is complete at current baseline.
+- Bucket `15` baseline:
+  `145` active tests (`81` runtime differential lanes, `35` diagnostics lanes,
+  `27` diagjson lanes), and
+  `PROBE_FILTER=15__probe_*` => `resolved=136, blocked=0, skipped=0`.
+- Full final snapshot (2026-04-01):
+  `make final` => `0 failing, 32 skipped`.
+- Plan reference for next work:
+  `docs/plans/torture_bucket_15_execution_plan.md`.
+- Bucket-15 closure waves through Wave40 are now promoted.
+- Next planned expansion set: none (Wave40 campaign complete).
+- Bucket-15 unresolved stress areas (by design, not blockers):
+  - tri-reference gcc coverage remains a subset of total runtime differential lanes,
+  - optional future expansion can add additional pinned external-corpus fragments beyond wave40.
+
+====== Explicit checklist gaps (remaining) ======
+- Lexer literal boundaries:
+  - large integer boundary constants,
+  - float precision-boundary matrix,
+  - multi-character constant coverage,
+  - escape overflow diagnostics.
+- Statements/control diagnostics:
+  - missing-return policy lane,
+  - wrong-return-type statement lane.
+- Semantic phase (`07`) coverage:
+  - bucket is now active (Wave2 promoted),
+  - still missing deeper negative matrices for conversions/comparisons,
+  - still missing diagnostic-json parity lanes for semantic rejects.
+- Runtime policy:
+  - explicit signed-overflow UB policy lane still listed as unstarted in the checklist.
+- Torture infrastructure:
+  - explicit high-volume fuzz-harness lane remains marked unstarted.
+
+====== Recommended next execution order ======
+1. Continue semantic bucket (`07`) with Wave3 conversion-negative and diagjson parity lanes.
+2. Close lexer boundary leftovers (`02`) so token/literal policy is complete.
+3. Add statement return diagnostics (`09`) with explicit warning/error policy.
+4. Add torture harness infra lane (`15`) for bounded high-volume fuzz replay shards.
 
 ====== Preprocessor ======
 - Macro self-expansion suppression and re-scan behavior.

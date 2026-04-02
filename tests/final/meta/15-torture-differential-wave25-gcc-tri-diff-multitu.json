@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__clang_gcc_tri_diff_multitu_fnptr_table_bridge",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__clang_gcc_tri_diff_multitu_fnptr_table_bridge_main.c",
+        "cases/15__torture__clang_gcc_tri_diff_multitu_fnptr_table_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_multitu_fnptr_table_bridge.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_multitu_fnptr_table_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "multitu",
+        "fnptr-table"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_multitu_const_seed_pipeline",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__clang_gcc_tri_diff_multitu_const_seed_pipeline_main.c",
+        "cases/15__torture__clang_gcc_tri_diff_multitu_const_seed_pipeline_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_multitu_const_seed_pipeline.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_multitu_const_seed_pipeline.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "multitu",
+        "const-pipeline"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_multitu_layout_digest_bridge",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__clang_gcc_tri_diff_multitu_layout_digest_bridge_main.c",
+        "cases/15__torture__clang_gcc_tri_diff_multitu_layout_digest_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_multitu_layout_digest_bridge.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_multitu_layout_digest_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "multitu",
+        "layout-digest"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

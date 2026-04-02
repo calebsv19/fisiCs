@@ -22,6 +22,7 @@ class RuntimeProbe:
     source: Path
     note: str
     inputs: Sequence[Path] | None = None
+    extra_differential_compiler: str | None = None
 
 
 @dataclass
@@ -69,6 +70,16 @@ RUNTIME_PROBES = [
         probe_id="04__probe_union_overlap_runtime",
         source=PROBE_DIR / "runtime/04__probe_union_overlap_runtime.c",
         note="union members should overlap storage base address and satisfy size floor checks",
+    ),
+    RuntimeProbe(
+        probe_id="07__probe_agg_member_access_runtime",
+        source=PROBE_DIR / "runtime/07__probe_agg_member_access_runtime.c",
+        note="nested struct member access via '.' and '->' should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="07__probe_agg_offsets_runtime",
+        source=PROBE_DIR / "runtime/07__probe_agg_offsets_runtime.c",
+        note="offsetof ordering and stride invariants should match clang runtime behavior",
     ),
     RuntimeProbe(
         probe_id="10__probe_static_function_then_extern_decl_ok",
@@ -846,6 +857,16 @@ RUNTIME_PROBES = [
         note="deep recursion with per-frame stack payload should match clang runtime behavior",
     ),
     RuntimeProbe(
+        probe_id="15__probe_deep_recursion_stack_pressure_ii",
+        source=PROBE_DIR / "runtime/15__probe_deep_recursion_stack_pressure_ii.c",
+        note="deeper recursion with larger per-frame payload should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_deep_recursion_stack_pressure_iii",
+        source=PROBE_DIR / "runtime/15__probe_deep_recursion_stack_pressure_iii.c",
+        note="third-tier recursion pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
         probe_id="15__probe_large_vla_stride_pressure",
         source=PROBE_DIR / "runtime/15__probe_large_vla_stride_pressure.c",
         note="large local VLA row-stride and pointer-delta stress path should match clang runtime behavior",
@@ -881,6 +902,26 @@ RUNTIME_PROBES = [
         note="large local struct-array checksum grid should match clang runtime behavior",
     ),
     RuntimeProbe(
+        probe_id="15__probe_many_decls_density_pressure_ii",
+        source=PROBE_DIR / "runtime/15__probe_many_decls_density_pressure_ii.c",
+        note="dense declaration-matrix pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_many_decls_density_pressure_iii",
+        source=PROBE_DIR / "runtime/15__probe_many_decls_density_pressure_iii.c",
+        note="third-tier dense declaration-matrix pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_large_struct_array_pressure_ii",
+        source=PROBE_DIR / "runtime/15__probe_large_struct_array_pressure_ii.c",
+        note="larger local struct-array pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_large_struct_array_pressure_iii",
+        source=PROBE_DIR / "runtime/15__probe_large_struct_array_pressure_iii.c",
+        note="third-tier larger local struct-array pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
         probe_id="15__probe_multitu_const_table_crc",
         source=PROBE_DIR / "runtime/15__probe_multitu_const_table_crc_main.c",
         inputs=(
@@ -888,6 +929,349 @@ RUNTIME_PROBES = [
             PROBE_DIR / "runtime/15__probe_multitu_const_table_crc_lib.c",
         ),
         note="multi-TU const-table CRC fold path should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_fnptr_state_matrix",
+        source=PROBE_DIR / "runtime/15__probe_multitu_fnptr_state_matrix_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_fnptr_state_matrix_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_fnptr_state_matrix_lib.c",
+        ),
+        note="multi-TU stateful function-pointer matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_struct_vla_stride_bridge",
+        source=PROBE_DIR / "runtime/15__probe_multitu_struct_vla_stride_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_struct_vla_stride_bridge_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_struct_vla_stride_bridge_lib.c",
+        ),
+        note="multi-TU struct+VLA stride bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_ring_digest_pipeline",
+        source=PROBE_DIR / "runtime/15__probe_multitu_ring_digest_pipeline_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_ring_digest_pipeline_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_ring_digest_pipeline_lib.c",
+            PROBE_DIR / "runtime/15__probe_multitu_ring_digest_pipeline_aux.c",
+        ),
+        note="multi-TU ring-digest pipeline with static state should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_large_table_crc_pressure",
+        source=PROBE_DIR / "runtime/15__probe_multitu_large_table_crc_pressure_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_large_table_crc_pressure_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_large_table_crc_pressure_lib.c",
+        ),
+        note="multi-TU large-table CRC pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_recursive_dispatch_pressure",
+        source=PROBE_DIR / "runtime/15__probe_multitu_recursive_dispatch_pressure_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_recursive_dispatch_pressure_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_recursive_dispatch_pressure_lib.c",
+        ),
+        note="multi-TU recursive dispatch pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_layout_stride_pressure",
+        source=PROBE_DIR / "runtime/15__probe_multitu_layout_stride_pressure_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_layout_stride_pressure_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_layout_stride_pressure_lib.c",
+        ),
+        note="multi-TU layout/stride pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_external_compile_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_external_compile_smoke.c",
+        note="external-corpus styled deterministic parser/normalizer should compile/run and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_external_parser_fragment_a_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_external_parser_fragment_a_smoke.c",
+        note="external-corpus parser fragment A should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_external_parser_fragment_b_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_external_parser_fragment_b_smoke.c",
+        note="external-corpus parser fragment B should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_external_parser_fragment_c_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_external_parser_fragment_c_smoke.c",
+        note="external-corpus parser fragment C should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_external_parser_fragment_d_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_external_parser_fragment_d_smoke.c",
+        note="external-corpus parser fragment D should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_external_decl_chain_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_external_decl_chain_smoke.c",
+        note="external-corpus declaration-chain fragment should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_external_typedef_graph_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_external_typedef_graph_smoke.c",
+        note="external-corpus typedef-graph fragment should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_pinned_fragment_e_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_pinned_fragment_e_smoke.c",
+        note="pinned corpus fragment E should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_pinned_fragment_f_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_pinned_fragment_f_smoke.c",
+        note="pinned corpus fragment F should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_pinned_fragment_g_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_pinned_fragment_g_smoke.c",
+        note="pinned corpus fragment G should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_ast_pathological_type_graph",
+        source=PROBE_DIR / "runtime/15__probe_ast_pathological_type_graph.c",
+        note="pathological type-graph compile/runtime lane should remain deterministic and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_ast_pathological_decl_graph_surface",
+        source=PROBE_DIR / "runtime/15__probe_ast_pathological_decl_graph_surface.c",
+        note="pathological declaration-graph surface lane should remain deterministic and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_smoke",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_smoke.c",
+        note="deterministic runtime smoke lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_control_checksum",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_control_checksum.c",
+        note="control checksum lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge_main.c",
+            PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge_lib.c",
+        ),
+        note="multi-TU state bridge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_abi_args_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_abi_args_matrix.c",
+        note="ABI args matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_loop_state_crc_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_loop_state_crc_matrix.c",
+        note="loop-state CRC matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_struct_array_stride_crc_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_struct_array_stride_crc_matrix.c",
+        note="struct-array stride CRC lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_pointer_mix_checksum_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_pointer_mix_checksum_matrix.c",
+        note="pointer-mix checksum matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge_main.c",
+            PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge_lib.c",
+        ),
+        note="multi-TU fnptr table bridge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline_main.c",
+            PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline_lib.c",
+        ),
+        note="multi-TU const-seed pipeline lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge_main.c",
+            PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge_lib.c",
+        ),
+        note="multi-TU layout digest bridge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_policy_shift_char_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_policy_shift_char_matrix.c",
+        note="policy shift/char matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_policy_struct_abi_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_policy_struct_abi_matrix.c",
+        note="policy struct ABI matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_header_control_dispatch_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_header_control_dispatch_matrix.c",
+        note="header control/dispatch matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_header_layout_fold_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_header_layout_fold_matrix.c",
+        note="header layout/fold matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_control_flow_lattice_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_control_flow_lattice_matrix.c",
+        note="control-flow lattice matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_abi_variadic_regstack_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_abi_variadic_regstack_matrix.c",
+        note="ABI variadic reg/stack matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix.c",
+        note="VLA stride/rebase matrix lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_clang_gcc_tri_diff_struct_union_layout_bridge",
+        source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_struct_union_layout_bridge.c",
+        note="struct/union layout bridge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_signed_shift_impl_defined_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_signed_shift_impl_defined_tagged.c",
+        note="implementation-defined signed right-shift lane should remain deterministic on this host",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_alias_ub_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_alias_ub_tagged.c",
+        note="restrict-alias UB lane should remain tracked and deterministic in probe mode",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_impldef_signed_shift_matrix_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_impldef_signed_shift_matrix_tagged.c",
+        note="implementation-defined signed-right-shift matrix should remain deterministic on this host",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_impldef_signed_char_matrix_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_impldef_signed_char_matrix_tagged.c",
+        note="implementation-defined plain-char signedness matrix should remain deterministic on this host",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_ub_unsequenced_write_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_ub_unsequenced_write_tagged.c",
+        note="unsequenced-write UB lane should remain tracked and deterministic in probe mode",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_ub_alias_overlap_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_ub_alias_overlap_tagged.c",
+        note="overlap-alias UB lane should remain tracked and deterministic in probe mode",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_impldef_signed_shift_width_matrix_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_impldef_signed_shift_width_matrix_tagged.c",
+        note="implementation-defined signed-right-shift width matrix should remain deterministic on this host",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_impldef_char_promotion_matrix_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_impldef_char_promotion_matrix_tagged.c",
+        note="implementation-defined plain-char promotion matrix should remain deterministic on this host",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_ub_signed_overflow_chain_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_ub_signed_overflow_chain_tagged.c",
+        note="signed-overflow UB chain should remain tracked and deterministic in probe mode",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_policy_ub_eval_order_call_sidefx_tagged",
+        source=PROBE_DIR / "runtime/15__probe_policy_ub_eval_order_call_sidefx_tagged.c",
+        note="call-side-effect evaluation-order UB lane should remain tracked and deterministic in probe mode",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_vla_fnptr_feedback_matrix",
+        source=PROBE_DIR / "runtime/15__probe_runtime_vla_fnptr_feedback_matrix.c",
+        note="single-TU VLA+function-pointer feedback matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_runtime_struct_union_reducer_chain",
+        source=PROBE_DIR / "runtime/15__probe_runtime_struct_union_reducer_chain.c",
+        note="struct/union reducer chain should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_state_reseed_pipeline",
+        source=PROBE_DIR / "runtime/15__probe_multitu_state_reseed_pipeline_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_state_reseed_pipeline_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_state_reseed_pipeline_lib.c",
+            PROBE_DIR / "runtime/15__probe_multitu_state_reseed_pipeline_aux.c",
+        ),
+        note="multi-TU state reseed pipeline with static ring should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_ceiling_recursion_depth_sweep",
+        source=PROBE_DIR / "runtime/15__probe_ceiling_recursion_depth_sweep.c",
+        note="stress-ceiling recursion-depth sweep lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_ceiling_decl_density_sweep",
+        source=PROBE_DIR / "runtime/15__probe_ceiling_decl_density_sweep.c",
+        note="stress-ceiling declaration-density sweep lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_ceiling_aggregate_size_sweep",
+        source=PROBE_DIR / "runtime/15__probe_ceiling_aggregate_size_sweep.c",
+        note="stress-ceiling aggregate-size sweep lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_ceiling_multitu_layout_pressure_sweep",
+        source=PROBE_DIR / "runtime/15__probe_ceiling_multitu_layout_pressure_sweep_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_ceiling_multitu_layout_pressure_sweep_main.c",
+            PROBE_DIR / "runtime/15__probe_ceiling_multitu_layout_pressure_sweep_lib.c",
+        ),
+        note="stress-ceiling multi-TU layout-pressure sweep lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_fuzz_seeded_expr_volume_replay",
+        source=PROBE_DIR / "runtime/15__probe_fuzz_seeded_expr_volume_replay.c",
+        note="seeded fuzz-volume expression replay lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_fuzz_seeded_stmt_volume_replay",
+        source=PROBE_DIR / "runtime/15__probe_fuzz_seeded_stmt_volume_replay.c",
+        note="seeded fuzz-volume statement/control replay lane should match clang runtime behavior",
     ),
     RuntimeProbe(
         probe_id="05__probe_typedef_shadow_parenthesized_expr",
@@ -1443,6 +1827,29 @@ DIAG_PROBES = [
         note="assignment from struct value to int object should be rejected",
     ),
     DiagnosticProbe(
+        probe_id="07__probe_agg_invalid_member_reject",
+        source=PROBE_DIR / "diagnostics/07__probe_agg_invalid_member_reject.c",
+        note="member access on a non-existent struct field should be rejected",
+    ),
+    DiagnosticProbe(
+        probe_id="07__probe_constexpr_array_size_reject",
+        source=PROBE_DIR / "diagnostics/07__probe_constexpr_array_size_reject.c",
+        note="file-scope array size must be an integer constant expression",
+        required_substrings=("constant",),
+    ),
+    DiagnosticProbe(
+        probe_id="07__probe_constexpr_case_label_reject",
+        source=PROBE_DIR / "diagnostics/07__probe_constexpr_case_label_reject.c",
+        note="case labels must be integer constant expressions",
+        required_substrings=("Case label is not an integer constant expression",),
+    ),
+    DiagnosticProbe(
+        probe_id="07__probe_constexpr_static_init_reject",
+        source=PROBE_DIR / "diagnostics/07__probe_constexpr_static_init_reject.c",
+        note="static storage initializers must be constant expressions",
+        required_substrings=("not a constant expression",),
+    ),
+    DiagnosticProbe(
         probe_id="08__probe_designator_unknown_field_reject",
         source=PROBE_DIR / "diagnostics/08__probe_designator_unknown_field_reject.c",
         note="designated initializer should reject unknown field names",
@@ -1836,6 +2243,66 @@ DIAG_PROBES = [
         required_substrings=("invalid parameter list in #define",),
     ),
     DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_pp_unterminated_if_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_unterminated_if_chain_no_crash.c",
+        note="malformed unterminated #if/#elif chain should fail closed without crashing",
+        required_substrings=("unclosed #if/#ifdef/#ifndef",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_pp_macro_paste_fragments_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c",
+        note="malformed macro-paste fragments should fail closed without crashing",
+        required_substrings=("GNU ', ##__VA_ARGS__' extension is not supported",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_pp_nested_ifdef_chain_seeded_d_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_nested_ifdef_chain_seeded_d_no_crash.c",
+        note="malformed nested #if/#elif chain should fail closed without crashing",
+        required_substrings=("unclosed #if/#ifdef/#ifndef",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_pp_include_cycle_guarded_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_include_cycle_guarded_no_crash.c",
+        note="recursive self-include should fail closed with deterministic preprocessing diagnostic",
+        required_substrings=("detected recursive include of",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_multifile_header_tail_garbage_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_multifile_header_tail_garbage_no_crash.c",
+        note="malformed multi-file include with header-tail garbage should fail closed without crashing",
+        required_substrings=("Invalid character in source",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash.c",
+        note="malformed multi-file macro arity mismatch should fail closed without crashing",
+        required_substrings=("requires 2 argument(s), got 1",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_header_guard_tail_mismatch_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_header_guard_tail_mismatch_no_crash.c",
+        note="malformed header include-guard mismatch recursion should fail closed without crashing",
+        required_substrings=("detected recursive include of",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_header_macro_cycle_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_header_macro_cycle_chain_no_crash.c",
+        note="malformed header cycle + macro-arity chain should fail closed without crashing",
+        required_substrings=("requires 2 argument(s), got 1",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_header_guard_tail_mismatch_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_header_guard_tail_mismatch_chain_no_crash.c",
+        note="malformed header guard-tail mismatch chain recursion should fail closed without crashing",
+        required_substrings=("detected recursive include of",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_include_graph_guard_collision_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_include_graph_guard_collision_no_crash.c",
+        note="malformed include-graph guard collision should fail closed with deterministic diagnostics",
+        required_substrings=("Undeclared identifier",),
+    ),
+    DiagnosticProbe(
         probe_id="15__probe_diag_multitu_duplicate_symbol_reject",
         source=PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_symbol_reject_main.c",
         inputs=(
@@ -1844,6 +2311,116 @@ DIAG_PROBES = [
         ),
         note="multi-TU duplicate external symbol definitions should fail at link stage",
         required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_corpus_external_compile_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_corpus_external_compile_reject.c",
+        note="external-corpus fragment with malformed typedef tail should fail closed with parser diagnostic",
+        required_substrings=("Expected identifier in declarator",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_corpus_external_macro_guard_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_corpus_external_macro_guard_reject.c",
+        note="external-corpus malformed macro-guard fragment should fail closed in preprocessing",
+        required_substrings=("invalid parameter list in #define",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_corpus_external_macro_chain_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_corpus_external_macro_chain_reject.c",
+        note="external-corpus malformed macro-chain fragment should fail closed in preprocessing",
+        required_substrings=("invalid parameter list in #define",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_corpus_external_include_guard_mismatch_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_corpus_external_include_guard_mismatch_reject.c",
+        note="external-corpus include-guard mismatch should fail closed via recursive-include detection",
+        required_substrings=("detected recursive include of",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_corpus_pinned_macro_include_chain_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_corpus_pinned_macro_include_chain_reject.c",
+        note="pinned corpus macro include-chain fragment should fail closed in preprocessing",
+        required_substrings=("invalid parameter list in #define",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_corpus_pinned_typedef_decl_cycle_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_corpus_pinned_typedef_decl_cycle_reject.c",
+        note="pinned corpus typedef-decl cycle fragment should fail closed with parser diagnostic",
+        required_substrings=("Expected identifier in declarator",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_pathological_initializer_shape_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_pathological_initializer_shape_reject.c",
+        note="pathological designated-initializer shape should fail closed with deterministic diagnostics",
+        required_substrings=("Expected expression after '=' in struct initializer",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_pathological_initializer_rewrite_surface_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_pathological_initializer_rewrite_surface_reject.c",
+        note="pathological initializer rewrite surface lane should fail closed with deterministic diagnostics",
+        required_substrings=("Expected expression after '=' in struct initializer",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_pathological_switch_case_surface_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_pathological_switch_case_surface_reject.c",
+        note="pathological switch case surface lane should reject non-constant case labels",
+        required_substrings=("Case label is not an integer constant expression",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_token_stream_seeded_a_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_token_stream_seeded_a_no_crash.c",
+        note="seeded malformed token-stream A should fail closed without crashing",
+        required_substrings=("Unexpected token at start of expression",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_token_stream_seeded_b_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_token_stream_seeded_b_no_crash.c",
+        note="seeded malformed token-stream B should fail closed without crashing",
+        required_substrings=("Unexpected token at start of expression",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_token_stream_seeded_c_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_token_stream_seeded_c_no_crash.c",
+        note="seeded malformed token-stream C should fail closed without crashing",
+        required_substrings=("Unexpected token at start of expression",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_fuzz_seeded_malformed_volume_replay_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_fuzz_seeded_malformed_volume_replay_no_crash.c",
+        note="seeded malformed fuzz-volume replay lane should fail closed without crashing",
+        required_substrings=("Unexpected token at start of expression",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_multitu_duplicate_function_definition_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_function_definition_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_function_definition_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_function_definition_reject_lib.c",
+        ),
+        note="multi-TU duplicate function definitions should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_multitu_symbol_type_conflict_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_lib.c",
+        ),
+        note="multi-TU duplicate global symbols with type conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_invalid_dollar_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_invalid_dollar_no_crash.c",
+        note="malformed invalid-dollar token stream should fail closed without crashing",
+        required_substrings=("Invalid character in source",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_char_invalid_hex_escape_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_char_invalid_hex_escape_no_crash.c",
+        note="malformed invalid hex escape in character literal should fail closed without crashing",
+        required_substrings=("Invalid \\x escape in character literal",),
     ),
 ]
 
@@ -2091,6 +2668,150 @@ DIAG_JSON_PROBES = [
         note="diagnostics JSON should be exported for multi-TU duplicate-symbol link failures",
         expected_codes=(4001,),
     ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_pathological_initializer_shape_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_pathological_initializer_shape_reject.c",
+        note="diagnostics JSON should be exported for pathological designated-initializer rejection",
+        expected_codes=(2000,),
+        expected_line=15,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_corpus_pinned_macro_include_chain_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_corpus_pinned_macro_include_chain_reject.c",
+        note="diagnostics JSON should be exported for pinned-corpus macro include-chain rejection",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_corpus_pinned_typedef_decl_cycle_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_corpus_pinned_typedef_decl_cycle_reject.c",
+        note="diagnostics JSON should be exported for pinned-corpus typedef-decl-cycle rejection",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_pathological_initializer_rewrite_surface_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_pathological_initializer_rewrite_surface_reject.c",
+        note="diagnostics JSON should be exported for pathological initializer-rewrite surface rejection",
+        expected_codes=(2000,),
+        expected_line=22,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_pathological_switch_case_surface_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_pathological_switch_case_surface_reject.c",
+        note="diagnostics JSON should be exported for pathological non-constant switch-case surface rejection",
+        expected_codes=(2000,),
+        expected_line=5,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_token_stream_seeded_a_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_token_stream_seeded_a_no_crash.c",
+        note="diagnostics JSON should be exported for seeded malformed token-stream A",
+        expected_codes=(1000,),
+        expected_line=3,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_token_stream_seeded_b_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_token_stream_seeded_b_no_crash.c",
+        note="diagnostics JSON should be exported for seeded malformed token-stream B",
+        expected_codes=(1000,),
+        expected_line=3,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_token_stream_seeded_c_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_token_stream_seeded_c_no_crash.c",
+        note="diagnostics JSON should be exported for seeded malformed token-stream C",
+        expected_codes=(1000,),
+        expected_line=3,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_fuzz_seeded_malformed_volume_replay_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_fuzz_seeded_malformed_volume_replay_no_crash.c",
+        note="diagnostics JSON should be exported for seeded malformed fuzz-volume replay lane",
+        expected_codes=(1000,),
+        expected_line=5,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_multitu_duplicate_function_definition_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_function_definition_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_function_definition_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_duplicate_function_definition_reject_lib.c",
+        ),
+        note="diagnostics JSON should be exported for multi-TU duplicate function definition link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_multitu_symbol_type_conflict_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_lib.c",
+        ),
+        note="diagnostics JSON should be exported for multi-TU duplicate symbol type-conflict link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_invalid_dollar_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_invalid_dollar_no_crash.c",
+        note="diagnostics JSON should be exported for malformed invalid-dollar lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_char_invalid_hex_escape_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_char_invalid_hex_escape_no_crash.c",
+        note="diagnostics JSON should be exported for malformed invalid-hex-escape char lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_pp_unterminated_if_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_unterminated_if_chain_no_crash.c",
+        note="diagnostics JSON should be exported for malformed unterminated #if/#elif chain lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_pp_macro_paste_fragments_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c",
+        note="diagnostics JSON should be exported for malformed macro-paste fragment lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_pp_nested_ifdef_chain_seeded_d_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_nested_ifdef_chain_seeded_d_no_crash.c",
+        note="diagnostics JSON should be exported for malformed nested #if/#elif chain lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_pp_include_cycle_guarded_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_include_cycle_guarded_no_crash.c",
+        note="diagnostics JSON should be exported for recursive self-include malformed lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_multifile_header_tail_garbage_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_multifile_header_tail_garbage_no_crash.c",
+        note="diagnostics JSON should be exported for malformed multi-file header-tail-garbage lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_multifile_macro_arity_mismatch_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash.c",
+        note="diagnostics JSON should be exported for malformed multi-file macro-arity-mismatch lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_header_guard_tail_mismatch_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_header_guard_tail_mismatch_no_crash.c",
+        note="diagnostics JSON should be exported for malformed header guard-tail mismatch lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_header_macro_cycle_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_header_macro_cycle_chain_no_crash.c",
+        note="diagnostics JSON should be exported for malformed header macro-cycle chain lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_header_guard_tail_mismatch_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_header_guard_tail_mismatch_chain_no_crash.c",
+        note="diagnostics JSON should be exported for malformed header guard-tail mismatch chain lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_include_graph_guard_collision_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_include_graph_guard_collision_no_crash.c",
+        note="diagnostics JSON should be exported for malformed include-graph guard-collision lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_include_graph_macro_arity_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_include_graph_macro_arity_chain_no_crash.c",
+        note="diagnostics JSON should be exported for malformed include-graph macro-arity chain lane",
+    ),
 ]
 
 
@@ -2198,6 +2919,68 @@ def run_runtime_probe(probe, clang_path):
             and fisics_stdout == clang_stdout
             and fisics_stderr == clang_stderr
         )
+
+        if same and probe.extra_differential_compiler:
+            extra_compiler_name = probe.extra_differential_compiler
+            extra_compiler_path = shutil.which(extra_compiler_name)
+            if not extra_compiler_path:
+                return (
+                    "SKIP",
+                    f"{extra_compiler_name} not found; extra differential unavailable",
+                    f"fisics exit={fisics_run_exit}, stdout={fisics_stdout.strip()}",
+                )
+
+            extra_exe = tmp_dir / f"{extra_compiler_name}.out"
+            extra_compile_exit, extra_compile_out, extra_compile_timeout = run_cmd(
+                [extra_compiler_path, "-std=c99", "-O0"]
+                + [str(src) for src in sources]
+                + ["-o", str(extra_exe)],
+                COMPILE_TIMEOUT_SEC,
+            )
+            if extra_compile_timeout:
+                return (
+                    "BLOCKED",
+                    f"{extra_compiler_name} compile timeout ({COMPILE_TIMEOUT_SEC}s)",
+                    extra_compile_out.strip(),
+                )
+            if extra_compile_exit != 0:
+                return (
+                    "BLOCKED",
+                    f"{extra_compiler_name} compile failed ({extra_compile_exit})",
+                    extra_compile_out.strip(),
+                )
+
+            extra_run_exit, extra_stdout, extra_stderr, extra_run_timeout = run_binary(
+                extra_exe, RUN_TIMEOUT_SEC
+            )
+            if extra_run_timeout:
+                return (
+                    "BLOCKED",
+                    f"{extra_compiler_name} runtime timeout ({RUN_TIMEOUT_SEC}s)",
+                    "",
+                )
+
+            extra_same = (
+                fisics_run_exit == extra_run_exit
+                and fisics_stdout == extra_stdout
+                and fisics_stderr == extra_stderr
+            )
+            if not extra_same:
+                detail = (
+                    f"fisics(exit={fisics_run_exit}, out={fisics_stdout.strip()}, err={fisics_stderr.strip()}) "
+                    f"vs {extra_compiler_name}(exit={extra_run_exit}, out={extra_stdout.strip()}, err={extra_stderr.strip()})"
+                )
+                return (
+                    "BLOCKED",
+                    f"runtime mismatch vs {extra_compiler_name}",
+                    detail,
+                )
+
+            return (
+                "RESOLVED",
+                f"matches clang+{extra_compiler_name} runtime behavior",
+                f"stdout={fisics_stdout.strip()}",
+            )
 
         if same:
             return (

@@ -1,0 +1,7 @@
+#ifndef PROBE_MALFORMED_HEADER_MACRO_CYCLE_CHAIN_B_H
+#define PROBE_MALFORMED_HEADER_MACRO_CYCLE_CHAIN_B_H
+
+#define NEED2(a, b) ((a) + (b))
+#define NEED2_ALIAS(x) NEED2(x)
+
+#endif

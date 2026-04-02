@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__clang_gcc_tri_diff_control_flow_lattice_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_control_flow_lattice_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_control_flow_lattice_matrix.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_control_flow_lattice_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "tri-ref",
+        "gcc-optional",
+        "control-flow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_abi_variadic_regstack_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_abi_variadic_regstack_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_abi_variadic_regstack_matrix.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_abi_variadic_regstack_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "tri-ref",
+        "gcc-optional",
+        "abi",
+        "variadic"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_vla_stride_rebase_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_vla_stride_rebase_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_vla_stride_rebase_matrix.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_vla_stride_rebase_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "tri-ref",
+        "gcc-optional",
+        "vla"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_struct_union_layout_bridge",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_struct_union_layout_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_struct_union_layout_bridge.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_struct_union_layout_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "tri-ref",
+        "gcc-optional",
+        "struct-union-layout"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

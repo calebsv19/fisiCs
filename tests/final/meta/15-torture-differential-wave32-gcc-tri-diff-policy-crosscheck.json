@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__clang_gcc_tri_diff_policy_shift_char_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_policy_shift_char_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_policy_shift_char_matrix.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_policy_shift_char_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "policy",
+        "shift-char"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_policy_struct_abi_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_policy_struct_abi_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_policy_struct_abi_matrix.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_policy_struct_abi_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "policy",
+        "struct-abi"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

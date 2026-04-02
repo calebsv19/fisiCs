@@ -1,0 +1,6 @@
+#ifndef CORPUS_PINNED_MACRO_CHAIN_REJECT_B_H
+#define CORPUS_PINNED_MACRO_CHAIN_REJECT_B_H
+
+#define PINNED_MACRO_CHAIN_STEP(x y) ((x) + (y))
+
+#endif

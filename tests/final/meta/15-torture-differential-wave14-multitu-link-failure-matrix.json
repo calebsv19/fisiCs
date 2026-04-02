@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__multitu_duplicate_function_definition_reject",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_duplicate_function_definition_reject_main.c",
+        "cases/15__torture__multitu_duplicate_function_definition_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__torture__multitu_duplicate_function_definition_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "link"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_symbol_type_conflict_reject",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_symbol_type_conflict_reject_main.c",
+        "cases/15__torture__multitu_symbol_type_conflict_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__torture__multitu_symbol_type_conflict_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "link",
+        "type-conflict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__multitu_duplicate_function_definition_reject",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_duplicate_function_definition_reject_main.c",
+        "cases/15__torture__multitu_duplicate_function_definition_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__multitu_duplicate_function_definition_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "link",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__multitu_symbol_type_conflict_reject",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_symbol_type_conflict_reject_main.c",
+        "cases/15__torture__multitu_symbol_type_conflict_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__multitu_symbol_type_conflict_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "link",
+        "diagjson",
+        "type-conflict"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

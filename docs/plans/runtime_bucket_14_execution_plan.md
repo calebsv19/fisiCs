@@ -3,7 +3,7 @@
 This is the active execution plan for `tests/final` bucket `14` (runtime
 surface) after the current baseline stabilization.
 
-Date: 2026-03-28
+Date: 2026-04-01
 
 ## Current Baseline
 
@@ -1224,21 +1224,15 @@ Validation:
   arithmetic, floating point, control flow, memory/layout, calls/ABI.
 - UB and implementation-defined cases are explicitly tagged and policy-gated.
 
-## Remaining Gaps Before Bucket-14 Closure
+## Remaining Optional Backlog (Post-Wave89)
 
-- Link-time realism now has explicit multi-TU symbol/type conflict lanes, but
-  linker-failure diagnostics are still text-only (no diagnostics-json export).
-- Variadic header path is still fragile:
-  `<stdarg.h>` preprocessing can fail on this toolchain path (`invalid #if expression`),
-  and direct struct retrieval via `va_arg(ap, struct ...)` still reproduces a crash.
-- Header/init path still has a brittle lane:
-  struct-array `{0}` shorthand initializer handling is not yet consistently
-  accepted in some runtime contexts.
-- ABI frontier coverage now includes explicit reg/stack + long-double +
-  variadic hardening lanes; further expansion is optional rather than required.
-- Static-local initialization semantics now include deeper multi-TU init-order
-  and recursion-depth variants; additional expansion is optional.
-- Deterministic mini-binary and repeatability hardening lanes are complete.
+- No closure blockers remain for bucket-14 at current baseline.
+- Link-stage diagnostics-json parity is now active for multi-TU link failures.
+- Optional future hardening:
+  - direct `va_arg(ap, struct ...)` support path (currently unsupported in this lane),
+  - brittle struct-array `{0}` shorthand initializer corner paths,
+  - additional ABI frontier breadth beyond current reg/stack/long-double/variadic set,
+  - additional startup/init-order stress depth if needed by external corpus workloads.
 
 ## Wave 76-88 Closure Snapshot
 

@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (2:0): Variable-length array 'values' is not allowed at static storage duration

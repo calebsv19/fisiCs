@@ -1,6 +1,6 @@
 # Runtime / Library Surface
 
-## Status Snapshot (2026-03-28)
+## Status Snapshot (2026-04-01)
 
 - Active test count: 329 (`tests/final/meta/14-runtime-surface*.json`)
 - Runtime executables: 268 (`264` differential-flagged; includes policy-lane tests)
@@ -76,9 +76,8 @@ Minimal headers and builtin surface to compile real programs.
 - ABI boundary coverage now includes explicit hardening lanes for reg/stack +
   `long double` + variadic mixes, but direct struct `va_arg` retrieval remains
   outside supported behavior in this toolchain lane.
-- Variadic header/runtime frontier still has a tracked edge:
-  `<stdarg.h>` preprocessing is unstable in this toolchain lane and direct
-  struct retrieval via `va_arg(ap, struct ...)` can crash.
+- Variadic header/runtime frontier still has a tracked edge for direct
+  `va_arg(ap, struct ...)` retrieval (unsupported in this lane).
 - Header/init frontier has a tracked edge:
   some struct-array `{0}` shorthand initializer paths are still brittle in this
   compiler lane (Wave85 stabilized this by avoiding that shorthand).

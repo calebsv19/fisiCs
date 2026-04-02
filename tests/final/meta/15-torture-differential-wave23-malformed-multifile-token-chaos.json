@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__malformed_multifile_header_tail_garbage_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_multifile_header_tail_garbage_no_crash.c",
+      "expects": [
+        "expect/15__torture__malformed_multifile_header_tail_garbage_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "multifile",
+        "header-tail-garbage"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__malformed_multifile_macro_arity_mismatch_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_multifile_macro_arity_mismatch_no_crash.c",
+      "expects": [
+        "expect/15__torture__malformed_multifile_macro_arity_mismatch_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "multifile",
+        "macro-arity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_multifile_header_tail_garbage_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_multifile_header_tail_garbage_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_multifile_header_tail_garbage_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "multifile",
+        "diagjson",
+        "header-tail-garbage"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_multifile_macro_arity_mismatch_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_multifile_macro_arity_mismatch_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_multifile_macro_arity_mismatch_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "multifile",
+        "diagjson",
+        "macro-arity"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

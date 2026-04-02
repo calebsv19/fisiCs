@@ -488,9 +488,9 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Integer promotions | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__conv__integer_promotions` | | |
-| Usual arithmetic conversions | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__conv__usual_arith` | | |
-| Signed vs unsigned comparisons | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__conv__signed_unsigned_compare` | | |
+| Integer promotions | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__integer_promotions`, `07__usual_arith_conversions` | | |
+| Usual arithmetic conversions | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__usual_arith_conversions` | | |
+| Signed vs unsigned comparisons | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__mixed_signed_unsigned_compare` | | |
 | Pointer conversions | `semantic` | [x] | [x] | [x] | `in_progress` | `ast`, `diag`, `runtime` | `07__void_pointer_roundtrip`, `07__void_pointer_arith_reject` | | |
 | Array-to-pointer decay | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__array_decay_param` | | |
 | Function-to-pointer decay | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__function_decay_call` | | |
@@ -516,17 +516,17 @@ Primary oracles:
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Member access correctness | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `ast`, `runtime` | `07__agg__member_access` | | |
-| Invalid member access | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `07__agg__invalid_member` | | |
-| Offset correctness | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `runtime` | `07__agg__offsets` | | ABI-sensitive |
+| Member access correctness | `semantic` | [x] | [ ] | [x] | `in_progress` | `ast`, `runtime` | `07__agg__member_access` | | |
+| Invalid member access | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__agg__invalid_member_reject` | | |
+| Offset correctness | `semantic` | [x] | [ ] | [x] | `in_progress` | `runtime` | `07__agg__offsets` | | ABI-sensitive |
 
 ### 7.6 Constant Expressions
 
 | Feature | Bucket | Valid | Negative | Edge | Status | Oracle | Planned Tests | Failures Seen | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Required in array size | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `07__constexpr__array_size` | | |
-| Required in case labels | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `07__constexpr__case_label` | | |
-| Required in static initializer | `semantic` | [ ] | [ ] | [ ] | `unstarted` | `diag` | `07__constexpr__static_init` | | |
+| Required in array size | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__constexpr__array_size_reject` | | |
+| Required in case labels | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__constexpr__case_label_reject` | | |
+| Required in static initializer | `semantic` | [ ] | [x] | [x] | `in_progress` | `diag` | `07__constexpr__static_init_reject` | | |
 
 ## Phase 8 — Code Generation and Runtime
 

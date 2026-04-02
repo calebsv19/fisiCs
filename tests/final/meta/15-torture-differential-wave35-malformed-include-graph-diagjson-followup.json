@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__malformed_include_graph_guard_collision_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_include_graph_guard_collision_no_crash.c",
+      "expects": [
+        "expect/15__torture__malformed_include_graph_guard_collision_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "multifile",
+        "include-graph",
+        "guard-collision"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_include_graph_guard_collision_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_include_graph_guard_collision_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_include_graph_guard_collision_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "multifile",
+        "diagjson",
+        "include-graph",
+        "guard-collision"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_include_graph_macro_arity_chain_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_include_graph_macro_arity_chain_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_include_graph_macro_arity_chain_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "multifile",
+        "diagjson",
+        "include-graph",
+        "macro-arity-chain"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

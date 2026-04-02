@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (4:0): Case label is not an integer constant expression

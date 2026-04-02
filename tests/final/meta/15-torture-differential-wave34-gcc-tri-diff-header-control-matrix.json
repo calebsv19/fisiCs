@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__clang_gcc_tri_diff_header_control_dispatch_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_header_control_dispatch_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_header_control_dispatch_matrix.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_header_control_dispatch_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "header",
+        "control-dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__clang_gcc_tri_diff_header_layout_fold_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__clang_gcc_tri_diff_header_layout_fold_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__clang_gcc_tri_diff_header_layout_fold_matrix.stdout",
+      "expected_stderr": "expect/15__torture__clang_gcc_tri_diff_header_layout_fold_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "differential",
+        "gcc-optional",
+        "tri-reference",
+        "header",
+        "layout-fold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

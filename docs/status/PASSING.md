@@ -3,9 +3,15 @@
 These items compiled with no semantic or codegen errors during iterative `make run` tests.
 
 ====== Final suite snapshot (tests/final) ======
-- Runtime bucket `14` baseline is currently green (full exact-id bucket sweep).
-- Active runtime manifests: `tests/final/meta/14-runtime-surface*.json` (33 total tests).
-- Current next-step plan for bucket `14`: `docs/plans/runtime_bucket_14_execution_plan.md`.
+- Runtime bucket `14` is stable through Wave89 (full bucket slice green).
+- Active runtime manifests: `tests/final/meta/14-runtime-surface*.json` (87 shards, 329 tests).
+- Current runtime plan/status: `docs/plans/runtime_bucket_14_execution_plan.md` and
+  `tests/final/14-runtime-surface.md`.
+- Torture bucket `15` is green at current baseline:
+  `41` manifests / `145` tests total (`81` runtime differential lanes,
+  `35` diagnostics lanes, `27` diagjson lanes),
+  with `make final-bucket BUCKET=torture-differential` at
+  `0 failing, 10 skipped` (policy-tagged differential lanes).
 
 ====== Translation phases & includes ======
 - Translation units, function definitions, prototypes, and calls parse/compile.
