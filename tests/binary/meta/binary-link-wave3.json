@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-link",
+  "tests": [
+    {
+      "id": "binary__link_fail__undefined_symbol_single",
+      "level": "link",
+      "category": "link_fail",
+      "inputs": [
+        "cases/binary__link_fail__undefined_symbol_single.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "undefined"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_fail__undefined_symbol_multitu",
+      "level": "link",
+      "category": "link_fail",
+      "inputs": [
+        "cases/binary__link_fail__undefined_symbol_multitu_main.c",
+        "cases/binary__link_fail__undefined_symbol_multitu_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "undefined"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_fail__duplicate_symbol_multitu",
+      "level": "link",
+      "category": "link_fail",
+      "inputs": [
+        "cases/binary__link_fail__duplicate_symbol_multitu_a.c",
+        "cases/binary__link_fail__duplicate_symbol_multitu_b.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "duplicate symbol"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}
+

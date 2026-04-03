@@ -2060,6 +2060,104 @@ static LLVMValueRef cg_emit_va_intrinsic(CodegenContext* ctx,
     return LLVMBuildCall2(ctx->builder, fnTy, fn, &casted, 1, intrinsicName);
 }
 
+static LLVMValueRef cg_emit_rewritten_builtin_call(CodegenContext* ctx,
+                                                   const char* targetName,
+                                                   LLVMTypeRef returnType,
+                                                   LLVMValueRef* sourceArgs,
+                                                   size_t sourceCount,
+                                                   const size_t* keepIndices,
+                                                   size_t keepCount,
+                                                   unsigned fixedParamCount,
+                                                   const LLVMTypeRef* fixedParamTypes,
+                                                   const bool* fixedParamSigned,
+                                                   bool isVariadic,
+                                                   const char* callName) {
+    if (!ctx || !targetName || !returnType || !sourceArgs || !keepIndices || keepCount == 0) {
+        return NULL;
+    }
+
+    if (fixedParamCount > keepCount) {
+        fixedParamCount = (unsigned)keepCount;
+    }
+
+    LLVMValueRef* callArgs = (LLVMValueRef*)calloc(keepCount, sizeof(LLVMValueRef));
+    if (!callArgs) {
+        return NULL;
+    }
+    for (size_t i = 0; i < keepCount; ++i) {
+        size_t idx = keepIndices[i];
+        if (idx >= sourceCount || !sourceArgs[idx]) {
+            free(callArgs);
+            return NULL;
+        }
+        callArgs[i] = sourceArgs[idx];
+        if (i < fixedParamCount && fixedParamTypes && fixedParamTypes[i] && LLVMTypeOf(callArgs[i]) != fixedParamTypes[i]) {
+            LLVMTypeRef fromTy = LLVMTypeOf(callArgs[i]);
+            LLVMTypeRef toTy = fixedParamTypes[i];
+            LLVMTypeKind fromKind = fromTy ? LLVMGetTypeKind(fromTy) : LLVMVoidTypeKind;
+            LLVMTypeKind toKind = LLVMGetTypeKind(toTy);
+            if (fromKind == LLVMPointerTypeKind && toKind == LLVMPointerTypeKind) {
+                callArgs[i] = LLVMBuildBitCast(ctx->builder, callArgs[i], toTy, "builtin.arg.ptrcast");
+            } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMIntegerTypeKind) {
+                bool isSigned = fixedParamSigned ? fixedParamSigned[i] : false;
+                callArgs[i] = LLVMBuildIntCast2(ctx->builder, callArgs[i], toTy, isSigned, "builtin.arg.intcast");
+            } else if (fromKind == LLVMPointerTypeKind && toKind == LLVMIntegerTypeKind) {
+                callArgs[i] = LLVMBuildPtrToInt(ctx->builder, callArgs[i], toTy, "builtin.arg.ptrtoint");
+            } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMPointerTypeKind) {
+                callArgs[i] = LLVMBuildIntToPtr(ctx->builder, callArgs[i], toTy, "builtin.arg.inttoptr");
+            } else {
+                free(callArgs);
+                return NULL;
+            }
+        }
+    }
+
+    LLVMTypeRef* loweredParamTypes = NULL;
+    if (fixedParamCount > 0) {
+        LLVMTypeRef* paramTypes = (LLVMTypeRef*)calloc(fixedParamCount, sizeof(LLVMTypeRef));
+        if (!paramTypes) {
+            free(callArgs);
+            return NULL;
+        }
+        for (unsigned i = 0; i < fixedParamCount; ++i) {
+            if (fixedParamTypes && fixedParamTypes[i]) {
+                paramTypes[i] = fixedParamTypes[i];
+            } else {
+                paramTypes[i] = LLVMTypeOf(callArgs[i]);
+            }
+            if (!paramTypes[i]) {
+                paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
+            }
+        }
+        loweredParamTypes = paramTypes;
+    }
+
+    LLVMTypeRef fnTy = LLVMFunctionType(returnType,
+                                        loweredParamTypes,
+                                        fixedParamCount,
+                                        isVariadic ? 1 : 0);
+    free(loweredParamTypes);
+
+    LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, targetName);
+    if (!fn) {
+        fn = LLVMAddFunction(ctx->module, targetName, fnTy);
+    }
+    LLVMValueRef callee = fn;
+    LLVMTypeRef calleePtrTy = LLVMPointerType(fnTy, 0);
+    if (LLVMTypeOf(callee) != calleePtrTy) {
+        callee = LLVMBuildBitCast(ctx->builder, callee, calleePtrTy, "builtin.call.cast");
+    }
+
+    LLVMValueRef call = LLVMBuildCall2(ctx->builder,
+                                       fnTy,
+                                       callee,
+                                       callArgs,
+                                       (unsigned)keepCount,
+                                       callName ? callName : "builtin.call");
+    free(callArgs);
+    return call;
+}
+
 
 LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_FUNCTION_CALL) {
@@ -2115,6 +2213,17 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         (strcmp(calleeName, "va_end") == 0 || strcmp(calleeName, "__builtin_va_end") == 0);
     bool isVaCopyBuiltin = calleeName &&
         (strcmp(calleeName, "__builtin_va_copy") == 0 || strcmp(calleeName, "va_copy") == 0);
+    bool isObjectSizeBuiltin = calleeName && strcmp(calleeName, "__builtin_object_size") == 0;
+    bool isSnprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___snprintf_chk") == 0;
+    bool isVsnprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___vsnprintf_chk") == 0;
+    bool isSprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___sprintf_chk") == 0;
+    bool isMemcpyChkBuiltin = calleeName && strcmp(calleeName, "__builtin___memcpy_chk") == 0;
+    bool isMemsetChkBuiltin = calleeName && strcmp(calleeName, "__builtin___memset_chk") == 0;
+    bool isStrncpyChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strncpy_chk") == 0;
+    bool isStrncatChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strncat_chk") == 0;
+    bool isStrcpyChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strcpy_chk") == 0;
+    bool isStrcatChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strcat_chk") == 0;
+    bool isMemmoveChkBuiltin = calleeName && strcmp(calleeName, "__builtin___memmove_chk") == 0;
 
     LLVMValueRef* args = NULL;
     if (node->functionCall.argumentCount > 0) {
@@ -2133,6 +2242,256 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             }
             args[i] = codegenNode(ctx, node->functionCall.arguments[i]);
         }
+    }
+
+    LLVMTypeRef i8PtrType = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+    LLVMTypeRef sizeType = cg_get_intptr_type(ctx);
+    LLVMTypeRef intType = LLVMInt32TypeInContext(ctx->llvmContext);
+
+    if (isObjectSizeBuiltin) {
+        free(args);
+        /* Unknown object-size information: return (size_t)-1 like compilers do in fallback mode. */
+        LLVMTypeRef resultTy = NULL;
+        const Symbol* builtinSym = cg_lookup_function_symbol_for_callee(ctx, node->functionCall.callee);
+        if (builtinSym && builtinSym->kind == SYMBOL_FUNCTION) {
+            resultTy = cg_type_from_parsed(ctx, &builtinSym->type);
+        }
+        if (!resultTy || LLVMGetTypeKind(resultTy) != LLVMIntegerTypeKind) {
+            resultTy = cg_get_intptr_type(ctx);
+        }
+        return LLVMConstAllOnes(resultTy);
+    }
+    if (isSnprintfChkBuiltin) {
+        if (node->functionCall.argumentCount < 5) {
+            free(args);
+            return NULL;
+        }
+        size_t rewrittenCount = node->functionCall.argumentCount - 2;
+        size_t* keepIndices = (size_t*)calloc(rewrittenCount, sizeof(size_t));
+        if (!keepIndices) {
+            free(args);
+            return NULL;
+        }
+        keepIndices[0] = 0;
+        keepIndices[1] = 1;
+        for (size_t i = 2; i < rewrittenCount; ++i) {
+            keepIndices[i] = i + 2;
+        }
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "snprintf",
+                                                           intType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           rewrittenCount,
+                                                           3,
+                                                           (LLVMTypeRef[]){i8PtrType, sizeType, i8PtrType},
+                                                           (bool[]){false, false, false},
+                                                           true,
+                                                           "snprintf.chk.lowered");
+        free(keepIndices);
+        free(args);
+        return call;
+    }
+    if (isVsnprintfChkBuiltin) {
+        if (node->functionCall.argumentCount < 6) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0, 1, 4, 5};
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "vsnprintf",
+                                                           intType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           4,
+                                                           4,
+                                                           (LLVMTypeRef[]){i8PtrType, sizeType, i8PtrType, LLVMTypeOf(args[5])},
+                                                           (bool[]){false, false, false, false},
+                                                           false,
+                                                           "vsnprintf.chk.lowered");
+        free(args);
+        return call;
+    }
+    if (isSprintfChkBuiltin) {
+        if (node->functionCall.argumentCount < 4) {
+            free(args);
+            return NULL;
+        }
+        size_t rewrittenCount = node->functionCall.argumentCount - 2;
+        size_t* keepIndices = (size_t*)calloc(rewrittenCount, sizeof(size_t));
+        if (!keepIndices) {
+            free(args);
+            return NULL;
+        }
+        keepIndices[0] = 0;
+        keepIndices[1] = 3;
+        for (size_t i = 2; i < rewrittenCount; ++i) {
+            keepIndices[i] = i + 2;
+        }
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "sprintf",
+                                                           intType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           rewrittenCount,
+                                                           2,
+                                                           (LLVMTypeRef[]){i8PtrType, i8PtrType},
+                                                           (bool[]){false, false},
+                                                           true,
+                                                           "sprintf.chk.lowered");
+        free(keepIndices);
+        free(args);
+        return call;
+    }
+    if (isMemcpyChkBuiltin) {
+        if (node->functionCall.argumentCount < 4) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0, 1, 2};
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "memcpy",
+                                                           i8PtrType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           3,
+                                                           3,
+                                                           (LLVMTypeRef[]){i8PtrType, i8PtrType, sizeType},
+                                                           (bool[]){false, false, false},
+                                                           false,
+                                                           "memcpy.chk.lowered");
+        free(args);
+        return call;
+    }
+    if (isMemsetChkBuiltin) {
+        if (node->functionCall.argumentCount < 4) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0, 1, 2};
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "memset",
+                                                           i8PtrType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           3,
+                                                           3,
+                                                           (LLVMTypeRef[]){i8PtrType, intType, sizeType},
+                                                           (bool[]){false, true, false},
+                                                           false,
+                                                           "memset.chk.lowered");
+        free(args);
+        return call;
+    }
+    if (isStrncpyChkBuiltin) {
+        if (node->functionCall.argumentCount < 4) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0, 1, 2};
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "strncpy",
+                                                           i8PtrType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           3,
+                                                           3,
+                                                           (LLVMTypeRef[]){i8PtrType, i8PtrType, sizeType},
+                                                           (bool[]){false, false, false},
+                                                           false,
+                                                           "strncpy.chk.lowered");
+        free(args);
+        return call;
+    }
+    if (isStrncatChkBuiltin) {
+        if (node->functionCall.argumentCount < 4) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0, 1, 2};
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "strncat",
+                                                           i8PtrType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           3,
+                                                           3,
+                                                           (LLVMTypeRef[]){i8PtrType, i8PtrType, sizeType},
+                                                           (bool[]){false, false, false},
+                                                           false,
+                                                           "strncat.chk.lowered");
+        free(args);
+        return call;
+    }
+    if (isStrcpyChkBuiltin) {
+        if (node->functionCall.argumentCount < 3) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0, 1};
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "strcpy",
+                                                           i8PtrType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           2,
+                                                           2,
+                                                           (LLVMTypeRef[]){i8PtrType, i8PtrType},
+                                                           (bool[]){false, false},
+                                                           false,
+                                                           "strcpy.chk.lowered");
+        free(args);
+        return call;
+    }
+    if (isStrcatChkBuiltin) {
+        if (node->functionCall.argumentCount < 3) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0, 1};
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "strcat",
+                                                           i8PtrType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           2,
+                                                           2,
+                                                           (LLVMTypeRef[]){i8PtrType, i8PtrType},
+                                                           (bool[]){false, false},
+                                                           false,
+                                                           "strcat.chk.lowered");
+        free(args);
+        return call;
+    }
+    if (isMemmoveChkBuiltin) {
+        if (node->functionCall.argumentCount < 4) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0, 1, 2};
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           "memmove",
+                                                           i8PtrType,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           3,
+                                                           3,
+                                                           (LLVMTypeRef[]){i8PtrType, i8PtrType, sizeType},
+                                                           (bool[]){false, false, false},
+                                                           false,
+                                                           "memmove.chk.lowered");
+        free(args);
+        return call;
     }
 
     if (isVaStartBuiltin) {

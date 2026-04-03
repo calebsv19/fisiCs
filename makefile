@@ -594,6 +594,32 @@ codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff codegen-
                codegen-compound-literal-storage codegen-builtin-expect \
                statement-expr-codegen
 
+test-binary-smoke: $(BIN)
+	@BINARY_LEVEL=smoke python3 tests/binary/run_binary.py ./$(BIN)
+
+test-binary-io: $(BIN)
+	@BINARY_LEVEL=io python3 tests/binary/run_binary.py ./$(BIN)
+
+test-binary-link: $(BIN)
+	@BINARY_LEVEL=link python3 tests/binary/run_binary.py ./$(BIN)
+
+test-binary-stdio: $(BIN)
+	@BINARY_LEVEL=stdio python3 tests/binary/run_binary.py ./$(BIN)
+
+test-binary-fortify: $(BIN)
+	@BINARY_LEVEL=fortify python3 tests/binary/run_binary.py ./$(BIN)
+
+test-binary: test-binary-smoke test-binary-io test-binary-link test-binary-stdio test-binary-fortify
+
+test-binary-id: $(BIN)
+	@if [ -z "$(ID)" ]; then echo "ERROR: provide ID=<test_id>"; exit 2; fi
+	@BINARY_FILTER="$(ID)" python3 tests/binary/run_binary.py ./$(BIN)
+
+binary-regen: $(BIN)
+	@if [ -z "$(TEST)" ]; then echo "ERROR: provide TEST=<test_id>"; exit 2; fi
+	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
+	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
+
 test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
@@ -724,5 +750,6 @@ tests: test frontend-api-test
         statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
         statement-expr-codegen codegen-bitfield \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
+        test-binary test-binary-smoke test-binary-io test-binary-link test-binary-stdio test-binary-fortify test-binary-id binary-regen \
         integration-diags-pack \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

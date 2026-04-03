@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-smoke",
+  "tests": [
+    {
+      "id": "binary__compile_only__simple_object",
+      "level": "smoke",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__simple_object.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__compile_only__stddef_size_t",
+      "level": "smoke",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__stddef_size_t.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__compile_only__enum_constexpr_bound",
+      "level": "smoke",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__enum_constexpr_bound.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__compile_only__fnptr_typedef",
+      "level": "smoke",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__fnptr_typedef.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__compile_only__wchar_array_string_init",
+      "level": "smoke",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__wchar_array_string_init.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__return_zero",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__return_zero.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__stdout_sum",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdout_sum.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdout_sum.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__argv_count",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__argv_count.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "run_args": [
+        "one",
+        "two",
+        "three"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__argv_count.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__stdin_byte_count",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdin_byte_count.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "run_stdin": "abcdef\n",
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdin_byte_count.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__env_echo",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__env_echo.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "run_env": {
+        "BINARY_SMOKE_ENV": "phaseA"
+      },
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__env_echo.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__multitu_link",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__multitu_link_main.c",
+        "cases/binary__runtime__multitu_link_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__multitu_link.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__exit_nonzero",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__exit_nonzero.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 3,
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__struct_pass_return",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__struct_pass_return.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__struct_pass_return.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__local_char_array_string_init",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__local_char_array_string_init.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__local_char_array_string_init.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__local_char_array_string_init_exact_fit",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__local_char_array_string_init_exact_fit.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__local_char_array_string_init_exact_fit.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__local_char_array_string_init_zero_fill",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__local_char_array_string_init_zero_fill.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__local_char_array_string_init_zero_fill.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__global_char_array_string_init",
+      "level": "smoke",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__global_char_array_string_init.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__global_char_array_string_init.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-fortify",
+  "tests": [
+    {
+      "id": "binary__runtime__fortify_strcpy_strcat",
+      "level": "fortify",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__fortify_strcpy_strcat.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__fortify_strcpy_strcat.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__fortify_strncpy_strncat",
+      "level": "fortify",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__fortify_strncpy_strncat.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__fortify_strncpy_strncat.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__fortify_memcpy_memmove_memset",
+      "level": "fortify",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__fortify_memcpy_memmove_memset.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__fortify_memcpy_memmove_memset.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

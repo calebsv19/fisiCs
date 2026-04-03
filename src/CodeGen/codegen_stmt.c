@@ -595,11 +595,28 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                         cg_build_store(ctx, casted, storage, effectiveParsed);
                     }
                 } else {
-                    if (!cg_store_initializer_expression(ctx,
-                                                         storage,
-                                                         valueType,
-                                                         arrayParsed,
-                                                         init->expression)) {
+                    if (!hasVLA &&
+                        valueType &&
+                        LLVMGetTypeKind(valueType) == LLVMArrayTypeKind &&
+                        init->expression->type == AST_STRING_LITERAL) {
+                        LLVMValueRef constArray = cg_build_const_initializer(ctx,
+                                                                             init->expression,
+                                                                             valueType,
+                                                                             arrayParsed);
+                        if (constArray) {
+                            LLVMBuildStore(ctx->builder, constArray, storage);
+                        } else if (!cg_store_initializer_expression(ctx,
+                                                                    storage,
+                                                                    valueType,
+                                                                    arrayParsed,
+                                                                    init->expression)) {
+                            fprintf(stderr, "Error: Failed to emit initializer for array variable\n");
+                        }
+                    } else if (!cg_store_initializer_expression(ctx,
+                                                                storage,
+                                                                valueType,
+                                                                arrayParsed,
+                                                                init->expression)) {
                         fprintf(stderr, "Error: Failed to emit initializer for array variable\n");
                     }
                 }

@@ -1346,17 +1346,17 @@ target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64
 %Layer = type { %__anon_struct_1_12, i32 }
 %__anon_struct_1_12 = type { i32, [3 x ptr], ptr }
 
-@__stdinp = global ptr null, align 8
+@__stdinp = external global ptr, align 8
 @__LDBL_MIN__ = internal global double 0.000000e+00, align 8
-@__stdoutp = global ptr null, align 8
+@__stdoutp = external global ptr, align 8
 @NULL = internal global ptr null, align 8
-@sys_errlist = global ptr null, align 8
+@sys_errlist = external global ptr, align 8
 @__FLT_MIN__ = internal global float 0.000000e+00, align 4
 @true = internal global i32 0, align 4
-@__stderrp = global ptr null, align 8
+@__stderrp = external global ptr, align 8
 @false = internal global i32 0, align 4
 @__DBL_MIN__ = internal global double 0.000000e+00, align 8
-@sys_nerr = global i32 0, align 4
+@sys_nerr = external global i32, align 4
 @.str.0 = private unnamed_addr constant [7 x i8] c"%d %d\0A\00"
 
 declare i32 @putc(i32 %0, ptr %1)

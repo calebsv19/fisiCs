@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "manifests": [
+    "binary-smoke-wave1.json",
+    "binary-io-wave2.json",
+    "binary-link-wave3.json",
+    "binary-stdio-wave4.json",
+    "binary-fortify-wave5.json"
+  ]
+}

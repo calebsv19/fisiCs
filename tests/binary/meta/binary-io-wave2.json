@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-io",
+  "tests": [
+    {
+      "id": "binary__runtime__io_file_roundtrip",
+      "level": "io",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__io_file_roundtrip.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__io_file_roundtrip.stdout",
+      "expected_files": [
+        {
+          "path": "note.txt",
+          "content": "hello\n"
+        }
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__io_append_counter",
+      "level": "io",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__io_append_counter.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__io_append_counter.stdout",
+      "expected_files": [
+        {
+          "path": "numbers.txt",
+          "content": "1\n2\n3\n"
+        }
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__io_stderr_stdout_mix",
+      "level": "io",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__io_stderr_stdout_mix.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__io_stderr_stdout_mix.stdout",
+      "expected_stderr": "expect/binary__runtime__io_stderr_stdout_mix.stderr",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__io_stdin_to_file",
+      "level": "io",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__io_stdin_to_file.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "run_stdin": "abcdef\n",
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__io_stdin_to_file.stdout",
+      "expected_files": [
+        {
+          "path": "count.txt",
+          "content": "7\n"
+        }
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

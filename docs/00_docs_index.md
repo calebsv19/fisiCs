@@ -106,6 +106,12 @@ including how to work through captured failures and reduce the open error set.
 Active next-step plan for runtime bucket `14`, including wave-by-wave test
 expansion, execution rules, and completion criteria.
 
+### `docs/plans/binary_testing_execution_plan.md`
+
+Phased implementation plan for safe compiler binary testing, including runtime
+isolation controls, progressive test levels, harness design, make entrypoints,
+and promotion gates.
+
 ### `docs/plans/link_stage_diagjson_enablement_plan.md`
 
 Phased implementation plan for enabling structured diagnostics JSON output on
@@ -178,6 +184,7 @@ Open these docs based on what you are trying to do:
 - Need external-project failure reports: `reports/external/*.md`
 - Need active error triage planning: `plans/fisics_errors_triage_plan.md`
 - Need current runtime-bucket roadmap: `plans/runtime_bucket_14_execution_plan.md`
+- Need staged binary-testing rollout and safety model: `plans/binary_testing_execution_plan.md`
 - Need link-stage `.diagjson` implementation roadmap: `plans/link_stage_diagjson_enablement_plan.md`
 - Need current torture-bucket roadmap: `plans/torture_bucket_15_execution_plan.md`
 - Need current semantic-bucket roadmap: `plans/semantic_bucket_07_execution_plan.md`

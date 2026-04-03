@@ -1110,19 +1110,31 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
         }
     }
 
+    bool externDeclOnly = (sym->storage == STORAGE_EXTERN &&
+                           !sym->hasDefinition &&
+                           !sym->isTentative);
+
     LLVMValueRef existing = LLVMGetNamedGlobal(ctx->module, sym->name);
     if (!existing) {
         existing = LLVMAddGlobal(ctx->module, varType, sym->name);
-        LLVMSetInitializer(existing, LLVMConstNull(varType));
+        if (!externDeclOnly) {
+            LLVMSetInitializer(existing, LLVMConstNull(varType));
+        }
     }
 
-    if (cg_is_builtin_const_name(sym->name)) {
+    if (externDeclOnly) {
+        LLVMSetLinkage(existing, LLVMExternalLinkage);
+    } else if (cg_is_builtin_const_name(sym->name)) {
         LLVMSetLinkage(existing, LLVMInternalLinkage);
     } else if (sym->isTentative) {
         LLVMSetLinkage(existing, LLVMCommonLinkage);
+    } else if (sym->linkage == LINKAGE_INTERNAL) {
+        LLVMSetLinkage(existing, LLVMInternalLinkage);
+    } else {
+        LLVMSetLinkage(existing, LLVMExternalLinkage);
     }
 
-    if (!sym->isTentative) {
+    if (!externDeclOnly && !sym->isTentative) {
         DesignatedInit* init = cg_find_initializer_for_symbol(sym);
         const char* skipConst = getenv("FISICS_NO_CONST_GLOBALS");
         const char* dbg = getenv("FISICS_DEBUG_CONST");

@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-stdio",
+  "tests": [
+    {
+      "id": "binary__runtime__stdio_printf_basic",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdio_printf_basic.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdio_printf_basic.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__stdio_fprintf_stderr_basic",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdio_fprintf_stderr_basic.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdio_fprintf_stderr_basic.stdout",
+      "expected_stderr": "expect/binary__runtime__stdio_fprintf_stderr_basic.stderr",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__stdio_snprintf_truncation",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdio_snprintf_truncation.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdio_snprintf_truncation.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__stdio_vsnprintf_wrapper",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdio_vsnprintf_wrapper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdio_vsnprintf_wrapper.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__stdio_longlong_format",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdio_longlong_format.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdio_longlong_format.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}
+
