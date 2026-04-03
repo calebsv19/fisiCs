@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-diff",
+  "tests": [
+    {
+      "id": "binary__runtime__diff_clang_return_zero",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__return_zero.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__diff_clang_exit_nonzero",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__exit_nonzero.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 3,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__diff_clang_local_char_array_string_init",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__local_char_array_string_init.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__local_char_array_string_init.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__diff_clang_local_char_array_string_init_exact_fit",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__local_char_array_string_init_exact_fit.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__local_char_array_string_init_exact_fit.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    },
+    {
+      "id": "binary__runtime__diff_clang_local_char_array_string_init_zero_fill",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__local_char_array_string_init_zero_fill.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__local_char_array_string_init_zero_fill.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "smoke"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-diff",
+  "tests": [
+    {
+      "id": "binary__runtime__diff_clang_multitu_link",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__multitu_link_main.c",
+        "cases/binary__runtime__multitu_link_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__multitu_link.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_io_stderr_stdout_mix",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__io_stderr_stdout_mix.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__io_stderr_stdout_mix.stdout",
+      "expected_stderr": "expect/binary__runtime__io_stderr_stdout_mix.stderr",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_io_file_roundtrip",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__io_file_roundtrip.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__io_file_roundtrip.stdout",
+      "expected_files": [
+        {
+          "path": "note.txt",
+          "content": "hello\n"
+        }
+      ],
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

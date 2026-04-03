@@ -1,4 +1,4 @@
-# Binary Harness (Phases A-C)
+# Binary Harness (Phases A-D)
 
 This directory contains the safe binary-testing lane and its phased expansion.
 
@@ -6,15 +6,16 @@ This directory contains the safe binary-testing lane and its phased expansion.
 
 - Current phase: **Phase D (Level 5 expansion in progress)**
 - Stable active scope: Levels 0-4 (`smoke`, `io`, `link`, `stdio`, `fortify`, `abi`)
-- Added scope: Level 5 corpus lane through wave 5 (`compile_only` + `link_only`)
+- Added scope: Level 5 corpus lane through wave 9 (`compile_only` + `link_only` + bounded `runtime`)
+- Added scope: differential lane (`level: diff`, waves 1-15, `fisics` vs `clang`)
 
 ## Current Snapshot
 
-- `make test-binary-abi`, `make test-binary-corpus`, `make test-binary-wave`, and `make test-binary` are green.
+- `make test-binary-abi`, `make test-binary-corpus`, `make test-binary-wave`, `make test-binary-diff`, and `make test-binary` are green.
 - Active inventory:
-  - total tests: `107`
-  - categories: `runtime=62`, `compile_only=16`, `compile_fail=14`, `link_fail=9`, `link_only=6`
-  - levels: `smoke=17`, `io=4`, `link=3`, `stdio=5`, `fortify=3`, `abi=58`, `corpus=17`
+  - total tests: `184`
+  - categories: `runtime=136`, `compile_only=19`, `compile_fail=14`, `link_fail=9`, `link_only=6`
+  - levels: `smoke=17`, `io=4`, `link=3`, `stdio=5`, `fortify=3`, `abi=58`, `corpus=26`, `diff=68`
 
 ## Entrypoints
 
@@ -25,6 +26,7 @@ This directory contains the safe binary-testing lane and its phased expansion.
 - `make test-binary-fortify`
 - `make test-binary-abi`
 - `make test-binary-corpus`
+- `make test-binary-diff`
 - `make test-binary-wave WAVE=<n> [BINARY_WAVE_BUCKET=<bucket-prefix>]`
 - `make test-binary`
 - `make test-binary-id ID=<test_id>`
@@ -56,6 +58,9 @@ Current coverage:
   - compile-timeout expectation lane (`expect_compile_timeout`) for known hang sentinels
 - Level 5 (initial):
   - corpus compile-only and link-only lanes (`level: corpus`)
+  - bounded execute-safe runtime slice (`level: corpus`, waves 7-9)
+- Differential lane (initial):
+  - runtime parity checks against `clang` on UB-clean subsets (`level: diff`, waves 1-15)
 
 ## Safety Controls Enabled
 
@@ -83,3 +88,5 @@ Current coverage:
 - `expect_output_contains` (for `compile_fail` and `link_fail`)
 - `expect_compile_timeout` (optional compile timeout expectation)
 - `expected_files` (for runtime file assertions inside isolated run dir)
+- `differential_with` (optional; currently `clang` for runtime parity checks)
+- `differential_compiler`, `clang_args`, `clang_env`, `clang_run_env` (optional overrides)

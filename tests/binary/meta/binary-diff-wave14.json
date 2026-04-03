@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-diff",
+  "tests": [
+    {
+      "id": "binary__runtime__diff_clang_abi_ptr_struct_mix",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_ptr_struct_mix.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_ptr_struct_mix.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_pointer_return_roundtrip",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_pointer_return_roundtrip.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_pointer_return_roundtrip.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_nested_ptr_aggregate",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_nested_ptr_aggregate.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_nested_ptr_aggregate.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_nested_struct_roundtrip",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_nested_struct_roundtrip.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_nested_struct_roundtrip.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_multitu_struct_float",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_multitu_struct_float_main.c",
+        "cases/binary__runtime__abi_multitu_struct_float_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_multitu_struct_float.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

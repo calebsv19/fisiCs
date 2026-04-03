@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-corpus",
+  "tests": [
+    {
+      "id": "binary__runtime__corpus_fragment_pass_registry_runtime",
+      "level": "corpus",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__corpus_fragment_pass_registry_runtime_main.c",
+        "cases/binary__link_only__corpus_fragment_pass_registry_table.c",
+        "cases/binary__link_only__corpus_fragment_pass_registry_driver.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__corpus_fragment_pass_registry_runtime.stdout",
+      "expect_exit": 0,
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__runtime__corpus_fragment_job_graph_runtime",
+      "level": "corpus",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__corpus_fragment_job_graph_runtime_main.c",
+        "cases/binary__link_only__corpus_fragment_job_graph_build.c",
+        "cases/binary__link_only__corpus_fragment_job_graph_visit.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__corpus_fragment_job_graph_runtime.stdout",
+      "expect_exit": 0,
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    }
+  ]
+}

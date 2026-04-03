@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-diff",
+  "tests": [
+    {
+      "id": "binary__runtime__diff_clang_abi_fp_param_mix",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_fp_param_mix.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_fp_param_mix.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_fp_return_chain",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_fp_return_chain.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_fp_return_chain.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_varargs_float_promotion",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_varargs_float_promotion.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_varargs_float_promotion.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_varargs_mixed_scalars",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_varargs_mixed_scalars.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_varargs_mixed_scalars.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_variadic_promotions",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_variadic_promotions.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_variadic_promotions.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

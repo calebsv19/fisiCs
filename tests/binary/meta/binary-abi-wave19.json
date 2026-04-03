@@ -13,9 +13,10 @@
       "args": [
         "-std=c99"
       ],
-      "expect_compile_timeout": true,
-      "compile_timeout_sec": 2,
-      "timeout_sec": 2,
+      "expect_output_contains": [
+        "incompatible type"
+      ],
+      "timeout_sec": 10,
       "resource_profile": "default"
     }
   ]

@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-diff",
+  "tests": [
+    {
+      "id": "binary__runtime__diff_clang_stdout_sum",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdout_sum.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__stdout_sum.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_struct_pass_return",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__struct_pass_return.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__struct_pass_return.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_abi_fnptr_dispatch",
+      "level": "diff",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_fnptr_dispatch.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__abi_fnptr_dispatch.stdout",
+      "expect_exit": 0,
+      "differential_with": "clang",
+      "skip_if": {
+        "missing_tools": [
+          "clang"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

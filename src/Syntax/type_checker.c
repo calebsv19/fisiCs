@@ -740,10 +740,6 @@ static bool functionPointerQualifierLoss(const ParsedType* destType, const Parse
 
 AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) {
     if (!dest || !src) return ASSIGN_INCOMPATIBLE;
-    if (dest->userTypeName && src->userTypeName &&
-        strcmp(dest->userTypeName, src->userTypeName) == 0) {
-        return ASSIGN_OK;
-    }
 
     if (typeInfoIsPointerLike(dest) && typeInfoIsPointerLike(src)) {
         bool destVoidPtr = typeInfoIsVoidPointer(dest);
@@ -794,6 +790,11 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
     }
 
     if (dest->category == src->category) {
+        if (dest->category == TYPEINFO_STRUCT ||
+            dest->category == TYPEINFO_UNION ||
+            dest->category == TYPEINFO_ENUM) {
+            return typesAreEqual(dest, src) ? ASSIGN_OK : ASSIGN_INCOMPATIBLE;
+        }
         return ASSIGN_OK;
     }
 

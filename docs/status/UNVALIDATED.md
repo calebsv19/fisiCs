@@ -22,17 +22,26 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
   - optional future expansion can add additional pinned external-corpus fragments beyond wave40.
 
 ====== Binary lane focus ======
-- Binary lane is stable through ABI wave 19 and corpus wave 5:
+- Binary lane is stable through ABI wave 19, corpus wave 9, and diff wave 15:
   - `make test-binary-abi` => pass
   - `make test-binary-corpus` => pass
-  - `make test-binary-wave WAVE=19` => pass
+  - `make test-binary-diff` => pass
+  - `make test-binary-wave WAVE=19 BINARY_WAVE_BUCKET=binary-abi` => pass
+  - `make test-binary-wave WAVE=15 BINARY_WAVE_BUCKET=binary-diff` => pass
   - `make test-binary` => pass
-  - active inventory: `107` tests (`runtime=62`, `compile_only=16`, `compile_fail=14`, `link_fail=9`, `link_only=6`)
+  - active inventory: `184` tests (`runtime=136`, `compile_only=19`, `compile_fail=14`, `link_fail=9`, `link_only=6`)
+  - differential parity audit:
+    - baseline runtime set `68`, effective diff-mapped coverage `68`, remaining `0`
+    - legacy naming drift closed (`abi_fnptr_dispatch` diff ID aligned)
+  - SDL toolchain readiness:
+    - `sdl2-config` and `pkg-config` are present locally (`SDL2 2.32.10`)
+    - no dedicated SDL binary lane has been added yet
 - Current phase marker:
-  - Phase D in progress (Levels 0-4 stable, Level 5 corpus wave-5 active).
-- Open binary issue under sentinel coverage:
-  - `ptr_to_agg` call-shape compile hang is tracked by
-    `binary__compile_fail__abi_ptr_to_agg_timeout` until root-cause fix lands.
+  - Phase D in progress (Levels 0-4 stable, Level 5 corpus wave-9 active with bounded runtime coverage, plus differential wave-15 active).
+- Recent binary fix:
+  - `ptr_to_agg` call-shape compile hang is resolved.
+  - `binary__compile_fail__abi_ptr_to_agg_timeout` now runs as a normal
+    compile-fail diagnostic expectation (no timeout sentinel behavior).
 
 ====== Explicit checklist gaps (remaining) ======
 - Lexer literal boundaries:

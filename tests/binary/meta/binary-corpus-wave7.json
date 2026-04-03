@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-corpus",
+  "tests": [
+    {
+      "id": "binary__runtime__corpus_fragment_token_score",
+      "level": "corpus",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__corpus_fragment_token_score.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__corpus_fragment_token_score.stdout",
+      "expect_exit": 0,
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__runtime__corpus_fragment_symbol_pool_runtime",
+      "level": "corpus",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__corpus_fragment_symbol_pool_runtime_main.c",
+        "cases/binary__link_only__corpus_fragment_symbol_pool_store.c",
+        "cases/binary__link_only__corpus_fragment_symbol_pool_hash.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expected_stdout": "expect/binary__runtime__corpus_fragment_symbol_pool_runtime.stdout",
+      "expect_exit": 0,
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    }
+  ]
+}

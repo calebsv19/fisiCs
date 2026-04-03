@@ -615,6 +615,9 @@ test-binary-abi: $(BIN)
 test-binary-corpus: $(BIN)
 	@BINARY_LEVEL=corpus python3 tests/binary/run_binary.py ./$(BIN)
 
+test-binary-diff: $(BIN)
+	@BINARY_LEVEL=diff python3 tests/binary/run_binary.py ./$(BIN)
+
 test-binary-wave: $(BIN)
 	@if [ -z "$(WAVE)" ]; then echo "ERROR: provide WAVE=<n>"; exit 2; fi
 	@if [ -n "$(BINARY_WAVE_BUCKET)" ]; then \
@@ -623,7 +626,7 @@ test-binary-wave: $(BIN)
 		BINARY_MANIFEST="wave$(WAVE).json" python3 tests/binary/run_binary.py ./$(BIN); \
 	fi
 
-test-binary: test-binary-smoke test-binary-io test-binary-link test-binary-stdio test-binary-fortify test-binary-abi test-binary-corpus
+test-binary: test-binary-smoke test-binary-io test-binary-link test-binary-stdio test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff
 
 test-binary-id: $(BIN)
 	@if [ -z "$(ID)" ]; then echo "ERROR: provide ID=<test_id>"; exit 2; fi
@@ -764,6 +767,6 @@ tests: test frontend-api-test
         statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
         statement-expr-codegen codegen-bitfield \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
-        test-binary test-binary-smoke test-binary-io test-binary-link test-binary-stdio test-binary-fortify test-binary-abi test-binary-corpus test-binary-wave test-binary-id binary-regen \
+        test-binary test-binary-smoke test-binary-io test-binary-link test-binary-stdio test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff test-binary-wave test-binary-id binary-regen \
         integration-diags-pack \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

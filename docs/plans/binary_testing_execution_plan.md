@@ -12,19 +12,38 @@ without risking filesystem damage or unstable harness behavior.
 
 - `make test` and `make final` are currently green.
 - `make test-binary-abi` and `make test-binary` are green.
-- `make test-binary-corpus` and `make test-binary-wave` are green.
+- `make test-binary-corpus`, `make test-binary-wave`, and `make test-binary-diff` are green.
 - Binary harness inventory snapshot:
-  - total tests: `107`
-  - by category: `runtime=62`, `compile_only=16`, `compile_fail=14`, `link_fail=9`, `link_only=6`
-  - by level: `smoke=17`, `io=4`, `link=3`, `stdio=5`, `fortify=3`, `abi=58`, `corpus=17`
+  - total tests: `184`
+  - by category: `runtime=136`, `compile_only=19`, `compile_fail=14`, `link_fail=9`, `link_only=6`
+  - by level: `smoke=17`, `io=4`, `link=3`, `stdio=5`, `fortify=3`, `abi=58`, `corpus=26`, `diff=68`
 - Binary-adjacent checks already exist:
   - `tests/integration/compile_only.sh`
   - `tests/integration/compile_and_link.sh`
   - runtime execution in `tests/final/run_final.py` for `run: true` tests
-- Active known issue (now tracked in-suite):
-  - `ptr_to_agg` call-shape compile hang is tracked by
-    `binary__compile_fail__abi_ptr_to_agg_timeout` using explicit
-    `expect_compile_timeout`.
+- Recent fix:
+  - resolved `ptr_to_agg` call-shape compile hang in semantic assignment checks.
+  - `binary__compile_fail__abi_ptr_to_agg_timeout` now validates as a normal
+    compile-fail lane (`expect_output_contains`) instead of timeout sentinel mode.
+
+## Coverage Audit (2026-04-03)
+
+- Runtime baseline set (non-diff runtime IDs): `68`
+- Differential parity set (`diff_clang` IDs): `68`
+- Effective mapped parity coverage: `68 / 68`
+- Remaining baseline runtime IDs without direct diff parity: `0`
+
+## SDL Readiness Audit (2026-04-03)
+
+- `sdl2-config` available: `/opt/homebrew/bin/sdl2-config`
+- `pkg-config` available: `/opt/homebrew/bin/pkg-config`
+- SDL2 detected: `2.32.10`
+- Toolchain flags available via `pkg-config --cflags --libs sdl2`
+- Harness already has required controls for safe SDL expansion:
+  - isolated per-test run directory (`build/tests/binary/<test_id>/`)
+  - runtime env overrides (`run_env`) and tool-gated skips (`skip_if.missing_tools`)
+  - timeout/resource profiles (`resource_profile`, `timeout_sec`)
+- Not yet implemented: dedicated SDL lane/manifests and make target(s).
 
 ## Safety Model (Fail-Closed)
 
@@ -116,6 +135,7 @@ Per-test metadata minimum:
 - `ub` / `impl_defined` tags
 - `skip_if` rules
 - `expect_compile_timeout` (optional; for known compile-hang tracking lanes)
+- `differential_with` (optional; currently `clang`)
 
 ## Make Entrypoints
 
@@ -128,6 +148,7 @@ Implemented:
 - `make test-binary-fortify` (fortified builtin lowering lane)
 - `make test-binary-abi` (Level 4)
 - `make test-binary-corpus` (Level 5 compile-focused initial slice)
+- `make test-binary-diff` (initial `fisics` vs `clang` runtime parity shard)
 - `make test-binary-id ID=<test_id>`
 - `make test-binary-wave WAVE=<n> [BINARY_WAVE_BUCKET=<bucket-prefix>]`
 
@@ -272,7 +293,7 @@ Phase C:
     - `binary__compile_fail__abi_struct_ptr_called_with_int`
     - `binary__compile_fail__abi_int_ptr_called_with_struct_ptr`
     - `binary__compile_fail__abi_void_ptr_called_with_struct_value`
-  - added ABI wave 19 timeout-tracked hang sentinel (`binary-abi-wave19.json`) with:
+  - added ABI wave 19 compile-fail lane (`binary-abi-wave19.json`) with:
     - `binary__compile_fail__abi_ptr_to_agg_timeout`
   - added Level 5 corpus wave 1 compile-only shard (`binary-corpus-wave1.json`) with:
     - `binary__compile_only__corpus_fragment_map_parser`
@@ -296,22 +317,119 @@ Phase C:
     - `binary__compile_only__corpus_fragment_pp_dispatch_table`
     - `binary__compile_only__corpus_fragment_pack_index`
     - `binary__link_only__corpus_fragment_job_graph`
+  - added Level 5 corpus wave 6 include-chain compile-only shard (`binary-corpus-wave6.json`) with:
+    - `binary__compile_only__corpus_fragment_include_chain_dispatch`
+    - `binary__compile_only__corpus_fragment_guarded_reinclude`
+    - `binary__compile_only__corpus_fragment_macro_include_toggle`
+  - added Level 5 corpus wave 7 bounded runtime shard (`binary-corpus-wave7.json`) with:
+    - `binary__runtime__corpus_fragment_token_score`
+    - `binary__runtime__corpus_fragment_symbol_pool_runtime`
+  - added Level 5 corpus wave 8 bounded runtime shard (`binary-corpus-wave8.json`) with:
+    - `binary__runtime__corpus_fragment_pass_registry_runtime`
+    - `binary__runtime__corpus_fragment_job_graph_runtime`
+  - added Level 5 corpus wave 9 bounded runtime shard (`binary-corpus-wave9.json`) with:
+    - `binary__runtime__corpus_fragment_const_table_runtime`
+    - `binary__runtime__corpus_fragment_include_chain_runtime`
+  - added differential wave 1 runtime shard (`binary-diff-wave1.json`) with:
+    - `binary__runtime__diff_clang_stdout_sum`
+    - `binary__runtime__diff_clang_struct_pass_return`
+    - `binary__runtime__diff_clang_abi_fnptr_dispatch`
+  - added differential wave 2 runtime shard (`binary-diff-wave2.json`) with:
+    - `binary__runtime__diff_clang_argv_count`
+    - `binary__runtime__diff_clang_stdin_byte_count`
+    - `binary__runtime__diff_clang_env_echo`
+  - added differential wave 3 runtime shard (`binary-diff-wave3.json`) with:
+    - `binary__runtime__diff_clang_multitu_link`
+    - `binary__runtime__diff_clang_io_stderr_stdout_mix`
+    - `binary__runtime__diff_clang_io_file_roundtrip`
+  - added differential wave 4 runtime shard (`binary-diff-wave4.json`) with:
+    - `binary__runtime__diff_clang_stdio_printf_basic`
+    - `binary__runtime__diff_clang_stdio_fprintf_stderr_basic`
+    - `binary__runtime__diff_clang_stdio_snprintf_truncation`
+    - `binary__runtime__diff_clang_stdio_vsnprintf_wrapper`
+    - `binary__runtime__diff_clang_stdio_longlong_format`
+  - added differential wave 5 runtime shard (`binary-diff-wave5.json`) with:
+    - `binary__runtime__diff_clang_abi_many_int_args`
+    - `binary__runtime__diff_clang_abi_struct_roundtrip`
+    - `binary__runtime__diff_clang_abi_fnptr_array_chain`
+    - `binary__runtime__diff_clang_abi_mixed_width_args`
+    - `binary__runtime__diff_clang_abi_multitu_call_chain`
+  - added differential wave 6 runtime shard (`binary-diff-wave6.json`) with:
+    - `binary__runtime__diff_clang_fortify_strcpy_strcat`
+    - `binary__runtime__diff_clang_fortify_memcpy_memmove_memset`
+    - `binary__runtime__diff_clang_io_append_counter`
+    - `binary__runtime__diff_clang_io_stdin_to_file`
+    - `binary__runtime__diff_clang_global_char_array_string_init`
+  - added differential wave 7 runtime shard (`binary-diff-wave7.json`) with:
+    - `binary__runtime__diff_clang_abi_fp_param_mix`
+    - `binary__runtime__diff_clang_abi_fp_return_chain`
+    - `binary__runtime__diff_clang_abi_varargs_float_promotion`
+    - `binary__runtime__diff_clang_abi_varargs_mixed_scalars`
+    - `binary__runtime__diff_clang_abi_variadic_promotions`
+  - added differential wave 8 runtime shard (`binary-diff-wave8.json`) with:
+    - `binary__runtime__diff_clang_abi_multitu_chain_depth`
+    - `binary__runtime__diff_clang_abi_multitu_nested_struct_ptr`
+    - `binary__runtime__diff_clang_abi_multitu_fnptr`
+    - `binary__runtime__diff_clang_abi_multitu_varargs_forward_chain`
+    - `binary__runtime__diff_clang_abi_multitu_varargs_deep_chain`
+  - added differential wave 9 runtime shard (`binary-diff-wave9.json`) with:
+    - `binary__runtime__diff_clang_corpus_fragment_token_score`
+    - `binary__runtime__diff_clang_corpus_fragment_symbol_pool_runtime`
+    - `binary__runtime__diff_clang_corpus_fragment_pass_registry_runtime`
+    - `binary__runtime__diff_clang_corpus_fragment_job_graph_runtime`
+    - `binary__runtime__diff_clang_corpus_fragment_const_table_runtime`
+  - added differential wave 10 runtime shard (`binary-diff-wave10.json`) with:
+    - `binary__runtime__diff_clang_abi_long_double_variadic_bridge`
+    - `binary__runtime__diff_clang_abi_long_double_struct_return`
+    - `binary__runtime__diff_clang_abi_signed_unsigned_matrix`
+    - `binary__runtime__diff_clang_abi_varargs_signed_unsigned_bridge`
+    - `binary__runtime__diff_clang_corpus_fragment_include_chain_runtime`
+  - added differential wave 11 runtime shard (`binary-diff-wave11.json`) with:
+    - `binary__runtime__diff_clang_abi_struct_return_large`
+    - `binary__runtime__diff_clang_abi_large_struct_param`
+    - `binary__runtime__diff_clang_abi_large_struct_multitu`
+    - `binary__runtime__diff_clang_abi_struct_float_param`
+    - `binary__runtime__diff_clang_abi_struct_float_return`
+  - added differential wave 12 runtime shard (`binary-diff-wave12.json`) with:
+    - `binary__runtime__diff_clang_abi_long_double_ptr_aggregate`
+    - `binary__runtime__diff_clang_abi_multitu_long_double_ptr_chain`
+    - `binary__runtime__diff_clang_abi_multitu_long_double_fnptr_dispatch`
+    - `binary__runtime__diff_clang_abi_varargs_long_double_signed_unsigned`
+    - `binary__runtime__diff_clang_abi_varargs_forward_multitu`
+  - added differential wave 13 runtime shard (`binary-diff-wave13.json`) with:
+    - `binary__runtime__diff_clang_return_zero`
+    - `binary__runtime__diff_clang_exit_nonzero`
+    - `binary__runtime__diff_clang_local_char_array_string_init`
+    - `binary__runtime__diff_clang_local_char_array_string_init_exact_fit`
+    - `binary__runtime__diff_clang_local_char_array_string_init_zero_fill`
+  - added differential wave 14 runtime shard (`binary-diff-wave14.json`) with:
+    - `binary__runtime__diff_clang_abi_ptr_struct_mix`
+    - `binary__runtime__diff_clang_abi_pointer_return_roundtrip`
+    - `binary__runtime__diff_clang_abi_nested_ptr_aggregate`
+    - `binary__runtime__diff_clang_abi_nested_struct_roundtrip`
+    - `binary__runtime__diff_clang_abi_multitu_struct_float`
+  - added differential wave 15 runtime shard (`binary-diff-wave15.json`) with:
+    - `binary__runtime__diff_clang_abi_mixed_return_pressure`
+    - `binary__runtime__diff_clang_abi_varargs_mixed_multitu`
+    - `binary__runtime__diff_clang_abi_variadic_forwarder`
+    - `binary__runtime__diff_clang_fortify_strncpy_strncat`
   - wired `make test-binary-corpus` and included it in `make test-binary`
+  - wired `make test-binary-diff` and included it in `make test-binary`
   - added `make test-binary-wave` selector using `BINARY_WAVE_BUCKET` (avoids collision with final-suite `WAVE_BUCKET`)
   - harness extended with `link_only` category (compile+link pass without runtime execution)
+  - harness extended with optional differential runtime checks (`differential_with: clang`)
 
 ## Current Phase Marker
 
 - Current phase: **Phase D (Level 5 expansion in progress)**.
 - Phase C baseline is complete and stable through ABI wave 19.
-- Level 5 corpus lane is active through wave 5 (compile-only + link-only).
+- Level 5 corpus lane is active through wave 9 (compile/link + bounded runtime).
+- Differential lane is active through diff wave 15 with full runtime parity (`68/68`).
 
 ## Next Phase Work
 
-1. Scale Level 5 corpus coverage with additional curated fragments (headers,
-   macro-heavy units, and multi-TU compile slices) under compile-only policy.
-2. Add optional binary differential lane for stable runtime subsets
-   (`fisics` vs `clang`) with explicit UB/impl-defined tagging.
-3. Triage and fix the underlying `ptr_to_agg` compile-hang root cause, then
-   convert `binary__compile_fail__abi_ptr_to_agg_timeout` from timeout-sentinel
-   to proper diagnostic expectation.
+1. SDL Phase E (new lane): add headless SDL binary tests in controlled rollout.
+   - E1 compile/link-only SDL smoke (`skip_if.missing_tools: [pkg-config]`).
+   - E2 headless runtime init/teardown (`run_env` with
+     `SDL_VIDEODRIVER=dummy`, `SDL_AUDIODRIVER=dummy`).
+   - E3 bounded event-loop + software surface update checks (no GPU hard dependency).

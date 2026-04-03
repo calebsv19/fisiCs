@@ -215,11 +215,16 @@ def run_program(cmd, cwd, env, stdin_text, timeout_sec, profile_name):
 def should_skip(test):
     skip_cfg = test.get("skip_if", {})
     if not isinstance(skip_cfg, dict):
-        return None
+        skip_cfg = {}
     missing_tools = []
     for tool in skip_cfg.get("missing_tools", []):
         if shutil.which(str(tool)) is None:
             missing_tools.append(str(tool))
+    differential_with = str(test.get("differential_with", "")).strip()
+    if differential_with == "clang":
+        clang_bin = str(test.get("differential_compiler", "clang")).strip() or "clang"
+        if shutil.which(clang_bin) is None and clang_bin not in missing_tools:
+            missing_tools.append(clang_bin)
     if missing_tools:
         return f"missing tools: {', '.join(missing_tools)}"
     return None
@@ -511,6 +516,113 @@ def main():
                         print(diff_text(expected_content, actual_content, full_path))
                         failures += 1
                         test_failed = True
+
+        differential_with = str(test.get("differential_with", "")).strip()
+        if not test_failed and differential_with:
+            if differential_with != "clang":
+                print(
+                    f"FAIL {test_id} [harness_error]: unsupported differential_with='{differential_with}'"
+                )
+                failures += 1
+                test_failed = True
+            else:
+                clang_bin = str(test.get("differential_compiler", "clang")).strip() or "clang"
+                clang_path = shutil.which(clang_bin)
+                if not clang_path:
+                    print(
+                        f"SKIP {test_id}: missing tools: {clang_bin}"
+                    )
+                    skipped += 1
+                    continue
+
+                clang_args = [str(a) for a in test.get("clang_args", args)]
+                clang_env_overrides = test.get("clang_env", {})
+                clang_run_env_overrides = test.get("clang_run_env", run_env_overrides)
+                clang_compile_timeout = int(
+                    test.get(
+                        "clang_compile_timeout_sec",
+                        test.get("differential_compile_timeout_sec", compile_timeout),
+                    )
+                )
+                clang_run_timeout = int(
+                    test.get(
+                        "clang_run_timeout_sec",
+                        test.get("differential_run_timeout_sec", run_timeout),
+                    )
+                )
+
+                clang_output = run_dir / "clang.out"
+                clang_compile_cmd = (
+                    [clang_path] + clang_args + [str(p) for p in input_paths] + ["-o", str(clang_output)]
+                )
+                clang_compile = run_compile(
+                    clang_compile_cmd,
+                    cwd=run_dir,
+                    env=build_env(clang_env_overrides),
+                    timeout_sec=clang_compile_timeout,
+                    profile_name=profile_name,
+                )
+
+                if clang_compile["timed_out"]:
+                    print(
+                        f"FAIL {test_id} [differential_compile_timeout]: "
+                        f"clang timed out after {clang_compile_timeout}s"
+                    )
+                    failures += 1
+                    test_failed = True
+                elif clang_compile["exit_code"] != 0:
+                    print(
+                        f"FAIL {test_id} [differential_compile_fail]: "
+                        f"clang exited {clang_compile['exit_code']}"
+                    )
+                    if clang_compile["output"]:
+                        print(clang_compile["output"])
+                    failures += 1
+                    test_failed = True
+                elif not clang_output.exists():
+                    print(
+                        f"FAIL {test_id} [differential_compile_fail]: clang output missing: {clang_output}"
+                    )
+                    failures += 1
+                    test_failed = True
+                else:
+                    clang_run = run_program(
+                        [str(clang_output)] + [str(a) for a in test.get("run_args", [])],
+                        cwd=run_dir,
+                        env=build_env(clang_run_env_overrides),
+                        stdin_text=test.get("run_stdin"),
+                        timeout_sec=clang_run_timeout,
+                        profile_name=profile_name,
+                    )
+                    if clang_run["timed_out"]:
+                        print(
+                            f"FAIL {test_id} [differential_runtime_timeout]: "
+                            f"clang binary timed out after {clang_run_timeout}s"
+                        )
+                        failures += 1
+                        test_failed = True
+                    else:
+                        if run_result["exit_code"] != clang_run["exit_code"]:
+                            print(
+                                f"FAIL {test_id} [differential_mismatch]: "
+                                f"exit mismatch fisics={run_result['exit_code']} clang={clang_run['exit_code']}"
+                            )
+                            failures += 1
+                            test_failed = True
+                        if run_result["stdout"] != clang_run["stdout"]:
+                            print(
+                                f"FAIL {test_id} [differential_mismatch]: stdout mismatch vs clang"
+                            )
+                            print(diff_text(clang_run["stdout"], run_result["stdout"], "clang.stdout"))
+                            failures += 1
+                            test_failed = True
+                        if run_result["stderr"] != clang_run["stderr"]:
+                            print(
+                                f"FAIL {test_id} [differential_mismatch]: stderr mismatch vs clang"
+                            )
+                            print(diff_text(clang_run["stderr"], run_result["stderr"], "clang.stderr"))
+                            failures += 1
+                            test_failed = True
 
         if not test_failed:
             print(f"PASS {test_id}")
