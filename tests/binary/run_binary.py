@@ -613,7 +613,11 @@ def main():
 
                 clang_output = run_dir / "clang.out"
                 clang_compile_cmd = (
-                    [clang_path] + clang_args + [str(p) for p in input_paths] + ["-o", str(clang_output)]
+                    [clang_path]
+                    + clang_args
+                    + [str(p) for p in input_paths]
+                    + pkg_config_flags
+                    + ["-o", str(clang_output)]
                 )
                 clang_compile = run_compile(
                     clang_compile_cmd,

@@ -22,7 +22,7 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
   - optional future expansion can add additional pinned external-corpus fragments beyond wave40.
 
 ====== Binary lane focus ======
-- Binary lane is stable through ABI wave 19, corpus wave 9, diff wave 15, and SDL wave 1:
+- Binary lane is stable through ABI wave 19, corpus wave 9, diff wave 15, and SDL wave 5:
   - `make test-binary-abi` => pass
   - `make test-binary-corpus` => pass
   - `make test-binary-diff` => pass
@@ -30,17 +30,25 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
   - `make test-binary-wave WAVE=19 BINARY_WAVE_BUCKET=binary-abi` => pass
   - `make test-binary-wave WAVE=15 BINARY_WAVE_BUCKET=binary-diff` => pass
   - `make test-binary-wave WAVE=1 BINARY_WAVE_BUCKET=binary-sdl` => pass
+  - `make test-binary-wave WAVE=2 BINARY_WAVE_BUCKET=binary-sdl` => pass
+  - `make test-binary-wave WAVE=3 BINARY_WAVE_BUCKET=binary-sdl` => pass
+  - `make test-binary-wave WAVE=4 BINARY_WAVE_BUCKET=binary-sdl` => pass
+  - `make test-binary-wave WAVE=5 BINARY_WAVE_BUCKET=binary-sdl` => pass (`0 failing, 2 skipped`)
   - `make test-binary` => pass
-  - active inventory: `190` tests (`runtime=136`, `compile_only=19`, `compile_fail=14`, `link_fail=9`, `link_only=12`)
+  - active inventory: `204` tests (`runtime=148`, `compile_only=19`, `compile_fail=14`, `link_fail=9`, `link_only=14`)
   - differential parity audit:
     - baseline runtime set `68`, effective diff-mapped coverage `68`, remaining `0`
     - legacy naming drift closed (`abi_fnptr_dispatch` diff ID aligned)
   - SDL toolchain readiness:
     - `sdl2-config` and `pkg-config` are present locally (`SDL2 2.32.10`)
     - E1 compile/link SDL lane is active (`level: sdl`, wave 1)
+    - E2 headless runtime SDL lane is active (`level: sdl`, wave 2)
+    - E3 bounded runtime SDL lane is active (`level: sdl`, wave 3)
+    - E4 differential runtime SDL lane is active (`level: sdl`, wave 4)
+    - E4 policy-skip SDL lane is active (`level: sdl`, wave 5)
     - direct SDL system-header parsing is active in wave 1 (`binary__link_only__sdl2_header_real_smoke`, `binary__link_only__sdl2_stdinc_inline_smoke`)
 - Current phase marker:
-  - Phase E1 in progress (Levels 0-4 stable, corpus wave-9 active, diff wave-15 full parity, SDL wave-1 compile/link active).
+  - Phase E4 in progress (Levels 0-4 stable, corpus wave-9 active, diff wave-15 full parity, SDL wave-1 compile/link + wave-2/3 runtime + wave-4 differential + wave-5 policy-skip active).
 - Recent binary fix:
   - `ptr_to_agg` call-shape compile hang is resolved.
   - `binary__compile_fail__abi_ptr_to_agg_timeout` now runs as a normal

@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-sdl",
+  "tests": [
+    {
+      "id": "binary__link_only__sdl2_policy_skip_missing_pkg_module",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_header_smoke.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "__fisics_missing_sdl2_policy_module__"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "__fisics_missing_sdl2_policy_module__"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_only__sdl2_policy_skip_missing_tool",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_header_smoke.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "__fisics_policy_intentional_missing_tool__"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

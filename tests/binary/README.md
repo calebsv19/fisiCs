@@ -4,7 +4,7 @@ This directory contains the safe binary-testing lane and its phased expansion.
 
 ## Current Phase Marker
 
-- Current phase: **Phase E (E1 SDL compile/link lane active)**
+- Current phase: **Phase E (E4 SDL differential + policy lanes active)**
 - Stable active scope: Levels 0-4 (`smoke`, `io`, `link`, `sdl`, `stdio`, `fortify`, `abi`)
 - Added scope: Level 5 corpus lane through wave 9 (`compile_only` + `link_only` + bounded `runtime`)
 - Added scope: differential lane (`level: diff`, waves 1-15, `fisics` vs `clang`)
@@ -13,9 +13,9 @@ This directory contains the safe binary-testing lane and its phased expansion.
 
 - `make test-binary-abi`, `make test-binary-corpus`, `make test-binary-wave`, `make test-binary-diff`, and `make test-binary` are green.
 - Active inventory:
-  - total tests: `190`
-  - categories: `runtime=136`, `compile_only=19`, `compile_fail=14`, `link_fail=9`, `link_only=12`
-  - levels: `smoke=17`, `io=4`, `link=3`, `sdl=6`, `stdio=5`, `fortify=3`, `abi=58`, `corpus=26`, `diff=68`
+  - total tests: `204`
+  - categories: `runtime=148`, `compile_only=19`, `compile_fail=14`, `link_fail=9`, `link_only=14`
+  - levels: `smoke=17`, `io=4`, `link=3`, `sdl=20`, `stdio=5`, `fortify=3`, `abi=58`, `corpus=26`, `diff=68`
 
 ## Entrypoints
 
@@ -67,6 +67,20 @@ Current coverage:
   - direct SDL system-header coverage (`#include <SDL2/SDL.h>`)
   - stdinc inline/builtin-heavy coverage (`SDL_memcpy4`, `SDL_fabsf`)
   - tool-gated via `skip_if.missing_tools` + `skip_if.missing_pkg_config_modules`
+- Phase E2 SDL lane:
+  - deterministic headless runtime checks (`level: sdl`, wave 2)
+  - dummy-driver env coverage (`SDL_VIDEODRIVER=dummy`, `SDL_AUDIODRIVER=dummy`)
+  - event/timer/error runtime behavior checks
+- Phase E3 SDL lane:
+  - bounded runtime surface/window checks (`level: sdl`, wave 3)
+  - hidden window create/destroy in dummy video mode
+  - software surface fill/readback and blit verification
+  - RWops memory roundtrip checks
+- Phase E4 SDL lane:
+  - `diff_clang` parity checks for SDL runtime shards (`level: sdl`, wave 4)
+  - clang differential compile now respects `pkg_config_modules` for external link parity
+  - policy-skip checks for missing tool/module paths (`level: sdl`, wave 5)
+  - validated behavior: policy tests report `SKIP` (not `PASS`)
 
 ## Safety Controls Enabled
 

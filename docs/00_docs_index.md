@@ -112,6 +112,11 @@ Phased implementation plan for safe compiler binary testing, including runtime
 isolation controls, progressive test levels, harness design, make entrypoints,
 and promotion gates.
 
+### `docs/plans/binary_sdl_phase_e_wave_plan.md`
+
+Concrete next-wave execution plan for SDL binary testing after E1, including
+E2/E3/E4 wave targets, planned test IDs, promotion gates, and command flow.
+
 ### `docs/plans/link_stage_diagjson_enablement_plan.md`
 
 Phased implementation plan for enabling structured diagnostics JSON output on
@@ -185,6 +190,7 @@ Open these docs based on what you are trying to do:
 - Need active error triage planning: `plans/fisics_errors_triage_plan.md`
 - Need current runtime-bucket roadmap: `plans/runtime_bucket_14_execution_plan.md`
 - Need staged binary-testing rollout and safety model: `plans/binary_testing_execution_plan.md`
+- Need concrete next SDL binary waves: `plans/binary_sdl_phase_e_wave_plan.md`
 - Need link-stage `.diagjson` implementation roadmap: `plans/link_stage_diagjson_enablement_plan.md`
 - Need current torture-bucket roadmap: `plans/torture_bucket_15_execution_plan.md`
 - Need current semantic-bucket roadmap: `plans/semantic_bucket_07_execution_plan.md`
