@@ -22,6 +22,52 @@ static void strip_include_spaces_local(char* name) {
     *out = '\0';
 }
 
+static bool is_builtin_probe_macro_name(const char* name, const char** fallbackValue) {
+    if (!name || !fallbackValue) return false;
+    if (strcmp(name, "__has_builtin") == 0 ||
+        strcmp(name, "__has_extension") == 0 ||
+        strcmp(name, "__has_feature") == 0 ||
+        strcmp(name, "__has_attribute") == 0 ||
+        strcmp(name, "__has_c_attribute") == 0 ||
+        strcmp(name, "__has_declspec_attribute") == 0 ||
+        strcmp(name, "__has_warning") == 0) {
+        *fallbackValue = "0";
+        return true;
+    }
+    if (strcmp(name, "__is_identifier") == 0) {
+        *fallbackValue = "1";
+        return true;
+    }
+    return false;
+}
+
+static bool consume_parenthesized_expression(const Token* tokens,
+                                             size_t count,
+                                             size_t lparenIndex,
+                                             size_t* outNextIndex) {
+    if (!tokens || !outNextIndex || lparenIndex >= count || tokens[lparenIndex].type != TOKEN_LPAREN) {
+        return false;
+    }
+    int depth = 0;
+    for (size_t i = lparenIndex; i < count; ++i) {
+        if (tokens[i].type == TOKEN_EOF) {
+            return false;
+        }
+        if (tokens[i].type == TOKEN_LPAREN) {
+            depth++;
+            continue;
+        }
+        if (tokens[i].type == TOKEN_RPAREN) {
+            depth--;
+            if (depth == 0) {
+                *outNextIndex = i + 1;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 static bool append_expr_token(Preprocessor* pp, PPTokenBuffer* out, const Token* tok) {
     if (!tok) return true;
     if (tok->type == TOKEN_IDENTIFIER && tok->value) {
@@ -350,6 +396,27 @@ bool pp_prepare_expr_tokens(Preprocessor* pp,
             }
             i = (j > i) ? j : (i + 1);
             continue;
+        }
+        if (tok->value) {
+            const char* fallback = NULL;
+            if (is_builtin_probe_macro_name(tok->value, &fallback)) {
+                const MacroDefinition* def = (pp && pp->table)
+                    ? macro_table_lookup(pp->table, tok->value)
+                    : NULL;
+                if (!def) {
+                    size_t next = i + 1;
+                    size_t afterCall = 0;
+                    if (next < count &&
+                        tokens[next].type == TOKEN_LPAREN &&
+                        consume_parenthesized_expression(tokens, count, next, &afterCall)) {
+                        if (!pp_append_number_literal(pp, out, tok, fallback)) {
+                            return false;
+                        }
+                        i = afterCall;
+                        continue;
+                    }
+                }
+            }
         }
         // Preserve defined operand without expanding it.
         if (tok->type == TOKEN_IDENTIFIER && tok->value &&

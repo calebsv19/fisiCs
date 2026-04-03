@@ -32,4 +32,16 @@ if grep -Fq "drop_has_builtin" "$TMP_OUTPUT"; then
   exit 1
 fi
 
-echo "preprocessor #ifndef keyword + __has_builtin test passed."
+if ! grep -Fq "keep_has_extension" "$TMP_OUTPUT"; then
+  echo "__has_extension fallback branch missing from output" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if grep -Fq "drop_has_extension" "$TMP_OUTPUT"; then
+  echo "__has_extension enabled branch leaked into output" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+echo "preprocessor #ifndef keyword + __has_builtin/__has_extension test passed."

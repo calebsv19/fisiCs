@@ -3,6 +3,7 @@ import difflib
 import fnmatch
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -220,6 +221,23 @@ def should_skip(test):
     for tool in skip_cfg.get("missing_tools", []):
         if shutil.which(str(tool)) is None:
             missing_tools.append(str(tool))
+    missing_pkg_modules = []
+    pkg_modules = [str(m) for m in skip_cfg.get("missing_pkg_config_modules", [])]
+    if pkg_modules:
+        pkg_config = shutil.which("pkg-config")
+        if pkg_config is None:
+            if "pkg-config" not in missing_tools:
+                missing_tools.append("pkg-config")
+        else:
+            for module in pkg_modules:
+                probe = subprocess.run(
+                    [pkg_config, "--exists", module],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    text=True,
+                )
+                if probe.returncode != 0:
+                    missing_pkg_modules.append(module)
     differential_with = str(test.get("differential_with", "")).strip()
     if differential_with == "clang":
         clang_bin = str(test.get("differential_compiler", "clang")).strip() or "clang"
@@ -227,7 +245,31 @@ def should_skip(test):
             missing_tools.append(clang_bin)
     if missing_tools:
         return f"missing tools: {', '.join(missing_tools)}"
+    if missing_pkg_modules:
+        return f"missing pkg-config modules: {', '.join(missing_pkg_modules)}"
     return None
+
+
+def resolve_pkg_config_flags(test, env_overrides):
+    modules = [str(module) for module in test.get("pkg_config_modules", [])]
+    if not modules:
+        return []
+    pkg_config = shutil.which("pkg-config")
+    if pkg_config is None:
+        raise RuntimeError("pkg_config_modules requires pkg-config in PATH")
+    probe = subprocess.run(
+        [pkg_config, "--cflags", "--libs"] + modules,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=build_env(env_overrides),
+    )
+    if probe.returncode != 0:
+        stderr = (probe.stderr or "").strip()
+        stdout = (probe.stdout or "").strip()
+        detail = stderr or stdout or "pkg-config failed"
+        raise RuntimeError(f"pkg-config --cflags --libs {' '.join(modules)} failed: {detail}")
+    return shlex.split(probe.stdout)
 
 
 def classify_compile_failure(output_text):
@@ -306,6 +348,12 @@ def main():
         run_dir.mkdir(parents=True, exist_ok=True)
 
         compile_timeout = int(test.get("compile_timeout_sec", test.get("timeout_sec", 10)))
+        try:
+            pkg_config_flags = resolve_pkg_config_flags(test, env_overrides)
+        except RuntimeError as exc:
+            print(f"FAIL {test_id} [harness_error]: {exc}")
+            failures += 1
+            continue
 
         if category == "compile_only" or category == "compile_fail":
             if len(input_paths) != 1:
@@ -316,10 +364,22 @@ def main():
                 failures += 1
                 continue
             output_path = run_dir / "artifact.o"
-            compile_cmd = [bin_path] + args + [str(input_paths[0]), "-c", "-o", str(output_path)]
+            compile_cmd = (
+                [bin_path]
+                + args
+                + [str(input_paths[0]), "-c"]
+                + pkg_config_flags
+                + ["-o", str(output_path)]
+            )
         elif category == "runtime" or category == "link_fail" or category == "link_only":
             output_path = run_dir / "a.out"
-            compile_cmd = [bin_path] + args + [str(p) for p in input_paths] + ["-o", str(output_path)]
+            compile_cmd = (
+                [bin_path]
+                + args
+                + [str(p) for p in input_paths]
+                + pkg_config_flags
+                + ["-o", str(output_path)]
+            )
         else:
             print(f"FAIL {test_id} [harness_error]: unsupported category '{category}'")
             failures += 1

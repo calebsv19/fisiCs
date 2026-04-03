@@ -796,8 +796,13 @@ bool preprocessor_init(Preprocessor* pp,
     {
         const char* params[] = {"x"};
         define_builtin_function(pp, "__has_builtin", params, 1, false, "0");
+        define_builtin_function(pp, "__has_extension", params, 1, false, "0");
         define_builtin_function(pp, "__has_feature", params, 1, false, "0");
         define_builtin_function(pp, "__has_attribute", params, 1, false, "0");
+        define_builtin_function(pp, "__has_c_attribute", params, 1, false, "0");
+        define_builtin_function(pp, "__has_declspec_attribute", params, 1, false, "0");
+        define_builtin_function(pp, "__has_warning", params, 1, false, "0");
+        define_builtin_function(pp, "__is_identifier", params, 1, false, "1");
     }
 
     // Apple bounds-safety annotation shims: treat as no-ops so newer SDK headers parse.

@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <math.h>
 
 static bool cg_parsed_type_is_pointerish(const ParsedType* t) {
     if (!t) return false;
@@ -2214,6 +2215,12 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     bool isVaCopyBuiltin = calleeName &&
         (strcmp(calleeName, "__builtin_va_copy") == 0 || strcmp(calleeName, "va_copy") == 0);
     bool isObjectSizeBuiltin = calleeName && strcmp(calleeName, "__builtin_object_size") == 0;
+    bool isFabsfBuiltin = calleeName && strcmp(calleeName, "__builtin_fabsf") == 0;
+    bool isFabsBuiltin = calleeName && strcmp(calleeName, "__builtin_fabs") == 0;
+    bool isFabslBuiltin = calleeName && strcmp(calleeName, "__builtin_fabsl") == 0;
+    bool isInffBuiltin = calleeName && strcmp(calleeName, "__builtin_inff") == 0;
+    bool isInfBuiltin = calleeName && strcmp(calleeName, "__builtin_inf") == 0;
+    bool isInflBuiltin = calleeName && strcmp(calleeName, "__builtin_infl") == 0;
     bool isSnprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___snprintf_chk") == 0;
     bool isVsnprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___vsnprintf_chk") == 0;
     bool isSprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___sprintf_chk") == 0;
@@ -2260,6 +2267,43 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             resultTy = cg_get_intptr_type(ctx);
         }
         return LLVMConstAllOnes(resultTy);
+    }
+    if (isInffBuiltin || isInfBuiltin || isInflBuiltin) {
+        free(args);
+        LLVMTypeRef infTy = isInffBuiltin
+            ? LLVMFloatTypeInContext(ctx->llvmContext)
+            : LLVMDoubleTypeInContext(ctx->llvmContext);
+        return LLVMConstReal(infTy, INFINITY);
+    }
+    if (isFabsfBuiltin || isFabsBuiltin || isFabslBuiltin) {
+        if (node->functionCall.argumentCount < 1) {
+            free(args);
+            return NULL;
+        }
+        const size_t keepIndices[] = {0};
+        const char* targetName = isFabsfBuiltin ? "fabsf" : "fabs";
+        LLVMTypeRef retTy = isFabsfBuiltin
+            ? LLVMFloatTypeInContext(ctx->llvmContext)
+            : LLVMDoubleTypeInContext(ctx->llvmContext);
+        LLVMTypeRef argTy = retTy;
+        LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
+                                                           targetName,
+                                                           retTy,
+                                                           args,
+                                                           node->functionCall.argumentCount,
+                                                           keepIndices,
+                                                           1,
+                                                           1,
+                                                           &argTy,
+                                                           (bool[]){false},
+                                                           false,
+                                                           isFabsfBuiltin
+                                                               ? "fabsf.builtin.lowered"
+                                                               : (isFabslBuiltin
+                                                                      ? "fabsl.builtin.lowered"
+                                                                      : "fabs.builtin.lowered"));
+        free(args);
+        return call;
     }
     if (isSnprintfChkBuiltin) {
         if (node->functionCall.argumentCount < 5) {

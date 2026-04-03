@@ -7,3 +7,9 @@ int drop_has_builtin;
 #else
 int keep_has_builtin;
 #endif
+
+#if !defined(__has_extension) || !__has_extension(define_target_os_macros)
+int keep_has_extension;
+#else
+int drop_has_extension;
+#endif

@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-sdl",
+  "tests": [
+    {
+      "id": "binary__link_only__sdl2_header_smoke",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_header_smoke.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_only__sdl2_init_quit_link",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_init_quit_link.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_only__sdl2_timer_symbols",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_timer_symbols.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_only__sdl2_event_struct_layout",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_event_struct_layout.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_only__sdl2_header_real_smoke",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_header_real_smoke.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_only__sdl2_stdinc_inline_smoke",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_stdinc_inline_smoke.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

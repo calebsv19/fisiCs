@@ -976,6 +976,17 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     codegenNode(ctx, node->functionDef.body);
     if (dbgRun) fprintf(stderr, "[CG] body end %s\n", fnLabel);
 
+    // Ensure function IR is always well-formed: C allows falling off the end of
+    // void functions, so emit an implicit terminator when the final block is open.
+    LLVMBasicBlockRef finalBB = LLVMGetInsertBlock(ctx->builder);
+    if (finalBB && !LLVMGetBasicBlockTerminator(finalBB)) {
+        if (returnType && LLVMGetTypeKind(returnType) != LLVMVoidTypeKind) {
+            LLVMBuildRet(ctx->builder, LLVMConstNull(returnType));
+        } else {
+            LLVMBuildRetVoid(ctx->builder);
+        }
+    }
+
     cg_scope_pop(ctx);
     ctx->currentFunctionReturnType = previousReturnType;
     ctx->currentFunctionName = previousFunctionName;
