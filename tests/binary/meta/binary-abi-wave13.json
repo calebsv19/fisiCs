@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-abi",
+  "tests": [
+    {
+      "id": "binary__runtime__abi_nested_ptr_aggregate",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_nested_ptr_aggregate.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_nested_ptr_aggregate.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_multitu_chain_depth",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_multitu_chain_depth_main.c",
+        "cases/binary__runtime__abi_multitu_chain_depth_a.c",
+        "cases/binary__runtime__abi_multitu_chain_depth_b.c",
+        "cases/binary__runtime__abi_multitu_chain_depth_c.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_multitu_chain_depth.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_mixed_return_pressure",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_mixed_return_pressure.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_mixed_return_pressure.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_multitu_nested_struct_ptr",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_multitu_nested_struct_ptr_main.c",
+        "cases/binary__runtime__abi_multitu_nested_struct_ptr_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_multitu_nested_struct_ptr.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

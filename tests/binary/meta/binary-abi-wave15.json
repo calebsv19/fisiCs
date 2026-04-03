@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-abi",
+  "tests": [
+    {
+      "id": "binary__compile_fail__abi_fnptr_table_incompatible_signature",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_fnptr_table_incompatible_signature.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "incompatible initializer type"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_fnptr_table_too_few_args",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_fnptr_table_too_few_args.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "too few arguments"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_fnptr_table_too_many_args",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_fnptr_table_too_many_args.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "too many arguments"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_fnptr_struct_arg_incompatible",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_fnptr_struct_arg_incompatible.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "incompatible type"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_fail__abi_undefined_global_struct",
+      "level": "abi",
+      "category": "link_fail",
+      "inputs": [
+        "cases/binary__link_fail__abi_undefined_global_struct_main.c",
+        "cases/binary__link_fail__abi_undefined_global_struct_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "undefined",
+        "abi_state_global"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_fail__abi_duplicate_global_struct",
+      "level": "abi",
+      "category": "link_fail",
+      "inputs": [
+        "cases/binary__link_fail__abi_duplicate_global_struct_a.c",
+        "cases/binary__link_fail__abi_duplicate_global_struct_b.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "duplicate symbol",
+        "abi_dup_state"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

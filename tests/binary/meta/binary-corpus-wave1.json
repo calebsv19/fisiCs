@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-corpus",
+  "tests": [
+    {
+      "id": "binary__compile_only__corpus_fragment_map_parser",
+      "level": "corpus",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__corpus_fragment_map_parser.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__compile_only__corpus_fragment_ring_pipeline",
+      "level": "corpus",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__corpus_fragment_ring_pipeline.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__compile_only__corpus_fragment_ast_table",
+      "level": "corpus",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__corpus_fragment_ast_table.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    }
+  ]
+}

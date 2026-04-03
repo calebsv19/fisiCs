@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-abi",
+  "tests": [
+    {
+      "id": "binary__runtime__abi_large_struct_param",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_large_struct_param.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_large_struct_param.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_large_struct_multitu",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_large_struct_multitu_main.c",
+        "cases/binary__runtime__abi_large_struct_multitu_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_large_struct_multitu.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_varargs_mixed_multitu",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_varargs_mixed_multitu_main.c",
+        "cases/binary__runtime__abi_varargs_mixed_multitu_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_varargs_mixed_multitu.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_varargs_forward_multitu",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_varargs_forward_multitu_main.c",
+        "cases/binary__runtime__abi_varargs_forward_multitu_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_varargs_forward_multitu.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

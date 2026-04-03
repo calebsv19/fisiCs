@@ -21,6 +21,19 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
   - tri-reference gcc coverage remains a subset of total runtime differential lanes,
   - optional future expansion can add additional pinned external-corpus fragments beyond wave40.
 
+====== Binary lane focus ======
+- Binary lane is stable through ABI wave 19 and corpus wave 5:
+  - `make test-binary-abi` => pass
+  - `make test-binary-corpus` => pass
+  - `make test-binary-wave WAVE=19` => pass
+  - `make test-binary` => pass
+  - active inventory: `107` tests (`runtime=62`, `compile_only=16`, `compile_fail=14`, `link_fail=9`, `link_only=6`)
+- Current phase marker:
+  - Phase D in progress (Levels 0-4 stable, Level 5 corpus wave-5 active).
+- Open binary issue under sentinel coverage:
+  - `ptr_to_agg` call-shape compile hang is tracked by
+    `binary__compile_fail__abi_ptr_to_agg_timeout` until root-cause fix lands.
+
 ====== Explicit checklist gaps (remaining) ======
 - Lexer literal boundaries:
   - large integer boundary constants,

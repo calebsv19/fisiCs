@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-abi",
+  "tests": [
+    {
+      "id": "binary__runtime__abi_multitu_varargs_forward_chain",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_multitu_varargs_forward_chain_main.c",
+        "cases/binary__runtime__abi_multitu_varargs_forward_chain_a.c",
+        "cases/binary__runtime__abi_multitu_varargs_forward_chain_b.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_multitu_varargs_forward_chain.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_multitu_varargs_deep_chain",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_multitu_varargs_deep_chain_main.c",
+        "cases/binary__runtime__abi_multitu_varargs_deep_chain_a.c",
+        "cases/binary__runtime__abi_multitu_varargs_deep_chain_b.c",
+        "cases/binary__runtime__abi_multitu_varargs_deep_chain_c.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_multitu_varargs_deep_chain.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_struct_ptr_called_with_int",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_struct_ptr_called_with_int.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "incompatible type"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_int_ptr_called_with_struct_ptr",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_int_ptr_called_with_struct_ptr.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "incompatible type"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_void_ptr_called_with_struct_value",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_void_ptr_called_with_struct_value.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "incompatible type"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

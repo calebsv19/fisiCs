@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-abi",
+  "tests": [
+    {
+      "id": "binary__runtime__abi_struct_float_param",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_struct_float_param.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_struct_float_param.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_struct_float_return",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_struct_float_return.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_struct_float_return.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_multitu_struct_float",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_multitu_struct_float_main.c",
+        "cases/binary__runtime__abi_multitu_struct_float_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_multitu_struct_float.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_nested_struct_roundtrip",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_nested_struct_roundtrip.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_nested_struct_roundtrip.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

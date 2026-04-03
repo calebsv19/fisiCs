@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-corpus",
+  "tests": [
+    {
+      "id": "binary__compile_only__corpus_fragment_dataflow_scheduler",
+      "level": "corpus",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__corpus_fragment_dataflow_scheduler.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__compile_only__corpus_fragment_string_arena",
+      "level": "corpus",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__corpus_fragment_string_arena.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__link_only__corpus_fragment_pass_registry",
+      "level": "corpus",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__corpus_fragment_pass_registry_main.c",
+        "cases/binary__link_only__corpus_fragment_pass_registry_table.c",
+        "cases/binary__link_only__corpus_fragment_pass_registry_driver.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__link_only__corpus_fragment_const_table_merge",
+      "level": "corpus",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__corpus_fragment_const_table_merge_main.c",
+        "cases/binary__link_only__corpus_fragment_const_table_merge_a.c",
+        "cases/binary__link_only__corpus_fragment_const_table_merge_b.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    }
+  ]
+}

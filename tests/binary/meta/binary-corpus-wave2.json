@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-corpus",
+  "tests": [
+    {
+      "id": "binary__compile_only__corpus_fragment_token_trie",
+      "level": "corpus",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__corpus_fragment_token_trie.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__compile_only__corpus_fragment_cfg_liveness",
+      "level": "corpus",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__corpus_fragment_cfg_liveness.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__link_only__corpus_fragment_ir_graph_pipeline",
+      "level": "corpus",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__corpus_fragment_ir_graph_pipeline_main.c",
+        "cases/binary__link_only__corpus_fragment_ir_graph_pipeline_builder.c",
+        "cases/binary__link_only__corpus_fragment_ir_graph_pipeline_passes.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    },
+    {
+      "id": "binary__link_only__corpus_fragment_event_router",
+      "level": "corpus",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__corpus_fragment_event_router_main.c",
+        "cases/binary__link_only__corpus_fragment_event_router_core.c",
+        "cases/binary__link_only__corpus_fragment_event_router_handlers.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 15,
+      "resource_profile": "heavy"
+    }
+  ]
+}

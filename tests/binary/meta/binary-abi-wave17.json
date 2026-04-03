@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-abi",
+  "tests": [
+    {
+      "id": "binary__runtime__abi_long_double_ptr_aggregate",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_long_double_ptr_aggregate.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_long_double_ptr_aggregate.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_multitu_long_double_ptr_chain",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_multitu_long_double_ptr_chain_main.c",
+        "cases/binary__runtime__abi_multitu_long_double_ptr_chain_a.c",
+        "cases/binary__runtime__abi_multitu_long_double_ptr_chain_b.c",
+        "cases/binary__runtime__abi_multitu_long_double_ptr_chain_c.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_multitu_long_double_ptr_chain.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_multitu_long_double_fnptr_dispatch",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_multitu_long_double_fnptr_dispatch_main.c",
+        "cases/binary__runtime__abi_multitu_long_double_fnptr_dispatch_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_multitu_long_double_fnptr_dispatch.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__abi_varargs_long_double_signed_unsigned",
+      "level": "abi",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__abi_varargs_long_double_signed_unsigned_main.c",
+        "cases/binary__runtime__abi_varargs_long_double_signed_unsigned_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__abi_varargs_long_double_signed_unsigned.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_long_double_fnptr_too_few",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_long_double_fnptr_too_few.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "too few arguments"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_long_double_arg_incompatible",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_long_double_arg_incompatible.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "incompatible type"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

@@ -6,6 +6,25 @@
     "binary-io-wave2.json",
     "binary-link-wave3.json",
     "binary-stdio-wave4.json",
-    "binary-fortify-wave5.json"
+    "binary-fortify-wave5.json",
+    "binary-abi-wave6.json",
+    "binary-abi-wave7.json",
+    "binary-abi-wave8.json",
+    "binary-abi-wave9.json",
+    "binary-abi-wave10.json",
+    "binary-abi-wave11.json",
+    "binary-abi-wave12.json",
+    "binary-abi-wave13.json",
+    "binary-abi-wave14.json",
+    "binary-abi-wave15.json",
+    "binary-abi-wave16.json",
+    "binary-abi-wave17.json",
+    "binary-abi-wave18.json",
+    "binary-abi-wave19.json",
+    "binary-corpus-wave1.json",
+    "binary-corpus-wave2.json",
+    "binary-corpus-wave3.json",
+    "binary-corpus-wave4.json",
+    "binary-corpus-wave5.json"
   ]
 }

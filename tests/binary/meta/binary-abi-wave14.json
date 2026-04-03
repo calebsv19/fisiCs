@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-abi",
+  "tests": [
+    {
+      "id": "binary__compile_fail__abi_too_few_args",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_too_few_args.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "too few arguments"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_too_many_args",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_too_many_args.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "too many arguments"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_fnptr_incompatible_assign",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_fnptr_incompatible_assign.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "incompatible assignment operands"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_fail__abi_struct_arg_mismatch",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_struct_arg_mismatch.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "incompatible type"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

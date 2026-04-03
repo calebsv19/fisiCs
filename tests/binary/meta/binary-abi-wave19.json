@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-abi",
+  "tests": [
+    {
+      "id": "binary__compile_fail__abi_ptr_to_agg_timeout",
+      "level": "abi",
+      "category": "compile_fail",
+      "inputs": [
+        "cases/binary__compile_fail__abi_ptr_to_agg_timeout.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_compile_timeout": true,
+      "compile_timeout_sec": 2,
+      "timeout_sec": 2,
+      "resource_profile": "default"
+    }
+  ]
+}

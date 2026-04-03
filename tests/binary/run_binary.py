@@ -302,14 +302,17 @@ def main():
 
         compile_timeout = int(test.get("compile_timeout_sec", test.get("timeout_sec", 10)))
 
-        if category == "compile_only":
+        if category == "compile_only" or category == "compile_fail":
             if len(input_paths) != 1:
-                print(f"FAIL {test_id} [harness_error]: compile_only requires exactly one input")
+                print(
+                    f"FAIL {test_id} [harness_error]: "
+                    f"{category} requires exactly one input"
+                )
                 failures += 1
                 continue
             output_path = run_dir / "artifact.o"
             compile_cmd = [bin_path] + args + [str(input_paths[0]), "-c", "-o", str(output_path)]
-        elif category == "runtime" or category == "link_fail":
+        elif category == "runtime" or category == "link_fail" or category == "link_only":
             output_path = run_dir / "a.out"
             compile_cmd = [bin_path] + args + [str(p) for p in input_paths] + ["-o", str(output_path)]
         else:
@@ -324,8 +327,19 @@ def main():
             timeout_sec=compile_timeout,
             profile_name=profile_name,
         )
+        expect_compile_timeout = bool(test.get("expect_compile_timeout", False))
         if compile_result["timed_out"]:
-            print(f"FAIL {test_id} [compile_timeout]: compiler timed out after {compile_timeout}s")
+            if expect_compile_timeout:
+                print(f"PASS {test_id}")
+            else:
+                print(f"FAIL {test_id} [compile_timeout]: compiler timed out after {compile_timeout}s")
+                failures += 1
+            continue
+        if expect_compile_timeout:
+            print(
+                f"FAIL {test_id} [compile_timeout_unexpected]: "
+                f"expected compiler timeout after {compile_timeout}s"
+            )
             failures += 1
             continue
 
@@ -362,6 +376,39 @@ def main():
             print(f"PASS {test_id}")
             continue
 
+        if category == "compile_fail":
+            if compile_result["exit_code"] == 0:
+                print(f"FAIL {test_id} [compile_succeeded_unexpected]: expected compile failure")
+                failures += 1
+                continue
+            failure_kind = classify_compile_failure(compile_result["output"])
+            if failure_kind != "compile_fail":
+                print(
+                    f"FAIL {test_id} [link_fail_unexpected]: expected compile-stage failure, "
+                    f"got link-stage failure"
+                )
+                if compile_result["output"]:
+                    print(compile_result["output"])
+                failures += 1
+                continue
+            contains = [str(x) for x in test.get("expect_output_contains", [])]
+            missing_contains = []
+            lowered_output = (compile_result["output"] or "").lower()
+            for fragment in contains:
+                if fragment.lower() not in lowered_output:
+                    missing_contains.append(fragment)
+            if missing_contains:
+                print(
+                    f"FAIL {test_id} [compile_fail_unexpected]: missing expected output fragments: "
+                    f"{', '.join(missing_contains)}"
+                )
+                if compile_result["output"]:
+                    print(compile_result["output"])
+                failures += 1
+                continue
+            print(f"PASS {test_id}")
+            continue
+
         if compile_result["exit_code"] != 0:
             failure_kind = classify_compile_failure(compile_result["output"])
             fail_code = "link_fail_unexpected" if failure_kind == "link_fail" else "compile_fail_unexpected"
@@ -375,7 +422,7 @@ def main():
             failures += 1
             continue
 
-        if category == "compile_only":
+        if category == "compile_only" or category == "link_only":
             print(f"PASS {test_id}")
             continue
 
