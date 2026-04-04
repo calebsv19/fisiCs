@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-sdl",
+  "tests": [
+    {
+      "id": "binary__runtime__diff_clang_sdl2_register_events_roundtrip",
+      "level": "sdl",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__sdl2_register_events_roundtrip.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "run_env": {
+        "SDL_VIDEODRIVER": "dummy",
+        "SDL_AUDIODRIVER": "dummy"
+      },
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__sdl2_register_events_roundtrip.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default",
+      "differential_with": "clang"
+    },
+    {
+      "id": "binary__runtime__diff_clang_sdl2_surface_lock_write_readback",
+      "level": "sdl",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__sdl2_surface_lock_write_readback.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "run_env": {
+        "SDL_VIDEODRIVER": "dummy",
+        "SDL_AUDIODRIVER": "dummy"
+      },
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__sdl2_surface_lock_write_readback.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default",
+      "differential_with": "clang"
+    },
+    {
+      "id": "binary__runtime__diff_clang_sdl2_perfcounter_monotonic",
+      "level": "sdl",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__sdl2_perfcounter_monotonic.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "run_env": {
+        "SDL_VIDEODRIVER": "dummy",
+        "SDL_AUDIODRIVER": "dummy"
+      },
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__sdl2_perfcounter_monotonic.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default",
+      "differential_with": "clang"
+    }
+  ]
+}

@@ -117,6 +117,12 @@ and promotion gates.
 Concrete next-wave execution plan for SDL binary testing after E1, including
 E2/E3/E4 wave targets, planned test IDs, promotion gates, and command flow.
 
+### `docs/plans/binary_next_focus_areas_plan.md`
+
+Ordered near-term binary expansion plan that defines the next strict focus
+areas (`stdio/libc`, `math`, `multi-TU linkage`) and enforces one-area-at-a-time
+promotion gates.
+
 ### `docs/plans/link_stage_diagjson_enablement_plan.md`
 
 Phased implementation plan for enabling structured diagnostics JSON output on

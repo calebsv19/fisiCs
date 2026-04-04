@@ -534,13 +534,34 @@ static bool parsedTypeIsPointerish(const ParsedType* t) {
     return false;
 }
 
+static void normalizePointerDerivations(ParsedType* t) {
+    if (!t || t->pointerDepth <= 0) {
+        return;
+    }
+    size_t ptrCount = parsedTypeCountDerivationsOfKind(t, TYPE_DERIVATION_POINTER);
+    while (ptrCount < (size_t)t->pointerDepth) {
+        if (!parsedTypeAppendPointer(t)) {
+            break;
+        }
+        ptrCount++;
+    }
+    parsedTypeNormalizeFunctionPointer(t);
+}
+
 bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
     if (!a || !b) return false;
     if (typeInfoIsPointerLike(a) && typeInfoIsPointerLike(b)) {
         if (a->originalType && b->originalType &&
             parsedTypeIsPointerish(a->originalType) &&
             parsedTypeIsPointerish(b->originalType)) {
-            return parsedTypesStructurallyEqual(a->originalType, b->originalType);
+            ParsedType lhs = parsedTypeClone(a->originalType);
+            ParsedType rhs = parsedTypeClone(b->originalType);
+            normalizePointerDerivations(&lhs);
+            normalizePointerDerivations(&rhs);
+            bool equal = parsedTypesStructurallyEqual(&lhs, &rhs);
+            parsedTypeFree(&lhs);
+            parsedTypeFree(&rhs);
+            return equal;
         }
         if (a->pointerDepth != b->pointerDepth) return false;
         return pointerTargetsEqual(a, b);
@@ -706,6 +727,8 @@ static bool parsedTypesEqualIgnoringQualifiers(const ParsedType* lhs, const Pars
     if (!lhs || !rhs) return false;
     ParsedType lhsCopy = parsedTypeClone(lhs);
     ParsedType rhsCopy = parsedTypeClone(rhs);
+    normalizePointerDerivations(&lhsCopy);
+    normalizePointerDerivations(&rhsCopy);
     clearParsedTypeQualifiers(&lhsCopy);
     clearParsedTypeQualifiers(&rhsCopy);
     bool equal = parsedTypesStructurallyEqual(&lhsCopy, &rhsCopy);

@@ -170,6 +170,8 @@ These items compiled with no semantic or codegen errors during iterative `make r
 - Builtin secure-check intrinsics compile/call (`__builtin___snprintf_chk`, `__builtin___memset_chk`, `__builtin___strncpy_chk`) verified in prior `make run`.
 - `offsetof`/`__builtin_offsetof` expands and folds to constant offsets.
 - Core headers compile and basic uses work: `<stdbool.h>`, `<stdint.h>`, `<limits.h>`, `<stddef.h>`, `<stdarg.h>`.
+- `<stdlib.h>` `strtoul` end-pointer form (`char* end; strtoul(text, &end, 10)`) compiles/runs in binary suite (`binary__runtime__stdlib_strtoul_endptr`).
+- SDL deterministic runtime/diff expansion lanes are green through wave13, including rect ops, rect-line clipping, pixel-format roundtrip, and SDL stdinc string helpers (`make test-binary-sdl`).
 
 ====== Diagnostics ======
 - Malformed initializers/expressions emit diagnostics without crashing the parser.

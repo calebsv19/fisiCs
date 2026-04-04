@@ -217,6 +217,11 @@ def should_skip(test):
     skip_cfg = test.get("skip_if", {})
     if not isinstance(skip_cfg, dict):
         skip_cfg = {}
+    missing_env = []
+    for env_name in skip_cfg.get("missing_env", []):
+        key = str(env_name)
+        if not os.environ.get(key, "").strip():
+            missing_env.append(key)
     missing_tools = []
     for tool in skip_cfg.get("missing_tools", []):
         if shutil.which(str(tool)) is None:
@@ -243,6 +248,8 @@ def should_skip(test):
         clang_bin = str(test.get("differential_compiler", "clang")).strip() or "clang"
         if shutil.which(clang_bin) is None and clang_bin not in missing_tools:
             missing_tools.append(clang_bin)
+    if missing_env:
+        return f"missing env: {', '.join(missing_env)}"
     if missing_tools:
         return f"missing tools: {', '.join(missing_tools)}"
     if missing_pkg_modules:
@@ -407,6 +414,25 @@ def main():
             )
             failures += 1
             continue
+
+        forbidden_compile_fragments = [
+            str(x) for x in test.get("compile_output_must_not_contain", [])
+        ]
+        if forbidden_compile_fragments:
+            lowered_output = (compile_result["output"] or "").lower()
+            found_fragments = []
+            for fragment in forbidden_compile_fragments:
+                if fragment.lower() in lowered_output:
+                    found_fragments.append(fragment)
+            if found_fragments:
+                print(
+                    f"FAIL {test_id} [compile_output_forbidden]: "
+                    f"found forbidden compile output fragments: {', '.join(found_fragments)}"
+                )
+                if compile_result["output"]:
+                    print(compile_result["output"])
+                failures += 1
+                continue
 
         if category == "link_fail":
             if compile_result["exit_code"] == 0:
@@ -579,6 +605,16 @@ def main():
 
         differential_with = str(test.get("differential_with", "")).strip()
         if not test_failed and differential_with:
+            ub = bool(test.get("ub", False))
+            impl_defined = bool(test.get("impl_defined", False))
+            if ub:
+                print(f"SKIP {test_id}: differential disabled for ub=true")
+                skipped += 1
+                continue
+            if impl_defined:
+                print(f"SKIP {test_id}: differential disabled for impl_defined=true")
+                skipped += 1
+                continue
             if differential_with != "clang":
                 print(
                     f"FAIL {test_id} [harness_error]: unsupported differential_with='{differential_with}'"

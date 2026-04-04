@@ -1371,6 +1371,8 @@ declare i64 @atomic_load_explicit(...)
 
 declare ptr @__builtin___memmove_chk(ptr %0, ptr %1, i64 %2, i64 %3)
 
+declare double @__builtin_huge_val()
+
 declare i32 @feof(ptr %0)
 
 declare i64 @__c11_atomic_exchange(...)
@@ -1418,6 +1420,8 @@ declare i32 @putw(i32 %0, ptr %1)
 declare i64 @fwrite(ptr %0, i64 %1, i64 %2, ptr %3)
 
 declare i32 @fscanf(ptr %0, ptr %1, ...)
+
+declare double @__builtin_nan(ptr %0)
 
 declare ptr @tempnam(ptr %0, ptr %1)
 
@@ -1682,6 +1686,8 @@ declare ptr @fdopen(i32 %0, ptr %1)
 
 declare double @__builtin_fabsl(double %0)
 
+declare double @__builtin_nanl(ptr %0)
+
 declare i32 @sscanf(ptr %0, ptr %1, ...)
 
 declare i64 @__c11_atomic_load(...)
@@ -1840,6 +1846,8 @@ entry:
 
 declare ptr @fmtcheck(ptr %0, ptr %1)
 
+declare float @__builtin_huge_valf()
+
 declare void @setbuffer(ptr %0, ptr %1, i32 %2)
 
 declare i64 @ftello(ptr %0)
@@ -1861,6 +1869,8 @@ entry:
 declare i32 @asprintf(ptr %0, ptr %1, ...)
 
 declare void @atomic_store_explicit(...)
+
+declare double @__builtin_huge_vall()
 
 declare ptr @__builtin___strcpy_chk(ptr %0, ptr %1, i64 %2)
 

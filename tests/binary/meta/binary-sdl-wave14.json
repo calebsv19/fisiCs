@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-sdl",
+  "tests": [
+    {
+      "id": "binary__link_only__sdl2_stdinc_inline_darwin_guard_regression",
+      "level": "sdl",
+      "category": "link_only",
+      "inputs": [
+        "cases/binary__link_only__sdl2_stdinc_inline_smoke.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "compile_output_must_not_contain": [
+        "assignment target '__darwin_check_fd_set_overflow' not declared"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__sdl2_renderer_drawline_clip_readback",
+      "level": "sdl",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__sdl2_renderer_drawline_clip_readback.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_env": [
+          "ENABLE_SDL_RENDERER_TESTS"
+        ],
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "run_env": {
+        "SDL_VIDEODRIVER": "dummy",
+        "SDL_AUDIODRIVER": "dummy",
+        "SDL_RENDER_DRIVER": "software"
+      },
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__sdl2_renderer_drawline_clip_readback.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__diff_clang_sdl2_renderer_drawline_clip_readback",
+      "level": "sdl",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__sdl2_renderer_drawline_clip_readback.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "pkg_config_modules": [
+        "sdl2"
+      ],
+      "skip_if": {
+        "missing_env": [
+          "ENABLE_SDL_RENDERER_TESTS"
+        ],
+        "missing_tools": [
+          "pkg-config"
+        ],
+        "missing_pkg_config_modules": [
+          "sdl2"
+        ]
+      },
+      "run_env": {
+        "SDL_VIDEODRIVER": "dummy",
+        "SDL_AUDIODRIVER": "dummy",
+        "SDL_RENDER_DRIVER": "software"
+      },
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__sdl2_renderer_drawline_clip_readback.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default",
+      "differential_with": "clang"
+    }
+  ]
+}

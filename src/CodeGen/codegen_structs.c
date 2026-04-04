@@ -724,11 +724,12 @@ bool codegenLValue(CodegenContext* ctx,
     switch (target->type) {
         case AST_IDENTIFIER: {
             const char* name = target->valueNode.value;
+            const Symbol* sym = NULL;
+            const SemanticModel* model = cg_context_get_semantic_model(ctx);
             NamedValue* entry = cg_scope_lookup(ctx->currentScope, name);
             if (!entry) {
-                const SemanticModel* model = cg_context_get_semantic_model(ctx);
                 if (model) {
-                    const Symbol* sym = semanticModelLookupGlobal(model, name);
+                    sym = semanticModelLookupGlobal(model, name);
                     if (sym) {
                         if (sym->kind == SYMBOL_VARIABLE) {
                             declareGlobalVariableSymbol(ctx, sym);
@@ -740,6 +741,17 @@ bool codegenLValue(CodegenContext* ctx,
                 }
             }
             if (!entry) {
+                /*
+                 * Function designators are not lvalues. Callers such as unary '&'
+                 * can legitimately fall back to function-pointer handling, so do
+                 * not emit a hard codegen error for that path.
+                 */
+                if (sym && sym->kind == SYMBOL_FUNCTION) {
+                    return false;
+                }
+                if (name && LLVMGetNamedFunction(ctx->module, name)) {
+                    return false;
+                }
                 fprintf(stderr, "Error: assignment target '%s' not declared\n", name ? name : "<anonymous>");
                 return false;
             }
@@ -768,6 +780,9 @@ bool codegenLValue(CodegenContext* ctx,
                 arrayPtr = codegenNode(ctx, target->arrayAccess.array);
                 baseParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
             }
+            if (!baseParsed && target->arrayAccess.array) {
+                baseParsed = cg_resolve_expression_type(ctx, target->arrayAccess.array);
+            }
             const ParsedType* refinedCallParsed =
                 cg_refine_function_call_result_type(ctx, target->arrayAccess.array);
             if (refinedCallParsed) {
@@ -779,14 +794,6 @@ bool codegenLValue(CodegenContext* ctx,
             bool baseIsDirectArray = (baseParsed && parsedTypeIsDirectArray(baseParsed)) ||
                                      (baseType && LLVMGetTypeKind(baseType) == LLVMArrayTypeKind);
             bool baseNeedsLoad = haveBasePtr && !baseIsDirectArray;
-            if (baseNeedsLoad && target->arrayAccess.array) {
-                ASTNode* baseExpr = target->arrayAccess.array;
-                if ((baseExpr->type == AST_UNARY_EXPRESSION && baseExpr->expr.op &&
-                     strcmp(baseExpr->expr.op, "*") == 0) ||
-                    baseExpr->type == AST_POINTER_DEREFERENCE) {
-                    baseNeedsLoad = false;
-                }
-            }
             if (baseNeedsLoad) {
                 LLVMTypeRef loadTy = baseType;
                 if (!loadTy) {
@@ -971,6 +978,17 @@ bool codegenLValue(CodegenContext* ctx,
                         parsedTypeFree(&pointed);
                     }
                 }
+                if (!*outParsedType) {
+                    /*
+                     * Fallback to semantic type of the full subscript expression.
+                     * This preserves pointee aggregate metadata for chains like:
+                     *   ptr_to_struct_array[i].field
+                     */
+                    const ParsedType* resolvedElement = cg_resolve_expression_type(ctx, target);
+                    if (resolvedElement) {
+                        *outParsedType = resolvedElement;
+                    }
+                }
             }
             return true;
         }
@@ -988,11 +1006,14 @@ bool codegenLValue(CodegenContext* ctx,
             *outPtr = pointerValue;
             *outType = elemType;
             if (outParsedType && ptrParsed) {
-                static ParsedType tmp;
-                parsedTypeFree(&tmp);
-                tmp = parsedTypePointerTargetType(ptrParsed);
-                if (tmp.kind != TYPE_INVALID) {
-                    *outParsedType = &tmp;
+                static ParsedType tmpSlots[8];
+                static size_t tmpSlot = 0;
+                ParsedType* slot = &tmpSlots[tmpSlot % 8];
+                tmpSlot++;
+                parsedTypeFree(slot);
+                *slot = parsedTypePointerTargetType(ptrParsed);
+                if (slot->kind != TYPE_INVALID) {
+                    *outParsedType = slot;
                 }
             }
             return true;
@@ -1008,11 +1029,14 @@ bool codegenLValue(CodegenContext* ctx,
             *outPtr = pointerValue;
             *outType = elemType;
             if (outParsedType && ptrParsed) {
-                static ParsedType tmp;
-                parsedTypeFree(&tmp);
-                tmp = parsedTypePointerTargetType(ptrParsed);
-                if (tmp.kind != TYPE_INVALID) {
-                    *outParsedType = &tmp;
+                static ParsedType tmpSlots[8];
+                static size_t tmpSlot = 0;
+                ParsedType* slot = &tmpSlots[tmpSlot % 8];
+                tmpSlot++;
+                parsedTypeFree(slot);
+                *slot = parsedTypePointerTargetType(ptrParsed);
+                if (slot->kind != TYPE_INVALID) {
+                    *outParsedType = slot;
                 }
             }
             return true;

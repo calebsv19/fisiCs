@@ -356,6 +356,28 @@ void seedBuiltins(Scope* globalScope) {
         }
         addToScope(scope, nanfSym);
     }
+    Symbol* nanSym = makeBuiltin("__builtin_nan", SYMBOL_FUNCTION, floatType(true), NULL);
+    if (nanSym) {
+        nanSym->signature.paramCount = 1;
+        nanSym->signature.hasPrototype = true;
+        nanSym->signature.params = (ParsedType*)calloc(1, sizeof(ParsedType));
+        if (nanSym->signature.params) {
+            nanSym->signature.params[0] = constCharPtrType();
+        }
+        addToScope(scope, nanSym);
+    }
+    ParsedType nanlRet = floatType(true);
+    nanlRet.isLong = true;
+    Symbol* nanlSym = makeBuiltin("__builtin_nanl", SYMBOL_FUNCTION, nanlRet, NULL);
+    if (nanlSym) {
+        nanlSym->signature.paramCount = 1;
+        nanlSym->signature.hasPrototype = true;
+        nanlSym->signature.params = (ParsedType*)calloc(1, sizeof(ParsedType));
+        if (nanlSym->signature.params) {
+            nanlSym->signature.params[0] = constCharPtrType();
+        }
+        addToScope(scope, nanlSym);
+    }
 
     Symbol* trueSym = (Symbol*)calloc(1, sizeof(Symbol));
     if (trueSym) {
@@ -444,16 +466,20 @@ void seedBuiltins(Scope* globalScope) {
 
     const char* mathFuncs[] = {
         "__builtin_fabsf", "__builtin_fabs", "__builtin_fabsl",
-        "__builtin_inff", "__builtin_inf", "__builtin_infl"
+        "__builtin_inff", "__builtin_inf", "__builtin_infl",
+        "__builtin_huge_valf", "__builtin_huge_val", "__builtin_huge_vall"
     };
-    Symbol* mathSyms[6] = {0};
+    Symbol* mathSyms[9] = {0};
     mathSyms[0] = makeBuiltinFunc(mathFuncs[0], floatRet, 1, floatArg);
     mathSyms[1] = makeBuiltinFunc(mathFuncs[1], doubleRet, 1, doubleArg);
     mathSyms[2] = makeBuiltinFunc(mathFuncs[2], longDoubleRet, 1, longDoubleArg);
     mathSyms[3] = makeBuiltinFunc(mathFuncs[3], floatRet, 0, NULL);
     mathSyms[4] = makeBuiltinFunc(mathFuncs[4], doubleRet, 0, NULL);
     mathSyms[5] = makeBuiltinFunc(mathFuncs[5], longDoubleRet, 0, NULL);
-    for (size_t i = 0; i < 6; ++i) {
+    mathSyms[6] = makeBuiltinFunc(mathFuncs[6], floatRet, 0, NULL);
+    mathSyms[7] = makeBuiltinFunc(mathFuncs[7], doubleRet, 0, NULL);
+    mathSyms[8] = makeBuiltinFunc(mathFuncs[8], longDoubleRet, 0, NULL);
+    for (size_t i = 0; i < 9; ++i) {
         if (mathSyms[i]) addToScope(scope, mathSyms[i]);
     }
 

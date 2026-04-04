@@ -1588,6 +1588,21 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                                            target->valueNode.value);
                     }
                 }
+                if (operand.originalType) {
+                    ParsedType ptrType = parsedTypeClone(operand.originalType);
+                    if (ptrType.kind != TYPE_INVALID && parsedTypePrependPointer(&ptrType)) {
+                        if (isFuncDesignator) {
+                            ptrType.isFunctionPointer = true;
+                        }
+                        TypeInfo addrInfo = typeInfoFromParsedType(&ptrType, scope);
+                        typeInfoAdoptParsedType(&addrInfo, &ptrType);
+                        addrInfo.isArray = false;
+                        addrInfo.isFunction = false;
+                        addrInfo.isLValue = false;
+                        return addrInfo;
+                    }
+                    parsedTypeFree(&ptrType);
+                }
                 PointerQualifier q = { operand.isConst, operand.isVolatile, operand.isRestrict };
                 if (isFuncDesignator) {
                     q.isConst = false;

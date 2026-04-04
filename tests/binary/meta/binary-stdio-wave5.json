@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-stdio",
+  "tests": [
+    {
+      "id": "binary__runtime__stdlib_strtol_base_matrix",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdlib_strtol_base_matrix.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdlib_strtol_base_matrix.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__stdlib_strtod_endptr_matrix",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdlib_strtod_endptr_matrix.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdlib_strtod_endptr_matrix.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__stdio_printf_width_precision_flags",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdio_printf_width_precision_flags.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdio_printf_width_precision_flags.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__stdlib_strtoul_no_digits",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdlib_strtoul_no_digits.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdlib_strtoul_no_digits.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

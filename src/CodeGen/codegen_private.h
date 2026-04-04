@@ -194,6 +194,10 @@ LLVMTypeRef cg_merge_types_for_phi(CodegenContext* ctx,
                                    const ParsedType* b,
                                    LLVMValueRef aVal,
                                    LLVMValueRef bVal);
+LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
+                                    const ParsedType* parsed,
+                                    bool* outIndirect,
+                                    LLVMTypeRef* outValueType);
 bool cg_size_align_of_parsed(CodegenContext* ctx,
                              const ParsedType* parsed,
                              uint64_t* outSize,

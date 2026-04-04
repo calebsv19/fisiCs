@@ -22,7 +22,7 @@ int main(void) {
         }
     }
 
-    int sum = slice_sum(b, c, d, &m[1]);
+    int sum = slice_sum(b, c, d, m[1]);
     ptrdiff_t slab = &m[2][0][0][0] - &m[0][0][0][0];
     ptrdiff_t lane = &m[1][3][0][0] - &m[1][0][0][0];
     ptrdiff_t depth = &m[1][2][1][0] - &m[1][2][0][0];

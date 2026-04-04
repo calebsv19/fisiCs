@@ -249,7 +249,33 @@ static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const Pa
     if (info) {
         return &info->parsedType;
     }
+    {
+        const SemanticModel* model = cg_context_get_semantic_model(ctx);
+        if (model) {
+            const Symbol* sym = semanticModelLookupGlobal(model, type->userTypeName);
+            if (sym && sym->kind == SYMBOL_TYPEDEF) {
+                return &sym->type;
+            }
+        }
+    }
     return type;
+}
+
+static const ParsedType* cg_resolve_typedef_chain(CodegenContext* ctx, const ParsedType* type) {
+    const ParsedType* current = type;
+    int guard = 0;
+    while (current &&
+           current->kind == TYPE_NAMED &&
+           !cg_named_type_has_surface_derivations(current) &&
+           guard < 64) {
+        const ParsedType* next = cg_resolve_typedef_parsed(ctx, current);
+        if (!next || next == current) {
+            break;
+        }
+        current = next;
+        guard++;
+    }
+    return current ? current : type;
 }
 
 static bool cg_named_type_has_surface_derivations(const ParsedType* type) {
@@ -263,7 +289,7 @@ static const ParsedType* cg_resolve_call_surface_type(CodegenContext* ctx, const
     if (cg_named_type_has_surface_derivations(type)) {
         return type;
     }
-    return cg_resolve_typedef_parsed(ctx, type);
+    return cg_resolve_typedef_chain(ctx, type);
 }
 
 static const ParsedType* cg_lookup_function_symbol_return_type(CodegenContext* ctx, ASTNode* callee) {
@@ -294,7 +320,19 @@ static const ParsedType* cg_lookup_function_symbol_return_type(CodegenContext* c
     if (!sym || sym->kind != SYMBOL_FUNCTION) {
         return NULL;
     }
-    return &sym->type;
+    static ParsedType symbolReturnType;
+    parsedTypeFree(&symbolReturnType);
+    symbolReturnType = parsedTypeFunctionReturnType(&sym->type);
+    if (symbolReturnType.kind == TYPE_INVALID) {
+        parsedTypeFree(&symbolReturnType);
+        symbolReturnType = parsedTypeClone(&sym->type);
+    }
+    if (symbolReturnType.kind == TYPE_INVALID) {
+        parsedTypeFree(&symbolReturnType);
+        return NULL;
+    }
+    cg_clear_function_pointer_metadata(&symbolReturnType);
+    return &symbolReturnType;
 }
 
 static bool cg_parsed_type_is_complex(const ParsedType* type) {
@@ -440,6 +478,35 @@ static bool cg_should_treat_as_unsigned(const ParsedType* parsedType, LLVMTypeRe
     return false;
 }
 
+static bool cg_parsed_type_is_direct_function_for_param(const ParsedType* type) {
+    return type &&
+           type->derivationCount > 0 &&
+           type->derivations &&
+           type->derivations[0].kind == TYPE_DERIVATION_FUNCTION;
+}
+
+static void cg_adjust_parameter_type_for_lowering(ParsedType* type) {
+    if (!type) return;
+    parsedTypeAdjustArrayParameter(type);
+    if (!cg_parsed_type_is_direct_function_for_param(type)) {
+        return;
+    }
+    TypeDerivation* grown = realloc(type->derivations, (type->derivationCount + 1) * sizeof(TypeDerivation));
+    if (!grown) {
+        return;
+    }
+    type->derivations = grown;
+    memmove(type->derivations + 1, type->derivations, type->derivationCount * sizeof(TypeDerivation));
+    memset(&type->derivations[0], 0, sizeof(TypeDerivation));
+    type->derivations[0].kind = TYPE_DERIVATION_POINTER;
+    type->derivations[0].as.pointer.isConst = false;
+    type->derivations[0].as.pointer.isVolatile = false;
+    type->derivations[0].as.pointer.isRestrict = false;
+    type->derivationCount++;
+    type->pointerDepth += 1;
+    type->directlyDeclaresFunction = false;
+}
+
 LLVMTypeRef cg_get_intptr_type(CodegenContext* ctx) {
     if (ctx && ctx->module) {
         LLVMTargetDataRef layout = LLVMGetModuleDataLayout(ctx->module);
@@ -466,9 +533,6 @@ LLVMTypeRef cg_merge_types_for_phi(CodegenContext* ctx,
                                    LLVMValueRef aVal,
                                    LLVMValueRef bVal) {
     if (!ctx) return NULL;
-    if (!a && !b) return NULL;
-    if (!a) return LLVMTypeOf(bVal);
-    if (!b) return LLVMTypeOf(aVal);
     if (aVal && bVal) {
         LLVMTypeRef aTy = LLVMTypeOf(aVal);
         LLVMTypeRef bTy = LLVMTypeOf(bVal);
@@ -492,6 +556,13 @@ LLVMTypeRef cg_merge_types_for_phi(CodegenContext* ctx,
             return (aBits >= bBits) ? aTy : bTy;
         }
     }
+    if (!a && !b) {
+        if (aVal) return LLVMTypeOf(aVal);
+        if (bVal) return LLVMTypeOf(bVal);
+        return NULL;
+    }
+    if (!a) return bVal ? LLVMTypeOf(bVal) : NULL;
+    if (!b) return aVal ? LLVMTypeOf(aVal) : NULL;
     CGValueCategory aCat = cg_classify_parsed_type(a);
     CGValueCategory bCat = cg_classify_parsed_type(b);
     if (cg_is_unsigned_category(aCat) && !cg_is_unsigned_category(bCat)) {
@@ -501,6 +572,59 @@ LLVMTypeRef cg_merge_types_for_phi(CodegenContext* ctx,
         return LLVMTypeOf(bVal);
     }
     return LLVMTypeOf(aVal);
+}
+
+LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
+                                    const ParsedType* parsed,
+                                    bool* outIndirect,
+                                    LLVMTypeRef* outValueType) {
+    if (outIndirect) {
+        *outIndirect = false;
+    }
+    if (outValueType) {
+        *outValueType = NULL;
+    }
+    if (!ctx || !parsed) {
+        return NULL;
+    }
+
+    ParsedType adjusted = parsedTypeClone(parsed);
+    cg_adjust_parameter_type_for_lowering(&adjusted);
+
+    LLVMTypeRef valueType = cg_type_from_parsed(ctx, &adjusted);
+    bool passIndirect = false;
+    if (valueType) {
+        LLVMTypeKind kind = LLVMGetTypeKind(valueType);
+        if (kind == LLVMStructTypeKind || kind == LLVMArrayTypeKind) {
+            uint64_t size = 0;
+            uint32_t align = 0;
+            bool haveSize = cg_size_align_for_type(ctx, &adjusted, valueType, &size, &align);
+            if (!haveSize) {
+                LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+                if (td) {
+                    size = LLVMABISizeOfType(td, valueType);
+                    align = (uint32_t)LLVMABIAlignmentOfType(td, valueType);
+                    haveSize = true;
+                }
+            }
+            if (haveSize && size > 16) {
+                passIndirect = true;
+            }
+        }
+    }
+
+    parsedTypeFree(&adjusted);
+
+    if (outValueType) {
+        *outValueType = valueType;
+    }
+    if (outIndirect) {
+        *outIndirect = passIndirect;
+    }
+    if (passIndirect && valueType) {
+        return LLVMPointerType(valueType, 0);
+    }
+    return valueType;
 }
 
 bool cg_size_align_of_parsed(CodegenContext* ctx,
@@ -1066,13 +1190,13 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
                         (void*)(entry ? entry->parsedType : NULL));
             }
             if (entry && entry->parsedType) {
-                return entry->parsedType;
+                return cg_resolve_typedef_chain(ctx, entry->parsedType);
             }
             const SemanticModel* model = cg_context_get_semantic_model(ctx);
             if (model) {
                 const Symbol* sym = semanticModelLookupGlobal(model, name);
                 if (sym) {
-                    return &sym->type;
+                    return cg_resolve_typedef_chain(ctx, &sym->type);
                 }
             }
             return NULL;
@@ -1372,7 +1496,8 @@ const ParsedType* cg_refine_function_call_result_type(CodegenContext* ctx, ASTNo
 bool cg_expression_is_unsigned(CodegenContext* ctx, ASTNode* node) {
     const ParsedType* type = cg_resolve_expression_type(ctx, node);
     if (type) {
-        CGValueCategory cat = cg_classify_parsed_type(type);
+        const ParsedType* resolved = cg_resolve_typedef_chain(ctx, type);
+        CGValueCategory cat = cg_classify_parsed_type(resolved);
         return cg_is_unsigned_category(cat);
     }
     return false;

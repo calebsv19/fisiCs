@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-linkage",
+  "tests": [
+    {
+      "id": "binary__runtime__linkage_extern_global_roundtrip",
+      "level": "link",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__linkage_extern_global_roundtrip_main.c",
+        "cases/binary__runtime__linkage_extern_global_roundtrip_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__linkage_extern_global_roundtrip.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__linkage_static_internal_isolation",
+      "level": "link",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__linkage_static_internal_isolation_main.c",
+        "cases/binary__runtime__linkage_static_internal_isolation_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__linkage_static_internal_isolation.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__linkage_fnptr_table_multitu",
+      "level": "link",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__linkage_fnptr_table_multitu_main.c",
+        "cases/binary__runtime__linkage_fnptr_table_multitu_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__linkage_fnptr_table_multitu.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_fail__linkage_duplicate_global_across_tu",
+      "level": "link",
+      "category": "link_fail",
+      "inputs": [
+        "cases/binary__link_fail__linkage_duplicate_global_across_tu_a.c",
+        "cases/binary__link_fail__linkage_duplicate_global_across_tu_b.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__link_fail__linkage_undefined_extern_across_tu",
+      "level": "link",
+      "category": "link_fail",
+      "inputs": [
+        "cases/binary__link_fail__linkage_undefined_extern_across_tu_main.c",
+        "cases/binary__link_fail__linkage_undefined_extern_across_tu_helper.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_output_contains": [
+        "undefined"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

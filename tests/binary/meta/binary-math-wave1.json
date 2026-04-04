@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-math",
+  "tests": [
+    {
+      "id": "binary__runtime__math_fpclassify_matrix",
+      "level": "math",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__math_fpclassify_matrix.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__math_fpclassify_matrix.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__math_isfinite_isnormal_matrix",
+      "level": "math",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__math_isfinite_isnormal_matrix.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__math_isfinite_isnormal_matrix.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__math_nan_inf_ordering",
+      "level": "math",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__math_nan_inf_ordering.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__math_nan_inf_ordering.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__math_fabs_signbit_roundtrip",
+      "level": "math",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__math_fabs_signbit_roundtrip.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__math_fabs_signbit_roundtrip.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__math_macro_nan_infinity_builtin_path",
+      "level": "math",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__math_macro_nan_infinity_builtin_path.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__math_macro_nan_infinity_builtin_path.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

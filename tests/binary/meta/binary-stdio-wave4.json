@@ -78,7 +78,36 @@
       "expected_stdout": "expect/binary__runtime__stdio_longlong_format.stdout",
       "timeout_sec": 10,
       "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__stdlib_strtoul_endptr",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__stdlib_strtoul_endptr.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__stdlib_strtoul_endptr.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__runtime__typedef_unsigned_char_chain_printf",
+      "level": "stdio",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__typedef_unsigned_char_chain_printf.c"
+      ],
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__typedef_unsigned_char_chain_printf.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
     }
   ]
 }
-

@@ -12,11 +12,11 @@ without risking filesystem damage or unstable harness behavior.
 
 - `make test` and `make final` are currently green.
 - `make test-binary-abi` and `make test-binary` are green.
-- `make test-binary-corpus`, `make test-binary-wave`, `make test-binary-diff`, and `make test-binary-sdl` are green.
+- `make test-binary-corpus`, `make test-binary-wave`, `make test-binary-link`, `make test-binary-diff`, `make test-binary-math`, and `make test-binary-sdl` are green.
 - Binary harness inventory snapshot:
-  - total tests: `204`
-  - by category: `runtime=148`, `compile_only=19`, `compile_fail=14`, `link_fail=9`, `link_only=14`
-  - by level: `smoke=17`, `io=4`, `link=3`, `sdl=20`, `stdio=5`, `fortify=3`, `abi=58`, `corpus=26`, `diff=68`
+  - total tests: `244`
+  - by category: `runtime=184`, `compile_only=19`, `compile_fail=15`, `link_fail=12`, `link_only=14`
+  - by level: `smoke=17`, `io=4`, `link=8`, `sdl=34`, `stdio=11`, `math=4`, `fortify=3`, `abi=58`, `corpus=26`, `diff=79`
 - Binary-adjacent checks already exist:
   - `tests/integration/compile_only.sh`
   - `tests/integration/compile_and_link.sh`
@@ -47,7 +47,8 @@ without risking filesystem damage or unstable harness behavior.
 - Implemented now: Phase E2 headless SDL runtime lane (`binary-sdl-wave2.json`, `make test-binary-sdl`).
 - Implemented now: Phase E3 bounded SDL runtime lane (`binary-sdl-wave3.json`, `make test-binary-sdl`).
 - Implemented now: Phase E4 differential SDL runtime lane (`binary-sdl-wave4.json`, `make test-binary-sdl`).
-- Direct SDL system-header coverage is active in E1-E4 (`#include <SDL2/SDL.h>`),
+- Implemented now: Phase E5 gated SDL expansion lanes (`binary-sdl-wave6.json` through `binary-sdl-wave9.json`).
+- Direct SDL system-header coverage is active in E1-E5 (`#include <SDL2/SDL.h>`),
   including stdinc inline/builtin-heavy paths.
 
 ## Safety Model (Fail-Closed)
@@ -150,6 +151,7 @@ Implemented:
 - `make test-binary-io` (Level 2)
 - `make test-binary-link` (Level 3)
 - `make test-binary-stdio` (stdio formatting lane)
+- `make test-binary-math` (deterministic math runtime lane)
 - `make test-binary-fortify` (fortified builtin lowering lane)
 - `make test-binary-abi` (Level 4)
 - `make test-binary-corpus` (Level 5 compile-focused initial slice)
@@ -443,8 +445,21 @@ Phase C:
   - added SDL wave 5 policy-skip shard (`binary-sdl-wave5.json`) with:
     - `binary__link_only__sdl2_policy_skip_missing_pkg_module`
     - `binary__link_only__sdl2_policy_skip_missing_tool`
+  - added SDL wave 6 renderer-gated runtime shard (`binary-sdl-wave6.json`) with:
+    - `binary__runtime__sdl2_renderer_hidden_software_clear`
+    - `binary__runtime__sdl2_renderer_texture_lock_cycle`
+  - added SDL wave 7 differential runtime shard (`binary-sdl-wave7.json`) with:
+    - `binary__runtime__diff_clang_sdl2_hidden_window_create_destroy`
+    - `binary__runtime__diff_clang_sdl2_surface_blit_checksum`
+    - `binary__runtime__diff_clang_sdl2_rwops_mem_roundtrip`
+  - added SDL wave 8 negative compile/link shard (`binary-sdl-wave8.json`) with:
+    - `binary__compile_fail__sdl2_init_too_few_args`
+    - `binary__link_fail__sdl2_missing_symbol`
+  - added SDL wave 9 dummy-audio runtime shard (`binary-sdl-wave9.json`) with:
+    - `binary__runtime__sdl2_audio_dummy_open_close`
   - differential harness compile path now appends `pkg_config_modules` flags for clang builds
     so SDL-linked differential tests resolve the same external symbols as fisics-built binaries
+  - harness extended with `skip_if.missing_env` for explicit opt-in runtime lanes
   - wired `make test-binary-corpus` and included it in `make test-binary`
   - wired `make test-binary-diff` and included it in `make test-binary`
   - wired `make test-binary-sdl` and included it in `make test-binary`
@@ -456,20 +471,21 @@ Phase C:
 
 ## Current Phase Marker
 
-- Current phase: **Phase E (E4 SDL differential + policy lanes active)**.
+- Current phase: **Phase E (E5 SDL gated expansion lanes active)**.
 - Phase C baseline is complete and stable through ABI wave 19.
 - Level 5 corpus lane is active through wave 9 (compile/link + bounded runtime).
 - Differential lane is active through diff wave 15 with full runtime parity (`68/68`).
-- SDL lane is active through wave 5 (`level: sdl`, compile/link + headless/bounded runtime + differential/policy checks).
+- SDL lane is active through wave 9 (`level: sdl`, compile/link + headless/bounded runtime + differential/policy + gated expansion checks).
 
 ## Next Phase Work
 
 Detailed execution queue:
 - `docs/plans/binary_sdl_phase_e_wave_plan.md`
 
-1. SDL Phase E4 (differential + negative policy):
-   - E4.1 differential parity shard is active (wave 4).
-   - E4.2 policy-skip shard is active (wave 5), validating skip semantics for
-     missing tools/modules (`SKIP`, not `PASS`).
-2. Optional E5 expansion:
-   - renderer/event-window runtime shards under stricter environment gating.
+1. SDL Phase E5 (gated expansion):
+   - E5.1 renderer-gated runtime shards are active (wave 6) and validated under opt-in env.
+   - E5.2 additional SDL differential parity shard is active (wave 7).
+   - E5.3 SDL negative compile/link shard is active (wave 8).
+   - E5.4 dummy-audio runtime shard is active (wave 9).
+2. Optional E6 expansion:
+   - deeper renderer/event/audio stress shards with stricter environment and timeout gating.

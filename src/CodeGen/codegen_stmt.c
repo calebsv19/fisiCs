@@ -861,15 +861,25 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                                              NULL);
     ParsedType* adjustedParamTypes = NULL;
     LLVMTypeRef* paramTypes = NULL;
+    LLVMTypeRef* paramValueTypes = NULL;
+    bool* paramPassIndirect = NULL;
     if (paramCount > 0) {
         adjustedParamTypes = (ParsedType*)calloc(paramCount, sizeof(ParsedType));
         paramTypes = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * paramCount);
-        if (!paramTypes || !adjustedParamTypes) {
+        paramValueTypes = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
+        paramPassIndirect = (bool*)calloc(paramCount, sizeof(bool));
+        if (!paramTypes || !adjustedParamTypes || !paramValueTypes || !paramPassIndirect) {
             if (adjustedParamTypes) {
                 free(adjustedParamTypes);
             }
             if (paramTypes) {
                 free(paramTypes);
+            }
+            if (paramValueTypes) {
+                free(paramValueTypes);
+            }
+            if (paramPassIndirect) {
+                free(paramPassIndirect);
             }
             cg_free_param_infos(paramInfos);
             return NULL;
@@ -877,12 +887,18 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
         for (size_t i = 0; i < paramCount; i++) {
             const ParsedType* paramType = paramInfos[i].parsedType;
             adjustedParamTypes[i] = parsedTypeClone(paramType);
-            cg_adjust_parameter_type(&adjustedParamTypes[i]);
-            LLVMTypeRef inferred = cg_type_from_parsed(ctx, &adjustedParamTypes[i]);
+            bool passIndirect = false;
+            LLVMTypeRef valueType = NULL;
+            LLVMTypeRef inferred = cg_lower_parameter_type(ctx,
+                                                           &adjustedParamTypes[i],
+                                                           &passIndirect,
+                                                           &valueType);
             if (!inferred || LLVMGetTypeKind(inferred) == LLVMVoidTypeKind) {
                 inferred = LLVMInt32TypeInContext(ctx->llvmContext);
             }
             paramTypes[i] = inferred;
+            paramValueTypes[i] = valueType;
+            paramPassIndirect[i] = passIndirect;
         }
     }
 
@@ -937,6 +953,16 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
         function = LLVMAddFunction(ctx->module, fnName, funcType);
     }
     LLVMSetLinkage(function, LLVMExternalLinkage);
+    {
+        const SemanticModel* model = cg_context_get_semantic_model(ctx);
+        const Symbol* fnSym = model ? semanticModelLookupGlobal(model, fnName) : NULL;
+        if (fnSym && (fnSym->linkage == LINKAGE_INTERNAL || fnSym->storage == STORAGE_STATIC)) {
+            LLVMSetLinkage(function, LLVMInternalLinkage);
+        } else if (node->functionDef.returnType.isInline) {
+            /* Header inline defs can appear in many TUs; avoid strong duplicate symbols. */
+            LLVMSetLinkage(function, LLVMLinkOnceODRLinkage);
+        }
+    }
 
     LLVMBasicBlockRef entry = LLVMAppendBasicBlock(function, "entry");
     LLVMPositionBuilderAtEnd(ctx->builder, entry);
@@ -956,16 +982,51 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                 ? nameNode->valueNode.value
             : "param";
         LLVMTypeRef paramType = paramTypes ? paramTypes[i] : LLVMInt32TypeInContext(ctx->llvmContext);
-        LLVMValueRef allocaInst = LLVMBuildAlloca(ctx->builder, paramType, label);
-        LLVMBuildStore(ctx->builder, LLVMGetParam(function, (unsigned)i), allocaInst);
         const ParsedType* storedType = adjustedParamTypes
             ? &adjustedParamTypes[i]
             : (info->parsedType ? info->parsedType : &info->declaration->varDecl.declaredType);
+        LLVMValueRef allocaInst = NULL;
+        LLVMValueRef incomingParam = LLVMGetParam(function, (unsigned)i);
+        if (paramPassIndirect && paramPassIndirect[i] && paramValueTypes && paramValueTypes[i]) {
+            LLVMTypeRef valueTy = paramValueTypes[i];
+            allocaInst = LLVMBuildAlloca(ctx->builder, valueTy, label);
+            LLVMTypeRef expectedPtrTy = LLVMPointerType(valueTy, 0);
+            if (LLVMTypeOf(incomingParam) != expectedPtrTy) {
+                incomingParam = LLVMBuildBitCast(ctx->builder,
+                                                 incomingParam,
+                                                 expectedPtrTy,
+                                                 "param.byval.cast");
+            }
+            uint64_t paramSize = 0;
+            uint32_t paramAlign = 0;
+            if (!cg_size_align_for_type(ctx, storedType, valueTy, &paramSize, &paramAlign) || paramSize == 0) {
+                LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+                if (td) {
+                    paramSize = LLVMABISizeOfType(td, valueTy);
+                    paramAlign = (uint32_t)LLVMABIAlignmentOfType(td, valueTy);
+                }
+            }
+            if (paramAlign == 0) {
+                paramAlign = 1;
+            }
+            LLVMValueRef copySize = LLVMConstInt(cg_get_intptr_type(ctx), (unsigned long long)paramSize, 0);
+            LLVMBuildMemCpy(ctx->builder,
+                            allocaInst,
+                            paramAlign,
+                            incomingParam,
+                            paramAlign,
+                            copySize);
+        } else {
+            allocaInst = LLVMBuildAlloca(ctx->builder, paramType, label);
+            LLVMBuildStore(ctx->builder, incomingParam, allocaInst);
+        }
         LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedType);
         cg_scope_insert(ctx->currentScope,
                         label,
                         allocaInst,
-                        paramType,
+                        (paramPassIndirect && paramPassIndirect[i] && paramValueTypes && paramValueTypes[i])
+                            ? paramValueTypes[i]
+                            : paramType,
                         false,
                         elementLLVM != NULL /* addressOnly */ ? false : false,
                         elementLLVM,
@@ -992,6 +1053,8 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     ctx->currentFunctionName = previousFunctionName;
     cg_free_param_infos(paramInfos);
     free(paramTypes);
+    free(paramValueTypes);
+    free(paramPassIndirect);
     if (adjustedParamTypes) {
         for (size_t i = 0; i < paramCount; ++i) {
             parsedTypeFree(&adjustedParamTypes[i]);

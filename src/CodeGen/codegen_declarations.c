@@ -939,10 +939,7 @@ LLVMTypeRef* collectParamTypes(CodegenContext* ctx,
 
     for (size_t i = 0; i < flatCount; ++i) {
         const ParsedType* type = infos[i].parsedType;
-        ParsedType adjusted = parsedTypeClone(type);
-        cg_adjust_parameter_type(&adjusted);
-        LLVMTypeRef llvmType = cg_type_from_parsed(ctx, &adjusted);
-        parsedTypeFree(&adjusted);
+        LLVMTypeRef llvmType = cg_lower_parameter_type(ctx, type, NULL, NULL);
         if (!llvmType || LLVMGetTypeKind(llvmType) == LLVMVoidTypeKind) {
             llvmType = LLVMInt32TypeInContext(ctx->llvmContext);
         }
@@ -971,10 +968,7 @@ static LLVMTypeRef* collectParamTypesFromSignature(CodegenContext* ctx,
         return NULL;
     }
     for (size_t i = 0; i < paramCount; ++i) {
-        ParsedType adjusted = parsedTypeClone(&params[i]);
-        cg_adjust_parameter_type(&adjusted);
-        LLVMTypeRef llvmType = cg_type_from_parsed(ctx, &adjusted);
-        parsedTypeFree(&adjusted);
+        LLVMTypeRef llvmType = cg_lower_parameter_type(ctx, &params[i], NULL, NULL);
         if (!llvmType || LLVMGetTypeKind(llvmType) == LLVMVoidTypeKind) {
             llvmType = LLVMInt32TypeInContext(ctx->llvmContext);
         }

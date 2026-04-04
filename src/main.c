@@ -725,7 +725,10 @@ int main(int argc, char **argv) {
             filename = argv[i];
             if (has_extension(filename, ".c")) {
                 string_list_push(&inputCFiles, filename);
-            } else if (has_extension(filename, ".o")) {
+            } else if (has_extension(filename, ".o") ||
+                       has_extension(filename, ".a") ||
+                       has_extension(filename, ".so") ||
+                       has_extension(filename, ".dylib")) {
                 string_list_push(&inputOFiles, filename);
             } else {
                 fprintf(stderr, "Warning: unrecognized input extension for %s\n", filename);
@@ -733,7 +736,10 @@ int main(int argc, char **argv) {
         } else if (argv[i][0] != '-') {
             if (has_extension(argv[i], ".c")) {
                 string_list_push(&inputCFiles, argv[i]);
-            } else if (has_extension(argv[i], ".o")) {
+            } else if (has_extension(argv[i], ".o") ||
+                       has_extension(argv[i], ".a") ||
+                       has_extension(argv[i], ".so") ||
+                       has_extension(argv[i], ".dylib")) {
                 string_list_push(&inputOFiles, argv[i]);
             } else {
                 fprintf(stderr, "Warning: unrecognized input extension for %s\n", argv[i]);

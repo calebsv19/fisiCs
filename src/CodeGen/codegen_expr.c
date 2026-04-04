@@ -590,7 +590,7 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
         if (!params) return NULL;
         for (size_t i = 0; i < count; ++i) {
             if (paramCount > 0 && paramList) {
-                params[i] = cg_type_from_parsed(ctx, &paramList[i]);
+                params[i] = cg_lower_parameter_type(ctx, &paramList[i], NULL, NULL);
             } else if (args && i < fallbackArgCount) {
                 params[i] = args[i] ? LLVMTypeOf(args[i]) : NULL;
             }
@@ -666,7 +666,13 @@ static LLVMTypeRef cg_function_type_from_symbol(CodegenContext* ctx, const Symbo
         return NULL;
     }
 
-    LLVMTypeRef retType = cg_type_from_parsed(ctx, &sym->type);
+    ParsedType extractedReturn = parsedTypeFunctionReturnType(&sym->type);
+    const ParsedType* returnParsed = &sym->type;
+    if (extractedReturn.kind != TYPE_INVALID) {
+        returnParsed = &extractedReturn;
+    }
+
+    LLVMTypeRef retType = cg_type_from_parsed(ctx, returnParsed);
     if (retType && LLVMGetTypeKind(retType) == LLVMFunctionTypeKind) {
         retType = LLVMPointerType(retType, 0);
     } else if (retType && LLVMGetTypeKind(retType) == LLVMArrayTypeKind) {
@@ -674,6 +680,9 @@ static LLVMTypeRef cg_function_type_from_symbol(CodegenContext* ctx, const Symbo
     }
     if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
         retType = LLVMVoidTypeInContext(ctx->llvmContext);
+    }
+    if (extractedReturn.kind != TYPE_INVALID) {
+        parsedTypeFree(&extractedReturn);
     }
 
     size_t paramCount = sym->signature.paramCount;
@@ -684,7 +693,7 @@ static LLVMTypeRef cg_function_type_from_symbol(CodegenContext* ctx, const Symbo
             return NULL;
         }
         for (size_t i = 0; i < paramCount; ++i) {
-            paramTypes[i] = cg_type_from_parsed(ctx, &sym->signature.params[i]);
+            paramTypes[i] = cg_lower_parameter_type(ctx, &sym->signature.params[i], NULL, NULL);
             if (!paramTypes[i] || LLVMGetTypeKind(paramTypes[i]) == LLVMVoidTypeKind) {
                 paramTypes[i] = LLVMInt32TypeInContext(ctx->llvmContext);
             }
@@ -1057,18 +1066,6 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (node->expr.op && strcmp(node->expr.op, "&") == 0) {
-        if (node->expr.left && node->expr.left->type == AST_IDENTIFIER) {
-            const SemanticModel* model = cg_context_get_semantic_model(ctx);
-            if (model) {
-                const Symbol* sym = semanticModelLookupGlobal(model, node->expr.left->valueNode.value);
-                if (sym && sym->kind == SYMBOL_FUNCTION) {
-                    LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, node->expr.left->valueNode.value);
-                    if (fn) {
-                        return fn;
-                    }
-                }
-            }
-        }
         LLVMValueRef addrPtr = NULL;
         LLVMTypeRef addrType = NULL;
         CGLValueInfo tmp;
@@ -1279,7 +1276,26 @@ LLVMValueRef codegenTernaryExpression(CodegenContext* ctx, ASTNode* node) {
 
     LLVMTypeRef mergedType = NULL;
     if (trueValue && falseValue) {
-        mergedType = cg_merge_types_for_phi(ctx, trueParsed, falseParsed, trueValue, falseValue);
+        LLVMTypeRef trueTy = LLVMTypeOf(trueValue);
+        LLVMTypeRef falseTy = LLVMTypeOf(falseValue);
+        LLVMTypeKind trueKind = trueTy ? LLVMGetTypeKind(trueTy) : LLVMVoidTypeKind;
+        LLVMTypeKind falseKind = falseTy ? LLVMGetTypeKind(falseTy) : LLVMVoidTypeKind;
+        if (trueKind == LLVMPointerTypeKind && falseKind == LLVMPointerTypeKind) {
+            mergedType = trueTy;
+        } else if (trueKind == LLVMPointerTypeKind &&
+                   falseKind == LLVMIntegerTypeKind &&
+                   LLVMIsAConstantInt(falseValue) &&
+                   LLVMConstIntGetSExtValue(falseValue) == 0) {
+            mergedType = trueTy;
+        } else if (falseKind == LLVMPointerTypeKind &&
+                   trueKind == LLVMIntegerTypeKind &&
+                   LLVMIsAConstantInt(trueValue) &&
+                   LLVMConstIntGetSExtValue(trueValue) == 0) {
+            mergedType = falseTy;
+        }
+        if (!mergedType) {
+            mergedType = cg_merge_types_for_phi(ctx, trueParsed, falseParsed, trueValue, falseValue);
+        }
     } else if (trueValue) {
         mergedType = LLVMTypeOf(trueValue);
     } else {
@@ -1634,14 +1650,6 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     bool baseIsDirectArray = (arrayParsed && parsedTypeIsDirectArray(arrayParsed)) ||
                              (arrayType && LLVMGetTypeKind(arrayType) == LLVMArrayTypeKind);
     bool baseNeedsLoad = haveLVal && arrayPtr && !baseIsDirectArray;
-    if (baseNeedsLoad && node->arrayAccess.array) {
-        ASTNode* baseExpr = node->arrayAccess.array;
-        if ((baseExpr->type == AST_UNARY_EXPRESSION && baseExpr->expr.op &&
-             strcmp(baseExpr->expr.op, "*") == 0) ||
-            baseExpr->type == AST_POINTER_DEREFERENCE) {
-            baseNeedsLoad = false;
-        }
-    }
     if (baseNeedsLoad) {
         LLVMTypeRef loadTy = arrayType;
         if (!loadTy) {
@@ -1812,6 +1820,11 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: invalid pointer for array load\n");
         return NULL;
     }
+    if (loadTy && LLVMGetTypeKind(loadTy) == LLVMArrayTypeKind) {
+        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+        LLVMValueRef idxs[2] = { zero, zero };
+        return LLVMBuildGEP2(ctx->builder, loadTy, typedElementPtr, idxs, 2, "array.elem.decay");
+    }
     if (dbgRun) fprintf(stderr, "[CG] array load begin\n");
     LLVMTypeRef expectedPtrTy = LLVMPointerType(loadTy, 0);
     if (LLVMTypeOf(typedElementPtr) != expectedPtrTy) {
@@ -1834,7 +1847,8 @@ LLVMValueRef codegenPointerAccess(CodegenContext* ctx, ASTNode* node) {
     const ParsedType* fieldParsed = NULL;
     CGLValueInfo info;
     if (!codegenLValue(ctx, node, &fieldPtr, &fieldType, &fieldParsed, &info)) {
-        fprintf(stderr, "Error: Unknown field in pointer access\n");
+        const char* fieldName = node->memberAccess.field ? node->memberAccess.field : "<unknown>";
+        fprintf(stderr, "Error: Unknown field in pointer access: %s\n", fieldName);
         return NULL;
     }
     if (info.isBitfield) {
@@ -1865,7 +1879,8 @@ LLVMValueRef codegenDotAccess(CodegenContext* ctx, ASTNode* node) {
     const ParsedType* fieldParsed = NULL;
     CGLValueInfo info;
     if (!codegenLValue(ctx, node, &fieldPtr, &fieldType, &fieldParsed, &info)) {
-        fprintf(stderr, "Error: Unknown field in dot access\n");
+        const char* fieldName = node->memberAccess.field ? node->memberAccess.field : "<unknown>";
+        fprintf(stderr, "Error: Unknown field in dot access: %s\n", fieldName);
         return NULL;
     }
     if (info.isBitfield) {
@@ -2100,8 +2115,12 @@ static LLVMValueRef cg_emit_rewritten_builtin_call(CodegenContext* ctx,
             if (fromKind == LLVMPointerTypeKind && toKind == LLVMPointerTypeKind) {
                 callArgs[i] = LLVMBuildBitCast(ctx->builder, callArgs[i], toTy, "builtin.arg.ptrcast");
             } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMIntegerTypeKind) {
-                bool isSigned = fixedParamSigned ? fixedParamSigned[i] : false;
-                callArgs[i] = LLVMBuildIntCast2(ctx->builder, callArgs[i], toTy, isSigned, "builtin.arg.intcast");
+                unsigned fromBits = LLVMGetIntTypeWidth(fromTy);
+                unsigned toBits = LLVMGetIntTypeWidth(toTy);
+                if (fromBits != toBits) {
+                    bool isSigned = fixedParamSigned ? fixedParamSigned[i] : false;
+                    callArgs[i] = LLVMBuildIntCast2(ctx->builder, callArgs[i], toTy, isSigned, "builtin.arg.intcast");
+                }
             } else if (fromKind == LLVMPointerTypeKind && toKind == LLVMIntegerTypeKind) {
                 callArgs[i] = LLVMBuildPtrToInt(ctx->builder, callArgs[i], toTy, "builtin.arg.ptrtoint");
             } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMPointerTypeKind) {
@@ -2221,6 +2240,12 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     bool isInffBuiltin = calleeName && strcmp(calleeName, "__builtin_inff") == 0;
     bool isInfBuiltin = calleeName && strcmp(calleeName, "__builtin_inf") == 0;
     bool isInflBuiltin = calleeName && strcmp(calleeName, "__builtin_infl") == 0;
+    bool isNanfBuiltin = calleeName && strcmp(calleeName, "__builtin_nanf") == 0;
+    bool isNanBuiltin = calleeName && strcmp(calleeName, "__builtin_nan") == 0;
+    bool isNanlBuiltin = calleeName && strcmp(calleeName, "__builtin_nanl") == 0;
+    bool isHugeValfBuiltin = calleeName && strcmp(calleeName, "__builtin_huge_valf") == 0;
+    bool isHugeValBuiltin = calleeName && strcmp(calleeName, "__builtin_huge_val") == 0;
+    bool isHugeVallBuiltin = calleeName && strcmp(calleeName, "__builtin_huge_vall") == 0;
     bool isSnprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___snprintf_chk") == 0;
     bool isVsnprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___vsnprintf_chk") == 0;
     bool isSprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___sprintf_chk") == 0;
@@ -2268,12 +2293,20 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         }
         return LLVMConstAllOnes(resultTy);
     }
-    if (isInffBuiltin || isInfBuiltin || isInflBuiltin) {
+    if (isInffBuiltin || isInfBuiltin || isInflBuiltin ||
+        isHugeValfBuiltin || isHugeValBuiltin || isHugeVallBuiltin) {
         free(args);
-        LLVMTypeRef infTy = isInffBuiltin
+        LLVMTypeRef infTy = (isInffBuiltin || isHugeValfBuiltin)
             ? LLVMFloatTypeInContext(ctx->llvmContext)
             : LLVMDoubleTypeInContext(ctx->llvmContext);
         return LLVMConstReal(infTy, INFINITY);
+    }
+    if (isNanfBuiltin || isNanBuiltin || isNanlBuiltin) {
+        free(args);
+        LLVMTypeRef nanTy = isNanfBuiltin
+            ? LLVMFloatTypeInContext(ctx->llvmContext)
+            : LLVMDoubleTypeInContext(ctx->llvmContext);
+        return LLVMConstReal(nanTy, NAN);
     }
     if (isFabsfBuiltin || isFabsBuiltin || isFabslBuiltin) {
         if (node->functionCall.argumentCount < 1) {
@@ -2862,17 +2895,39 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             fixedCount = argCount;
         }
         for (size_t i = 0; i < fixedCount; ++i) {
-            LLVMTypeRef paramTy = cg_type_from_parsed(ctx, &sym->signature.params[i]);
+            bool passIndirect = false;
+            LLVMTypeRef valueParamTy = NULL;
+            LLVMTypeRef paramTy = cg_lower_parameter_type(ctx,
+                                                          &sym->signature.params[i],
+                                                          &passIndirect,
+                                                          &valueParamTy);
             if (!paramTy || LLVMGetTypeKind(paramTy) == LLVMVoidTypeKind) {
                 continue;
             }
             const ParsedType* fromParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[i]);
-            args[i] = cg_cast_value(ctx,
-                                    args[i],
-                                    paramTy,
-                                    fromParsed,
-                                    &sym->signature.params[i],
-                                    "call.arg.cast");
+            if (passIndirect && valueParamTy) {
+                LLVMValueRef argVal = args[i];
+                if (argVal && LLVMTypeOf(argVal) != valueParamTy) {
+                    argVal = cg_cast_value(ctx,
+                                           argVal,
+                                           valueParamTy,
+                                           fromParsed,
+                                           &sym->signature.params[i],
+                                           "call.arg.byval.cast");
+                }
+                if (argVal && LLVMTypeOf(argVal) == valueParamTy) {
+                    LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, valueParamTy, "call.arg.byval.tmp");
+                    LLVMBuildStore(ctx->builder, argVal, tmp);
+                    args[i] = tmp;
+                }
+            } else {
+                args[i] = cg_cast_value(ctx,
+                                        args[i],
+                                        paramTy,
+                                        fromParsed,
+                                        &sym->signature.params[i],
+                                        "call.arg.cast");
+            }
         }
     }
     if (noPrototype) {
