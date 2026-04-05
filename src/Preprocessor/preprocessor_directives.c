@@ -830,18 +830,7 @@ bool process_include(Preprocessor* pp,
         return true;
     }
 
-    if (pp_include_stack_contains(pp, incValue.path)) {
-        if (pp->lenientMissingIncludes) {
-            return true;
-        }
-        pp_report_diag(pp,
-                       tokens ? &tokens[*cursor] : NULL,
-                       DIAG_ERROR,
-                       CDIAG_PREPROCESSOR_GENERIC,
-                       "detected recursive include of '%s'",
-                       incValue.path ? incValue.path : "<unknown>");
-        return false;
-    }
+    bool includeWouldRecurse = pp_include_stack_contains(pp, incValue.path);
 
     int savedOffset = pp->lineOffset;
     char* savedLogical = pp->logicalFile;
@@ -854,15 +843,12 @@ bool process_include(Preprocessor* pp,
     initLexer(&lexer, incValue.contents, incValue.path, pp->enableTrigraphs);
     TokenBuffer buffer;
     token_buffer_init(&buffer);
-    bool pushedFrame = pp_include_stack_push(pp, incValue.path, origin, originIndex);
-
     if (!token_buffer_fill_from_lexer(&buffer, &lexer)) {
         token_buffer_destroy(&buffer);
         destroyLexer(&lexer);
         pp->lineOffset = savedOffset;
         pp->logicalFile = savedLogical;
         pp->lineRemapActive = savedRemap;
-        if (pushedFrame) pp_include_stack_pop(pp);
         return false;
     }
     destroyLexer(&lexer);
@@ -874,9 +860,27 @@ bool process_include(Preprocessor* pp,
         pp->lineOffset = savedOffset;
         pp->logicalFile = savedLogical;
         pp->lineRemapActive = savedRemap;
-        if (pushedFrame) pp_include_stack_pop(pp);
         return true;
     }
+
+    if (includeWouldRecurse) {
+        token_buffer_destroy(&buffer);
+        pp->lineOffset = savedOffset;
+        pp->logicalFile = savedLogical;
+        pp->lineRemapActive = savedRemap;
+        if (pp->lenientMissingIncludes) {
+            return true;
+        }
+        pp_report_diag(pp,
+                       tokens ? &tokens[*cursor] : NULL,
+                       DIAG_ERROR,
+                       CDIAG_PREPROCESSOR_GENERIC,
+                       "detected recursive include of '%s'",
+                       incValue.path ? incValue.path : "<unknown>");
+        return false;
+    }
+
+    bool pushedFrame = pp_include_stack_push(pp, incValue.path, origin, originIndex);
 
     bool ok = preprocess_tokens(pp, &buffer, output, false);
     if (!ok) {

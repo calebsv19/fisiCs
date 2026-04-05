@@ -6,6 +6,7 @@
 
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
+#include <llvm-c/Analysis.h>
 
 static bool set_error(char** out, const char* msg, const char* detail) {
     if (!out) return false;
@@ -126,6 +127,25 @@ bool compiler_emit_object_file(LLVMModuleRef module,
             LLVMDisposeMessage(layoutStr);
         }
         LLVMDisposeTargetData(layout);
+    }
+
+    const char* verifyEnv = getenv("FISICS_VERIFY_IR");
+    bool verifyIR = verifyEnv && verifyEnv[0] && strcmp(verifyEnv, "0") != 0;
+    if (verifyIR) {
+        char* verifyErr = NULL;
+        if (LLVMVerifyModule(module, LLVMReturnStatusAction, &verifyErr) != 0) {
+            set_error(errorOut, "LLVMVerifyModule failed", verifyErr);
+            if (verifyErr) {
+                LLVMDisposeMessage(verifyErr);
+            }
+            LLVMDisposeTargetMachine(tm);
+            if (tripleNeedsDispose) LLVMDisposeMessage(triple);
+            if (tripleNeedsFree) free(triple);
+            return false;
+        }
+        if (verifyErr) {
+            LLVMDisposeMessage(verifyErr);
+        }
     }
 
     char* emitErr = NULL;

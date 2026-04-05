@@ -41,6 +41,19 @@ static LLVMTypeRef makeIntegerType(CodegenContext* ctx, unsigned bits) {
     }
 }
 
+static bool cg_is_builtin_int128_alias(const char* name, bool* outIsUnsigned) {
+    if (!name) return false;
+    if (strcmp(name, "__int128_t") == 0 || strcmp(name, "__int128") == 0) {
+        if (outIsUnsigned) *outIsUnsigned = false;
+        return true;
+    }
+    if (strcmp(name, "__uint128_t") == 0 || strcmp(name, "__uint128") == 0) {
+        if (outIsUnsigned) *outIsUnsigned = true;
+        return true;
+    }
+    return false;
+}
+
 static LLVMTypeRef primitiveType(CodegenContext* ctx, const ParsedType* type) {
     LLVMContextRef llvmCtx = cg_context_get_llvm_context(ctx);
     TokenType tok = type->primitiveType;
@@ -433,6 +446,16 @@ static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type) {
         LLVMTypeRef halfTy = LLVMHalfTypeInContext(cg_context_get_llvm_context(ctx));
         CG_TRACE("[TRACE] namedAliasType builtin half=%p\n", (void*)halfTy);
         return halfTy;
+    }
+    {
+        bool isUnsigned128 = false;
+        if (cg_is_builtin_int128_alias(aliasName, &isUnsigned128)) {
+            LLVMTypeRef int128 = makeIntegerType(ctx, 128);
+            CG_TRACE("[TRACE] namedAliasType builtin int128=%p unsigned=%d\n",
+                     (void*)int128,
+                     isUnsigned128 ? 1 : 0);
+            return int128;
+        }
     }
     if (strcmp(aliasName, "__builtin_va_list") == 0) {
         LLVMTypeRef vaListTy = LLVMPointerType(LLVMInt8TypeInContext(cg_context_get_llvm_context(ctx)), 0);

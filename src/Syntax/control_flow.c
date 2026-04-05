@@ -317,7 +317,11 @@ static FlowResult checkStatement(ASTNode* node, Scope* scope, FlowContext ctx) {
             (void)checkStatement(node->forLoop.initializer, scope, ctx);
             (void)checkStatement(node->forLoop.condition, scope, ctx);
             (void)checkStatement(node->forLoop.increment, scope, ctx);
-            (void)checkStatement(node->forLoop.body, scope, loopCtx);
+            FlowResult bodyFlow = checkStatement(node->forLoop.body, scope, loopCtx);
+            if (!node->forLoop.condition && bodyFlow.returns) {
+                // `for (;;)` with a body that returns on every path does not fall through.
+                return makeFlow(true, true);
+            }
             return makeFlow(false, false);
         }
 

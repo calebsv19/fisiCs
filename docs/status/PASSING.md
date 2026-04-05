@@ -3,6 +3,7 @@
 These items compiled with no semantic or codegen errors during iterative `make run` tests.
 
 ====== Final suite snapshot (tests/final) ======
+- Full suite snapshot (2026-04-04): `make final` => `0 failing, 36 skipped`.
 - Runtime bucket `14` is stable through Wave89 (full bucket slice green).
 - Active runtime manifests: `tests/final/meta/14-runtime-surface*.json` (87 shards, 329 tests).
 - Current runtime plan/status: `docs/plans/runtime_bucket_14_execution_plan.md` and
@@ -182,3 +183,7 @@ These items compiled with no semantic or codegen errors during iterative `make r
 ====== External project validations ======
 - `/Users/calebsv/Desktop/CodeWork/test/src/system/event_bus.c` compiles with `-I/Users/calebsv/Desktop/CodeWork/test/include` and no realloc/free diagnostics.
 - `/Users/calebsv/Desktop/CodeWork/test/src/core/string_view.c` and `/Users/calebsv/Desktop/CodeWork/test/src/io/ini.c` no longer emit modifiable-lvalue or `++` lvalue diagnostics.
+- `line_drawing` is validated as stable in the current binary campaign:
+  - compile/link with `fisics`-compiled objects succeeded
+  - interactive GUI runtime check succeeded (render + input/keybind response)
+  - closure record: `docs/plans/binary_line_drawing_execution_plan.md`

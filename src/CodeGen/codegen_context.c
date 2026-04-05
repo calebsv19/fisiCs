@@ -292,6 +292,22 @@ LabelBinding* cg_lookup_label(CodegenContext* ctx, const char* name) {
     return NULL;
 }
 
+void cg_clear_labels(CodegenContext* ctx) {
+    if (!ctx) return;
+    if (ctx->labels) {
+        for (size_t i = 0; i < ctx->labelCount; ++i) {
+            free(ctx->labels[i].name);
+            ctx->labels[i].name = NULL;
+            ctx->labels[i].block = NULL;
+            ctx->labels[i].defined = false;
+        }
+        free(ctx->labels);
+        ctx->labels = NULL;
+    }
+    ctx->labelCount = 0;
+    ctx->labelCapacity = 0;
+}
+
 LabelBinding* cg_ensure_label(CodegenContext* ctx, const char* name) {
     if (!ctx || !name) return NULL;
     LabelBinding* existing = cg_lookup_label(ctx, name);

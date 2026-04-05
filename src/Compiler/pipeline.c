@@ -58,6 +58,41 @@ static bool pipeline_path_exists(const char* path) {
     return stat(path, &st) == 0;
 }
 
+static char* pipeline_read_file_all(const char* path, size_t* outLen) {
+    if (outLen) *outLen = 0;
+    if (!path || !path[0]) return NULL;
+    FILE* fp = fopen(path, "rb");
+    if (!fp) return NULL;
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        fclose(fp);
+        return NULL;
+    }
+    long sz = ftell(fp);
+    if (sz < 0) {
+        fclose(fp);
+        return NULL;
+    }
+    if (fseek(fp, 0, SEEK_SET) != 0) {
+        fclose(fp);
+        return NULL;
+    }
+    size_t size = (size_t)sz;
+    char* buf = (char*)malloc(size + 1);
+    if (!buf) {
+        fclose(fp);
+        return NULL;
+    }
+    size_t readCount = fread(buf, 1, size, fp);
+    fclose(fp);
+    if (readCount != size) {
+        free(buf);
+        return NULL;
+    }
+    buf[size] = '\0';
+    if (outLen) *outLen = size;
+    return buf;
+}
+
 static bool pipeline_path_list_push(const char*** items,
                                     size_t* count,
                                     size_t* capacity,
@@ -1458,6 +1493,8 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
     SemanticModel* model = NULL;
     size_t semaErrors = 0;
     char* externalSource = NULL;
+    char* loadedInputSource = NULL;
+    char* forcedIncludeSource = NULL;
     size_t externalLength = 0;
     const char* sourceForFrontend = NULL;
     size_t sourceLength = 0;
@@ -1487,6 +1524,62 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         if (statsEnv && statsEnv[0] != '\0' && statsEnv[0] != '0') {
             fprintf(stderr, "pp_stats: external_preprocess bytes=%zu\n", externalLength);
         }
+    }
+
+    if (options->forcedIncludes && options->forcedIncludeCount > 0) {
+        const char* baseSource = sourceForFrontend;
+        size_t baseLength = sourceLength;
+        if (!baseSource) {
+            loadedInputSource = pipeline_read_file_all(options->inputPath, &baseLength);
+            if (!loadedInputSource) {
+                fprintf(stderr, "Error: failed to read source file %s for forced includes\n",
+                        options->inputPath);
+                goto cleanup;
+            }
+            baseSource = loadedInputSource;
+        }
+
+        size_t alloc = baseLength + 1 + strlen(options->inputPath) + 64;
+        for (size_t i = 0; i < options->forcedIncludeCount; ++i) {
+            const char* inc = options->forcedIncludes[i];
+            if (!inc) continue;
+            alloc += strlen(inc) + 32;
+        }
+        forcedIncludeSource = (char*)malloc(alloc);
+        if (!forcedIncludeSource) {
+            fprintf(stderr, "OOM: forced include wrapper\n");
+            goto cleanup;
+        }
+
+        size_t used = 0;
+        for (size_t i = 0; i < options->forcedIncludeCount; ++i) {
+            const char* inc = options->forcedIncludes[i];
+            if (!inc || !inc[0]) continue;
+            int wrote = snprintf(forcedIncludeSource + used,
+                                 alloc - used,
+                                 "#include \"%s\"\n",
+                                 inc);
+            if (wrote < 0 || (size_t)wrote >= alloc - used) {
+                fprintf(stderr, "Error: forced include wrapper overflow\n");
+                goto cleanup;
+            }
+            used += (size_t)wrote;
+        }
+        int lineWrote = snprintf(forcedIncludeSource + used,
+                                 alloc - used,
+                                 "#line 1 \"%s\"\n",
+                                 options->inputPath);
+        if (lineWrote < 0 || (size_t)lineWrote >= alloc - used) {
+            fprintf(stderr, "Error: forced include wrapper overflow\n");
+            goto cleanup;
+        }
+        used += (size_t)lineWrote;
+        memcpy(forcedIncludeSource + used, baseSource, baseLength);
+        used += baseLength;
+        forcedIncludeSource[used] = '\0';
+
+        sourceForFrontend = forcedIncludeSource;
+        sourceLength = used;
     }
 
     if (!compiler_run_frontend_internal(ctx,
@@ -1600,6 +1693,8 @@ cleanup:
         compile_result_destroy(&result);
     }
     free(externalSource);
+    free(loadedInputSource);
+    free(forcedIncludeSource);
 
     return status;
 }

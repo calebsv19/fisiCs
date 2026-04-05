@@ -274,7 +274,7 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
 
     /* Decay raw array values into an addressable pointer. */
     if (valueKind == LLVMArrayTypeKind) {
-        LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, valueType, "array.decay.tmp");
+        LLVMValueRef tmp = cg_build_entry_alloca(ctx, valueType, "array.decay.tmp");
         LLVMBuildStore(ctx->builder, arrayPtr, tmp);
         basePtr = tmp;
         valueType = LLVMTypeOf(basePtr);
@@ -283,7 +283,7 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
 
     /* Wrap non-pointers into an alloca to take the address. */
     if (valueKind != LLVMPointerTypeKind) {
-        LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, valueType, "array.ptr.wrap");
+        LLVMValueRef tmp = cg_build_entry_alloca(ctx, valueType, "array.ptr.wrap");
         LLVMBuildStore(ctx->builder, arrayPtr, tmp);
         basePtr = tmp;
         valueType = LLVMTypeOf(basePtr);
@@ -447,13 +447,42 @@ static CGStructLLVMInfo* findStructInfoForAggregate(CodegenContext* ctx,
                                                     LLVMTypeRef aggregateType,
                                                     const char* structNameHint,
                                                     const ParsedType* parsedHint) {
+    const ParsedType* resolvedHint = parsedHint;
+    size_t aliasGuard = 0;
+    while (resolvedHint &&
+           resolvedHint->kind == TYPE_NAMED &&
+           resolvedHint->userTypeName &&
+           aliasGuard++ < 16) {
+        const ParsedType* next = NULL;
+        if (ctx && ctx->typeCache) {
+            CGNamedLLVMType* info =
+                cg_type_cache_get_typedef_info(ctx->typeCache, resolvedHint->userTypeName);
+            if (info && info->parsedType.kind != TYPE_INVALID) {
+                next = &info->parsedType;
+            }
+        }
+        if (!next && ctx) {
+            const SemanticModel* model = cg_context_get_semantic_model(ctx);
+            if (model) {
+                const Symbol* sym = semanticModelLookupGlobal(model, resolvedHint->userTypeName);
+                if (sym && sym->kind == SYMBOL_TYPEDEF) {
+                    next = &sym->type;
+                }
+            }
+        }
+        if (!next || next == resolvedHint) {
+            break;
+        }
+        resolvedHint = next;
+    }
+
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
     if (!cache) {
         return NULL;
     }
-    if (parsedHint && parsedHint->inlineStructOrUnionDef) {
+    if (resolvedHint && resolvedHint->inlineStructOrUnionDef) {
         CGStructLLVMInfo* info =
-            cg_type_cache_get_struct_by_definition(cache, parsedHint->inlineStructOrUnionDef);
+            cg_type_cache_get_struct_by_definition(cache, resolvedHint->inlineStructOrUnionDef);
         if (info) {
             return info;
         }
@@ -470,8 +499,8 @@ static CGStructLLVMInfo* findStructInfoForAggregate(CodegenContext* ctx,
             return info;
         }
     }
-    if (parsedHint && parsedHint->userTypeName) {
-        CGStructLLVMInfo* info = cg_type_cache_get_struct_info(cache, parsedHint->userTypeName);
+    if (resolvedHint && resolvedHint->userTypeName) {
+        CGStructLLVMInfo* info = cg_type_cache_get_struct_info(cache, resolvedHint->userTypeName);
         if (info) {
             return info;
         }
@@ -1059,7 +1088,7 @@ bool codegenLValue(CodegenContext* ctx,
                     basePtr = baseVal;
                     baseType = cg_dereference_ptr_type(ctx, LLVMTypeOf(baseVal), "dot access");
                 } else {
-                    LLVMValueRef tmpAlloca = LLVMBuildAlloca(ctx->builder, LLVMTypeOf(baseVal), "dot_tmp_lhs");
+                    LLVMValueRef tmpAlloca = cg_build_entry_alloca(ctx, LLVMTypeOf(baseVal), "dot_tmp_lhs");
                     LLVMBuildStore(ctx->builder, baseVal, tmpAlloca);
                     basePtr = tmpAlloca;
                     baseType = LLVMTypeOf(baseVal);
@@ -1151,6 +1180,13 @@ bool codegenLValue(CodegenContext* ctx,
             return true;
         }
         case AST_POINTER_ACCESS: {
+            const char* dbgPtr = getenv("FISICS_DEBUG_PTR_ACCESS");
+            if (dbgPtr && dbgPtr[0] && strcmp(dbgPtr, "0") != 0) {
+                fprintf(stderr,
+                        "[ptr-access] line=%d field=%s\n",
+                        target->line,
+                        target->memberAccess.field ? target->memberAccess.field : "<null>");
+            }
             LLVMValueRef baseValue = codegenNode(ctx, target->memberAccess.base);
             if (!baseValue) return false;
             if (LLVMGetTypeKind(LLVMTypeOf(baseValue)) != LLVMPointerTypeKind) {
@@ -1161,7 +1197,24 @@ bool codegenLValue(CodegenContext* ctx,
             LLVMTypeRef baseType = cg_dereference_ptr_type(ctx, LLVMTypeOf(baseValue), "pointer member access");
             const ParsedType* baseParsed = cg_resolve_expression_type(ctx, target->memberAccess.base);
             ParsedType pointed = parsedTypePointerTargetType(baseParsed);
-            const ParsedType* structHint = (pointed.kind != TYPE_INVALID) ? &pointed : baseParsed;
+            ParsedType arrayElem;
+            memset(&arrayElem, 0, sizeof(arrayElem));
+            arrayElem.kind = TYPE_INVALID;
+            bool haveArrayElem = false;
+            bool havePointed = (pointed.kind != TYPE_INVALID);
+            const ParsedType* structHint = NULL;
+            if (havePointed) {
+                structHint = &pointed;
+            } else if (baseParsed && parsedTypeIsDirectArray(baseParsed)) {
+                arrayElem = parsedTypeArrayElementType(baseParsed);
+                if (arrayElem.kind != TYPE_INVALID) {
+                    haveArrayElem = true;
+                    structHint = &arrayElem;
+                }
+            }
+            if (!structHint) {
+                structHint = baseParsed;
+            }
             const char* nameHint = NULL;
             if (baseType && LLVMGetTypeKind(baseType) == LLVMStructTypeKind) {
                 nameHint = LLVMGetStructName(baseType);
@@ -1192,8 +1245,11 @@ bool codegenLValue(CodegenContext* ctx,
                 outInfo->storagePtr = storagePtr;
                 outInfo->storageType = storageTy;
                 outInfo->fieldParsed = NULL;
-                if (structHint == &pointed) {
+                if (havePointed) {
                     parsedTypeFree(&pointed);
+                }
+                if (haveArrayElem) {
+                    parsedTypeFree(&arrayElem);
                 }
                 return true;
             }
@@ -1208,7 +1264,14 @@ bool codegenLValue(CodegenContext* ctx,
                                                             &fieldType,
                                                             &fieldParsed);
             if (!fieldPtr) {
-                if (structHint == &pointed) parsedTypeFree(&pointed);
+                if (dbgPtr && dbgPtr[0] && strcmp(dbgPtr, "0") != 0) {
+                    fprintf(stderr,
+                            "[ptr-access] lookup-fail line=%d field=%s\n",
+                            target->line,
+                            target->memberAccess.field ? target->memberAccess.field : "<null>");
+                }
+                if (havePointed) parsedTypeFree(&pointed);
+                if (haveArrayElem) parsedTypeFree(&arrayElem);
                 return false;
             }
             *outPtr = fieldPtr;
@@ -1242,8 +1305,11 @@ bool codegenLValue(CodegenContext* ctx,
                 }
                 outInfo->flexElemSize = size ? size : 1;
             }
-            if (structHint == &pointed) {
+            if (havePointed) {
                 parsedTypeFree(&pointed);
+            }
+            if (haveArrayElem) {
+                parsedTypeFree(&arrayElem);
             }
             return true;
         }

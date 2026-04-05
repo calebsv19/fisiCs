@@ -57,6 +57,47 @@ LLVMTypeRef cg_dereference_ptr_type(CodegenContext* ctx, LLVMTypeRef ptrType, co
     return elem;
 }
 
+LLVMValueRef cg_build_entry_alloca(CodegenContext* ctx, LLVMTypeRef type, const char* nameHint) {
+    if (!ctx || !type) {
+        return NULL;
+    }
+    if (!ctx->builder) {
+        return NULL;
+    }
+
+    const char* name = nameHint ? nameHint : "";
+    LLVMBasicBlockRef currentBlock = LLVMGetInsertBlock(ctx->builder);
+    if (!currentBlock) {
+        return LLVMBuildAlloca(ctx->builder, type, name);
+    }
+
+    LLVMValueRef currentFunction = LLVMGetBasicBlockParent(currentBlock);
+    if (!currentFunction) {
+        return LLVMBuildAlloca(ctx->builder, type, name);
+    }
+
+    LLVMBasicBlockRef entryBlock = LLVMGetEntryBasicBlock(currentFunction);
+    if (!entryBlock) {
+        return LLVMBuildAlloca(ctx->builder, type, name);
+    }
+
+    LLVMBuilderRef entryBuilder = LLVMCreateBuilderInContext(ctx->llvmContext);
+    if (!entryBuilder) {
+        return LLVMBuildAlloca(ctx->builder, type, name);
+    }
+
+    LLVMValueRef firstInst = LLVMGetFirstInstruction(entryBlock);
+    if (firstInst) {
+        LLVMPositionBuilderBefore(entryBuilder, firstInst);
+    } else {
+        LLVMPositionBuilderAtEnd(entryBuilder, entryBlock);
+    }
+
+    LLVMValueRef slot = LLVMBuildAlloca(entryBuilder, type, name);
+    LLVMDisposeBuilder(entryBuilder);
+    return slot;
+}
+
 LLVMTypeRef cg_element_type_from_pointer_parsed(CodegenContext* ctx, const ParsedType* parsed) {
     if (!parsed || parsed->pointerDepth <= 0) {
         return NULL;
@@ -226,6 +267,23 @@ static bool cg_binary_op_is_comparison(const char* op) {
             strcmp(op, "<=") == 0 ||
             strcmp(op, ">") == 0 ||
             strcmp(op, ">=") == 0);
+}
+
+static bool cg_named_type_is_builtin_int128(const ParsedType* type, bool* outIsUnsigned) {
+    if (!type || type->kind != TYPE_NAMED || !type->userTypeName) {
+        return false;
+    }
+    if (strcmp(type->userTypeName, "__int128_t") == 0 ||
+        strcmp(type->userTypeName, "__int128") == 0) {
+        if (outIsUnsigned) *outIsUnsigned = false;
+        return true;
+    }
+    if (strcmp(type->userTypeName, "__uint128_t") == 0 ||
+        strcmp(type->userTypeName, "__uint128") == 0) {
+        if (outIsUnsigned) *outIsUnsigned = true;
+        return true;
+    }
+    return false;
 }
 
 static bool cg_parsed_type_is_pointer(const ParsedType* type) {
@@ -416,6 +474,12 @@ static CGValueCategory cg_classify_parsed_type(const ParsedType* type) {
             }
             return CG_VALUE_SIGNED_INT;
         case TYPE_NAMED:
+            {
+                bool isUnsigned128 = false;
+                if (cg_named_type_is_builtin_int128(type, &isUnsigned128)) {
+                    return isUnsigned128 ? CG_VALUE_UNSIGNED_INT : CG_VALUE_SIGNED_INT;
+                }
+            }
             switch (type->tag) {
                 case TAG_STRUCT:
                 case TAG_UNION:
@@ -465,9 +529,12 @@ static unsigned cg_float_rank(LLVMTypeKind kind) {
     }
 }
 
-static bool cg_should_treat_as_unsigned(const ParsedType* parsedType, LLVMTypeRef llvmType) {
+static bool cg_should_treat_as_unsigned(CodegenContext* ctx,
+                                        const ParsedType* parsedType,
+                                        LLVMTypeRef llvmType) {
     if (parsedType) {
-        CGValueCategory category = cg_classify_parsed_type(parsedType);
+        const ParsedType* resolved = cg_resolve_typedef_chain(ctx, parsedType);
+        CGValueCategory category = cg_classify_parsed_type(resolved ? resolved : parsedType);
         return cg_is_unsigned_category(category);
     }
 
@@ -1594,8 +1661,8 @@ LLVMValueRef cg_cast_value(CodegenContext* ctx,
     LLVMTypeKind srcKind = LLVMGetTypeKind(sourceType);
     LLVMTypeKind dstKind = LLVMGetTypeKind(targetType);
 
-    bool srcUnsigned = cg_should_treat_as_unsigned(fromParsed, sourceType);
-    bool dstUnsigned = cg_should_treat_as_unsigned(toParsed, targetType);
+    bool srcUnsigned = cg_should_treat_as_unsigned(ctx, fromParsed, sourceType);
+    bool dstUnsigned = cg_should_treat_as_unsigned(ctx, toParsed, targetType);
 
     if (dstKind == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(targetType) == 1) {
         if (srcKind == LLVMIntegerTypeKind) {

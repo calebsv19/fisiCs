@@ -20,6 +20,11 @@ static bool cg_is_builtin_const_name(const char* name) {
            strcmp(name, "__LDBL_MIN__") == 0;
 }
 
+static bool cg_is_builtin_bool_literal_name(const char* name) {
+    if (!name) return false;
+    return strcmp(name, "true") == 0 || strcmp(name, "false") == 0;
+}
+
 static bool cg_named_type_has_surface_derivations(const ParsedType* type) {
     if (!type || type->kind != TYPE_NAMED) {
         return false;
@@ -716,6 +721,21 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         }
         if (targetExpr && targetExpr->type == AST_IDENTIFIER) {
             const char* name = targetExpr->valueNode.value;
+            if (tookAddress && name && ctx->currentScope) {
+                NamedValue* named = cg_scope_lookup(ctx->currentScope, name);
+                if (named && named->value && named->isGlobal) {
+                    if (LLVMTypeOf(named->value) == targetType) {
+                        return named->value;
+                    }
+                    LLVMValueRef casted = LLVMConstPointerCast(named->value, targetType);
+                    if (!casted) {
+                        casted = LLVMConstBitCast(named->value, targetType);
+                    }
+                    if (casted) {
+                        return casted;
+                    }
+                }
+            }
             LLVMValueRef fn = name ? LLVMGetNamedFunction(ctx->module, name) : NULL;
             if (!fn && ctx->semanticModel && name) {
                 const Symbol* sym = semanticModelLookupGlobal(ctx->semanticModel, name);
@@ -1087,6 +1107,14 @@ void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node) {
 
 void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     if (!ctx || !sym || !sym->name) return;
+
+    /* `true`/`false` are compiler-seeded constant identifiers.
+     * Keep them as immediate constants; do not materialize mutable globals. */
+    if (!sym->definition &&
+        sym->hasConstValue &&
+        cg_is_builtin_bool_literal_name(sym->name)) {
+        return;
+    }
 
     LLVMTypeRef varType = cg_type_from_parsed(ctx, &sym->type);
     if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {

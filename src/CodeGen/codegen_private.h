@@ -162,8 +162,10 @@ LoopTarget cg_loop_peek_for_continue(const CodegenContext* ctx);
 LabelBinding* cg_lookup_label(CodegenContext* ctx, const char* name);
 LabelBinding* cg_ensure_label(CodegenContext* ctx, const char* name);
 LLVMBasicBlockRef cg_label_ensure_block(CodegenContext* ctx, LabelBinding* binding, LLVMValueRef func);
+void cg_clear_labels(CodegenContext* ctx);
 
 LLVMTypeRef cg_get_intptr_type(CodegenContext* ctx);
+LLVMValueRef cg_build_entry_alloca(CodegenContext* ctx, LLVMTypeRef type, const char* nameHint);
 LLVMValueRef cg_widen_bool_to_int(CodegenContext* ctx, LLVMValueRef value, const char* nameHint);
 LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
                                      LLVMValueRef basePtr,

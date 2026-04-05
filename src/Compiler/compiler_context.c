@@ -185,6 +185,8 @@ void cc_seed_builtins(CompilerContext* ctx) {
         "intptr_t",
         "uintptr_t",
         "ptrdiff_t",
+        "__int128_t",
+        "__uint128_t",
         "bool",
         "wchar_t",
         "wint_t",

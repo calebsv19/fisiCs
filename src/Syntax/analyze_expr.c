@@ -165,12 +165,63 @@ static bool buildFunctionDesignatorType(const Symbol* sym, ParsedType* outType) 
     return true;
 }
 
+static const Symbol* resolveFunctionDesignatorSymbol(ASTNode* expr, Scope* scope) {
+    if (!expr || !scope) return NULL;
+    if (expr->type == AST_IDENTIFIER) {
+        Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
+        if (sym && sym->kind == SYMBOL_FUNCTION) {
+            return sym;
+        }
+        return NULL;
+    }
+    if (expr->type == AST_UNARY_EXPRESSION &&
+        expr->expr.op &&
+        strcmp(expr->expr.op, "&") == 0 &&
+        expr->expr.left &&
+        expr->expr.left->type == AST_IDENTIFIER) {
+        Symbol* sym = resolveInScopeChain(scope, expr->expr.left->valueNode.value);
+        if (sym && sym->kind == SYMBOL_FUNCTION) {
+            return sym;
+        }
+    }
+    return NULL;
+}
+
+static bool functionSymbolsCompatibleForConditional(const Symbol* a, const Symbol* b) {
+    if (!a || !b || a->kind != SYMBOL_FUNCTION || b->kind != SYMBOL_FUNCTION) {
+        return false;
+    }
+    if (!parsedTypesStructurallyEqual(&a->type, &b->type)) {
+        return false;
+    }
+    bool aHasParams = a->signature.paramCount > 0 || a->signature.isVariadic;
+    bool bHasParams = b->signature.paramCount > 0 || b->signature.isVariadic;
+    if (!aHasParams || !bHasParams) {
+        return true;
+    }
+    if (a->signature.isVariadic != b->signature.isVariadic ||
+        a->signature.paramCount != b->signature.paramCount) {
+        return false;
+    }
+    for (size_t i = 0; i < a->signature.paramCount; ++i) {
+        if (!parsedTypesStructurallyEqual(&a->signature.params[i], &b->signature.params[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static bool typeInfoIsScalar(const TypeInfo* info) {
     return typeInfoIsArithmetic(info) || typeInfoIsPointerLike(info);
 }
 
 static bool typeInfoIsComplexLike(const TypeInfo* info) {
     return info && typeInfoIsFloating(info) && (info->isComplex || info->isImaginary);
+}
+
+static bool isBuiltinLiteralConstName(const char* name) {
+    if (!name) return false;
+    return strcmp(name, "true") == 0 || strcmp(name, "false") == 0;
 }
 
 static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b) {
@@ -1256,7 +1307,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             }
 
             TypeInfo info = typeInfoFromParsedType(&sym->type, scope);
-            info.isLValue = (sym->kind == SYMBOL_VARIABLE);
+            info.isLValue = (sym->kind == SYMBOL_VARIABLE) &&
+                            !isBuiltinLiteralConstName(sym->name);
             return info;
         }
 
@@ -2220,6 +2272,20 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 addError(node->line, 0, "Conditional operator first operand must be scalar", NULL);
                 conditionValid = false;
             }
+
+            const Symbol* trueFnSym = resolveFunctionDesignatorSymbol(node->ternaryExpr.trueExpr, scope);
+            const Symbol* falseFnSym = resolveFunctionDesignatorSymbol(node->ternaryExpr.falseExpr, scope);
+            if (trueFnSym && falseFnSym) {
+                bool fnCompat = functionSymbolsCompatibleForConditional(trueFnSym, falseFnSym);
+                if (!fnCompat &&
+                    conditionValid &&
+                    trueInfo.category != TYPEINFO_INVALID &&
+                    falseInfo.category != TYPEINFO_INVALID) {
+                    addError(node->line, 0, "Incompatible types in ternary expression", NULL);
+                    return makeInvalidType();
+                }
+            }
+
             bool ok = true;
             bool truePtr = typeInfoIsPointerLike(&trueInfo);
             bool falsePtr = typeInfoIsPointerLike(&falseInfo);

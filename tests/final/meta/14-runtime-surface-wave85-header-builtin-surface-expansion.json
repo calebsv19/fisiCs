@@ -4,6 +4,21 @@
   "bucket": "runtime-surface",
   "tests": [
     {
+      "id": "14__runtime_builtin_true_false_constants",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_builtin_true_false_constants.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_builtin_true_false_constants.stdout",
+      "expected_stderr": "expect/14__runtime_builtin_true_false_constants.stderr",
+      "differential": false,
+      "standard": "c99",
+      "tags": ["runtime", "builtin", "true", "false", "constants"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
       "id": "14__runtime_header_stdalign_bridge",
       "bucket": "runtime-surface",
       "input": "cases/14__runtime_header_stdalign_bridge.c",

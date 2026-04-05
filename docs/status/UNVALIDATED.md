@@ -12,7 +12,7 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
   `27` diagjson lanes), and
   `PROBE_FILTER=15__probe_*` => `resolved=136, blocked=0, skipped=0`.
 - Full final snapshot (2026-04-01):
-  `make final` => `0 failing, 32 skipped`.
+  `make final` => `0 failing, 36 skipped` (latest local run on 2026-04-04).
 - Plan reference for next work:
   `docs/plans/torture_bucket_15_execution_plan.md`.
 - Bucket-15 closure waves through Wave40 are now promoted.
@@ -72,6 +72,9 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
     - direct SDL system-header parsing is active in wave 1 (`binary__link_only__sdl2_header_real_smoke`, `binary__link_only__sdl2_stdinc_inline_smoke`)
 - Current phase marker:
   - Phase E6/E6b in progress (Levels 0-4 stable, corpus wave-9 active, diff wave-19 full parity, SDL waves 1-13 active, math wave-1 active, linkage wave-1 active, with wave-6 env-gated renderer checks).
+- External target progression marker:
+  - `line_drawing` moved to validated/passing status.
+  - next external-program validation target: `physics_sim`.
 - Recent binary fix:
   - `ptr_to_agg` call-shape compile hang is resolved.
   - `binary__compile_fail__abi_ptr_to_agg_timeout` now runs as a normal

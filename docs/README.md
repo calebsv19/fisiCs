@@ -29,3 +29,8 @@ This directory is organized so active reference material stays at the top level 
 - `plans/fisics_errors_triage_plan.md`
 - `plans/runtime_bucket_14_execution_plan.md`
 - `plans/binary_testing_execution_plan.md`
+- `plans/binary_line_drawing_execution_plan.md`
+
+Current milestone note:
+- `line_drawing` binary validation is complete and recorded in
+  `plans/binary_line_drawing_execution_plan.md`.

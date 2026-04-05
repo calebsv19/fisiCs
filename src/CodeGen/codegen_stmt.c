@@ -7,9 +7,71 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 static LLVMValueRef ensureIntegerLLVMValue(CodegenContext* ctx, LLVMValueRef value);
 static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType* type);
+
+static bool cg_builder_block_terminated(const CodegenContext* ctx) {
+    if (!ctx || !ctx->builder) {
+        return false;
+    }
+    LLVMBasicBlockRef block = LLVMGetInsertBlock(ctx->builder);
+    if (!block) {
+        return false;
+    }
+    return LLVMGetBasicBlockTerminator(block) != NULL;
+}
+
+static bool cg_statement_can_reopen_block(const ASTNode* stmt) {
+    return stmt && stmt->type == AST_LABEL_DECLARATION;
+}
+
+static bool cg_should_emit_statement_in_current_block(const CodegenContext* ctx,
+                                                      const ASTNode* stmt) {
+    if (!stmt) {
+        return false;
+    }
+    if (!cg_builder_block_terminated(ctx)) {
+        return true;
+    }
+    return cg_statement_can_reopen_block(stmt);
+}
+
+static bool cg_attr_payload_has_word(const char* payload, const char* word) {
+    if (!payload || !word || !word[0]) {
+        return false;
+    }
+    size_t wlen = strlen(word);
+    const char* p = payload;
+    while ((p = strstr(p, word)) != NULL) {
+        char left = (p == payload) ? '\0' : p[-1];
+        char right = p[wlen];
+        bool leftOk = (left == '\0') || (!isalnum((unsigned char)left) && left != '_');
+        bool rightOk = (right == '\0') || (!isalnum((unsigned char)right) && right != '_');
+        if (leftOk && rightOk) {
+            return true;
+        }
+        p += wlen;
+    }
+    return false;
+}
+
+static bool cg_function_has_gnu_weak_attribute(const ASTNode* node) {
+    if (!node || node->attributeCount == 0 || !node->attributes) {
+        return false;
+    }
+    for (size_t i = 0; i < node->attributeCount; ++i) {
+        const ASTAttribute* attr = node->attributes[i];
+        if (!attr || attr->syntax != AST_ATTRIBUTE_SYNTAX_GNU || !attr->payload) {
+            continue;
+        }
+        if (cg_attr_payload_has_word(attr->payload, "weak")) {
+            return true;
+        }
+    }
+    return false;
+}
 
 static bool cg_named_type_has_surface_derivations(const ParsedType* type) {
     if (!type || type->kind != TYPE_NAMED) {
@@ -155,7 +217,7 @@ static bool cg_init_pointer_from_compound_literal(CodegenContext* ctx,
         return false;
     }
 
-    LLVMValueRef tmp = LLVMBuildAlloca(ctx->builder, litType, "compound.literal.tmp");
+    LLVMValueRef tmp = cg_build_entry_alloca(ctx, litType, "compound.literal.tmp");
     if (!cg_store_compound_literal_into_ptr(ctx, tmp, litType, litParsed, literal)) {
         return false;
     }
@@ -292,7 +354,7 @@ static LLVMValueRef cg_finalize_statement_expr_result(CodegenContext* ctx, LLVMV
         return value;
     }
 
-    LLVMValueRef slot = LLVMBuildAlloca(ctx->builder, valueType, "stmt.expr.result.slot");
+    LLVMValueRef slot = cg_build_entry_alloca(ctx, valueType, "stmt.expr.result.slot");
     LLVMBuildStore(ctx->builder, value, slot);
     return LLVMBuildLoad2(ctx->builder, valueType, slot, "stmt.expr.result");
 }
@@ -322,7 +384,11 @@ LLVMValueRef codegenBlock(CodegenContext* ctx, ASTNode* node) {
     cg_scope_push(ctx);
     LLVMValueRef last = NULL;
     for (size_t i = 0; i < node->block.statementCount; i++) {
-        last = codegenNode(ctx, node->block.statements[i]);
+        ASTNode* stmt = node->block.statements[i];
+        if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
+            continue;
+        }
+        last = codegenNode(ctx, stmt);
     }
     cg_scope_pop(ctx);
     return last;
@@ -349,7 +415,7 @@ LLVMValueRef codegenStatementExpression(CodegenContext* ctx, ASTNode* node) {
         size_t count = block->block.statementCount;
         for (size_t i = 0; i < count; ++i) {
             ASTNode* stmt = block->block.statements[i];
-            if (!stmt) {
+            if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
                 continue;
             }
             bool isLast = (i + 1 == count);
@@ -459,6 +525,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                     }
                 } else {
                     fprintf(stderr, "Error: static local initializer is not a constant expression\n");
+                    return false;
                 }
             }
             continue;
@@ -499,7 +566,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 if (!storageType || LLVMGetTypeKind(storageType) == LLVMVoidTypeKind) {
                     storageType = LLVMArrayType(elementLLVM, 1);
                 }
-                storage = LLVMBuildAlloca(ctx->builder, storageType, varNameNode->valueNode.value);
+                storage = cg_build_entry_alloca(ctx, storageType, varNameNode->valueNode.value);
             }
             const ParsedType* storedParsed = arrayParsed ? arrayParsed : effectiveParsed;
             cg_scope_insert(ctx->currentScope,
@@ -530,7 +597,7 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
             if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
                 varType = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
             }
-            storage = LLVMBuildAlloca(ctx->builder, varType, varNameNode->valueNode.value);
+            storage = cg_build_entry_alloca(ctx, varType, varNameNode->valueNode.value);
             storageType = varType;
             const ParsedType* storedParsed = resolvedParsed ? resolvedParsed : effectiveParsed;
             LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedParsed);
@@ -800,7 +867,10 @@ LLVMValueRef codegenForLoop(CodegenContext* ctx, ASTNode* node) {
         codegenNode(ctx, node->forLoop.initializer);
     }
 
-    LLVMBuildBr(ctx->builder, condBB);
+    LLVMBasicBlockRef startBB = LLVMGetInsertBlock(ctx->builder);
+    if (startBB && !LLVMGetBasicBlockTerminator(startBB)) {
+        LLVMBuildBr(ctx->builder, condBB);
+    }
 
     LLVMPositionBuilderAtEnd(ctx->builder, condBB);
     LLVMValueRef cond = node->forLoop.condition ? codegenNode(ctx, node->forLoop.condition)
@@ -816,13 +886,19 @@ LLVMValueRef codegenForLoop(CodegenContext* ctx, ASTNode* node) {
     cg_loop_push(ctx, afterBB, incBB);
     codegenNode(ctx, node->forLoop.body);
     cg_loop_pop(ctx);
-    LLVMBuildBr(ctx->builder, incBB);
+    LLVMBasicBlockRef bodyEnd = LLVMGetInsertBlock(ctx->builder);
+    if (bodyEnd && !LLVMGetBasicBlockTerminator(bodyEnd)) {
+        LLVMBuildBr(ctx->builder, incBB);
+    }
 
     LLVMPositionBuilderAtEnd(ctx->builder, incBB);
     if (node->forLoop.increment) {
         codegenNode(ctx, node->forLoop.increment);
     }
-    LLVMBuildBr(ctx->builder, condBB);
+    LLVMBasicBlockRef incEnd = LLVMGetInsertBlock(ctx->builder);
+    if (incEnd && !LLVMGetBasicBlockTerminator(incEnd)) {
+        LLVMBuildBr(ctx->builder, condBB);
+    }
 
     LLVMPositionBuilderAtEnd(ctx->builder, afterBB);
     return NULL;
@@ -962,6 +1038,10 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
             /* Header inline defs can appear in many TUs; avoid strong duplicate symbols. */
             LLVMSetLinkage(function, LLVMLinkOnceODRLinkage);
         }
+        if (cg_function_has_gnu_weak_attribute(node) &&
+            LLVMGetLinkage(function) == LLVMExternalLinkage) {
+            LLVMSetLinkage(function, LLVMWeakAnyLinkage);
+        }
     }
 
     LLVMBasicBlockRef entry = LLVMAppendBasicBlock(function, "entry");
@@ -972,6 +1052,8 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     const char* previousFunctionName = ctx->currentFunctionName;
     ctx->currentFunctionName = fnName;
 
+    // Labels are function-local in C; drop bindings from the previous function.
+    cg_clear_labels(ctx);
     cg_scope_push(ctx);
 
     for (size_t i = 0; i < paramCount; i++) {
@@ -989,7 +1071,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
         LLVMValueRef incomingParam = LLVMGetParam(function, (unsigned)i);
         if (paramPassIndirect && paramPassIndirect[i] && paramValueTypes && paramValueTypes[i]) {
             LLVMTypeRef valueTy = paramValueTypes[i];
-            allocaInst = LLVMBuildAlloca(ctx->builder, valueTy, label);
+            allocaInst = cg_build_entry_alloca(ctx, valueTy, label);
             LLVMTypeRef expectedPtrTy = LLVMPointerType(valueTy, 0);
             if (LLVMTypeOf(incomingParam) != expectedPtrTy) {
                 incomingParam = LLVMBuildBitCast(ctx->builder,
@@ -1017,7 +1099,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                             paramAlign,
                             copySize);
         } else {
-            allocaInst = LLVMBuildAlloca(ctx->builder, paramType, label);
+            allocaInst = cg_build_entry_alloca(ctx, paramType, label);
             LLVMBuildStore(ctx->builder, incomingParam, allocaInst);
         }
         LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedType);
@@ -1049,6 +1131,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     }
 
     cg_scope_pop(ctx);
+    cg_clear_labels(ctx);
     ctx->currentFunctionReturnType = previousReturnType;
     ctx->currentFunctionName = previousFunctionName;
     cg_free_param_infos(paramInfos);
@@ -1348,7 +1431,11 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
             }
             LLVMPositionBuilderAtEnd(ctx->builder, caseBB);
             for (size_t stmtIdx = 0; stmtIdx < caseNode->caseStmt.caseBodySize; ++stmtIdx) {
-                codegenNode(ctx, caseNode->caseStmt.caseBody[stmtIdx]);
+                ASTNode* stmt = caseNode->caseStmt.caseBody[stmtIdx];
+                if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
+                    continue;
+                }
+                codegenNode(ctx, stmt);
             }
             LLVMBasicBlockRef currentBB = LLVMGetInsertBlock(ctx->builder);
             if (currentBB && !LLVMGetBasicBlockTerminator(currentBB)) {
@@ -1376,7 +1463,11 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
 
             LLVMPositionBuilderAtEnd(ctx->builder, caseBB);
             for (size_t stmtIdx = 0; stmtIdx < caseNode->caseStmt.caseBodySize; ++stmtIdx) {
-                codegenNode(ctx, caseNode->caseStmt.caseBody[stmtIdx]);
+                ASTNode* stmt = caseNode->caseStmt.caseBody[stmtIdx];
+                if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
+                    continue;
+                }
+                codegenNode(ctx, stmt);
             }
             LLVMBasicBlockRef currentBB = LLVMGetInsertBlock(ctx->builder);
             if (currentBB && !LLVMGetBasicBlockTerminator(currentBB)) {
@@ -1399,7 +1490,11 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
     LLVMPositionBuilderAtEnd(ctx->builder, defaultBB);
     if (defaultCase) {
         for (size_t stmtIdx = 0; stmtIdx < defaultCase->caseStmt.caseBodySize; ++stmtIdx) {
-            codegenNode(ctx, defaultCase->caseStmt.caseBody[stmtIdx]);
+            ASTNode* stmt = defaultCase->caseStmt.caseBody[stmtIdx];
+            if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
+                continue;
+            }
+            codegenNode(ctx, stmt);
         }
     }
     if (!LLVMGetBasicBlockTerminator(defaultBB)) {
@@ -1482,6 +1577,9 @@ LLVMValueRef codegenGoto(CodegenContext* ctx, ASTNode* node) {
     if (func) {
         LLVMBasicBlockRef sink = LLVMAppendBasicBlock(func, "goto.sink");
         LLVMPositionBuilderAtEnd(ctx->builder, sink);
+        LLVMBuildUnreachable(ctx->builder);
+        LLVMBasicBlockRef cont = LLVMAppendBasicBlock(func, "goto.cont");
+        LLVMPositionBuilderAtEnd(ctx->builder, cont);
     }
     return NULL;
 }

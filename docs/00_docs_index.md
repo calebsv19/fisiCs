@@ -123,6 +123,14 @@ Ordered near-term binary expansion plan that defines the next strict focus
 areas (`stdio/libc`, `math`, `multi-TU linkage`) and enforces one-area-at-a-time
 promotion gates.
 
+### `docs/plans/binary_line_drawing_execution_plan.md`
+
+Dedicated external-program execution plan for taking `line_drawing` through the
+post-`datalab` binary workflow: clang baseline, full `fisics` compile + clang
+link, deterministic runtime parity, soak stability, and one-TU mix-matrix
+blocker isolation. This plan now also carries the completion record for the
+validated `line_drawing` milestone.
+
 ### `docs/plans/link_stage_diagjson_enablement_plan.md`
 
 Phased implementation plan for enabling structured diagnostics JSON output on
@@ -196,6 +204,7 @@ Open these docs based on what you are trying to do:
 - Need active error triage planning: `plans/fisics_errors_triage_plan.md`
 - Need current runtime-bucket roadmap: `plans/runtime_bucket_14_execution_plan.md`
 - Need staged binary-testing rollout and safety model: `plans/binary_testing_execution_plan.md`
+- Need the immediate post-`datalab` external target plan (`line_drawing`): `plans/binary_line_drawing_execution_plan.md`
 - Need concrete next SDL binary waves: `plans/binary_sdl_phase_e_wave_plan.md`
 - Need link-stage `.diagjson` implementation roadmap: `plans/link_stage_diagjson_enablement_plan.md`
 - Need current torture-bucket roadmap: `plans/torture_bucket_15_execution_plan.md`

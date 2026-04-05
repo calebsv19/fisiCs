@@ -384,7 +384,10 @@ void seedBuiltins(Scope* globalScope) {
         trueSym->name = strdup("true");
         trueSym->kind = SYMBOL_VARIABLE;
         trueSym->type = intType();
+        trueSym->type.isConst = true;
         trueSym->definition = NULL;
+        trueSym->hasConstValue = true;
+        trueSym->constValue = 1;
         addToScope(scope, trueSym);
     }
 
@@ -393,7 +396,10 @@ void seedBuiltins(Scope* globalScope) {
         falseSym->name = strdup("false");
         falseSym->kind = SYMBOL_VARIABLE;
         falseSym->type = intType();
+        falseSym->type.isConst = true;
         falseSym->definition = NULL;
+        falseSym->hasConstValue = true;
+        falseSym->constValue = 0;
         addToScope(scope, falseSym);
     }
 

@@ -428,6 +428,13 @@ else
 	@./tests/codegen/run_codegen_builtin_expect.sh ./$(BIN)
 endif
 
+codegen-weak-linkage: $(BIN)
+ifeq ($(DISABLE_CODEGEN),1)
+	@echo "Skipping codegen-weak-linkage (codegen disabled)"
+else
+	@./tests/codegen/run_codegen_weak_linkage.sh ./$(BIN)
+endif
+
 statement-expr-codegen: $(BIN)
 ifeq ($(DISABLE_CODEGEN),1)
 	@echo "Skipping statement-expr-codegen (codegen disabled)"
@@ -591,7 +598,7 @@ codegen-tests: pointer-arith codegen-pointer-deref codegen-pointer-diff codegen-
                codegen-ternary-merge codegen-shift codegen-varargs-call \
                codegen-callconv-declspec codegen-switch-dense codegen-switch-sparse \
                codegen-opaque-pointer codegen-const-globals \
-               codegen-compound-literal-storage codegen-builtin-expect \
+               codegen-compound-literal-storage codegen-builtin-expect codegen-weak-linkage \
                statement-expr-codegen
 
 test-binary-smoke: $(BIN)
@@ -662,6 +669,7 @@ preprocessor-tests: $(BIN)
 	@./tests/preprocessor/run_pp_builtins.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_trigraph_digraph.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_macro_recursion.sh ./$(BIN)
+	@./tests/preprocessor/run_pp_recursive_guard.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_macro_depth.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_system_include.sh ./$(BIN)
 	@./tests/preprocessor/run_pp_external_system_include.sh ./$(BIN)

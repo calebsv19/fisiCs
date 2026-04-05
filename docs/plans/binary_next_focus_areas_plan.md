@@ -92,3 +92,37 @@ A focus area is promoted only when all conditions are met:
 - **Post-area fix lanes completed**:
   - builtin macro exposure (`math.h` `NAN`/`INFINITY` path)
   - implementation-defined `strto*` no-digit `errno` policy tagging
+- **External target progression update (2026-04-04)**:
+  - `line_drawing` binary campaign is complete and marked stable.
+  - `line_drawing` now closes with full interactive validation (render + input)
+    and green compiler suite (`make final` => `0 failing, 36 skipped`).
+  - next target is `physics_sim`.
+
+## Next Program Progression (Post-Datalab)
+
+After confirming `datalab` full compile+run stability, the next external
+program target order is:
+
+1. `physics_sim` (next active target)
+2. `map_forge`
+3. `daw`
+
+Rationale:
+
+- `line_drawing` expands binary surface area (SDL2_ttf + Vulkan + shared libs)
+  with manageable complexity and existing deterministic gates.
+- `physics_sim` and `map_forge` are larger and carry more subsystem coupling.
+- `daw` is the largest/most coupled lane and should remain last in this run
+  order.
+
+Execution contract for each program:
+
+1. clang baseline pass
+2. full `fisics` compile + clang link pass
+3. deterministic headless/runtime parity pass
+4. soak stability pass
+5. one-TU mix matrix only when a blocker appears
+6. targeted fix + regression + revalidation
+
+See `docs/plans/binary_line_drawing_execution_plan.md` for the concrete next
+program plan and phase gates.

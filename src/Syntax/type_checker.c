@@ -4,7 +4,10 @@
 #include "Compiler/compiler_context.h"
 #include "Syntax/target_layout.h"
 #include "AST/ast_node.h"
+#include "Parser/Helpers/parsed_type_format.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static TypeInfo makeBaseInvalid(void) {
@@ -111,6 +114,19 @@ static unsigned targetLongDoubleBits(Scope* scope) {
     const struct TargetLayout* tl = scope && scope->ctx ? cc_get_target_layout(scope->ctx) : tl_default();
     if (!tl) tl = tl_default();
     return (unsigned)tl->longDoubleBits;
+}
+
+static bool is_builtin_int128_name(const char* name, bool* outIsUnsigned) {
+    if (!name) return false;
+    if (strcmp(name, "__int128_t") == 0 || strcmp(name, "__int128") == 0) {
+        if (outIsUnsigned) *outIsUnsigned = false;
+        return true;
+    }
+    if (strcmp(name, "__uint128_t") == 0 || strcmp(name, "__uint128") == 0) {
+        if (outIsUnsigned) *outIsUnsigned = true;
+        return true;
+    }
+    return false;
 }
 
 TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex, Scope* scope) {
@@ -256,6 +272,12 @@ static TypeInfo typeInfoFromBaseKind(const ParsedType* type, Scope* scope) {
             return info;
         }
         case TYPE_NAMED: {
+            bool isUnsignedBuiltin128 = false;
+            if (is_builtin_int128_name(type->userTypeName, &isUnsignedBuiltin128)) {
+                TypeInfo info = makeIntegerType(128, !isUnsignedBuiltin128, isUnsignedBuiltin128 ? TOKEN_UNSIGNED : TOKEN_LONG);
+                applyQualifiers(&info, type);
+                return info;
+            }
             const ParsedType* resolved = resolveTypedef(type, scope);
             if (!resolved) {
                 TypeInfo info = makeInvalidType();
@@ -517,10 +539,33 @@ static bool sameString(const char* a, const char* b) {
     return strcmp(a, b) == 0;
 }
 
+static const char* canonicalUserTypeName(const TypeInfo* t) {
+    if (!t) return NULL;
+    if (t->userTypeName && t->userTypeName[0]) {
+        return t->userTypeName;
+    }
+    if (t->originalType && t->originalType->userTypeName &&
+        t->originalType->userTypeName[0]) {
+        return t->originalType->userTypeName;
+    }
+    return NULL;
+}
+
 static bool pointerTargetsEqual(const TypeInfo* a, const TypeInfo* b) {
-    return a->primitive == b->primitive &&
-           a->tag == b->tag &&
-           sameString(a->userTypeName, b->userTypeName);
+    if (!a || !b) return false;
+    const char* aName = canonicalUserTypeName(a);
+    const char* bName = canonicalUserTypeName(b);
+    if (a->tag != b->tag) {
+        return false;
+    }
+    if (a->tag != TAG_NONE) {
+        return sameString(aName, bName);
+    }
+    if (a->primitive != b->primitive) {
+        // Fallback for unresolved named aliases that carry no primitive/tag info.
+        return aName && bName && strcmp(aName, bName) == 0;
+    }
+    return true;
 }
 
 static bool parsedTypeIsPointerish(const ParsedType* t) {
@@ -561,7 +606,9 @@ bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
             bool equal = parsedTypesStructurallyEqual(&lhs, &rhs);
             parsedTypeFree(&lhs);
             parsedTypeFree(&rhs);
-            return equal;
+            if (equal) {
+                return true;
+            }
         }
         if (a->pointerDepth != b->pointerDepth) return false;
         return pointerTargetsEqual(a, b);
@@ -579,9 +626,10 @@ bool typesAreEqual(const TypeInfo* a, const TypeInfo* b) {
                    a->isImaginary == b->isImaginary;
         case TYPEINFO_STRUCT:
         case TYPEINFO_UNION:
-            return a->tag == b->tag && sameString(a->userTypeName, b->userTypeName);
+            return a->tag == b->tag &&
+                   sameString(canonicalUserTypeName(a), canonicalUserTypeName(b));
         case TYPEINFO_ENUM:
-            return sameString(a->userTypeName, b->userTypeName);
+            return sameString(canonicalUserTypeName(a), canonicalUserTypeName(b));
         case TYPEINFO_VOID:
             return true;
         case TYPEINFO_FUNCTION:
@@ -761,6 +809,31 @@ static bool functionPointerQualifierLoss(const ParsedType* destType, const Parse
     return false;
 }
 
+static void debugAssignmentMismatch(const TypeInfo* dest, const TypeInfo* src, const char* reason) {
+    const char* dbg = getenv("FISICS_DEBUG_ASSIGN");
+    if (!dbg || dbg[0] == '\0' || strcmp(dbg, "0") == 0) {
+        return;
+    }
+    char* destType = parsed_type_to_string(dest ? dest->originalType : NULL);
+    char* srcType = parsed_type_to_string(src ? src->originalType : NULL);
+    fprintf(stderr,
+            "[assign-debug] %s | dest(cat=%d tag=%d depth=%d name=%s parsed=%s) "
+            "src(cat=%d tag=%d depth=%d name=%s parsed=%s)\n",
+            reason ? reason : "mismatch",
+            dest ? (int)dest->category : -1,
+            dest ? (int)dest->tag : -1,
+            dest ? dest->pointerDepth : -1,
+            (dest && canonicalUserTypeName(dest)) ? canonicalUserTypeName(dest) : "<null>",
+            destType ? destType : "<null>",
+            src ? (int)src->category : -1,
+            src ? (int)src->tag : -1,
+            src ? src->pointerDepth : -1,
+            (src && canonicalUserTypeName(src)) ? canonicalUserTypeName(src) : "<null>",
+            srcType ? srcType : "<null>");
+    free(destType);
+    free(srcType);
+}
+
 AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) {
     if (!dest || !src) return ASSIGN_INCOMPATIBLE;
 
@@ -779,6 +852,7 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
             return ASSIGN_OK;
         }
         if (dest->pointerDepth != src->pointerDepth) {
+            debugAssignmentMismatch(dest, src, "pointer depth mismatch");
             return ASSIGN_INCOMPATIBLE;
         }
         if (functionPointerQualifierLoss(dest->originalType, src->originalType)) {
@@ -795,6 +869,7 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
         }
         if (typeInfoIsFunctionPointer(dest) && typeInfoIsFunctionPointer(src)) {
             if (!functionPointerTargetsCompatible(dest->originalType, src->originalType)) {
+                debugAssignmentMismatch(dest, src, "function pointer target mismatch");
                 return ASSIGN_INCOMPATIBLE;
             }
             return ASSIGN_OK;
@@ -805,6 +880,7 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
         if (typesAreEqual(dest, src)) {
             return ASSIGN_OK;
         }
+        debugAssignmentMismatch(dest, src, "pointer targets mismatch");
         return ASSIGN_INCOMPATIBLE;
     }
 
@@ -821,5 +897,6 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
         return ASSIGN_OK;
     }
 
+    debugAssignmentMismatch(dest, src, "category mismatch");
     return ASSIGN_INCOMPATIBLE;
 }

@@ -23,6 +23,8 @@ typedef struct {
     size_t includePathCount;
     const char* const* macroDefines;
     size_t macroDefineCount;
+    const char* const* forcedIncludes;
+    size_t forcedIncludeCount;
     PreprocessMode preprocessMode;
     const char* externalPreprocessCmd;
     const char* externalPreprocessArgs;

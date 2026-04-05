@@ -553,10 +553,12 @@ int main(int argc, char **argv) {
     bool enableExtensions = false;
     StringList includePaths = {0};
     StringList macroDefines = {0};
+    StringList forcedIncludes = {0};
     StringList inputCFiles = {0};
     StringList inputOFiles = {0};
     StringList linkerSearchPaths = {0};
     StringList linkerLibs = {0};
+    StringList linkerFrameworks = {0};
 
     if (!validate_shim_profile_contract()) {
         return 1;
@@ -659,6 +661,13 @@ int main(int argc, char **argv) {
                 def = argv[++i];
             }
             if (!string_list_push(&macroDefines, def)) { fprintf(stderr, "OOM: macro define\n"); goto fail; }
+        } else if (strcmp(argv[i], "-include") == 0) {
+            if (i + 1 >= argc) { fprintf(stderr, "-include requires a path\n"); goto fail; }
+            if (!string_list_push(&forcedIncludes, argv[++i])) { fprintf(stderr, "OOM: forced include\n"); goto fail; }
+        } else if (strncmp(argv[i], "-include", 8) == 0) {
+            const char* path = argv[i] + 8;
+            if (!*path) { fprintf(stderr, "-include requires a path\n"); goto fail; }
+            if (!string_list_push(&forcedIncludes, path)) { fprintf(stderr, "OOM: forced include\n"); goto fail; }
         } else if (strncmp(argv[i], "-L", 2) == 0) {
             const char* path = argv[i] + 2;
             if (!*path) {
@@ -673,6 +682,12 @@ int main(int argc, char **argv) {
                 lib = argv[++i];
             }
             if (!string_list_push(&linkerLibs, lib)) { fprintf(stderr, "OOM: -l name\n"); goto fail; }
+        } else if (strcmp(argv[i], "-framework") == 0) {
+            if (i + 1 >= argc) { fprintf(stderr, "-framework requires a framework name\n"); goto fail; }
+            if (!string_list_push(&linkerFrameworks, argv[++i])) {
+                fprintf(stderr, "OOM: framework name\n");
+                goto fail;
+            }
         } else if (strncmp(argv[i], "--linker=", 9) == 0) {
             linkerPath = argv[i] + 9;
         } else if (strcmp(argv[i], "--no-warn-ignored-cc") == 0) {
@@ -828,7 +843,8 @@ int main(int argc, char **argv) {
     }
 
     bool driverMode = compileOnly || outputName || inputOFiles.count > 0 ||
-                      linkerSearchPaths.count > 0 || linkerLibs.count > 0 || linkerPath;
+                      linkerSearchPaths.count > 0 || linkerLibs.count > 0 ||
+                      linkerFrameworks.count > 0 || linkerPath;
     if (driverMode) {
         if (compileOnly) {
             if (inputCFiles.count == 0) {
@@ -872,6 +888,8 @@ int main(int argc, char **argv) {
                     .includePathCount = includePaths.count,
                     .macroDefines = (const char* const*)macroDefines.items,
                     .macroDefineCount = macroDefines.count,
+                    .forcedIncludes = (const char* const*)forcedIncludes.items,
+                    .forcedIncludeCount = forcedIncludes.count,
                     .preprocessMode = preprocessMode,
                     .externalPreprocessCmd = externalPreprocessCmd,
                     .externalPreprocessArgs = externalPreprocessArgs,
@@ -932,10 +950,12 @@ int main(int argc, char **argv) {
 
             string_list_free(&includePaths);
             string_list_free(&macroDefines);
+            string_list_free(&forcedIncludes);
             string_list_free(&inputCFiles);
             string_list_free(&inputOFiles);
             string_list_free(&linkerSearchPaths);
             string_list_free(&linkerLibs);
+            string_list_free(&linkerFrameworks);
             return 0;
         } else {
             if (inputCFiles.count == 0 && inputOFiles.count == 0) {
@@ -969,6 +989,8 @@ int main(int argc, char **argv) {
                     .includePathCount = includePaths.count,
                     .macroDefines = (const char* const*)macroDefines.items,
                     .macroDefineCount = macroDefines.count,
+                    .forcedIncludes = (const char* const*)forcedIncludes.items,
+                    .forcedIncludeCount = forcedIncludes.count,
                     .preprocessMode = preprocessMode,
                     .externalPreprocessCmd = externalPreprocessCmd,
                     .externalPreprocessArgs = externalPreprocessArgs,
@@ -1071,6 +1093,10 @@ int main(int argc, char **argv) {
                 allOk = string_list_push(&argvList, flag);
                 free(flag);
             }
+            for (size_t i = 0; allOk && i < linkerFrameworks.count; ++i) {
+                allOk = string_list_push(&argvList, "-framework") &&
+                        string_list_push(&argvList, linkerFrameworks.items[i]);
+            }
             const char* finalOutput = outputName ? outputName : "a.out";
             if (allOk) {
                 allOk = string_list_push(&argvList, "-o") &&
@@ -1156,10 +1182,12 @@ int main(int argc, char **argv) {
 
             string_list_free(&includePaths);
             string_list_free(&macroDefines);
+            string_list_free(&forcedIncludes);
             string_list_free(&inputCFiles);
             string_list_free(&inputOFiles);
             string_list_free(&linkerSearchPaths);
             string_list_free(&linkerLibs);
+            string_list_free(&linkerFrameworks);
             return statusCode;
         }
     }
@@ -1178,6 +1206,8 @@ int main(int argc, char **argv) {
         .includePathCount = includePaths.count,
         .macroDefines = (const char* const*)macroDefines.items,
         .macroDefineCount = macroDefines.count,
+        .forcedIncludes = (const char* const*)forcedIncludes.items,
+        .forcedIncludeCount = forcedIncludes.count,
         .preprocessMode = preprocessMode,
         .externalPreprocessCmd = externalPreprocessCmd,
         .externalPreprocessArgs = externalPreprocessArgs,
@@ -1210,18 +1240,22 @@ int main(int argc, char **argv) {
     compile_result_destroy(&result);
     string_list_free(&includePaths);
     string_list_free(&macroDefines);
+    string_list_free(&forcedIncludes);
     string_list_free(&inputCFiles);
     string_list_free(&inputOFiles);
     string_list_free(&linkerSearchPaths);
     string_list_free(&linkerLibs);
+    string_list_free(&linkerFrameworks);
     return status;
 
 fail:
     string_list_free(&includePaths);
     string_list_free(&macroDefines);
+    string_list_free(&forcedIncludes);
     string_list_free(&inputCFiles);
     string_list_free(&inputOFiles);
     string_list_free(&linkerSearchPaths);
     string_list_free(&linkerLibs);
+    string_list_free(&linkerFrameworks);
     return 1;
 }

@@ -55,6 +55,27 @@ static const char* lexer_display_file_path(const Lexer* lexer, char* scratch, si
     return scratch;
 }
 
+static bool lexer_is_system_header_path(const char* file) {
+    if (!file || file[0] != '/') return false;
+    static const char* kPrefixes[] = {
+        "/usr/include/",
+        "/usr/local/include/",
+        "/opt/homebrew/include/",
+        "/Library/Developer/",
+        "/Applications/Xcode.app/",
+        "/Applications/Xcode-beta.app/",
+        "/Library/Frameworks/",
+        "/System/Library/"
+    };
+    for (size_t i = 0; i < sizeof(kPrefixes) / sizeof(kPrefixes[0]); ++i) {
+        size_t n = strlen(kPrefixes[i]);
+        if (strncmp(file, kPrefixes[i], n) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static inline int lexer_compute_column(int position, int lineStart) {
     int column = (position - lineStart) + 1;
     return (column < 1) ? 1 : column;
@@ -1295,6 +1316,19 @@ Token handlePunctuation(Lexer* lexer) {
 Token handleUnknownToken(Lexer* lexer) {
     LexerMark start = lexer_mark(lexer);
     unsigned char bad = (unsigned char)lexer->source[lexer->position];
+    if (bad == '@') {
+        lexer->position++;
+        if (lexer_is_system_header_path(lexer_file_path(lexer))) {
+            /*
+             * Some platform headers contain Objective-C tokens in inactive
+             * #ifdef branches. Keep '@' non-fatal there so preprocessor
+             * branch pruning can discard it.
+             */
+            return make_token(lexer, TOKEN_UNKNOWN, (char*)"@", start);
+        }
+        report_lexer_error(lexer, start, "Invalid character in source", "@");
+        return make_token(lexer, TOKEN_UNKNOWN, (char*)"ERROR", start);
+    }
     char got[8];
     if (isprint(bad)) {
         got[0] = (char)bad;

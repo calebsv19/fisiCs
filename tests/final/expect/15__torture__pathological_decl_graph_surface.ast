@@ -1352,9 +1352,7 @@ target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64
 @NULL = internal global ptr null, align 8
 @sys_errlist = external global ptr, align 8
 @__FLT_MIN__ = internal global float 0.000000e+00, align 4
-@true = internal global i32 0, align 4
 @__stderrp = external global ptr, align 8
-@false = internal global i32 0, align 4
 @__DBL_MIN__ = internal global double 0.000000e+00, align 8
 @sys_nerr = external global i32, align 4
 @.str.0 = private unnamed_addr constant [7 x i8] c"%d %d\0A\00"
@@ -1383,11 +1381,11 @@ declare i32 @fputc(i32 %0, ptr %1)
 
 declare i32 @renameatx_np(i32 %0, ptr %1, i32 %2, ptr %3, i32 %4)
 
-define i32 @op_fold(i32 %0, i32 %1) {
+define internal i32 @op_fold(i32 %0, i32 %1) {
 entry:
+  %b = alloca i32, align 4
   %a = alloca i32, align 4
   store i32 %0, ptr %a, align 4
-  %b = alloca i32, align 4
   store i32 %1, ptr %b, align 4
   %a1 = load i32, ptr %a, align 4
   %multmp = mul i32 %a1, 5
@@ -1469,20 +1467,25 @@ declare i32 @__swbuf(i32 %0, ptr %1)
 
 declare void @__builtin_va_copy(...)
 
-define i32 @run_graph(ptr %0, ptr %1, i32 %2) {
+define internal i32 @run_graph(ptr %0, ptr %1, i32 %2) {
 entry:
+  %y = alloca i32, align 4
+  %x = alloca i32, align 4
+  %f1 = alloca ptr, align 8
+  %f0 = alloca ptr, align 8
+  %lane = alloca i32, align 4
+  %i = alloca i32, align 4
+  %cur = alloca ptr, align 8
+  %acc = alloca i32, align 4
+  %n = alloca i32, align 4
+  %values = alloca ptr, align 8
   %head = alloca ptr, align 8
   store ptr %0, ptr %head, align 8
-  %values = alloca ptr, align 8
   store ptr %1, ptr %values, align 8
-  %n = alloca i32, align 4
   store i32 %2, ptr %n, align 4
-  %acc = alloca i32, align 4
   store i32 17, ptr %acc, align 4
-  %cur = alloca ptr, align 8
   %head1 = load ptr, ptr %head, align 8
   store ptr %head1, ptr %cur, align 8
-  %i = alloca i32, align 4
   store i32 0, ptr %i, align 4
   br label %forcond
 
@@ -1495,11 +1498,6 @@ forcond:                                          ; preds = %forinc, %entry
   br i1 %forcond4, label %forbody, label %forend
 
 forbody:                                          ; preds = %forcond
-  %lane = alloca i32, align 4
-  %f0 = alloca ptr, align 8
-  %f1 = alloca ptr, align 8
-  %x = alloca i32, align 4
-  %y = alloca i32, align 4
   %cur5 = load ptr, ptr %cur, align 8
   %ptr.cmp.lhs = ptrtoint ptr %cur5 to i64
   %ptrcmp = icmp eq i64 %ptr.cmp.lhs, 0
@@ -1605,11 +1603,11 @@ declare ptr @__builtin___strncat_chk(ptr %0, ptr %1, i64 %2, i64 %3)
 
 declare i32 @vfscanf(ptr %0, ptr %1, ptr %2)
 
-define i32 @op_sub(i32 %0, i32 %1) {
+define internal i32 @op_sub(i32 %0, i32 %1) {
 entry:
+  %b = alloca i32, align 4
   %a = alloca i32, align 4
   store i32 %0, ptr %a, align 4
-  %b = alloca i32, align 4
   store i32 %1, ptr %b, align 4
   %a1 = load i32, ptr %a, align 4
   %b2 = load i32, ptr %b, align 4
@@ -1627,11 +1625,11 @@ declare void @rewind(ptr %0)
 
 declare i64 @getdelim(ptr %0, ptr %1, i32 %2, ptr %3)
 
-define i32 @op_mix(i32 %0, i32 %1) {
+define internal i32 @op_mix(i32 %0, i32 %1) {
 entry:
+  %b = alloca i32, align 4
   %a = alloca i32, align 4
   store i32 %0, ptr %a, align 4
-  %b = alloca i32, align 4
   store i32 %1, ptr %b, align 4
   %a1 = load i32, ptr %a, align 4
   %shltmp = shl i32 %a1, 1
@@ -1752,7 +1750,14 @@ declare i32 @__builtin_va_arg(ptr %0, i32 %1, ...)
 
 define i32 @main() {
 entry:
+  %b = alloca i32, align 4
+  %a = alloca i32, align 4
+  %l0 = alloca %Layer, align 8
+  %l1 = alloca %Layer, align 8
+  %l2 = alloca %Layer, align 8
+  %l3 = alloca %Layer, align 8
   %values = alloca [7 x i32], align 4
+  store [7 x i32] zeroinitializer, ptr %values, align 4
   %init.elem = getelementptr [7 x i32], ptr %values, i32 0, i32 0
   store i32 3, ptr %init.elem, align 4
   %init.elem1 = getelementptr [7 x i32], ptr %values, i32 0, i32 1
@@ -1767,11 +1772,13 @@ entry:
   store i32 34, ptr %init.elem5, align 4
   %init.elem6 = getelementptr [7 x i32], ptr %values, i32 0, i32 6
   store i32 55, ptr %init.elem6, align 4
-  %l3 = alloca %Layer, align 8
+  store %Layer zeroinitializer, ptr %l3, align 8
   %fieldPtr = getelementptr inbounds nuw %Layer, ptr %l3, i32 0, i32 0
+  store %__anon_struct_1_12 zeroinitializer, ptr %fieldPtr, align 8
   %fieldPtr7 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr, i32 0, i32 0
   store i32 4, ptr %fieldPtr7, align 4
   %fieldPtr8 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr, i32 0, i32 1
+  store [3 x ptr] zeroinitializer, ptr %fieldPtr8, align 8
   %init.elem9 = getelementptr [3 x ptr], ptr %fieldPtr8, i32 0, i32 0
   store ptr @op_mix, ptr %init.elem9, align 8
   %init.elem10 = getelementptr [3 x ptr], ptr %fieldPtr8, i32 0, i32 1
@@ -1782,11 +1789,13 @@ entry:
   store ptr null, ptr %fieldPtr12, align 8
   %fieldPtr13 = getelementptr inbounds nuw %Layer, ptr %l3, i32 0, i32 1
   store i32 9, ptr %fieldPtr13, align 4
-  %l2 = alloca %Layer, align 8
+  store %Layer zeroinitializer, ptr %l2, align 8
   %fieldPtr14 = getelementptr inbounds nuw %Layer, ptr %l2, i32 0, i32 0
+  store %__anon_struct_1_12 zeroinitializer, ptr %fieldPtr14, align 8
   %fieldPtr15 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr14, i32 0, i32 0
   store i32 3, ptr %fieldPtr15, align 4
   %fieldPtr16 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr14, i32 0, i32 1
+  store [3 x ptr] zeroinitializer, ptr %fieldPtr16, align 8
   %init.elem17 = getelementptr [3 x ptr], ptr %fieldPtr16, i32 0, i32 0
   store ptr @op_sub, ptr %init.elem17, align 8
   %init.elem18 = getelementptr [3 x ptr], ptr %fieldPtr16, i32 0, i32 1
@@ -1797,11 +1806,13 @@ entry:
   store ptr %l3, ptr %fieldPtr20, align 8
   %fieldPtr21 = getelementptr inbounds nuw %Layer, ptr %l2, i32 0, i32 1
   store i32 7, ptr %fieldPtr21, align 4
-  %l1 = alloca %Layer, align 8
+  store %Layer zeroinitializer, ptr %l1, align 8
   %fieldPtr22 = getelementptr inbounds nuw %Layer, ptr %l1, i32 0, i32 0
+  store %__anon_struct_1_12 zeroinitializer, ptr %fieldPtr22, align 8
   %fieldPtr23 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr22, i32 0, i32 0
   store i32 2, ptr %fieldPtr23, align 4
   %fieldPtr24 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr22, i32 0, i32 1
+  store [3 x ptr] zeroinitializer, ptr %fieldPtr24, align 8
   %init.elem25 = getelementptr [3 x ptr], ptr %fieldPtr24, i32 0, i32 0
   store ptr @op_fold, ptr %init.elem25, align 8
   %init.elem26 = getelementptr [3 x ptr], ptr %fieldPtr24, i32 0, i32 1
@@ -1812,11 +1823,13 @@ entry:
   store ptr %l2, ptr %fieldPtr28, align 8
   %fieldPtr29 = getelementptr inbounds nuw %Layer, ptr %l1, i32 0, i32 1
   store i32 5, ptr %fieldPtr29, align 4
-  %l0 = alloca %Layer, align 8
+  store %Layer zeroinitializer, ptr %l0, align 8
   %fieldPtr30 = getelementptr inbounds nuw %Layer, ptr %l0, i32 0, i32 0
+  store %__anon_struct_1_12 zeroinitializer, ptr %fieldPtr30, align 8
   %fieldPtr31 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr30, i32 0, i32 0
   store i32 1, ptr %fieldPtr31, align 4
   %fieldPtr32 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr30, i32 0, i32 1
+  store [3 x ptr] zeroinitializer, ptr %fieldPtr32, align 8
   %init.elem33 = getelementptr [3 x ptr], ptr %fieldPtr32, i32 0, i32 0
   store ptr @op_add, ptr %init.elem33, align 8
   %init.elem34 = getelementptr [3 x ptr], ptr %fieldPtr32, i32 0, i32 1
@@ -1827,10 +1840,8 @@ entry:
   store ptr %l1, ptr %fieldPtr36, align 8
   %fieldPtr37 = getelementptr inbounds nuw %Layer, ptr %l0, i32 0, i32 1
   store i32 3, ptr %fieldPtr37, align 4
-  %a = alloca i32, align 4
   %calltmp = call i32 @run_graph(ptr %l0, ptr %values, i32 7)
   store i32 %calltmp, ptr %a, align 4
-  %b = alloca i32, align 4
   %ptr.arith = getelementptr i8, ptr %values, i64 4
   %calltmp38 = call i32 @run_graph(ptr %l1, ptr %ptr.arith, i32 trunc (i64 sub (i64 7, i64 bitcast (i64 1 to i64)) to i32))
   store i32 %calltmp38, ptr %b, align 4
@@ -1854,11 +1865,11 @@ declare i64 @ftello(ptr %0)
 
 declare i32 @pclose(ptr %0)
 
-define i32 @op_add(i32 %0, i32 %1) {
+define internal i32 @op_add(i32 %0, i32 %1) {
 entry:
+  %b = alloca i32, align 4
   %a = alloca i32, align 4
   store i32 %0, ptr %a, align 4
-  %b = alloca i32, align 4
   store i32 %1, ptr %b, align 4
   %a1 = load i32, ptr %a, align 4
   %b2 = load i32, ptr %b, align 4

@@ -274,6 +274,13 @@ bool cg_store_designated_entries(CodegenContext* ctx,
 
     LLVMTypeKind kind = LLVMGetTypeKind(destType);
     if (kind == LLVMStructTypeKind || kind == LLVMArrayTypeKind) {
+        /*
+         * C aggregate initialization is fail-closed: any field/element not explicitly
+         * initialized must become zero-initialized. Seed with a full zeroinitializer
+         * before applying explicit designators/entries.
+         */
+        LLVMBuildStore(ctx->builder, LLVMConstNull(destType), destPtr);
+
         if (kind == LLVMStructTypeKind) {
             return cg_store_struct_entries(ctx, destPtr, destType, destParsed, entries, entryCount);
         }
