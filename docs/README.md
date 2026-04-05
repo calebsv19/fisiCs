@@ -2,6 +2,11 @@
 
 This directory is organized so active reference material stays at the top level and lower-signal status/report artifacts live in focused subdirectories.
 
+## Repository Entry
+
+- Root `README.md` is the canonical GitHub-facing project summary and quickstart.
+- `TOP_README.md` is now a legacy compatibility pointer to root `README.md`.
+
 ## Top Level
 
 - `00_docs_index.md`: primary table of contents for all Markdown docs in `docs/`

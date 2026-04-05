@@ -6,6 +6,16 @@ Use this file as the fastest starting point when you need to remember what
 documentation exists, where it lives, and which file to open first for a given
 task.
 
+## Repository Root
+
+### `README.md`
+
+Canonical GitHub-facing project summary (build, test entrypoints, and status).
+
+### `TOP_README.md`
+
+Legacy compatibility pointer that redirects to `README.md`.
+
 ## Recommended Read Order For Compiler Test Work
 
 1. `compiler_test_system_rearchitecture_context.md`

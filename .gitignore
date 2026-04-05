@@ -18,3 +18,6 @@ libfisics_frontend.a
 # python cache artifacts
 __pycache__/
 *.pyc
+
+# local scratch/runtime captures
+data/

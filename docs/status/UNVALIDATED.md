@@ -11,7 +11,7 @@ These items are not yet explicitly validated via `include/test.txt`/`make run` a
   `145` active tests (`81` runtime differential lanes, `35` diagnostics lanes,
   `27` diagjson lanes), and
   `PROBE_FILTER=15__probe_*` => `resolved=136, blocked=0, skipped=0`.
-- Full final snapshot (2026-04-01):
+- Full final snapshot (2026-04-04):
   `make final` => `0 failing, 36 skipped` (latest local run on 2026-04-04).
 - Plan reference for next work:
   `docs/plans/torture_bucket_15_execution_plan.md`.
