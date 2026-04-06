@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_macro_chain_reject.c:3:9: error: invalid parameter list in #define CHAIN_CALL
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_macro_chain_reject.c:3:9: error: invalid parameter list in #define CHAIN_CALL

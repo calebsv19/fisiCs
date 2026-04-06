@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_unsigned_wrap",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_unsigned_wrap.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_unsigned_wrap.stdout",
+      "expected_stderr": "expect/14__runtime_unsigned_wrap.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "unsigned", "wrap", "differential"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_float_nan",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_float_nan.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_float_nan.stdout",
+      "expected_stderr": "expect/14__runtime_float_nan.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "float", "nan", "differential"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__fnptr_table_incompatible_assign_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_table_incompatible_assign_reject.c",
+      "expects": [
+        "expect/14__diag__fnptr_table_incompatible_assign_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr", "call"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__vla_non_integer_bound_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__vla_non_integer_bound_reject.c",
+      "expects": [
+        "expect/14__diag__vla_non_integer_bound_reject.diag"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "vla", "semantic"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__fnptr_table_incompatible_assign_reject",
+      "bucket": "runtime-surface",
+      "input": "cases/14__diag__fnptr_table_incompatible_assign_reject.c",
+      "expects": [
+        "expect/14__diag__fnptr_table_incompatible_assign_reject.diagjson"
+      ],
+      "tags": ["runtime", "diagnostic", "negative", "fnptr", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

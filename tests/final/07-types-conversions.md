@@ -1,8 +1,8 @@
 # Type System & Conversions
 
-## Status Snapshot (2026-04-02)
+## Status Snapshot (2026-04-05)
 
-- Active tests: `100`
+- Active tests: `102`
   (`tests/final/meta/07-types-conversions.json` +
   `tests/final/meta/07-types-conversions-wave2-semantic.json` +
   `tests/final/meta/07-types-conversions-wave3-conv-diagjson.json` +
@@ -19,7 +19,8 @@
   `tests/final/meta/07-types-conversions-wave14-strict-conv-diagjson-constexpr-frontier.json` +
   `tests/final/meta/07-types-conversions-wave15-strict-pointer-diff-depth.json` +
   `tests/final/meta/07-types-conversions-wave16-strict-diagjson-cast-aggregate-depth.json` +
-  `tests/final/meta/07-types-conversions-wave17-constexpr-coupled-ice-depth.json`)
+  `tests/final/meta/07-types-conversions-wave17-constexpr-coupled-ice-depth.json` +
+  `tests/final/meta/07-types-conversions-wave18-aggregate-runtime-promotions.json`)
 - Current bucket run:
   - `make final-prefix PREFIX=07__` -> all pass
   - `PROBE_FILTER=07__probe_*` -> `resolved=91`, `blocked=0`, `skipped=0`
@@ -263,3 +264,9 @@ Integer promotions, usual arithmetic conversions, and pointer rules.
    - Nested coupled ICE matrix across the same three constant-expression surfaces.
 3) `07__constexpr_shared_ice_cross_surface_depth_runtime`
    - Cross-surface coupled ICE depth lane with multi-array/static/switch linkage.
+
+## Wave 18 Additions (Aggregate Runtime Promotions)
+1) `07__agg_member_access_runtime`
+   - Runtime promotion for nested aggregate member-access shape coverage (`.` + `->` pathing).
+2) `07__agg_offsets_runtime`
+   - Runtime promotion for `offsetof` ordering and aggregate layout stride invariants.

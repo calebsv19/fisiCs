@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__switch_loop_lite",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__switch_loop_lite.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__switch_loop_lite.stdout",
+      "expected_stderr": "expect/15__torture__switch_loop_lite.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "control-flow",
+        "switch",
+        "loop"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__switch_loop_mod5",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__switch_loop_mod5.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__switch_loop_mod5.stdout",
+      "expected_stderr": "expect/15__torture__switch_loop_mod5.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "control-flow",
+        "switch",
+        "mod"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__path_decl_nested_runtime",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__path_decl_nested_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__path_decl_nested_runtime.stdout",
+      "expected_stderr": "expect/15__torture__path_decl_nested_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "declarator",
+        "function-pointer"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__ast_pathological_type_graph",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__ast_pathological_type_graph.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 168,
+      "expected_stdout": "expect/15__torture__ast_pathological_type_graph.stdout",
+      "expected_stderr": "expect/15__torture__ast_pathological_type_graph.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "ast",
+        "type-graph"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__ast_pathological_decl_graph_surface",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__ast_pathological_decl_graph_surface.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__ast_pathological_decl_graph_surface.stdout",
+      "expected_stderr": "expect/15__torture__ast_pathological_decl_graph_surface.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "ast",
+        "decl-graph"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

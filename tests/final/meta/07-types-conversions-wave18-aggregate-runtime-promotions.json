@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__agg_member_access_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_member_access_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__agg_member_access_runtime.stdout",
+      "expected_stderr": "expect/07__agg_member_access_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "aggregate",
+        "runtime",
+        "member-access"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__agg_offsets_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__agg_offsets_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__agg_offsets_runtime.stdout",
+      "expected_stderr": "expect/07__agg_offsets_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "aggregate",
+        "runtime",
+        "offsetof"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

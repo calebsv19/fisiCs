@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__malformed_bad_escape_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_bad_escape_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_bad_escape_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": ["torture", "negative", "malformed", "lexer", "diag"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__malformed_pp_directive_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_pp_directive_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_pp_directive_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": ["torture", "negative", "malformed", "preprocessor", "diag"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__malformed_unterminated_string_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_unterminated_string_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_unterminated_string_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": ["torture", "negative", "malformed", "lexer", "diag"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__corpus_external_compile_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_compile_reject.c",
+      "expects": [
+        "expect/15__diag__corpus_external_compile_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": ["torture", "negative", "external-corpus", "parser", "diag"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__corpus_external_macro_chain_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_macro_chain_reject.c",
+      "expects": [
+        "expect/15__diag__corpus_external_macro_chain_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": ["torture", "negative", "external-corpus", "preprocessor", "diag"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

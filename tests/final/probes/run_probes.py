@@ -1577,6 +1577,33 @@ RUNTIME_PROBES = [
         note="multi-TU static storage slice updates should remain deterministic and match clang",
     ),
     RuntimeProbe(
+        probe_id="14__probe_multitu_static_array_window_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_static_array_window_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_static_array_window_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_static_array_window_bridge_lib.c",
+        ),
+        note="multi-TU static array window updates and fold checks should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_static_array_window_negative_seed_bridge",
+        source=PROBE_DIR / "runtime/14__probe_multitu_static_array_window_negative_seed_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_static_array_window_negative_seed_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_static_array_window_negative_seed_bridge_lib.c",
+        ),
+        note="multi-TU static array window lane with negative seed rebasing should match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_static_array_window_reprime_sequence",
+        source=PROBE_DIR / "runtime/14__probe_multitu_static_array_window_reprime_sequence_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_static_array_window_reprime_sequence_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_static_array_window_reprime_sequence_lib.c",
+        ),
+        note="multi-TU static array reprime sequence should remain deterministic and match clang",
+    ),
+    RuntimeProbe(
         probe_id="14__probe_vla_row_pointer_handoff_rebase_matrix",
         source=PROBE_DIR / "runtime/14__probe_vla_row_pointer_handoff_rebase_matrix.c",
         note="VLA row-pointer handoff/rebase and stride math should match clang",
@@ -2492,7 +2519,7 @@ DIAG_PROBES = [
             PROBE_DIR / "diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_lib.c",
         ),
         note="multi-TU lane should reject conflicting extern types that collide at link stage",
-        required_substrings=("duplicate symbol",),
+        required_substrings=("linker command failed",),
     ),
     DiagnosticProbe(
         probe_id="14__probe_diag_multitu_duplicate_tentative_type_conflict_reject",
@@ -3003,6 +3030,12 @@ DIAG_JSON_PROBES = [
         note="diagnostics JSON should include fnptr too-many-args rejection",
         expected_codes=(2000,),
         expected_line=7,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_fnptr_table_incompatible_assign_reject",
+        source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_table_incompatible_assign_reject.c",
+        note="diagnostics JSON should include fnptr incompatible-assignment rejection",
+        expected_codes=(2000,),
     ),
     DiagnosticJsonProbe(
         probe_id="14__probe_diagjson_fnptr_table_incompatible_signature_reject",

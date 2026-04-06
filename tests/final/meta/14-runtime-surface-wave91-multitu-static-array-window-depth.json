@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_static_array_window_negative_seed_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_static_array_window_negative_seed_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_static_array_window_negative_seed_bridge_main.c",
+        "cases/14__runtime_multitu_static_array_window_negative_seed_bridge_lib.c"
+      ],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_static_array_window_negative_seed_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_static_array_window_negative_seed_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "array", "static", "negative-seed", "differential"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_static_array_window_reprime_sequence",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_static_array_window_reprime_sequence_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_static_array_window_reprime_sequence_main.c",
+        "cases/14__runtime_multitu_static_array_window_reprime_sequence_lib.c"
+      ],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_static_array_window_reprime_sequence.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_static_array_window_reprime_sequence.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "array", "static", "reprime", "differential"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

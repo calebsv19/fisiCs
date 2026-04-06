@@ -38,6 +38,7 @@
     "07-types-conversions-wave15-strict-pointer-diff-depth.json",
     "07-types-conversions-wave16-strict-diagjson-cast-aggregate-depth.json",
     "07-types-conversions-wave17-constexpr-coupled-ice-depth.json",
+    "07-types-conversions-wave18-aggregate-runtime-promotions.json",
     "08-initializers-layout.json",
     "09-statements-controlflow.json",
     "09-statements-controlflow-wave2.json",
@@ -169,6 +170,9 @@
     "14-runtime-surface-wave87-repeatability-oracle-hardening.json",
     "14-runtime-surface-wave88-abi-initorder-linkdiag-hardening.json",
     "14-runtime-surface-wave89-link-diagjson-enablement.json",
+    "14-runtime-surface-wave90-multitu-static-array-window.json",
+    "14-runtime-surface-wave91-multitu-static-array-window-depth.json",
+    "14-runtime-surface-wave92-gap-closure-promotions.json",
     "15-torture-differential.json",
     "15-torture-differential-wave1-control-decl-depth.json",
     "15-torture-differential-wave2-malformed-diagjson.json",
@@ -209,6 +213,8 @@
     "15-torture-differential-wave37-fuzz-volume-deterministic-replay.json",
     "15-torture-differential-wave38-gcc-tri-diff-breadth-expansion.json",
     "15-torture-differential-wave39-compile-surface-expansion.json",
-    "15-torture-differential-wave40-external-corpus-pinned-bundle.json"
+    "15-torture-differential-wave40-external-corpus-pinned-bundle.json",
+    "15-torture-differential-wave41-runtime-control-ast-bridges.json",
+    "15-torture-differential-wave42-diagnostic-gap-closure.json"
   ]
 }

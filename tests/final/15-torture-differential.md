@@ -1,17 +1,17 @@
 # Torture / Differential
 
 ## Status Snapshot (2026-04-01)
-- Active tests: `145` (`tests/final/meta/15-torture-differential*.json`)
-- Runtime differential lanes: `81`
+- Active tests: `155` (`tests/final/meta/15-torture-differential*.json`)
+- Runtime differential lanes: `86`
 - Compile-surface stress lanes: `2` (plus broad negative compile-surface lanes)
-- Malformed-input negative lanes: `35`
+- Malformed-input negative lanes: `38`
 - `.diagjson` parity lanes: `27`
 - Multi-TU linkage-negative lanes: `3` (plus additional multi-TU stress positives)
-- External-corpus lanes: expanded through Wave40 pinned bundle
+- External-corpus lanes: expanded through Wave42 diagnostic gap-closure
 - Policy-tagged lanes: `10` (`5` impl-defined + `5` ub)
 - Probe snapshot:
   - `PROBE_FILTER=15__probe_*` -> `resolved=136`, `blocked=0`, `skipped=0`
-  - `make final-bucket BUCKET=torture-differential` -> `0 failing, 10 skipped` (`145` active)
+  - `make final-bucket BUCKET=torture-differential` -> `0 failing, 10 skipped` (`155` active)
   - Skip policy: `10` lanes are intentionally differential-skipped (`ub=true` or `impl_defined=true`)
 - Next expansion plan: `docs/plans/torture_bucket_15_execution_plan.md`
 
@@ -746,8 +746,52 @@ Wave40 status:
 - Full bucket-15 slice:
   `make final-bucket BUCKET=torture-differential` => `0 failing, 10 skipped` (`145` active).
 
+### Wave 41: Runtime Control/AST Bridge Expansion
+Wave41 promoted lanes:
+- `15__torture__switch_loop_lite`
+- `15__torture__switch_loop_mod5`
+- `15__torture__path_decl_nested_runtime`
+- `15__torture__ast_pathological_type_graph`
+- `15__torture__ast_pathological_decl_graph_surface`
+
+Wave41 status:
+- Targeted probes:
+  - `15__probe_switch_loop_lite` -> resolved
+  - `15__probe_switch_loop_mod5` -> resolved
+  - `15__probe_path_decl_nested_runtime` -> resolved
+  - `15__probe_ast_pathological_type_graph` -> resolved
+  - `15__probe_ast_pathological_decl_graph_surface` -> resolved
+- `make final-manifest MANIFEST=15-torture-differential-wave41-runtime-control-ast-bridges.json`:
+  all 5 Wave41 tests pass.
+- `make final-wave WAVE=41 WAVE_BUCKET=15-torture-differential`:
+  all 5 Wave41 tests pass.
+- Full bucket-15 slice:
+  `make final-bucket BUCKET=torture-differential` => `0 failing, 10 skipped` (`150` active).
+
+### Wave 42: Diagnostic Gap Closure
+Wave42 promoted lanes:
+- `15__diag__malformed_bad_escape_no_crash`
+- `15__diag__malformed_pp_directive_no_crash`
+- `15__diag__malformed_unterminated_string_no_crash`
+- `15__diag__corpus_external_compile_reject`
+- `15__diag__corpus_external_macro_chain_reject`
+
+Wave42 status:
+- Targeted probes:
+  - `15__probe_diag_malformed_bad_escape_no_crash` -> resolved
+  - `15__probe_diag_malformed_pp_directive_no_crash` -> resolved
+  - `15__probe_diag_malformed_unterminated_string_no_crash` -> resolved
+  - `15__probe_diag_corpus_external_compile_reject` -> resolved
+  - `15__probe_diag_corpus_external_macro_chain_reject` -> resolved
+- `make final-manifest MANIFEST=15-torture-differential-wave42-diagnostic-gap-closure.json`:
+  all 5 Wave42 tests pass.
+- `make final-wave WAVE=42 WAVE_BUCKET=15-torture-differential`:
+  all 5 Wave42 tests pass.
+- Full bucket-15 slice:
+  `make final-bucket BUCKET=torture-differential` => `0 failing, 10 skipped` (`155` active).
+
 ### Next Wave Targets
-- Bucket-15 wave campaign complete through Wave40.
+- Continue net-new runtime/control and diagnostic parity lanes not yet promoted.
 - Final gate before commit boundary:
   - `make final-bucket BUCKET=torture-differential`
   - `make final`

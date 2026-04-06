@@ -1,14 +1,14 @@
 # Runtime / Library Surface
 
-## Status Snapshot (2026-04-01)
+## Status Snapshot (2026-04-05)
 
-- Active test count: 329 (`tests/final/meta/14-runtime-surface*.json`)
-- Runtime executables: 268 (`264` differential-flagged; includes policy-lane tests)
+- Active test count: 337 (`tests/final/meta/14-runtime-surface*.json`)
+- Runtime executables: 270 (`266` differential-flagged; includes policy-lane tests)
 - Policy lanes: `11` UB + `11` implementation-defined
-- Negative diagnostics: 56 (`28` `.diag` + `28` `.diagjson`)
+- Negative diagnostics: 59 (`30` `.diag` + `29` `.diagjson`)
 - Current bucket run:
-  - `PROBE_FILTER=14__probe_*` -> `resolved=234`, `blocked=0`, `skipped=0`
-  - Wave42/Wave43/Wave44/Wave45/Wave46/Wave47/Wave48/Wave49/Wave50/Wave52/Wave53/Wave54/Wave55/Wave56/Wave57/Wave58/Wave59/Wave60/Wave61/Wave62/Wave63/Wave64/Wave65/Wave66/Wave67/Wave68/Wave69/Wave70/Wave71/Wave72/Wave73/Wave74/Wave75/Wave76/Wave77/Wave78/Wave79/Wave80/Wave81/Wave82/Wave83/Wave84/Wave85/Wave86/Wave87/Wave88/Wave89 exact-id checks -> all pass
+  - `PROBE_FILTER=14__probe_*` -> `resolved=238`, `blocked=0`, `skipped=0`
+  - Wave42/Wave43/Wave44/Wave45/Wave46/Wave47/Wave48/Wave49/Wave50/Wave52/Wave53/Wave54/Wave55/Wave56/Wave57/Wave58/Wave59/Wave60/Wave61/Wave62/Wave63/Wave64/Wave65/Wave66/Wave67/Wave68/Wave69/Wave70/Wave71/Wave72/Wave73/Wave74/Wave75/Wave76/Wave77/Wave78/Wave79/Wave80/Wave81/Wave82/Wave83/Wave84/Wave85/Wave86/Wave87/Wave88/Wave89/Wave90/Wave91/Wave92 exact-id checks -> all pass
   - `make final-runtime` -> `0 failing, 22 skipped`
 - Next expansion plan: `docs/plans/runtime_bucket_14_execution_plan.md`
 
@@ -118,6 +118,16 @@ Minimal headers and builtin surface to compile real programs.
    - Promoted from `14__probe_float_nan` into active differential runtime.
 31) `14__runtime_signed_div_mod_sign_matrix`
    - Added signed-operand division/modulo sign matrix and promoted into active differential runtime.
+
+## Wave 90 Additions (Multi-TU Static Array Window Bridge)
+1) `14__runtime_multitu_static_array_window_bridge`
+   - Promoted from probe lane to deepen static array update/fold behavior across translation units under differential runtime checks.
+
+## Wave 91 Additions (Static Array Window Depth)
+1) `14__runtime_multitu_static_array_window_negative_seed_bridge`
+   - Adds negative-seed rebasing depth lane for multi-TU static-array window mutation/fold behavior.
+2) `14__runtime_multitu_static_array_window_reprime_sequence`
+   - Adds deterministic re-prime sequence lane to stress repeated static-array state mutation across translation units.
 32) `14__runtime_nan_comparisons`
    - Added NaN comparison-matrix anchor and promoted into active differential runtime.
 
@@ -1341,9 +1351,26 @@ Wave89 status:
 - Full bucket-14 slice:
   `make final-runtime` => `0 failing`, `22 skipped`.
 
-## Planned Expansion Roadmap (Post-Wave89)
+## Wave 92 Promotion Closure
+316) `14__runtime_unsigned_wrap`
+317) `14__runtime_float_nan`
+318) `14__diag__fnptr_table_incompatible_assign_reject`
+319) `14__diag__vla_non_integer_bound_reject`
+320) `14__diagjson__fnptr_table_incompatible_assign_reject`
 
-Wave89 closure complete.
+Wave92 status:
+- Targeted probe run:
+  `resolved=5`, `blocked=0`, `skipped=0`.
+- `make final-manifest MANIFEST=14-runtime-surface-wave92-gap-closure-promotions.json`:
+  all 5 Wave92 tests pass.
+- `make final-wave WAVE=92 WAVE_BUCKET=14-runtime-surface`:
+  all 5 Wave92 tests pass.
+- Full bucket-14 slice:
+  `make final-bucket BUCKET=runtime-surface` => `0 failing`, `22 skipped`.
+
+## Planned Expansion Roadmap (Post-Wave92)
+
+Wave92 closure complete.
 Next runtime-surface wave targets are currently unassigned/TBD.
 
 Wave execution rule:
