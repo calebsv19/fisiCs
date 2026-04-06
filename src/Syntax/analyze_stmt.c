@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "analyze_stmt.h"
 #include "analyze_core.h"
 #include "analyze_decls.h"

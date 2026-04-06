@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef DESIGNATED_INIT_H
 #define DESIGNATED_INIT_H
 

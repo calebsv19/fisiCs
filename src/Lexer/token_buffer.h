@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef TOKEN_BUFFER_H
 #define TOKEN_BUFFER_H
 

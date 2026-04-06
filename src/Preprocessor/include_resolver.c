@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "Preprocessor/include_resolver.h"
 #include "core_io.h"
 

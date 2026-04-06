@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "builtins.h"
 #include "Parser/Helpers/parsed_type.h"
 #include "syntax_errors.h"

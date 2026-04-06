@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "AST/ast_attribute.h"
 
 #include <stdlib.h>

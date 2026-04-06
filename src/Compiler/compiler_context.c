@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "Compiler/compiler_context.h"
 #include "Syntax/target_layout.h"
 #include <stdlib.h>

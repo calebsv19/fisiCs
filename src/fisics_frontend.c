@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "fisics_frontend.h"
 
 #include <stdlib.h>

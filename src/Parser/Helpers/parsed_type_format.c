@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "Parser/Helpers/parsed_type_format.h"
 
 #include <stdarg.h>

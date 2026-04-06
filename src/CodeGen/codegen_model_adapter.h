@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef CODEGEN_MODEL_ADAPTER_H
 #define CODEGEN_MODEL_ADAPTER_H
 

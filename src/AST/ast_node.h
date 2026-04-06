@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef AST_NODE_H
 #define AST_NODE_H
 

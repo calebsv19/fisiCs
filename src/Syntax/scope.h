@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef SCOPE_H
 #define SCOPE_H
 

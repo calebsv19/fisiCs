@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "Compiler/diagnostics.h"
 
 #include "core_io.h"

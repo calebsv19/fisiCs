@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef KEYWORD_LOOKUP_H
 #define KEYWORD_LOOKUP_H
 

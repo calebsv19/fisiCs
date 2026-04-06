@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef CODE_GEN_H
 #define CODE_GEN_H
 

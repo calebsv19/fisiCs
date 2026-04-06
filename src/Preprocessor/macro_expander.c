@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "Preprocessor/macro_expander.h"
 
 #include <stdio.h>

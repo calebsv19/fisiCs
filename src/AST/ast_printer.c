@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "ast_printer.h"
 #include "Parser/Helpers/designated_init.h"
 #include <stdio.h>

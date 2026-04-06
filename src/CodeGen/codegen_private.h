@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef CODEGEN_PRIVATE_H
 #define CODEGEN_PRIVATE_H
 

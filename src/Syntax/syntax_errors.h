@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef SYNTAX_ERRORS_H
 #define SYNTAX_ERRORS_H
 

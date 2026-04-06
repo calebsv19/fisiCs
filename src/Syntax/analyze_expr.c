@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "analyze_expr.h"
 #include "analyze_core.h"
 #include "syntax_errors.h"

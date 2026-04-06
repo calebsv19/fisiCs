@@ -10,7 +10,7 @@ Purpose: Validate fisics against real projects by compiling every translation un
 2) **Compile each file and capture errors**
    - Run `./fisics -c <file.c>` with the selected include paths.
    - Record the first error (or full log if needed) per file.
-   - Store results in `status/FAILING.md` (or a dedicated report file under `reports/`) with:
+   - Store results in your active failure tracking document (or a dedicated report file) with:
      - File path
      - Error class (missing header / parser / semantic / codegen / crash)
      - Key message
@@ -36,4 +36,4 @@ Purpose: Validate fisics against real projects by compiling every translation un
 - Keep fixes scoped to the active cluster to avoid unrelated regressions.
 - Always prefer fixes that unblock many files at once.
 - If a failure is due to missing third-party headers, document it clearly and skip unless the headers are available.
-- Keep `status/FAILING.md` as the live tracking doc while a project is in progress.
+- Keep one live tracking doc while a project is in progress to avoid split state.

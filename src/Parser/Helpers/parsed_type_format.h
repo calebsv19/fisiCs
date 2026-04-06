@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef PARSED_TYPE_FORMAT_H
 #define PARSED_TYPE_FORMAT_H
 

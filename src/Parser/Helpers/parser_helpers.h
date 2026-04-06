@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef _PARSER_HELPERS_H
 #define _PARSER_HELPERS_H
 

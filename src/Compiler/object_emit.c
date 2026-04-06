@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "Compiler/object_emit.h"
 
 #include <stdio.h>

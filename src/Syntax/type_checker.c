@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "type_checker.h"
 #include "scope.h"
 #include "symbol_table.h"

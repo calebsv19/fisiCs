@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef _PARSER_LOOKAHEAD_H
 #define _PARSER_LOOKAHEAD_H
 

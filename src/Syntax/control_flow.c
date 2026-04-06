@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "control_flow.h"
 #include "syntax_errors.h"
 #include "type_checker.h"

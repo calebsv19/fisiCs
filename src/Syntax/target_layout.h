@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef TARGET_LAYOUT_H
 #define TARGET_LAYOUT_H
 

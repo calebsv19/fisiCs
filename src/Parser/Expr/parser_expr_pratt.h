@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef _PARSER_EXPR_PRATT_H
 #define _PARSER_EXPR_PRATT_H
 

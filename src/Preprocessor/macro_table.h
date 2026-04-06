@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef PREPROCESSOR_MACRO_TABLE_H
 #define PREPROCESSOR_MACRO_TABLE_H
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "codegen_type_cache.h"
 
 #include "codegen_model_adapter.h"

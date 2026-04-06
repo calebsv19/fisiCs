@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "codegen_model_adapter.h"
 
 #include "Syntax/semantic_model.h"

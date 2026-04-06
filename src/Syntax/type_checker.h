@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef TYPE_CHECKER_H
 #define TYPE_CHECKER_H
 

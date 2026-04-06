@@ -1,6 +1,7 @@
 # Docs Layout
 
-This directory is organized so active reference material stays at the top level and lower-signal status/report artifacts live in focused subdirectories.
+This directory is the public documentation lane for `fisiCs`.
+It is intentionally focused on stable user/contributor references.
 
 ## Repository Entry
 
@@ -10,32 +11,16 @@ This directory is organized so active reference material stays at the top level 
 ## Top Level
 
 - `00_docs_index.md`: primary table of contents for all Markdown docs in `docs/`
-- `compiler_lexer_bucket_report.md`: first bucket baseline report covering current lexer test results, confirmed gaps, and next test-expansion priorities
-- `compiler_preprocessor_bucket_report.md`: preprocessor bucket baseline and prep report covering current anchor coverage, known gaps, and next execution steps
-- `compiler_test_system_rearchitecture_context.md`: active working brief for the compiler test-system overhaul
-- `compiler_test_coverage_blueprint.md`: concrete coverage map and harness setup plan for the compiler test suite
-- `compiler_behavior_coverage_checklist.md`: execution tracker for validating each compiler behavior bucket and recording per-feature test status
-- `compiler_behavior_coverage_run_log.md`: rolling wave-by-wave execution log for bucket work, blockers, fixes, and promotions
-- `compiler_test_workflow_guide.md`: operator guide for how to use the compiler test docs together and execute each bucket pass correctly
-- `validation_workflow.md`: primary workflow for full-project validation passes
+- `public_roadmap.md`: high-level public roadmap and current focus areas
+- `contributor_agent_quickstart.md`: concise operating flow for contributors and agentic tooling
+- `compiler_test_system_rearchitecture_context.md`: core constraints and end-state targets for test architecture
+- `compiler_test_coverage_blueprint.md`: coverage map and harness structure for compiler validation
+- `compiler_test_workflow_guide.md`: operator guide for bucket-by-bucket validation/fix workflows
+- `validation_workflow.md`: full-project validation workflow for external program compile checks
 - `frontend_api.md`: reusable frontend library API notes
 
-## Buckets
+## Private Docs Boundary
 
-- `status/`: live validation state, baselines, and raw captured logs
-- `plans/`: implementation and triage plans
-- `reports/external/`: project-specific external validation reports and gap analyses
+Internal bucket-level run logs, triage plans, external gap reports, and raw status logs are intentionally kept in private maintainer documentation outside this public docs lane.
 
-## Current High-Value Files
-
-- `status/PASSING.md`
-- `status/FAILING.md`
-- `status/UNVALIDATED.md`
-- `plans/fisics_errors_triage_plan.md`
-- `plans/runtime_bucket_14_execution_plan.md`
-- `plans/binary_testing_execution_plan.md`
-- `plans/binary_line_drawing_execution_plan.md`
-
-Current milestone note:
-- `line_drawing` binary validation is complete and recorded in
-  `plans/binary_line_drawing_execution_plan.md`.
+Public docs in this directory should remain concise, stable, and GitHub-facing.

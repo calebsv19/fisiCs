@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef TOKENS_H
 #define TOKENS_H
 

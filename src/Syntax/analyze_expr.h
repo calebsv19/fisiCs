@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef ANALYZE_EXPR_H
 #define ANALYZE_EXPR_H
 

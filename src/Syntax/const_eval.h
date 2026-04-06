@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef CONST_EVAL_H
 #define CONST_EVAL_H
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "semantic_model_details.h"
 
 #include "scope.h"

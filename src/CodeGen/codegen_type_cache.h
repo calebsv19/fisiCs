@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef CODEGEN_TYPE_CACHE_H
 #define CODEGEN_TYPE_CACHE_H
 

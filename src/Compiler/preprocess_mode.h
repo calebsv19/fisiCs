@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef COMPILER_PREPROCESS_MODE_H
 #define COMPILER_PREPROCESS_MODE_H
 

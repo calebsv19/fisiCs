@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef SEMANTIC_MODEL_PRINTER_H
 #define SEMANTIC_MODEL_PRINTER_H
 

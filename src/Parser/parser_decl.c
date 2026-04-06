@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "parser_decl.h"
 #include "Parser/Helpers/parser_helpers.h"
 #include "Parser/Helpers/parser_lookahead.h"

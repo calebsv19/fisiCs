@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "layout.h"
 #include "type_checker.h"
 #include "const_eval.h"

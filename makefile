@@ -64,6 +64,8 @@ INCLUDE_PATHS := $(SYS_SHIMS_OVERLAY):$(INCLUDE_PATHS_BASE)
 BIN := fisics_shim_shadow
 endif
 DEFAULT_INCLUDE_PATHS := $(if $(INCLUDE_PATHS),$(INCLUDE_PATHS),include)
+EXAMPLES_DIR := examples
+EXAMPLES_BUILD_DIR := build/examples
 
 # === Step 1: Generate keyword_lookup.c from keywords.gperf ===
 src/Lexer/keyword_lookup.c: src/Lexer/keywords.gperf
@@ -223,6 +225,23 @@ final-runtime: $(BIN)
 # === Run the compiled binary ===
 run: src/Lexer/keyword_lookup.c $(BIN)
 	@MallocNanoZone=0 ./$(BIN)
+
+examples: $(BIN) examples-hello examples-sdl
+
+examples-hello: $(BIN)
+	@mkdir -p $(EXAMPLES_BUILD_DIR)
+	@./$(BIN) $(EXAMPLES_DIR)/hello_world.c -o $(EXAMPLES_BUILD_DIR)/hello_world
+	@echo "Built $(EXAMPLES_BUILD_DIR)/hello_world"
+
+examples-sdl: $(BIN)
+	@mkdir -p $(EXAMPLES_BUILD_DIR)
+	@if command -v sdl2-config >/dev/null 2>&1; then \
+		./$(BIN) -c $(EXAMPLES_DIR)/sdl_window_loop.c -o $(EXAMPLES_BUILD_DIR)/sdl_window_loop.o; \
+		$(CC) $(EXAMPLES_BUILD_DIR)/sdl_window_loop.o -o $(EXAMPLES_BUILD_DIR)/sdl_window_loop $$(sdl2-config --cflags --libs); \
+		echo "Built $(EXAMPLES_BUILD_DIR)/sdl_window_loop"; \
+	else \
+		echo "Skipping SDL example build: sdl2-config not found on PATH."; \
+	fi
 
 union-decl: $(BIN)
 	@./tests/parser/run_union_decl.sh ./$(BIN)
@@ -766,7 +785,7 @@ frontend-harness: $(HARNESS_BIN)
 tests: test frontend-api-test
 
 # === Phony Targets ===
-.PHONY: all clean run \
+.PHONY: all clean run examples examples-hello examples-sdl \
         union-decl initializer-expr typedef-chain designated-init control-flow \
         cast-grouped for_typedef function-pointer pointer-arith switch-flow \
         goto-flow semantic-typedef semantic-initializer semantic-undeclared \

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #include "target_layout.h"
 #include <string.h>
 #include <stdio.h>

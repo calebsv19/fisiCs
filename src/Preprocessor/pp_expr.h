@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef PREPROCESSOR_PP_EXPR_H
 #define PREPROCESSOR_PP_EXPR_H
 

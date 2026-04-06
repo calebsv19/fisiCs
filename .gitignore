@@ -1,23 +1,47 @@
 *.o
+*.obj
 *.out
 *.exe
 *.a
+*.so
+*.dylib
+*.dll
 *.h2
 *.log
+*.tmp
+*.temp
+*.d
+*.gcda
+*.gcno
+*.gcov
+*.profraw
+*.profdata
+*.su
 *.dSYM
 *.DS_Store
+
 # IDE-generated workspace/index artifacts (keep local only)
 ide_files/
 build/
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # local compiler/build artifacts
 fisics
+fisics_shim_shadow
+fisics 2
 libfisics_frontend.a
+libfisics_frontend_unsanitized.a
+libfisics_frontend_sanitized.a
 
 # python cache artifacts
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # local scratch/runtime captures
 data/
+compilation/out/
