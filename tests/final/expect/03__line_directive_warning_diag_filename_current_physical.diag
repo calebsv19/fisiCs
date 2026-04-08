@@ -1,0 +1,4 @@
+Diagnostics:
+Warning at (888:1): bucket03 filename threshold warning
+   Spelling: virtual_pp_warning_filename_case.c:888:1
+Semantic analysis: no issues found.

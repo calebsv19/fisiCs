@@ -1,0 +1,4 @@
+Diagnostics:
+Warning at (444:9): ignored #pragma STDC FP_CONTRACT
+   Spelling: virtual_pragma_stdc_filename_case.c:444:9
+Semantic analysis: no issues found.

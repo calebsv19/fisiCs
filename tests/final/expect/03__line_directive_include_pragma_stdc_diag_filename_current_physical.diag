@@ -1,0 +1,4 @@
+Diagnostics:
+Warning at (617:9): ignored #pragma STDC FP_CONTRACT
+   Spelling: virtual_pp_include_pragma_header_case.h:617:9
+Semantic analysis: no issues found.

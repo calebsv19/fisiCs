@@ -332,6 +332,25 @@ static const char* fallbackFunctionName(const char* name);
 static bool isExpressionNodeType(ASTNodeType type);
 static bool pointerTargetsCompatibleForConditional(const TypeInfo* a, const TypeInfo* b);
 static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b);
+static void typeInfoAdoptParsedType(TypeInfo* info, ParsedType* ownedParsed);
+
+static TypeInfo functionCallResultTypeFromSymbol(const Symbol* sym, Scope* scope) {
+    if (!sym) {
+        return makeInvalidType();
+    }
+    ParsedType retParsed = parsedTypeFunctionReturnType(&sym->type);
+    if (retParsed.kind != TYPE_INVALID) {
+        TypeInfo result = typeInfoFromParsedType(&retParsed, scope);
+        typeInfoAdoptParsedType(&result, &retParsed);
+        parsedTypeFree(&retParsed);
+        result.isLValue = false;
+        return result;
+    }
+    parsedTypeFree(&retParsed);
+    TypeInfo fallback = typeInfoFromParsedType(&sym->type, scope);
+    fallback.isLValue = false;
+    return fallback;
+}
 
 static void typeInfoAdoptParsedType(TypeInfo* info, ParsedType* ownedParsed) {
     if (!info || !ownedParsed) return;
@@ -1898,7 +1917,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                             argInfos[i] = defaultArgumentPromotion(argInfos[i]);
                         }
                     }
-                    result = typeInfoFromParsedType(&sym->type, scope);
+                    result = functionCallResultTypeFromSymbol(sym, scope);
                     if (argInfos) {
                         free(argInfos);
                     }
@@ -2021,7 +2040,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                         argInfos[i] = defaultArgumentPromotion(argInfos[i]);
                     }
                 }
-                result = typeInfoFromParsedType(&sym->type, scope);
+                result = functionCallResultTypeFromSymbol(sym, scope);
 
                 free(paramRestrict);
                 if (argPaths) {

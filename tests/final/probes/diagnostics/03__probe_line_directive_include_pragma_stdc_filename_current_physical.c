@@ -1,0 +1,2 @@
+#include "03__probe_line_directive_include_pragma_stdc_filename_current_physical.h"
+int bucket03_probe_line_directive_include_pragma_stdc_filename_current_physical = 1;

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__line_directive_error_diagjson_current_physical_line",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_error_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/03__line_directive_error_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "line-directive",
+        "error-directive",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_warning_diagjson_current_physical_line",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_warning_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/03__line_directive_warning_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "line-directive",
+        "warning-directive",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

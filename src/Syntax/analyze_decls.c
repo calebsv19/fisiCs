@@ -2368,6 +2368,70 @@ static const TypeDerivation* findFunctionDerivationInType(const ParsedType* type
     return NULL;
 }
 
+static bool parsedTypeIsPlainVoidType(const ParsedType* type) {
+    if (!type) return false;
+    if (type->kind != TYPE_PRIMITIVE || type->primitiveType != TOKEN_VOID) return false;
+    if (type->pointerDepth != 0) return false;
+    if (type->derivationCount != 0) return false;
+    return true;
+}
+
+static bool functionDerivationHasPrototypeParams(const TypeDerivation* fn) {
+    if (!fn || fn->kind != TYPE_DERIVATION_FUNCTION) return false;
+    if (fn->as.function.isVariadic) return true;
+    if (fn->as.function.paramCount == 0) return false;
+    if (fn->as.function.paramCount == 1 &&
+        parsedTypeIsPlainVoidType(&fn->as.function.params[0])) {
+        return false;
+    }
+    return true;
+}
+
+static void normalizeFunctionDerivationParams(ParsedType* type) {
+    if (!type) return;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        TypeDerivation* deriv = &type->derivations[i];
+        if (deriv->kind != TYPE_DERIVATION_FUNCTION) {
+            continue;
+        }
+        if (deriv->as.function.isVariadic || deriv->as.function.paramCount != 1) {
+            continue;
+        }
+        if (!parsedTypeIsPlainVoidType(&deriv->as.function.params[0])) {
+            continue;
+        }
+        parsedTypeFree(&deriv->as.function.params[0]);
+        free(deriv->as.function.params);
+        deriv->as.function.params = NULL;
+        deriv->as.function.paramCount = 0;
+    }
+}
+
+static void normalizeArrayDerivationCompat(ParsedType* type) {
+    if (!type) return;
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        TypeDerivation* deriv = &type->derivations[i];
+        if (deriv->kind != TYPE_DERIVATION_ARRAY) {
+            continue;
+        }
+        deriv->as.array.isVLA = false;
+    }
+}
+
+static bool parsedTypesEqualForFunctionCompat(const ParsedType* lhs, const ParsedType* rhs) {
+    if (!lhs || !rhs) return false;
+    ParsedType lhsCopy = parsedTypeClone(lhs);
+    ParsedType rhsCopy = parsedTypeClone(rhs);
+    normalizeFunctionDerivationParams(&lhsCopy);
+    normalizeFunctionDerivationParams(&rhsCopy);
+    normalizeArrayDerivationCompat(&lhsCopy);
+    normalizeArrayDerivationCompat(&rhsCopy);
+    bool equal = parsedTypesStructurallyEqual(&lhsCopy, &rhsCopy);
+    parsedTypeFree(&lhsCopy);
+    parsedTypeFree(&rhsCopy);
+    return equal;
+}
+
 static bool parsedTypeIsFunctionPointerLike(const ParsedType* type) {
     if (!type) return false;
     if (type->isFunctionPointer) return true;
@@ -2406,7 +2470,7 @@ static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destT
 
     ParsedType destRet = parsedTypeFunctionReturnType(&destTarget);
     ParsedType srcRet = parsedTypeFunctionReturnType(&srcTarget);
-    bool retCompat = parsedTypesStructurallyEqual(&destRet, &srcRet);
+    bool retCompat = parsedTypesEqualForFunctionCompat(&destRet, &srcRet);
     parsedTypeFree(&destRet);
     parsedTypeFree(&srcRet);
     if (!retCompat) {
@@ -2415,8 +2479,8 @@ static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destT
         return false;
     }
 
-    bool destHasParams = destFn->as.function.paramCount > 0 || destFn->as.function.isVariadic;
-    bool srcHasParams = srcFn->as.function.paramCount > 0 || srcFn->as.function.isVariadic;
+    bool destHasParams = functionDerivationHasPrototypeParams(destFn);
+    bool srcHasParams = functionDerivationHasPrototypeParams(srcFn);
     if (!destHasParams || !srcHasParams) {
         parsedTypeFree(&destTarget);
         parsedTypeFree(&srcTarget);

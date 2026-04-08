@@ -1,0 +1,2 @@
+#include "03__line_directive_include_error_diag_filename_current_physical.h"
+int bucket03_line_directive_include_error_diag_filename_current_physical = 0;

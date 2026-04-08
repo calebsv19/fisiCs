@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__declarator__factory_call_initializer_current_reject",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__factory_call_initializer_current_reject.c",
+      "expects": [
+        "expect/04__declarator__factory_call_initializer_current_reject.diag"
+      ],
+      "tags": [
+        "declarators",
+        "function-pointer",
+        "factory",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__factory_call_assignment_current_reject",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__factory_call_assignment_current_reject.c",
+      "expects": [
+        "expect/04__declarator__factory_call_assignment_current_reject.diag"
+      ],
+      "tags": [
+        "declarators",
+        "function-pointer",
+        "factory",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

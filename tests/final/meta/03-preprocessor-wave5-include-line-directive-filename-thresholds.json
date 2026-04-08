@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__line_directive_include_error_diag_filename_current_physical",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_include_error_diag_filename_current_physical.c",
+      "expects": [
+        "expect/03__line_directive_include_error_diag_filename_current_physical.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "line-directive",
+        "include",
+        "error-directive",
+        "diag",
+        "filename",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_include_warning_diag_filename_current_physical",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_include_warning_diag_filename_current_physical.c",
+      "expects": [
+        "expect/03__line_directive_include_warning_diag_filename_current_physical.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "line-directive",
+        "include",
+        "warning-directive",
+        "diag",
+        "filename",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__line_directive_include_pragma_stdc_diag_filename_current_physical",
+      "bucket": "preprocessor",
+      "input": "cases/03__line_directive_include_pragma_stdc_diag_filename_current_physical.c",
+      "expects": [
+        "expect/03__line_directive_include_pragma_stdc_diag_filename_current_physical.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "line-directive",
+        "include",
+        "pragma",
+        "diag",
+        "filename",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

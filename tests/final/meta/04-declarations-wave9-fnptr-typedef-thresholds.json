@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__declarator__factory_call_typedef_runtime",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__factory_call_typedef_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "declarators",
+        "function-pointer",
+        "typedef",
+        "runtime",
+        "threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__factory_assignment_typedef_runtime",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__factory_assignment_typedef_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "declarators",
+        "function-pointer",
+        "typedef",
+        "runtime",
+        "threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

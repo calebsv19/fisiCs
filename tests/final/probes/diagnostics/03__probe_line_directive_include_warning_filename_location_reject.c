@@ -1,0 +1,2 @@
+#include "03__probe_line_directive_include_warning_filename_location_reject.h"
+int bucket03_probe_line_directive_include_warning_filename_location_reject = 1;

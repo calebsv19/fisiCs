@@ -535,7 +535,12 @@ void pp_report_diag(Preprocessor* pp,
                     const char* fmt,
                     ...) {
     if (!pp || !pp->ctx || !fmt) return;
-    SourceRange loc = tok ? tok->location : (SourceRange){0};
+    SourceRange loc = (SourceRange){0};
+    if (tok) {
+        Token remapped = pp_token_clone_remap(pp, tok);
+        loc = remapped.location;
+        pp_token_free(&remapped);
+    }
     if (!loc.start.file) {
         const PPIncludeFrame* top = pp_include_stack_top(pp);
         if (top && top->path) {
