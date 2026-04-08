@@ -82,6 +82,12 @@ RELEASE_SHA256 := $(RELEASE_ROOT)/$(RELEASE_BASENAME).sha256
 RELEASE_NOTARY_LOG := $(RELEASE_ROOT)/$(RELEASE_BASENAME).notary.json
 RELEASE_PKG_ROOT := $(RELEASE_ROOT)/pkgroot
 RELEASE_PKG := $(RELEASE_ROOT)/$(RELEASE_BASENAME).pkg
+RELEASE_BRIDGE_DIR := $(RELEASE_ROOT)/bridge/$(RELEASE_BASENAME)
+RELEASE_PUBLIC_BASE_URL ?= https://downloads.example.com/fisiCs
+RELEASE_TAP_REPO ?= owner/homebrew-fisics
+RELEASE_HOMEPAGE ?= https://github.com/owner/fisiCs
+RELEASE_VPS_TARGET ?= user@example.com
+RELEASE_VPS_ROOT ?= /var/www/downloads/fisiCs
 INSTALL_PREFIX ?= /usr/local
 PKG_IDENTIFIER ?= com.cosm.fisics
 APPLE_SIGN_IDENTITY ?=
@@ -303,6 +309,40 @@ release-pkg: release-sign
 
 release-all: release-contract release-archive release-verify
 
+release-bridge-prepare: release-verify
+	@RELEASE_ROOT="$(RELEASE_ROOT)" \
+	RELEASE_BASENAME="$(RELEASE_BASENAME)" \
+	RELEASE_VERSION="$(RELEASE_VERSION)" \
+	RELEASE_CHANNEL="$(RELEASE_CHANNEL)" \
+	RELEASE_PLATFORM="$(RELEASE_PLATFORM)" \
+	RELEASE_ARCH="$(RELEASE_ARCH)" \
+	RELEASE_ARTIFACT_ZIP="$(RELEASE_ARTIFACT_ZIP)" \
+	RELEASE_ARTIFACT_TGZ="$(RELEASE_ARTIFACT_TGZ)" \
+	RELEASE_MANIFEST="$(RELEASE_MANIFEST)" \
+	RELEASE_SHA256="$(RELEASE_SHA256)" \
+	RELEASE_NOTARY_LOG="$(RELEASE_NOTARY_LOG)" \
+	RELEASE_PUBLIC_BASE_URL="$(RELEASE_PUBLIC_BASE_URL)" \
+	RELEASE_TAP_REPO="$(RELEASE_TAP_REPO)" \
+	RELEASE_HOMEPAGE="$(RELEASE_HOMEPAGE)" \
+	RELEASE_VPS_TARGET="$(RELEASE_VPS_TARGET)" \
+	RELEASE_VPS_ROOT="$(RELEASE_VPS_ROOT)" \
+	./scripts/release_bridge_prepare.sh
+
+release-bridge-verify:
+	@test -f "$(RELEASE_BRIDGE_DIR)/release_index.json"
+	@test -f "$(RELEASE_BRIDGE_DIR)/homebrew/fisics.rb"
+	@test -f "$(RELEASE_BRIDGE_DIR)/ide/fisics_compiler_discovery_contract.md"
+	@test -f "$(RELEASE_BRIDGE_DIR)/publish/upload_commands.sh"
+	@test -f "$(RELEASE_BRIDGE_DIR)/publish/release_publish_checklist.md"
+	@test -f "$(RELEASE_BRIDGE_DIR)/artifacts/$(RELEASE_BASENAME).zip"
+	@test -f "$(RELEASE_BRIDGE_DIR)/artifacts/$(RELEASE_BASENAME).tar.gz"
+	@test -f "$(RELEASE_BRIDGE_DIR)/artifacts/$(RELEASE_BASENAME).manifest.txt"
+	@test -f "$(RELEASE_BRIDGE_DIR)/artifacts/$(RELEASE_BASENAME).sha256"
+	@echo "release-bridge-verify complete."
+
+release-bridge: release-bridge-prepare release-bridge-verify
+	@echo "release-bridge complete."
+
 integration-compile-only: $(BIN)
 	@./tests/integration/compile_only.sh ./$(BIN)
 
@@ -313,6 +353,9 @@ integration-diags-pack: $(BIN)
 	@./tests/integration/run_emit_diags_pack.sh ./$(BIN)
 
 integration: integration-compile-only integration-compile-link
+
+ci-guardrails:
+	@./tests/integration/run_ci_guardrails.sh
 
 # Final C99 behavior suite
 .PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime
@@ -891,6 +934,8 @@ shim-gate:
 
 FRONTEND_TEST_SRCS := $(wildcard tests/unit/frontend_api*.c)
 FRONTEND_TEST_BINS := $(patsubst tests/unit/%.c,$(BUILD_DIR)/tests/%,$(FRONTEND_TEST_SRCS))
+FRONTEND_CONTRACT_TEST_SRCS := $(wildcard tests/unit/frontend_api_contract_*.c)
+FRONTEND_CONTRACT_TEST_BINS := $(patsubst tests/unit/%.c,$(BUILD_DIR)/tests/%,$(FRONTEND_CONTRACT_TEST_SRCS))
 
 $(BUILD_DIR)/tests/%: tests/unit/%.c $(LIB_FRONTEND)
 	@mkdir -p $(BUILD_DIR)/tests
@@ -910,6 +955,20 @@ frontend-api-test: $(LIB_FRONTEND) $(FRONTEND_TEST_BINS)
 	done; \
 	echo "Frontend API tests: PASS"
 
+frontend-contract-test: $(LIB_FRONTEND) $(FRONTEND_CONTRACT_TEST_BINS)
+	@echo "Running frontend contract bucket tests..."
+	@for t in $(FRONTEND_CONTRACT_TEST_BINS); do \
+		out=$$(mktemp); \
+		if ! $$t >$$out 2>&1; then \
+			echo "FAIL $$t"; \
+			cat $$out; \
+			rm -f $$out; \
+			exit 1; \
+		fi; \
+		rm -f $$out; \
+	done; \
+	echo "Frontend contract bucket: PASS"
+
 HARNESS_SRC := tests/harness/frontend_harness.c
 HARNESS_BIN := $(BUILD_DIR)/tests/frontend_harness
 
@@ -927,6 +986,7 @@ tests: test frontend-api-test
         release-clean release-contract release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
         release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
         release-sign release-notarize release-verify release-pkg release-all \
+        release-bridge-prepare release-bridge-verify release-bridge \
         union-decl initializer-expr typedef-chain designated-init control-flow \
         cast-grouped for_typedef function-pointer pointer-arith switch-flow \
         goto-flow semantic-typedef semantic-initializer semantic-undeclared \
@@ -939,8 +999,9 @@ tests: test frontend-api-test
         codegen-function-pointer-call codegen-compound-literal-pointer-decay \
         codegen-bitfield \
         statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
+        frontend-contract-test \
         statement-expr-codegen codegen-bitfield \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff test-binary-wave test-binary-id binary-regen \
-        integration-diags-pack \
+        integration-diags-pack ci-guardrails \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

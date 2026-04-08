@@ -34,6 +34,31 @@ static int range_length(SourceRange range) {
     return 1;
 }
 
+static int map_diag_severity_id(DiagKind kind) {
+    switch (kind) {
+        case DIAG_WARNING: return FISICS_DIAG_SEVERITY_WARNING;
+        case DIAG_NOTE: return FISICS_DIAG_SEVERITY_INFO;
+        case DIAG_ERROR:
+        default: return FISICS_DIAG_SEVERITY_ERROR;
+    }
+}
+
+static int map_diag_category_id(int code) {
+    if (code >= FISICS_DIAG_CODE_PREPROCESSOR_GENERIC) {
+        return FISICS_DIAG_CATEGORY_PREPROCESSOR;
+    }
+    if (code >= FISICS_DIAG_CODE_SEMANTIC_GENERIC) {
+        return FISICS_DIAG_CATEGORY_SEMANTIC;
+    }
+    if (code >= FISICS_DIAG_CODE_PARSER_GENERIC) {
+        return FISICS_DIAG_CATEGORY_PARSER;
+    }
+    if (code >= FISICS_DIAG_CODE_GENERIC) {
+        return FISICS_DIAG_CATEGORY_ANALYSIS;
+    }
+    return FISICS_DIAG_CATEGORY_UNKNOWN;
+}
+
 static bool diag_buffer_reserve(CompilerDiagnostics* buf, size_t extra) {
     if (!buf) return false;
     size_t need = buf->count + extra;
@@ -141,6 +166,9 @@ bool compiler_report_diag(struct CompilerContext* ctx,
     d->length = range_length(loc);
     d->kind = kind;
     d->code = code;
+    d->severity_id = map_diag_severity_id(kind);
+    d->category_id = map_diag_category_id(code);
+    d->code_id = code;
     d->message = message;
     d->hint = hintCopy;
     const char* dl_after = ctx ? ctx->dataLayout : NULL;

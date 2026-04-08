@@ -31,6 +31,7 @@ When relevant to your change:
 ```bash
 make final
 make test-binary
+make frontend-contract-test
 ```
 
 Use narrower targets while debugging, then re-run broader checks before finalizing.

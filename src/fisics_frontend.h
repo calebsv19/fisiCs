@@ -18,6 +18,15 @@ typedef enum {
     FISICS_ANALYSIS_MODE_LENIENT = 1
 } FisicsAnalysisMode;
 
+typedef enum {
+    FISICS_CONTRACT_CAP_DIAGNOSTICS = (1ULL << 0),
+    FISICS_CONTRACT_CAP_INCLUDES = (1ULL << 1),
+    FISICS_CONTRACT_CAP_SYMBOLS = (1ULL << 2),
+    FISICS_CONTRACT_CAP_TOKENS = (1ULL << 3),
+    FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID = (1ULL << 4),
+    FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY = (1ULL << 5)
+} FisicsContractCapability;
+
 typedef struct {
     char contract_id[64];
     uint16_t contract_major;
@@ -33,6 +42,7 @@ typedef struct {
 
     uint64_t source_hash;
     uint64_t source_length;
+    uint64_t capabilities;
 } FisicsAnalysisContract;
 
 typedef struct {

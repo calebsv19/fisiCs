@@ -13,6 +13,7 @@ This file is the fastest entrypoint for both human contributors and Codex-style 
 ```bash
 make
 make test
+make frontend-contract-test
 ```
 
 When relevant to your change:
@@ -20,6 +21,7 @@ When relevant to your change:
 ```bash
 make final
 make test-binary
+make ci-guardrails
 ```
 
 ## 3) Contribution Expectations
@@ -42,6 +44,7 @@ make test-binary
   - `docs/compiler_test_coverage_blueprint.md`
 - Frontend embedding/API integration:
   - `docs/frontend_api.md`
+- Compiler/IDE contract compatibility and semver lane:
+  - `docs/compiler_ide_data_contract.md`
 - Full-project compile-validation flow:
   - `docs/validation_workflow.md`
-

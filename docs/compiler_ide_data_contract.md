@@ -3,7 +3,7 @@
 This document defines the public contract between `fisiCs` compiler analysis output and IDE consumers.
 
 Contract ID: `fisiCs.analysis.contract`
-Current Contract Version: `1.2.0`
+Current Contract Version: `1.4.0`
 Status: active
 
 ## Goals
@@ -77,12 +77,51 @@ Contract metadata must include:
 - trust metadata:
   - `source_hash` (content hash of analyzed buffer)
   - `source_length`
+- `capabilities` (bitmask describing optional/additive lanes advertised by the producer)
 
 Interpretation:
 
 - `partial=true` means consumers must avoid assuming complete semantic coverage.
 - `fatal=true` means analysis is incomplete and UX should be non-authoritative.
 - `partial=false` and `fatal=false` indicates full successful analysis for this input.
+
+### Contract Capabilities (v1.4)
+
+This lane adds explicit producer-advertised capability flags so consumers can gate optional behavior without relying only on minor-version inference.
+
+Current capability bits:
+
+- `FISICS_CONTRACT_CAP_DIAGNOSTICS`
+- `FISICS_CONTRACT_CAP_INCLUDES`
+- `FISICS_CONTRACT_CAP_SYMBOLS`
+- `FISICS_CONTRACT_CAP_TOKENS`
+- `FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID`
+- `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY`
+
+Capability table:
+
+| Flag | Meaning | Typical Consumer Behavior |
+|---|---|---|
+| `FISICS_CONTRACT_CAP_DIAGNOSTICS` | Diagnostic lane present | Ingest diagnostics as authoritative analysis feedback. |
+| `FISICS_CONTRACT_CAP_INCLUDES` | Include graph lane present | Update include graph/index from emitted include edges. |
+| `FISICS_CONTRACT_CAP_SYMBOLS` | Symbol lane present | Enable symbol index/tree payloads; disable symbol lane if absent. |
+| `FISICS_CONTRACT_CAP_TOKENS` | Token lane present | Enable token consumers (lexical overlays/highlighting support). |
+| `FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID` | Parent symbol identity link lane present | Prefer `parent_stable_id` ownership linkage over name-only fallback. |
+| `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` | Normalized diagnostics taxonomy lane present | Prefer `severity_id`/`category_id`/`code_id` when available. |
+
+Consumer behavior:
+
+- For contract `1.4+`, capability flags are authoritative for optional lanes.
+- For pre-`1.4` payloads, consumers may infer capability support by minor-version policy.
+- Missing optional capabilities must not force full degraded mode under major `1`; only unsupported contract major/id should trigger degraded ingestion.
+
+Compatibility matrix (major `1` consumers):
+
+| Producer contract | Capability source | Symbols/Tokens behavior | Diagnostics taxonomy behavior |
+|---|---|---|---|
+| `1.2.x` | inferred by minor policy | enabled by inferred support | taxonomy optional/legacy-safe |
+| `1.3.x` | inferred by minor policy | enabled by inferred support | `severity_id`/`category_id`/`code_id` expected additive lane |
+| `1.4.x+` | explicit `contract.capabilities` | gated by advertised `FISICS_CONTRACT_CAP_SYMBOLS` / `FISICS_CONTRACT_CAP_TOKENS` | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
 
 ## Path Rules
 
@@ -102,6 +141,25 @@ Stable expectations:
   - `severity_name` (`info`/`warning`/`error`)
   - `severity_id` (stable numeric severity enum in consumer-facing transport)
   - `category` (for example `build` vs `analysis` in IDE aggregation)
+
+### Diagnostic Taxonomy Identity (v1.3)
+
+This lane extends diagnostics with additive stable IDs without breaking existing consumers.
+
+Stable additive fields:
+
+- `severity_id`:
+  - stable numeric severity identity (`info=0`, `warning=1`, `error=2`).
+- `category_id`:
+  - stable numeric diagnostic category identity (`analysis`, `parser`, `semantic`, `preprocessor`, etc.).
+- `code_id`:
+  - stable external diagnostic code id lane for tooling that prefers explicit numeric identity fields.
+
+Consumer behavior:
+
+- Existing diagnostics fields (`kind`/legacy severity text, `code`, `message`, etc.) remain valid.
+- Consumers may prefer `severity_id`/`category_id`/`code_id` when present.
+- Missing additive taxonomy fields must not be treated as contract failure under major `1`.
 
 ### Diagnostic Code Stability
 

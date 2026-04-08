@@ -29,11 +29,11 @@ fisics_free_analysis_result(&res);
 - Call `fisics_free_analysis_result` to free owned arrays/strings.
 
 ## Result contents
-- `diagnostics`: errors/warnings/notes with file/line/column, length, code, and optional hint. Code values follow the stable v1 diagnostic code lane in `Compiler/diagnostics.h`.
+- `diagnostics`: errors/warnings/notes with file/line/column, length, code, and optional hint. Additive taxonomy fields are also provided in current v1 lanes: `severity_id`, `category_id`, and `code_id`. Code values follow the stable v1 diagnostic code lane in `Compiler/diagnostics.h`.
 - `tokens`: preprocessed token spans with coarse kinds (identifier, keyword, number, string/char, operator, punct, comment).
 - `symbols`: top-level and nested symbol metadata with start/end ranges, ownership, deterministic `stable_id` values, and optional ownership link identity via `parent_stable_id` when available.
 - `includes`: include usage edges with resolved/unresolved origin info.
-- `contract`: metadata describing contract id/version, producer, mode (`strict`/`lenient`), partial/fatal flags, and trust fields.
+- `contract`: metadata describing contract id/version, producer, mode (`strict`/`lenient`), partial/fatal flags, trust fields, and additive capability flags (`capabilities`) for optional consumer lanes.
 
 ## Ownership and lifetime
 - All pointers inside `FisicsAnalysisResult` are owned by the caller after a successful call; free them via `fisics_free_analysis_result`.

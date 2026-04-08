@@ -17,7 +17,7 @@
 
 #define FISICS_CONTRACT_ID "fisiCs.analysis.contract"
 #define FISICS_CONTRACT_MAJOR 1
-#define FISICS_CONTRACT_MINOR 2
+#define FISICS_CONTRACT_MINOR 4
 #define FISICS_CONTRACT_PATCH 0
 #define FISICS_CONTRACT_PRODUCER "fisiCs"
 #define FISICS_CONTRACT_PRODUCER_VERSION "0.1.0"
@@ -230,6 +230,13 @@ static void init_contract(FisicsAnalysisResult* out,
     out->contract.fatal = !ok;
     out->contract.source_hash = fnv1a64(source, length);
     out->contract.source_length = (uint64_t)length;
+    out->contract.capabilities =
+        FISICS_CONTRACT_CAP_DIAGNOSTICS |
+        FISICS_CONTRACT_CAP_INCLUDES |
+        FISICS_CONTRACT_CAP_SYMBOLS |
+        FISICS_CONTRACT_CAP_TOKENS |
+        FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID |
+        FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY;
 }
 
 typedef struct {
@@ -507,6 +514,9 @@ static bool copy_diagnostics(const CompilerContext* ctx,
         dst[kept].length = src[i].length;
         dst[kept].kind   = src[i].kind;
         dst[kept].code   = src[i].code;
+        dst[kept].severity_id = src[i].severity_id;
+        dst[kept].category_id = src[i].category_id;
+        dst[kept].code_id = src[i].code_id;
 
         const char* chosenPath = src[i].file_path ? src[i].file_path : callerFilePath;
         if (chosenPath) {

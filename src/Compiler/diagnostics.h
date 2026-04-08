@@ -19,6 +19,24 @@ typedef enum {
     DIAG_NOTE = 2
 } DiagKind;
 
+// Stable v1 diagnostic taxonomy lane for compiler-to-IDE contract consumers.
+typedef enum {
+    FISICS_DIAG_SEVERITY_INFO = 0,
+    FISICS_DIAG_SEVERITY_WARNING = 1,
+    FISICS_DIAG_SEVERITY_ERROR = 2
+} FisicsDiagSeverityId;
+
+typedef enum {
+    FISICS_DIAG_CATEGORY_UNKNOWN = 0,
+    FISICS_DIAG_CATEGORY_ANALYSIS = 1,
+    FISICS_DIAG_CATEGORY_PARSER = 2,
+    FISICS_DIAG_CATEGORY_SEMANTIC = 3,
+    FISICS_DIAG_CATEGORY_PREPROCESSOR = 4,
+    FISICS_DIAG_CATEGORY_LEXER = 5,
+    FISICS_DIAG_CATEGORY_CODEGEN = 6,
+    FISICS_DIAG_CATEGORY_BUILD = 7
+} FisicsDiagCategoryId;
+
 typedef struct {
     const char* file_path;  // may be NULL
     int line;               // 1-based
@@ -26,6 +44,9 @@ typedef struct {
     int length;             // characters to underline; >= 1
     DiagKind kind;
     int code;               // internal diagnostic code
+    int severity_id;        // stable taxonomy severity id (info/warning/error)
+    int category_id;        // stable taxonomy category id
+    int code_id;            // stable external-facing diagnostic code id
     char* message;          // owned null-terminated message
     char* hint;             // optional hint string; owned if present
 } FisicsDiagnostic;

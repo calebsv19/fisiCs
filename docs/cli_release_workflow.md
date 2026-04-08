@@ -62,7 +62,51 @@ make release-archive RELEASE_VERSION=0.1.1 RELEASE_CHANNEL=beta
   - `spctl --assess` is informational for CLI binaries and may report non-app rejection even when signing/notarization are correct
   - archive checksum matches recorded `.sha256`
 
+## CI Guardrail Lane
+
+Run a single command for ABI-sync and packaging-safety checks:
+
+```bash
+make ci-guardrails
+```
+
+This lane verifies:
+
+- frontend archive refresh for IDE-consumer artifacts (`frontend-rebuild-ide`)
+- frontend contract/API test buckets
+- required contract capability-lane checks (`frontend_api_contract_capabilities` source + matrix entry)
+- required frontend API symbols in `libfisics_frontend.a`
+- release artifact generation + verification (`manifest`, `zip`, `tar.gz`, `sha256`)
+
+## Release Bridge (FC-RL4/5/6)
+
+Prepare and verify a release bridge bundle for distribution, Homebrew, and IDE integration contracts:
+
+```bash
+make release-bridge
+```
+
+Outputs are created under:
+
+- `build/release/bridge/fisiCs-<version>-macOS-<arch>-<channel>/`
+
+Bundle contents include:
+
+- `artifacts/` copied release files (`zip`, `tar.gz`, `manifest`, `sha256`, optional notary log)
+- `release_index.json` with immutable versioned URLs + checksums
+- `homebrew/fisics.rb` formula template pinned to the hosted tarball checksum
+- `ide/fisics_compiler_discovery_contract.md` discovery-order contract
+- `publish/upload_commands.sh` and `publish/release_publish_checklist.md`
+
+Configurable bridge variables (defaults in `makefile`):
+
+- `RELEASE_PUBLIC_BASE_URL` (example: `https://downloads.example.com/fisiCs`)
+- `RELEASE_TAP_REPO` (example: `owner/homebrew-fisics`)
+- `RELEASE_HOMEPAGE` (example: `https://github.com/owner/fisiCs`)
+- `RELEASE_VPS_TARGET` (example: `user@example.com`)
+- `RELEASE_VPS_ROOT` (example: `/var/www/downloads/fisiCs`)
+
 ## Release Boundary
 
 This lane ends at signed/notarized local artifacts.
-Publishing to domain/VPS and Homebrew tap updates are separate downstream steps.
+Publishing to domain/VPS and Homebrew tap updates use the generated bridge bundle/checklist.
