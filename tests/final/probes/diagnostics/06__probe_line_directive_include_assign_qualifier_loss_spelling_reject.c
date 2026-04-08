@@ -1,0 +1,5 @@
+#include "06__probe_line_directive_include_assign_qualifier_loss_spelling_reject.h"
+
+int main(void) {
+    return probe_lv_include_assign_qual_loss_diag();
+}

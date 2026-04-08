@@ -26,8 +26,8 @@ bool looksLikeParenTypeName(Parser* parser);
 ASTNode* ledFunctionCall(Parser* parser, ASTNode* callee);
 ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee);
 ASTNode* parseCastExpressionPratt(Parser* parser, bool alreadyConsumedLParen);
-ASTNode* parseSizeofExpressionPratt(Parser* parser);
-ASTNode* parseAlignofExpressionPratt(Parser* parser);
+ASTNode* parseSizeofExpressionPratt(Parser* parser, const Token* sizeofToken);
+ASTNode* parseAlignofExpressionPratt(Parser* parser, const Token* alignofToken);
 ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen);
 
 

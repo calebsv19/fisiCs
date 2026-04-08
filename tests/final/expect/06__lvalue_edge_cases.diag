@@ -1,5 +1,6 @@
 Diagnostics:
-Error at (12:16): Operator '&' requires non-bitfield lvalue operand
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__lvalue_edge_cases.c:12:16
-Error at (13:0): Left operand of '=' must be a modifiable lvalue
+Error at (12:15): Operator '&' requires non-bitfield lvalue operand
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__lvalue_edge_cases.c:12:15
+Error at (13:5): Left operand of '=' must be a modifiable lvalue
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__lvalue_edge_cases.c:13:5
 Warning at (15:0): Pointer comparison against non-null integer

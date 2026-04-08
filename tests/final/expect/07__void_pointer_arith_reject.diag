@@ -1,4 +1,5 @@
 Diagnostics:
 Error at (3:10): Operator '+' requires pointer arithmetic on void*
    Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/07__void_pointer_arith_reject.c:3:10
-Error at (3:0): Incompatible assignment operands
+Error at (3:5): Incompatible assignment operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/07__void_pointer_arith_reject.c:3:5

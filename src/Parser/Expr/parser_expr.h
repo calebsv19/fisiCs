@@ -31,8 +31,8 @@ ASTNode* parseFactor(Parser* parser);
 ASTNode* parseCastExpression(Parser* parser);
 ASTNode* parsePostfixExpression(Parser* parser);
 ASTNode* parsePrimary(Parser* parser);
-ASTNode* parseSizeofExpression(Parser* parser);
-ASTNode* parseAlignofExpression(Parser* parser);
+ASTNode* parseSizeofExpression(Parser* parser, const Token* sizeofToken);
+ASTNode* parseAlignofExpression(Parser* parser, const Token* alignofToken);
 
 // Statement-level expression routing
 ASTNode* handleExpressionOrAssignment(Parser* parser);

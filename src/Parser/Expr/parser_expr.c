@@ -357,6 +357,7 @@ ASTNode* parseFactor(Parser* parser) {
     // Handle prefix increment and decrement (++x, --x)
     if (parser->currentToken.type == TOKEN_INCREMENT ||
         parser->currentToken.type == TOKEN_DECREMENT) {
+        Token opTok = parser->currentToken;
         TokenType op = parser->currentToken.type;
         advance(parser); // Consume '++' or '--' 
         ASTNode* operand = parseFactor(parser);  
@@ -365,7 +366,9 @@ ASTNode* parseFactor(Parser* parser) {
                    getOperatorString(op), parser->currentToken.line);
             return NULL;
         }
-        return createUnaryExprNode(getOperatorString(op), operand, false);
+        ASTNode* node = createUnaryExprNode(getOperatorString(op), operand, false);
+        astNodeSetProvenance(node, &opTok);
+        return node;
     }
      
     // Handle pointer dereference (*ptr, *--ptr, etc.)
@@ -381,17 +384,21 @@ ASTNode* parseFactor(Parser* parser) {
      
     // Handle unary plus
     if (parser->currentToken.type == TOKEN_PLUS) {
+        Token opTok = parser->currentToken;
         advance(parser);
         ASTNode* operand = parseFactor(parser);
         if (!operand) {
             printf("Error: Invalid operand for unary '+' at line %d\n", parser->currentToken.line);
             return NULL;
         }
-        return createUnaryExprNode("+", operand, false);
+        ASTNode* node = createUnaryExprNode("+", operand, false);
+        astNodeSetProvenance(node, &opTok);
+        return node;
     }
 
     // Handle negative number literals and unary minus
     if (parser->currentToken.type == TOKEN_MINUS) {   
+        Token opTok = parser->currentToken;
         advance(parser);
         if (parser->currentToken.type == TOKEN_NUMBER) {
             size_t len = strlen(parser->currentToken.value);
@@ -413,17 +420,22 @@ ASTNode* parseFactor(Parser* parser) {
 				parser->currentToken.line);
                 return NULL;
             }
-            return createUnaryExprNode("-", operand, false);
+            ASTNode* node = createUnaryExprNode("-", operand, false);
+            astNodeSetProvenance(node, &opTok);
+            return node;
         }
     }
      
     // Handle other unary operators (!, ~)
     if (parser->currentToken.type == TOKEN_LOGICAL_NOT ||
         parser->currentToken.type == TOKEN_BITWISE_NOT) {
+        Token opTok = parser->currentToken;
         TokenType op = parser->currentToken.type;
         advance(parser);
         ASTNode* right = parseFactor(parser);
-        return createUnaryExprNode(getOperatorString(op), right, false);
+        ASTNode* node = createUnaryExprNode(getOperatorString(op), right, false);
+        astNodeSetProvenance(node, &opTok);
+        return node;
     }
      
     // Default: anything else should be parsed as a postfix expression
@@ -624,10 +636,12 @@ ASTNode* parsePrimary(Parser* parser) {
     }
 
     if (parser->currentToken.type == TOKEN_SIZEOF) {
-        return parseSizeofExpression(parser);
+        Token sizeofTok = parser->currentToken;
+        return parseSizeofExpression(parser, &sizeofTok);
     }
     if (parser->currentToken.type == TOKEN_ALIGNOF) {
-        return parseAlignofExpression(parser);
+        Token alignofTok = parser->currentToken;
+        return parseAlignofExpression(parser, &alignofTok);
     }
      
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
@@ -656,7 +670,7 @@ ASTNode* parsePrimary(Parser* parser) {
 }
 
 
-ASTNode* parseSizeofExpression(Parser* parser) {
+ASTNode* parseSizeofExpression(Parser* parser, const Token* sizeofToken) {
     PARSER_DEBUG_PRINTF("DEBUG: Entering parseSizeofExpression() at line %d\n", parser->currentToken.line);
         
     if (parser->currentToken.type != TOKEN_SIZEOF) {
@@ -704,10 +718,14 @@ ASTNode* parseSizeofExpression(Parser* parser) {
     
     advance(parser);  // Consume ')'
     
-    return createSizeofNode(target);
+    ASTNode* node = createSizeofNode(target);
+    if (node && sizeofToken) {
+        astNodeSetProvenance(node, sizeofToken);
+    }
+    return node;
 }
 
-ASTNode* parseAlignofExpression(Parser* parser) {
+ASTNode* parseAlignofExpression(Parser* parser, const Token* alignofToken) {
     if (parser->currentToken.type != TOKEN_ALIGNOF) {
         return NULL;
     }
@@ -748,7 +766,11 @@ ASTNode* parseAlignofExpression(Parser* parser) {
     }
     advance(parser); // consume ')'
 
-    return createAlignofNode(target);
+    ASTNode* node = createAlignofNode(target);
+    if (node && alignofToken) {
+        astNodeSetProvenance(node, alignofToken);
+    }
+    return node;
 }
 
 

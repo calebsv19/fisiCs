@@ -1,2 +1,2 @@
 Diagnostics:
-Error at (0:0): sizeof applied to void type
+Error at (2:0): sizeof applied to void type

@@ -42,6 +42,8 @@ class DiagnosticJsonProbe:
     require_any_diagnostic: bool = True
     expected_codes: Sequence[int] | None = None
     expected_line: int | None = None
+    expected_column: int | None = None
+    expected_has_file: bool | None = None
     inputs: Sequence[Path] | None = None
 
 
@@ -2329,6 +2331,126 @@ DIAG_PROBES = [
         note="_Alignof should reject expression operand in strict C mode",
     ),
     DiagnosticProbe(
+        probe_id="05__probe_line_directive_add_void_location_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_line_directive_add_void_location_reject.c",
+        note="#line remapped virtual line should propagate into add-void expression diagnostic location",
+        required_substrings=("Error at (831:",),
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_line_directive_add_void_filename_location_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_line_directive_add_void_filename_location_reject.c",
+        note="#line remapped virtual filename should propagate into add-void expression diagnostic spelling location",
+        required_substrings=("Spelling: virtual_expr_add_void_filename_probe.c:832:",),
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_line_directive_unary_minus_ptr_location_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_line_directive_unary_minus_ptr_location_reject.c",
+        note="fixed baseline: multiline unary-minus-pointer lane reports remapped return-statement line under #line",
+        required_substrings=("Error at (844:",),
+    ),
+    DiagnosticProbe(
+        probe_id="05__probe_line_directive_unary_minus_ptr_reduced_location_pass",
+        source=PROBE_DIR / "diagnostics/05__probe_line_directive_unary_minus_ptr_reduced_location_pass.c",
+        note="reduced threshold: single-line unary-minus-pointer lane preserves remapped #line boundary",
+        required_substrings=("Error at (841:74):",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_assign_incompatible_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_assign_incompatible_spelling_reject.c",
+        note="strict frontier: assignment-incompatible diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_assign_incompat_diag_probe.c:1244:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_assign_incompatible_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_assign_incompatible_current_sparse_pass.c",
+        note="fixed baseline: assignment-incompatible diagnostics under #line now include spelling payload",
+        required_substrings=("Spelling: virtual_lv_assign_incompat_diag_probe.c:1244:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_assign_qualifier_loss_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_assign_qualifier_loss_spelling_reject.c",
+        note="strict frontier: qualifier-loss assignment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_assign_qual_loss_diag_probe.c:1265:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_assign_qualifier_loss_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_assign_qualifier_loss_current_sparse_pass.c",
+        note="fixed baseline: qualifier-loss assignment diagnostics under #line now include spelling payload",
+        required_substrings=("Spelling: virtual_lv_assign_qual_loss_diag_probe.c:1265:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_assign_incompatible_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_incompatible_spelling_reject.c",
+        note="strict frontier: include-header assignment-incompatible diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_include_assign_incompat_diag_probe.h:1564:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_incompatible_spelling_reject.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_incompatible_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_assign_incompatible_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_incompatible_current_sparse_pass.c",
+        note="fixed baseline: include-header assignment-incompatible diagnostics under #line now include spelling payload",
+        required_substrings=("Spelling: virtual_lv_include_assign_incompat_diag_probe.h:1564:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_incompatible_current_sparse_pass.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_incompatible_current_sparse_pass.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_assign_qualifier_loss_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_qualifier_loss_spelling_reject.c",
+        note="strict frontier: include-header qualifier-loss assignment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_include_assign_qual_loss_diag_probe.h:1585:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_qualifier_loss_spelling_reject.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_qualifier_loss_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_assign_qualifier_loss_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_qualifier_loss_current_sparse_pass.c",
+        note="fixed baseline: include-header qualifier-loss assignment diagnostics under #line now include spelling payload",
+        required_substrings=("Spelling: virtual_lv_include_assign_qual_loss_diag_probe.h:1585:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_qualifier_loss_current_sparse_pass.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_assign_qualifier_loss_current_sparse_pass.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_nonmodifiable_lvalue_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_nonmodifiable_lvalue_spelling_reject.c",
+        note="strict frontier: nonmodifiable-lvalue assignment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_nonmodifiable_assign_diag_probe.c:1803:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_nonmodifiable_lvalue_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_nonmodifiable_lvalue_current_sparse_pass.c",
+        note="fixed baseline: nonmodifiable-lvalue assignment diagnostics under #line now include spelling payload",
+        required_substrings=("Spelling: virtual_lv_nonmodifiable_assign_diag_probe.c:1803:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_nonmodifiable_lvalue_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_nonmodifiable_lvalue_spelling_reject.c",
+        note="strict frontier: include-header nonmodifiable-lvalue assignment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_include_nonmodifiable_assign_diag_probe.h:1823:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_nonmodifiable_lvalue_spelling_reject.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_nonmodifiable_lvalue_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_nonmodifiable_lvalue_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_nonmodifiable_lvalue_current_sparse_pass.c",
+        note="fixed baseline: include-header nonmodifiable-lvalue assignment diagnostics under #line now include spelling payload",
+        required_substrings=("Spelling: virtual_lv_include_nonmodifiable_assign_diag_probe.h:1823:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_nonmodifiable_lvalue_current_sparse_pass.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_nonmodifiable_lvalue_current_sparse_pass.h",
+        ),
+    ),
+    DiagnosticProbe(
         probe_id="07__probe_assign_struct_to_int_reject",
         source=PROBE_DIR / "diagnostics/07__probe_assign_struct_to_int_reject.c",
         note="assignment from struct value to int object should be rejected",
@@ -2379,6 +2501,12 @@ DIAG_PROBES = [
         source=PROBE_DIR / "diagnostics/07__probe_conv_assign_pointer_to_int_reject.c",
         note="assignment from pointer expression to integer object should be rejected",
         required_substrings=("Incompatible assignment operands",),
+    ),
+    DiagnosticProbe(
+        probe_id="07__probe_void_pointer_arith_reject",
+        source=PROBE_DIR / "diagnostics/07__probe_void_pointer_arith_reject.c",
+        note="void-pointer arithmetic assignment should be rejected with operator and assignment diagnostics",
+        required_substrings=("pointer arithmetic on void*", "Incompatible assignment operands"),
     ),
     DiagnosticProbe(
         probe_id="07__probe_agg_union_missing_nested_field_reject",
@@ -3219,6 +3347,269 @@ DIAG_JSON_PROBES = [
         expected_line=444,
     ),
     DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_shift_width_location_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_shift_width_location_reject.c",
+        note="diagnostics JSON should honor #line remap for shift-width expression diagnostic",
+        expected_codes=(2000,),
+        expected_line=851,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_alignof_expr_location_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_alignof_expr_location_reject.c",
+        note="fixed baseline: diagnostics JSON reports remapped return-statement line for _Alignof-expression diagnostic",
+        expected_codes=(2000,),
+        expected_line=863,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_alignof_expr_reduced_location_pass",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_alignof_expr_reduced_location_pass.c",
+        note="reduced threshold: single-line _Alignof-expression lane preserves remapped #line boundary in diagnostics JSON",
+        expected_codes=(2000,),
+        expected_line=861,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_shift_width_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_shift_width_file_presence_reject.c",
+        note="strict frontier: diagnostics JSON should include has_file for shift-width diagnostic under #line remap",
+        expected_codes=(2000,),
+        expected_line=871,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_shift_width_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_shift_width_current_sparse_pass.c",
+        note="fixed baseline: shift-width diagnostics JSON under #line remap carries file presence",
+        expected_codes=(2000,),
+        expected_line=871,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_alignof_expr_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_alignof_expr_file_presence_reject.c",
+        note="strict frontier: diagnostics JSON should include has_file for _Alignof-expression diagnostic under #line remap",
+        expected_codes=(2000,),
+        expected_line=881,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_alignof_expr_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_alignof_expr_current_sparse_pass.c",
+        note="fixed baseline: _Alignof-expression diagnostics JSON under #line remap carries file presence",
+        expected_codes=(2000,),
+        expected_line=881,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_macro_add_rich_presence_strict",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_macro_add_rich_presence_strict.c",
+        note="control lane: macro-expanded add-void diagnostics JSON carries rich location (line/column/file)",
+        expected_codes=(2000,),
+        expected_line=901,
+        expected_column=37,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_include_shift_width_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_include_shift_width_file_presence_reject.c",
+        note="strict frontier: include-header shift-width diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=1361,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_include_shift_width_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_include_shift_width_current_sparse_pass.c",
+        note="fixed baseline: include-header shift-width diagnostics JSON carries file presence under #line remap",
+        expected_codes=(2000,),
+        expected_line=1361,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_include_alignof_expr_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_include_alignof_expr_file_presence_reject.c",
+        note="strict frontier: include-header _Alignof-expression diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=1381,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_include_alignof_expr_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_include_alignof_expr_current_sparse_pass.c",
+        note="fixed baseline: include-header _Alignof-expression diagnostics JSON carries file presence under #line remap",
+        expected_codes=(2000,),
+        expected_line=1381,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="05__probe_diagjson_line_directive_include_macro_add_rich_presence_strict",
+        source=PROBE_DIR / "diagnostics/05__probe_diagjson_line_directive_include_macro_add_rich_presence_strict.c",
+        note="control lane: include-header macro-expanded add-void diagnostics JSON carries rich location (line/column/file)",
+        expected_codes=(2000,),
+        expected_line=1411,
+        expected_column=47,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_assign_incompatible_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_assign_incompatible_file_presence_reject.c",
+        note="strict frontier: assignment-incompatible diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=1044,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_assign_incompatible_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_assign_incompatible_current_sparse_pass.c",
+        note="fixed baseline: assignment-incompatible diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=1044,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_assign_qualifier_loss_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_assign_qualifier_loss_file_presence_reject.c",
+        note="strict frontier: qualifier-loss assignment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=1065,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_assign_qualifier_loss_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_assign_qualifier_loss_current_sparse_pass.c",
+        note="fixed baseline: qualifier-loss assignment diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=1065,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_assign_incompatible_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_include_assign_incompatible_file_presence_reject.c",
+        note="strict frontier: include-header assignment-incompatible diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=1464,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_assign_incompatible_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_include_assign_incompatible_current_sparse_pass.c",
+        note="fixed baseline: include-header assignment-incompatible diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=1464,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_assign_qualifier_loss_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_include_assign_qualifier_loss_file_presence_reject.c",
+        note="strict frontier: include-header qualifier-loss assignment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=1485,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_assign_qualifier_loss_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_include_assign_qualifier_loss_current_sparse_pass.c",
+        note="fixed baseline: include-header qualifier-loss assignment diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=1485,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_nonmodifiable_lvalue_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_nonmodifiable_lvalue_file_presence_reject.c",
+        note="strict frontier: nonmodifiable-lvalue assignment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=1763,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_nonmodifiable_lvalue_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_nonmodifiable_lvalue_current_sparse_pass.c",
+        note="fixed baseline: nonmodifiable-lvalue assignment diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=1763,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_nonmodifiable_lvalue_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_include_nonmodifiable_lvalue_file_presence_reject.c",
+        note="strict frontier: include-header nonmodifiable-lvalue assignment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=1783,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_nonmodifiable_lvalue_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_include_nonmodifiable_lvalue_current_sparse_pass.c",
+        note="fixed baseline: include-header nonmodifiable-lvalue assignment diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=1783,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_line_directive_conv_pointer_assign_float_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/07__probe_diagjson_line_directive_conv_pointer_assign_float_rich_presence.c",
+        note="strict frontier: pointer-assignment-from-float diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=2104,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_line_directive_conv_pointer_assign_float_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/07__probe_diagjson_line_directive_conv_pointer_assign_float_rich_presence.c",
+        note="reduced threshold: pointer-assignment-from-float diagnostics JSON under #line remap emits conversion diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_line_directive_void_pointer_arith_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/07__probe_diagjson_line_directive_void_pointer_arith_rich_presence.c",
+        note="strict frontier: void-pointer arithmetic diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=2203,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_line_directive_void_pointer_arith_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/07__probe_diagjson_line_directive_void_pointer_arith_rich_presence.c",
+        note="reduced threshold: void-pointer arithmetic diagnostics JSON under #line remap emits conversion diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_line_directive_include_conv_pointer_assign_float_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/07__probe_diagjson_line_directive_include_conv_pointer_assign_float_rich_presence.c",
+        note="strict frontier: include-header pointer-assignment-from-float diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=2514,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_line_directive_include_conv_pointer_assign_float_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/07__probe_diagjson_line_directive_include_conv_pointer_assign_float_rich_presence.c",
+        note="reduced threshold: include-header pointer-assignment-from-float diagnostics JSON under #line remap emits conversion diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_line_directive_include_void_pointer_arith_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/07__probe_diagjson_line_directive_include_void_pointer_arith_rich_presence.c",
+        note="strict frontier: include-header void-pointer arithmetic diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=2613,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_line_directive_include_void_pointer_arith_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/07__probe_diagjson_line_directive_include_void_pointer_arith_rich_presence.c",
+        note="reduced threshold: include-header void-pointer arithmetic diagnostics JSON under #line remap emits conversion diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
         probe_id="07__probe_diagjson_assign_struct_to_int_reject",
         source=PROBE_DIR / "diagnostics/07__probe_assign_struct_to_int_reject.c",
         note="diagnostics JSON should include assignment incompatibility for struct-to-int assignment",
@@ -3262,6 +3653,11 @@ DIAG_JSON_PROBES = [
         probe_id="07__probe_diagjson_conv_assign_pointer_to_int_reject",
         source=PROBE_DIR / "diagnostics/07__probe_conv_assign_pointer_to_int_reject.c",
         note="diagnostics JSON should include pointer-to-integer assignment rejection",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_void_pointer_arith_reject",
+        source=PROBE_DIR / "diagnostics/07__probe_void_pointer_arith_reject.c",
+        note="diagnostics JSON should include void-pointer arithmetic assignment rejection",
     ),
     DiagnosticJsonProbe(
         probe_id="07__probe_diagjson_agg_union_missing_nested_field_reject",
@@ -3351,6 +3747,8 @@ DIAG_JSON_PROBES = [
         note="diagnostics JSON strict parity for pointer-assignment-from-float rejection",
         expected_codes=(2000,),
         expected_line=4,
+        expected_column=5,
+        expected_has_file=True,
     ),
     DiagnosticJsonProbe(
         probe_id="07__probe_diagjson_conv_pointer_init_struct_reject_strict",
@@ -3372,6 +3770,17 @@ DIAG_JSON_PROBES = [
         note="diagnostics JSON strict parity for pointer-to-int assignment rejection",
         expected_codes=(2000,),
         expected_line=5,
+        expected_column=5,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="07__probe_diagjson_void_pointer_arith_reject_strict",
+        source=PROBE_DIR / "diagnostics/07__probe_void_pointer_arith_reject.c",
+        note="diagnostics JSON strict parity for void-pointer arithmetic assignment rejection",
+        expected_codes=(2000,),
+        expected_line=3,
+        expected_column=10,
+        expected_has_file=True,
     ),
     DiagnosticJsonProbe(
         probe_id="07__probe_diagjson_cast_struct_to_int_reject_strict",
@@ -3400,6 +3809,134 @@ DIAG_JSON_PROBES = [
         note="diagnostics JSON strict parity for aggregate unknown-member rejection",
         expected_codes=(2000,),
         expected_line=8,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_designator_unknown_field_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_designator_unknown_field_rich_presence.c",
+        note="strict frontier: designator unknown-field diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=3006,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_designator_unknown_field_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_designator_unknown_field_rich_presence.c",
+        note="reduced threshold: designator unknown-field diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_designator_array_index_oob_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_designator_array_index_oob_rich_presence.c",
+        note="strict frontier: designator array-index-oob diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=3101,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_designator_array_index_oob_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_designator_array_index_oob_rich_presence.c",
+        note="reduced threshold: designator array-index-oob diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_designator_unknown_field_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_designator_unknown_field_rich_presence.c",
+        note="strict frontier: include-header designator unknown-field diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=3406,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_designator_unknown_field_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_designator_unknown_field_rich_presence.c",
+        note="reduced threshold: include-header designator unknown-field diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_designator_array_index_oob_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c",
+        note="strict frontier: include-header designator array-index-oob diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=3501,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_designator_array_index_oob_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c",
+        note="reduced threshold: include-header designator array-index-oob diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_nested_designator_unknown_field_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_nested_designator_unknown_field_rich_presence.c",
+        note="strict frontier: nested designator unknown-field diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=4006,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_nested_designator_unknown_field_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_nested_designator_unknown_field_rich_presence.c",
+        note="reduced threshold: nested designator unknown-field diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_nested_designator_array_index_oob_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_nested_designator_array_oob_rich_presence.c",
+        note="strict frontier: nested designator array-index-oob diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=4103,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_nested_designator_array_index_oob_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_nested_designator_array_oob_rich_presence.c",
+        note="reduced threshold: nested designator array-index-oob diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_nested_designator_unknown_field_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_unknown_field_rich_presence.c",
+        note="strict frontier: include-header nested designator unknown-field diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=4206,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_nested_designator_unknown_field_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_unknown_field_rich_presence.c",
+        note="reduced threshold: include-header nested designator unknown-field diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_nested_designator_array_index_oob_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_oob_rich_presence.c",
+        note="strict frontier: include-header nested designator array-index-oob diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=4303,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_nested_designator_array_index_oob_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_oob_rich_presence.c",
+        note="reduced threshold: include-header nested designator array-index-oob diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
     ),
     DiagnosticJsonProbe(
         probe_id="12__probe_diagjson_while_missing_lparen",
@@ -4032,6 +4569,22 @@ def run_diag_json_probe(probe):
                     actual_lines = [int(item.get("line", -1)) for item in diagnostics]
                     if probe.expected_line not in actual_lines:
                         return ("BLOCKED", f"diagnostics JSON missing expected line {probe.expected_line}", "")
+                if probe.expected_column is not None:
+                    actual_columns = [int(item.get("column", -1)) for item in diagnostics]
+                    if probe.expected_column not in actual_columns:
+                        return (
+                            "BLOCKED",
+                            f"diagnostics JSON missing expected column {probe.expected_column}",
+                            "",
+                        )
+                if probe.expected_has_file is not None:
+                    actual_has_file = [bool(item.get("has_file", False)) for item in diagnostics]
+                    if probe.expected_has_file not in actual_has_file:
+                        return (
+                            "BLOCKED",
+                            f"diagnostics JSON missing expected has_file={probe.expected_has_file}",
+                            "",
+                        )
                 return ("RESOLVED", f"diagnostics JSON has {len(diagnostics)} item(s)", "")
             return ("BLOCKED", "diagnostics JSON unexpectedly empty", "")
         return ("RESOLVED", "diagnostics JSON exported", "")

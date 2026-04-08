@@ -21,6 +21,24 @@ static const uint64_t FNV_PRIME  = 1099511628211ULL;
 static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope);
 static StorageClass deduceStorageClass(const ParsedType* type);
 
+static void reportErrorAtAstNode(ASTNode* node,
+                                 int fallbackLine,
+                                 const char* message,
+                                 const char* hint) {
+    if (node) {
+        SourceRange loc = node->location;
+        if (loc.start.line <= 0 && fallbackLine > 0) {
+            loc.start.line = fallbackLine;
+            if (loc.end.line <= 0) {
+                loc.end = loc.start;
+            }
+        }
+        addErrorWithRanges(loc, node->macroCallSite, node->macroDefinition, message, hint);
+        return;
+    }
+    addError(fallbackLine, 0, message, hint);
+}
+
 static const ParsedType* resolveTypedefBase(Scope* scope, const ParsedType* type, int depth) {
     if (!scope || !type || depth > 16) {
         return type;
@@ -2115,7 +2133,8 @@ static void validateAggregateDesignatedFieldsRecursive(const ParsedType* aggrega
             } else if (compoundExpr->line > 0) {
                 errLine = compoundExpr->line;
             }
-            addError(errLine, 0, buffer, NULL);
+            ASTNode* errorNode = entry->expression ? entry->expression : compoundExpr;
+            reportErrorAtAstNode(errorNode, errLine, buffer, NULL);
             continue;
         }
 
@@ -2689,17 +2708,17 @@ static void validateArrayInitializerEntries(ParsedType* type,
             if (!constEvalInteger(init->indexExpr, scope, &indexValue, true)) {
                 char buffer[256];
                 snprintf(buffer, sizeof(buffer), "Array '%s' designator index must be a constant expression", arrayName);
-                addError(init->indexExpr->line, 0, buffer, NULL);
+                reportErrorAtAstNode(init->indexExpr, init->indexExpr->line, buffer, NULL);
             } else if (indexValue < 0) {
                 char buffer[256];
                 snprintf(buffer, sizeof(buffer), "Array '%s' designator index %lld is negative", arrayName, indexValue);
-                addError(init->indexExpr->line, 0, buffer, NULL);
+                reportErrorAtAstNode(init->indexExpr, init->indexExpr->line, buffer, NULL);
             } else if (hasDeclaredLen && (size_t)indexValue >= declaredLen) {
                 char buffer[256];
                 snprintf(buffer, sizeof(buffer),
                          "Array '%s' designator index %lld is out of bounds (size %zu)",
                          arrayName, indexValue, declaredLen);
-                addError(init->indexExpr->line, 0, buffer, NULL);
+                reportErrorAtAstNode(init->indexExpr, init->indexExpr->line, buffer, NULL);
             }
             if (indexValue >= 0) {
                 size_t candidate = (size_t)indexValue + 1;

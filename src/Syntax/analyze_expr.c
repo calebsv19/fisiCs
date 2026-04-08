@@ -899,7 +899,62 @@ static void reportOperandError(ASTNode* node, const char* expectation, const cha
     SourceRange loc = node ? node->location : (SourceRange){0};
     SourceRange callSite = node ? node->macroCallSite : (SourceRange){0};
     SourceRange macroDef = node ? node->macroDefinition : (SourceRange){0};
+    ASTNode* child = NULL;
+    if (node && (node->type == AST_BINARY_EXPRESSION ||
+                 node->type == AST_UNARY_EXPRESSION ||
+                 node->type == AST_ALIGNOF ||
+                 node->type == AST_SIZEOF ||
+                 node->type == AST_CAST_EXPRESSION)) {
+        child = node->expr.left ? node->expr.left : node->expr.right;
+    }
+    if (child) {
+        if ((!loc.start.file || loc.start.column <= 0) && child->location.start.file) {
+            loc = child->location;
+        }
+        if (!callSite.start.file && child->macroCallSite.start.file) {
+            callSite = child->macroCallSite;
+        }
+        if (!macroDef.start.file && child->macroDefinition.start.file) {
+            macroDef = child->macroDefinition;
+        }
+    }
     addErrorWithRanges(loc, callSite, macroDef, buffer, NULL);
+}
+
+static void reportNodeError(ASTNode* node, const char* message, const char* hint) {
+    if (!node) {
+        addError(0, 0, message, hint);
+        return;
+    }
+    SourceRange loc = node->location;
+    SourceRange callSite = node->macroCallSite;
+    SourceRange macroDef = node->macroDefinition;
+    ASTNode* child = NULL;
+    if (node->type == AST_BINARY_EXPRESSION ||
+        node->type == AST_UNARY_EXPRESSION ||
+        node->type == AST_ALIGNOF ||
+        node->type == AST_SIZEOF ||
+        node->type == AST_CAST_EXPRESSION) {
+        child = node->expr.left ? node->expr.left : node->expr.right;
+    } else if (node->type == AST_ASSIGNMENT) {
+        child = node->assignment.target ? node->assignment.target : node->assignment.value;
+    }
+    if (child) {
+        if ((!loc.start.file || loc.start.column <= 0) && child->location.start.file) {
+            loc = child->location;
+        }
+        if (!callSite.start.file && child->macroCallSite.start.file) {
+            callSite = child->macroCallSite;
+        }
+        if (!macroDef.start.file && child->macroDefinition.start.file) {
+            macroDef = child->macroDefinition;
+        }
+    }
+    addErrorWithRanges(loc,
+                       callSite,
+                       macroDef,
+                       message,
+                       hint);
 }
 
 static bool typeInfoIsKnown(const TypeInfo* info) {
@@ -1374,7 +1429,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 const char* op = node->assignment.op ? node->assignment.op : "=";
                 char buffer[128];
                 snprintf(buffer, sizeof(buffer), "Left operand of '%s' must be a modifiable lvalue", op);
-                addError(node->line, 0, buffer, NULL);
+                reportNodeError(node, buffer, NULL);
             }
             TypeInfo valueInfo = analyzeExpression(node->assignment.value, scope);
             TypeInfo rvalue = decayToRValue(valueInfo);
@@ -1434,9 +1489,9 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 }
             }
             if (assignResult == ASSIGN_QUALIFIER_LOSS) {
-                addError(node->line, 0, "Assignment discards qualifiers from pointer target", NULL);
+                reportNodeError(node, "Assignment discards qualifiers from pointer target", NULL);
             } else if (assignResult == ASSIGN_INCOMPATIBLE && !suppressIncompatibleDiag) {
-                addError(node->line, 0, "Incompatible assignment operands", NULL);
+                reportNodeError(node, "Incompatible assignment operands", NULL);
             }
             targetInfo.isLValue = false;
             return targetInfo;
@@ -1603,7 +1658,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                                      "Invalid shift width %lld for %u-bit operand",
                                      shiftAmount,
                                      lhsBits);
-                            addError(node->line, 0, message, NULL);
+                            reportNodeError(node, message, NULL);
                             return makeInvalidType();
                         }
                     }
@@ -2412,16 +2467,16 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         case AST_ALIGNOF:
             if (node->expr.left) {
                 if (node->expr.left->type != AST_PARSED_TYPE) {
-                    addError(node->line, 0, "alignof requires type-name operand", NULL);
+                    reportNodeError(node, "alignof requires type-name operand", NULL);
                     return makeInvalidType();
                 }
                 TypeInfo target = analyzeExpression(node->expr.left, scope);
                 if (target.category == TYPEINFO_VOID && target.pointerDepth == 0 && !target.isFunction) {
-                    addError(node->line, 0, "alignof applied to void type", NULL);
+                    reportNodeError(node, "alignof applied to void type", NULL);
                     return makeInvalidType();
                 }
                 if ((target.category == TYPEINFO_STRUCT || target.category == TYPEINFO_UNION) && !target.isComplete) {
-                    addError(node->line, 0, "alignof applied to incomplete type", NULL);
+                    reportNodeError(node, "alignof applied to incomplete type", NULL);
                     return makeInvalidType();
                 }
             }

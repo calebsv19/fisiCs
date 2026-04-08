@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__line_directive_include_shift_width_diagjson_current_sparse",
+      "bucket": "expressions",
+      "input": "cases/05__line_directive_include_shift_width_diagjson_current_sparse.c",
+      "expects": [
+        "expect/05__line_directive_include_shift_width_diagjson_current_sparse.diagjson"
+      ],
+      "capture_diag_json": true,
+      "tags": ["expressions", "diagjson", "line-directive", "include", "wave9", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__line_directive_include_macro_add_diagjson_rich_location",
+      "bucket": "expressions",
+      "input": "cases/05__line_directive_include_macro_add_diagjson_rich_location.c",
+      "expects": [
+        "expect/05__line_directive_include_macro_add_diagjson_rich_location.diagjson"
+      ],
+      "capture_diag_json": true,
+      "tags": ["expressions", "diagjson", "line-directive", "include", "macro", "wave9"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

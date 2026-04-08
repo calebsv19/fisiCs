@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (731:41): Operator '+' requires arithmetic operands
+   Spelling: virtual_expr_add_void_case.c:731:41

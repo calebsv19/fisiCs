@@ -273,12 +273,16 @@ static ASTNode* nud(Parser* parser, Token token) {
         case TOKEN_DECREMENT:
         case TOKEN_ASTERISK: {
             ASTNode* right = parseExpressionPratt(parser, 11); // Higher than any binary
-            return createUnaryExprNode(getOperatorString(token.type), right, false);
+            ASTNode* node = createUnaryExprNode(getOperatorString(token.type), right, false);
+            astNodeSetProvenance(node, &token);
+            return node;
         }
 
         case TOKEN_BITWISE_AND: {  // prefix address-of
             ASTNode* right = parseExpressionPratt(parser, 11); // prefix-unary rbp
-            return createUnaryExprNode(getOperatorString(token.type), right, false);
+            ASTNode* node = createUnaryExprNode(getOperatorString(token.type), right, false);
+            astNodeSetProvenance(node, &token);
+            return node;
         }
 
 	case TOKEN_LPAREN: {
@@ -333,10 +337,10 @@ static ASTNode* nud(Parser* parser, Token token) {
 	}
         case TOKEN_SIZEOF: {
             // TODO: implement sizeof type vs expr
-            return parseSizeofExpressionPratt(parser);
+            return parseSizeofExpressionPratt(parser, &token);
         }
         case TOKEN_ALIGNOF: {
-            return parseAlignofExpressionPratt(parser);
+            return parseAlignofExpressionPratt(parser, &token);
         }
 
         default:
@@ -1048,7 +1052,7 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
 // Pratt-aware sizeof handler
 // Precondition: 'sizeof' token was already consumed by parseExpressionPratt()
 // so parser->currentToken is the token *after* 'sizeof'.
-ASTNode* parseSizeofExpressionPratt(Parser* parser) {
+ASTNode* parseSizeofExpressionPratt(Parser* parser, const Token* sizeofToken) {
     PARSER_DEBUG_PRINTF("DEBUG [Pratt]: entering parseSizeofExpressionPratt(), next token = '%s' (type %d)\n",
            parser->currentToken.value, parser->currentToken.type);
 
@@ -1092,7 +1096,11 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
                 return NULL;
             }
             advance(parser);                      // ')'
-            return createSizeofNode(createParsedTypeNode(realType));
+            ASTNode* node = createSizeofNode(createParsedTypeNode(realType));
+            if (node && sizeofToken) {
+                astNodeSetProvenance(node, sizeofToken);
+            }
+            return node;
         }
         // else: fall through to expr form
     }
@@ -1102,10 +1110,14 @@ ASTNode* parseSizeofExpressionPratt(Parser* parser) {
         printParseError("Invalid operand for sizeof", parser);
         return NULL;
     }
-    return createSizeofNode(operand);
+    ASTNode* node = createSizeofNode(operand);
+    if (node && sizeofToken) {
+        astNodeSetProvenance(node, sizeofToken);
+    }
+    return node;
 }
 
-ASTNode* parseAlignofExpressionPratt(Parser* parser) {
+ASTNode* parseAlignofExpressionPratt(Parser* parser, const Token* alignofToken) {
     if (parser->currentToken.type == TOKEN_LPAREN) {
         Parser temp = cloneParserWithFreshLexer(parser);
         advance(&temp); // '('
@@ -1145,7 +1157,11 @@ ASTNode* parseAlignofExpressionPratt(Parser* parser) {
                 return NULL;
             }
             advance(parser); // ')'
-            return createAlignofNode(createParsedTypeNode(realType));
+            ASTNode* node = createAlignofNode(createParsedTypeNode(realType));
+            if (node && alignofToken) {
+                astNodeSetProvenance(node, alignofToken);
+            }
+            return node;
         }
     }
 
@@ -1154,5 +1170,9 @@ ASTNode* parseAlignofExpressionPratt(Parser* parser) {
         printParseError("Invalid operand for alignof", parser);
         return NULL;
     }
-    return createAlignofNode(operand);
+    ASTNode* node = createAlignofNode(operand);
+    if (node && alignofToken) {
+        astNodeSetProvenance(node, alignofToken);
+    }
+    return node;
 }

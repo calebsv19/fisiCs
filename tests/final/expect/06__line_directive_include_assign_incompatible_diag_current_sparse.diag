@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (1364:5): Incompatible assignment operands
+   Spelling: virtual_lv_include_assign_incompat_diag_case.h:1364:5

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__diagjson__designator_unknown_field_reject",
+      "bucket": "initializers-layout",
+      "input": "cases/08__diagjson__designator_unknown_field_reject.c",
+      "expects": [
+        "expect/08__diagjson__designator_unknown_field_reject.diagjson"
+      ],
+      "tags": ["initializer", "designator", "negative", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__line_directive_designator_unknown_field_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_designator_unknown_field_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_designator_unknown_field_diagjson_current_sparse.diagjson"
+      ],
+      "tags": ["initializer", "designator", "negative", "line-directive", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__line_directive_designator_array_index_oob_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_designator_array_index_oob_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_designator_array_index_oob_diagjson_current_sparse.diagjson"
+      ],
+      "tags": ["initializer", "designator", "negative", "line-directive", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -466,10 +466,7 @@ ASTNode* createAssignmentNode(ASTNode* identifier, ASTNode* value, TokenType op)
 
     node->assignment.target = identifier;
     node->assignment.value  = value;
-    if (identifier && identifier->line) {
-        node->line = identifier->line;
-    }
-    inherit_line_from_node(node, value);
+    inherit_line_from_pair(node, identifier, value);
     return node;
 }
 

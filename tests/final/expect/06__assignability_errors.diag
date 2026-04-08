@@ -1,3 +1,5 @@
 Diagnostics:
-Error at (3:0): Left operand of '=' must be a modifiable lvalue
-Error at (4:0): Left operand of '=' must be a modifiable lvalue
+Error at (3:5): Left operand of '=' must be a modifiable lvalue
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__assignability_errors.c:3:5
+Error at (4:6): Left operand of '=' must be a modifiable lvalue
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__assignability_errors.c:4:6

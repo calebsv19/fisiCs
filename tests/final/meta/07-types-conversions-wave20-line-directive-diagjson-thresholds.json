@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_conv_pointer_assign_float_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "cases/07__line_directive_conv_pointer_assign_float_diagjson_current_sparse.c",
+      "expects": [
+        "expect/07__line_directive_conv_pointer_assign_float_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "line-directive",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_void_pointer_arith_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "cases/07__line_directive_void_pointer_arith_diagjson_current_sparse.c",
+      "expects": [
+        "expect/07__line_directive_void_pointer_arith_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "pointer",
+        "conversion",
+        "negative",
+        "line-directive",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

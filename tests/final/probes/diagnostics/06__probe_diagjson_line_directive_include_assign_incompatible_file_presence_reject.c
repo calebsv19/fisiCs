@@ -1,0 +1,5 @@
+#include "06__probe_diagjson_line_directive_include_assign_incompatible_file_presence_reject.h"
+
+int main(void) {
+    return probe_lv_include_assign_incompat();
+}

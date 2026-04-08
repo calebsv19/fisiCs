@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (1723:6): Left operand of '=' must be a modifiable lvalue
+   Spelling: virtual_lv_include_nonmodifiable_assign_diag_case.h:1723:6

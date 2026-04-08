@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (1165:5): Assignment discards qualifiers from pointer target
+   Spelling: virtual_lv_assign_qual_loss_diag_case.c:1165:5

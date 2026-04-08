@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (5:0): Incompatible assignment operands
+Error at (5:5): Incompatible assignment operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/07__conv__assign_pointer_to_int_reject.c:5:5

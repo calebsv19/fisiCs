@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__line_directive_assign_nonmodifiable_lvalue_diag_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_assign_nonmodifiable_lvalue_diag_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_assign_nonmodifiable_lvalue_diag_current_sparse.diag"
+      ],
+      "tags": ["lvalues-rvalues", "diag", "line-directive", "wave7", "assign", "nonmodifiable", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__line_directive_include_assign_nonmodifiable_lvalue_diag_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_include_assign_nonmodifiable_lvalue_diag_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_include_assign_nonmodifiable_lvalue_diag_current_sparse.diag"
+      ],
+      "tags": ["lvalues-rvalues", "diag", "line-directive", "include", "wave7", "assign", "nonmodifiable", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
