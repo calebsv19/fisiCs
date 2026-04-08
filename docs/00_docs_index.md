@@ -47,6 +47,14 @@ Full-project validation workflow for compile-each-TU campaigns.
 
 Reference notes for the reusable frontend API/library flow.
 
+### `docs/compiler_ide_data_contract.md`
+
+Versioned compiler-to-IDE communication contract (schema, stability, compatibility).
+
+### `docs/cli_release_workflow.md`
+
+CLI release packaging/sign/notarize workflow for macOS distribution artifacts.
+
 ## Private Docs
 
 Internal planning, status logs, and deep execution artifacts are intentionally maintained in private maintainer documentation outside this public docs lane.

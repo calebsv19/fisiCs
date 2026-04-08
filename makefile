@@ -66,6 +66,27 @@ endif
 DEFAULT_INCLUDE_PATHS := $(if $(INCLUDE_PATHS),$(INCLUDE_PATHS),include)
 EXAMPLES_DIR := examples
 EXAMPLES_BUILD_DIR := build/examples
+RELEASE_VERSION ?= 0.1.0
+RELEASE_CHANNEL ?= stable
+RELEASE_PLATFORM ?= macOS
+RELEASE_ARCH ?= arm64
+RELEASE_BASENAME := fisiCs-$(RELEASE_VERSION)-$(RELEASE_PLATFORM)-$(RELEASE_ARCH)-$(RELEASE_CHANNEL)
+RELEASE_ROOT := build/release
+RELEASE_STAGE_ROOT := $(RELEASE_ROOT)/stage
+RELEASE_STAGE_DIR := $(RELEASE_STAGE_ROOT)/$(RELEASE_BASENAME)
+RELEASE_BIN := $(RELEASE_STAGE_DIR)/bin/fisics
+RELEASE_ARTIFACT_ZIP := $(RELEASE_ROOT)/$(RELEASE_BASENAME).zip
+RELEASE_ARTIFACT_TGZ := $(RELEASE_ROOT)/$(RELEASE_BASENAME).tar.gz
+RELEASE_MANIFEST := $(RELEASE_ROOT)/$(RELEASE_BASENAME).manifest.txt
+RELEASE_SHA256 := $(RELEASE_ROOT)/$(RELEASE_BASENAME).sha256
+RELEASE_NOTARY_LOG := $(RELEASE_ROOT)/$(RELEASE_BASENAME).notary.json
+RELEASE_PKG_ROOT := $(RELEASE_ROOT)/pkgroot
+RELEASE_PKG := $(RELEASE_ROOT)/$(RELEASE_BASENAME).pkg
+INSTALL_PREFIX ?= /usr/local
+PKG_IDENTIFIER ?= com.cosm.fisics
+APPLE_SIGN_IDENTITY ?=
+APPLE_NOTARY_PROFILE ?=
+APPLE_INSTALLER_IDENTITY ?=
 
 # === Step 1: Generate keyword_lookup.c from keywords.gperf ===
 src/Lexer/keyword_lookup.c: src/Lexer/keywords.gperf
@@ -164,6 +185,123 @@ clean:
 	@echo "Cleaning..."
 	rm -rf build $(BIN) $(LIB_FRONTEND) libfisics_frontend_unsanitized.a libfisics_frontend_sanitized.a
 	rm -f src/Lexer/keyword_lookup.c
+
+release-clean:
+	@echo "Cleaning release artifacts..."
+	rm -rf $(RELEASE_ROOT)
+
+release-contract:
+	@echo "Release contract"
+	@echo "  version:      $(RELEASE_VERSION)"
+	@echo "  channel:      $(RELEASE_CHANNEL)"
+	@echo "  platform:     $(RELEASE_PLATFORM)"
+	@echo "  arch:         $(RELEASE_ARCH)"
+	@echo "  basename:     $(RELEASE_BASENAME)"
+	@echo "  stage dir:    $(RELEASE_STAGE_DIR)"
+	@echo "  zip artifact: $(RELEASE_ARTIFACT_ZIP)"
+	@echo "  tgz artifact: $(RELEASE_ARTIFACT_TGZ)"
+	@echo "  notary log:   $(RELEASE_NOTARY_LOG)"
+
+release-build:
+	@$(MAKE) BUILD_PROFILE=unsanitized SHIM_MODE=off all
+
+release-stage: release-build
+	@echo "Staging release tree..."
+	@rm -rf "$(RELEASE_STAGE_DIR)"
+	@mkdir -p "$(RELEASE_STAGE_DIR)/bin" "$(RELEASE_STAGE_DIR)/docs"
+	@cp -f "./$(BIN)" "$(RELEASE_BIN)"
+	@cp -f README.md LICENSE "$(RELEASE_STAGE_DIR)/"
+	@cp -f docs/00_docs_index.md docs/README.md "$(RELEASE_STAGE_DIR)/docs/"
+	@printf "name=fisiCs\nversion=%s\nchannel=%s\nplatform=%s\narch=%s\n" \
+		"$(RELEASE_VERSION)" "$(RELEASE_CHANNEL)" "$(RELEASE_PLATFORM)" "$(RELEASE_ARCH)" \
+		> "$(RELEASE_STAGE_DIR)/release_metadata.env"
+	@chmod 755 "$(RELEASE_BIN)"
+
+release-manifest-from-stage:
+	@echo "Generating release manifest..."
+	@mkdir -p "$(RELEASE_ROOT)"
+	@{ \
+		echo "# manifest $(RELEASE_BASENAME)"; \
+		echo "# generated=$$(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
+	} > "$(RELEASE_MANIFEST)"
+	@(cd "$(RELEASE_STAGE_ROOT)" && \
+		find "$(RELEASE_BASENAME)" -type f | sort | while read -r rel; do \
+			shasum -a 256 "$$rel"; \
+		done) >> "$(RELEASE_MANIFEST)"
+
+release-manifest: release-stage release-manifest-from-stage
+
+release-archive-zip-from-stage: release-manifest-from-stage
+	@echo "Creating zip artifact..."
+	@mkdir -p "$(RELEASE_ROOT)"
+	@rm -f "$(RELEASE_ARTIFACT_ZIP)"
+	@(cd "$(RELEASE_STAGE_ROOT)" && \
+		ditto -c -k --sequesterRsrc --keepParent "$(RELEASE_BASENAME)" "$(abspath $(RELEASE_ARTIFACT_ZIP))")
+	@shasum -a 256 "$(RELEASE_ARTIFACT_ZIP)" > "$(RELEASE_SHA256)"
+	@echo "Created $(RELEASE_ARTIFACT_ZIP)"
+
+release-archive-zip: release-stage release-archive-zip-from-stage
+
+release-archive-tgz-from-stage: release-manifest-from-stage
+	@echo "Creating tar.gz artifact..."
+	@mkdir -p "$(RELEASE_ROOT)"
+	@rm -f "$(RELEASE_ARTIFACT_TGZ)"
+	@COPYFILE_DISABLE=1 tar -C "$(RELEASE_STAGE_ROOT)" -czf "$(RELEASE_ARTIFACT_TGZ)" "$(RELEASE_BASENAME)"
+	@echo "Created $(RELEASE_ARTIFACT_TGZ)"
+
+release-archive-tgz: release-stage release-archive-tgz-from-stage
+
+release-archive: release-stage release-archive-zip-from-stage release-archive-tgz-from-stage
+
+release-sign: release-stage
+	@if [ -z "$(APPLE_SIGN_IDENTITY)" ]; then \
+		echo "ERROR: APPLE_SIGN_IDENTITY is required for release-sign"; \
+		exit 2; \
+	fi
+	@echo "Signing release binary with identity: $(APPLE_SIGN_IDENTITY)"
+	@codesign --force --options runtime --timestamp --sign "$(APPLE_SIGN_IDENTITY)" "$(RELEASE_BIN)"
+	@codesign --verify --verbose=2 "$(RELEASE_BIN)"
+	@$(MAKE) release-archive-zip-from-stage release-archive-tgz-from-stage
+	@echo "release-sign complete."
+
+release-notarize: release-sign
+	@if [ -z "$(APPLE_NOTARY_PROFILE)" ]; then \
+		echo "ERROR: APPLE_NOTARY_PROFILE is required for release-notarize"; \
+		exit 2; \
+	fi
+	@echo "Submitting archive for notarization..."
+	@xcrun notarytool submit "$(RELEASE_ARTIFACT_ZIP)" --keychain-profile "$(APPLE_NOTARY_PROFILE)" --wait --output-format json > "$(RELEASE_NOTARY_LOG)"
+	@echo "Notarization response saved to $(RELEASE_NOTARY_LOG)"
+
+release-verify: release-archive
+	@echo "Verifying release bundle..."
+	@test -x "$(RELEASE_BIN)"
+	@codesign --verify --verbose=2 "$(RELEASE_BIN)" || true
+	@spctl --assess --type execute --verbose=4 "$(RELEASE_BIN)" || \
+		echo "note: spctl may reject raw CLI binaries as non-app; use notarization status + codesign verification for release gate."
+	@shasum -a 256 -c "$(RELEASE_SHA256)"
+	@echo "release-verify complete."
+
+release-pkg: release-sign
+	@if [ -z "$(APPLE_INSTALLER_IDENTITY)" ]; then \
+		echo "ERROR: APPLE_INSTALLER_IDENTITY is required for release-pkg"; \
+		echo "Expected: Developer ID Installer: <Name> (<TEAMID>)"; \
+		exit 2; \
+	fi
+	@echo "Building installer pkg..."
+	@rm -rf "$(RELEASE_PKG_ROOT)"
+	@mkdir -p "$(RELEASE_PKG_ROOT)$(INSTALL_PREFIX)/bin" "$(RELEASE_ROOT)"
+	@cp -f "$(RELEASE_BIN)" "$(RELEASE_PKG_ROOT)$(INSTALL_PREFIX)/bin/fisics"
+	@pkgbuild --root "$(RELEASE_PKG_ROOT)" \
+		--identifier "$(PKG_IDENTIFIER)" \
+		--version "$(RELEASE_VERSION)" \
+		--install-location "/" \
+		"$(RELEASE_PKG).unsigned"
+	@productsign --sign "$(APPLE_INSTALLER_IDENTITY)" "$(RELEASE_PKG).unsigned" "$(RELEASE_PKG)"
+	@rm -f "$(RELEASE_PKG).unsigned"
+	@echo "Built $(RELEASE_PKG)"
+
+release-all: release-contract release-archive release-verify
 
 integration-compile-only: $(BIN)
 	@./tests/integration/compile_only.sh ./$(BIN)
@@ -786,6 +924,9 @@ tests: test frontend-api-test
 
 # === Phony Targets ===
 .PHONY: all clean run examples examples-hello examples-sdl \
+        release-clean release-contract release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
+        release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
+        release-sign release-notarize release-verify release-pkg release-all \
         union-decl initializer-expr typedef-chain designated-init control-flow \
         cast-grouped for_typedef function-pointer pointer-arith switch-flow \
         goto-flow semantic-typedef semantic-initializer semantic-undeclared \

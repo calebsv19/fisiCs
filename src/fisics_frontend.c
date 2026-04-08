@@ -4,6 +4,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <limits.h>
+#include <unistd.h>
 #ifdef __APPLE__
 #include <malloc/malloc.h>
 #endif
@@ -11,6 +14,13 @@
 #include "Compiler/compiler_context.h"
 #include "Compiler/diagnostics.h"
 #include "Compiler/pipeline.h"
+
+#define FISICS_CONTRACT_ID "fisiCs.analysis.contract"
+#define FISICS_CONTRACT_MAJOR 1
+#define FISICS_CONTRACT_MINOR 2
+#define FISICS_CONTRACT_PATCH 0
+#define FISICS_CONTRACT_PRODUCER "fisiCs"
+#define FISICS_CONTRACT_PRODUCER_VERSION "0.1.0"
 
 static bool str_equals(const char* a, const char* b) {
     if (a == b) return true;
@@ -49,6 +59,177 @@ static bool contains_path(const char* const* items, size_t count, const char* pa
         if (str_equals(items[i], path)) return true;
     }
     return false;
+}
+
+static uint64_t fnv1a64(const char* data, size_t len) {
+    const uint64_t basis = 1469598103934665603ULL;
+    const uint64_t prime = 1099511628211ULL;
+    uint64_t hash = basis;
+    if (!data || len == 0) return hash;
+    for (size_t i = 0; i < len; ++i) {
+        hash ^= (uint8_t)data[i];
+        hash *= prime;
+    }
+    return hash;
+}
+
+static uint64_t fnv1a64_mix_u64(uint64_t hash, uint64_t value) {
+    const uint64_t prime = 1099511628211ULL;
+    for (int i = 0; i < 8; ++i) {
+        hash ^= (uint8_t)((value >> (i * 8)) & 0xFFu);
+        hash *= prime;
+    }
+    return hash;
+}
+
+static uint64_t fnv1a64_mix_cstr(uint64_t hash, const char* s) {
+    const uint64_t prime = 1099511628211ULL;
+    const char* text = s ? s : "";
+    size_t len = strlen(text);
+    hash = fnv1a64_mix_u64(hash, (uint64_t)len);
+    for (size_t i = 0; i < len; ++i) {
+        hash ^= (uint8_t)text[i];
+        hash *= prime;
+    }
+    return hash;
+}
+
+static uint64_t compute_symbol_stable_id(const FisicsSymbol* symbol) {
+    if (!symbol) return 0;
+    uint64_t hash = 1469598103934665603ULL; // FNV-1a 64 offset basis
+    hash = fnv1a64_mix_cstr(hash, symbol->name);
+    hash = fnv1a64_mix_cstr(hash, symbol->file_path);
+    hash = fnv1a64_mix_u64(hash, (uint64_t)symbol->kind);
+    hash = fnv1a64_mix_cstr(hash, symbol->parent_name);
+    hash = fnv1a64_mix_u64(hash, (uint64_t)symbol->parent_kind);
+    hash = fnv1a64_mix_u64(hash, (uint64_t)symbol->start_line);
+    hash = fnv1a64_mix_u64(hash, (uint64_t)symbol->start_col);
+    hash = fnv1a64_mix_u64(hash, (uint64_t)symbol->end_line);
+    hash = fnv1a64_mix_u64(hash, (uint64_t)symbol->end_col);
+    hash = fnv1a64_mix_u64(hash, symbol->is_definition ? 1u : 0u);
+    hash = fnv1a64_mix_u64(hash, symbol->is_variadic ? 1u : 0u);
+    hash = fnv1a64_mix_cstr(hash, symbol->return_type);
+    hash = fnv1a64_mix_u64(hash, (uint64_t)symbol->param_count);
+    for (size_t i = 0; i < symbol->param_count; ++i) {
+        const char* ptype = (symbol->param_types && symbol->param_types[i]) ? symbol->param_types[i] : NULL;
+        const char* pname = (symbol->param_names && symbol->param_names[i]) ? symbol->param_names[i] : NULL;
+        hash = fnv1a64_mix_cstr(hash, ptype);
+        hash = fnv1a64_mix_cstr(hash, pname);
+    }
+    return hash;
+}
+
+static bool symbol_span_is_known(const FisicsSymbol* sym) {
+    if (!sym) return false;
+    if (sym->start_line <= 0 || sym->start_col <= 0) return false;
+    if (sym->end_line <= 0 || sym->end_col <= 0) return false;
+    if (sym->end_line < sym->start_line) return false;
+    if (sym->end_line == sym->start_line && sym->end_col < sym->start_col) return false;
+    return true;
+}
+
+static bool symbol_range_contains(const FisicsSymbol* parent, const FisicsSymbol* child) {
+    if (!symbol_span_is_known(parent) || !symbol_span_is_known(child)) return false;
+    if (child->start_line < parent->start_line) return false;
+    if (child->start_line == parent->start_line && child->start_col < parent->start_col) return false;
+    if (child->end_line > parent->end_line) return false;
+    if (child->end_line == parent->end_line && child->end_col > parent->end_col) return false;
+    return true;
+}
+
+static uint64_t symbol_span_measure(const FisicsSymbol* sym) {
+    if (!symbol_span_is_known(sym)) return UINT64_MAX;
+    uint64_t line_span = (uint64_t)(sym->end_line - sym->start_line);
+    uint64_t col_span = 0;
+    if (sym->end_line == sym->start_line) {
+        col_span = (uint64_t)(sym->end_col - sym->start_col);
+    } else {
+        col_span = (uint64_t)sym->end_col;
+    }
+    return (line_span << 20) + col_span;
+}
+
+static bool symbol_same_file(const FisicsSymbol* a, const FisicsSymbol* b) {
+    if (!a || !b) return false;
+    if (!a->file_path || !b->file_path) return false;
+    return strcmp(a->file_path, b->file_path) == 0;
+}
+
+static void resolve_parent_stable_links(FisicsSymbol* symbols, size_t count) {
+    if (!symbols || count == 0) return;
+    for (size_t i = 0; i < count; ++i) {
+        FisicsSymbol* child = &symbols[i];
+        if (child->parent_stable_id) continue;
+        if (!child->parent_name || !child->parent_name[0]) continue;
+        if (child->parent_kind == FISICS_SYMBOL_UNKNOWN) continue;
+
+        ssize_t best = -1;
+        uint64_t best_measure = UINT64_MAX;
+
+        for (size_t j = 0; j < count; ++j) {
+            if (i == j) continue;
+            const FisicsSymbol* cand = &symbols[j];
+            if (!cand->stable_id) continue;
+            if (cand->kind != child->parent_kind) continue;
+            if (!cand->name || strcmp(cand->name, child->parent_name) != 0) continue;
+
+            bool same_file = symbol_same_file(cand, child);
+            bool contains = symbol_range_contains(cand, child);
+            if (child->file_path && child->file_path[0] && !same_file) continue;
+            if (symbol_span_is_known(cand) && symbol_span_is_known(child) && !contains) continue;
+
+            uint64_t measure = symbol_span_measure(cand);
+            if (best < 0 || measure < best_measure) {
+                best = (ssize_t)j;
+                best_measure = measure;
+            }
+        }
+
+        if (best >= 0) {
+            child->parent_stable_id = symbols[(size_t)best].stable_id;
+        }
+    }
+}
+
+static char* make_absolute_path(const char* path) {
+    if (!path || !path[0]) return NULL;
+    if (path[0] == '/') return strdup(path);
+    char cwd[PATH_MAX];
+    if (!getcwd(cwd, sizeof(cwd))) return strdup(path);
+    size_t needed = (size_t)snprintf(NULL, 0, "%s/%s", cwd, path);
+    char* out = (char*)malloc(needed + 1);
+    if (!out) return NULL;
+    snprintf(out, needed + 1, "%s/%s", cwd, path);
+    return out;
+}
+
+static void init_contract(FisicsAnalysisResult* out,
+                          const char* source,
+                          size_t length,
+                          bool lenient,
+                          bool ok) {
+    if (!out) return;
+    memset(&out->contract, 0, sizeof(out->contract));
+    snprintf(out->contract.contract_id,
+             sizeof(out->contract.contract_id),
+             "%s",
+             FISICS_CONTRACT_ID);
+    out->contract.contract_major = FISICS_CONTRACT_MAJOR;
+    out->contract.contract_minor = FISICS_CONTRACT_MINOR;
+    out->contract.contract_patch = FISICS_CONTRACT_PATCH;
+    snprintf(out->contract.producer_name,
+             sizeof(out->contract.producer_name),
+             "%s",
+             FISICS_CONTRACT_PRODUCER);
+    snprintf(out->contract.producer_version,
+             sizeof(out->contract.producer_version),
+             "%s",
+             FISICS_CONTRACT_PRODUCER_VERSION);
+    out->contract.mode = lenient ? FISICS_ANALYSIS_MODE_LENIENT : FISICS_ANALYSIS_MODE_STRICT;
+    out->contract.partial = !ok;
+    out->contract.fatal = !ok;
+    out->contract.source_hash = fnv1a64(source, length);
+    out->contract.source_length = (uint64_t)length;
 }
 
 typedef struct {
@@ -243,7 +424,10 @@ static bool copy_diagnostics_filtered(const CompilerContext* ctx,
 
         const char* chosenPath = src[i].file_path ? src[i].file_path : callerFilePath;
         if (chosenPath) {
-            dst[kept].file_path = strdup(chosenPath);
+            dst[kept].file_path = make_absolute_path(chosenPath);
+            if (!dst[kept].file_path) {
+                dst[kept].file_path = strdup(chosenPath);
+            }
             if (!dst[kept].file_path) {
                 for (size_t j = 0; j <= kept; ++j) {
                     free((char*)dst[j].file_path);
@@ -326,7 +510,10 @@ static bool copy_diagnostics(const CompilerContext* ctx,
 
         const char* chosenPath = src[i].file_path ? src[i].file_path : callerFilePath;
         if (chosenPath) {
-            dst[kept].file_path = strdup(chosenPath);
+            dst[kept].file_path = make_absolute_path(chosenPath);
+            if (!dst[kept].file_path) {
+                dst[kept].file_path = strdup(chosenPath);
+            }
             if (!dst[kept].file_path) {
                 out->diag_count = kept;
                 fisics_free_analysis_result(out);
@@ -406,7 +593,10 @@ static bool copy_symbols(const CompilerContext* ctx, FisicsAnalysisResult* out) 
             if (!dst[i].name) { out->symbol_count = i; fisics_free_analysis_result(out); return false; }
         }
         if (src[i].file_path) {
-            dst[i].file_path = dupstr(src[i].file_path);
+            dst[i].file_path = make_absolute_path(src[i].file_path);
+            if (!dst[i].file_path) {
+                dst[i].file_path = dupstr(src[i].file_path);
+            }
             if (!dst[i].file_path) { out->symbol_count = i + 1; fisics_free_analysis_result(out); return false; }
         }
         if (src[i].parent_name) {
@@ -440,7 +630,9 @@ static bool copy_symbols(const CompilerContext* ctx, FisicsAnalysisResult* out) 
                 }
             }
         }
+        dst[i].stable_id = src[i].stable_id ? src[i].stable_id : compute_symbol_stable_id(&dst[i]);
     }
+    resolve_parent_stable_links(dst, count);
     out->symbols = dst;
     out->symbol_count = count;
     return true;
@@ -463,7 +655,10 @@ static bool copy_includes(const CompilerContext* ctx, FisicsAnalysisResult* out)
             if (!dst[i].name) { out->include_count = i; fisics_free_analysis_result(out); return false; }
         }
         if (src[i].resolved_path) {
-            dst[i].resolved_path = dupstr(src[i].resolved_path);
+            dst[i].resolved_path = make_absolute_path(src[i].resolved_path);
+            if (!dst[i].resolved_path) {
+                dst[i].resolved_path = dupstr(src[i].resolved_path);
+            }
             if (!dst[i].resolved_path) { out->include_count = i + 1; fisics_free_analysis_result(out); return false; }
         }
     }
@@ -477,12 +672,15 @@ bool fisics_analyze_buffer(const char* file_path,
                            size_t length,
                            const FisicsFrontendOptions* opts,
                            FisicsAnalysisResult* out) {
-    if (out) {
-        memset(out, 0, sizeof(*out));
-    }
-    if (!file_path || !source) return false;
+    if (!out || !file_path || !source) return false;
+    memset(out, 0, sizeof(*out));
+    char* absolute_file_path = make_absolute_path(file_path);
+    const char* contract_file_path = absolute_file_path ? absolute_file_path : file_path;
     CompilerContext* ctx = cc_create();
-    if (!ctx) return false;
+    if (!ctx) {
+        free(absolute_file_path);
+        return false;
+    }
 
     struct ASTNode* ast = NULL;
     struct SemanticModel* model = NULL;
@@ -496,8 +694,8 @@ bool fisics_analyze_buffer(const char* file_path,
     bool includeSystemSymbols = opts && opts->include_system_symbols;
     const char* const* include_paths = opts ? opts->include_paths : NULL;
     size_t include_path_count = opts ? opts->include_path_count : 0;
-    char* inferred_dir = dup_dirname(file_path);
-    char* inferred_src = infer_src_root(file_path);
+    char* inferred_dir = dup_dirname(contract_file_path);
+    char* inferred_src = infer_src_root(contract_file_path);
     const char** merged_include_paths = NULL;
     size_t merged_count = include_path_count;
 
@@ -521,7 +719,7 @@ bool fisics_analyze_buffer(const char* file_path,
     }
 
     bool ok = compiler_run_frontend(ctx,
-                                    file_path,
+                                    contract_file_path,
                                     source,
                                     length,
                                     false,
@@ -542,23 +740,25 @@ bool fisics_analyze_buffer(const char* file_path,
     (void)model;
     bool copied = false;
     if (ok) {
-        copied = copy_diagnostics(ctx, file_path, lenient, out) &&
+        copied = copy_diagnostics(ctx, contract_file_path, lenient, out) &&
                  copy_tokens(ctx, out) &&
                  copy_symbols(ctx, out) &&
                  copy_includes(ctx, out);
     } else {
         // IDE lenient path: even if the pipeline failed (e.g., missing headers or parse
         // errors), return whatever diagnostics/includes we captured so the IDE can show them.
-        copied = copy_diagnostics(ctx, file_path, lenient, out) &&
+        copied = copy_diagnostics(ctx, contract_file_path, lenient, out) &&
                  copy_tokens(ctx, out) &&
                  copy_symbols(ctx, out) &&
                  copy_includes(ctx, out);
     }
+    init_contract(out, source, length, lenient, ok);
 
     cc_destroy(ctx);
     free(merged_include_paths);
     free(inferred_dir);
     free(inferred_src);
+    free(absolute_file_path);
     return copied && ok ? true : copied;
 }
 

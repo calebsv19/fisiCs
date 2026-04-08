@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__line_directive_macro_nonvoid_return_diagjson_current_zerozero",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_macro_nonvoid_return_diagjson_current_zerozero.c",
+      "expects": [
+        "expect/01__line_directive_macro_nonvoid_return_diagjson_current_zerozero.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "macro",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__nonvoid_return_plain_diagjson_current_zerozero",
+      "bucket": "translation-phases",
+      "input": "cases/01__nonvoid_return_plain_diagjson_current_zerozero.c",
+      "expects": [
+        "expect/01__nonvoid_return_plain_diagjson_current_zerozero.diagjson"
+      ],
+      "tags": [
+        "diagjson",
+        "current-threshold",
+        "semantic"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
+

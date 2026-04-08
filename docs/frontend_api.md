@@ -2,6 +2,10 @@
 
 This API exposes the compiler frontend (lex/parse/sema) as a reusable library for IDEs.
 
+The versioned boundary and compatibility policy are defined in:
+
+- `docs/compiler_ide_data_contract.md`
+
 ## Usage
 
 ```c
@@ -25,9 +29,11 @@ fisics_free_analysis_result(&res);
 - Call `fisics_free_analysis_result` to free owned arrays/strings.
 
 ## Result contents
-- `diagnostics`: errors/warnings/notes with file/line/column, length, code, and optional hint. Codes are internal and may evolve.
+- `diagnostics`: errors/warnings/notes with file/line/column, length, code, and optional hint. Code values follow the stable v1 diagnostic code lane in `Compiler/diagnostics.h`.
 - `tokens`: preprocessed token spans with coarse kinds (identifier, keyword, number, string/char, operator, punct, comment).
-- `symbols`: simple top-level symbols (functions/structs/unions/enums) with start/end ranges; name/file strings are duplicated for caller ownership.
+- `symbols`: top-level and nested symbol metadata with start/end ranges, ownership, deterministic `stable_id` values, and optional ownership link identity via `parent_stable_id` when available.
+- `includes`: include usage edges with resolved/unresolved origin info.
+- `contract`: metadata describing contract id/version, producer, mode (`strict`/`lenient`), partial/fatal flags, and trust fields.
 
 ## Ownership and lifetime
 - All pointers inside `FisicsAnalysisResult` are owned by the caller after a successful call; free them via `fisics_free_analysis_result`.

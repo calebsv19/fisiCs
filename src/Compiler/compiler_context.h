@@ -104,6 +104,8 @@ typedef struct {
     FisicsSymbolKind kind;
     const char* parent_name;
     FisicsSymbolKind parent_kind;
+    uint64_t stable_id;
+    uint64_t parent_stable_id;
     bool is_definition;
     bool is_variadic;
     const char* return_type;

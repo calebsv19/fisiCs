@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__line_directive_invalid_at_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_invalid_at_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_invalid_at_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_invalid_backtick_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_invalid_backtick_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_invalid_backtick_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_unterminated_char_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_unterminated_char_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_unterminated_char_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
+

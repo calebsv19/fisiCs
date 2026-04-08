@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__line_directive_include_macro_diagjson_line_map",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_include_macro_diagjson_line_map.c",
+      "expects": [
+        "expect/01__line_directive_include_macro_diagjson_line_map.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "include",
+        "diagjson",
+        "line-map"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_include_nonvoid_return_diagjson_current_zerozero",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_include_nonvoid_return_diagjson_current_zerozero.c",
+      "expects": [
+        "expect/01__line_directive_include_nonvoid_return_diagjson_current_zerozero.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "include",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
+

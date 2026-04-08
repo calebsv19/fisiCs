@@ -30,13 +30,24 @@ typedef struct {
     char* hint;             // optional hint string; owned if present
 } FisicsDiagnostic;
 
-// Placeholder diagnostic codes; expand/partition per subsystem as we migrate callers.
+// Stable v1 diagnostic code lane for external/compiler-IDE contract consumers.
+// Codes may be extended in minor versions but existing values are stable within major v1.
 typedef enum {
-    CDIAG_GENERIC              = 1,
-    CDIAG_PARSER_GENERIC       = 1000,
-    CDIAG_PARSER_EXPECT_SEMICOLON = 1001,
-    CDIAG_SEMANTIC_GENERIC     = 2000,
-    CDIAG_PREPROCESSOR_GENERIC = 3000
+    FISICS_DIAG_CODE_UNKNOWN = 0,
+    FISICS_DIAG_CODE_GENERIC = 1,
+    FISICS_DIAG_CODE_PARSER_GENERIC = 1000,
+    FISICS_DIAG_CODE_PARSER_EXPECT_SEMICOLON = 1001,
+    FISICS_DIAG_CODE_SEMANTIC_GENERIC = 2000,
+    FISICS_DIAG_CODE_PREPROCESSOR_GENERIC = 3000
+} FisicsDiagCode;
+
+// Backward-compatible aliases retained for existing internal callsites.
+typedef enum {
+    CDIAG_GENERIC = FISICS_DIAG_CODE_GENERIC,
+    CDIAG_PARSER_GENERIC = FISICS_DIAG_CODE_PARSER_GENERIC,
+    CDIAG_PARSER_EXPECT_SEMICOLON = FISICS_DIAG_CODE_PARSER_EXPECT_SEMICOLON,
+    CDIAG_SEMANTIC_GENERIC = FISICS_DIAG_CODE_SEMANTIC_GENERIC,
+    CDIAG_PREPROCESSOR_GENERIC = FISICS_DIAG_CODE_PREPROCESSOR_GENERIC
 } CompilerDiagCode;
 
 struct CompilerContext;

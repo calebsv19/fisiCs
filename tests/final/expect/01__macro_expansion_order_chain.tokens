@@ -1,0 +1,17 @@
+Tokens:
+0 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:5:1
+1 TOKEN_IDENTIFIER main /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:5:5
+2 TOKEN_LPAREN ( /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:5:9
+3 TOKEN_VOID void /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:5:10
+4 TOKEN_RPAREN ) /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:5:14
+5 TOKEN_LBRACE { /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:5:16
+6 TOKEN_INT int /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:6:5
+7 TOKEN_IDENTIFIER x /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:6:9
+8 TOKEN_ASSIGN = /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:6:11
+9 TOKEN_NUMBER 99 /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:3:11
+10 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:6:14
+11 TOKEN_RETURN return /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:7:5
+12 TOKEN_IDENTIFIER x /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:7:12
+13 TOKEN_SEMICOLON ; /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:7:13
+14 TOKEN_RBRACE } /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_expansion_order_chain.c:8:1
+15 TOKEN_EOF <null> <unknown>:0:0

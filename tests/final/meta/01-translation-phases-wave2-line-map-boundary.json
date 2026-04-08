@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__macro_nested_expansion_line_map",
+      "bucket": "translation-phases",
+      "input": "cases/01__macro_nested_expansion_line_map.c",
+      "expects": [
+        "expect/01__macro_nested_expansion_line_map.diag"
+      ],
+      "tags": [
+        "macro",
+        "diagnostics",
+        "line-map"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__macro_expansion_order_chain",
+      "bucket": "translation-phases",
+      "input": "cases/01__macro_expansion_order_chain.c",
+      "expects": [
+        "expect/01__macro_expansion_order_chain.tokens"
+      ],
+      "tags": [
+        "macro",
+        "rescan",
+        "expansion-order"
+      ],
+      "requires": [
+        "token-dump"
+      ],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (2:22): Operator '+' requires arithmetic operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/01__macro_nested_expansion_line_map.c:2:22

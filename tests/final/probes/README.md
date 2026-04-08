@@ -66,6 +66,30 @@ Purpose:
   - `runtime/15__probe_large_struct_array_checksum_grid.c`
   - `runtime/15__probe_multitu_const_table_crc_main.c`
 - Diagnostics:
+  - `diagnostics/01__probe_line_directive_virtual_line_spelling_reject.c`
+  - `diagnostics/01__probe_line_directive_virtual_macro_filename_spelling_reject.c`
+  - `diagnostics/01__probe_line_mapping_real_file_baseline.c`
+  - `diagnostics/01__probe_line_directive_virtual_line_nonvoid_return_location_reject.c`
+  - `diagnostics/01__probe_line_directive_virtual_line_nonvoid_return_current_zerozero.c`
+  - `diagnostics/01__probe_line_directive_virtual_line_undeclared_identifier_location_reject.c`
+  - `diagnostics/01__probe_nonvoid_return_plain_current_zerozero.c`
+  - `diagnostics/01__probe_line_directive_macro_nonvoid_return_location_reject.c`
+  - `diagnostics/01__probe_line_directive_macro_nonvoid_return_current_zerozero.c`
+  - `diagnostics/02__probe_lexer_line_directive_invalid_dollar_location_reject.c`
+  - `diagnostics/02__probe_lexer_line_directive_invalid_dollar_current_physical_line.c`
+  - `diagnostics/02__probe_lexer_line_directive_unterminated_string_location_reject.c`
+  - `diagnostics/02__probe_lexer_line_directive_unterminated_string_current_physical_line.c`
+  - `diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_location_reject.c`
+  - `diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_current_physical_line.c`
+  - `diagnostics/02__probe_lexer_line_directive_string_invalid_escape_location_reject.c`
+  - `diagnostics/02__probe_lexer_line_directive_string_invalid_escape_current_physical_line.c`
+  - `diagnostics/02__probe_lexer_line_directive_invalid_at_location_reject.c`
+  - `diagnostics/02__probe_lexer_line_directive_invalid_at_current_physical_line.c`
+  - `diagnostics/02__probe_lexer_line_directive_invalid_backtick_location_reject.c`
+  - `diagnostics/02__probe_lexer_line_directive_invalid_backtick_current_physical_line.c`
+  - `diagnostics/02__probe_lexer_line_directive_unterminated_char_location_reject.c`
+  - `diagnostics/02__probe_lexer_line_directive_unterminated_char_current_physical_line.c`
+  - `diagnostics/01__probe_diagjson_line_directive_macro_line_map_strict.c`
   - `diagnostics/04__probe_block_extern_initializer_reject.c`
   - `diagnostics/04__probe_param_extern_reject.c`
   - `diagnostics/04__probe_param_static_nonarray_reject.c`
@@ -125,6 +149,26 @@ Purpose:
   - `diagnostics/13__probe_fnptr_nested_volatile_qualifier_loss_reject.c`
   - `diagnostics/13__probe_fnptr_deep_const_qualifier_loss_reject.c`
   - Runner-only diag-json probes using the same fixtures:
+    `01__probe_diagjson_line_directive_macro_line_map_strict`,
+    `01__probe_diagjson_line_directive_nonvoid_return_location_reject`,
+    `01__probe_diagjson_line_directive_undeclared_identifier_location_strict`,
+    `01__probe_diagjson_nonvoid_return_plain_current_zerozero`,
+    `01__probe_diagjson_line_directive_macro_nonvoid_return_location_reject`,
+    `01__probe_diagjson_line_directive_macro_nonvoid_return_current_zerozero`,
+    `02__probe_diagjson_lexer_line_directive_invalid_dollar_location_reject`,
+    `02__probe_diagjson_lexer_line_directive_invalid_dollar_current_physical_line`,
+    `02__probe_diagjson_lexer_line_directive_unterminated_string_location_reject`,
+    `02__probe_diagjson_lexer_line_directive_unterminated_string_current_physical_line`,
+    `02__probe_diagjson_lexer_line_directive_char_invalid_hex_escape_location_reject`,
+    `02__probe_diagjson_lexer_line_directive_char_invalid_hex_escape_current_physical_line`,
+    `02__probe_diagjson_lexer_line_directive_string_invalid_escape_location_reject`,
+    `02__probe_diagjson_lexer_line_directive_string_invalid_escape_current_physical_line`,
+    `02__probe_diagjson_lexer_line_directive_invalid_at_location_reject`,
+    `02__probe_diagjson_lexer_line_directive_invalid_at_current_physical_line`,
+    `02__probe_diagjson_lexer_line_directive_invalid_backtick_location_reject`,
+    `02__probe_diagjson_lexer_line_directive_invalid_backtick_current_physical_line`,
+    `02__probe_diagjson_lexer_line_directive_unterminated_char_location_reject`,
+    `02__probe_diagjson_lexer_line_directive_unterminated_char_current_physical_line`,
     `12__probe_diagjson_while_missing_lparen`,
     `12__probe_diagjson_do_while_missing_semicolon`,
     `12__probe_diagjson_for_header_missing_semicolon`

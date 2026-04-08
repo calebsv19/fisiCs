@@ -59,6 +59,23 @@ Useful flags:
 - `--target=<triple>`
 - `--data-layout=<layout>`
 
+## CLI Release Packaging (macOS)
+
+`fisiCs` now includes a CLI-first release lane (no `.app` required):
+
+```bash
+make release-contract
+make release-archive
+make release-verify
+```
+
+For signed/notarized distribution:
+
+```bash
+make release-sign APPLE_SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)"
+make release-notarize APPLE_SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)" APPLE_NOTARY_PROFILE="<profile>"
+```
+
 ## Testing
 
 Primary entrypoints:
@@ -96,6 +113,8 @@ The harness is auto-discovery based, non-destructive by default, and designed to
 - Test-system re-architecture context: [`docs/compiler_test_system_rearchitecture_context.md`](docs/compiler_test_system_rearchitecture_context.md)
 - Test workflow guide: [`docs/compiler_test_workflow_guide.md`](docs/compiler_test_workflow_guide.md)
 - Full validation workflow: [`docs/validation_workflow.md`](docs/validation_workflow.md)
+- Compiler/IDE data contract: [`docs/compiler_ide_data_contract.md`](docs/compiler_ide_data_contract.md)
+- CLI release workflow: [`docs/cli_release_workflow.md`](docs/cli_release_workflow.md)
 
 ## Contributing
 

@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +13,31 @@ extern "C" {
 #include "Compiler/diagnostics.h"
 #include "Compiler/compiler_context.h"
 
+typedef enum {
+    FISICS_ANALYSIS_MODE_STRICT = 0,
+    FISICS_ANALYSIS_MODE_LENIENT = 1
+} FisicsAnalysisMode;
+
 typedef struct {
+    char contract_id[64];
+    uint16_t contract_major;
+    uint16_t contract_minor;
+    uint16_t contract_patch;
+
+    char producer_name[32];
+    char producer_version[32];
+
+    FisicsAnalysisMode mode;
+    bool partial;
+    bool fatal;
+
+    uint64_t source_hash;
+    uint64_t source_length;
+} FisicsAnalysisContract;
+
+typedef struct {
+    FisicsAnalysisContract contract;
+
     FisicsDiagnostic* diagnostics;
     size_t diag_count;
 

@@ -18,6 +18,8 @@ It is intentionally focused on stable user/contributor references.
 - `compiler_test_workflow_guide.md`: operator guide for bucket-by-bucket validation/fix workflows
 - `validation_workflow.md`: full-project validation workflow for external program compile checks
 - `frontend_api.md`: reusable frontend library API notes
+- `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract
+- `cli_release_workflow.md`: CLI release packaging/sign/notarize flow for macOS artifacts
 
 ## Private Docs Boundary
 
