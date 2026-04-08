@@ -37,8 +37,7 @@ static inline const char* lexer_file_path(const Lexer* lexer) {
     return (lexer && lexer->filePath) ? lexer->filePath : "<unknown>";
 }
 
-static const char* lexer_display_file_path(const Lexer* lexer, char* scratch, size_t scratchSize) {
-    const char* file = lexer_file_path(lexer);
+static const char* lexer_display_file_path_raw(const char* file, char* scratch, size_t scratchSize) {
     if (!file || file[0] != '/' || !scratch || scratchSize == 0) {
         return file;
     }
@@ -55,6 +54,108 @@ static const char* lexer_display_file_path(const Lexer* lexer, char* scratch, si
 
     snprintf(scratch, scratchSize, "%s", file + cwdLen + 1);
     return scratch;
+}
+
+static const char* lexer_display_file_path(const Lexer* lexer, char* scratch, size_t scratchSize) {
+    return lexer_display_file_path_raw(lexer_file_path(lexer), scratch, scratchSize);
+}
+
+static bool lexer_parse_line_directive(const char* line,
+                                       size_t len,
+                                       int* outLine,
+                                       const char** outFileStart,
+                                       size_t* outFileLen) {
+    if (outLine) *outLine = 0;
+    if (outFileStart) *outFileStart = NULL;
+    if (outFileLen) *outFileLen = 0;
+    if (!line || len == 0) return false;
+
+    const char* p = line;
+    const char* end = line + len;
+    while (p < end && (*p == ' ' || *p == '\t')) p++;
+    if (p >= end || *p != '#') return false;
+    p++;
+    while (p < end && (*p == ' ' || *p == '\t')) p++;
+    if ((size_t)(end - p) < 4 || strncmp(p, "line", 4) != 0) return false;
+    if ((p + 4) < end && (isalnum((unsigned char)p[4]) || p[4] == '_')) return false;
+    p += 4;
+    while (p < end && (*p == ' ' || *p == '\t')) p++;
+    if (p >= end || !isdigit((unsigned char)*p)) return false;
+
+    long requested = 0;
+    while (p < end && isdigit((unsigned char)*p)) {
+        requested = (requested * 10) + (long)(*p - '0');
+        if (requested > 2147483647L) return false;
+        p++;
+    }
+    if (requested <= 0) return false;
+
+    while (p < end && (*p == ' ' || *p == '\t')) p++;
+    if (p < end && *p == '"') {
+        p++;
+        const char* fs = p;
+        while (p < end && *p != '"') p++;
+        if (p >= end) return false;
+        if (outFileStart) *outFileStart = fs;
+        if (outFileLen) *outFileLen = (size_t)(p - fs);
+        p++;
+    }
+
+    if (outLine) *outLine = (int)requested;
+    return true;
+}
+
+static void lexer_map_logical_location(const Lexer* lexer,
+                                       int physicalLine,
+                                       int* outLine,
+                                       const char** outFile,
+                                       char* outFileScratch,
+                                       size_t outFileScratchSize) {
+    if (outLine) *outLine = physicalLine;
+    if (outFile) *outFile = lexer_file_path(lexer);
+    if (!lexer || !lexer->source || physicalLine <= 0) return;
+
+    int lineOffset = 0;
+    bool hasLogicalFile = false;
+    const char* logicalFileStart = NULL;
+    size_t logicalFileLen = 0;
+
+    const char* p = lexer->source;
+    int currentLine = 1;
+    while (*p && currentLine < physicalLine) {
+        const char* lineStart = p;
+        while (*p && *p != '\n') p++;
+        size_t lineLen = (size_t)(p - lineStart);
+
+        int requestedLine = 0;
+        const char* fileStart = NULL;
+        size_t fileLen = 0;
+        if (lexer_parse_line_directive(lineStart, lineLen, &requestedLine, &fileStart, &fileLen)) {
+            int nextPhysical = currentLine + 1;
+            lineOffset = requestedLine - nextPhysical;
+            if (fileStart && fileLen > 0) {
+                hasLogicalFile = true;
+                logicalFileStart = fileStart;
+                logicalFileLen = fileLen;
+            }
+        }
+
+        if (*p == '\n') p++;
+        currentLine++;
+    }
+
+    if (outLine) {
+        int mapped = physicalLine + lineOffset;
+        if (mapped < 1) mapped = 1;
+        *outLine = mapped;
+    }
+    if (outFile && hasLogicalFile && outFileScratch && outFileScratchSize > 0) {
+        size_t n = logicalFileLen;
+        if (n >= outFileScratchSize) n = outFileScratchSize - 1;
+        memcpy(outFileScratch, logicalFileStart, n);
+        outFileScratch[n] = '\0';
+        *outFile = outFileScratch;
+    }
 }
 
 static bool lexer_is_system_header_path(const char* file) {
@@ -89,15 +190,24 @@ void lexer_set_diag_context(struct CompilerContext* ctx) {
 
 static void report_lexer_error(Lexer* lexer, LexerMark start, const char* message, const char* got) {
     if (!lexer || !message) return;
+    char logicalFileScratch[4096];
+    const char* logicalFile = lexer_file_path(lexer);
+    int logicalLine = start.line;
+    lexer_map_logical_location(lexer,
+                               start.line,
+                               &logicalLine,
+                               &logicalFile,
+                               logicalFileScratch,
+                               sizeof(logicalFileScratch));
     char fileScratch[4096];
-    const char* file = lexer_display_file_path(lexer, fileScratch, sizeof(fileScratch));
+    const char* file = lexer_display_file_path_raw(logicalFile, fileScratch, sizeof(fileScratch));
     int column = lexer_compute_column(start.position, start.lineStart);
     if (got && got[0] != '\0') {
         fprintf(stderr,
                 "Error: %s at %s:%d:%d (got '%s')\n",
                 message,
                 file,
-                start.line,
+                logicalLine,
                 column,
                 got);
     } else {
@@ -105,13 +215,13 @@ static void report_lexer_error(Lexer* lexer, LexerMark start, const char* messag
                 "Error: %s at %s:%d:%d\n",
                 message,
                 file,
-                start.line,
+                logicalLine,
                 column);
     }
     if (g_lexer_diag_ctx) {
         SourceRange loc;
-        loc.start.file = lexer_file_path(lexer);
-        loc.start.line = start.line;
+        loc.start.file = logicalFile;
+        loc.start.line = logicalLine;
         loc.start.column = column;
         loc.end = loc.start;
         if (got && got[0] != '\0') {

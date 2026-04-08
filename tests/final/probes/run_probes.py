@@ -1876,14 +1876,14 @@ DIAG_PROBES = [
         source=PROBE_DIR
         / "diagnostics/01__probe_line_directive_virtual_line_nonvoid_return_location_reject.c",
         note="#line virtual line/file should propagate into non-void return diagnostic location",
-        required_substrings=("Error at (321:",),
+        required_substrings=("Error at (322:",),
     ),
     DiagnosticProbe(
         probe_id="01__probe_line_directive_virtual_line_nonvoid_return_current_zerozero",
         source=PROBE_DIR
         / "diagnostics/01__probe_line_directive_virtual_line_nonvoid_return_current_zerozero.c",
-        note="current-threshold baseline: non-void return diagnostic still emits 0:0 under #line remap",
-        required_substrings=("Error at (0:0): Non-void function must return a value",),
+        note="fixed baseline: non-void return diagnostic now emits remapped #line location",
+        required_substrings=("Error at (322:",),
     ),
     DiagnosticProbe(
         probe_id="01__probe_line_directive_virtual_line_undeclared_identifier_location_reject",
@@ -1895,116 +1895,116 @@ DIAG_PROBES = [
     DiagnosticProbe(
         probe_id="01__probe_nonvoid_return_plain_current_zerozero",
         source=PROBE_DIR / "diagnostics/01__probe_nonvoid_return_plain_current_zerozero.c",
-        note="minimal current-threshold baseline: non-void return diagnostic emits 0:0 even without #line",
-        required_substrings=("Error at (0:0): Non-void function must return a value",),
+        note="fixed baseline: non-void return diagnostic now emits plain source location",
+        required_substrings=("Error at (2:",),
     ),
     DiagnosticProbe(
         probe_id="01__probe_line_directive_macro_nonvoid_return_location_reject",
         source=PROBE_DIR / "diagnostics/01__probe_line_directive_macro_nonvoid_return_location_reject.c",
         note="#line + macro-expanded return should propagate virtual location in non-void return diagnostic",
-        required_substrings=("Error at (450:",),
+        required_substrings=("Error at (453:",),
     ),
     DiagnosticProbe(
         probe_id="01__probe_line_directive_macro_nonvoid_return_current_zerozero",
         source=PROBE_DIR / "diagnostics/01__probe_line_directive_macro_nonvoid_return_current_zerozero.c",
-        note="current-threshold baseline: #line + macro-expanded non-void return still emits 0:0",
-        required_substrings=("Error at (0:0): Non-void function must return a value",),
+        note="fixed baseline: #line + macro-expanded non-void return now emits mapped location",
+        required_substrings=("Error at (453:",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_invalid_dollar_location_reject",
         source=PROBE_DIR / "diagnostics/02__probe_lexer_line_directive_invalid_dollar_location_reject.c",
         note="lexer diagnostic should honor #line remap for invalid '$' token",
-        required_substrings=(":830:9",),
+        required_substrings=(":831:9",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_invalid_dollar_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_invalid_dollar_current_physical_line.c",
-        note="current-threshold baseline: lexer invalid '$' diagnostic reports physical line 3",
-        required_substrings=(":3:9",),
+        note="fixed baseline: lexer invalid '$' diagnostic now reports remapped virtual line",
+        required_substrings=(":831:9",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_unterminated_string_location_reject",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_unterminated_string_location_reject.c",
         note="lexer diagnostic should honor #line remap for unterminated string literal",
-        required_substrings=(":720:21",),
+        required_substrings=(":721:21",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_unterminated_string_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_unterminated_string_current_physical_line.c",
-        note="current-threshold baseline: lexer unterminated-string diagnostic reports physical line 3",
-        required_substrings=(":3:21",),
+        note="fixed baseline: lexer unterminated-string diagnostic now reports remapped virtual line",
+        required_substrings=(":721:21",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_char_invalid_hex_escape_location_reject",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_location_reject.c",
         note="lexer diagnostic should honor #line remap for invalid \\x escape in character literal",
-        required_substrings=(":910:10",),
+        required_substrings=(":911:14",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_char_invalid_hex_escape_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_current_physical_line.c",
-        note="current-threshold baseline: lexer invalid \\x escape diagnostic reports physical line 3",
-        required_substrings=(":3:14",),
+        note="fixed baseline: lexer invalid \\x escape diagnostic now reports remapped virtual line",
+        required_substrings=(":911:14",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_string_invalid_escape_location_reject",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_string_invalid_escape_location_reject.c",
         note="lexer diagnostic should honor #line remap for invalid string escape",
-        required_substrings=(":940:17",),
+        required_substrings=(":941:21",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_string_invalid_escape_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_string_invalid_escape_current_physical_line.c",
-        note="current-threshold baseline: lexer invalid string-escape diagnostic reports physical line 3",
-        required_substrings=(":3:21",),
+        note="fixed baseline: lexer invalid string-escape diagnostic now reports remapped virtual line",
+        required_substrings=(":941:21",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_invalid_at_location_reject",
         source=PROBE_DIR / "diagnostics/02__probe_lexer_line_directive_invalid_at_location_reject.c",
         note="lexer diagnostic should honor #line remap for invalid '@' token",
-        required_substrings=(":970:9",),
+        required_substrings=(":971:9",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_invalid_at_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_invalid_at_current_physical_line.c",
-        note="current-threshold baseline: lexer invalid '@' diagnostic reports physical line 3",
-        required_substrings=(":3:9",),
+        note="fixed baseline: lexer invalid '@' diagnostic now reports remapped virtual line",
+        required_substrings=(":971:9",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_invalid_backtick_location_reject",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_invalid_backtick_location_reject.c",
         note="lexer diagnostic should honor #line remap for invalid '`' token",
-        required_substrings=(":980:9",),
+        required_substrings=(":981:9",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_invalid_backtick_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_invalid_backtick_current_physical_line.c",
-        note="current-threshold baseline: lexer invalid '`' diagnostic reports physical line 3",
-        required_substrings=(":3:9",),
+        note="fixed baseline: lexer invalid '`' diagnostic now reports remapped virtual line",
+        required_substrings=(":981:9",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_unterminated_char_location_reject",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_unterminated_char_location_reject.c",
         note="lexer diagnostic should honor #line remap for unterminated character literal",
-        required_substrings=(":990:16",),
+        required_substrings=(":991:14",),
     ),
     DiagnosticProbe(
         probe_id="02__probe_lexer_line_directive_unterminated_char_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_unterminated_char_current_physical_line.c",
-        note="current-threshold baseline: lexer unterminated-char diagnostic reports physical line 3",
-        required_substrings=(":3:14",),
+        note="fixed baseline: lexer unterminated-char diagnostic now reports remapped virtual line",
+        required_substrings=(":991:14",),
     ),
     DiagnosticProbe(
         probe_id="04__probe_block_extern_initializer_reject",
@@ -2909,7 +2909,7 @@ DIAG_JSON_PROBES = [
         / "diagnostics/01__probe_line_directive_virtual_line_nonvoid_return_location_reject.c",
         note="diagnostics JSON should preserve #line remapped location for non-void return diagnostics",
         expected_codes=(2000,),
-        expected_line=321,
+        expected_line=322,
     ),
     DiagnosticJsonProbe(
         probe_id="01__probe_diagjson_line_directive_undeclared_identifier_location_strict",
@@ -2921,38 +2921,38 @@ DIAG_JSON_PROBES = [
     DiagnosticJsonProbe(
         probe_id="01__probe_diagjson_nonvoid_return_plain_current_zerozero",
         source=PROBE_DIR / "diagnostics/01__probe_nonvoid_return_plain_current_zerozero.c",
-        note="minimal current-threshold baseline: diagnostics JSON emits line 0 for non-void return diagnostic",
+        note="fixed baseline: diagnostics JSON emits source line for non-void return diagnostic",
         expected_codes=(2000,),
-        expected_line=0,
+        expected_line=2,
     ),
     DiagnosticJsonProbe(
         probe_id="01__probe_diagjson_line_directive_macro_nonvoid_return_location_reject",
         source=PROBE_DIR / "diagnostics/01__probe_line_directive_macro_nonvoid_return_location_reject.c",
         note="diagnostics JSON should preserve #line location for macro-expanded non-void return diagnostics",
         expected_codes=(2000,),
-        expected_line=450,
+        expected_line=453,
     ),
     DiagnosticJsonProbe(
         probe_id="01__probe_diagjson_line_directive_macro_nonvoid_return_current_zerozero",
         source=PROBE_DIR / "diagnostics/01__probe_line_directive_macro_nonvoid_return_current_zerozero.c",
-        note="current-threshold baseline: diagnostics JSON emits line 0 for #line+macro non-void return diagnostics",
+        note="fixed baseline: diagnostics JSON emits mapped line for #line+macro non-void return diagnostics",
         expected_codes=(2000,),
-        expected_line=0,
+        expected_line=453,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_invalid_dollar_location_reject",
         source=PROBE_DIR / "diagnostics/02__probe_lexer_line_directive_invalid_dollar_location_reject.c",
         note="diagnostics JSON should honor #line remap for lexer invalid '$' token",
         expected_codes=(1,),
-        expected_line=830,
+        expected_line=831,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_invalid_dollar_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_invalid_dollar_current_physical_line.c",
-        note="current-threshold baseline: diagnostics JSON reports physical line 3 for lexer invalid '$' token",
+        note="fixed baseline: diagnostics JSON reports remapped line for lexer invalid '$' token",
         expected_codes=(1,),
-        expected_line=3,
+        expected_line=831,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_unterminated_string_location_reject",
@@ -2960,15 +2960,15 @@ DIAG_JSON_PROBES = [
         / "diagnostics/02__probe_lexer_line_directive_unterminated_string_location_reject.c",
         note="diagnostics JSON should honor #line remap for lexer unterminated string literal",
         expected_codes=(1,),
-        expected_line=720,
+        expected_line=721,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_unterminated_string_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_unterminated_string_current_physical_line.c",
-        note="current-threshold baseline: diagnostics JSON reports physical line 3 for lexer unterminated string",
+        note="fixed baseline: diagnostics JSON reports remapped line for lexer unterminated string",
         expected_codes=(1,),
-        expected_line=3,
+        expected_line=721,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_char_invalid_hex_escape_location_reject",
@@ -2976,15 +2976,15 @@ DIAG_JSON_PROBES = [
         / "diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_location_reject.c",
         note="diagnostics JSON should honor #line remap for lexer invalid \\x char escape",
         expected_codes=(1,),
-        expected_line=910,
+        expected_line=911,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_char_invalid_hex_escape_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_current_physical_line.c",
-        note="current-threshold baseline: diagnostics JSON reports physical line 3 for lexer invalid \\x char escape",
+        note="fixed baseline: diagnostics JSON reports remapped line for lexer invalid \\x char escape",
         expected_codes=(1,),
-        expected_line=3,
+        expected_line=911,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_string_invalid_escape_location_reject",
@@ -2992,30 +2992,30 @@ DIAG_JSON_PROBES = [
         / "diagnostics/02__probe_lexer_line_directive_string_invalid_escape_location_reject.c",
         note="diagnostics JSON should honor #line remap for lexer invalid string escape",
         expected_codes=(1,),
-        expected_line=940,
+        expected_line=941,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_string_invalid_escape_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_string_invalid_escape_current_physical_line.c",
-        note="current-threshold baseline: diagnostics JSON reports physical line 3 for lexer invalid string escape",
+        note="fixed baseline: diagnostics JSON reports remapped line for lexer invalid string escape",
         expected_codes=(1,),
-        expected_line=3,
+        expected_line=941,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_invalid_at_location_reject",
         source=PROBE_DIR / "diagnostics/02__probe_lexer_line_directive_invalid_at_location_reject.c",
         note="diagnostics JSON should honor #line remap for lexer invalid '@' token",
         expected_codes=(1,),
-        expected_line=970,
+        expected_line=971,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_invalid_at_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_invalid_at_current_physical_line.c",
-        note="current-threshold baseline: diagnostics JSON reports physical line 3 for lexer invalid '@' token",
+        note="fixed baseline: diagnostics JSON reports remapped line for lexer invalid '@' token",
         expected_codes=(1,),
-        expected_line=3,
+        expected_line=971,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_invalid_backtick_location_reject",
@@ -3023,15 +3023,15 @@ DIAG_JSON_PROBES = [
         / "diagnostics/02__probe_lexer_line_directive_invalid_backtick_location_reject.c",
         note="diagnostics JSON should honor #line remap for lexer invalid '`' token",
         expected_codes=(1,),
-        expected_line=980,
+        expected_line=981,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_invalid_backtick_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_invalid_backtick_current_physical_line.c",
-        note="current-threshold baseline: diagnostics JSON reports physical line 3 for lexer invalid '`' token",
+        note="fixed baseline: diagnostics JSON reports remapped line for lexer invalid '`' token",
         expected_codes=(1,),
-        expected_line=3,
+        expected_line=981,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_unterminated_char_location_reject",
@@ -3039,15 +3039,15 @@ DIAG_JSON_PROBES = [
         / "diagnostics/02__probe_lexer_line_directive_unterminated_char_location_reject.c",
         note="diagnostics JSON should honor #line remap for lexer unterminated character literal",
         expected_codes=(1,),
-        expected_line=990,
+        expected_line=991,
     ),
     DiagnosticJsonProbe(
         probe_id="02__probe_diagjson_lexer_line_directive_unterminated_char_current_physical_line",
         source=PROBE_DIR
         / "diagnostics/02__probe_lexer_line_directive_unterminated_char_current_physical_line.c",
-        note="current-threshold baseline: diagnostics JSON reports physical line 3 for lexer unterminated character literal",
+        note="fixed baseline: diagnostics JSON reports remapped line for lexer unterminated character literal",
         expected_codes=(1,),
-        expected_line=3,
+        expected_line=991,
     ),
     DiagnosticJsonProbe(
         probe_id="07__probe_diagjson_assign_struct_to_int_reject",

@@ -615,7 +615,11 @@ static void analyzeStatementInternal(ASTNode* node,
                 }
             } else {
                 if (scope && scope->hasReturnType && scope->returnType.category != TYPEINFO_VOID) {
-                    addError(node->line, 0, "Non-void function must return a value", NULL);
+                    addErrorWithRanges(node->location,
+                                       node->macroCallSite,
+                                       node->macroDefinition,
+                                       "Non-void function must return a value",
+                                       NULL);
                 }
             }
             break;

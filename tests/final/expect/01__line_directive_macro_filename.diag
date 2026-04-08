@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (0:0): Non-void function must return a value
+Error at (301:5): Non-void function must return a value
+   Spelling: virtual_macro.h:301:5

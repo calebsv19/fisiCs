@@ -446,6 +446,7 @@ ASTNode* parseReturnStatement(Parser* parser) {
         printf("Error: expected 'return' at line %d\n", parser->currentToken.line);
         return NULL;
     }
+    Token returnTok = parser->currentToken;
     advance(parser); // Consume 'return'
 
     ASTNode* expr = NULL;
@@ -486,7 +487,11 @@ ASTNode* parseReturnStatement(Parser* parser) {
         return block;
     }
 
-    return createReturnNode(expr);
+    ASTNode* ret = createReturnNode(expr);
+    if (ret && !expr) {
+        astNodeSetProvenance(ret, &returnTok);
+    }
+    return ret;
 }
 
 
