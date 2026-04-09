@@ -21,6 +21,7 @@ Requirements:
 - LLVM toolchain (`llvm-config` available on `PATH`)
 - `gperf`
 - POSIX shell environment (macOS/Linux/WSL)
+- Vendored shared subtree at `third_party/codework_shared/` (sync via `../bin/update_shared_subtrees.sh --update --only fisiCs --targets ../bin/shared_subtree_targets.tsv`)
 
 ```bash
 make

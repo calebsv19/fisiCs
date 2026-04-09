@@ -13,11 +13,12 @@ PARSER_DEBUG ?= 0
 DISABLE_CODEGEN ?= 0
 BUILD_PROFILE ?= unsanitized
 SHIM_MODE ?= off
-SYS_SHIMS_DIR := ../shared/sys_shims
-CORE_BASE_DIR := ../shared/core/core_base
-CORE_IO_DIR := ../shared/core/core_io
-CORE_DATA_DIR := ../shared/core/core_data
-CORE_PACK_DIR := ../shared/core/core_pack
+SHARED_ROOT ?= third_party/codework_shared
+SYS_SHIMS_DIR ?= $(SHARED_ROOT)/sys_shims
+CORE_BASE_DIR ?= $(SHARED_ROOT)/core/core_base
+CORE_IO_DIR ?= $(SHARED_ROOT)/core/core_io
+CORE_DATA_DIR ?= $(SHARED_ROOT)/core/core_data
+CORE_PACK_DIR ?= $(SHARED_ROOT)/core/core_pack
 SYS_SHIMS_OVERLAY := $(abspath $(SYS_SHIMS_DIR)/overlay/include)
 SYS_SHIMS_INCLUDE := $(abspath $(SYS_SHIMS_DIR)/include)
 SHIM_PROFILE_ID := shim_profile_lang_frontend_shadow_v1
@@ -929,7 +930,7 @@ shim-s6-gate:
 
 shim-gate:
 	@$(MAKE) shim-parse-parity-quiet
-	@$(MAKE) -C ../shared/sys_shims conformance
+	@$(MAKE) -C $(SYS_SHIMS_DIR) conformance
 	@echo "fisiCs shim gate passed."
 
 FRONTEND_TEST_SRCS := $(wildcard tests/unit/frontend_api*.c)
