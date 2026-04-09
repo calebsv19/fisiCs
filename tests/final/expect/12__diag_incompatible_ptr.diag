@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (4:0): Incompatible assignment operands
+Error at (4:5): Incompatible assignment operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_incompatible_ptr.c:4:5

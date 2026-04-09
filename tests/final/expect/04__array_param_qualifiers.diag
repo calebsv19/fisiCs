@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (2:0): Left operand of '=' must be a modifiable lvalue
+Error at (2:5): Left operand of '=' must be a modifiable lvalue
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__array_param_qualifiers.c:2:5
 Warning at (14:0): Array argument smaller than 'static' parameter size

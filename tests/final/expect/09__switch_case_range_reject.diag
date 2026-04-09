@@ -9,4 +9,5 @@ Error: invalid statement inside block at line 4
 Error: Failed to parse expression at line 6
 Error: invalid statement inside block at line 6
 Error: Failed to parse expression at line 9
-Error at (1:0): Control reaches end of non-void function 'main'
+Error at (1:5): Control reaches end of non-void function 'main'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/09__switch_case_range_reject.c:1:5

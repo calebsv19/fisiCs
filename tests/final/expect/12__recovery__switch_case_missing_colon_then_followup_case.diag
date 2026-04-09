@@ -1,6 +1,13 @@
 Diagnostics:
-Error at (0:0): Break statement not within loop or switch
+Error at (6:13): Break statement not within loop or switch
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__switch_case_missing_colon_then_followup_case.c:6:13
+Error at (9:13): Break statement not within loop or switch
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__switch_case_missing_colon_then_followup_case.c:9:13
+Error at (12:13): Break statement not within loop or switch
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__switch_case_missing_colon_then_followup_case.c:12:13
 Error at (14:12): Undeclared identifier
    Hint: x
    Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__switch_case_missing_colon_then_followup_case.c:14:12
-Error at (1:0): Control reaches end of non-void function 'main'
+Warning at (9:0): Unreachable statement
+Error at (1:5): Control reaches end of non-void function 'main'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__recovery__switch_case_missing_colon_then_followup_case.c:1:5

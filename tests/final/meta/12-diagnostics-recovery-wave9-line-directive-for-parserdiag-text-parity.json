@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__line_directive_for_missing_semicolon_diag_text_parser_parity",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_for_missing_semicolon_diag_text_parser_parity.c",
+      "expects": [
+        "expect/12__line_directive_for_missing_semicolon_diag_text_parser_parity.diag"
+      ],
+      "tags": ["line-directive", "diag", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_for_missing_semicolon_diag_text_parser_parity",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_for_missing_semicolon_diag_text_parser_parity.c",
+      "expects": [
+        "expect/12__line_directive_include_for_missing_semicolon_diag_text_parser_parity.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

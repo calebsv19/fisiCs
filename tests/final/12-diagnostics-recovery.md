@@ -123,6 +123,18 @@ Recovery points and diagnostic quality for IDE usability.
 48) `12__parserdiag__recovery_do_while_missing_semicolon`
    - Parser diagnostic tuples for malformed `do-while` (missing trailing `;`) are now exported and asserted.
 
+## Wave 8 Additions (Line-Directive For-Header Diagjson Thresholds)
+49) `12__line_directive_for_missing_semicolon_diagjson_current_semantic_only`
+   - Remapped `#line` malformed `for` header currently exports semantic-only diagjson payload.
+50) `12__line_directive_include_for_missing_semicolon_diagjson_current_semantic_only`
+   - Include-header + `#line` malformed `for` header currently exports semantic-only diagjson payload.
+
+## Wave 9 Additions (Line-Directive For-Header Text Parity)
+51) `12__line_directive_for_missing_semicolon_diag_text_parser_parity`
+   - Remapped `#line` parser text diagnostic parity for malformed `for` header.
+52) `12__line_directive_include_for_missing_semicolon_diag_text_parser_parity`
+   - Include-header + `#line` parser text diagnostic parity for malformed `for` header.
+
 ## Expected Outputs
 - AST and diagnostics expectations (`.ast` + `.diag`) for deterministic recovery checks.
 - Parser diagnostics expectations (`.pdiag`) via `--emit-diags-json` export path, normalized to parser diagnostic tuples (`code`, `line`, `column`, `length`, `kind`).
@@ -133,6 +145,7 @@ Recovery points and diagnostic quality for IDE usability.
   malformed-recovery files (`capture_frontend_diag: true` in metadata).
 - Diagnostics JSON export blockers are now resolved for statement-recovery
   parser errors:
-  `12__probe_diagjson_while_missing_lparen` and
-  `12__probe_diagjson_do_while_missing_semicolon` now both resolve.
+  `12__probe_diagjson_while_missing_lparen`,
+  `12__probe_diagjson_do_while_missing_semicolon`, and
+  direct/include `#line` malformed-for-header lanes now all resolve.
 - Mixed parser+semantic ordering anchors remain active for cross-error files.

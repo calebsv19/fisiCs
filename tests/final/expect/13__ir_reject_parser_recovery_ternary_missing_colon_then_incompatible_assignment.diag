@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (6:0): Incompatible assignment operands
+Error at (6:5): Incompatible assignment operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_incompatible_assignment.c:6:5

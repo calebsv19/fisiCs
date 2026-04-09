@@ -1,3 +1,3 @@
 Diagnostics:
-Error at (6:13): Operator '+' requires arithmetic operand
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_unary_plus_pointer.c:6:13
+Error at (6:12): Operator '+' requires arithmetic operand
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_unary_plus_pointer.c:6:12

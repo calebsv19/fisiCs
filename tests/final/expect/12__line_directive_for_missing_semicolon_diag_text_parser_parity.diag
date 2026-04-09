@@ -1,0 +1,16 @@
+Diagnostics:
+Error at (8402:20): Undeclared identifier
+   Hint: i
+   Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8402:20
+Error at (8402:20): Operator '<' requires comparable operands
+   Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8402:20
+Error at (8402:29): Undeclared identifier
+   Hint: i
+   Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8402:29
+Error at (8402:27): Operator '++' requires modifiable lvalue operand
+   Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8402:27
+Error at (8403:16): Undeclared identifier
+   Hint: i
+   Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8403:16
+Error at (8401:5): Control reaches end of non-void function 'main'
+   Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8401:5

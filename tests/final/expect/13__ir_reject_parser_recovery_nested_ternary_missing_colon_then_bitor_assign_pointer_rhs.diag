@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (0:0): Operator '|' requires integer operands
+Error at (9:5): Operator '|' requires integer operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_nested_ternary_missing_colon_then_bitor_assign_pointer_rhs.c:9:5

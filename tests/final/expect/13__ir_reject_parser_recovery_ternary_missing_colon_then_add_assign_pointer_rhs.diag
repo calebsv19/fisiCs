@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (7:0): Incompatible assignment operands
+Error at (7:5): Incompatible assignment operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_add_assign_pointer_rhs.c:7:5

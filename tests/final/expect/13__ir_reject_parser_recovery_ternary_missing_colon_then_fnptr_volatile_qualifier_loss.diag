@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (11:0): Assignment discards qualifiers from pointer target
+Error at (11:5): Assignment discards qualifiers from pointer target
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_fnptr_volatile_qualifier_loss.c:11:5

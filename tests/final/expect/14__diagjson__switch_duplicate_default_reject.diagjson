@@ -3,7 +3,7 @@
   "diagnostics": [
     {
       "code": 2000,
-      "column": 18,
+      "column": 13,
       "has_file": true,
       "has_hint": false,
       "has_message": true,

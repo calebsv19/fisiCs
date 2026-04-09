@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__line_directive_for_missing_semicolon_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_for_missing_semicolon_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_for_missing_semicolon_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "parser-recovery", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_for_missing_semicolon_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_for_missing_semicolon_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_include_for_missing_semicolon_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "parser-recovery", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (8:0): Incompatible assignment operands
+Error at (8:5): Incompatible assignment operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_line_anchor__ptr_then_cast.c:8:5
 Error at (9:0): Invalid cast between non-scalar types

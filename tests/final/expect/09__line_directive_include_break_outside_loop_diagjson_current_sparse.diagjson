@@ -23,12 +23,12 @@
     },
     {
       "code": 2000,
-      "column": 0,
-      "has_file": false,
+      "column": 12,
+      "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
-      "length": 1,
+      "length": 32,
       "line": 5401
     }
   ],

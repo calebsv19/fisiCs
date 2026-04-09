@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (1:0): Array 'arr' designator index -1 is negative
+Error at (1:16): Array 'arr' designator index -1 is negative
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/07__designator_array_index_negative_reject.c:1:16

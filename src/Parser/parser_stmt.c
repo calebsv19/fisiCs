@@ -389,6 +389,7 @@ ASTNode* parseForLoopInitializer(Parser* parser) {
     }
      
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
+        reportParserDiagAtCurrentToken(parser, "expected ';' after for-loop initializer");
         printf("Error: expected ';' after for-loop initializer at line %d\n", 
 				parser->currentToken.line);
         return NULL;

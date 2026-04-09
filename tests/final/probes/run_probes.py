@@ -2788,6 +2788,20 @@ DIAG_PROBES = [
         required_substrings=("Undeclared identifier",),
     ),
     DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_for_missing_semicolon_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diag_line_directive_for_missing_semicolon_parser_text_strict.c",
+        note="text diagnostics should preserve parser malformed-for-header line under #line remap",
+        required_substrings=("Error: expected ';' after for-loop initializer at line 8402",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_for_missing_semicolon_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diag_line_directive_include_for_missing_semicolon_parser_text_strict.c",
+        note="text diagnostics should preserve parser malformed-for-header line for include #line remap",
+        required_substrings=("Error: expected ';' after for-loop initializer at line 8502",),
+    ),
+    DiagnosticProbe(
         probe_id="13__probe_fnptr_too_many_args_reject",
         source=PROBE_DIR / "diagnostics/13__probe_fnptr_too_many_args_reject.c",
         note="function-pointer call should reject too many arguments for fixed-arity target",
@@ -4220,6 +4234,42 @@ DIAG_JSON_PROBES = [
         probe_id="12__probe_diagjson_for_header_missing_semicolon",
         source=PROBE_DIR / "diagnostics/12__probe_for_header_missing_semicolon_reject.c",
         note="diagnostics JSON export should include diagnostics for malformed for header",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_for_missing_semicolon_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_for_missing_semicolon_parser_presence.c",
+        note="strict frontier: #line malformed for-header should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8402,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_for_missing_semicolon_current_semantic_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_for_missing_semicolon_parser_presence.c",
+        note="post-fix lane: #line malformed for-header diagnostics JSON includes parser+semantic payload",
+        expected_codes=(2000,),
+        expected_line=8402,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_for_missing_semicolon_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_for_missing_semicolon_parser_presence.c",
+        note="strict frontier: include #line malformed for-header should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8502,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_for_missing_semicolon_current_semantic_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_for_missing_semicolon_parser_presence.c",
+        note="post-fix lane: include #line malformed for-header diagnostics JSON includes parser+semantic payload",
+        expected_codes=(2000,),
+        expected_line=8502,
+        expected_has_file=True,
     ),
     DiagnosticJsonProbe(
         probe_id="14__probe_diagjson_complex_lt_reject",

@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (0:0): Non-void function must return a value
+Error at (2:5): Non-void function must return a value
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_order__nonvoid_return_then_unreachable.c:2:5
 Warning at (3:0): Unreachable statement
