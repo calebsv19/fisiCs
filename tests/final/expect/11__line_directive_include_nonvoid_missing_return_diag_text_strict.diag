@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (7601:5): Control reaches end of non-void function 'f_inc_text'
+   Spelling: virtual_fn_include_nonvoid_missing_return_diag_text_strict.h:7601:5

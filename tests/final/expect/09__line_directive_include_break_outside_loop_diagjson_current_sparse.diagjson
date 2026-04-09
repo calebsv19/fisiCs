@@ -1,0 +1,40 @@
+{
+  "diag_count": 3,
+  "diagnostics": [
+    {
+      "code": 2000,
+      "column": 5,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 5,
+      "line": 5402
+    },
+    {
+      "code": 2000,
+      "column": 0,
+      "has_file": false,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 1,
+      "length": 1,
+      "line": 5403
+    },
+    {
+      "code": 2000,
+      "column": 0,
+      "has_file": false,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 5401
+    }
+  ],
+  "error_count": 2,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 1
+}

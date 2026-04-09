@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_extern_type_mismatch_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_type_mismatch_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_extern_type_mismatch_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "extern",
+        "type-mismatch",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_function_redecl_conflict_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_function_redecl_conflict_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_function_redecl_conflict_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "function",
+        "redecl",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_extern_type_mismatch_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_extern_type_mismatch_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_extern_type_mismatch_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "include",
+        "extern",
+        "type-mismatch",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_function_redecl_conflict_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_function_redecl_conflict_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_function_redecl_conflict_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "include",
+        "function",
+        "redecl",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

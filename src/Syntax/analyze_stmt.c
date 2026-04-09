@@ -626,12 +626,20 @@ static void analyzeStatementInternal(ASTNode* node,
 
         case AST_BREAK:
             if (loopDepth == 0 && (!switchStack || switchStack->depth == 0)) {
-                addError(node->line, 0, "Break statement not within loop or switch", NULL);
+                addErrorWithRanges(node->location,
+                                   node->macroCallSite,
+                                   node->macroDefinition,
+                                   "Break statement not within loop or switch",
+                                   NULL);
             }
             break;
         case AST_CONTINUE:
             if (loopDepth == 0) {
-                addError(node->line, 0, "Continue statement not within a loop", NULL);
+                addErrorWithRanges(node->location,
+                                   node->macroCallSite,
+                                   node->macroDefinition,
+                                   "Continue statement not within a loop",
+                                   NULL);
             }
             break;
 

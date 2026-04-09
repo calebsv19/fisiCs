@@ -66,5 +66,25 @@ Function types, parameter adjustments, and call checking.
 21) `11__parserdiag__prototype_missing_rparen_then_next_decl`
    - Parser diagnostic tuples for unterminated prototype with follow-up declaration recovery.
 
+## Wave 4 Additions (Line-Directive Diagjson Thresholds)
+22) `11__line_directive_nonvoid_missing_return_diagjson_current_sparse`
+   - Remapped `#line` non-void-missing-return diagjson baseline.
+23) `11__line_directive_include_nonvoid_missing_return_diagjson_current_sparse`
+   - Include-header + `#line` remapped non-void-missing-return diagjson baseline.
+24) `11__line_directive_prototype_too_many_args_diagjson_current_sparse`
+   - Remapped `#line` prototype-too-many-args diagjson baseline.
+25) `11__line_directive_include_prototype_too_many_args_diagjson_current_sparse`
+   - Include-header + `#line` remapped prototype-too-many-args diagjson baseline.
+
+## Wave 5 Additions (Line-Directive Text-Diagnostic Parity)
+26) `11__line_directive_nonvoid_missing_return_diag_text_strict`
+   - Text diagnostic parity for remapped `#line` non-void-missing-return.
+27) `11__line_directive_include_nonvoid_missing_return_diag_text_strict`
+   - Text diagnostic parity for include-header + `#line` non-void-missing-return.
+28) `11__line_directive_prototype_too_many_args_diag_text_strict`
+   - Text diagnostic parity for remapped `#line` prototype-too-many-args.
+29) `11__line_directive_include_prototype_too_many_args_diag_text_strict`
+   - Text diagnostic parity for include-header + `#line` prototype-too-many-args.
+
 ## Probe Backlog
-- No open probes in this bucket after parameter-rule and parameter-decay fixes.
+- No open probes in this bucket after line-directive diagnostic provenance fixes.

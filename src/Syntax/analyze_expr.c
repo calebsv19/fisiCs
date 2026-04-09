@@ -1043,7 +1043,10 @@ static void reportArgumentCountError(ASTNode* call, const char* calleeName, size
              fallbackFunctionName(calleeName),
              expected,
              actual);
-    addError(call ? call->line : 0, 0, buffer, NULL);
+    SourceRange loc = call ? call->location : (SourceRange){0};
+    SourceRange callSite = call ? call->macroCallSite : (SourceRange){0};
+    SourceRange macroDef = call ? call->macroDefinition : (SourceRange){0};
+    addErrorWithRanges(loc, callSite, macroDef, buffer, NULL);
 }
 
 static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* calleeName, const char* message) {

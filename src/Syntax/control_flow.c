@@ -377,7 +377,16 @@ static void traverse(ASTNode* node, Scope* scope) {
                     : "<anonymous>";
                 char buffer[160];
                 snprintf(buffer, sizeof(buffer), "Control reaches end of non-void function '%s'", name);
-                addError(safeLine(node), 0, buffer, NULL);
+                SourceRange loc = node->functionDef.funcName
+                    ? node->functionDef.funcName->location
+                    : node->location;
+                SourceRange callSite = node->functionDef.funcName
+                    ? node->functionDef.funcName->macroCallSite
+                    : node->macroCallSite;
+                SourceRange macroDef = node->functionDef.funcName
+                    ? node->functionDef.funcName->macroDefinition
+                    : node->macroDefinition;
+                addErrorWithRanges(loc, callSite, macroDef, buffer, NULL);
             }
             gotoTargetSetFree(&gotoTargets);
             break;

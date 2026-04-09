@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6602:14): Conflicting types for variable
+   Hint: shared_inc_diag
+   Spelling: virtual_scope_include_extern_type_mismatch_diag_text_strict.h:6602:14

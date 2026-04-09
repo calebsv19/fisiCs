@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6702:7): Conflicting types for function
+   Hint: g_diag
+   Spelling: virtual_scope_include_function_redecl_conflict_diag_text_strict.h:6702:7

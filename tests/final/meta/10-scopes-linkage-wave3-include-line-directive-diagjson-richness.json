@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_include_extern_type_mismatch_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_extern_type_mismatch_diagjson_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_extern_type_mismatch_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "include",
+        "extern",
+        "type-mismatch",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_function_redecl_conflict_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_function_redecl_conflict_diagjson_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_function_redecl_conflict_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "include",
+        "function",
+        "redecl",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

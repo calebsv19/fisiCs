@@ -500,6 +500,7 @@ ASTNode* parseBreakStatement(Parser* parser) {
         printf("Error: expected 'break' at line %d\n", parser->currentToken.line);
         return NULL;
     }
+    Token breakTok = parser->currentToken;
     advance(parser); // Consume 'break'
     
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
@@ -508,7 +509,11 @@ ASTNode* parseBreakStatement(Parser* parser) {
         return NULL;
     }
     advance(parser); // Consume ';'
-    return createBreakNode();
+    ASTNode* node = createBreakNode();
+    if (node) {
+        astNodeSetProvenance(node, &breakTok);
+    }
+    return node;
 }
         
 ASTNode* parseContinueStatement(Parser* parser) {
@@ -516,6 +521,7 @@ ASTNode* parseContinueStatement(Parser* parser) {
         printf("Error: expected 'continue' at line %d\n", parser->currentToken.line);
         return NULL;
     }
+    Token continueTok = parser->currentToken;
     advance(parser); // Consume 'continue'
             
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
@@ -524,7 +530,11 @@ ASTNode* parseContinueStatement(Parser* parser) {
         return NULL;
     }
     advance(parser); // Consume ';'
-    return createContinueNode();
+    ASTNode* node = createContinueNode();
+    if (node) {
+        astNodeSetProvenance(node, &continueTok);
+    }
+    return node;
 }
 
 ASTNode* parseGotoStatement(Parser* parser) {

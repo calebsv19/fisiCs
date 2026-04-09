@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__line_directive_break_outside_loop_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_break_outside_loop_diagjson_current_sparse.c",
+      "expects": [
+        "expect/09__line_directive_break_outside_loop_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "break",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_continue_outside_loop_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_continue_outside_loop_diagjson_current_sparse.c",
+      "expects": [
+        "expect/09__line_directive_continue_outside_loop_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "continue",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
