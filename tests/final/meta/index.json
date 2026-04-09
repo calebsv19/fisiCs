@@ -100,6 +100,7 @@
     "12-diagnostics-recovery-wave7-parserdiag.json",
     "12-diagnostics-recovery-wave8-line-directive-for-parserdiag-thresholds.json",
     "12-diagnostics-recovery-wave9-line-directive-for-parserdiag-text-parity.json",
+    "12-diagnostics-recovery-wave10-line-directive-parserdiagjson-breadth.json",
     "12-diagnostics-recovery.json",
     "13-codegen-ir-wave10-fnptr-compat.json",
     "13-codegen-ir-wave11-pointer-domain.json",

@@ -2802,6 +2802,62 @@ DIAG_PROBES = [
         required_substrings=("Error: expected ';' after for-loop initializer at line 8502",),
     ),
     DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_if_missing_rparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_if_missing_rparen_parser_presence.c",
+        note="text diagnostics should preserve parser missing ')' line under #line remap for if",
+        required_substrings=("Error: expected ')' after condition at line 8603",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_if_missing_rparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_if_missing_rparen_parser_presence.c",
+        note="text diagnostics should preserve parser missing ')' line under include #line remap for if",
+        required_substrings=("Error: expected ')' after condition at line 8613",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_while_missing_lparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_while_missing_lparen_parser_presence.c",
+        note="text diagnostics should preserve parser missing '(' line under #line remap for while",
+        required_substrings=("Error: expected '(' after 'while' at line 8703",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_while_missing_lparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_while_missing_lparen_parser_presence.c",
+        note="text diagnostics should preserve parser missing '(' line under include #line remap for while",
+        required_substrings=("Error: expected '(' after 'while' at line 8713",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_do_while_missing_semicolon_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_do_while_missing_semicolon_parser_presence.c",
+        note="text diagnostics should preserve parser missing ';' line under #line remap for do-while",
+        required_substrings=("Error: expected ';' after 'do-while' statement at line 8806",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_do_while_missing_semicolon_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_do_while_missing_semicolon_parser_presence.c",
+        note="text diagnostics should preserve parser missing ';' line under include #line remap for do-while",
+        required_substrings=("Error: expected ';' after 'do-while' statement at line 8816",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_switch_missing_rparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_switch_missing_rparen_parser_presence.c",
+        note="text diagnostics should preserve parser switch-header parse failure line under #line remap",
+        required_substrings=("Error: Failed to parse expression at line 8903",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_switch_missing_rparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence.c",
+        note="text diagnostics should preserve parser switch-header parse failure line under include #line remap",
+        required_substrings=("Error: Failed to parse expression at line 8913",),
+    ),
+    DiagnosticProbe(
         probe_id="13__probe_fnptr_too_many_args_reject",
         source=PROBE_DIR / "diagnostics/13__probe_fnptr_too_many_args_reject.c",
         note="function-pointer call should reject too many arguments for fixed-arity target",
@@ -4414,6 +4470,150 @@ DIAG_JSON_PROBES = [
         note="post-fix lane: include #line malformed for-header diagnostics JSON includes parser+semantic payload",
         expected_codes=(2000,),
         expected_line=8502,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_if_missing_rparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_if_missing_rparen_parser_presence.c",
+        note="strict frontier: #line if-missing-')' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8603,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_if_missing_rparen_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_if_missing_rparen_parser_presence.c",
+        note="reduced threshold: #line if-missing-')' diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=8603,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_if_missing_rparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_if_missing_rparen_parser_presence.c",
+        note="strict frontier: include #line if-missing-')' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8613,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_if_missing_rparen_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_if_missing_rparen_parser_presence.c",
+        note="reduced threshold: include #line if-missing-')' diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=8613,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_while_missing_lparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_while_missing_lparen_parser_presence.c",
+        note="strict frontier: #line while-missing-'(' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8703,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_while_missing_lparen_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_while_missing_lparen_parser_presence.c",
+        note="reduced threshold: #line while-missing-'(' diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=8703,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_while_missing_lparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_while_missing_lparen_parser_presence.c",
+        note="strict frontier: include #line while-missing-'(' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8713,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_while_missing_lparen_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_while_missing_lparen_parser_presence.c",
+        note="reduced threshold: include #line while-missing-'(' diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=8713,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_do_while_missing_semicolon_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_do_while_missing_semicolon_parser_presence.c",
+        note="strict frontier: #line do-while-missing-';' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8806,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_do_while_missing_semicolon_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_do_while_missing_semicolon_parser_presence.c",
+        note="reduced threshold: #line do-while-missing-';' diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=8806,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_do_while_missing_semicolon_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_do_while_missing_semicolon_parser_presence.c",
+        note="strict frontier: include #line do-while-missing-';' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8816,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_do_while_missing_semicolon_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_do_while_missing_semicolon_parser_presence.c",
+        note="reduced threshold: include #line do-while-missing-';' diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=8816,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_switch_missing_rparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_switch_missing_rparen_parser_presence.c",
+        note="strict frontier: #line switch-missing-')' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8903,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_switch_missing_rparen_current_semantic_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_switch_missing_rparen_parser_presence.c",
+        note="post-fix lane: #line switch-missing-')' diagnostics JSON includes parser+semantic payload",
+        expected_codes=(2000,),
+        expected_line=8901,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence.c",
+        note="strict frontier: include #line switch-missing-')' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8913,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_switch_missing_rparen_current_semantic_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence.c",
+        note="post-fix lane: include #line switch-missing-')' diagnostics JSON includes parser+semantic payload",
+        expected_codes=(2000,),
+        expected_line=8911,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(

@@ -24,6 +24,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout shared core dependencies
+        uses: actions/checkout@v4
+        with:
+          repository: calebsv19/cosm-fabriC
+          path: shared
+          fetch-depth: 1
+
       - name: Install toolchain
         shell: bash
         run: |
@@ -35,7 +42,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          make ci-guardrails
+          make ci-guardrails \
+            CORE_BASE_DIR=shared/core/core_base \
+            CORE_IO_DIR=shared/core/core_io \
+            CORE_DATA_DIR=shared/core/core_data \
+            CORE_PACK_DIR=shared/core/core_pack \
+            SYS_SHIMS_DIR=shared/sys_shims
 
       - name: Upload release artifacts
         if: always()

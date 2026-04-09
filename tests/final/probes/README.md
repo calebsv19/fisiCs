@@ -139,6 +139,10 @@ Purpose:
   - `diagnostics/12__probe_while_missing_lparen_reject.c`
   - `diagnostics/12__probe_do_while_missing_semicolon_reject.c`
   - `diagnostics/12__probe_for_header_missing_semicolon_reject.c`
+  - `diagnostics/12__probe_diagjson_line_directive_if_missing_rparen_parser_presence.c`
+  - `diagnostics/12__probe_diagjson_line_directive_while_missing_lparen_parser_presence.c`
+  - `diagnostics/12__probe_diagjson_line_directive_do_while_missing_semicolon_parser_presence.c`
+  - `diagnostics/12__probe_diagjson_line_directive_switch_missing_rparen_parser_presence.c`
   - `diagnostics/13__probe_fnptr_too_many_args_reject.c`
   - `diagnostics/13__probe_fnptr_too_few_args_reject.c`
   - `diagnostics/13__probe_mod_float_reject.c`

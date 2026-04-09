@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__line_directive_if_missing_rparen_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_if_missing_rparen_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_if_missing_rparen_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_if_missing_rparen_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_if_missing_rparen_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_include_if_missing_rparen_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_while_missing_lparen_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_while_missing_lparen_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_while_missing_lparen_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_while_missing_lparen_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_while_missing_lparen_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_include_while_missing_lparen_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_do_while_missing_semicolon_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_do_while_missing_semicolon_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_do_while_missing_semicolon_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_do_while_missing_semicolon_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_do_while_missing_semicolon_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_include_do_while_missing_semicolon_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_switch_missing_rparen_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_switch_missing_rparen_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_switch_missing_rparen_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_switch_missing_rparen_diagjson_current_semantic_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_switch_missing_rparen_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/12__line_directive_include_switch_missing_rparen_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "parser-recovery", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
