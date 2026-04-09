@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_parser_recovery_if_missing_condition",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_if_missing_condition.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_if_missing_condition.diag",
+        "expect/13__ir_reject_parser_recovery_if_missing_condition.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "if",
+        "condition"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_do_while_missing_condition",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_do_while_missing_condition.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_do_while_missing_condition.diag",
+        "expect/13__ir_reject_parser_recovery_do_while_missing_condition.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "do-while",
+        "condition"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -15,6 +15,7 @@
 #include <execinfo.h>
 
 #include <llvm-c/ErrorHandling.h>
+#include <llvm-c/Core.h>
 
 #include "Compiler/pipeline.h"
 #include "Compiler/object_emit.h"
@@ -174,6 +175,11 @@ static void llvm_fatal_handler(const char* reason) {
     int count = backtrace(frames, 64);
     backtrace_symbols_fd(frames, count, fileno(stderr));
     _exit(1);
+}
+
+static int llvm_shutdown_and_return(int code) {
+    LLVMShutdown();
+    return code;
 }
 
 static char* create_temp_object_path(const char* baseName) {
@@ -1190,7 +1196,7 @@ int main(int argc, char **argv) {
             string_list_free(&linkerSearchPaths);
             string_list_free(&linkerLibs);
             string_list_free(&linkerFrameworks);
-            return statusCode;
+            return llvm_shutdown_and_return(statusCode);
         }
     }
 
@@ -1248,7 +1254,7 @@ int main(int argc, char **argv) {
     string_list_free(&linkerSearchPaths);
     string_list_free(&linkerLibs);
     string_list_free(&linkerFrameworks);
-    return status;
+    return llvm_shutdown_and_return(status);
 
 fail:
     string_list_free(&includePaths);
@@ -1259,5 +1265,5 @@ fail:
     string_list_free(&linkerSearchPaths);
     string_list_free(&linkerLibs);
     string_list_free(&linkerFrameworks);
-    return 1;
+    return llvm_shutdown_and_return(1);
 }

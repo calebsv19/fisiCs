@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_parser_recovery_if_missing_then_stmt",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_if_missing_then_stmt.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_if_missing_then_stmt.diag",
+        "expect/13__ir_reject_parser_recovery_if_missing_then_stmt.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "if"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_else_missing_stmt",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_else_missing_stmt.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_else_missing_stmt.diag",
+        "expect/13__ir_reject_parser_recovery_else_missing_stmt.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "if",
+        "else"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_switch_missing_lbrace",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_switch_missing_lbrace.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_switch_missing_lbrace.diag",
+        "expect/13__ir_reject_parser_recovery_switch_missing_lbrace.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_switch_case_missing_colon",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_switch_case_missing_colon.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_switch_case_missing_colon.diag",
+        "expect/13__ir_reject_parser_recovery_switch_case_missing_colon.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "switch",
+        "case"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_switch_default_missing_colon",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_switch_default_missing_colon.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_switch_default_missing_colon.diag",
+        "expect/13__ir_reject_parser_recovery_switch_default_missing_colon.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "switch",
+        "default"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

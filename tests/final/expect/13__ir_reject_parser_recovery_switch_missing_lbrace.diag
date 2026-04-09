@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (6:9): Break statement not within loop or switch
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_switch_missing_lbrace.c:6:9
+Error at (9:9): Break statement not within loop or switch
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_switch_missing_lbrace.c:9:9
+Warning at (9:0): Unreachable statement

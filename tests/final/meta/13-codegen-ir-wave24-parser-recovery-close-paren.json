@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_parser_recovery_if_missing_rparen",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_if_missing_rparen.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_if_missing_rparen.diag",
+        "expect/13__ir_reject_parser_recovery_if_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_while_missing_rparen",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_while_missing_rparen.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_while_missing_rparen.diag",
+        "expect/13__ir_reject_parser_recovery_while_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_do_while_missing_rparen",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_do_while_missing_rparen.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_do_while_missing_rparen.diag",
+        "expect/13__ir_reject_parser_recovery_do_while_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_for_missing_rparen",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_for_missing_rparen.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_for_missing_rparen.diag",
+        "expect/13__ir_reject_parser_recovery_for_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_switch_missing_rparen",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_switch_missing_rparen.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_switch_missing_rparen.diag",
+        "expect/13__ir_reject_parser_recovery_switch_missing_rparen.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

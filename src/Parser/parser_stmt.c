@@ -279,12 +279,14 @@ ASTNode* parseDoWhileLoop(Parser* parser) {
     }
      
     if (!body) {
+        reportParserDiagAtCurrentToken(parser, "invalid body in 'do-while' loop");
         printf("Error: Invalid body in 'do-while' loop at line %d\n", parser->currentToken.line);
         return NULL;
     }
      
     // Ensure 'while' follows
     if (parser->currentToken.type != TOKEN_WHILE) {
+        reportParserDiagAtCurrentToken(parser, "expected 'while' after 'do' block");
         printf("Error: expected 'while' after 'do' block at line %d\n", parser->currentToken.line);
         return NULL;
     }
@@ -411,6 +413,7 @@ ASTNode* parseForLoopCondition(Parser* parser) {
     }
      
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
+        reportParserDiagAtCurrentToken(parser, "expected ';' after for-loop condition");
         printf("Error: expected ';' after for-loop condition at line %d\n", 
 			parser->currentToken.line);
         return NULL;

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_parser_recovery_for_missing_body",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_for_missing_body.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_for_missing_body.diag",
+        "expect/13__ir_reject_parser_recovery_for_missing_body.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "for"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_while_missing_body",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_while_missing_body.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_while_missing_body.diag",
+        "expect/13__ir_reject_parser_recovery_while_missing_body.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "while"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_do_while_missing_body",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_do_while_missing_body.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_do_while_missing_body.diag",
+        "expect/13__ir_reject_parser_recovery_do_while_missing_body.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "do-while"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_parser_recovery_switch_missing_body",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_parser_recovery_switch_missing_body.c",
+      "expects": [
+        "expect/13__ir_reject_parser_recovery_switch_missing_body.diag",
+        "expect/13__ir_reject_parser_recovery_switch_missing_body.pdiag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "parser-recovery",
+        "parser-diag",
+        "control",
+        "switch"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

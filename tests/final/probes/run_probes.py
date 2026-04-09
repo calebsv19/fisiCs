@@ -2856,6 +2856,151 @@ DIAG_PROBES = [
         required_substrings=("discards qualifiers",),
     ),
     DiagnosticProbe(
+        probe_id="13__probe_diag_parser_if_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_if_missing_lparen.c",
+        note="parser should emit diagnostics for missing '(' in if statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_while_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_while_missing_lparen.c",
+        note="parser should emit diagnostics for missing '(' in while statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_do_while_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_do_while_missing_lparen.c",
+        note="parser should emit diagnostics for missing '(' in do-while condition",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_for_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_for_missing_lparen.c",
+        note="parser should emit diagnostics for missing '(' in for statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_if_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_if_missing_rparen.c",
+        note="parser should emit diagnostics for missing ')' in if statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_while_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_while_missing_rparen.c",
+        note="parser should emit diagnostics for missing ')' in while statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_do_while_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_do_while_missing_rparen.c",
+        note="parser should emit diagnostics for missing ')' in do-while condition",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_for_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_for_missing_rparen.c",
+        note="parser should emit diagnostics for missing ')' in for statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_for_missing_first_semicolon",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_for_missing_first_semicolon.c",
+        note="parser should emit diagnostics for missing first ';' in for header",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_for_missing_second_semicolon",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_for_missing_second_semicolon.c",
+        note="parser should emit diagnostics for missing second ';' in for header",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_for_missing_second_semicolon_simple",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_for_missing_second_semicolon_simple.c",
+        note="parser should emit diagnostics for missing second ';' in minimal for-header form",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_if_missing_condition",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_if_missing_condition.c",
+        note="parser should emit diagnostics for missing condition expression in if statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_do_while_missing_while",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_do_while_missing_while.c",
+        note="parser should emit diagnostics for missing 'while' in do-while statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_do_while_missing_while_simple",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_do_while_missing_while_simple.c",
+        note="parser should emit diagnostics for missing 'while' in reduced do-while form",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_do_while_missing_condition",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_do_while_missing_condition.c",
+        note="parser should emit diagnostics for missing condition expression in do-while statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_do_while_missing_semicolon",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_do_while_missing_semicolon.c",
+        note="parser should emit diagnostics for missing ';' after do-while condition",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_for_missing_body",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_for_missing_body.c",
+        note="parser should emit diagnostics for missing for-loop body statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_while_missing_body",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_while_missing_body.c",
+        note="parser should emit diagnostics for missing while-loop body statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_do_while_missing_body",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_do_while_missing_body.c",
+        note="parser should emit diagnostics for missing do-while loop body statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_do_while_missing_body_simple",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_do_while_missing_body_simple.c",
+        note="parser should emit diagnostics for minimal missing do-while loop body statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_switch_missing_body",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_switch_missing_body.c",
+        note="parser should emit diagnostics for missing switch statement body",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_switch_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_switch_missing_lparen.c",
+        note="parser should emit diagnostics for missing '(' in switch statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_while_empty_condition",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_while_empty_condition.c",
+        note="parser should emit diagnostics for missing while condition expression",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_switch_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_switch_missing_rparen.c",
+        note="parser should emit diagnostics for missing ')' in switch statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_if_missing_then_stmt",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_if_missing_then_stmt.c",
+        note="parser should emit diagnostics for missing then-statement in if",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_else_missing_stmt_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_else_missing_stmt_reject.c",
+        note="parser should emit diagnostics for missing statement in else",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_switch_missing_lbrace",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_switch_missing_lbrace.c",
+        note="parser should emit diagnostics for missing '{' in switch statement",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_switch_case_missing_colon",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_switch_case_missing_colon.c",
+        note="parser should emit diagnostics for missing ':' in switch case label",
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_parser_switch_default_missing_colon_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_diag_parser_switch_default_missing_colon.c",
+        note="parser should emit diagnostics for missing ':' in switch default label",
+    ),
+    DiagnosticProbe(
         probe_id="14__probe_diag_fnptr_table_incompatible_assign_reject",
         source=PROBE_DIR / "diagnostics/14__probe_diag_fnptr_table_incompatible_assign_reject.c",
         note="runtime fnptr table lane should reject too-few-arguments call through function pointer",
@@ -4270,6 +4415,151 @@ DIAG_JSON_PROBES = [
         expected_codes=(2000,),
         expected_line=8502,
         expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_if_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_if_missing_lparen.c",
+        note="diagnostics JSON should be emitted for missing '(' in if statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_while_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_while_missing_lparen.c",
+        note="diagnostics JSON should be emitted for missing '(' in while statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_do_while_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_do_while_missing_lparen.c",
+        note="diagnostics JSON should be emitted for missing '(' in do-while condition parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_for_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_for_missing_lparen.c",
+        note="diagnostics JSON should be emitted for missing '(' in for statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_if_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_if_missing_rparen.c",
+        note="diagnostics JSON should be emitted for missing ')' in if statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_while_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_while_missing_rparen.c",
+        note="diagnostics JSON should be emitted for missing ')' in while statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_do_while_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_do_while_missing_rparen.c",
+        note="diagnostics JSON should be emitted for missing ')' in do-while condition parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_for_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_for_missing_rparen.c",
+        note="diagnostics JSON should be emitted for missing ')' in for statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_for_missing_first_semicolon",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_for_missing_first_semicolon.c",
+        note="diagnostics JSON should be emitted for missing first ';' in for header",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_for_missing_second_semicolon",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_for_missing_second_semicolon.c",
+        note="diagnostics JSON should be emitted for missing second ';' in for header",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_for_missing_second_semicolon_simple",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_for_missing_second_semicolon_simple.c",
+        note="diagnostics JSON should be emitted for missing second ';' in minimal for-header form",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_if_missing_condition",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_if_missing_condition.c",
+        note="diagnostics JSON should be emitted for missing condition expression in if statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_do_while_missing_while",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_do_while_missing_while.c",
+        note="diagnostics JSON should be emitted for missing 'while' in do-while statement",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_do_while_missing_while_simple",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_do_while_missing_while_simple.c",
+        note="diagnostics JSON should be emitted for missing 'while' in minimal do-while form",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_do_while_missing_condition",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_do_while_missing_condition.c",
+        note="diagnostics JSON should be emitted for missing condition expression in do-while condition parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_do_while_missing_semicolon",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_do_while_missing_semicolon.c",
+        note="diagnostics JSON should be emitted for missing ';' after do-while condition",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_for_missing_body",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_for_missing_body.c",
+        note="diagnostics JSON should be emitted for missing for-loop body statement",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_while_missing_body",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_while_missing_body.c",
+        note="diagnostics JSON should be emitted for missing while-loop body statement",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_do_while_missing_body",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_do_while_missing_body.c",
+        note="diagnostics JSON should be emitted for missing do-while loop body statement",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_do_while_missing_body_simple",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_do_while_missing_body_simple.c",
+        note="diagnostics JSON should be emitted for minimal missing do-while loop body statement",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_switch_missing_body",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_switch_missing_body.c",
+        note="diagnostics JSON should be emitted for missing switch body statement",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_switch_missing_lparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_switch_missing_lparen.c",
+        note="diagnostics JSON should be emitted for missing '(' in switch statement",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_while_empty_condition",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_while_empty_condition.c",
+        note="diagnostics JSON should be emitted for missing while condition expression",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_switch_missing_rparen",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_switch_missing_rparen.c",
+        note="diagnostics JSON should be emitted for missing ')' in switch statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_if_missing_then_stmt",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_if_missing_then_stmt.c",
+        note="diagnostics JSON should be emitted for missing then-statement in if parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_else_missing_stmt_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_else_missing_stmt_reject.c",
+        note="diagnostics JSON should be emitted for missing statement in else parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_switch_missing_lbrace",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_switch_missing_lbrace.c",
+        note="diagnostics JSON should be emitted for missing '{' in switch statement parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_switch_case_missing_colon",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_switch_case_missing_colon.c",
+        note="diagnostics JSON should be emitted for missing ':' in switch case label parser recovery",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_parser_switch_default_missing_colon_reject",
+        source=PROBE_DIR / "diagnostics/13__probe_diagjson_parser_switch_default_missing_colon.c",
+        note="diagnostics JSON should be emitted for missing ':' in switch default label parser recovery",
     ),
     DiagnosticJsonProbe(
         probe_id="14__probe_diagjson_complex_lt_reject",

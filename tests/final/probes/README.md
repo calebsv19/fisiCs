@@ -148,6 +148,35 @@ Purpose:
   - `diagnostics/13__probe_fnptr_to_voidptr_assign_reject.c`
   - `diagnostics/13__probe_fnptr_nested_volatile_qualifier_loss_reject.c`
   - `diagnostics/13__probe_fnptr_deep_const_qualifier_loss_reject.c`
+  - `diagnostics/13__probe_diag_parser_if_missing_lparen.c`
+  - `diagnostics/13__probe_diag_parser_while_missing_lparen.c`
+  - `diagnostics/13__probe_diag_parser_do_while_missing_lparen.c`
+  - `diagnostics/13__probe_diag_parser_for_missing_lparen.c`
+  - `diagnostics/13__probe_diag_parser_if_missing_rparen.c`
+  - `diagnostics/13__probe_diag_parser_while_missing_rparen.c`
+  - `diagnostics/13__probe_diag_parser_do_while_missing_rparen.c`
+  - `diagnostics/13__probe_diag_parser_for_missing_rparen.c`
+  - `diagnostics/13__probe_diag_parser_for_missing_first_semicolon.c`
+  - `diagnostics/13__probe_diag_parser_for_missing_second_semicolon.c`
+  - `diagnostics/13__probe_diag_parser_for_missing_second_semicolon_simple.c`
+  - `diagnostics/13__probe_diag_parser_if_missing_condition.c`
+  - `diagnostics/13__probe_diag_parser_do_while_missing_while.c`
+  - `diagnostics/13__probe_diag_parser_do_while_missing_while_simple.c`
+  - `diagnostics/13__probe_diag_parser_do_while_missing_semicolon.c`
+  - `diagnostics/13__probe_diag_parser_do_while_missing_condition.c`
+  - `diagnostics/13__probe_diag_parser_for_missing_body.c`
+  - `diagnostics/13__probe_diag_parser_while_missing_body.c`
+  - `diagnostics/13__probe_diag_parser_do_while_missing_body.c`
+  - `diagnostics/13__probe_diag_parser_do_while_missing_body_simple.c`
+  - `diagnostics/13__probe_diag_parser_switch_missing_body.c`
+  - `diagnostics/13__probe_diag_parser_switch_missing_lparen.c`
+  - `diagnostics/13__probe_diag_parser_while_empty_condition.c`
+  - `diagnostics/13__probe_diag_parser_switch_missing_rparen.c`
+  - `diagnostics/13__probe_diag_parser_if_missing_then_stmt.c`
+  - `diagnostics/13__probe_diag_parser_else_missing_stmt_reject.c`
+  - `diagnostics/13__probe_diag_parser_switch_missing_lbrace.c`
+  - `diagnostics/13__probe_diag_parser_switch_case_missing_colon.c`
+  - `diagnostics/13__probe_diag_parser_switch_default_missing_colon.c`
   - Runner-only diag-json probes using the same fixtures:
     `01__probe_diagjson_line_directive_macro_line_map_strict`,
     `01__probe_diagjson_line_directive_nonvoid_return_location_reject`,
@@ -171,7 +200,36 @@ Purpose:
     `02__probe_diagjson_lexer_line_directive_unterminated_char_current_physical_line`,
     `12__probe_diagjson_while_missing_lparen`,
     `12__probe_diagjson_do_while_missing_semicolon`,
-    `12__probe_diagjson_for_header_missing_semicolon`
+    `12__probe_diagjson_for_header_missing_semicolon`,
+    `13__probe_diagjson_parser_if_missing_lparen`,
+    `13__probe_diagjson_parser_while_missing_lparen`,
+    `13__probe_diagjson_parser_do_while_missing_lparen`,
+    `13__probe_diagjson_parser_for_missing_lparen`,
+    `13__probe_diagjson_parser_if_missing_rparen`,
+    `13__probe_diagjson_parser_if_missing_condition`,
+    `13__probe_diagjson_parser_for_missing_first_semicolon`,
+    `13__probe_diagjson_parser_for_missing_second_semicolon`,
+    `13__probe_diagjson_parser_for_missing_second_semicolon_simple`,
+    `13__probe_diagjson_parser_do_while_missing_condition`,
+    `13__probe_diagjson_parser_do_while_missing_while`,
+    `13__probe_diagjson_parser_do_while_missing_while_simple`,
+    `13__probe_diagjson_parser_do_while_missing_semicolon`,
+    `13__probe_diagjson_parser_for_missing_body`,
+    `13__probe_diagjson_parser_while_missing_body`,
+    `13__probe_diagjson_parser_do_while_missing_body`,
+    `13__probe_diagjson_parser_do_while_missing_body_simple`,
+    `13__probe_diagjson_parser_switch_missing_body`,
+    `13__probe_diagjson_parser_switch_missing_lparen`,
+    `13__probe_diagjson_parser_while_empty_condition`,
+    `13__probe_diagjson_parser_while_missing_rparen`,
+    `13__probe_diagjson_parser_do_while_missing_rparen`,
+    `13__probe_diagjson_parser_for_missing_rparen`,
+    `13__probe_diagjson_parser_switch_missing_rparen`,
+    `13__probe_diagjson_parser_if_missing_then_stmt`,
+    `13__probe_diagjson_parser_else_missing_stmt_reject`,
+    `13__probe_diagjson_parser_switch_missing_lbrace`,
+    `13__probe_diagjson_parser_switch_case_missing_colon`,
+    `13__probe_diagjson_parser_switch_default_missing_colon`
 
 ## Run
 ```bash
