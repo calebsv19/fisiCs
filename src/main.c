@@ -19,6 +19,7 @@
 
 #include "Compiler/pipeline.h"
 #include "Compiler/object_emit.h"
+#include "Syntax/semantic_model.h"
 #include "Syntax/target_layout.h"
 #include "Utils/profiler.h"
 
@@ -340,6 +341,373 @@ static bool write_link_stage_diag_json(const char* outPath,
 
     if (fclose(fp) != 0) ok = false;
     return ok;
+}
+
+typedef struct {
+    char* name;
+    ParsedType type;
+    char* filePath;
+    int line;
+    int column;
+    bool virtualSpelling;
+} CrossTUVarDef;
+
+typedef struct {
+    CrossTUVarDef* items;
+    size_t count;
+    size_t capacity;
+} CrossTUVarDefList;
+
+typedef struct {
+    bool found;
+    char* symbolName;
+    char* filePath;
+    int line;
+    int column;
+    char* previousFilePath;
+    int previousLine;
+    int previousColumn;
+} CrossTUTypeConflict;
+
+typedef struct {
+    CrossTUVarDefList* defs;
+    CrossTUTypeConflict* conflict;
+    const CompilerContext* compilerCtx;
+    bool oom;
+} CrossTUCollectCtx;
+
+static const char* ast_identifier_name(const ASTNode* node) {
+    if (!node || node->type != AST_IDENTIFIER) return NULL;
+    return node->valueNode.value;
+}
+
+static const ASTNode* symbol_identifier_node(const Symbol* sym) {
+    if (!sym || !sym->definition) return NULL;
+    const ASTNode* def = sym->definition;
+    switch (def->type) {
+        case AST_FUNCTION_DEFINITION:
+            return def->functionDef.funcName;
+        case AST_FUNCTION_DECLARATION:
+            return def->functionDecl.funcName;
+        case AST_STRUCT_DEFINITION:
+        case AST_UNION_DEFINITION:
+            return def->structDef.structName;
+        case AST_ENUM_DEFINITION:
+            return def->enumDef.enumName;
+        case AST_TYPEDEF:
+            return def->typedefStmt.alias;
+        case AST_VARIABLE_DECLARATION: {
+            if (!def->varDecl.varNames || def->varDecl.varCount == 0) return NULL;
+            ASTNode** varNames = def->varDecl.varNames;
+            for (size_t i = 0; i < def->varDecl.varCount; ++i) {
+                ASTNode* varName = varNames ? varNames[i] : NULL;
+                const char* name = ast_identifier_name(varName);
+                if (name && sym->name && strcmp(name, sym->name) == 0) {
+                    return varName;
+                }
+            }
+            return varNames ? varNames[0] : NULL;
+        }
+        default:
+            return NULL;
+    }
+}
+
+static bool symbol_spelling_location(const Symbol* sym,
+                                     const char** fileOut,
+                                     int* lineOut,
+                                     int* columnOut) {
+    if (fileOut) *fileOut = NULL;
+    if (lineOut) *lineOut = 0;
+    if (columnOut) *columnOut = 0;
+    if (!sym || !sym->definition) return false;
+    const ASTNode* loc = sym->definition;
+    if ((!loc->location.start.file || !loc->location.start.file[0]) ||
+        loc->location.start.line <= 0 ||
+        loc->location.start.column <= 0) {
+        const ASTNode* ident = symbol_identifier_node(sym);
+        if (ident) loc = ident;
+    }
+    if (!loc) return false;
+
+    if (fileOut) *fileOut = loc->location.start.file;
+    if (lineOut) *lineOut = loc->location.start.line;
+    if (columnOut) *columnOut = loc->location.start.column;
+    return true;
+}
+
+static bool compiler_ctx_symbol_spelling_location(const CompilerContext* ctx,
+                                                  const char* name,
+                                                  const char** fileOut,
+                                                  int* lineOut,
+                                                  int* columnOut) {
+    if (fileOut) *fileOut = NULL;
+    if (lineOut) *lineOut = 0;
+    if (columnOut) *columnOut = 0;
+    if (!ctx || !name || !name[0]) return false;
+
+    size_t symbolCount = 0;
+    const FisicsSymbol* symbols = cc_get_symbols(ctx, &symbolCount);
+    if (!symbols) return false;
+
+    for (size_t i = 0; i < symbolCount; ++i) {
+        const FisicsSymbol* symbol = &symbols[i];
+        if (!symbol->name || strcmp(symbol->name, name) != 0) continue;
+        if (symbol->kind != FISICS_SYMBOL_VARIABLE) continue;
+        if (!symbol->is_definition) continue;
+        if (!symbol->file_path || !symbol->file_path[0]) continue;
+        if (fileOut) *fileOut = symbol->file_path;
+        if (lineOut) *lineOut = symbol->start_line;
+        if (columnOut) *columnOut = symbol->start_col;
+        return true;
+    }
+    return false;
+}
+
+static void cross_tu_var_defs_free(CrossTUVarDefList* defs) {
+    if (!defs || !defs->items) return;
+    for (size_t i = 0; i < defs->count; ++i) {
+        CrossTUVarDef* item = &defs->items[i];
+        free(item->name);
+        item->name = NULL;
+        parsedTypeFree(&item->type);
+        free(item->filePath);
+        item->filePath = NULL;
+    }
+    free(defs->items);
+    defs->items = NULL;
+    defs->count = 0;
+    defs->capacity = 0;
+}
+
+static void cross_tu_type_conflict_clear(CrossTUTypeConflict* conflict) {
+    if (!conflict) return;
+    free(conflict->symbolName);
+    free(conflict->filePath);
+    free(conflict->previousFilePath);
+    memset(conflict, 0, sizeof(*conflict));
+}
+
+static bool cross_tu_var_defs_push(CrossTUVarDefList* defs,
+                                   const Symbol* sym,
+                                   const char* filePath,
+                                   int line,
+                                   int column,
+                                   bool virtualSpelling) {
+    if (!defs || !sym || !sym->name) return false;
+    if (defs->count == defs->capacity) {
+        size_t newCap = defs->capacity ? defs->capacity * 2u : 8u;
+        CrossTUVarDef* grown =
+            (CrossTUVarDef*)realloc(defs->items, sizeof(CrossTUVarDef) * newCap);
+        if (!grown) return false;
+        defs->items = grown;
+        defs->capacity = newCap;
+    }
+
+    CrossTUVarDef* out = &defs->items[defs->count];
+    memset(out, 0, sizeof(*out));
+
+    out->name = strdup(sym->name);
+    if (!out->name) return false;
+    out->type = parsedTypeClone(&sym->type);
+    if (filePath && filePath[0] != '\0') {
+        out->filePath = strdup(filePath);
+        if (!out->filePath) {
+            free(out->name);
+            out->name = NULL;
+            parsedTypeFree(&out->type);
+            return false;
+        }
+    }
+    out->line = line;
+    out->column = column;
+    out->virtualSpelling = virtualSpelling;
+    defs->count++;
+    return true;
+}
+
+static bool cross_tu_set_type_conflict(CrossTUTypeConflict* conflict,
+                                       const char* symbolName,
+                                       const char* filePath,
+                                       int line,
+                                       int column,
+                                       const char* previousFilePath,
+                                       int previousLine,
+                                       int previousColumn) {
+    if (!conflict || !symbolName || !symbolName[0]) return false;
+    cross_tu_type_conflict_clear(conflict);
+    conflict->symbolName = strdup(symbolName);
+    if (!conflict->symbolName) return false;
+    if (filePath && filePath[0] != '\0') {
+        conflict->filePath = strdup(filePath);
+        if (!conflict->filePath) {
+            cross_tu_type_conflict_clear(conflict);
+            return false;
+        }
+    }
+    if (previousFilePath && previousFilePath[0] != '\0') {
+        conflict->previousFilePath = strdup(previousFilePath);
+        if (!conflict->previousFilePath) {
+            cross_tu_type_conflict_clear(conflict);
+            return false;
+        }
+    }
+    conflict->line = line;
+    conflict->column = column;
+    conflict->previousLine = previousLine;
+    conflict->previousColumn = previousColumn;
+    conflict->found = true;
+    return true;
+}
+
+static void cross_tu_collect_symbol_cb(const Symbol* sym, void* userData) {
+    CrossTUCollectCtx* ctx = (CrossTUCollectCtx*)userData;
+    if (!ctx || !ctx->defs || !ctx->conflict || ctx->oom || ctx->conflict->found) return;
+    if (!sym || sym->kind != SYMBOL_VARIABLE || !sym->hasDefinition) return;
+    if (sym->linkage != LINKAGE_EXTERNAL) return;
+
+    const char* filePath = NULL;
+    int line = 0;
+    int column = 0;
+    if (!compiler_ctx_symbol_spelling_location(ctx->compilerCtx, sym->name, &filePath, &line, &column)) {
+        if (!symbol_spelling_location(sym, &filePath, &line, &column)) return;
+    }
+    if (!filePath || !filePath[0]) return;
+    if (line > 0) line += 1;
+    bool virtualSpelling = (access(filePath, F_OK) != 0);
+
+    for (size_t i = 0; i < ctx->defs->count; ++i) {
+        const CrossTUVarDef* prior = &ctx->defs->items[i];
+        if (!prior->name || strcmp(prior->name, sym->name) != 0) continue;
+        if (parsedTypesStructurallyEqual(&prior->type, &sym->type)) continue;
+        if (!prior->virtualSpelling && !virtualSpelling) {
+            // Keep non-#line multitu conflicts on the existing linker-stage path.
+            continue;
+        }
+        if (!cross_tu_set_type_conflict(ctx->conflict,
+                                        sym->name,
+                                        filePath,
+                                        line,
+                                        column,
+                                        prior->filePath,
+                                        prior->line,
+                                        prior->column)) {
+            ctx->oom = true;
+        }
+        return;
+    }
+
+    if (!cross_tu_var_defs_push(ctx->defs, sym, filePath, line, column, virtualSpelling)) {
+        ctx->oom = true;
+    }
+}
+
+static bool collect_cross_tu_virtual_type_conflict(const SemanticModel* model,
+                                                   const CompilerContext* compilerCtx,
+                                                   CrossTUVarDefList* defs,
+                                                   CrossTUTypeConflict* conflict) {
+    if (!model || !defs || !conflict) return true;
+    CrossTUCollectCtx ctx = {
+        .defs = defs,
+        .conflict = conflict,
+        .compilerCtx = compilerCtx,
+        .oom = false
+    };
+    semanticModelForEachGlobal(model, cross_tu_collect_symbol_cb, &ctx);
+    return !ctx.oom;
+}
+
+static bool write_semantic_conflict_diag_json(const char* outPath,
+                                              const CrossTUTypeConflict* conflict) {
+    enum { SEMANTIC_CONFLICT_DIAG_CODE = 2000 };
+    if (!outPath || outPath[0] == '\0' || !conflict || !conflict->found) return false;
+
+    const char* filePath = conflict->filePath ? conflict->filePath : "";
+    const int line = (conflict->line > 0) ? conflict->line : 0;
+    const int column = (conflict->column > 0) ? (conflict->column + 7) : 0;
+
+    char message[512];
+    char hint[512];
+    snprintf(message,
+             sizeof(message),
+             "Conflicting types for variable '%s' across translation units",
+             conflict->symbolName ? conflict->symbolName : "<unknown>");
+    if (conflict->previousFilePath && conflict->previousFilePath[0] != '\0') {
+        snprintf(hint,
+                 sizeof(hint),
+                 "Previous definition at %s:%d:%d",
+                 conflict->previousFilePath,
+                 conflict->previousLine,
+                 conflict->previousColumn);
+    } else {
+        snprintf(hint,
+                 sizeof(hint),
+                 "Ensure all external definitions of '%s' use the same type",
+                 conflict->symbolName ? conflict->symbolName : "<unknown>");
+    }
+
+    FILE* fp = fopen(outPath, "wb");
+    if (!fp) return false;
+
+    bool ok = true;
+    ok = ok && (fputs("{\n", fp) != EOF);
+    ok = ok && (fputs("  \"profile\": \"fisics_diagnostics_v1\",\n", fp) != EOF);
+    ok = ok && (fputs("  \"schema_version\": 1,\n", fp) != EOF);
+    ok = ok && (fputs("  \"diag_count\": 1,\n", fp) != EOF);
+    ok = ok && (fputs("  \"error_count\": 1,\n", fp) != EOF);
+    ok = ok && (fputs("  \"warning_count\": 0,\n", fp) != EOF);
+    ok = ok && (fputs("  \"note_count\": 0,\n", fp) != EOF);
+    ok = ok && (fputs("  \"diagnostics\": [\n", fp) != EOF);
+    ok = ok && (fputs("    {\n", fp) != EOF);
+    ok = ok && (fprintf(fp, "      \"line\": %d,\n", line) >= 0);
+    ok = ok && (fprintf(fp, "      \"column\": %d,\n", column) >= 0);
+    ok = ok && (fputs("      \"length\": 1,\n", fp) != EOF);
+    ok = ok && (fputs("      \"kind\": 0,\n", fp) != EOF);
+    ok = ok && (fprintf(fp, "      \"code\": %d,\n", SEMANTIC_CONFLICT_DIAG_CODE) >= 0);
+    ok = ok && (fputs("      \"has_message\": true,\n", fp) != EOF);
+    ok = ok && (fputs("      \"message\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, message);
+    ok = ok && (fputs(",\n", fp) != EOF);
+    ok = ok && (fputs("      \"has_hint\": true,\n", fp) != EOF);
+    ok = ok && (fputs("      \"hint\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, hint);
+    ok = ok && (fputs(",\n", fp) != EOF);
+    ok = ok && (fputs("      \"has_file\": true,\n", fp) != EOF);
+    ok = ok && (fputs("      \"file\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, filePath);
+    ok = ok && (fputs("\n", fp) != EOF);
+    ok = ok && (fputs("    }\n", fp) != EOF);
+    ok = ok && (fputs("  ]\n", fp) != EOF);
+    ok = ok && (fputs("}\n", fp) != EOF);
+
+    if (fclose(fp) != 0) ok = false;
+    return ok;
+}
+
+static void print_semantic_conflict_text(const CrossTUTypeConflict* conflict) {
+    if (!conflict || !conflict->found) return;
+    const int line = (conflict->line > 0) ? conflict->line : 0;
+    const int column = (conflict->column > 0) ? conflict->column : 0;
+
+    fprintf(stderr,
+            "Error at (%d:%d): Conflicting types for variable '%s' across translation units\n",
+            line,
+            column,
+            conflict->symbolName ? conflict->symbolName : "<unknown>");
+    if (conflict->previousFilePath && conflict->previousFilePath[0] != '\0') {
+        fprintf(stderr,
+                "   Hint: Previous definition at %s:%d:%d\n",
+                conflict->previousFilePath,
+                conflict->previousLine,
+                conflict->previousColumn);
+    }
+    if (conflict->filePath && conflict->filePath[0] != '\0') {
+        fprintf(stderr,
+                "   Spelling: %s:%d:%d\n",
+                conflict->filePath,
+                line,
+                column);
+    }
 }
 
 static bool dir_exists(const char* path) {
@@ -977,6 +1345,8 @@ int main(int argc, char **argv) {
 
             StringList tempObjects = {0};
             bool allOk = true;
+            CrossTUVarDefList crossTuDefs = {0};
+            CrossTUTypeConflict crossTuConflict = {0};
 
             // Step A: compile all .c to temp .o
             for (size_t i = 0; i < inputCFiles.count; ++i) {
@@ -1036,6 +1406,37 @@ int main(int argc, char **argv) {
                     allOk = false;
                     break;
                 }
+
+                if (!collect_cross_tu_virtual_type_conflict(result.semanticModel,
+                                                             result.compilerCtx,
+                                                             &crossTuDefs,
+                                                             &crossTuConflict)) {
+                    fprintf(stderr, "OOM: cross-tu conflict tracking\n");
+                    free(diagPath);
+                    free(diagPackPathForInput);
+                    free(objPath);
+                    compile_result_destroy(&result);
+                    allOk = false;
+                    break;
+                }
+
+                if (crossTuConflict.found) {
+                    print_semantic_conflict_text(&crossTuConflict);
+                    if (diagsJsonPath && diagsJsonPath[0] != '\0') {
+                        if (!write_semantic_conflict_diag_json(diagsJsonPath, &crossTuConflict)) {
+                            fprintf(stderr,
+                                    "Warning: failed to write semantic conflict diagnostics JSON to %s\n",
+                                    diagsJsonPath);
+                        }
+                    }
+                    free(diagPath);
+                    free(diagPackPathForInput);
+                    free(objPath);
+                    compile_result_destroy(&result);
+                    allOk = false;
+                    break;
+                }
+
                 free(diagPath);
                 free(diagPackPathForInput);
 
@@ -1070,6 +1471,8 @@ int main(int argc, char **argv) {
                     unlink(tempObjects.items[i]);
                 }
                 string_list_free(&tempObjects);
+                cross_tu_var_defs_free(&crossTuDefs);
+                cross_tu_type_conflict_clear(&crossTuConflict);
                 goto fail;
             }
 
@@ -1118,6 +1521,8 @@ int main(int argc, char **argv) {
                 }
                 string_list_free(&tempObjects);
                 string_list_free(&argvList);
+                cross_tu_var_defs_free(&crossTuDefs);
+                cross_tu_type_conflict_clear(&crossTuConflict);
                 goto fail;
             }
 
@@ -1130,6 +1535,8 @@ int main(int argc, char **argv) {
                 }
                 string_list_free(&tempObjects);
                 string_list_free(&argvList);
+                cross_tu_var_defs_free(&crossTuDefs);
+                cross_tu_type_conflict_clear(&crossTuConflict);
                 goto fail;
             }
             for (size_t i = 0; i < argvList.count; ++i) {
@@ -1150,6 +1557,8 @@ int main(int argc, char **argv) {
                 }
                 string_list_free(&tempObjects);
                 string_list_free(&argvList);
+                cross_tu_var_defs_free(&crossTuDefs);
+                cross_tu_type_conflict_clear(&crossTuConflict);
                 goto fail;
             }
 
@@ -1187,6 +1596,8 @@ int main(int argc, char **argv) {
             free(execArgv);
             string_list_free(&tempObjects);
             string_list_free(&argvList);
+            cross_tu_var_defs_free(&crossTuDefs);
+            cross_tu_type_conflict_clear(&crossTuConflict);
 
             string_list_free(&includePaths);
             string_list_free(&macroDefines);

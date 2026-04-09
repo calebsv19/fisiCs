@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (7202:12): Conflicting linkage for variable
+   Hint: linkage_es_diag
+   Spelling: virtual_scope_extern_static_mismatch_diag_text_strict.c:7202:12

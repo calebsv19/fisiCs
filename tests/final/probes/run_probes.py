@@ -2699,6 +2699,120 @@ DIAG_PROBES = [
         ),
     ),
     DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_extern_static_mismatch_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_static_mismatch_spelling_strict.c",
+        note="text diagnostics should preserve remapped spelling for extern/static linkage conflict under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_extern_static_mismatch_probe_diag_text.c:7202:12",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_tentative_static_conflict_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_tentative_static_conflict_spelling_strict.c",
+        note="text diagnostics should preserve remapped spelling for tentative/static linkage conflict under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_tentative_static_conflict_probe_diag_text.c:7302:12",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_include_extern_static_mismatch_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_include_extern_static_mismatch_spelling_strict.c",
+        note="text diagnostics should preserve remapped spelling for include-header extern/static linkage conflict under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_include_extern_static_mismatch_probe_diag_text.h:7402:12",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_include_tentative_static_conflict_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_include_tentative_static_conflict_spelling_strict.c",
+        note="text diagnostics should preserve remapped spelling for include-header tentative/static linkage conflict under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_include_tentative_static_conflict_probe_diag_text.h:7502:12",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_block_extern_different_type_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_block_extern_different_type_spelling_strict.c",
+        note="text diagnostics should preserve remapped spelling for block-scope extern type-conflict under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_block_extern_type_conflict_probe_diag_text.c:8204:18",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_include_block_extern_different_type_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_include_block_extern_different_type_spelling_strict.c",
+        note="text diagnostics should preserve remapped spelling for include-header block-scope extern type-conflict under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_include_block_extern_type_conflict_probe_diag_text.h:8304:18",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_lib.c",
+        ),
+        note="strict frontier: multi-TU extern type-conflict should preserve source spelling under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_multitu_extern_type_conflict_probe_lib_diag_text.c:9902:7",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_multitu_extern_type_conflict_current_linkstage_pass",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_lib.c",
+        ),
+        note="regression guard: multi-TU extern type-conflict should keep semantic spelling under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_multitu_extern_type_conflict_probe_lib_diag_text.c:9902:7",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_lib.c",
+        ),
+        note="strict frontier: multi-TU include extern type-conflict should preserve source spelling under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_multitu_include_extern_type_conflict_probe_header_diag_text.h:10002:7",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_multitu_include_extern_type_conflict_current_linkstage_pass",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_lib.c",
+        ),
+        note="regression guard: multi-TU include extern type-conflict should keep semantic spelling under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_multitu_include_extern_type_conflict_probe_header_diag_text.h:10002:7",
+        ),
+    ),
+    DiagnosticProbe(
         probe_id="11__probe_duplicate_param_name_reject",
         source=PROBE_DIR / "diagnostics/11__probe_duplicate_param_name_reject.c",
         note="duplicate parameter names in one function declarator should be rejected",
@@ -4351,6 +4465,130 @@ DIAG_JSON_PROBES = [
         expected_codes=(2000,),
         expected_line=6302,
         expected_column=7,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_extern_static_mismatch_rich_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_extern_static_mismatch_rich_strict.c",
+        note="frontier lane: extern/static linkage-conflict diagnostics JSON should carry remapped line/file/hint under #line",
+        expected_codes=(2000,),
+        expected_line=6802,
+        expected_column=12,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_tentative_static_conflict_rich_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_tentative_static_conflict_rich_strict.c",
+        note="frontier lane: tentative/static linkage-conflict diagnostics JSON should carry remapped line/file/hint under #line",
+        expected_codes=(2000,),
+        expected_line=6902,
+        expected_column=12,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_include_extern_static_mismatch_rich_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_include_extern_static_mismatch_rich_strict.c",
+        note="frontier lane: include-header extern/static linkage-conflict diagnostics JSON should carry remapped line/file/hint under #line",
+        expected_codes=(2000,),
+        expected_line=7002,
+        expected_column=12,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_include_tentative_static_conflict_rich_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_include_tentative_static_conflict_rich_strict.c",
+        note="frontier lane: include-header tentative/static linkage-conflict diagnostics JSON should carry remapped line/file/hint under #line",
+        expected_codes=(2000,),
+        expected_line=7102,
+        expected_column=12,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_block_extern_different_type_rich_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_block_extern_different_type_rich_strict.c",
+        note="frontier lane: block-scope extern type-conflict diagnostics JSON should carry remapped line/file/hint under #line",
+        expected_codes=(2000,),
+        expected_line=7804,
+        expected_column=18,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_include_block_extern_different_type_rich_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_include_block_extern_different_type_rich_strict.c",
+        note="frontier lane: include-header block-scope extern type-conflict diagnostics JSON should carry remapped line/file/hint under #line",
+        expected_codes=(2000,),
+        expected_line=7904,
+        expected_column=18,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_lib.c",
+        ),
+        note="frontier lane: multi-TU extern type-conflict diagnostics JSON should preserve remapped location richness under #line",
+        expected_codes=(2000,),
+        expected_line=9502,
+        expected_column=14,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_multitu_extern_type_conflict_current_linkstage_pass",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_lib.c",
+        ),
+        note="regression guard: multi-TU extern type-conflict should keep semantic remapped location richness under #line",
+        expected_codes=(2000,),
+        expected_line=9502,
+        expected_column=14,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_lib.c",
+        ),
+        note="frontier lane: multi-TU include extern type-conflict diagnostics JSON should preserve remapped location richness under #line",
+        expected_codes=(2000,),
+        expected_line=9602,
+        expected_column=14,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_current_linkstage_pass",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_lib.c",
+        ),
+        note="regression guard: multi-TU include extern type-conflict should keep semantic remapped location richness under #line",
+        expected_codes=(2000,),
+        expected_line=9602,
+        expected_column=14,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(

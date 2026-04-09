@@ -1,0 +1,23 @@
+{
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "code": 2000,
+      "column": 14,
+      "file": "virtual_scope_multitu_extern_type_conflict_lib_diagjson_strict.c",
+      "has_file": true,
+      "has_hint": true,
+      "has_message": true,
+      "hint": "Previous definition at virtual_scope_multitu_extern_type_conflict_main_diagjson_strict.c:9002:5",
+      "kind": 0,
+      "length": 1,
+      "line": 9102,
+      "message": "Conflicting types for variable 'wave9_mt_shared' across translation units"
+    }
+  ],
+  "error_count": 1,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

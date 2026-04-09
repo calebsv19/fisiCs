@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (7302:12): Conflicting linkage for variable
+   Hint: linkage_ts_diag
+   Spelling: virtual_scope_tentative_static_conflict_diag_text_strict.c:7302:12

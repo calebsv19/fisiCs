@@ -128,6 +128,28 @@ Purpose:
   - `diagnostics/09__probe_for_missing_first_semicolon_reject.c`
   - `diagnostics/09__probe_goto_undefined_label_nested_reject.c`
   - `diagnostics/10__probe_block_extern_different_type_reject.c`
+  - `diagnostics/10__probe_diagjson_line_directive_extern_static_mismatch_rich_strict.c`
+  - `diagnostics/10__probe_diagjson_line_directive_tentative_static_conflict_rich_strict.c`
+  - `diagnostics/10__probe_diagjson_line_directive_include_extern_static_mismatch_rich_strict.c`
+  - `diagnostics/10__probe_diagjson_line_directive_include_tentative_static_conflict_rich_strict.c`
+  - `diagnostics/10__probe_diagjson_line_directive_block_extern_different_type_rich_strict.c`
+  - `diagnostics/10__probe_diagjson_line_directive_include_block_extern_different_type_rich_strict.c`
+  - `diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c`
+  - `diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_lib.c`
+  - `diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c`
+  - `diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_lib.c`
+  - `diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict.h`
+  - `diagnostics/10__probe_diag_line_directive_extern_static_mismatch_spelling_strict.c`
+  - `diagnostics/10__probe_diag_line_directive_tentative_static_conflict_spelling_strict.c`
+  - `diagnostics/10__probe_diag_line_directive_include_extern_static_mismatch_spelling_strict.c`
+  - `diagnostics/10__probe_diag_line_directive_include_tentative_static_conflict_spelling_strict.c`
+  - `diagnostics/10__probe_diag_line_directive_block_extern_different_type_spelling_strict.c`
+  - `diagnostics/10__probe_diag_line_directive_include_block_extern_different_type_spelling_strict.c`
+  - `diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c`
+  - `diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_lib.c`
+  - `diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c`
+  - `diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_lib.c`
+  - `diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict.h`
   - `diagnostics/11__probe_duplicate_param_name_reject.c`
   - `diagnostics/11__probe_param_auto_reject.c`
   - `diagnostics/11__probe_param_void_plus_other_reject.c`

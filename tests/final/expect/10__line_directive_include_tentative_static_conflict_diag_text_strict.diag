@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (7502:12): Conflicting linkage for variable
+   Hint: linkage_inc_ts_diag
+   Spelling: virtual_scope_include_tentative_static_conflict_diag_text_strict.h:7502:12

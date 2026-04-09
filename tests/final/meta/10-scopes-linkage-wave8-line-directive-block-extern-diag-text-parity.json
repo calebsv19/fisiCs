@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_block_extern_different_type_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_block_extern_different_type_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_block_extern_different_type_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "block",
+        "extern",
+        "type-mismatch",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_block_extern_different_type_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_block_extern_different_type_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_block_extern_different_type_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "include",
+        "block",
+        "extern",
+        "type-mismatch",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

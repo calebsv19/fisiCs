@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_extern_static_mismatch_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_static_mismatch_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_extern_static_mismatch_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "linkage",
+        "extern-static",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_tentative_static_conflict_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_tentative_static_conflict_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_tentative_static_conflict_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "linkage",
+        "tentative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_extern_static_mismatch_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_extern_static_mismatch_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_extern_static_mismatch_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "include",
+        "linkage",
+        "extern-static",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_tentative_static_conflict_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_tentative_static_conflict_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_tentative_static_conflict_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "include",
+        "linkage",
+        "tentative",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

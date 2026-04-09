@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_multitu_extern_type_conflict_diag_text_current_linkstage",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_extern_type_conflict_diagjson_strict_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_extern_type_conflict_diagjson_strict_main.c",
+        "cases/10__line_directive_multitu_extern_type_conflict_diagjson_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave10-multitu-linkage-text.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_extern_type_conflict_diag_text_current_linkstage.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "extern",
+        "type-mismatch",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_include_extern_type_conflict_diag_text_current_linkstage",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_include_extern_type_conflict_diagjson_strict_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_include_extern_type_conflict_diagjson_strict_main.c",
+        "cases/10__line_directive_multitu_include_extern_type_conflict_diagjson_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave10-multitu-linkage-text.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_include_extern_type_conflict_diag_text_current_linkstage.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "include",
+        "extern",
+        "type-mismatch",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

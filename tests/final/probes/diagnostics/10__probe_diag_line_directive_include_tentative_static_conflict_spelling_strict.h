@@ -1,0 +1,3 @@
+#line 7501 "virtual_scope_include_tentative_static_conflict_probe_diag_text.h"
+int linkage_inc_ts_probe_diag;
+static int linkage_inc_ts_probe_diag;

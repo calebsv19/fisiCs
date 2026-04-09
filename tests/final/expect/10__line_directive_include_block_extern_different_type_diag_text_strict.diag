@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (8104:18): Conflicting types for variable
+   Hint: shared_block_inc_diag
+   Spelling: virtual_scope_include_block_extern_type_conflict_diag_text_strict.h:8104:18

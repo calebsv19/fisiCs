@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (9102:7): Conflicting types for variable 'wave9_mt_shared' across translation units
