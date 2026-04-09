@@ -1,0 +1,21 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_rewrite_surface_reject.c:22 (got '}')
+Error: Expected expression after '=' in struct initializer at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_rewrite_surface_reject.c:22 (got '}')
+Error: Failed to parse nested initializer list at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_rewrite_surface_reject.c:22 (got '}')
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_rewrite_surface_reject.c:22 (got '}')
+Error: invalid statement at line 22 (token=})
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_rewrite_surface_reject.c:23 (got '}')
+Error: invalid statement at line 23 (token=})
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_rewrite_surface_reject.c:23 (got ',')
+Error: invalid statement at line 23 (token=,)
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_rewrite_surface_reject.c:26 (got '}')
+Error: invalid statement at line 26 (token=})
+Error: Invalid compound initializer after [index] = at line 22
+Error: Invalid compound initializer after [index] = at line 22
+Error: Failed to parse expression at line 22
+Error: Failed to parse expression at line 23
+Error: Failed to parse expression at line 23
+Error: Failed to parse expression at line 26
+Error at (29:12): Undeclared identifier
+   Hint: g_nodes
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_rewrite_surface_reject.c:29:12

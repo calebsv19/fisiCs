@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__macro_fold_dispatch_matrix_b",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__macro_fold_dispatch_matrix_b.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__macro_fold_dispatch_matrix_b.stdout",
+      "expected_stderr": "expect/15__torture__macro_fold_dispatch_matrix_b.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "dispatch",
+        "macro",
+        "control-flow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__switch_dispatch_table_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__switch_dispatch_table_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__switch_dispatch_table_matrix.stdout",
+      "expected_stderr": "expect/15__torture__switch_dispatch_table_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "switch",
+        "dispatch",
+        "table"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__malformed_macro_arity_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diag__malformed_macro_arity_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_macro_arity_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "preprocessor",
+        "diag",
+        "macro-arity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_ternary_macro_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diagjson__malformed_ternary_macro_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_ternary_macro_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "preprocessor",
+        "diagjson",
+        "macro-expression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

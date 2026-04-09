@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (5:12): Undeclared identifier
+   Hint: CASE_GUARD_COLLIDE_CHAIN
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_include_graph_guard_collision_no_crash.c:5:12

@@ -1,0 +1,13 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_shape_reject.c:15 (got '}')
+Error: Expected expression after '=' in struct initializer at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_shape_reject.c:15 (got '}')
+Error: Failed to parse nested initializer list at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_shape_reject.c:15 (got '}')
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_shape_reject.c:15 (got '}')
+Error: invalid statement at line 15 (token=})
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_shape_reject.c:16 (got '}')
+Error: invalid statement at line 16 (token=})
+Error: Failed to parse expression at line 15
+Error: Failed to parse expression at line 16
+Error at (19:12): Undeclared identifier
+   Hint: g_cfg
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_initializer_shape_reject.c:19:12

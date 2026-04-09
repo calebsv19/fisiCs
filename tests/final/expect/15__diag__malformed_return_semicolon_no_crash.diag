@@ -1,0 +1,6 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diag__malformed_return_semicolon_no_crash.c:3 (got 'return')
+Error: Failed to parse expression at line 3
+Error: invalid statement inside block at line 3
+Error at (1:5): Control reaches end of non-void function 'main'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diag__malformed_return_semicolon_no_crash.c:1:5

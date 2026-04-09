@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_macro_cycle_chain_no_crash_b.h:5:24: error: macro 'NEED2' requires 2 argument(s), got 1
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_macro_cycle_chain_no_crash_b.h:5:24: error: macro 'NEED2' requires 2 argument(s), got 1
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_macro_cycle_chain_no_crash_b.h:5:24: error: macro 'NEED2' requires 2 argument(s), got 1

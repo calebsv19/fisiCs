@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__malformed_unbalanced_block_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_unbalanced_block_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_unbalanced_block_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "parser",
+        "unbalanced-block"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__malformed_unclosed_comment_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_unclosed_comment_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_unclosed_comment_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "lexer",
+        "comment"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_bad_escape_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_bad_escape_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_bad_escape_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "lexer",
+        "diagjson",
+        "bad-escape"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_pp_directive_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_pp_directive_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_pp_directive_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "preprocessor",
+        "diagjson",
+        "directive"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_unterminated_string_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_unterminated_string_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_unterminated_string_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "lexer",
+        "diagjson",
+        "unterminated-string"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

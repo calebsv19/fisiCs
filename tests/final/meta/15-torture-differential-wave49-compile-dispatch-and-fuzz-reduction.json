@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__switch_funnel_dispatch_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__switch_funnel_dispatch_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__switch_funnel_dispatch_matrix.stdout",
+      "expected_stderr": "expect/15__torture__switch_funnel_dispatch_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "control-flow",
+        "dispatch",
+        "state-machine"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__macro_dispatch_fold_matrix",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__macro_dispatch_fold_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__macro_dispatch_fold_matrix.stdout",
+      "expected_stderr": "expect/15__torture__macro_dispatch_fold_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "macro",
+        "dispatch",
+        "bitwise"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__malformed_return_semicolon_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diag__malformed_return_semicolon_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_return_semicolon_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "parser"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_pp_if_chain_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diagjson__malformed_pp_if_chain_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_pp_if_chain_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "preprocessor",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

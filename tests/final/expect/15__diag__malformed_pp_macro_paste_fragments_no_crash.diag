@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c:1:9: error: GNU ', ##__VA_ARGS__' extension is not supported
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c:1:9: error: GNU ', ##__VA_ARGS__' extension is not supported

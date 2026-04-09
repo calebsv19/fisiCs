@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_pinned_macro_include_chain_reject_b.h:4:9: error: invalid parameter list in #define PINNED_MACRO_CHAIN_STEP
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_pinned_macro_include_chain_reject_b.h:4:9: error: invalid parameter list in #define PINNED_MACRO_CHAIN_STEP

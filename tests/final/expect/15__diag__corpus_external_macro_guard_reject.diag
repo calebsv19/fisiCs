@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_macro_guard_reject.c:2:9: error: invalid parameter list in #define EXT_FRAGMENT_CONFIG_H
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_macro_guard_reject.c:2:9: error: invalid parameter list in #define EXT_FRAGMENT_CONFIG_H

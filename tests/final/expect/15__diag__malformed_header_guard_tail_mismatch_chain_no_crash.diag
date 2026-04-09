@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_guard_tail_mismatch_chain_no_crash_b.h:4:10: error: detected recursive include of '/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_guard_tail_mismatch_chain_no_crash_a.h'
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_guard_tail_mismatch_chain_no_crash_b.h:4:10: error: detected recursive include of '/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_guard_tail_mismatch_chain_no_crash_a.h'

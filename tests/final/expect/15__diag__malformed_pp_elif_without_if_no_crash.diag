@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diag__malformed_pp_elif_without_if_no_crash.c:1:1: error: #elif without matching #if
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diag__malformed_pp_elif_without_if_no_crash.c:1:1: error: #elif without matching #if

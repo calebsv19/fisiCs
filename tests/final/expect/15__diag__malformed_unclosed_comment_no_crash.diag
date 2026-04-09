@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Unterminated block comment at tests/final/cases/15__torture__malformed_unclosed_comment_no_crash.c:3:5 (got '/*')

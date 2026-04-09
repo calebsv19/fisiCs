@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid \x escape in character literal at tests/final/cases/15__torture__malformed_char_invalid_hex_escape_no_crash.c:2:13 (got '\x')

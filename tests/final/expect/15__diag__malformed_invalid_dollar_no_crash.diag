@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid character in source at tests/final/cases/15__torture__malformed_invalid_dollar_no_crash.c:3:11 (got '$')

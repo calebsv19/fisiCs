@@ -1,0 +1,3 @@
+Diagnostics:
+Error: Expected identifier in declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_pinned_typedef_decl_cycle_reject.h:15 (got ';')
+Error: Invalid typedef declarator at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_pinned_typedef_decl_cycle_reject.h:15 (got ';')

@@ -1,0 +1,4 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_token_stream_seeded_b_no_crash.c:3 (got ')')
+Error: expected ';' after expression at line 3
+Error: invalid statement inside block at line 3

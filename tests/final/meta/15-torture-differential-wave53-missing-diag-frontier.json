@@ -1,0 +1,275 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__corpus_external_include_guard_mismatch_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_include_guard_mismatch_reject.c",
+      "expects": [
+        "expect/15__diag__corpus_external_include_guard_mismatch_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "preprocessor",
+        "include-guard",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__corpus_external_macro_guard_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_macro_guard_reject.c",
+      "expects": [
+        "expect/15__diag__corpus_external_macro_guard_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "preprocessor",
+        "macro-guard",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__corpus_pinned_macro_include_chain_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_macro_include_chain_reject.c",
+      "expects": [
+        "expect/15__diag__corpus_pinned_macro_include_chain_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "pinned",
+        "preprocessor",
+        "macro-chain",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__corpus_pinned_typedef_decl_cycle_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_pinned_typedef_decl_cycle_reject.c",
+      "expects": [
+        "expect/15__diag__corpus_pinned_typedef_decl_cycle_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "pinned",
+        "typedef-decl-cycle",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__fuzz_seeded_malformed_volume_replay_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__fuzz_seeded_malformed_volume_replay_no_crash.c",
+      "expects": [
+        "expect/15__diag__fuzz_seeded_malformed_volume_replay_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "fuzz-volume",
+        "seeded",
+        "replay",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__malformed_header_macro_cycle_chain_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_header_macro_cycle_chain_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_header_macro_cycle_chain_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "multifile",
+        "diag",
+        "header-macro-cycle"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__malformed_pp_unterminated_if_chain_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__malformed_pp_unterminated_if_chain_no_crash.c",
+      "expects": [
+        "expect/15__diag__malformed_pp_unterminated_if_chain_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "preprocessor",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__multitu_duplicate_function_definition_reject",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_duplicate_function_definition_reject_main.c",
+        "cases/15__torture__multitu_duplicate_function_definition_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__multitu_duplicate_function_definition_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "link",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__multitu_duplicate_symbol_reject",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_duplicate_symbol_reject_main.c",
+        "cases/15__torture__multitu_duplicate_symbol_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__multitu_duplicate_symbol_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "linkage",
+        "duplicate-symbol",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__multitu_symbol_type_conflict_reject",
+      "bucket": "torture-differential",
+      "inputs": [
+        "cases/15__torture__multitu_symbol_type_conflict_reject_main.c",
+        "cases/15__torture__multitu_symbol_type_conflict_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__multitu_symbol_type_conflict_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "multitu",
+        "link",
+        "type-conflict",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__pathological_initializer_rewrite_surface_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__pathological_initializer_rewrite_surface_reject.c",
+      "expects": [
+        "expect/15__diag__pathological_initializer_rewrite_surface_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "compile-surface",
+        "initializer",
+        "rewrite",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__pathological_initializer_shape_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__pathological_initializer_shape_reject.c",
+      "expects": [
+        "expect/15__diag__pathological_initializer_shape_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "compile-surface",
+        "initializer",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__pathological_switch_case_surface_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__pathological_switch_case_surface_reject.c",
+      "expects": [
+        "expect/15__diag__pathological_switch_case_surface_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "compile-surface",
+        "switch",
+        "case",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
