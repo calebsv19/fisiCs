@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_linkorder_seed_fold_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_linkorder_seed_fold_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_linkorder_seed_fold_bridge_main.c",
+        "cases/14__runtime_multitu_linkorder_seed_fold_bridge_liba.c",
+        "cases/14__runtime_multitu_linkorder_seed_fold_bridge_libb.c"
+      ],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_linkorder_seed_fold_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_linkorder_seed_fold_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "determinism", "link-order", "static-init", "differential"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_static_init_linkorder_trace_bridge",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_static_init_linkorder_trace_bridge_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_static_init_linkorder_trace_bridge_main.c",
+        "cases/14__runtime_multitu_static_init_linkorder_trace_bridge_liba.c",
+        "cases/14__runtime_multitu_static_init_linkorder_trace_bridge_libb.c"
+      ],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_static_init_linkorder_trace_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_static_init_linkorder_trace_bridge.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "static-init", "link-order", "trace", "differential"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
