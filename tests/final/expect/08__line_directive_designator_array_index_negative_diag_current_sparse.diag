@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (4901:30): Array 'arr_negative_text' designator index -1 is negative
+   Spelling: virtual_init_designator_array_negative_diag_text_case.c:4901:30

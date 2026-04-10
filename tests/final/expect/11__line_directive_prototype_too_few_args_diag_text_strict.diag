@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (8906:12): Too few arguments in call to 'add2_text' (expected 2, got 1)
+   Spelling: virtual_fn_too_few_args_diag_text_strict.c:8906:12

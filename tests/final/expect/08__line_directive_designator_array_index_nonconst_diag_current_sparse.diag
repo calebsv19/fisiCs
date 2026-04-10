@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (4802:30): Array 'arr_nonconst_text' designator index must be a constant expression
+   Spelling: virtual_init_designator_array_nonconst_diag_text_case.c:4802:30

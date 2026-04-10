@@ -7,10 +7,12 @@ The current priority is compiler correctness, stability, and reproducible behavi
 ## Current Status
 
 - Active development; not yet a finished production compiler.
-- Core compiler test suite: `make final` (recent local snapshot: `0 failing, 36 skipped`)
+- Core compiler test suite entrypoint: `make final` (manifest/source-of-truth lives under `tests/final/meta/`, indexed by `tests/final/meta/index.json`).
 - Bucketed compiler coverage: lexer, preprocessor, parser, semantics, codegen, runtime, torture/differential
+- Recent stabilization work landed for bucket `10` multitu linkage lanes and bucket `13`/`14` probe+fix lanes, with bucket `15` probe deepening active.
 - Binary validation lane: active and expanded (SDL, ABI, linkage, stdio, math, corpus, clang differential)
 - External validation milestones: `datalab` and `line_drawing` successfully compiled and run
+- Shared subtree adoption is active via `third_party/codework_shared/` with corresponding build/CI lane alignment.
 - `clang` remains a baseline reference compiler while `fisiCs` continues hardening.
 
 ## Build
@@ -85,6 +87,9 @@ Primary entrypoints:
 # compiler suite
 make test
 make final
+
+# focused probe lane (outside make final)
+python3 tests/final/probes/run_probes.py
 
 # binary lanes
 make test-binary

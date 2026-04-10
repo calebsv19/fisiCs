@@ -1,0 +1,2 @@
+#include "08__probe_diag_line_directive_include_designator_array_index_nonconst_spelling_strict.h"
+int main(void) { return probe_diag_text_include_designator_array_nonconst(); }

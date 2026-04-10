@@ -1057,7 +1057,10 @@ static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* 
              index + 1,
              fallbackFunctionName(calleeName),
              message);
-    addError(argNode ? argNode->line : 0, 0, buffer, NULL);
+    SourceRange loc = argNode ? argNode->location : (SourceRange){0};
+    SourceRange callSite = argNode ? argNode->macroCallSite : (SourceRange){0};
+    SourceRange macroDef = argNode ? argNode->macroDefinition : (SourceRange){0};
+    addErrorWithRanges(loc, callSite, macroDef, buffer, NULL);
 }
 
 static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {

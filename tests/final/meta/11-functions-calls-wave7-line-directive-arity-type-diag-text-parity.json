@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_prototype_too_few_args_diag_text_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_prototype_too_few_args_diag_text_strict.c",
+      "expects": [
+        "expect/11__line_directive_prototype_too_few_args_diag_text_strict.diag"
+      ],
+      "tags": ["line-directive", "diag", "prototype", "args", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_prototype_too_few_args_diag_text_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_prototype_too_few_args_diag_text_strict.c",
+      "expects": [
+        "expect/11__line_directive_include_prototype_too_few_args_diag_text_strict.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "prototype", "args", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_argument_type_mismatch_diag_text_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_argument_type_mismatch_diag_text_strict.c",
+      "expects": [
+        "expect/11__line_directive_argument_type_mismatch_diag_text_strict.diag"
+      ],
+      "tags": ["line-directive", "diag", "argument", "type", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_argument_type_mismatch_diag_text_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_argument_type_mismatch_diag_text_strict.c",
+      "expects": [
+        "expect/11__line_directive_include_argument_type_mismatch_diag_text_strict.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "argument", "type", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

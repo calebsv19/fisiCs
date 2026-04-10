@@ -12,6 +12,9 @@ Purpose:
 - `diagnostics/`: diagnostics/constraint repros.
 - `run_probes.py`: runs all probes and prints current status.
 
+The authoritative probe inventory is the on-disk fixture set discovered by `run_probes.py`.
+The explicit lists below are maintained as high-signal anchors and may lag brief in-flight additions.
+
 ## Current Focus Probes
 - Runtime:
   - `runtime/04__probe_fnptr_array_call_runtime.c`

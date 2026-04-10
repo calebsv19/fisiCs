@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (9106:27): Argument 1 of 'takes_ptr_text' has incompatible type
+   Spelling: virtual_fn_argument_type_mismatch_diag_text_strict.c:9106:27

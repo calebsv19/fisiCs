@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__line_directive_designator_array_index_nonconst_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_designator_array_index_nonconst_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_designator_array_index_nonconst_diagjson_current_sparse.diagjson"
+      ],
+      "tags": ["initializer", "designator", "array", "negative", "line-directive", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__line_directive_designator_array_index_negative_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_designator_array_index_negative_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_designator_array_index_negative_diagjson_current_sparse.diagjson"
+      ],
+      "tags": ["initializer", "designator", "array", "negative", "line-directive", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__line_directive_include_designator_array_index_nonconst_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_include_designator_array_index_nonconst_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_include_designator_array_index_nonconst_diagjson_current_sparse.diagjson"
+      ],
+      "tags": ["initializer", "designator", "array", "negative", "include", "line-directive", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__line_directive_include_designator_array_index_negative_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_include_designator_array_index_negative_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_include_designator_array_index_negative_diagjson_current_sparse.diagjson"
+      ],
+      "tags": ["initializer", "designator", "array", "negative", "include", "line-directive", "diagjson"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

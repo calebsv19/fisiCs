@@ -21,6 +21,10 @@ It is intentionally focused on stable user/contributor references.
 - `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.4.0`)
 - `cli_release_workflow.md`: CLI release packaging/sign/notarize flow for macOS artifacts
 
+Additional public testing references live outside `docs/` under `tests/final/`:
+- bucket scope references (for example `tests/final/11-functions-calls.md`, `tests/final/12-diagnostics-recovery.md`)
+- probe lane references (`tests/final/probes/README.md`, `tests/final/probes/run_probes.py`)
+
 ## Private Docs Boundary
 
 Internal bucket-level run logs, triage plans, external gap reports, and raw status logs are intentionally kept in private maintainer documentation outside this public docs lane.

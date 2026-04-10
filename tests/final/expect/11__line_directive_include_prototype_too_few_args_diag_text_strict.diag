@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (9002:34): Too few arguments in call to 'add2_inc_text' (expected 2, got 1)
+   Spelling: virtual_fn_include_too_few_args_diag_text_strict.h:9002:34

@@ -596,7 +596,11 @@ static void analyzeStatementInternal(ASTNode* node,
                 retVal = decayToRValue(retVal);
                 if (scope && scope->hasReturnType) {
                     if (scope->returnType.category == TYPEINFO_VOID) {
-                        addError(node->line, 0, "Void function should not return a value", NULL);
+                        addErrorWithRanges(node->location,
+                                           node->macroCallSite,
+                                           node->macroDefinition,
+                                           "Void function should not return a value",
+                                           NULL);
                     } else if (retVal.category != TYPEINFO_INVALID) {
                         AssignmentCheckResult res = canAssignTypes(&scope->returnType, &retVal);
                         if (res == ASSIGN_INCOMPATIBLE) {
@@ -606,10 +610,18 @@ static void analyzeStatementInternal(ASTNode* node,
                                                        scope->returnType.isFunction ||
                                                        scope->returnType.pointerDepth > 0);
                             if (!allowFunctionDecay) {
-                                addError(node->line, 0, "Incompatible return type", NULL);
+                                addErrorWithRanges(node->location,
+                                                   node->macroCallSite,
+                                                   node->macroDefinition,
+                                                   "Incompatible return type",
+                                                   NULL);
                             }
                         } else if (res == ASSIGN_QUALIFIER_LOSS) {
-                            addError(node->line, 0, "Return discards qualifiers from pointer target", NULL);
+                            addErrorWithRanges(node->location,
+                                               node->macroCallSite,
+                                               node->macroDefinition,
+                                               "Return discards qualifiers from pointer target",
+                                               NULL);
                         }
                     }
                 }

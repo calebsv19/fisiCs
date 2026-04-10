@@ -1,3 +1,5 @@
 Diagnostics:
-Error at (2:0): Incompatible return type
-Error at (3:0): Incompatible return type
+Error at (2:23): Incompatible return type
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/11__return_type_mismatch.c:2:23
+Error at (3:23): Incompatible return type
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/11__return_type_mismatch.c:3:23
