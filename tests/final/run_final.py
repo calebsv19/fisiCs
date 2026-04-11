@@ -100,6 +100,8 @@ def run_cmd(cmd, env=None):
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         env=env,
     )
     return proc.returncode, proc.stdout
@@ -112,6 +114,8 @@ def run_program(cmd, env=None, stdin_text=None):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         env=env,
     )
     return proc.returncode, proc.stdout, proc.stderr
