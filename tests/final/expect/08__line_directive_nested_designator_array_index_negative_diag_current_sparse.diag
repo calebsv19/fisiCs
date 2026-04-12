@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6602:43): Array 'grid_nested_negative' designator index -1 is negative
+   Spelling: virtual_init_nested_designator_array_negative_case.c:6602:43

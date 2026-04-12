@@ -1,2 +1,4 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error at (2:12): Conflicting types for variable
+   Hint: arr
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/10__extern_array_mismatch.c:2:12

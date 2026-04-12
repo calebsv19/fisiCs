@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (3:12): Conflicting types for variable
+   Hint: arr_first_decl_diag
+   Spelling: 10__line_directive_extern_array_mismatch_first_decl_line_diag_current_nodiag.c:3:12

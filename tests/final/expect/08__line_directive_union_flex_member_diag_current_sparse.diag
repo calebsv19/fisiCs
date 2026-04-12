@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (0:0): Flexible array members are not allowed in unions
+Error at (6102:9): Flexible array members are not allowed in unions
    Hint: data
+   Spelling: virtual_init_union_flex_member_diag_text_case.c:6102:9

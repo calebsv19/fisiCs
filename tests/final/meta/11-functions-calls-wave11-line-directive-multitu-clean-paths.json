@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_multitu_prototype_match_diag_text_clean",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_prototype_match_diag_text_clean_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_prototype_match_diag_text_clean_main.c",
+        "cases/11__line_directive_multitu_prototype_match_diag_text_clean_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave11-multitu-prototype-clean.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_prototype_match_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "multitu", "prototype", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_prototype_match_diag_text_clean",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_include_prototype_match_diag_text_clean_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_include_prototype_match_diag_text_clean_main.c",
+        "cases/11__line_directive_multitu_include_prototype_match_diag_text_clean_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave11-multitu-include-prototype-clean.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_include_prototype_match_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "multitu", "include", "prototype", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

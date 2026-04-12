@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_cycle_three_hop_reject_diag",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle_three_hop_reject.c",
+      "expects": [
+        "expect/03__include_cycle_three_hop_reject_diag.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-graph",
+        "recursion",
+        "diag"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_cycle_three_hop_reject_diagjson",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle_three_hop_reject.c",
+      "expects": [
+        "expect/03__include_cycle_three_hop_reject_diagjson.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-graph",
+        "recursion",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_cycle_three_hop_pragma_once_clean_diag",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle_three_hop_pragma_once_clean.c",
+      "expects": [
+        "expect/03__include_cycle_three_hop_pragma_once_clean_diag.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-graph",
+        "pragma-once",
+        "clean-path"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

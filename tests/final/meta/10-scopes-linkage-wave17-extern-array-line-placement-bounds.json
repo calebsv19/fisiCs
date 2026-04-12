@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_extern_array_mismatch_first_decl_line_diag_text_current_nodiag",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_mismatch_first_decl_line_diag_current_nodiag.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_mismatch_first_decl_line_diag_text_current_nodiag.diag"
+      ],
+      "tags": ["line-directive", "diag", "scope", "linkage", "array-bounds", "placement-boundary", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_extern_array_mismatch_first_decl_line_diagjson_current_empty",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_mismatch_first_decl_line_diag_current_nodiag.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_mismatch_first_decl_line_diagjson_current_empty.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "scope", "linkage", "array-bounds", "placement-boundary", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_extern_array_mismatch_second_decl_line_diag_text_current_nodiag",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_mismatch_second_decl_line_diag_current_nodiag.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_mismatch_second_decl_line_diag_text_current_nodiag.diag"
+      ],
+      "tags": ["line-directive", "diag", "scope", "linkage", "array-bounds", "placement-boundary", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_extern_array_mismatch_second_decl_line_diagjson_current_empty",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_mismatch_second_decl_line_diag_current_nodiag.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_mismatch_second_decl_line_diagjson_current_empty.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "scope", "linkage", "array-bounds", "placement-boundary", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_extern_array_vs_scalar_conflict_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_vs_scalar_conflict_diag_strict.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_vs_scalar_conflict_diag_text_strict.diag"
+      ],
+      "tags": ["line-directive", "diag", "scope", "linkage", "array-bounds", "control-lane", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_extern_array_vs_scalar_conflict_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_vs_scalar_conflict_diag_strict.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_vs_scalar_conflict_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "scope", "linkage", "array-bounds", "control-lane", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

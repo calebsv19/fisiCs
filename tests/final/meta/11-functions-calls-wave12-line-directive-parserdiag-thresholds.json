@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_parserdiag_param_missing_comma_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_parserdiag_param_missing_comma_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_parserdiag_param_missing_comma_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "params", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_parserdiag_param_missing_comma_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_parserdiag_param_missing_comma_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_include_parserdiag_param_missing_comma_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "include", "params", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_parserdiag_prototype_missing_rparen_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_parserdiag_prototype_missing_rparen_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_parserdiag_prototype_missing_rparen_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "prototype", "recovery", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_parserdiag_prototype_missing_rparen_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_parserdiag_prototype_missing_rparen_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_include_parserdiag_prototype_missing_rparen_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "include", "prototype", "recovery", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_parserdiag_fnptr_param_missing_rparen_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_parserdiag_fnptr_param_missing_rparen_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_parserdiag_fnptr_param_missing_rparen_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "function-pointer", "params", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_parserdiag_fnptr_param_missing_rparen_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_parserdiag_fnptr_param_missing_rparen_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_include_parserdiag_fnptr_param_missing_rparen_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "include", "function-pointer", "params", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

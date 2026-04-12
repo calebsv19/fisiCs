@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (11907:5): Incompatible assignment operands
+   Spelling: virtual_fn_function_pointer_assign_diag_text_strict.c:11907:5

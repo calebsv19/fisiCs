@@ -22,6 +22,7 @@
 #include "Syntax/semantic_model.h"
 #include "Syntax/target_layout.h"
 #include "Utils/profiler.h"
+#include "AST/ast_node.h"
 
 typedef struct {
     char** items;
@@ -179,7 +180,12 @@ static void llvm_fatal_handler(const char* reason) {
 }
 
 static int llvm_shutdown_and_return(int code) {
-    LLVMShutdown();
+    /*
+     * LLVM teardown has been intermittently crashing in DebugCounterOwner
+     * destruction on process exit (SIGTRAP in macOS malloc free path).
+     * Keep process termination stable for test harness runs by skipping
+     * explicit LLVMShutdown here.
+     */
     return code;
 }
 
@@ -350,6 +356,7 @@ typedef struct {
     int line;
     int column;
     bool virtualSpelling;
+    bool hasDefinition;
 } CrossTUVarDef;
 
 typedef struct {
@@ -522,6 +529,7 @@ static bool cross_tu_var_defs_push(CrossTUVarDefList* defs,
     out->line = line;
     out->column = column;
     out->virtualSpelling = virtualSpelling;
+    out->hasDefinition = sym->hasDefinition;
     defs->count++;
     return true;
 }
@@ -560,11 +568,89 @@ static bool cross_tu_set_type_conflict(CrossTUTypeConflict* conflict,
     return true;
 }
 
+static bool cross_tu_array_bounds_compatible(const ParsedType* lhs, const ParsedType* rhs) {
+    if (!lhs || !rhs) return false;
+
+    size_t lhsArrayCount = parsedTypeCountDerivationsOfKind(lhs, TYPE_DERIVATION_ARRAY);
+    size_t rhsArrayCount = parsedTypeCountDerivationsOfKind(rhs, TYPE_DERIVATION_ARRAY);
+    if (lhsArrayCount != rhsArrayCount) {
+        return false;
+    }
+
+    for (size_t i = 0; i < lhsArrayCount; ++i) {
+        const TypeDerivation* lhsArr = parsedTypeGetArrayDerivation(lhs, i);
+        const TypeDerivation* rhsArr = parsedTypeGetArrayDerivation(rhs, i);
+        if (!lhsArr || !rhsArr) {
+            return false;
+        }
+        if (lhsArr->as.array.isVLA != rhsArr->as.array.isVLA) {
+            return false;
+        }
+
+        long long lhsBound = 0;
+        long long rhsBound = 0;
+        bool lhsKnown = false;
+        bool rhsKnown = false;
+        if (!lhsArr->as.array.isVLA && !lhsArr->as.array.isFlexible) {
+            if (lhsArr->as.array.hasConstantSize) {
+                lhsKnown = true;
+                lhsBound = lhsArr->as.array.constantSize;
+            } else if (lhsArr->as.array.sizeExpr &&
+                       (lhsArr->as.array.sizeExpr->type == AST_NUMBER_LITERAL ||
+                        lhsArr->as.array.sizeExpr->type == AST_CHAR_LITERAL) &&
+                       lhsArr->as.array.sizeExpr->valueNode.value) {
+                char* end = NULL;
+                long long parsed = strtoll(lhsArr->as.array.sizeExpr->valueNode.value, &end, 0);
+                if (end && *end == '\0') {
+                    lhsKnown = true;
+                    lhsBound = parsed;
+                }
+            }
+        }
+        if (!rhsArr->as.array.isVLA && !rhsArr->as.array.isFlexible) {
+            if (rhsArr->as.array.hasConstantSize) {
+                rhsKnown = true;
+                rhsBound = rhsArr->as.array.constantSize;
+            } else if (rhsArr->as.array.sizeExpr &&
+                       (rhsArr->as.array.sizeExpr->type == AST_NUMBER_LITERAL ||
+                        rhsArr->as.array.sizeExpr->type == AST_CHAR_LITERAL) &&
+                       rhsArr->as.array.sizeExpr->valueNode.value) {
+                char* end = NULL;
+                long long parsed = strtoll(rhsArr->as.array.sizeExpr->valueNode.value, &end, 0);
+                if (end && *end == '\0') {
+                    rhsKnown = true;
+                    rhsBound = parsed;
+                }
+            }
+        }
+        bool lhsIncomplete =
+            !lhsKnown &&
+            !lhsArr->as.array.isVLA &&
+            !lhsArr->as.array.isFlexible &&
+            lhsArr->as.array.sizeExpr == NULL;
+        bool rhsIncomplete =
+            !rhsKnown &&
+            !rhsArr->as.array.isVLA &&
+            !rhsArr->as.array.isFlexible &&
+            rhsArr->as.array.sizeExpr == NULL;
+
+        if (lhsKnown && rhsKnown && lhsBound != rhsBound) {
+            return false;
+        }
+        if (lhsKnown != rhsKnown && !(lhsIncomplete || rhsIncomplete)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static void cross_tu_collect_symbol_cb(const Symbol* sym, void* userData) {
     CrossTUCollectCtx* ctx = (CrossTUCollectCtx*)userData;
     if (!ctx || !ctx->defs || !ctx->conflict || ctx->oom || ctx->conflict->found) return;
-    if (!sym || sym->kind != SYMBOL_VARIABLE || !sym->hasDefinition) return;
+    if (!sym || sym->kind != SYMBOL_VARIABLE) return;
     if (sym->linkage != LINKAGE_EXTERNAL) return;
+    if (!sym->hasDefinition && sym->storage != STORAGE_EXTERN) return;
 
     const char* filePath = NULL;
     int line = 0;
@@ -572,15 +658,18 @@ static void cross_tu_collect_symbol_cb(const Symbol* sym, void* userData) {
     if (!compiler_ctx_symbol_spelling_location(ctx->compilerCtx, sym->name, &filePath, &line, &column)) {
         if (!symbol_spelling_location(sym, &filePath, &line, &column)) return;
     }
-    if (!filePath || !filePath[0]) return;
     if (line > 0) line += 1;
-    bool virtualSpelling = (access(filePath, F_OK) != 0);
+    bool virtualSpelling = filePath && filePath[0] && (access(filePath, F_OK) != 0);
 
     for (size_t i = 0; i < ctx->defs->count; ++i) {
         const CrossTUVarDef* prior = &ctx->defs->items[i];
         if (!prior->name || strcmp(prior->name, sym->name) != 0) continue;
-        if (parsedTypesStructurallyEqual(&prior->type, &sym->type)) continue;
-        if (!prior->virtualSpelling && !virtualSpelling) {
+        bool structEqual = parsedTypesStructurallyEqual(&prior->type, &sym->type);
+        bool arrayBoundsCompatible = cross_tu_array_bounds_compatible(&prior->type, &sym->type);
+        if (structEqual && arrayBoundsCompatible) continue;
+        if (!(prior->hasDefinition || sym->hasDefinition)) continue;
+        bool arrayBoundsConflict = structEqual && !arrayBoundsCompatible;
+        if (!arrayBoundsConflict && !prior->virtualSpelling && !virtualSpelling) {
             // Keep non-#line multitu conflicts on the existing linker-stage path.
             continue;
         }
@@ -1235,6 +1324,8 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "Error: codegen disabled (DISABLE_CODEGEN set); cannot emit object files\n");
                 goto fail;
             }
+            bool aggregateJsonWritten = false;
+            bool aggregateJsonHasDiagnostics = false;
 
             for (size_t i = 0; i < inputCFiles.count; ++i) {
                 const char* cPath = inputCFiles.items[i];
@@ -1286,6 +1377,23 @@ int main(int argc, char **argv) {
                     CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagPath);
                     if (wr.code != CORE_OK) {
                         fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
+                    }
+                }
+                if (diagsJsonPath && diagsJsonPath[0] != '\0' && inputCFiles.count > 1u && result.compilerCtx) {
+                    size_t diagCount = 0;
+                    (void)compiler_diagnostics_data(result.compilerCtx, &diagCount);
+                    bool shouldWriteAggregate = !aggregateJsonWritten ||
+                                                (diagCount > 0u && !aggregateJsonHasDiagnostics);
+                    if (shouldWriteAggregate) {
+                        CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagsJsonPath);
+                        if (wr.code != CORE_OK) {
+                            fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagsJsonPath);
+                        } else {
+                            aggregateJsonWritten = true;
+                            if (diagCount > 0u) {
+                                aggregateJsonHasDiagnostics = true;
+                            }
+                        }
                     }
                 }
                 if (diagPackPathForInput && result.compilerCtx) {
@@ -1347,6 +1455,8 @@ int main(int argc, char **argv) {
             bool allOk = true;
             CrossTUVarDefList crossTuDefs = {0};
             CrossTUTypeConflict crossTuConflict = {0};
+            bool aggregateJsonWritten = false;
+            bool aggregateJsonHasDiagnostics = false;
 
             // Step A: compile all .c to temp .o
             for (size_t i = 0; i < inputCFiles.count; ++i) {
@@ -1389,6 +1499,23 @@ int main(int argc, char **argv) {
                     CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagPath);
                     if (wr.code != CORE_OK) {
                         fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagPath);
+                    }
+                }
+                if (diagsJsonPath && diagsJsonPath[0] != '\0' && inputCFiles.count > 1u && result.compilerCtx) {
+                    size_t diagCount = 0;
+                    (void)compiler_diagnostics_data(result.compilerCtx, &diagCount);
+                    bool shouldWriteAggregate = !aggregateJsonWritten ||
+                                                (diagCount > 0u && !aggregateJsonHasDiagnostics);
+                    if (shouldWriteAggregate) {
+                        CoreResult wr = compiler_diagnostics_write_core_dataset_json(result.compilerCtx, diagsJsonPath);
+                        if (wr.code != CORE_OK) {
+                            fprintf(stderr, "Warning: failed to write diagnostics JSON to %s\n", diagsJsonPath);
+                        } else {
+                            aggregateJsonWritten = true;
+                            if (diagCount > 0u) {
+                                aggregateJsonHasDiagnostics = true;
+                            }
+                        }
                     }
                 }
                 if (diagPackPathForInput && result.compilerCtx) {

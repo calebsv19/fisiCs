@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__line_directive_switch_pointer_condition_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_switch_pointer_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_switch_pointer_condition_diagjson_current_sparse.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "control-type", "pointer", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_include_switch_pointer_condition_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_include_switch_pointer_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_include_switch_pointer_condition_diagjson_current_sparse.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "control-type", "pointer", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_switch_string_condition_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_switch_string_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_switch_string_condition_diagjson_current_sparse.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "control-type", "string", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_include_switch_string_condition_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_include_switch_string_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_include_switch_string_condition_diagjson_current_sparse.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "control-type", "string", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_switch_double_condition_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_switch_double_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_switch_double_condition_diagjson_current_sparse.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "control-type", "double", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_include_switch_double_condition_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_include_switch_double_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_include_switch_double_condition_diagjson_current_sparse.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "control-type", "double", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_switch_pointer_condition_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_switch_pointer_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_switch_pointer_condition_diag_current_sparse.diag"],
+      "tags": ["line-directive", "diag", "switch", "control-type", "pointer", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_include_switch_pointer_condition_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_include_switch_pointer_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_include_switch_pointer_condition_diag_current_sparse.diag"],
+      "tags": ["line-directive", "include", "diag", "switch", "control-type", "pointer", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_switch_string_condition_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_switch_string_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_switch_string_condition_diag_current_sparse.diag"],
+      "tags": ["line-directive", "diag", "switch", "control-type", "string", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_include_switch_string_condition_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_include_switch_string_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_include_switch_string_condition_diag_current_sparse.diag"],
+      "tags": ["line-directive", "include", "diag", "switch", "control-type", "string", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_switch_double_condition_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_switch_double_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_switch_double_condition_diag_current_sparse.diag"],
+      "tags": ["line-directive", "diag", "switch", "control-type", "double", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_include_switch_double_condition_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__line_directive_include_switch_double_condition_diagjson_current_sparse.c",
+      "expects": ["expect/09__line_directive_include_switch_double_condition_diag_current_sparse.diag"],
+      "tags": ["line-directive", "include", "diag", "switch", "control-type", "double", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

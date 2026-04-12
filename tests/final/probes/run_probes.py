@@ -2451,6 +2451,150 @@ DIAG_PROBES = [
         ),
     ),
     DiagnosticProbe(
+        probe_id="06__probe_line_directive_bitfield_address_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_bitfield_address_spelling_reject.c",
+        note="strict frontier: bitfield address-of diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_bitfield_address_diag_probe.c:2067:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_bitfield_address_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_bitfield_address_spelling_reject.c",
+        note="current threshold: bitfield address-of diagnostics under #line include spelling payload",
+        required_substrings=("Spelling: virtual_lv_bitfield_address_diag_probe.c:2067:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_bitfield_address_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_bitfield_address_spelling_reject.c",
+        note="strict frontier: include-header bitfield address-of diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_include_bitfield_address_diag_probe.h:2077:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_bitfield_address_spelling_reject.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_bitfield_address_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_bitfield_address_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_bitfield_address_spelling_reject.c",
+        note="current threshold: include-header bitfield address-of diagnostics under #line include spelling payload",
+        required_substrings=("Spelling: virtual_lv_include_bitfield_address_diag_probe.h:2077:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_bitfield_address_spelling_reject.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_bitfield_address_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_temp_increment_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_temp_increment_spelling_reject.c",
+        note="strict frontier: temporary increment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_temp_increment_diag_probe.c:2082:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_temp_increment_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_temp_increment_spelling_reject.c",
+        note="current threshold: temporary increment diagnostics under #line include spelling payload",
+        required_substrings=("Spelling: virtual_lv_temp_increment_diag_probe.c:2082:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_temp_increment_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_temp_increment_spelling_reject.c",
+        note="strict frontier: include-header temporary increment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_include_temp_increment_diag_probe.h:2092:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_temp_increment_spelling_reject.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_temp_increment_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_temp_increment_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_include_temp_increment_spelling_reject.c",
+        note="current threshold: include-header temporary increment diagnostics under #line include spelling payload",
+        required_substrings=("Spelling: virtual_lv_include_temp_increment_diag_probe.h:2092:",),
+        inputs=(
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_temp_increment_spelling_reject.c",
+            PROBE_DIR / "diagnostics/06__probe_line_directive_include_temp_increment_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_compound_assign_pointer_plus_pointer_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_line_directive_compound_assign_pointer_plus_pointer_spelling_reject.c",
+        note="strict frontier: pointer-plus-pointer compound-assignment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_compound_assign_pointer_plus_pointer_diag_probe.c:2246:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_compound_assign_pointer_plus_pointer_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_line_directive_compound_assign_pointer_plus_pointer_spelling_reject.c",
+        note="reduced threshold: pointer-plus-pointer compound-assignment diagnostics should emit pointer-arithmetic rejection",
+        required_substrings=("Operator '+' requires pointer arithmetic",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_compound_assign_pointer_plus_pointer_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_line_directive_include_compound_assign_pointer_plus_pointer_spelling_reject.c",
+        note="strict frontier: include-header pointer-plus-pointer compound-assignment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=(
+            "Spelling: virtual_lv_include_compound_assign_pointer_plus_pointer_diag_probe.h:2256:",
+        ),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_line_directive_include_compound_assign_pointer_plus_pointer_spelling_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_line_directive_include_compound_assign_pointer_plus_pointer_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_compound_assign_pointer_plus_pointer_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_line_directive_include_compound_assign_pointer_plus_pointer_spelling_reject.c",
+        note="reduced threshold: include-header pointer-plus-pointer compound-assignment diagnostics should emit pointer-arithmetic rejection",
+        required_substrings=("Operator '+' requires pointer arithmetic",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_line_directive_include_compound_assign_pointer_plus_pointer_spelling_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_line_directive_include_compound_assign_pointer_plus_pointer_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_compound_assign_const_lvalue_spelling_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_compound_assign_const_lvalue_spelling_reject.c",
+        note="strict frontier: const-lvalue compound-assignment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_compound_assign_const_lvalue_diag_probe.c:2264:",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_compound_assign_const_lvalue_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_line_directive_compound_assign_const_lvalue_spelling_reject.c",
+        note="reduced threshold: const-lvalue compound-assignment diagnostics should emit nonmodifiable-lvalue rejection",
+        required_substrings=("Left operand of '+=' must be a modifiable lvalue",),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject.c",
+        note="strict frontier: include-header const-lvalue compound-assignment diagnostics should preserve #line virtual spelling filename",
+        required_substrings=("Spelling: virtual_lv_include_compound_assign_const_lvalue_diag_probe.h:2274:",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="06__probe_line_directive_include_compound_assign_const_lvalue_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject.c",
+        note="reduced threshold: include-header const-lvalue compound-assignment diagnostics should emit nonmodifiable-lvalue rejection",
+        required_substrings=("Left operand of '+=' must be a modifiable lvalue",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject.h",
+        ),
+    ),
+    DiagnosticProbe(
         probe_id="07__probe_assign_struct_to_int_reject",
         source=PROBE_DIR / "diagnostics/07__probe_assign_struct_to_int_reject.c",
         note="assignment from struct value to int object should be rejected",
@@ -2660,11 +2804,91 @@ DIAG_PROBES = [
         ),
     ),
     DiagnosticProbe(
+        probe_id="08__probe_diag_line_directive_nested_designator_array_index_nonconst_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diag_line_directive_nested_designator_array_index_nonconst_spelling_strict.c",
+        note="strict frontier: nested non-const designator-index text diagnostics under #line remap should preserve spelling file/line",
+        required_substrings=("Spelling: virtual_init_nested_designator_array_nonconst_probe_diag_text.c:6402:",),
+    ),
+    DiagnosticProbe(
+        probe_id="08__probe_diag_line_directive_nested_designator_array_index_nonconst_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diag_line_directive_nested_designator_array_index_nonconst_spelling_strict.c",
+        note="reduced threshold: nested non-const designator-index text diagnostics should emit semantic rejection message",
+        required_substrings=("designator index must be a constant expression",),
+    ),
+    DiagnosticProbe(
+        probe_id="08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.c",
+        note="strict frontier: include-header nested non-const designator-index text diagnostics under #line remap should preserve spelling file/line",
+        required_substrings=("Spelling: virtual_init_include_nested_designator_array_nonconst_probe_diag_text.h:6502:",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.c",
+        note="reduced threshold: include-header nested non-const designator-index text diagnostics should emit semantic rejection message",
+        required_substrings=("designator index must be a constant expression",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="08__probe_diag_line_directive_nested_designator_array_index_negative_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diag_line_directive_nested_designator_array_index_negative_spelling_strict.c",
+        note="strict frontier: nested negative designator-index text diagnostics under #line remap should preserve spelling file/line",
+        required_substrings=("Spelling: virtual_init_nested_designator_array_negative_probe_diag_text.c:6601:",),
+    ),
+    DiagnosticProbe(
+        probe_id="08__probe_diag_line_directive_nested_designator_array_index_negative_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diag_line_directive_nested_designator_array_index_negative_spelling_strict.c",
+        note="reduced threshold: nested negative designator-index text diagnostics should emit semantic rejection message",
+        required_substrings=("designator index -1 is negative",),
+    ),
+    DiagnosticProbe(
+        probe_id="08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.c",
+        note="strict frontier: include-header nested negative designator-index text diagnostics under #line remap should preserve spelling file/line",
+        required_substrings=("Spelling: virtual_init_include_nested_designator_array_negative_probe_diag_text.h:6701:",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="08__probe_diag_line_directive_include_nested_designator_array_index_negative_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.c",
+        note="reduced threshold: include-header nested negative designator-index text diagnostics should emit semantic rejection message",
+        required_substrings=("designator index -1 is negative",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
         probe_id="08__probe_diag_line_directive_flex_not_last_spelling_reject",
         source=PROBE_DIR
         / "diagnostics/08__probe_diag_line_directive_flex_not_last_spelling_strict.c",
         note="strict frontier: flex-not-last text diagnostics under #line remap should preserve spelling file/line",
-        required_substrings=("Spelling: virtual_init_flex_not_last_probe_diag_text.c:5901:",),
+        required_substrings=("Spelling: virtual_init_flex_not_last_probe_diag_text.c:5902:",),
     ),
     DiagnosticProbe(
         probe_id="08__probe_diag_line_directive_flex_not_last_current_sparse_pass",
@@ -2678,7 +2902,7 @@ DIAG_PROBES = [
         source=PROBE_DIR
         / "diagnostics/08__probe_diag_line_directive_include_flex_not_last_spelling_strict.c",
         note="strict frontier: include-header flex-not-last text diagnostics under #line remap should preserve spelling file/line",
-        required_substrings=("Spelling: virtual_init_include_flex_not_last_probe_diag_text.h:6001:",),
+        required_substrings=("Spelling: virtual_init_include_flex_not_last_probe_diag_text.h:6002:",),
         inputs=(
             PROBE_DIR
             / "diagnostics/08__probe_diag_line_directive_include_flex_not_last_spelling_strict.c",
@@ -2704,7 +2928,7 @@ DIAG_PROBES = [
         source=PROBE_DIR
         / "diagnostics/08__probe_diag_line_directive_union_flex_member_spelling_strict.c",
         note="strict frontier: union flexible-member text diagnostics under #line remap should preserve spelling file/line",
-        required_substrings=("Spelling: virtual_init_union_flex_member_probe_diag_text.c:6101:",),
+        required_substrings=("Spelling: virtual_init_union_flex_member_probe_diag_text.c:6102:",),
     ),
     DiagnosticProbe(
         probe_id="08__probe_diag_line_directive_union_flex_member_current_sparse_pass",
@@ -2718,7 +2942,7 @@ DIAG_PROBES = [
         source=PROBE_DIR
         / "diagnostics/08__probe_diag_line_directive_include_union_flex_member_spelling_strict.c",
         note="strict frontier: include-header union flexible-member text diagnostics under #line remap should preserve spelling file/line",
-        required_substrings=("Spelling: virtual_init_include_union_flex_member_probe_diag_text.h:6201:",),
+        required_substrings=("Spelling: virtual_init_include_union_flex_member_probe_diag_text.h:6202:",),
         inputs=(
             PROBE_DIR
             / "diagnostics/08__probe_diag_line_directive_include_union_flex_member_spelling_strict.c",
@@ -2763,6 +2987,126 @@ DIAG_PROBES = [
         probe_id="09__probe_switch_double_condition_reject",
         source=PROBE_DIR / "diagnostics/09__probe_switch_double_condition_reject.c",
         note="switch controlling expression must be integer type (double should reject)",
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_switch_pointer_condition_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_switch_pointer_condition_spelling_strict.c",
+        note="strict frontier: #line pointer switch-condition text diagnostics should preserve remapped line",
+        required_substrings=("Error at (7805:0): switch controlling expression must be integer",),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_switch_pointer_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_switch_pointer_condition_spelling_strict.c",
+        note="reduced threshold: #line pointer switch-condition text diagnostics should emit control-type rejection",
+        required_substrings=("switch controlling expression must be integer",),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_include_switch_pointer_condition_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_include_switch_pointer_condition_spelling_strict.c",
+        note="strict frontier: include-header #line pointer switch-condition text diagnostics should preserve remapped line",
+        required_substrings=("Error at (7815:0): switch controlling expression must be integer",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_pointer_condition_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_pointer_condition_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_include_switch_pointer_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_include_switch_pointer_condition_spelling_strict.c",
+        note="reduced threshold: include-header #line pointer switch-condition text diagnostics should emit control-type rejection",
+        required_substrings=("switch controlling expression must be integer",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_pointer_condition_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_pointer_condition_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_switch_string_condition_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_switch_string_condition_spelling_strict.c",
+        note="strict frontier: #line string-literal switch-condition text diagnostics should preserve remapped line",
+        required_substrings=("Error at (7823:0): switch controlling expression must be integer",),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_switch_string_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_switch_string_condition_spelling_strict.c",
+        note="reduced threshold: #line string-literal switch-condition text diagnostics should emit control-type rejection",
+        required_substrings=("switch controlling expression must be integer",),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_include_switch_string_condition_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_include_switch_string_condition_spelling_strict.c",
+        note="strict frontier: include-header #line string-literal switch-condition text diagnostics should preserve remapped line",
+        required_substrings=("Error at (7833:0): switch controlling expression must be integer",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_string_condition_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_string_condition_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_include_switch_string_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_include_switch_string_condition_spelling_strict.c",
+        note="reduced threshold: include-header #line string-literal switch-condition text diagnostics should emit control-type rejection",
+        required_substrings=("switch controlling expression must be integer",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_string_condition_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_string_condition_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_switch_double_condition_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_switch_double_condition_spelling_strict.c",
+        note="strict frontier: #line double switch-condition text diagnostics should preserve remapped line",
+        required_substrings=("Error at (7844:0): switch controlling expression must be integer",),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_switch_double_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_switch_double_condition_spelling_strict.c",
+        note="reduced threshold: #line double switch-condition text diagnostics should emit control-type rejection",
+        required_substrings=("switch controlling expression must be integer",),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_include_switch_double_condition_spelling_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_include_switch_double_condition_spelling_strict.c",
+        note="strict frontier: include-header #line double switch-condition text diagnostics should preserve remapped line",
+        required_substrings=("Error at (7854:0): switch controlling expression must be integer",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_double_condition_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_double_condition_spelling_strict.h",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="09__probe_diag_line_directive_include_switch_double_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diag_line_directive_include_switch_double_condition_spelling_strict.c",
+        note="reduced threshold: include-header #line double switch-condition text diagnostics should emit control-type rejection",
+        required_substrings=("switch controlling expression must be integer",),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_double_condition_spelling_strict.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diag_line_directive_include_switch_double_condition_spelling_strict.h",
+        ),
     ),
     DiagnosticProbe(
         probe_id="09__probe_if_void_condition_reject",
@@ -2973,6 +3317,83 @@ DIAG_PROBES = [
         ),
     ),
     DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_extern_array_mismatch_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_mismatch_spelling_strict.c",
+        note="strict frontier: extern-array mismatch should emit linkage conflict diagnostics under #line remap",
+        required_substrings=("Conflicting types for variable",),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_include_extern_array_mismatch_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_include_extern_array_mismatch_spelling_strict.c",
+        note="strict frontier: include extern-array mismatch should emit linkage conflict diagnostics under #line remap",
+        required_substrings=("Conflicting types for variable",),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_extern_array_mismatch_first_decl_line_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_mismatch_first_decl_line_spelling_strict.c",
+        note="strict frontier: extern-array mismatch with first declaration remapped by #line should emit conflict diagnostics",
+        required_substrings=("Conflicting types for variable",),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_extern_array_mismatch_second_decl_line_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_mismatch_second_decl_line_spelling_strict.c",
+        note="strict frontier: extern-array mismatch with second declaration remapped by #line should emit conflict diagnostics",
+        required_substrings=("Conflicting types for variable",),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_extern_array_vs_scalar_conflict_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_vs_scalar_conflict_spelling_strict.c",
+        note="control lane: extern array-vs-scalar redeclaration should still emit conflict diagnostics under #line",
+        required_substrings=(
+            "Spelling: virtual_scope_extern_array_vs_scalar_conflict_probe_diag_text.c:15302:12",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_extern_array_def_mismatch_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_def_mismatch_spelling_strict.c",
+        note="strict frontier: extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap",
+        required_substrings=("Conflicting types for variable",),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_include_extern_array_def_mismatch_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_include_extern_array_def_mismatch_spelling_strict.c",
+        note="strict frontier: include extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap",
+        required_substrings=("Conflicting types for variable",),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_multitu_extern_array_def_mismatch_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_multitu_extern_array_def_mismatch_spelling_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_extern_array_def_mismatch_spelling_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_extern_array_def_mismatch_spelling_strict_lib.c",
+        ),
+        note="strict frontier: multi-TU extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap",
+        required_substrings=("Conflicting types for variable",),
+    ),
+    DiagnosticProbe(
+        probe_id="10__probe_diag_line_directive_multitu_include_extern_array_def_mismatch_spelling_strict",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_array_def_mismatch_spelling_strict_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_array_def_mismatch_spelling_strict_main.c",
+            PROBE_DIR
+            / "diagnostics/10__probe_diag_line_directive_multitu_include_extern_array_def_mismatch_spelling_strict_lib.c",
+        ),
+        note="strict frontier: multi-TU include extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap",
+        required_substrings=("Conflicting types for variable",),
+    ),
+    DiagnosticProbe(
         probe_id="11__probe_duplicate_param_name_reject",
         source=PROBE_DIR / "diagnostics/11__probe_duplicate_param_name_reject.c",
         note="duplicate parameter names in one function declarator should be rejected",
@@ -3058,6 +3479,94 @@ DIAG_PROBES = [
         required_substrings=("Error at (9202:53): Argument 1 of 'takes_ptr_inc_text' has incompatible type",),
     ),
     DiagnosticProbe(
+        probe_id="11__probe_diag_line_directive_return_type_mismatch_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diag_line_directive_return_type_mismatch_text_strict.c",
+        note="text diagnostics should preserve remapped line for #line return-type-mismatch",
+        required_substrings=("Error at (10102:",),
+    ),
+    DiagnosticProbe(
+        probe_id="11__probe_diag_line_directive_include_return_type_mismatch_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diag_line_directive_include_return_type_mismatch_text_strict.c",
+        note="text diagnostics should preserve remapped line for include #line return-type-mismatch",
+        required_substrings=("Error at (10201:",),
+    ),
+    DiagnosticProbe(
+        probe_id="11__probe_diag_line_directive_void_return_value_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diag_line_directive_void_return_value_text_strict.c",
+        note="text diagnostics should preserve remapped line for #line void-return-value rejection",
+        required_substrings=("Error at (10302:",),
+    ),
+    DiagnosticProbe(
+        probe_id="11__probe_diag_line_directive_include_void_return_value_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diag_line_directive_include_void_return_value_text_strict.c",
+        note="text diagnostics should preserve remapped line for include #line void-return-value rejection",
+        required_substrings=("Error at (10401:",),
+    ),
+    DiagnosticProbe(
+        probe_id="11__probe_diag_line_directive_multitu_too_many_args_text_threshold_pass",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence.c",
+        note="text parity guard: multi-TU #line too-many-args remains stable in text diagnostics",
+        required_substrings=(
+            "Error at (13304:12): Too many arguments in call to 'probe_mt_add1' (expected 1, got 2)",
+        ),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence_lib.c",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="11__probe_diag_line_directive_multitu_include_too_many_args_text_threshold_pass",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence.c",
+        note="text parity guard: multi-TU include #line too-many-args remains stable in text diagnostics",
+        required_substrings=(
+            "Error at (13402:49): Too many arguments in call to 'probe_mt_add1_inc' (expected 1, got 2)",
+        ),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence_lib.c",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="11__probe_diag_line_directive_multitu_parserdiag_decl_missing_rparen_text_threshold_pass",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c",
+        note="text parity guard: multi-TU #line parser declarator recovery remains stable in text diagnostics",
+        required_substrings=(
+            "virtual_probe_fn_multitu_parserdiag_decl_missing_rparen_main.c:13501",
+        ),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence_lib.c",
+        ),
+    ),
+    DiagnosticProbe(
+        probe_id="11__probe_diag_line_directive_multitu_include_parserdiag_decl_missing_rparen_text_threshold_pass",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c",
+        note="text parity guard: multi-TU include #line parser declarator recovery remains stable in text diagnostics",
+        required_substrings=(
+            "virtual_probe_fn_multitu_include_parserdiag_decl_missing_rparen.h:13601",
+        ),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence_lib.c",
+        ),
+    ),
+    DiagnosticProbe(
         probe_id="12__probe_invalid_shift_width",
         source=PROBE_DIR / "diagnostics/12__probe_invalid_shift_width.c",
         note="should emit diagnostic for negative shift width",
@@ -3104,6 +3613,20 @@ DIAG_PROBES = [
         / "diagnostics/12__probe_diag_line_directive_include_for_missing_semicolon_parser_text_strict.c",
         note="text diagnostics should preserve parser malformed-for-header line for include #line remap",
         required_substrings=("Error: expected ';' after for-loop initializer at line 8502",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_for_missing_rparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_for_missing_rparen_parser_presence.c",
+        note="text diagnostics should preserve parser missing ')' in for header under #line remap",
+        required_substrings=("Error: expected ')' after for-loop increment at line 8922",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_for_missing_rparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_for_missing_rparen_parser_presence.c",
+        note="text diagnostics should preserve parser missing ')' in for header under include #line remap",
+        required_substrings=("Error: expected ')' after for-loop increment at line 8932",),
     ),
     DiagnosticProbe(
         probe_id="12__probe_diag_line_directive_if_missing_rparen_parser_text_strict",
@@ -3160,6 +3683,132 @@ DIAG_PROBES = [
         / "diagnostics/12__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence.c",
         note="text diagnostics should preserve parser switch-header parse failure line under include #line remap",
         required_substrings=("Error: Failed to parse expression at line 8913",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_if_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_if_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under #line remap for if",
+        required_substrings=("line 9103",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_if_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_if_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under include #line remap for if",
+        required_substrings=("line 9113",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_while_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_while_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under #line remap for while",
+        required_substrings=("line 9203",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_while_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_while_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under include #line remap for while",
+        required_substrings=("line 9213",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_for_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_for_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under #line remap for for",
+        required_substrings=("line 9303",),
+    ),
+    DiagnosticProbe(
+        probe_id="12__probe_diag_line_directive_include_for_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_for_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under include #line remap for for",
+        required_substrings=("line 9313",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_if_missing_lparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_if_missing_lparen_parser_presence.c",
+        note="text diagnostics should preserve parser missing '(' line under #line remap for if",
+        required_substrings=("Error: expected '(' after 'if' at line 132003",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_include_if_missing_lparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_if_missing_lparen_parser_presence.c",
+        note="text diagnostics should preserve parser missing '(' line under include #line remap for if",
+        required_substrings=("Error: expected '(' after 'if' at line 132053",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_switch_missing_rparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_switch_missing_rparen_parser_presence.c",
+        note="text diagnostics should preserve parser switch-header parse failure line under #line remap",
+        required_substrings=("Error: Failed to parse expression at line 132103",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_include_switch_missing_rparen_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence.c",
+        note="text diagnostics should preserve parser switch-header parse failure line under include #line remap",
+        required_substrings=("Error: Failed to parse expression at line 132153",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_if_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_if_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under #line remap for if",
+        required_substrings=("line 134003",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_include_if_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_if_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under include #line remap for if",
+        required_substrings=("line 134053",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_while_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_while_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under #line remap for while",
+        required_substrings=("line 134103",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_include_while_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_while_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under include #line remap for while",
+        required_substrings=("line 134153",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_for_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_for_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under #line remap for for",
+        required_substrings=("line 134203",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_include_for_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_for_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under include #line remap for for",
+        required_substrings=("line 134253",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_switch_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_switch_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under #line remap for switch",
+        required_substrings=("line 134303",),
+    ),
+    DiagnosticProbe(
+        probe_id="13__probe_diag_line_directive_include_switch_missing_body_parser_text_strict",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_switch_missing_body_parser_presence.c",
+        note="text diagnostics should preserve parser missing-body line under include #line remap for switch",
+        required_substrings=("line 134353",),
     ),
     DiagnosticProbe(
         probe_id="13__probe_fnptr_too_many_args_reject",
@@ -4129,6 +4778,186 @@ DIAG_JSON_PROBES = [
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_bitfield_address_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_bitfield_address_file_presence_reject.c",
+        note="strict frontier: bitfield address-of diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=2107,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_bitfield_address_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_bitfield_address_file_presence_reject.c",
+        note="current threshold: bitfield address-of diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=2107,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject.c",
+        note="strict frontier: include-header bitfield address-of diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=2117,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_bitfield_address_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject.c",
+        note="current threshold: include-header bitfield address-of diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=2117,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_temp_increment_file_presence_reject",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_temp_increment_file_presence_reject.c",
+        note="strict frontier: temporary increment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=2122,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_temp_increment_current_sparse_pass",
+        source=PROBE_DIR / "diagnostics/06__probe_diagjson_line_directive_temp_increment_file_presence_reject.c",
+        note="current threshold: temporary increment diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=2122,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_temp_increment_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_include_temp_increment_file_presence_reject.c",
+        note="strict frontier: include-header temporary increment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=2132,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_temp_increment_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_temp_increment_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_temp_increment_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_include_temp_increment_file_presence_reject.c",
+        note="current threshold: include-header temporary increment diagnostics JSON under #line remap includes file presence",
+        expected_codes=(2000,),
+        expected_line=2132,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_temp_increment_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_temp_increment_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_compound_assign_pointer_plus_pointer_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_compound_assign_pointer_plus_pointer_file_presence_reject.c",
+        note="strict frontier: pointer-plus-pointer compound-assignment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=2346,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_compound_assign_pointer_plus_pointer_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_compound_assign_pointer_plus_pointer_file_presence_reject.c",
+        note="reduced threshold: pointer-plus-pointer compound-assignment diagnostics JSON under #line remap emits diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_compound_assign_pointer_plus_pointer_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_pointer_plus_pointer_file_presence_reject.c",
+        note="strict frontier: include-header pointer-plus-pointer compound-assignment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=2356,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_pointer_plus_pointer_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_pointer_plus_pointer_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_compound_assign_pointer_plus_pointer_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_pointer_plus_pointer_file_presence_reject.c",
+        note="reduced threshold: include-header pointer-plus-pointer compound-assignment diagnostics JSON under #line remap emits diagnostic payload",
+        expected_codes=(2000,),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_pointer_plus_pointer_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_pointer_plus_pointer_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_compound_assign_const_lvalue_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_compound_assign_const_lvalue_file_presence_reject.c",
+        note="strict frontier: const-lvalue compound-assignment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=2364,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_compound_assign_const_lvalue_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_compound_assign_const_lvalue_file_presence_reject.c",
+        note="reduced threshold: const-lvalue compound-assignment diagnostics JSON under #line remap emits diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject.c",
+        note="strict frontier: include-header const-lvalue compound-assignment diagnostics JSON should include has_file under #line remap",
+        expected_codes=(2000,),
+        expected_line=2374,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject.c",
+        note="reduced threshold: include-header const-lvalue compound-assignment diagnostics JSON under #line remap emits diagnostic payload",
+        expected_codes=(2000,),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
         probe_id="07__probe_diagjson_line_directive_conv_pointer_assign_float_file_presence_reject",
         source=PROBE_DIR
         / "diagnostics/07__probe_diagjson_line_directive_conv_pointer_assign_float_rich_presence.c",
@@ -4610,12 +5439,100 @@ DIAG_JSON_PROBES = [
         ),
     ),
     DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_nested_designator_array_index_nonconst_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_nested_designator_array_index_nonconst_rich_presence.c",
+        note="strict frontier: nested non-const designator-index diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=6402,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_nested_designator_array_index_nonconst_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_nested_designator_array_index_nonconst_rich_presence.c",
+        note="reduced threshold: nested non-const designator-index diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_rich_presence.c",
+        note="strict frontier: include-header nested non-const designator-index diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=6502,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_rich_presence.c",
+            PROBE_DIR
+            / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_rich_presence.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_rich_presence.c",
+        note="reduced threshold: include-header nested non-const designator-index diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_rich_presence.c",
+            PROBE_DIR
+            / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_rich_presence.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_nested_designator_array_index_negative_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_nested_designator_array_index_negative_rich_presence.c",
+        note="strict frontier: nested negative designator-index diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=6602,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_nested_designator_array_index_negative_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_nested_designator_array_index_negative_rich_presence.c",
+        note="reduced threshold: nested negative designator-index diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_nested_designator_array_index_negative_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_negative_rich_presence.c",
+        note="strict frontier: include-header nested negative designator-index diagnostics JSON under #line remap should include file presence",
+        expected_codes=(2000,),
+        expected_line=6702,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_negative_rich_presence.c",
+            PROBE_DIR
+            / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_negative_rich_presence.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="08__probe_diagjson_line_directive_include_nested_designator_array_index_negative_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_negative_rich_presence.c",
+        note="reduced threshold: include-header nested negative designator-index diagnostics JSON under #line remap emits initializer diagnostic payload",
+        expected_codes=(2000,),
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_negative_rich_presence.c",
+            PROBE_DIR
+            / "diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_index_negative_rich_presence.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
         probe_id="08__probe_diagjson_line_directive_flex_not_last_file_presence_reject",
         source=PROBE_DIR
         / "diagnostics/08__probe_diagjson_line_directive_flex_not_last_rich_presence.c",
         note="strict frontier: flex-not-last diagnostics JSON under #line remap should include file presence",
         expected_codes=(2000,),
-        expected_line=5501,
+        expected_line=5502,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -4631,7 +5548,7 @@ DIAG_JSON_PROBES = [
         / "diagnostics/08__probe_diagjson_line_directive_include_flex_not_last_rich_presence.c",
         note="strict frontier: include-header flex-not-last diagnostics JSON under #line remap should include file presence",
         expected_codes=(2000,),
-        expected_line=5601,
+        expected_line=5602,
         expected_has_file=True,
         inputs=(
             PROBE_DIR
@@ -4659,7 +5576,7 @@ DIAG_JSON_PROBES = [
         / "diagnostics/08__probe_diagjson_line_directive_union_flex_member_rich_presence.c",
         note="strict frontier: union flexible-member diagnostics JSON under #line remap should include file presence",
         expected_codes=(2000,),
-        expected_line=5701,
+        expected_line=5702,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -4675,7 +5592,7 @@ DIAG_JSON_PROBES = [
         / "diagnostics/08__probe_diagjson_line_directive_include_union_flex_member_rich_presence.c",
         note="strict frontier: include-header union flexible-member diagnostics JSON under #line remap should include file presence",
         expected_codes=(2000,),
-        expected_line=5801,
+        expected_line=5802,
         expected_has_file=True,
         inputs=(
             PROBE_DIR
@@ -4792,6 +5709,144 @@ DIAG_JSON_PROBES = [
         / "diagnostics/09__probe_diagjson_line_directive_switch_duplicate_case_folded_rich_presence.c",
         note="reduced threshold: switch-duplicate-case-folded diagnostics JSON under #line remap emits diagnostic payload",
         expected_codes=(2000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_switch_pointer_condition_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_switch_pointer_condition_file_presence_reject.c",
+        note="strict frontier: #line pointer switch-condition diagnostics JSON should include has_file",
+        expected_codes=(2000,),
+        expected_line=7905,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_switch_pointer_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_switch_pointer_condition_file_presence_reject.c",
+        note="reduced threshold: #line pointer switch-condition diagnostics JSON should emit diagnostic payload at remapped line",
+        expected_codes=(2000,),
+        expected_line=7905,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_include_switch_pointer_condition_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_include_switch_pointer_condition_file_presence_reject.c",
+        note="strict frontier: include-header #line pointer switch-condition diagnostics JSON should include has_file",
+        expected_codes=(2000,),
+        expected_line=7915,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_pointer_condition_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_pointer_condition_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_include_switch_pointer_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_include_switch_pointer_condition_file_presence_reject.c",
+        note="reduced threshold: include-header #line pointer switch-condition diagnostics JSON should emit diagnostic payload at remapped line",
+        expected_codes=(2000,),
+        expected_line=7915,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_pointer_condition_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_pointer_condition_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_switch_string_condition_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_switch_string_condition_file_presence_reject.c",
+        note="strict frontier: #line string-literal switch-condition diagnostics JSON should include has_file",
+        expected_codes=(2000,),
+        expected_line=7923,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_switch_string_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_switch_string_condition_file_presence_reject.c",
+        note="reduced threshold: #line string-literal switch-condition diagnostics JSON should emit diagnostic payload at remapped line",
+        expected_codes=(2000,),
+        expected_line=7923,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_include_switch_string_condition_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_include_switch_string_condition_file_presence_reject.c",
+        note="strict frontier: include-header #line string-literal switch-condition diagnostics JSON should include has_file",
+        expected_codes=(2000,),
+        expected_line=7933,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_string_condition_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_string_condition_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_include_switch_string_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_include_switch_string_condition_file_presence_reject.c",
+        note="reduced threshold: include-header #line string-literal switch-condition diagnostics JSON should emit diagnostic payload at remapped line",
+        expected_codes=(2000,),
+        expected_line=7933,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_string_condition_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_string_condition_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_switch_double_condition_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_switch_double_condition_file_presence_reject.c",
+        note="strict frontier: #line double switch-condition diagnostics JSON should include has_file",
+        expected_codes=(2000,),
+        expected_line=7944,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_switch_double_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_switch_double_condition_file_presence_reject.c",
+        note="reduced threshold: #line double switch-condition diagnostics JSON should emit diagnostic payload at remapped line",
+        expected_codes=(2000,),
+        expected_line=7944,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_include_switch_double_condition_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_include_switch_double_condition_file_presence_reject.c",
+        note="strict frontier: include-header #line double switch-condition diagnostics JSON should include has_file",
+        expected_codes=(2000,),
+        expected_line=7954,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_double_condition_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_double_condition_file_presence_reject.h",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="09__probe_diagjson_line_directive_include_switch_double_condition_current_sparse_pass",
+        source=PROBE_DIR
+        / "diagnostics/09__probe_diagjson_line_directive_include_switch_double_condition_file_presence_reject.c",
+        note="reduced threshold: include-header #line double switch-condition diagnostics JSON should emit diagnostic payload at remapped line",
+        expected_codes=(2000,),
+        expected_line=7954,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_double_condition_file_presence_reject.c",
+            PROBE_DIR
+            / "diagnostics/09__probe_diagjson_line_directive_include_switch_double_condition_file_presence_reject.h",
+        ),
     ),
     DiagnosticJsonProbe(
         probe_id="10__probe_diagjson_line_directive_extern_type_mismatch_rich_strict",
@@ -4955,6 +6010,66 @@ DIAG_JSON_PROBES = [
         expected_codes=(2000,),
         expected_line=9602,
         expected_column=14,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_extern_array_mismatch_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_mismatch_spelling_strict.c",
+        note="strict frontier: extern-array mismatch diagnostics JSON should preserve remapped file/line under #line",
+        expected_codes=(2000,),
+        expected_line=11502,
+        expected_column=12,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_include_extern_array_mismatch_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_include_extern_array_mismatch_spelling_strict.c",
+        note="strict frontier: include extern-array mismatch diagnostics JSON should preserve remapped file/line under #line",
+        expected_codes=(2000,),
+        expected_line=11602,
+        expected_column=12,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_extern_array_def_mismatch_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_def_mismatch_spelling_strict.c",
+        note="strict frontier: extern-array declaration/definition mismatch diagnostics JSON should preserve remapped file/line under #line",
+        expected_codes=(2000,),
+        expected_line=12902,
+        expected_column=5,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_include_extern_array_def_mismatch_current_physical_pass",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_include_extern_array_def_mismatch_spelling_strict.c",
+        note="reduced threshold: include extern-array declaration/definition mismatch diagnostics JSON currently anchors to physical C file line",
+        expected_codes=(2000,),
+        expected_line=3,
+        expected_column=5,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_extern_array_mismatch_first_decl_line_current_physical_pass",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_mismatch_first_decl_line_spelling_strict.c",
+        note="reduced threshold: extern-array mismatch first-decl placement diagnostics JSON currently anchors to physical remapped redeclaration line",
+        expected_codes=(2000,),
+        expected_line=3,
+        expected_column=12,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="10__probe_diagjson_line_directive_extern_array_mismatch_second_decl_line_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/10__probe_diag_line_directive_extern_array_mismatch_second_decl_line_spelling_strict.c",
+        note="strict frontier: extern-array mismatch second-decl placement diagnostics JSON should preserve remapped file/line under #line",
+        expected_codes=(2000,),
+        expected_line=15201,
+        expected_column=12,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -5162,6 +6277,150 @@ DIAG_JSON_PROBES = [
         expected_line=9601,
     ),
     DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_fnptr_assign_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_fnptr_assign_file_presence.c",
+        note="strict frontier: #line function-pointer assignment diagjson should preserve file presence",
+        expected_codes=(2000,),
+        expected_line=12317,
+        expected_column=5,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_include_fnptr_assign_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_include_fnptr_assign_file_presence.c",
+        note="strict frontier: include #line function-pointer assignment diagjson should preserve file presence",
+        expected_codes=(2000,),
+        expected_line=12416,
+        expected_column=5,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_multitu_too_many_args_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence.c",
+        note="strict frontier: multi-TU #line too-many-args diagjson should preserve remapped line and file presence",
+        expected_codes=(2000,),
+        expected_line=13304,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence_lib.c",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence.c",
+        note="strict frontier: multi-TU include #line too-many-args diagjson should preserve remapped line and file presence",
+        expected_codes=(2000,),
+        expected_line=13402,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence_lib.c",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c",
+        note="strict frontier: multi-TU #line parser-declarator recovery should preserve parser diagjson presence",
+        expected_codes=(1000,),
+        expected_line=13501,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence_lib.c",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c",
+        note="strict frontier: multi-TU include #line parser-declarator recovery should preserve parser diagjson presence",
+        expected_codes=(1000,),
+        expected_line=13601,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence_lib.c",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_multitu_fnptr_assign_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_fnptr_assign_file_presence.c",
+        note="strict frontier: multi-TU #line function-pointer assignment diagjson should preserve remapped line and file presence",
+        expected_codes=(2000,),
+        expected_line=14507,
+        expected_column=5,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_fnptr_assign_file_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_fnptr_assign_file_presence_lib.c",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_multitu_include_fnptr_assign_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_include_fnptr_assign_file_presence.c",
+        note="strict frontier: multi-TU include #line function-pointer assignment diagjson should preserve remapped line and file presence",
+        expected_codes=(2000,),
+        expected_line=14606,
+        expected_column=5,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_fnptr_assign_file_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_fnptr_assign_file_presence_lib.c",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_multitu_return_type_mismatch_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_return_type_mismatch_file_presence.c",
+        note="strict frontier: multi-TU #line return-type-mismatch diagjson should preserve remapped line and file presence",
+        expected_codes=(2000,),
+        expected_line=14752,
+        expected_column=12,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_return_type_mismatch_file_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_return_type_mismatch_file_presence_lib.c",
+        ),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="11__probe_diagjson_line_directive_multitu_include_return_type_mismatch_file_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/11__probe_diagjson_line_directive_multitu_include_return_type_mismatch_file_presence.c",
+        note="strict frontier: multi-TU include #line return-type-mismatch diagjson should preserve remapped line and file presence",
+        expected_codes=(2000,),
+        expected_line=14852,
+        expected_column=12,
+        expected_has_file=True,
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_return_type_mismatch_file_presence.c",
+            PROBE_DIR
+            / "diagnostics/11__probe_diagjson_line_directive_multitu_include_return_type_mismatch_file_presence_lib.c",
+        ),
+    ),
+    DiagnosticJsonProbe(
         probe_id="12__probe_diagjson_while_missing_lparen",
         source=PROBE_DIR / "diagnostics/12__probe_while_missing_lparen_reject.c",
         note="diagnostics JSON export should include parser diagnostics for missing '(' after while",
@@ -5210,6 +6469,42 @@ DIAG_JSON_PROBES = [
         note="post-fix lane: include #line malformed for-header diagnostics JSON includes parser+semantic payload",
         expected_codes=(2000,),
         expected_line=8502,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_for_missing_rparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_for_missing_rparen_parser_presence.c",
+        note="strict frontier: #line for-missing-')' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8922,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_for_missing_rparen_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_for_missing_rparen_parser_presence.c",
+        note="reduced threshold: #line for-missing-')' diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=8922,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_for_missing_rparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_for_missing_rparen_parser_presence.c",
+        note="strict frontier: include #line for-missing-')' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=8932,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_for_missing_rparen_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_for_missing_rparen_parser_presence.c",
+        note="reduced threshold: include #line for-missing-')' diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=8932,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -5354,6 +6649,222 @@ DIAG_JSON_PROBES = [
         note="post-fix lane: include #line switch-missing-')' diagnostics JSON includes parser+semantic payload",
         expected_codes=(2000,),
         expected_line=8911,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_if_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_if_missing_body_parser_presence.c",
+        note="strict frontier: #line if-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=9103,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_if_missing_body_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_if_missing_body_parser_presence.c",
+        note="reduced threshold: #line if-missing-body diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=9103,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_if_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_if_missing_body_parser_presence.c",
+        note="strict frontier: include #line if-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=9113,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_if_missing_body_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_if_missing_body_parser_presence.c",
+        note="reduced threshold: include #line if-missing-body diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=9113,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_while_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_while_missing_body_parser_presence.c",
+        note="strict frontier: #line while-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=9203,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_while_missing_body_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_while_missing_body_parser_presence.c",
+        note="reduced threshold: #line while-missing-body diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=9203,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_while_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_while_missing_body_parser_presence.c",
+        note="strict frontier: include #line while-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=9213,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_while_missing_body_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_while_missing_body_parser_presence.c",
+        note="reduced threshold: include #line while-missing-body diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=9213,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_for_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_for_missing_body_parser_presence.c",
+        note="strict frontier: #line for-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=9303,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_for_missing_body_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_for_missing_body_parser_presence.c",
+        note="reduced threshold: #line for-missing-body diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=9303,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_for_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_for_missing_body_parser_presence.c",
+        note="strict frontier: include #line for-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=9313,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="12__probe_diagjson_line_directive_include_for_missing_body_current_parser_only_pass",
+        source=PROBE_DIR
+        / "diagnostics/12__probe_diagjson_line_directive_include_for_missing_body_parser_presence.c",
+        note="reduced threshold: include #line for-missing-body diagnostics JSON preserves parser payload only",
+        expected_codes=(1000,),
+        expected_line=9313,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_if_missing_lparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_if_missing_lparen_parser_presence.c",
+        note="reduced threshold: #line if-missing-'(' currently emits semantic-only diagjson payload at remapped function location",
+        expected_codes=(2000,),
+        expected_line=132001,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_include_if_missing_lparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_if_missing_lparen_parser_presence.c",
+        note="reduced threshold: include #line if-missing-'(' currently emits semantic-only diagjson payload at remapped function location",
+        expected_codes=(2000,),
+        expected_line=132051,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_switch_missing_rparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_switch_missing_rparen_parser_presence.c",
+        note="strict frontier: #line switch-missing-')' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=132103,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence.c",
+        note="strict frontier: include #line switch-missing-')' should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=132153,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_if_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_if_missing_body_parser_presence.c",
+        note="strict frontier: #line if-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=134003,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_include_if_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_if_missing_body_parser_presence.c",
+        note="strict frontier: include #line if-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=134053,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_while_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_while_missing_body_parser_presence.c",
+        note="strict frontier: #line while-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=134103,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_include_while_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_while_missing_body_parser_presence.c",
+        note="strict frontier: include #line while-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=134153,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_for_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_for_missing_body_parser_presence.c",
+        note="strict frontier: #line for-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=134203,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_include_for_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_for_missing_body_parser_presence.c",
+        note="strict frontier: include #line for-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=134253,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_switch_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_switch_missing_body_parser_presence.c",
+        note="strict frontier: #line switch-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=134303,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="13__probe_diagjson_line_directive_include_switch_missing_body_parser_presence_reject",
+        source=PROBE_DIR
+        / "diagnostics/13__probe_diagjson_line_directive_include_switch_missing_body_parser_presence.c",
+        note="strict frontier: include #line switch-missing-body should preserve parser diagnostics JSON presence",
+        expected_codes=(1000,),
+        expected_line=134353,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(

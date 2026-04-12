@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6903:0): switch controlling expression must be integer
+   Spelling: virtual_stmt_switch_string_current.c:6903:0

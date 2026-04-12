@@ -1,0 +1,4 @@
+Diagnostics:
+Error: expected '}' at line 0
+Error at (1:5): Control reaches end of non-void function 'main'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diagjson__malformed_unbalanced_block_no_crash.c:1:5

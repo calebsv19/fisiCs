@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__line_directive_if_missing_body_diagjson_current_parser_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_if_missing_body_diagjson_current_parser_only.c",
+      "expects": [
+        "expect/12__line_directive_if_missing_body_diagjson_current_parser_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "parser-recovery", "if", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_if_missing_body_diagjson_current_parser_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_if_missing_body_diagjson_current_parser_only.c",
+      "expects": [
+        "expect/12__line_directive_include_if_missing_body_diagjson_current_parser_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "parser-recovery", "if", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_while_missing_body_diagjson_current_parser_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_while_missing_body_diagjson_current_parser_only.c",
+      "expects": [
+        "expect/12__line_directive_while_missing_body_diagjson_current_parser_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "parser-recovery", "while", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_while_missing_body_diagjson_current_parser_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_while_missing_body_diagjson_current_parser_only.c",
+      "expects": [
+        "expect/12__line_directive_include_while_missing_body_diagjson_current_parser_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "parser-recovery", "while", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_for_missing_body_diagjson_current_parser_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_for_missing_body_diagjson_current_parser_only.c",
+      "expects": [
+        "expect/12__line_directive_for_missing_body_diagjson_current_parser_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "parser-recovery", "for", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_for_missing_body_diagjson_current_parser_only",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_for_missing_body_diagjson_current_parser_only.c",
+      "expects": [
+        "expect/12__line_directive_include_for_missing_body_diagjson_current_parser_only.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "parser-recovery", "for", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_if_missing_body_diag_text_parser_parity",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_if_missing_body_diag_text_parser_parity.c",
+      "expects": [
+        "expect/12__line_directive_if_missing_body_diag_text_parser_parity.diag"
+      ],
+      "tags": ["line-directive", "diag", "parser-recovery", "if", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_if_missing_body_diag_text_parser_parity",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_if_missing_body_diag_text_parser_parity.c",
+      "expects": [
+        "expect/12__line_directive_include_if_missing_body_diag_text_parser_parity.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "parser-recovery", "if", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_while_missing_body_diag_text_parser_parity",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_while_missing_body_diag_text_parser_parity.c",
+      "expects": [
+        "expect/12__line_directive_while_missing_body_diag_text_parser_parity.diag"
+      ],
+      "tags": ["line-directive", "diag", "parser-recovery", "while", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_while_missing_body_diag_text_parser_parity",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_while_missing_body_diag_text_parser_parity.c",
+      "expects": [
+        "expect/12__line_directive_include_while_missing_body_diag_text_parser_parity.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "parser-recovery", "while", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_for_missing_body_diag_text_parser_parity",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_for_missing_body_diag_text_parser_parity.c",
+      "expects": [
+        "expect/12__line_directive_for_missing_body_diag_text_parser_parity.diag"
+      ],
+      "tags": ["line-directive", "diag", "parser-recovery", "for", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_for_missing_body_diag_text_parser_parity",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_for_missing_body_diag_text_parser_parity.c",
+      "expects": [
+        "expect/12__line_directive_include_for_missing_body_diag_text_parser_parity.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "parser-recovery", "for", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

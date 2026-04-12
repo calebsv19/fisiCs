@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (2156:5): Operator '+' requires pointer arithmetic (pointer +/- integer)
+   Spelling: virtual_lv_include_compound_assign_pointer_plus_pointer_case.h:2156:5

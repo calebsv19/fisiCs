@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__line_directive_parser_recovery_for_missing_second_semicolon_diag_text_parser_parity",
+      "bucket": "codegen-ir",
+      "input": "cases/13__line_directive_parser_recovery_for_missing_second_semicolon_diag_text_parser_parity.c",
+      "expects": [
+        "expect/13__line_directive_parser_recovery_for_missing_second_semicolon_diag_text_parser_parity.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diag",
+        "parser-recovery",
+        "for",
+        "text-parity",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_include_parser_recovery_for_missing_second_semicolon_diag_text_parser_parity",
+      "bucket": "codegen-ir",
+      "input": "cases/13__line_directive_include_parser_recovery_for_missing_second_semicolon_diag_text_parser_parity.c",
+      "expects": [
+        "expect/13__line_directive_include_parser_recovery_for_missing_second_semicolon_diag_text_parser_parity.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diag",
+        "include",
+        "parser-recovery",
+        "for",
+        "text-parity",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_parser_recovery_do_while_missing_while_diag_text_parser_parity",
+      "bucket": "codegen-ir",
+      "input": "cases/13__line_directive_parser_recovery_do_while_missing_while_diag_text_parser_parity.c",
+      "expects": [
+        "expect/13__line_directive_parser_recovery_do_while_missing_while_diag_text_parser_parity.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diag",
+        "parser-recovery",
+        "do-while",
+        "text-parity",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_include_parser_recovery_do_while_missing_while_diag_text_parser_parity",
+      "bucket": "codegen-ir",
+      "input": "cases/13__line_directive_include_parser_recovery_do_while_missing_while_diag_text_parser_parity.c",
+      "expects": [
+        "expect/13__line_directive_include_parser_recovery_do_while_missing_while_diag_text_parser_parity.diag"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diag",
+        "include",
+        "parser-recovery",
+        "do-while",
+        "text-parity",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

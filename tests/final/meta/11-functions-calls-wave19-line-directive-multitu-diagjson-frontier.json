@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_multitu_prototype_too_many_args_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_prototype_too_many_args_diagjson_current_sparse_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_prototype_too_many_args_diagjson_current_sparse_main.c",
+        "cases/11__line_directive_multitu_prototype_too_many_args_diagjson_current_sparse_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave19-multitu-too-many-args.diagjson", "-o", "tests/final/.wave19-multitu-too-many-args.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_prototype_too_many_args_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "prototype", "arity", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_prototype_too_many_args_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_include_prototype_too_many_args_diagjson_current_sparse_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_include_prototype_too_many_args_diagjson_current_sparse_main.c",
+        "cases/11__line_directive_multitu_include_prototype_too_many_args_diagjson_current_sparse_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave19-multitu-include-too-many-args.diagjson", "-o", "tests/final/.wave19-multitu-include-too-many-args.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_include_prototype_too_many_args_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "include", "prototype", "arity", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_parserdiag_declarator_missing_rparen_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_parserdiag_declarator_missing_rparen_diagjson_current_threshold_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_parserdiag_declarator_missing_rparen_diagjson_current_threshold_main.c",
+        "cases/11__line_directive_multitu_parserdiag_declarator_missing_rparen_diagjson_current_threshold_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave19-multitu-parserdiag-decl-rparen.diagjson", "-o", "tests/final/.wave19-multitu-parserdiag-decl-rparen.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_parserdiag_declarator_missing_rparen_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "parserdiag", "declarator", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_parserdiag_declarator_missing_rparen_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_include_parserdiag_declarator_missing_rparen_diagjson_current_threshold_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_include_parserdiag_declarator_missing_rparen_diagjson_current_threshold_main.c",
+        "cases/11__line_directive_multitu_include_parserdiag_declarator_missing_rparen_diagjson_current_threshold_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave19-multitu-include-parserdiag-decl-rparen.diagjson", "-o", "tests/final/.wave19-multitu-include-parserdiag-decl-rparen.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_include_parserdiag_declarator_missing_rparen_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "include", "parserdiag", "declarator", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

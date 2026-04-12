@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_extern_type_compatible_diag_text_clean",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_type_compatible_diag_text_clean.c",
+      "expects": [
+        "expect/10__line_directive_extern_type_compatible_diag_text_clean.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "scope",
+        "linkage",
+        "clean-path",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_extern_type_compatible_diag_text_clean",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_extern_type_compatible_diag_text_clean.c",
+      "expects": [
+        "expect/10__line_directive_include_extern_type_compatible_diag_text_clean.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "include",
+        "scope",
+        "linkage",
+        "clean-path",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_extern_type_compatible_diag_text_clean",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_extern_type_compatible_diag_text_clean_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_extern_type_compatible_diag_text_clean_main.c",
+        "cases/10__line_directive_multitu_extern_type_compatible_diag_text_clean_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave14-multitu-compatible.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_extern_type_compatible_diag_text_clean.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "scope",
+        "linkage",
+        "clean-path",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_include_extern_type_compatible_diag_text_clean",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_include_extern_type_compatible_diag_text_clean_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_include_extern_type_compatible_diag_text_clean_main.c",
+        "cases/10__line_directive_multitu_include_extern_type_compatible_diag_text_clean_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave14-multitu-include-compatible.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_include_extern_type_compatible_diag_text_clean.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "include",
+        "scope",
+        "linkage",
+        "clean-path",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

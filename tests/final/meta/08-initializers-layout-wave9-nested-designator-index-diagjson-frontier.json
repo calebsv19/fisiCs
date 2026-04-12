@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__line_directive_nested_designator_array_index_nonconst_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_nested_designator_array_index_nonconst_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_nested_designator_array_index_nonconst_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "initializer",
+        "designator",
+        "line-directive",
+        "diagjson",
+        "nested",
+        "index",
+        "nonconst",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__line_directive_include_nested_designator_array_index_nonconst_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_include_nested_designator_array_index_nonconst_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_include_nested_designator_array_index_nonconst_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "initializer",
+        "designator",
+        "line-directive",
+        "diagjson",
+        "include",
+        "nested",
+        "index",
+        "nonconst",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__line_directive_nested_designator_array_index_negative_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_nested_designator_array_index_negative_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_nested_designator_array_index_negative_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "initializer",
+        "designator",
+        "line-directive",
+        "diagjson",
+        "nested",
+        "index",
+        "negative",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__line_directive_include_nested_designator_array_index_negative_diagjson_current_sparse",
+      "bucket": "initializers-layout",
+      "input": "cases/08__line_directive_include_nested_designator_array_index_negative_diagjson_current_sparse.c",
+      "expects": [
+        "expect/08__line_directive_include_nested_designator_array_index_negative_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "initializer",
+        "designator",
+        "line-directive",
+        "diagjson",
+        "include",
+        "nested",
+        "index",
+        "negative",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diagjson__alias_case_malformed_unbalanced_block_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diagjson__malformed_unbalanced_block_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_unbalanced_block_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "diagjson",
+        "alias-case"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__alias_case_malformed_unclosed_comment_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diagjson__malformed_unclosed_comment_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_unclosed_comment_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "diagjson",
+        "alias-case"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

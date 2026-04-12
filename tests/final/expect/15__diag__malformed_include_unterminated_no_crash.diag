@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Unterminated string literal at tests/final/cases/15__diagjson__malformed_include_unterminated_no_crash.c:1:10 (got '"')

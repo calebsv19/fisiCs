@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_return_type_match_diag_text_clean",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_return_type_match_diag_text_clean.c",
+      "expects": [
+        "expect/11__line_directive_return_type_match_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "return", "type", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_return_type_match_diag_text_clean",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_return_type_match_diag_text_clean.c",
+      "expects": [
+        "expect/11__line_directive_include_return_type_match_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "return", "type", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_void_return_empty_diag_text_clean",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_void_return_empty_diag_text_clean.c",
+      "expects": [
+        "expect/11__line_directive_void_return_empty_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "return", "void", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_void_return_empty_diag_text_clean",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_void_return_empty_diag_text_clean.c",
+      "expects": [
+        "expect/11__line_directive_include_void_return_empty_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "return", "void", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

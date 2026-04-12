@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6502:51): Array 'grid_include_nested_nonconst' designator index must be a constant expression
+   Spelling: virtual_init_include_nested_designator_array_nonconst_header_case.h:6502:51

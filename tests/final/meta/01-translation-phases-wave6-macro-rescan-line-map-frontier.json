@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__line_directive_undeclared_identifier_diag_line_map",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_undeclared_identifier_line_map.c",
+      "expects": [
+        "expect/01__line_directive_undeclared_identifier_diag_line_map.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "semantic",
+        "diag",
+        "undeclared"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_undeclared_identifier_diagjson_line_map",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_undeclared_identifier_line_map.c",
+      "expects": [
+        "expect/01__line_directive_undeclared_identifier_diagjson_line_map.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "semantic",
+        "diagjson",
+        "undeclared"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_macro_undeclared_identifier_diag_line_map",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_macro_undeclared_identifier_line_map.c",
+      "expects": [
+        "expect/01__line_directive_macro_undeclared_identifier_diag_line_map.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "macro",
+        "semantic",
+        "diag",
+        "undeclared"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__line_directive_macro_undeclared_identifier_diagjson_line_map",
+      "bucket": "translation-phases",
+      "input": "cases/01__line_directive_macro_undeclared_identifier_line_map.c",
+      "expects": [
+        "expect/01__line_directive_macro_undeclared_identifier_diagjson_line_map.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "macro",
+        "semantic",
+        "diagjson",
+        "undeclared"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

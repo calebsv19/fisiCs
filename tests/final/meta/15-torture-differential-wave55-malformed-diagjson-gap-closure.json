@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diagjson__malformed_macro_arity_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diag__malformed_macro_arity_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_macro_arity_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "preprocessor",
+        "diagjson",
+        "macro-arity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_pp_elif_without_if_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diag__malformed_pp_elif_without_if_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_pp_elif_without_if_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "preprocessor",
+        "diagjson",
+        "control-directive"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_pp_ifexpr_rparen_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diag__malformed_pp_ifexpr_rparen_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_pp_ifexpr_rparen_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "preprocessor",
+        "diagjson",
+        "if-expression"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__malformed_return_semicolon_no_crash",
+      "bucket": "torture-differential",
+      "input": "cases/15__diag__malformed_return_semicolon_no_crash.c",
+      "expects": [
+        "expect/15__diagjson__malformed_return_semicolon_no_crash.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "malformed",
+        "parser",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

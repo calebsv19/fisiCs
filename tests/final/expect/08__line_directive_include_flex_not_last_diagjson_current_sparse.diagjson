@@ -3,13 +3,13 @@
   "diagnostics": [
     {
       "code": 2000,
-      "column": 0,
-      "has_file": false,
+      "column": 9,
+      "has_file": true,
       "has_hint": true,
       "has_message": true,
       "kind": 0,
-      "length": 1,
-      "line": 0
+      "length": 4,
+      "line": 5602
     }
   ],
   "error_count": 1,

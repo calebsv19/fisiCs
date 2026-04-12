@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_block_scope_conflicting_types_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_block_scope_conflicting_types_diagjson_strict.c",
+      "expects": [
+        "expect/10__line_directive_block_scope_conflicting_types_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "scope",
+        "block",
+        "type-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_block_scope_conflicting_types_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_block_scope_conflicting_types_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_block_scope_conflicting_types_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "scope",
+        "block",
+        "type-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_block_scope_conflicting_types_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_block_scope_conflicting_types_diagjson_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_block_scope_conflicting_types_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "include",
+        "scope",
+        "block",
+        "type-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_block_scope_conflicting_types_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_block_scope_conflicting_types_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_block_scope_conflicting_types_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "include",
+        "scope",
+        "block",
+        "type-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

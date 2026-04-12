@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__line_directive_bitfield_address_diagjson_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_bitfield_address_diagjson_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_bitfield_address_diagjson_current_sparse.diagjson"
+      ],
+      "capture_diag_json": true,
+      "tags": [
+        "lvalues-rvalues",
+        "diagjson",
+        "line-directive",
+        "wave8",
+        "bitfield",
+        "address-of",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__line_directive_include_bitfield_address_diagjson_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_include_bitfield_address_diagjson_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_include_bitfield_address_diagjson_current_sparse.diagjson"
+      ],
+      "capture_diag_json": true,
+      "tags": [
+        "lvalues-rvalues",
+        "diagjson",
+        "line-directive",
+        "include",
+        "wave8",
+        "bitfield",
+        "address-of",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__line_directive_temp_increment_diagjson_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_temp_increment_diagjson_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_temp_increment_diagjson_current_sparse.diagjson"
+      ],
+      "capture_diag_json": true,
+      "tags": [
+        "lvalues-rvalues",
+        "diagjson",
+        "line-directive",
+        "wave8",
+        "temporary",
+        "increment",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__line_directive_include_temp_increment_diagjson_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_include_temp_increment_diagjson_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_include_temp_increment_diagjson_current_sparse.diagjson"
+      ],
+      "capture_diag_json": true,
+      "tags": [
+        "lvalues-rvalues",
+        "diagjson",
+        "line-directive",
+        "include",
+        "wave8",
+        "temporary",
+        "increment",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__line_directive_bitfield_address_diag_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_bitfield_address_diag_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_bitfield_address_diag_current_sparse.diag"
+      ],
+      "tags": [
+        "lvalues-rvalues",
+        "diag",
+        "line-directive",
+        "wave8",
+        "bitfield",
+        "address-of",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__line_directive_include_bitfield_address_diag_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_include_bitfield_address_diag_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_include_bitfield_address_diag_current_sparse.diag"
+      ],
+      "tags": [
+        "lvalues-rvalues",
+        "diag",
+        "line-directive",
+        "include",
+        "wave8",
+        "bitfield",
+        "address-of",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__line_directive_temp_increment_diag_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_temp_increment_diag_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_temp_increment_diag_current_sparse.diag"
+      ],
+      "tags": [
+        "lvalues-rvalues",
+        "diag",
+        "line-directive",
+        "wave8",
+        "temporary",
+        "increment",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__line_directive_include_temp_increment_diag_current_sparse",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__line_directive_include_temp_increment_diag_current_sparse.c",
+      "expects": [
+        "expect/06__line_directive_include_temp_increment_diag_current_sparse.diag"
+      ],
+      "tags": [
+        "lvalues-rvalues",
+        "diag",
+        "line-directive",
+        "include",
+        "wave8",
+        "temporary",
+        "increment",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

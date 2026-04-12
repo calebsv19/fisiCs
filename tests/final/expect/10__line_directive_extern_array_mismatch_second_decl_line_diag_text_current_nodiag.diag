@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (13201:12): Conflicting types for variable
+   Hint: arr_second_decl_diag
+   Spelling: virtual_scope_extern_array_mismatch_second_decl_line_diag_case.c:13201:12

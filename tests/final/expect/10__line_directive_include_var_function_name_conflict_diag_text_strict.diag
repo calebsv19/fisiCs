@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (10502:5): Redefinition of function
+   Hint: shared_vf_inc_diag
+   Spelling: virtual_scope_include_var_function_name_conflict_diag_text_strict.h:10502:5

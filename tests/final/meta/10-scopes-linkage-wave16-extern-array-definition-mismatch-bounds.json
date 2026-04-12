@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_extern_array_def_mismatch_diag_text_current_nodiag",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_def_mismatch_diag_current_nodiag.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_def_mismatch_diag_text_current_nodiag.diag"
+      ],
+      "tags": ["line-directive", "diag", "scope", "linkage", "array-bounds", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_extern_array_def_mismatch_diagjson_current_empty",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_def_mismatch_diag_current_nodiag.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_def_mismatch_diagjson_current_empty.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "scope", "linkage", "array-bounds", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_extern_array_def_mismatch_diag_text_current_nodiag",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_extern_array_def_mismatch_diag_current_nodiag.c",
+      "expects": [
+        "expect/10__line_directive_include_extern_array_def_mismatch_diag_text_current_nodiag.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "scope", "linkage", "array-bounds", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_extern_array_def_mismatch_diagjson_current_empty",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_extern_array_def_mismatch_diag_current_nodiag.c",
+      "expects": [
+        "expect/10__line_directive_include_extern_array_def_mismatch_diagjson_current_empty.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "include", "scope", "linkage", "array-bounds", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_extern_array_def_mismatch_diag_text_current_nodiag",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_extern_array_def_mismatch_diag_current_nodiag_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_extern_array_def_mismatch_diag_current_nodiag_main.c",
+        "cases/10__line_directive_multitu_extern_array_def_mismatch_diag_current_nodiag_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave16-multitu-array-def-mismatch.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_extern_array_def_mismatch_diag_text_current_nodiag.diag"
+      ],
+      "tags": ["line-directive", "diag", "multitu", "scope", "linkage", "array-bounds", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_include_extern_array_def_mismatch_diag_text_current_nodiag",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_include_extern_array_def_mismatch_diag_current_nodiag_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_include_extern_array_def_mismatch_diag_current_nodiag_main.c",
+        "cases/10__line_directive_multitu_include_extern_array_def_mismatch_diag_current_nodiag_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave16-multitu-include-array-def-mismatch.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_include_extern_array_def_mismatch_diag_text_current_nodiag.diag"
+      ],
+      "tags": ["line-directive", "diag", "multitu", "include", "scope", "linkage", "array-bounds", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_extern_array_def_mismatch_diagjson_export_current_missing",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_extern_array_def_mismatch_diag_current_nodiag_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_extern_array_def_mismatch_diag_current_nodiag_main.c",
+        "cases/10__line_directive_multitu_extern_array_def_mismatch_diag_current_nodiag_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave16-multitu-array-def-mismatch-json.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_extern_array_def_mismatch_diagjson_export_current_missing.diag"
+      ],
+      "tags": ["line-directive", "diag", "multitu", "scope", "linkage", "array-bounds", "current-threshold", "diagjson-export-gap", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_include_extern_array_def_mismatch_diagjson_export_current_missing",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_include_extern_array_def_mismatch_diag_current_nodiag_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_include_extern_array_def_mismatch_diag_current_nodiag_main.c",
+        "cases/10__line_directive_multitu_include_extern_array_def_mismatch_diag_current_nodiag_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave16-multitu-include-array-def-mismatch-json.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_include_extern_array_def_mismatch_diagjson_export_current_missing.diag"
+      ],
+      "tags": ["line-directive", "diag", "multitu", "include", "scope", "linkage", "array-bounds", "current-threshold", "diagjson-export-gap", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_extern_array_incomplete_then_definition_diag_text_clean",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_extern_array_incomplete_then_definition_diag_text_clean.c",
+      "expects": [
+        "expect/10__line_directive_extern_array_incomplete_then_definition_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "scope", "linkage", "array-bounds", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_extern_array_incomplete_then_definition_diag_text_clean",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_extern_array_incomplete_then_definition_diag_text_clean.c",
+      "expects": [
+        "expect/10__line_directive_include_extern_array_incomplete_then_definition_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "scope", "linkage", "array-bounds", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (2042:6): Operator '++' requires modifiable lvalue operand
+   Spelling: virtual_lv_include_temp_increment_diag_case.h:2042:6

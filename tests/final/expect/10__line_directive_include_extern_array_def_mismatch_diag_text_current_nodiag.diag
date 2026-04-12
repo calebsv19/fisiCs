@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (3:5): Conflicting types for variable
+   Hint: arr_def_inc_diag
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/10__line_directive_include_extern_array_def_mismatch_diag_current_nodiag.c:3:5

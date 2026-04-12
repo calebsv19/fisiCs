@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (0:0): Flexible array member must be the last field in a struct
+Error at (6002:9): Flexible array member must be the last field in a struct
    Hint: data
+   Spelling: virtual_init_include_flex_not_last_diag_text_header_case.h:6002:9

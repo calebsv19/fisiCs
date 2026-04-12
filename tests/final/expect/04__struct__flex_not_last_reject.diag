@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (0:0): Flexible array member must be the last field in a struct
+Error at (2:9): Flexible array member must be the last field in a struct
    Hint: data
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__struct__flex_not_last_reject.c:2:9

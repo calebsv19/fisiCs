@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diagjson__corpus_external_compile_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_compile_reject.c",
+      "expects": [
+        "expect/15__diagjson__corpus_external_compile_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "compile-reject",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__corpus_external_include_guard_mismatch_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_include_guard_mismatch_reject.c",
+      "expects": [
+        "expect/15__diagjson__corpus_external_include_guard_mismatch_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "include-guard",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__corpus_external_macro_chain_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_macro_chain_reject.c",
+      "expects": [
+        "expect/15__diagjson__corpus_external_macro_chain_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "macro-chain",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__corpus_external_macro_guard_reject",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__corpus_external_macro_guard_reject.c",
+      "expects": [
+        "expect/15__diagjson__corpus_external_macro_guard_reject.diagjson"
+      ],
+      "allow_nonzero_exit": true,
+      "tags": [
+        "torture",
+        "negative",
+        "external-corpus",
+        "macro-guard",
+        "diagjson"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

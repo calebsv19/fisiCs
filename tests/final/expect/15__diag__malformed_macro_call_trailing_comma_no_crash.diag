@@ -1,0 +1,4 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diagjson__malformed_macro_call_trailing_comma_no_crash.c:4 (got ')')
+Error at (4:17): Operator '+' requires arithmetic operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diagjson__malformed_macro_call_trailing_comma_no_crash.c:4:17

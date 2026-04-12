@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6402:43): Array 'grid_nested_nonconst' designator index must be a constant expression
+   Spelling: virtual_init_nested_designator_array_nonconst_case.c:6402:43

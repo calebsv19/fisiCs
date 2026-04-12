@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_var_function_name_conflict_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_var_function_name_conflict_diagjson_strict.c",
+      "expects": [
+        "expect/10__line_directive_var_function_name_conflict_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "scope",
+        "name-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_var_function_name_conflict_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_var_function_name_conflict_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_var_function_name_conflict_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "scope",
+        "name-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_var_function_name_conflict_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_var_function_name_conflict_diagjson_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_var_function_name_conflict_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "include",
+        "scope",
+        "name-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_include_var_function_name_conflict_diag_text_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_include_var_function_name_conflict_diag_text_strict.c",
+      "expects": [
+        "expect/10__line_directive_include_var_function_name_conflict_diag_text_strict.diag"
+      ],
+      "tags": [
+        "line-directive",
+        "diag",
+        "include",
+        "scope",
+        "name-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

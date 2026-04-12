@@ -1,0 +1,4 @@
+#include "10__line_directive_multitu_include_extern_type_compatible_diag_text_clean.h"
+
+#line 11451 "virtual_scope_multitu_include_extern_type_compatible_diag_text_clean_lib.c"
+int wave14_mt_inc_shared_value = 7;

@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_parserdiag_prototype_double_comma_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_parserdiag_prototype_double_comma_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_parserdiag_prototype_double_comma_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "prototype", "params", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_parserdiag_prototype_double_comma_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_parserdiag_prototype_double_comma_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_include_parserdiag_prototype_double_comma_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "include", "prototype", "params", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_parserdiag_prototype_ellipsis_missing_comma_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_parserdiag_prototype_ellipsis_missing_comma_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_parserdiag_prototype_ellipsis_missing_comma_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "prototype", "variadic", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_parserdiag_prototype_ellipsis_missing_comma_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_parserdiag_prototype_ellipsis_missing_comma_current_threshold.c",
+      "expects": [
+        "expect/11__line_directive_include_parserdiag_prototype_ellipsis_missing_comma_current_threshold.pdiag"
+      ],
+      "tags": ["line-directive", "parser-diag", "include", "prototype", "variadic", "current-threshold", "probe-promotion"],
+      "allow_nonzero_exit": true,
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

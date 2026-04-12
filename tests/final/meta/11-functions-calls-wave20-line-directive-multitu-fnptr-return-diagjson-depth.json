@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_multitu_function_pointer_assign_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_function_pointer_assign_diagjson_strict_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_function_pointer_assign_diagjson_strict_main.c",
+        "cases/11__line_directive_multitu_function_pointer_assign_diagjson_strict_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave20-multitu-fnptr-assign.diagjson", "-o", "tests/final/.wave20-multitu-fnptr-assign.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_function_pointer_assign_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "function-pointer", "assignment", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_function_pointer_assign_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_include_function_pointer_assign_diagjson_strict_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_include_function_pointer_assign_diagjson_strict_main.c",
+        "cases/11__line_directive_multitu_include_function_pointer_assign_diagjson_strict_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave20-multitu-include-fnptr-assign.diagjson", "-o", "tests/final/.wave20-multitu-include-fnptr-assign.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_include_function_pointer_assign_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "include", "function-pointer", "assignment", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_return_type_mismatch_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_return_type_mismatch_diagjson_strict_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_return_type_mismatch_diagjson_strict_main.c",
+        "cases/11__line_directive_multitu_return_type_mismatch_diagjson_strict_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave20-multitu-return-type-mismatch.diagjson", "-o", "tests/final/.wave20-multitu-return-type-mismatch.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_return_type_mismatch_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "return", "type", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_return_type_mismatch_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_include_return_type_mismatch_diagjson_strict_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_include_return_type_mismatch_diagjson_strict_main.c",
+        "cases/11__line_directive_multitu_include_return_type_mismatch_diagjson_strict_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave20-multitu-include-return-type-mismatch.diagjson", "-o", "tests/final/.wave20-multitu-include-return-type-mismatch.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_include_return_type_mismatch_diagjson_strict.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "include", "return", "type", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

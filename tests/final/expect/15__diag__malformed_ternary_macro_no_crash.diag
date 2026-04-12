@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diagjson__malformed_ternary_macro_no_crash.c:5:17: error: macro 'CHOOSE' requires 3 argument(s), got 2
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diagjson__malformed_ternary_macro_no_crash.c:5:17: error: macro 'CHOOSE' requires 3 argument(s), got 2
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diagjson__malformed_ternary_macro_no_crash.c:5:17: error: macro 'CHOOSE' requires 3 argument(s), got 2

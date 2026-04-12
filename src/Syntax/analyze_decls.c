@@ -39,6 +39,47 @@ static void reportErrorAtAstNode(ASTNode* node,
     addError(fallbackLine, 0, message, hint);
 }
 
+static ASTNode* varDeclPrimaryNameNode(ASTNode* node) {
+    if (!node || node->type != AST_VARIABLE_DECLARATION) return NULL;
+    if (!node->varDecl.varNames || node->varDecl.varCount == 0) return NULL;
+    ASTNode* name = node->varDecl.varNames[0];
+    return (name && name->type == AST_IDENTIFIER) ? name : NULL;
+}
+
+static SourceRange varDeclBestSpellingRange(ASTNode* node) {
+    ASTNode* name = varDeclPrimaryNameNode(node);
+    if (name && name->location.start.file) {
+        return name->location;
+    }
+    if (node && node->location.start.file) {
+        return node->location;
+    }
+    SourceRange loc = node ? node->location : (SourceRange){0};
+    if (loc.start.line <= 0 && node && node->line > 0) {
+        loc.start.line = node->line;
+    }
+    if (loc.end.line <= 0) {
+        loc.end = loc.start;
+    }
+    return loc;
+}
+
+static SourceRange varDeclBestMacroCallSite(ASTNode* node) {
+    ASTNode* name = varDeclPrimaryNameNode(node);
+    if (name && name->macroCallSite.start.file) {
+        return name->macroCallSite;
+    }
+    return node ? node->macroCallSite : (SourceRange){0};
+}
+
+static SourceRange varDeclBestMacroDefinition(ASTNode* node) {
+    ASTNode* name = varDeclPrimaryNameNode(node);
+    if (name && name->macroDefinition.start.file) {
+        return name->macroDefinition;
+    }
+    return node ? node->macroDefinition : (SourceRange){0};
+}
+
 static const ParsedType* resolveTypedefBase(Scope* scope, const ParsedType* type, int depth) {
     if (!scope || !type || depth > 16) {
         return type;
@@ -118,10 +159,57 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
 static bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
                                                      const ParsedType* b,
                                                      Scope* scope) {
-    if (parsedTypesStructurallyEqual(a, b)) {
-        return true;
+    if (!a || !b) {
+        return false;
     }
-    if (!a || !b || !scope) {
+
+    size_t lhsArrayCount = parsedTypeCountDerivationsOfKind(a, TYPE_DERIVATION_ARRAY);
+    size_t rhsArrayCount = parsedTypeCountDerivationsOfKind(b, TYPE_DERIVATION_ARRAY);
+    bool arrayBoundsCompatible = true;
+    if (lhsArrayCount != rhsArrayCount) {
+        arrayBoundsCompatible = false;
+    } else {
+        for (size_t i = 0; i < lhsArrayCount; ++i) {
+            const TypeDerivation* lhsArr = parsedTypeGetArrayDerivation(a, i);
+            const TypeDerivation* rhsArr = parsedTypeGetArrayDerivation(b, i);
+            if (!lhsArr || !rhsArr) {
+                arrayBoundsCompatible = false;
+                break;
+            }
+            if (lhsArr->as.array.isVLA != rhsArr->as.array.isVLA) {
+                arrayBoundsCompatible = false;
+                break;
+            }
+
+            bool lhsKnown = lhsArr->as.array.hasConstantSize && !lhsArr->as.array.isVLA;
+            bool rhsKnown = rhsArr->as.array.hasConstantSize && !rhsArr->as.array.isVLA;
+            bool lhsIncomplete =
+                !lhsKnown &&
+                !lhsArr->as.array.isVLA &&
+                !lhsArr->as.array.isFlexible &&
+                lhsArr->as.array.sizeExpr == NULL;
+            bool rhsIncomplete =
+                !rhsKnown &&
+                !rhsArr->as.array.isVLA &&
+                !rhsArr->as.array.isFlexible &&
+                rhsArr->as.array.sizeExpr == NULL;
+
+            if (lhsKnown && rhsKnown &&
+                lhsArr->as.array.constantSize != rhsArr->as.array.constantSize) {
+                arrayBoundsCompatible = false;
+                break;
+            }
+            if (lhsKnown != rhsKnown && !(lhsIncomplete || rhsIncomplete)) {
+                arrayBoundsCompatible = false;
+                break;
+            }
+        }
+    }
+
+    if (parsedTypesStructurallyEqual(a, b)) {
+        return arrayBoundsCompatible;
+    }
+    if (!scope) {
         return false;
     }
 
@@ -129,8 +217,8 @@ static bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
     ParsedType rhs = parsedTypeClone(b);
     canonicalizeParsedTypeAliases(scope, &lhs, 0);
     canonicalizeParsedTypeAliases(scope, &rhs, 0);
-    bool ok = parsedTypesStructurallyEqual(&lhs, &rhs);
-    if (!ok) {
+    bool ok = parsedTypesStructurallyEqual(&lhs, &rhs) && arrayBoundsCompatible;
+    if (!ok && arrayBoundsCompatible) {
         TypeInfo lhsInfo = typeInfoFromParsedType(&lhs, scope);
         TypeInfo rhsInfo = typeInfoFromParsedType(&rhs, scope);
         bool aggregateTagCompatible =
@@ -1849,24 +1937,27 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         }
                     }
                     if (isFlexible) {
+                        SourceRange fieldSpelling = varDeclBestSpellingRange(field);
+                        SourceRange fieldMacroCall = varDeclBestMacroCallSite(field);
+                        SourceRange fieldMacroDef = varDeclBestMacroDefinition(field);
                         if (node->type == AST_UNION_DEFINITION) {
-                            addErrorWithRanges(field->location,
-                                               field->macroCallSite,
-                                               field->macroDefinition,
+                            addErrorWithRanges(fieldSpelling,
+                                               fieldMacroCall,
+                                               fieldMacroDef,
                                                "Flexible array members are not allowed in unions",
                                                fieldName);
                         } else {
                             if (i + 1 != node->structDef.fieldCount) {
-                                addErrorWithRanges(field->location,
-                                                   field->macroCallSite,
-                                                   field->macroDefinition,
+                                addErrorWithRanges(fieldSpelling,
+                                                   fieldMacroCall,
+                                                   fieldMacroDef,
                                                    "Flexible array member must be the last field in a struct",
                                                    fieldName);
                             }
                             if (field->varDecl.varCount > 1) {
-                                addErrorWithRanges(field->location,
-                                                   field->macroCallSite,
-                                                   field->macroDefinition,
+                                addErrorWithRanges(fieldSpelling,
+                                                   fieldMacroCall,
+                                                   fieldMacroDef,
                                                    "Flexible array member cannot be declared with multiple declarators",
                                                    fieldName);
                             }

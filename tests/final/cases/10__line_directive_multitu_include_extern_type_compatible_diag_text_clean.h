@@ -1,0 +1,2 @@
+#line 11401 "virtual_scope_multitu_include_extern_type_compatible_diag_text_clean.h"
+extern int wave14_mt_inc_shared_value;

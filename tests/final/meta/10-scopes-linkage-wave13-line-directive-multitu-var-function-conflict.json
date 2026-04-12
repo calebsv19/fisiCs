@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_multitu_var_function_conflict_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_var_function_conflict_diagjson_strict_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_var_function_conflict_diagjson_strict_main.c",
+        "cases/10__line_directive_multitu_var_function_conflict_diagjson_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave13-multitu-varfn.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_var_function_conflict_diagjson_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "multitu",
+        "scope",
+        "name-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_var_function_conflict_diag_text_current_linkstage",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_var_function_conflict_diagjson_strict_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_var_function_conflict_diagjson_strict_main.c",
+        "cases/10__line_directive_multitu_var_function_conflict_diagjson_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave13-multitu-varfn-text.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_var_function_conflict_diag_text_current_linkstage.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "scope",
+        "name-conflict",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_include_var_function_conflict_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_include_var_function_conflict_diagjson_strict_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_include_var_function_conflict_diagjson_strict_main.c",
+        "cases/10__line_directive_multitu_include_var_function_conflict_diagjson_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave13-multitu-varfn.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_include_var_function_conflict_diagjson_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "multitu",
+        "include",
+        "scope",
+        "name-conflict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_multitu_include_var_function_conflict_diag_text_current_linkstage",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_multitu_include_var_function_conflict_diagjson_strict_main.c",
+      "inputs": [
+        "cases/10__line_directive_multitu_include_var_function_conflict_diagjson_strict_main.c",
+        "cases/10__line_directive_multitu_include_var_function_conflict_diagjson_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave13-multitu-varfn-text.out"],
+      "expects": [
+        "expect/10__line_directive_multitu_include_var_function_conflict_diag_text_current_linkstage.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "include",
+        "scope",
+        "name-conflict",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

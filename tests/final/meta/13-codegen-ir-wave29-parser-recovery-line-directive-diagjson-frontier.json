@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__line_directive_parser_recovery_for_missing_second_semicolon_diagjson_current_semantic_only",
+      "bucket": "codegen-ir",
+      "input": "cases/13__line_directive_parser_recovery_for_missing_second_semicolon_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/13__line_directive_parser_recovery_for_missing_second_semicolon_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "parser-recovery",
+        "for",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_include_parser_recovery_for_missing_second_semicolon_diagjson_current_semantic_only",
+      "bucket": "codegen-ir",
+      "input": "cases/13__line_directive_include_parser_recovery_for_missing_second_semicolon_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/13__line_directive_include_parser_recovery_for_missing_second_semicolon_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "include",
+        "parser-recovery",
+        "for",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_parser_recovery_do_while_missing_while_diagjson_current_semantic_only",
+      "bucket": "codegen-ir",
+      "input": "cases/13__line_directive_parser_recovery_do_while_missing_while_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/13__line_directive_parser_recovery_do_while_missing_while_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "parser-recovery",
+        "do-while",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_include_parser_recovery_do_while_missing_while_diagjson_current_semantic_only",
+      "bucket": "codegen-ir",
+      "input": "cases/13__line_directive_include_parser_recovery_do_while_missing_while_diagjson_current_semantic_only.c",
+      "expects": [
+        "expect/13__line_directive_include_parser_recovery_do_while_missing_while_diagjson_current_semantic_only.diagjson"
+      ],
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "include",
+        "parser-recovery",
+        "do-while",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

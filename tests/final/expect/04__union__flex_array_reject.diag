@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (0:0): Flexible array members are not allowed in unions
+Error at (2:9): Flexible array members are not allowed in unions
    Hint: data
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/04__union__flex_array_reject.c:2:9

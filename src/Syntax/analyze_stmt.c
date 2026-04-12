@@ -532,9 +532,9 @@ static bool typeInfoIsScalar(const TypeInfo* info) {
 }
 
 static void analyzeControlCondition(ASTNode* expr,
+                                    ASTNode* ownerStmt,
                                     Scope* scope,
                                     bool requireInteger,
-                                    int line,
                                     const char* stmtName) {
     if (!expr) return;
     TypeInfo cond = analyzeExpression(expr, scope);
@@ -545,15 +545,47 @@ static void analyzeControlCondition(ASTNode* expr,
     if (requireInteger) {
         if (!typeInfoIsInteger(&cond)) {
             char buffer[128];
+            SourceRange loc = expr->location;
+            SourceRange callSite = expr->macroCallSite;
+            SourceRange macroDef = expr->macroDefinition;
+            if (ownerStmt) {
+                if (!loc.start.file) {
+                    loc = ownerStmt->location;
+                }
+                if (!callSite.start.file) {
+                    callSite = ownerStmt->macroCallSite;
+                }
+                if (!macroDef.start.file) {
+                    macroDef = ownerStmt->macroDefinition;
+                }
+            }
+            loc.start.column = 0;
+            loc.end.column = 0;
             snprintf(buffer, sizeof(buffer), "%s controlling expression must be integer", stmtName);
-            addError(line, 0, buffer, NULL);
+            addErrorWithRanges(loc, callSite, macroDef, buffer, NULL);
         }
         return;
     }
     if (!typeInfoIsScalar(&cond)) {
         char buffer[128];
+        SourceRange loc = expr->location;
+        SourceRange callSite = expr->macroCallSite;
+        SourceRange macroDef = expr->macroDefinition;
+        if (ownerStmt) {
+            if (!loc.start.file) {
+                loc = ownerStmt->location;
+            }
+            if (!callSite.start.file) {
+                callSite = ownerStmt->macroCallSite;
+            }
+            if (!macroDef.start.file) {
+                macroDef = ownerStmt->macroDefinition;
+            }
+        }
+        loc.start.column = 0;
+        loc.end.column = 0;
         snprintf(buffer, sizeof(buffer), "%s controlling expression must be scalar", stmtName);
-        addError(line, 0, buffer, NULL);
+        addErrorWithRanges(loc, callSite, macroDef, buffer, NULL);
     }
 }
 
@@ -564,7 +596,7 @@ static void analyzeStatementInternal(ASTNode* node,
                                      int loopDepth) {
     switch (node->type) {
         case AST_IF_STATEMENT:
-            analyzeControlCondition(node->ifStmt.condition, scope, false, node->line, "if");
+            analyzeControlCondition(node->ifStmt.condition, node, scope, false, "if");
             analyzeStatementInternal(node->ifStmt.thenBranch, scope, switchStack, labels, loopDepth);
             if (node->ifStmt.elseBranch) {
                 analyzeStatementInternal(node->ifStmt.elseBranch, scope, switchStack, labels, loopDepth);
@@ -574,7 +606,7 @@ static void analyzeStatementInternal(ASTNode* node,
         case AST_FOR_LOOP: {
             Scope* inner = createScope(scope);
             analyze(node->forLoop.initializer, inner);
-            analyzeControlCondition(node->forLoop.condition, inner, false, node->line, "for");
+            analyzeControlCondition(node->forLoop.condition, node, inner, false, "for");
             analyze(node->forLoop.increment, inner);
             analyzeStatementInternal(node->forLoop.body, inner, switchStack, labels, loopDepth + 1);
             destroyScope(inner);
@@ -583,9 +615,9 @@ static void analyzeStatementInternal(ASTNode* node,
 
         case AST_WHILE_LOOP:
             analyzeControlCondition(node->whileLoop.condition,
+                                    node,
                                     scope,
                                     false,
-                                    node->line,
                                     node->whileLoop.isDoWhile ? "do-while" : "while");
             analyzeStatementInternal(node->whileLoop.body, scope, switchStack, labels, loopDepth + 1);
             break;
@@ -656,7 +688,7 @@ static void analyzeStatementInternal(ASTNode* node,
             break;
 
         case AST_SWITCH: {
-            analyzeControlCondition(node->switchStmt.condition, scope, true, node->line, "switch");
+            analyzeControlCondition(node->switchStmt.condition, node, scope, true, "switch");
             SwitchFrame* frame = pushSwitchFrame(switchStack);
             for (size_t i = 0; i < node->switchStmt.caseListSize; i++) {
                 analyzeStatementInternal(node->switchStmt.caseList[i], scope, switchStack, labels, loopDepth);

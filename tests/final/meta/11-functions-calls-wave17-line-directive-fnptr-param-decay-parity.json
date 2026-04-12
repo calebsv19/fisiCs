@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_function_pointer_assign_diag_text_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_function_pointer_assign_diag_text_strict.c",
+      "expects": [
+        "expect/11__line_directive_function_pointer_assign_diag_text_strict.diag"
+      ],
+      "tags": ["line-directive", "diag", "function-pointer", "assignment", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_function_pointer_assign_diag_text_strict",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_function_pointer_assign_diag_text_strict.c",
+      "expects": [
+        "expect/11__line_directive_include_function_pointer_assign_diag_text_strict.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "function-pointer", "assignment", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_param_decay_diag_text_clean",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_param_decay_diag_text_clean.c",
+      "expects": [
+        "expect/11__line_directive_param_decay_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "param-decay", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_include_param_decay_diag_text_clean",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_include_param_decay_diag_text_clean.c",
+      "expects": [
+        "expect/11__line_directive_include_param_decay_diag_text_clean.diag"
+      ],
+      "tags": ["line-directive", "diag", "include", "param-decay", "clean-path", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

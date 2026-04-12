@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (455:12): Undeclared identifier
+   Hint: missing_symbol
+   Spelling: virtual_macro_undeclared_phase01.c:455:12

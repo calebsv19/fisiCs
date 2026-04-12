@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (10001:41): Void function should not return a value
+   Spelling: virtual_fn_include_void_return_value_diag_text_strict.h:10001:41

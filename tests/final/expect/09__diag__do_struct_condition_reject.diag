@@ -1,2 +1,3 @@
 Diagnostics:
 Error at (8:0): do-while controlling expression must be scalar
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/09__diag__do_struct_condition_reject.c:8:0
