@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__realproj_ws_zero_brace_aggregate_array_runtime",
+      "bucket": "initializers-layout",
+      "input": "cases/08__realproj_ws_zero_brace_aggregate_array_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__realproj_ws_zero_brace_aggregate_array_runtime.stdout",
+      "expected_stderr": "expect/08__realproj_ws_zero_brace_aggregate_array_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "realproj-regression",
+        "semantic",
+        "initializer",
+        "aggregate",
+        "zero-brace",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

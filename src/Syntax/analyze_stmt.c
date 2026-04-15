@@ -634,7 +634,15 @@ static void analyzeStatementInternal(ASTNode* node,
                                            "Void function should not return a value",
                                            NULL);
                     } else if (retVal.category != TYPEINFO_INVALID) {
-                        AssignmentCheckResult res = canAssignTypes(&scope->returnType, &retVal);
+                        AssignmentCheckResult res = canAssignTypesInScope(&scope->returnType, &retVal, scope);
+                        if (res == ASSIGN_INCOMPATIBLE &&
+                            typeInfoIsPointerLike(&scope->returnType) &&
+                            typeInfoIsInteger(&retVal)) {
+                            long long zero = 1;
+                            if (constEvalInteger(node->returnStmt.returnValue, scope, &zero, true) && zero == 0) {
+                                res = ASSIGN_OK;
+                            }
+                        }
                         if (res == ASSIGN_INCOMPATIBLE) {
                             bool allowFunctionDecay = isFunctionDesignatorExpr(node->returnStmt.returnValue, scope) &&
                                                       (typeInfoIsPointerLike(&scope->returnType) ||

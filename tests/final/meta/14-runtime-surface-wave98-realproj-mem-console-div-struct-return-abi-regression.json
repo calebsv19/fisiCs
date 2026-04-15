@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__realproj_mem_console_div_t_small_aggregate_return_abi_runtime",
+      "bucket": "runtime-surface",
+      "input": "cases/14__realproj_mem_console_div_t_small_aggregate_return_abi_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__realproj_mem_console_div_t_small_aggregate_return_abi_runtime.stdout",
+      "expected_stderr": "expect/14__realproj_mem_console_div_t_small_aggregate_return_abi_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "realproj",
+        "mem-console",
+        "regression",
+        "abi",
+        "struct-return"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

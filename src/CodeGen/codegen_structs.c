@@ -661,7 +661,11 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
     }
 
     const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, structHint, fieldName);
-    if (lay && !lay->isBitfield) {
+
+    LLVMValueRef ptr = LLVMBuildStructGEP2(ctx->builder, aggregateType, basePtr, fieldIndex, "fieldPtr");
+    if (!ptr && lay && !lay->isBitfield) {
+        /* Fallback only when typed struct GEP cannot be formed.
+           Prefer LLVM's canonical member addressing whenever available. */
         LLVMTypeRef pointeeTy = fieldLLVMType;
         if (!pointeeTy || LLVMGetTypeKind(pointeeTy) == LLVMVoidTypeKind) {
             pointeeTy = LLVMInt32TypeInContext(ctx->llvmContext);
@@ -678,20 +682,11 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
         LLVMValueRef baseI8 = LLVMBuildBitCast(ctx->builder, basePtr, LLVMPointerType(i8Ty, 0), "field.base.i8");
         LLVMValueRef offsetVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), lay->byteOffset, 0);
         LLVMValueRef ptrI8 = LLVMBuildGEP2(ctx->builder, i8Ty, baseI8, &offsetVal, 1, "field.byte.gep");
-        LLVMValueRef ptr = LLVMBuildBitCast(ctx->builder,
-                                            ptrI8,
-                                            LLVMPointerType(pointeeTy, 0),
-                                            "field.byte.ptr");
-        if (outFieldType) {
-            *outFieldType = pointeeTy;
-        }
-        if (havePointedScratch) {
-            parsedTypeFree(&pointedScratch);
-        }
-        return ptr;
+        ptr = LLVMBuildBitCast(ctx->builder,
+                               ptrI8,
+                               LLVMPointerType(pointeeTy, 0),
+                               "field.byte.ptr");
     }
-
-    LLVMValueRef ptr = LLVMBuildStructGEP2(ctx->builder, aggregateType, basePtr, fieldIndex, "fieldPtr");
     if (!ptr) {
         if (havePointedScratch) parsedTypeFree(&pointedScratch);
         return NULL;
@@ -948,7 +943,21 @@ bool codegenLValue(CodegenContext* ctx,
             } else if (baseType && LLVMGetTypeKind(baseType) == LLVMArrayTypeKind) {
                 aggregateHint = baseType;
             }
-            LLVMTypeRef elementHint = cg_element_type_hint_from_parsed(ctx, baseParsed);
+            LLVMTypeRef elementHint = NULL;
+            /* Prefer concrete LLVM element hints from the base value type first. */
+            if (baseType && LLVMGetTypeKind(baseType) == LLVMArrayTypeKind) {
+                elementHint = LLVMGetElementType(baseType);
+            } else if (baseType &&
+                       LLVMGetTypeKind(baseType) == LLVMPointerTypeKind &&
+                       !LLVMPointerTypeIsOpaque(baseType)) {
+                LLVMTypeRef elem = LLVMGetElementType(baseType);
+                if (elem) {
+                    elementHint = elem;
+                }
+            }
+            if (!elementHint) {
+                elementHint = cg_element_type_hint_from_parsed(ctx, baseParsed);
+            }
             LLVMTypeRef elementType = NULL;
             LLVMValueRef elementPtr = buildArrayElementPointer(ctx,
                                                                arrayPtr,

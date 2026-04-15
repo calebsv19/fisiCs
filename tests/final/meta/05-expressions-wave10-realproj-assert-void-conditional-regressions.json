@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__realproj_ws_assert_style_void_conditional_runtime",
+      "bucket": "expressions",
+      "input": "cases/05__realproj_ws_assert_style_void_conditional_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__realproj_ws_assert_style_void_conditional_runtime.stdout",
+      "expected_stderr": "expect/05__realproj_ws_assert_style_void_conditional_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "realproj-regression",
+        "semantic",
+        "ternary",
+        "void",
+        "assert-style",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

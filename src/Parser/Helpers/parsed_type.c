@@ -659,6 +659,10 @@ typedef struct PointerQuals {
     bool isRestrict;
 } PointerQuals;
 
+static bool parser_allows_atomic_keyword(Parser* parser) {
+    return parser && parser->ctx && cc_extensions_enabled(parser->ctx);
+}
+
 static PointerQuals consumePointerQualifiers(Parser* parser) {
     PointerQuals quals = {0};
     while (parser->currentToken.type == TOKEN_CONST ||
@@ -666,8 +670,10 @@ static PointerQuals consumePointerQualifiers(Parser* parser) {
            parser->currentToken.type == TOKEN_RESTRICT ||
            parser->currentToken.type == TOKEN_ATOMIC) {
         if (parser->currentToken.type == TOKEN_ATOMIC) {
-            printParseError("_Atomic is not supported yet", parser);
-            markParserFatalError(parser);
+            if (!parser_allows_atomic_keyword(parser)) {
+                printParseError("_Atomic is not supported yet", parser);
+                markParserFatalError(parser);
+            }
             advance(parser);
             continue;
         }
@@ -947,7 +953,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             continue;
         }
         if (isAtomicTypeKeywordToken(&parser->currentToken)) {
-            if (!reportedAtomicUnsupported) {
+            if (!parser_allows_atomic_keyword(parser) && !reportedAtomicUnsupported) {
                 printParseError("_Atomic is not supported yet", parser);
                 markParserFatalError(parser);
                 reportedAtomicUnsupported = true;
@@ -1242,7 +1248,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             default: break;
         }
         if (isAtomicTypeKeywordToken(&parser->currentToken)) {
-            if (!reportedAtomicUnsupported) {
+            if (!parser_allows_atomic_keyword(parser) && !reportedAtomicUnsupported) {
                 printParseError("_Atomic is not supported yet", parser);
                 markParserFatalError(parser);
                 reportedAtomicUnsupported = true;

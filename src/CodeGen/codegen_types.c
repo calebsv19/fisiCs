@@ -4,10 +4,13 @@
 
 #include "codegen_internal.h"
 #include "codegen_type_cache.h"
+#include "Syntax/const_eval.h"
+#include "Syntax/semantic_model.h"
 
 /* Forward declaration to materialize inline struct/union definitions. */
 LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node);
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -133,6 +136,36 @@ static LLVMTypeRef structOrUnionType(CodegenContext* ctx, const ParsedType* type
 static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type);
 static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type, size_t derivationIndex);
 
+static bool cg_constant_array_length(CodegenContext* ctx,
+                                     const TypeDerivation* deriv,
+                                     unsigned* outLen) {
+    if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY || !outLen) {
+        return false;
+    }
+    if (deriv->as.array.isFlexible || deriv->as.array.isVLA) {
+        return false;
+    }
+
+    long long len = -1;
+    if (deriv->as.array.hasConstantSize) {
+        len = deriv->as.array.constantSize;
+    } else if (deriv->as.array.sizeExpr) {
+        const SemanticModel* model = cg_context_get_semantic_model(ctx);
+        struct Scope* globalScope = model ? semanticModelGetGlobalScope(model) : NULL;
+        if (!globalScope || !constEvalInteger(deriv->as.array.sizeExpr, globalScope, &len, true)) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    if (len <= 0 || len > (long long)UINT_MAX) {
+        return false;
+    }
+    *outLen = (unsigned)len;
+    return true;
+}
+
 static LLVMTypeRef baseType(CodegenContext* ctx, const ParsedType* type) {
     if (!type) {
         return LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
@@ -216,8 +249,8 @@ static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type,
             if (deriv->as.array.isFlexible) {
                 return LLVMArrayType(elementType, 0);
             }
-            if (!deriv->as.array.isVLA && deriv->as.array.hasConstantSize && deriv->as.array.constantSize > 0) {
-                unsigned len = (unsigned)deriv->as.array.constantSize;
+            unsigned len = 0;
+            if (cg_constant_array_length(ctx, deriv, &len)) {
                 return LLVMArrayType(elementType, len);
             }
             return LLVMPointerType(elementType, 0);

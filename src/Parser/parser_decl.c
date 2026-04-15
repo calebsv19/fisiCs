@@ -70,6 +70,10 @@ static bool parser_allows_block_pointers(Parser* parser) {
     return parser && parser->ctx && cc_extensions_enabled(parser->ctx);
 }
 
+static bool parser_allows_atomic_keyword(Parser* parser) {
+    return parser && parser->ctx && cc_extensions_enabled(parser->ctx);
+}
+
 static void skip_gnu_attribute_specifier(Parser* parser) {
     if (!parser || parser->currentToken.type != TOKEN_IDENTIFIER || !parser->currentToken.value) {
         return;
@@ -102,8 +106,10 @@ static void consumePointerQualifiers(Parser* parser, PointerDeclaratorLayer* lay
            parser->currentToken.type == TOKEN_RESTRICT ||
            parser->currentToken.type == TOKEN_ATOMIC) {
         if (parser->currentToken.type == TOKEN_ATOMIC) {
-            printParseError("_Atomic is not supported yet", parser);
-            markParserFatalError(parser);
+            if (!parser_allows_atomic_keyword(parser)) {
+                printParseError("_Atomic is not supported yet", parser);
+                markParserFatalError(parser);
+            }
             advance(parser);
             continue;
         }
@@ -205,15 +211,21 @@ void applyPointerChainToType(ParsedType* type, const PointerChain* chain) {
     if (!type || !chain || chain->count == 0) {
         return;
     }
-    for (size_t i = 0; i < chain->count; ++i) {
+    /*
+     * Pointer declarators are parsed left-to-right ("* const *"), but the
+     * derived type should apply the pointer closest to the identifier first.
+     * Reverse application preserves qualifier ownership for nested pointers.
+     */
+    for (size_t i = chain->count; i > 0; --i) {
         if (!parsedTypeAppendPointer(type)) {
             continue;
         }
         if (type->derivationCount == 0) continue;
         TypeDerivation* slot = &type->derivations[type->derivationCount - 1];
-        slot->as.pointer.isConst = chain->layers[i].isConst;
-        slot->as.pointer.isVolatile = chain->layers[i].isVolatile;
-        slot->as.pointer.isRestrict = chain->layers[i].isRestrict;
+        const PointerDeclaratorLayer* layer = &chain->layers[i - 1];
+        slot->as.pointer.isConst = layer->isConst;
+        slot->as.pointer.isVolatile = layer->isVolatile;
+        slot->as.pointer.isRestrict = layer->isRestrict;
     }
 }
 

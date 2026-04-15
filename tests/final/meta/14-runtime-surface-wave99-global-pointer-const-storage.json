@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_global_ptr_to_const_storage_writable",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_global_ptr_to_const_storage_writable.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_global_ptr_to_const_storage_writable.stdout",
+      "expected_stderr": "expect/14__runtime_global_ptr_to_const_storage_writable.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "pointer",
+        "const",
+        "storage",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

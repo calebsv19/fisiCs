@@ -1,0 +1,10 @@
+# Generated real-project run outputs
+artifacts/*
+reports/*
+
+# Keep empty directory markers
+!artifacts/.gitkeep
+!reports/.gitkeep
+
+# Python cache
+runners/__pycache__/

@@ -145,22 +145,6 @@ static bool collect_macro_body(const Token* tokens,
     return true;
 }
 
-static bool macro_body_uses_gnu_comma_variadic(const PPTokenBuffer* body) {
-    if (!body || body->count < 3) return false;
-    for (size_t i = 0; i + 2 < body->count; ++i) {
-        const Token* comma = &body->tokens[i];
-        const Token* hashhash = &body->tokens[i + 1];
-        const Token* vaArgs = &body->tokens[i + 2];
-        if (comma->type != TOKEN_COMMA) continue;
-        if (hashhash->type != TOKEN_DOUBLE_HASH) continue;
-        if (vaArgs->type != TOKEN_IDENTIFIER || !vaArgs->value) continue;
-        if (strcmp(vaArgs->value, "__VA_ARGS__") == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static void strip_include_spaces(char* name) {
     if (!name) return;
     char* out = name;
@@ -575,14 +559,6 @@ bool process_define(Preprocessor* pp,
                 params.hasVaOpt = true;
                 break;
             }
-        }
-        if (macro_body_uses_gnu_comma_variadic(&body)) {
-            pp_report_diag(pp,
-                           nameTok,
-                           DIAG_ERROR,
-                           CDIAG_PREPROCESSOR_GENERIC,
-                           "GNU ', ##__VA_ARGS__' extension is not supported");
-            goto cleanup;
         }
     }
 

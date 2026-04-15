@@ -130,6 +130,7 @@ static void collectGotoTargets(ASTNode* node, GotoTargetSet* set) {
 
 static FlowResult checkStatement(ASTNode* node, Scope* scope, FlowContext ctx);
 static FlowResult checkStatementList(ASTNode** list, size_t count, Scope* scope, FlowContext ctx);
+static bool conditionlessLoopMayExit(ASTNode* node, int nestedLoopDepth, int nestedSwitchDepth);
 
 static void reportUnreachable(ASTNode* node) {
     addWarning(safeLine(node), 0, "Unreachable statement", NULL);
@@ -320,9 +321,15 @@ static FlowResult checkStatement(ASTNode* node, Scope* scope, FlowContext ctx) {
             (void)checkStatement(node->forLoop.condition, scope, ctx);
             (void)checkStatement(node->forLoop.increment, scope, ctx);
             FlowResult bodyFlow = checkStatement(node->forLoop.body, scope, loopCtx);
-            if (!node->forLoop.condition && bodyFlow.returns) {
-                // `for (;;)` with a body that returns on every path does not fall through.
-                return makeFlow(true, true);
+            if (!node->forLoop.condition && !node->forLoop.increment) {
+                if (bodyFlow.returns) {
+                    // `for (;;)` with a body that returns on every path does not fall through.
+                    return makeFlow(true, true);
+                }
+                if (!conditionlessLoopMayExit(node->forLoop.body, 0, 0)) {
+                    // `for (;;)` without an escaping break/goto is non-fallthrough.
+                    return makeFlow(true, true);
+                }
             }
             return makeFlow(false, false);
         }
@@ -399,4 +406,69 @@ static void traverse(ASTNode* node, Scope* scope) {
 void analyzeControlFlow(ASTNode* root, Scope* scope) {
     if (!root || !scope) return;
     traverse(root, scope);
+}
+
+static bool conditionlessLoopMayExit(ASTNode* node, int nestedLoopDepth, int nestedSwitchDepth) {
+    if (!node) {
+        return false;
+    }
+    switch (node->type) {
+        case AST_BREAK:
+            return nestedLoopDepth == 0 && nestedSwitchDepth == 0;
+        case AST_GOTO_STATEMENT:
+            return true;
+        case AST_BLOCK:
+        case AST_PROGRAM:
+            for (size_t i = 0; i < node->block.statementCount; ++i) {
+                if (conditionlessLoopMayExit(node->block.statements[i],
+                                             nestedLoopDepth,
+                                             nestedSwitchDepth)) {
+                    return true;
+                }
+            }
+            return false;
+        case AST_IF_STATEMENT:
+            if (conditionlessLoopMayExit(node->ifStmt.thenBranch, nestedLoopDepth, nestedSwitchDepth)) {
+                return true;
+            }
+            if (conditionlessLoopMayExit(node->ifStmt.elseBranch, nestedLoopDepth, nestedSwitchDepth)) {
+                return true;
+            }
+            return false;
+        case AST_WHILE_LOOP:
+            return conditionlessLoopMayExit(node->whileLoop.body, nestedLoopDepth + 1, nestedSwitchDepth);
+        case AST_FOR_LOOP:
+            if (conditionlessLoopMayExit(node->forLoop.initializer, nestedLoopDepth, nestedSwitchDepth)) {
+                return true;
+            }
+            if (conditionlessLoopMayExit(node->forLoop.condition, nestedLoopDepth, nestedSwitchDepth)) {
+                return true;
+            }
+            if (conditionlessLoopMayExit(node->forLoop.increment, nestedLoopDepth, nestedSwitchDepth)) {
+                return true;
+            }
+            return conditionlessLoopMayExit(node->forLoop.body, nestedLoopDepth + 1, nestedSwitchDepth);
+        case AST_SWITCH:
+            for (size_t i = 0; i < node->switchStmt.caseListSize; ++i) {
+                if (conditionlessLoopMayExit(node->switchStmt.caseList[i],
+                                             nestedLoopDepth,
+                                             nestedSwitchDepth + 1)) {
+                    return true;
+                }
+            }
+            return false;
+        case AST_CASE:
+            for (size_t i = 0; i < node->caseStmt.caseBodySize; ++i) {
+                if (conditionlessLoopMayExit(node->caseStmt.caseBody[i],
+                                             nestedLoopDepth,
+                                             nestedSwitchDepth)) {
+                    return true;
+                }
+            }
+            return conditionlessLoopMayExit(node->caseStmt.nextCase, nestedLoopDepth, nestedSwitchDepth);
+        case AST_LABEL_DECLARATION:
+            return conditionlessLoopMayExit(node->label.statement, nestedLoopDepth, nestedSwitchDepth);
+        default:
+            return false;
+    }
 }

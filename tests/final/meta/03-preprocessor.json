@@ -1408,9 +1408,7 @@
       "tags": [
         "macro",
         "variadic",
-        "gnu-extension",
-        "unsupported",
-        "negative"
+        "gnu-extension"
       ],
       "requires": [],
       "capture_frontend_diag": true,

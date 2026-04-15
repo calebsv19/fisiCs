@@ -1,18 +1,7 @@
 {
-  "diag_count": 1,
-  "diagnostics": [
-    {
-      "code": 3000,
-      "column": 9,
-      "has_file": true,
-      "has_hint": false,
-      "has_message": true,
-      "kind": 0,
-      "length": 4,
-      "line": 1
-    }
-  ],
-  "error_count": 1,
+  "diag_count": 0,
+  "diagnostics": [],
+  "error_count": 0,
   "note_count": 0,
   "profile": "fisics_diagnostics_v1",
   "schema_version": 1,

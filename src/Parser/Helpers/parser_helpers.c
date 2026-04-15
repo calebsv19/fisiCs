@@ -98,9 +98,13 @@ void initParser(Parser* parser, TokenBuffer* buffer, ParserMode mode, CompilerCo
     parser->ordinaryScope = NULL;
     parserPushOrdinaryScope(parser);
     const char* gnuEnv = getenv("ENABLE_GNU_STATEMENT_EXPRESSIONS");
-    parser->enableStatementExpressions =
-        (gnuEnv && gnuEnv[0] != '\0' && gnuEnv[0] != '0') ||
-        (ctx && cc_extensions_enabled(ctx));
+    if (gnuEnv && gnuEnv[0] != '\0') {
+        parser->enableStatementExpressions = (gnuEnv[0] != '0');
+    } else {
+        // Default-on for clang-compatible acceptance in system macro expansions;
+        // callers can still force-disable with ENABLE_GNU_STATEMENT_EXPRESSIONS=0.
+        parser->enableStatementExpressions = true;
+    }
 }
 
 // Advance the 4-token lookahead window forward

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__realproj_ws_union_constexpr_array_extent_runtime",
+      "bucket": "initializers-layout",
+      "input": "cases/08__realproj_ws_union_constexpr_array_extent_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__realproj_ws_union_constexpr_array_extent_runtime.stdout",
+      "expected_stderr": "expect/08__realproj_ws_union_constexpr_array_extent_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "realproj-regression",
+        "layout",
+        "union",
+        "array-extent",
+        "constexpr",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -217,6 +217,15 @@ bool cg_size_align_for_type(CodegenContext* ctx,
 LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
                                          const ParsedType* pointerParsed,
                                          LLVMTypeRef pointerLLVM);
+LLVMTypeRef cg_coerce_function_return_type(CodegenContext* ctx, LLVMTypeRef returnType);
+LLVMValueRef cg_pack_aggregate_for_abi_return(CodegenContext* ctx,
+                                               LLVMValueRef value,
+                                               LLVMTypeRef packedType,
+                                               const char* nameHint);
+LLVMValueRef cg_unpack_aggregate_from_abi_return(CodegenContext* ctx,
+                                                 LLVMValueRef packedValue,
+                                                 LLVMTypeRef aggregateType,
+                                                 const char* nameHint);
 LLVMValueRef cg_cast_value(CodegenContext* ctx,
                            LLVMValueRef value,
                            LLVMTypeRef targetType,

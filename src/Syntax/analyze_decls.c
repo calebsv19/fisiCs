@@ -1277,6 +1277,8 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     continue;
                 }
                 analyzeInlineAggregateDefinition(varType, scope);
+                /* Normalize array bounds before redeclaration compatibility checks. */
+                evaluateArrayDerivations(varType, scope);
                 TypeInfo varInfo = typeInfoFromParsedType(varType, scope);
                 StorageClass storage = deduceStorageClass(varType);
                 SymbolLinkage linkage = deduceLinkage(varType, scopeIsFileScope(scope));
@@ -2420,7 +2422,7 @@ static void validateVariableInitializer(ParsedType* type,
         TypeInfo rhs = analyzeExpression(init->expression, scope);
         rhs = decayToRValue(rhs);
         if (rhs.category != TYPEINFO_INVALID) {
-            AssignmentCheckResult assign = canAssignTypes(&info, &rhs);
+            AssignmentCheckResult assign = canAssignTypesInScope(&info, &rhs, scope);
             if (assign == ASSIGN_INCOMPATIBLE &&
                 typeInfoIsPointerLike(&info) &&
                 typeInfoIsInteger(&rhs)) {
@@ -2850,9 +2852,17 @@ static void validateArrayInitializerEntries(ParsedType* type,
             TypeInfo rhs = analyzeExpression(init->expression, scope);
             rhs = decayToRValue(rhs);
             if (rhs.category != TYPEINFO_INVALID) {
-                AssignmentCheckResult assign = canAssignTypes(&elementInfo, &rhs);
+                AssignmentCheckResult assign = canAssignTypesInScope(&elementInfo, &rhs, scope);
                 if (assign == ASSIGN_INCOMPATIBLE &&
                     typeInfoIsPointerLike(&elementInfo) &&
+                    typeInfoIsInteger(&rhs)) {
+                    long long zero = 1;
+                    if (constEvalInteger(init->expression, scope, &zero, true) && zero == 0) {
+                        assign = ASSIGN_OK;
+                    }
+                }
+                if (assign == ASSIGN_INCOMPATIBLE &&
+                    typeInfoIsStructLike(&elementInfo) &&
                     typeInfoIsInteger(&rhs)) {
                     long long zero = 1;
                     if (constEvalInteger(init->expression, scope, &zero, true) && zero == 0) {

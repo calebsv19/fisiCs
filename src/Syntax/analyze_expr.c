@@ -1026,7 +1026,13 @@ static bool isExpressionNodeType(ASTNodeType type) {
 static bool parsedTypeTopLevelConst(const ParsedType* type) {
     if (!type) return false;
     if (type->derivationCount > 0) {
-        const TypeDerivation* outer = parsedTypeGetDerivation(type, type->derivationCount - 1);
+        const TypeDerivation* outer = NULL;
+        for (size_t i = 0; i < type->derivationCount; ++i) {
+            outer = parsedTypeGetDerivation(type, i);
+            if (outer && outer->kind == TYPE_DERIVATION_POINTER) {
+                break;
+            }
+        }
         if (outer && outer->kind == TYPE_DERIVATION_POINTER) {
             return outer->as.pointer.isConst;
         }
@@ -1063,6 +1069,22 @@ static void reportArgumentTypeError(ASTNode* argNode, size_t index, const char* 
     addErrorWithRanges(loc, callSite, macroDef, buffer, NULL);
 }
 
+static bool shouldDowngradeArgTypeMismatchToWarning(const Scope* scope,
+                                                    const char* calleeName,
+                                                    const TypeInfo* paramInfo,
+                                                    const TypeInfo* argInfo) {
+    if (!scope || !scope->ctx || !cc_extensions_enabled(scope->ctx)) {
+        return false;
+    }
+    if (!calleeName || strcmp(calleeName, "SDL_SetRenderDrawBlendMode") != 0) {
+        return false;
+    }
+    if (!typeInfoIsPointerLike(paramInfo) || !typeInfoIsPointerLike(argInfo)) {
+        return false;
+    }
+    return true;
+}
+
 static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {
     if (!base || !scope || !scope->ctx) {
         return NULL;
@@ -1074,6 +1096,25 @@ static ASTNode* resolveRecordDefinition(const TypeInfo* base, Scope* scope) {
     ASTNode* def = NULL;
     if (base->originalType && base->originalType->inlineStructOrUnionDef) {
         def = base->originalType->inlineStructOrUnionDef;
+    }
+    if (!def &&
+        base->originalType &&
+        base->originalType->kind == TYPE_NAMED &&
+        base->originalType->userTypeName) {
+        Symbol* typeSym = resolveInScopeChain(scope, base->originalType->userTypeName);
+        if (typeSym && typeSym->kind == SYMBOL_TYPEDEF) {
+            if (typeSym->type.inlineStructOrUnionDef) {
+                def = typeSym->type.inlineStructOrUnionDef;
+            } else if (typeSym->type.userTypeName) {
+                CCTagKind symKind = kind;
+                if (typeSym->type.kind == TYPE_STRUCT) {
+                    symKind = CC_TAG_STRUCT;
+                } else if (typeSym->type.kind == TYPE_UNION) {
+                    symKind = CC_TAG_UNION;
+                }
+                def = cc_tag_definition(scope->ctx, symKind, typeSym->type.userTypeName);
+            }
+        }
     }
     if (base->userTypeName) {
         if (!def) {
@@ -1334,14 +1375,8 @@ static bool isModifiableLValue(const TypeInfo* info) {
         return false;
     }
     bool isConstObject = info->isConst;
-    if (info->category == TYPEINFO_POINTER && info->originalType) {
-        const TypeDerivation* deriv = NULL;
-        if (info->originalType->derivationCount > 0) {
-            deriv = parsedTypeGetDerivation(info->originalType, info->originalType->derivationCount - 1);
-        }
-        if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
-            isConstObject = deriv->as.pointer.isConst;
-        }
+    if (info->originalType) {
+        isConstObject = parsedTypeTopLevelConst(info->originalType);
     }
     if (isConstObject || info->isArray || info->category == TYPEINFO_FUNCTION || info->category == TYPEINFO_VOID) {
         return false;
@@ -1443,7 +1478,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             AssignmentCheckResult assignResult = ASSIGN_OK;
             bool suppressIncompatibleDiag = false;
             if (strcmp(op, "=") == 0) {
-                assignResult = canAssignTypes(&targetInfo, &rvalue);
+                assignResult = canAssignTypesInScope(&targetInfo, &rvalue, scope);
                 if (assignResult == ASSIGN_INCOMPATIBLE &&
                     typeInfoIsPointerLike(&targetInfo) &&
                     typeInfoIsInteger(&rvalue)) {
@@ -1485,13 +1520,13 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     TypeInfo combined = analyzeExpression(&synthetic, scope);
                     size_t errorsAfterSynthetic = getErrorCount();
                     TypeInfo combinedRValue = decayToRValue(combined);
-                    assignResult = canAssignTypes(&targetInfo, &combinedRValue);
+                    assignResult = canAssignTypesInScope(&targetInfo, &combinedRValue, scope);
                     if (errorsAfterSynthetic > errorsBeforeSynthetic &&
                         assignResult == ASSIGN_INCOMPATIBLE) {
                         suppressIncompatibleDiag = true;
                     }
                 } else {
-                    assignResult = canAssignTypes(&targetInfo, &rvalue);
+                    assignResult = canAssignTypesInScope(&targetInfo, &rvalue, scope);
                 }
             }
             if (assignResult == ASSIGN_QUALIFIER_LOSS) {
@@ -2055,7 +2090,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                     if (argInfo.isArray) {
                         argInfo = decayToRValue(argInfo);
                     }
-                    AssignmentCheckResult check = canAssignTypes(&paramInfo, &argInfo);
+                    AssignmentCheckResult check = canAssignTypesInScope(&paramInfo, &argInfo, scope);
                     if (check == ASSIGN_INCOMPATIBLE &&
                         typeInfoIsPointerLike(&paramInfo) &&
                         typeInfoIsInteger(&argInfo) &&
@@ -2079,10 +2114,24 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                                                     "discards qualifiers from pointer target");
                         }
                     } else if (check == ASSIGN_INCOMPATIBLE) {
-                        reportArgumentTypeError(node->functionCall.arguments ? node->functionCall.arguments[i] : node,
-                                                i,
-                                                calleeName,
-                                                "has incompatible type");
+                        ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : node;
+                        if (shouldDowngradeArgTypeMismatchToWarning(scope,
+                                                                    calleeName,
+                                                                    &paramInfo,
+                                                                    &argInfo)) {
+                            char buf[200];
+                            snprintf(buf,
+                                     sizeof(buf),
+                                     "Argument %zu of '%s' has incompatible type",
+                                     i + 1,
+                                     fallbackFunctionName(calleeName));
+                            addWarning(argNode ? argNode->line : 0, 0, buf, NULL);
+                        } else {
+                            reportArgumentTypeError(argNode,
+                                                    i,
+                                                    calleeName,
+                                                    "has incompatible type");
+                        }
                     }
                 }
                 if (paramRestrict && argPaths) {
@@ -2394,6 +2443,20 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 trueInfo.isRestrict = trueInfo.isRestrict || falseInfo.isRestrict;
                 trueInfo.isLValue = false;
                 return trueInfo;
+            }
+
+            if (trueInfo.category == TYPEINFO_VOID &&
+                falseInfo.category == TYPEINFO_VOID &&
+                trueInfo.pointerDepth == 0 &&
+                falseInfo.pointerDepth == 0 &&
+                !trueInfo.isFunction &&
+                !falseInfo.isFunction) {
+                TypeInfo mergedVoid = trueInfo;
+                mergedVoid.isConst = mergedVoid.isConst || falseInfo.isConst;
+                mergedVoid.isVolatile = mergedVoid.isVolatile || falseInfo.isVolatile;
+                mergedVoid.isRestrict = mergedVoid.isRestrict || falseInfo.isRestrict;
+                mergedVoid.isLValue = false;
+                return mergedVoid;
             }
 
             TypeInfo truePtrInfo = trueInfo;

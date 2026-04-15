@@ -760,6 +760,9 @@ semantic-complex-declarators: $(BIN)
 statement-expr-enabled: $(BIN)
 	@./tests/parser/run_statement_expr_enabled.sh ./$(BIN)
 
+statement-expr-default: $(BIN)
+	@./tests/parser/run_statement_expr_default.sh ./$(BIN)
+
 statement-expr-disabled: $(BIN)
 	@./tests/parser/run_statement_expr_disabled.sh ./$(BIN)
 
@@ -769,7 +772,7 @@ spec-tests: $(BIN)
 parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \
               cast-grouped for_typedef comma-decl-init function-pointer \
               compound-literal-nested-braces switch-flow goto-flow \
-              statement-expr-enabled statement-expr-disabled recovery
+              statement-expr-enabled statement-expr-default statement-expr-disabled recovery
 
 syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic-bool \
               semantic-invalid-arith semantic-lvalue-errors semantic-pointer-errors \
@@ -980,6 +983,41 @@ $(HARNESS_BIN): $(HARNESS_SRC) $(LIB_FRONTEND)
 frontend-harness: $(HARNESS_BIN)
 	@$(HARNESS_BIN)
 
+REAL_PROJECTS_STAGE_A_RUNNER := tests/real_projects/runners/run_project_compile_tests.py
+REAL_PROJECTS_STAGE_B_RUNNER := tests/real_projects/runners/run_project_link_subset_tests.py
+REAL_PROJECTS_STAGE_C_RUNNER := tests/real_projects/runners/run_project_full_build_tests.py
+REAL_PROJECTS_STAGE_D_RUNNER := tests/real_projects/runners/run_project_runtime_smoke_tests.py
+REAL_PROJECTS_STAGE_E_RUNNER := tests/real_projects/runners/run_project_golden_behavior_tests.py
+REAL_PROJECTS_STAGE_F_RUNNER := tests/real_projects/runners/run_project_perf_telemetry_tests.py
+REAL_PROJECT ?= datalab
+REAL_PROJECT_RUNS ?= 5
+
+realproj-stage-a:
+	@python3 $(REAL_PROJECTS_STAGE_A_RUNNER) --project $(REAL_PROJECT)
+
+realproj-stage-a-repeat:
+	@i=1; \
+	while [ $$i -le $(REAL_PROJECT_RUNS) ]; do \
+		echo "realproj-stage-a repeat $$i/$(REAL_PROJECT_RUNS) (project=$(REAL_PROJECT))"; \
+		python3 $(REAL_PROJECTS_STAGE_A_RUNNER) --project $(REAL_PROJECT) || exit $$?; \
+		i=$$((i + 1)); \
+	done
+
+realproj-stage-b:
+	@python3 $(REAL_PROJECTS_STAGE_B_RUNNER) --project $(REAL_PROJECT)
+
+realproj-stage-c:
+	@python3 $(REAL_PROJECTS_STAGE_C_RUNNER) --project $(REAL_PROJECT)
+
+realproj-stage-d:
+	@python3 $(REAL_PROJECTS_STAGE_D_RUNNER) --project $(REAL_PROJECT)
+
+realproj-stage-e:
+	@python3 $(REAL_PROJECTS_STAGE_E_RUNNER) --project $(REAL_PROJECT)
+
+realproj-stage-f:
+	@python3 $(REAL_PROJECTS_STAGE_F_RUNNER) --project $(REAL_PROJECT)
+
 tests: test frontend-api-test
 
 # === Phony Targets ===
@@ -999,10 +1037,11 @@ tests: test frontend-api-test
         compound-literal-lvalues \
         codegen-function-pointer-call codegen-compound-literal-pointer-decay \
         codegen-bitfield \
-        statement-expr-enabled statement-expr-disabled recovery preprocessor-tests frontend-harness \
+        statement-expr-enabled statement-expr-default statement-expr-disabled recovery preprocessor-tests frontend-harness \
         frontend-contract-test \
         statement-expr-codegen codegen-bitfield \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff test-binary-wave test-binary-id binary-regen \
         integration-diags-pack ci-guardrails \
+        realproj-stage-a realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

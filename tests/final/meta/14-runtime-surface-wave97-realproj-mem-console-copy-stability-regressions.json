@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__realproj_mem_console_struct_field_copy_stability_runtime",
+      "bucket": "runtime-surface",
+      "input": "cases/14__realproj_mem_console_struct_field_copy_stability_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__realproj_mem_console_struct_field_copy_stability_runtime.stdout",
+      "expected_stderr": "expect/14__realproj_mem_console_struct_field_copy_stability_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "realproj",
+        "mem-console",
+        "regression",
+        "aggregate-copy",
+        "struct-field"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

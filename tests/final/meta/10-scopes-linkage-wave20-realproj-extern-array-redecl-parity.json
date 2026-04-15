@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__realproj_ide_extern_array_macro_bound_redecl_parity",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__realproj_ide_extern_array_macro_bound_redecl_parity.c",
+      "expects": [
+        "expect/10__realproj_ide_extern_array_macro_bound_redecl_parity.diag"
+      ],
+      "tags": [
+        "realproj-regression",
+        "extern",
+        "array",
+        "redecl",
+        "constant-expression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

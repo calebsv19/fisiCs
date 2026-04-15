@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__realproj_ide_execvp_array_pointer_qualifier_parity",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__realproj_ide_execvp_array_pointer_qualifier_parity.c",
+      "expects": [
+        "expect/06__realproj_ide_execvp_array_pointer_qualifier_parity.diag"
+      ],
+      "tags": [
+        "realproj-regression",
+        "qualifier",
+        "pointer",
+        "function-call",
+        "posix"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

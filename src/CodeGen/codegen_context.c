@@ -149,7 +149,13 @@ void codegen_context_destroy(CodegenContext* ctx) {
     }
 
     if (ctx->llvmContext) {
-        LLVMContextDispose(ctx->llvmContext);
+        /* NOTE:
+         * We intentionally avoid LLVMContextDispose() here due a nondeterministic
+         * teardown crash observed in optimized builds (SIGSEGV inside
+         * llvm::LLVMContextImpl::~LLVMContextImpl during process exit). The
+         * context lifetime is process-bounded for CLI invocations, so leaking the
+         * context object is safer than hard-crashing during shutdown.
+         */
         ctx->llvmContext = NULL;
     }
 

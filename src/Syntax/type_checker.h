@@ -80,6 +80,7 @@ TypeInfo integerPromote(TypeInfo info);
 TypeInfo usualArithmeticConversion(TypeInfo left, TypeInfo right, bool* ok);
 TypeInfo defaultArgumentPromotion(TypeInfo info);
 bool typesAreEqual(const TypeInfo* a, const TypeInfo* b);
+AssignmentCheckResult canAssignTypesInScope(const TypeInfo* dest, const TypeInfo* src, struct Scope* scope);
 AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src);
 void typeInfoDropPointerLevel(TypeInfo* info);
 void typeInfoPrependPointerLevel(TypeInfo* info, PointerQualifier q);

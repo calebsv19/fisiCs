@@ -653,15 +653,12 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 }
             } else {
                 if (!isArray) {
-                    LLVMValueRef initValue = codegenNode(ctx, init->expression);
-                    if (initValue) {
-                        LLVMValueRef casted = cg_cast_value(ctx,
-                                                            initValue,
-                                                            valueType,
-                                                            NULL,
-                                                            effectiveParsed,
-                                                            "init.store");
-                        cg_build_store(ctx, casted, storage, effectiveParsed);
+                    if (!cg_store_initializer_expression(ctx,
+                                                         storage,
+                                                         valueType,
+                                                         effectiveParsed,
+                                                         init->expression)) {
+                        fprintf(stderr, "Error: Failed to emit initializer for variable\n");
                     }
                 } else {
                     if (!hasVLA &&
@@ -931,6 +928,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     if (!returnType) {
         returnType = LLVMVoidTypeInContext(ctx->llvmContext);
     }
+    returnType = cg_coerce_function_return_type(ctx, returnType);
 
     CGParamInfo* paramInfos = NULL;
     size_t paramCount = cg_expand_parameters(node->functionDef.parameters,
@@ -1279,6 +1277,7 @@ LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
         if (!declaredReturnLLVM) {
             declaredReturnLLVM = LLVMVoidTypeInContext(ctx->llvmContext);
         }
+        declaredReturnLLVM = cg_coerce_function_return_type(ctx, declaredReturnLLVM);
     }
 
     if (node->returnStmt.returnValue) {
@@ -1289,12 +1288,24 @@ LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
         }
 
         if (declaredReturnLLVM && LLVMGetTypeKind(declaredReturnLLVM) != LLVMVoidTypeKind) {
-            value = cg_cast_value(ctx,
-                                  value,
-                                  declaredReturnLLVM,
-                                  NULL,
-                                  ctx->currentFunctionReturnType,
-                                  "return.cast");
+            if (LLVMTypeOf(value) != declaredReturnLLVM) {
+                LLVMTypeKind valueKind = LLVMGetTypeKind(LLVMTypeOf(value));
+                LLVMTypeKind retKind = LLVMGetTypeKind(declaredReturnLLVM);
+                if ((valueKind == LLVMStructTypeKind || valueKind == LLVMArrayTypeKind) &&
+                    (retKind == LLVMIntegerTypeKind || retKind == LLVMArrayTypeKind)) {
+                    value = cg_pack_aggregate_for_abi_return(ctx,
+                                                             value,
+                                                             declaredReturnLLVM,
+                                                             "return.abi.pack");
+                } else {
+                    value = cg_cast_value(ctx,
+                                          value,
+                                          declaredReturnLLVM,
+                                          NULL,
+                                          ctx->currentFunctionReturnType,
+                                          "return.cast");
+                }
+            }
         }
 
         CG_DEBUG("[CG] Return emitting with value\n");

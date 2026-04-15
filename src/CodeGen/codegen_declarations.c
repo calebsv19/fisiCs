@@ -829,6 +829,32 @@ static bool parsedTypeIsDirectFunction(const ParsedType* type) {
            type->derivations[0].kind == TYPE_DERIVATION_FUNCTION;
 }
 
+static bool cg_parsed_type_is_top_level_const_object(const ParsedType* type) {
+    if (!type) return false;
+
+    if (type->derivationCount > 0 && type->derivations) {
+        const TypeDerivation* outerPointer = NULL;
+        for (size_t i = 0; i < type->derivationCount; ++i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+            if (deriv && deriv->kind == TYPE_DERIVATION_POINTER) {
+                outerPointer = deriv;
+                break;
+            }
+        }
+        if (outerPointer) {
+            return outerPointer->as.pointer.isConst;
+        }
+        return type->isConst;
+    }
+
+    /* Legacy pointerDepth-only forms do not preserve pointer-level qualifiers
+     * reliably in ParsedType. Keep this path conservative and writable. */
+    if (type->pointerDepth > 0) {
+        return false;
+    }
+    return type->isConst;
+}
+
 static void cg_adjust_parameter_type(ParsedType* type) {
     if (!type) return;
     parsedTypeAdjustArrayParameter(type);
@@ -1025,6 +1051,7 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
     if (!returnLLVM || LLVMGetTypeKind(returnLLVM) == LLVMVoidTypeKind) {
         returnLLVM = LLVMVoidTypeInContext(ctx->llvmContext);
     }
+    returnLLVM = cg_coerce_function_return_type(ctx, returnLLVM);
 
     LLVMTypeRef fnType = LLVMFunctionType(returnLLVM, paramTypes, (unsigned)paramCount, isVariadic ? 1 : 0);
     LLVMValueRef existing = LLVMGetNamedFunction(ctx->module, name);
@@ -1185,11 +1212,10 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
                                                                     &sym->type);
                 if (constInit) {
                     LLVMSetInitializer(existing, constInit);
-                    if (sym->type.isConst && !sym->type.isVolatile) {
+                    if (cg_parsed_type_is_top_level_const_object(&sym->type) &&
+                        !sym->type.isVolatile) {
                         LLVMSetGlobalConstant(existing, 1);
-                        if (sym->type.isConst) {
-                            LLVMSetUnnamedAddr(existing, LLVMGlobalUnnamedAddr);
-                        }
+                        LLVMSetUnnamedAddr(existing, LLVMGlobalUnnamedAddr);
                     }
                     if (sym->linkage == LINKAGE_INTERNAL) {
                         LLVMSetLinkage(existing, LLVMInternalLinkage);
@@ -1201,7 +1227,10 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
 
     uint64_t szDummy = 0;
     uint32_t alignVal = 0;
-    if (cg_size_align_for_type(ctx, &sym->type, varType, &szDummy, &alignVal) && alignVal > 0) {
+    /* Global predeclare must stay resilient for incomplete/opaque declarations.
+     * Only pass an LLVM hint when the lowered type is sized. */
+    LLVMTypeRef alignHint = (varType && LLVMTypeIsSized(varType)) ? varType : NULL;
+    if (cg_size_align_for_type(ctx, &sym->type, alignHint, &szDummy, &alignVal) && alignVal > 0) {
         LLVMSetAlignment(existing, alignVal);
     }
     if (sym->dllStorage == DLL_STORAGE_EXPORT) {

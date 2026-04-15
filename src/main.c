@@ -183,9 +183,15 @@ static int llvm_shutdown_and_return(int code) {
     /*
      * LLVM teardown has been intermittently crashing in DebugCounterOwner
      * destruction on process exit (SIGTRAP in macOS malloc free path).
-     * Keep process termination stable for test harness runs by skipping
-     * explicit LLVMShutdown here.
+     * Keep process termination stable for harness/repeated runs by avoiding
+     * process-exit destructor paths that can trip this crash.
      */
+    if (profiler_enabled()) {
+        profiler_shutdown();
+    }
+    fisics_proc_guard_cleanup();
+    fflush(NULL);
+    _Exit(code);
     return code;
 }
 
@@ -656,7 +662,14 @@ static void cross_tu_collect_symbol_cb(const Symbol* sym, void* userData) {
     int line = 0;
     int column = 0;
     if (!compiler_ctx_symbol_spelling_location(ctx->compilerCtx, sym->name, &filePath, &line, &column)) {
-        if (!symbol_spelling_location(sym, &filePath, &line, &column)) return;
+        /*
+         * Cross-TU conflict collection runs after frontend teardown. Semantic-model AST
+         * location file pointers can reference include-resolver storage that no longer
+         * exists, so avoid fallback reads from symbol_spelling_location here.
+         */
+        filePath = NULL;
+        line = 0;
+        column = 0;
     }
     if (line > 0) line += 1;
     bool virtualSpelling = filePath && filePath[0] && (access(filePath, F_OK) != 0);

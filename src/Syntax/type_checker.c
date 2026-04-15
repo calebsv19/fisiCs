@@ -740,7 +740,9 @@ static bool typeInfoIsFunctionPointer(const TypeInfo* info) {
     return hasFunction;
 }
 
-static bool functionPointerTargetsCompatible(const ParsedType* destType, const ParsedType* srcType) {
+static bool functionPointerTargetsCompatible(const ParsedType* destType,
+                                             const ParsedType* srcType,
+                                             Scope* scope) {
     if (!destType || !srcType) return true;
 
     ParsedType destNorm = parsedTypeClone(destType);
@@ -764,6 +766,11 @@ static bool functionPointerTargetsCompatible(const ParsedType* destType, const P
     ParsedType destRet = parsedTypeFunctionReturnType(&destTarget);
     ParsedType srcRet = parsedTypeFunctionReturnType(&srcTarget);
     bool retCompat = parsedTypesEqualForFunctionCompat(&destRet, &srcRet);
+    if (!retCompat && scope) {
+        TypeInfo destRetInfo = typeInfoFromParsedType(&destRet, scope);
+        TypeInfo srcRetInfo = typeInfoFromParsedType(&srcRet, scope);
+        retCompat = typesAreEqual(&destRetInfo, &srcRetInfo);
+    }
     parsedTypeFree(&destRet);
     parsedTypeFree(&srcRet);
     if (!retCompat) {
@@ -793,8 +800,15 @@ static bool functionPointerTargetsCompatible(const ParsedType* destType, const P
     }
 
     for (size_t i = 0; i < destFn->as.function.paramCount; ++i) {
-        if (!parsedTypesStructurallyEqual(&destFn->as.function.params[i],
-                                          &srcFn->as.function.params[i])) {
+        bool paramCompat =
+            parsedTypesEqualForFunctionCompat(&destFn->as.function.params[i],
+                                              &srcFn->as.function.params[i]);
+        if (!paramCompat && scope) {
+            TypeInfo destParamInfo = typeInfoFromParsedType(&destFn->as.function.params[i], scope);
+            TypeInfo srcParamInfo = typeInfoFromParsedType(&srcFn->as.function.params[i], scope);
+            paramCompat = typesAreEqual(&destParamInfo, &srcParamInfo);
+        }
+        if (!paramCompat) {
             parsedTypeFree(&destTarget);
             parsedTypeFree(&srcTarget);
             return false;
@@ -879,12 +893,12 @@ static bool functionPointerQualifierLoss(const ParsedType* destType, const Parse
     size_t srcCount = collectPointerDerivations(srcType, srcPtrs, TYPEINFO_MAX_POINTER_DEPTH);
     size_t pairCount = destCount < srcCount ? destCount : srcCount;
 
-    /* Ignore top-level pointer qualifiers; compare nested pointed-to levels only. */
+    /* Ignore outermost pointer qualifiers; compare nested pointed-to levels only. */
     if (pairCount <= 1) {
         return false;
     }
 
-    for (size_t i = 0; i + 1 < pairCount; ++i) {
+    for (size_t i = 1; i < pairCount; ++i) {
         const TypeDerivation* d = destPtrs[i];
         const TypeDerivation* s = srcPtrs[i];
         if (!d || !s) continue;
@@ -920,7 +934,9 @@ static void debugAssignmentMismatch(const TypeInfo* dest, const TypeInfo* src, c
     free(srcType);
 }
 
-AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) {
+AssignmentCheckResult canAssignTypesInScope(const TypeInfo* dest,
+                                            const TypeInfo* src,
+                                            Scope* scope) {
     if (!dest || !src) return ASSIGN_INCOMPATIBLE;
 
     if (typeInfoIsPointerLike(dest) && typeInfoIsPointerLike(src)) {
@@ -932,9 +948,18 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
             PointerQualifier d = { 0 };
             if (src->pointerDepth > 0) s = src->pointerLevels[0];
             if (dest->pointerDepth > 0) d = dest->pointerLevels[0];
-            if (s.isConst && !d.isConst) return ASSIGN_QUALIFIER_LOSS;
-            if (s.isVolatile && !d.isVolatile) return ASSIGN_QUALIFIER_LOSS;
-            if (s.isRestrict && !d.isRestrict) return ASSIGN_QUALIFIER_LOSS;
+            if (s.isConst && !d.isConst) {
+                debugAssignmentMismatch(dest, src, "qualifier loss: void-pointer const");
+                return ASSIGN_QUALIFIER_LOSS;
+            }
+            if (s.isVolatile && !d.isVolatile) {
+                debugAssignmentMismatch(dest, src, "qualifier loss: void-pointer volatile");
+                return ASSIGN_QUALIFIER_LOSS;
+            }
+            if (s.isRestrict && !d.isRestrict) {
+                debugAssignmentMismatch(dest, src, "qualifier loss: void-pointer restrict");
+                return ASSIGN_QUALIFIER_LOSS;
+            }
             return ASSIGN_OK;
         }
         if (dest->pointerDepth != src->pointerDepth) {
@@ -949,12 +974,21 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
         for (int i = 0; i < limit; ++i) {
             PointerQualifier s = src->pointerLevels[i];
             PointerQualifier d = dest->pointerLevels[i];
-            if (s.isConst && !d.isConst) return ASSIGN_QUALIFIER_LOSS;
-            if (s.isVolatile && !d.isVolatile) return ASSIGN_QUALIFIER_LOSS;
-            if (s.isRestrict && !d.isRestrict) return ASSIGN_QUALIFIER_LOSS;
+            if (s.isConst && !d.isConst) {
+                debugAssignmentMismatch(dest, src, "qualifier loss: const");
+                return ASSIGN_QUALIFIER_LOSS;
+            }
+            if (s.isVolatile && !d.isVolatile) {
+                debugAssignmentMismatch(dest, src, "qualifier loss: volatile");
+                return ASSIGN_QUALIFIER_LOSS;
+            }
+            if (s.isRestrict && !d.isRestrict) {
+                debugAssignmentMismatch(dest, src, "qualifier loss: restrict");
+                return ASSIGN_QUALIFIER_LOSS;
+            }
         }
         if (typeInfoIsFunctionPointer(dest) && typeInfoIsFunctionPointer(src)) {
-            if (!functionPointerTargetsCompatible(dest->originalType, src->originalType)) {
+            if (!functionPointerTargetsCompatible(dest->originalType, src->originalType, scope)) {
                 debugAssignmentMismatch(dest, src, "function pointer target mismatch");
                 return ASSIGN_INCOMPATIBLE;
             }
@@ -985,4 +1019,8 @@ AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) 
 
     debugAssignmentMismatch(dest, src, "category mismatch");
     return ASSIGN_INCOMPATIBLE;
+}
+
+AssignmentCheckResult canAssignTypes(const TypeInfo* dest, const TypeInfo* src) {
+    return canAssignTypesInScope(dest, src, NULL);
 }

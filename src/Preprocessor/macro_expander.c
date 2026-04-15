@@ -183,6 +183,19 @@ static void pp_token_buffer_release(PPTokenBuffer* buffer) {
     buffer->capacity = 0;
 }
 
+static bool pp_token_buffer_pop_if_type(PPTokenBuffer* buffer, TokenType type) {
+    if (!buffer || buffer->count == 0) {
+        return false;
+    }
+    Token* last = &buffer->tokens[buffer->count - 1];
+    if (last->type != type) {
+        return false;
+    }
+    token_free(last);
+    buffer->count--;
+    return true;
+}
+
 void pp_token_buffer_destroy(PPTokenBuffer* buffer) {
     pp_token_buffer_release(buffer);
 }
@@ -869,11 +882,31 @@ static bool substitute_macro(MacroExpander* expander,
                 continue;
             }
             if (def->params.variadic && strcmp(tok->value, "__VA_ARGS__") == 0) {
-                if ((i + 1 < def->body.count &&
-                     def->body.tokens[i + 1].type == TOKEN_DOUBLE_HASH) ||
-                    (i > 0 && def->body.tokens[i - 1].type == TOKEN_DOUBLE_HASH)) {
-                    adjacentPaste = true;
+                bool leftPaste = (i > 0 && def->body.tokens[i - 1].type == TOKEN_DOUBLE_HASH);
+                bool rightPaste = (i + 1 < def->body.count &&
+                                   def->body.tokens[i + 1].type == TOKEN_DOUBLE_HASH);
+                bool gnuCommaVariadic =
+                    leftPaste &&
+                    i > 1 &&
+                    def->body.tokens[i - 2].type == TOKEN_COMMA;
+
+                adjacentPaste = leftPaste || rightPaste;
+
+                if (gnuCommaVariadic) {
+                    // GNU extension: ", ##__VA_ARGS__" consumes the paste operator and
+                    // conditionally consumes the comma when no variadic arguments are provided.
+                    (void)pp_token_buffer_pop_if_type(&working, TOKEN_DOUBLE_HASH);
+                    if (!args || args->variadicCount == 0) {
+                        (void)pp_token_buffer_pop_if_type(&working, TOKEN_COMMA);
+                        continue;
+                    }
+                    if (!append_variadic_tokens(&working, args, false, callSite)) {
+                        pp_token_buffer_release(&working);
+                        return false;
+                    }
+                    continue;
                 }
+
                 if (!append_variadic_tokens(&working, args, adjacentPaste, callSite)) {
                     pp_token_buffer_release(&working);
                     return false;

@@ -1,0 +1,2342 @@
+{
+  "schema_version": 1,
+  "default_project": "datalab",
+  "projects": [
+    {
+      "name": "datalab",
+      "kind": "visual",
+      "root": "../datalab",
+      "entry": "src/main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [],
+      "include_dirs": [
+        "include",
+        "src",
+        "third_party/codework_shared/core/core_base/include",
+        "third_party/codework_shared/core/core_io/include",
+        "third_party/codework_shared/core/core_data/include",
+        "third_party/codework_shared/core/core_pack/include",
+        "third_party/codework_shared/kit/kit_viz/include",
+        "third_party/codework_shared/kit/kit_graph_timeseries/include",
+        "third_party/codework_shared/kit/kit_render/include",
+        "third_party/codework_shared/core/core_theme/include",
+        "third_party/codework_shared/core/core_font/include"
+      ],
+      "defines": [],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "_THREAD_SAFE"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 45,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 60,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "datalab_smoke_data_subset",
+              "inputs": [
+                "tests/datalab_smoke_test.c",
+                "src/data/dataset_builders.c",
+                "third_party/codework_shared/core/core_data/src/core_data.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c"
+              ]
+            },
+            {
+              "id": "datalab_pack_loader_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/datalab_pack_loader_subset_driver.c",
+                "src/data/pack_loader.c",
+                "third_party/codework_shared/core/core_pack/src/core_pack.c",
+                "third_party/codework_shared/core/core_io/src/core_io.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c"
+              ]
+            },
+            {
+              "id": "datalab_data_combo_subset",
+              "inputs": [
+                "tests/datalab_smoke_test.c",
+                "src/data/dataset_builders.c",
+                "src/data/pack_loader.c",
+                "third_party/codework_shared/core/core_pack/src/core_pack.c",
+                "third_party/codework_shared/core/core_io/src/core_io.c",
+                "third_party/codework_shared/core/core_data/src/core_data.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lm",
+            "-lSDL2",
+            "-lSDL2_ttf"
+          ],
+          "targets": [
+            {
+              "id": "datalab_full_default",
+              "inputs": [
+                "src/app/app_state.c",
+                "src/app/datalab_app_main.c",
+                "src/app/datalab_runtime_pack.c",
+                "src/app/datalab_runtime_prefs.c",
+                "src/data/dataset_builders.c",
+                "src/data/pack_loader.c",
+                "src/main.c",
+                "src/render/render_view.c",
+                "src/render/render_view_input.c",
+                "src/render/render_view_picker.c",
+                "src/render/render_view_profiles_loops.c",
+                "src/render/render_view_profiles_ui.c",
+                "src/ui/input.c",
+                "third_party/codework_shared/core/core_pack/src/core_pack.c",
+                "third_party/codework_shared/core/core_io/src/core_io.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c",
+                "third_party/codework_shared/core/core_data/src/core_data.c",
+                "third_party/codework_shared/core/core_font/src/core_font.c",
+                "third_party/codework_shared/kit/kit_viz/src/kit_viz.c",
+                "third_party/codework_shared/kit/kit_graph_timeseries/src/kit_graph_timeseries_math.c"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 1,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lm",
+            "-lSDL2",
+            "-lSDL2_ttf"
+          ],
+          "targets": [
+            {
+              "id": "datalab_runtime_headless_pack_smoke",
+              "build_target": "datalab_full_default",
+              "run_args": [
+                "--pack",
+                "third_party/codework_shared/core/core_pack/tests/fixtures/physics_v1_sample.pack",
+                "--no-gui"
+              ]
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lm",
+            "-lSDL2",
+            "-lSDL2_ttf"
+          ],
+          "targets": [
+            {
+              "id": "datalab_golden_headless_pack_hash",
+              "build_target": "datalab_full_default",
+              "run_args": [
+                "--pack",
+                "third_party/codework_shared/core/core_pack/tests/fixtures/physics_v1_sample.pack",
+                "--no-gui"
+              ],
+              "expected_stdout_sha256": "28bd49df4321ac0e1c062cec49db463897e3fecf2a283871e7f076bf67a4c711",
+              "expected_stderr_sha256": "ba330f5c9392d6995548d6319ebcbafe3c5aa0e97e40f388093cc4a3fa0d33e2",
+              "expected_stdout_contains": [
+                "profile=physics chunks=5",
+                "grid=96x96 frame=1936",
+                "manifest_bytes=434082"
+              ],
+              "expected_stderr_contains": [
+                "wrapper exit stage=6 exit_code=0"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "datalab"
+          ]
+        }
+      }
+    },
+    {
+      "name": "workspace_sandbox",
+      "kind": "visual",
+      "root": "../workspace_sandbox",
+      "entry": "src/app/workspace_sandbox_app_main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [],
+      "include_dirs": [
+        "include",
+        "src",
+        "src/app",
+        "src/app/lifecycle",
+        "src/runtime",
+        "src/runtime/drag",
+        "src/ui",
+        "src/ui/corner",
+        "src/ui/hud",
+        "src/ui/ingest",
+        "src/ui/input",
+        "src/ui/overlay",
+        "src/ui/pane",
+        "src/ui/picker",
+        "src/ui/session",
+        "src/ui/validation",
+        "../shared/core/core_base/include",
+        "../shared/core/core_action/include",
+        "../shared/core/core_config/include",
+        "../shared/core/core_layout/include",
+        "../shared/core/core_pane/include",
+        "../shared/core/core_pane_module/include",
+        "../shared/core/core_pane_snapshot/include",
+        "../shared/core/core_pack/include",
+        "../shared/core/core_theme/include",
+        "../shared/core/core_font/include",
+        "../shared/kit/kit_render/include",
+        "../shared/kit/kit_pane/include",
+        "../shared/vk_renderer/include"
+      ],
+      "defines": [],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "_THREAD_SAFE"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 60,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 90,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "workspace_sandbox_drag_policy_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/workspace_sandbox_drag_policy_subset_driver.c",
+                "src/runtime/drag/workspace_sandbox_runtime_drag_policy.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "workspace_sandbox_full_headless",
+              "inputs": [
+                "src/app/workspace_sandbox_app_headless_main.c",
+                "src/app/workspace_sandbox_app_main.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_dispatch.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_registry.c",
+                "src/runtime/core/workspace_sandbox_runtime_core.c",
+                "src/runtime/data/workspace_sandbox_runtime_data_paths.c",
+                "src/runtime/drag/workspace_sandbox_runtime_drag_policy.c",
+                "src/runtime/geometry/workspace_sandbox_runtime_geometry.c",
+                "src/runtime/history/workspace_sandbox_runtime_history.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_authoring_ops.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_helpers.c",
+                "src/runtime/pane/workspace_sandbox_runtime_pane_ops.c",
+                "src/runtime/preset/workspace_sandbox_runtime_preset_io.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_bridge.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_json.c",
+                "src/runtime/state/workspace_sandbox_runtime_module_state.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_pane_snapshot/build/libcore_pane_snapshot.a",
+                "../shared/core/core_pane_module/build/libcore_pane_module.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_config/build/libcore_config.a",
+                "../shared/core/core_layout/build/libcore_layout.a",
+                "../shared/core/core_action/build/libcore_action.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "workspace_sandbox_runtime_headless_smoke",
+              "build_target": "workspace_sandbox_full_headless",
+              "run_args": [],
+              "expected_exit_code": 0
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "workspace_sandbox_golden_headless_behavior",
+              "build_target": "workspace_sandbox_full_headless",
+              "run_args": [],
+              "expected_stdout_sha256": "3215b2fa9be8fa875591ecc4e0fc9830c1f52196e1b76c249feca85a570b3f19",
+              "expected_stderr_sha256": "2c0c9481785eac06f133c752e743c91025c0f015cbcdce557efa4ad09038c3d5",
+              "expected_stdout_contains": [
+                "workspace_sandbox runtime skeleton OK"
+              ],
+              "expected_stderr_contains": [
+                "dispatch_ok=1",
+                "wrapper_error=0"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "workspace_sandbox"
+          ]
+        }
+      }
+    },
+    {
+      "name": "mem_console",
+      "kind": "visual",
+      "root": "../mem_console",
+      "entry": "src/app/mem_console_app_main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [],
+      "include_dirs": [
+        "src",
+        "include",
+        "include/mem_console",
+        "third_party/codework_shared/core/core_memdb/include",
+        "third_party/codework_shared/core/core_pack/include",
+        "third_party/codework_shared/core/core_time/include",
+        "third_party/codework_shared/core/core_queue/include",
+        "third_party/codework_shared/core/core_sched/include",
+        "third_party/codework_shared/core/core_jobs/include",
+        "third_party/codework_shared/core/core_workers/include",
+        "third_party/codework_shared/core/core_wake/include",
+        "third_party/codework_shared/core/core_kernel/include",
+        "third_party/codework_shared/core/core_pane/include",
+        "third_party/codework_shared/kit/kit_ui/include",
+        "third_party/codework_shared/kit/kit_graph_struct/include",
+        "third_party/codework_shared/kit/kit_render/include",
+        "third_party/codework_shared/vk_renderer/include",
+        "third_party/codework_shared/core/core_base/include",
+        "third_party/codework_shared/core/core_theme/include",
+        "third_party/codework_shared/core/core_font/include"
+      ],
+      "defines": [],
+      "platform_overrides": {
+        "darwin": {
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 60,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 90,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "mem_console_graph_filters_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/mem_console_graph_filters_subset_driver.c",
+                "src/runtime/mem_console_state_graph_filters.c",
+                "src/runtime/mem_console_state_project_filters.c"
+              ]
+            },
+            {
+              "id": "mem_console_graph_filters_boundary_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/mem_console_graph_filters_boundary_subset_driver.c",
+                "src/runtime/mem_console_state_graph_filters.c",
+                "src/runtime/mem_console_state_project_filters.c"
+              ]
+            },
+            {
+              "id": "mem_console_paths_contract_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/mem_console_paths_contract_subset_driver.c",
+                "src/runtime/mem_console_state_paths.c"
+              ]
+            },
+            {
+              "id": "mem_console_prefs_app_io_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/mem_console_prefs_app_io_subset_driver.c",
+                "src/runtime/mem_console_prefs_app_io.c",
+                "third_party/codework_shared/core/core_pack/src/core_pack.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lvulkan",
+            "-lSDL2",
+            "-lSDL2_ttf",
+            "-framework",
+            "Metal",
+            "-framework",
+            "QuartzCore",
+            "-framework",
+            "Cocoa",
+            "-framework",
+            "IOKit",
+            "-framework",
+            "CoreVideo",
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "mem_console_full_default",
+              "inputs": [
+                "src/app/mem_console.c",
+                "src/app/mem_console_app_main.c",
+                "src/app/mem_console_app_actions.c",
+                "src/app/mem_console_app_db_switch.c",
+                "src/app/mem_console_app_events.c",
+                "src/app/mem_console_app_loop.c",
+                "src/app/mem_console_app_theme.c",
+                "src/app/mem_console_kernel_bridge.c",
+                "src/db/mem_console_db.c",
+                "src/db/mem_console_db_graph_sort.c",
+                "src/db/mem_console_db_filters.c",
+                "src/db/mem_console_db_mutations.c",
+                "src/db/mem_console_db_reads.c",
+                "src/runtime/mem_console_prefs.c",
+                "src/runtime/mem_console_prefs_app_io.c",
+                "src/runtime/mem_console_runtime.c",
+                "src/runtime/mem_console_state.c",
+                "src/runtime/mem_console_state_core.c",
+                "src/runtime/mem_console_state_graph_filters.c",
+                "src/runtime/mem_console_state_paths.c",
+                "src/runtime/mem_console_state_project_filters.c",
+                "src/layout/mem_console_layout_config.c",
+                "src/layout/mem_console_pane_layout.c",
+                "src/ui/mem_console_ui.c",
+                "src/ui/mem_console_ui_chrome.c",
+                "src/ui/mem_console_ui_common.c",
+                "src/ui/mem_console_ui_detail_panel.c",
+                "src/ui/mem_console_ui_detail_section.c",
+                "src/ui/mem_console_ui_hud.c",
+                "src/ui/mem_console_ui_left_panel.c",
+                "src/ui/mem_console_ui_left_section.c",
+                "src/ui/graph/mem_console_ui_graph.c",
+                "src/ui/graph/mem_console_ui_graph_camera.c",
+                "src/ui/graph/mem_console_ui_graph_controls.c",
+                "src/ui/graph/mem_console_ui_graph_draw.c",
+                "src/ui/graph/mem_console_ui_graph_geometry.c",
+                "src/ui/graph/mem_console_ui_graph_hud.c",
+                "src/ui/graph/mem_console_ui_graph_layout.c",
+                "src/ui/graph/mem_console_ui_graph_layout_focus_helpers.c",
+                "src/ui/graph/mem_console_ui_graph_overlay.c",
+                "src/ui/graph/mem_console_ui_graph_project_pods.c",
+                "src/ui/graph/mem_console_ui_graph_types.c",
+                "src/ui/graph/mem_console_ui_graph_panel.c"
+              ],
+              "link_inputs": [
+                "third_party/codework_shared/kit/kit_graph_struct/build/libkit_graph_struct.a",
+                "third_party/codework_shared/kit/kit_ui/build/libkit_ui.a",
+                "third_party/codework_shared/kit/kit_render/build/vk/libkit_render.a",
+                "third_party/codework_shared/vk_renderer/build/lib/libvkrenderer.a",
+                "third_party/codework_shared/core/core_memdb/build/libcore_memdb.a",
+                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
+                "third_party/codework_shared/core/core_pane/build/libcore_pane.a",
+                "third_party/codework_shared/core/core_kernel/build/libcore_kernel.a",
+                "third_party/codework_shared/core/core_workers/build/libcore_workers.a",
+                "third_party/codework_shared/core/core_queue/build/libcore_queue.a",
+                "third_party/codework_shared/core/core_sched/build/libcore_sched.a",
+                "third_party/codework_shared/core/core_jobs/build/libcore_jobs.a",
+                "third_party/codework_shared/core/core_wake/build/libcore_wake.a",
+                "third_party/codework_shared/core/core_time/build/libcore_time.a",
+                "third_party/codework_shared/core/core_theme/build/libcore_theme.a",
+                "third_party/codework_shared/core/core_font/build/libcore_font.a",
+                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 1,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lvulkan",
+            "-lSDL2",
+            "-lSDL2_ttf",
+            "-framework",
+            "Metal",
+            "-framework",
+            "QuartzCore",
+            "-framework",
+            "Cocoa",
+            "-framework",
+            "IOKit",
+            "-framework",
+            "CoreVideo",
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "mem_console_runtime_invalid_flag_smoke",
+              "build_target": "mem_console_full_default",
+              "run_args": [
+                "--invalid-smoke-flag"
+              ],
+              "expected_exit_code": 1
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 1,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lvulkan",
+            "-lSDL2",
+            "-lSDL2_ttf",
+            "-framework",
+            "Metal",
+            "-framework",
+            "QuartzCore",
+            "-framework",
+            "Cocoa",
+            "-framework",
+            "IOKit",
+            "-framework",
+            "CoreVideo",
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "mem_console_golden_invalid_flag_usage",
+              "build_target": "mem_console_full_default",
+              "run_args": [
+                "--invalid-smoke-flag"
+              ],
+              "expected_exit_code": 1,
+              "expected_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "expected_stderr_contains": [
+                "usage:",
+                "wrapper error fn=mem_console_app_main code=2 stage=1 exit_code=1"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "build/mem_console",
+            "dist/eCho.app/Contents/MacOS/mem-console-bin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "line_drawing",
+      "kind": "visual",
+      "root": "../line_drawing",
+      "entry": "src/main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [
+        "src/Tools/*.c",
+        "src/Tools/**/*.c"
+      ],
+      "include_dirs": [
+        "include",
+        "src",
+        "src/Tools",
+        "external",
+        "../shared/vk_renderer/include",
+        "../shared/core/core_base/include",
+        "../shared/core/core_io/include",
+        "../shared/core/core_data/include",
+        "../shared/core/core_math/include",
+        "../shared/core/core_time/include",
+        "../shared/core/core_scene/include",
+        "../shared/core/core_object/include",
+        "../shared/core/core_units/include",
+        "../shared/core/core_layout/include",
+        "../shared/core/core_pane/include",
+        "../shared/core/core_pane_module/include",
+        "../shared/core/core_pack/include",
+        "../shared/core/core_trace/include",
+        "../shared/core/core_theme/include",
+        "../shared/core/core_font/include",
+        "../shared/timer_hud/include"
+      ],
+      "defines": [
+        "USE_VULKAN=1"
+      ],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "_THREAD_SAFE"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 60,
+          "fisics_extra_args": [
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 90,
+          "fisics_extra_args": [
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "line_drawing_data_paths_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/line_drawing_data_paths_subset_driver.c",
+                "src/Core/data_paths.c"
+              ]
+            },
+            {
+              "id": "line_drawing_scene3d_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/line_drawing_scene3d_subset_driver.c",
+                "src/Layout/scene/layout_scene3d.c",
+                "../shared/core/core_math/src/core_math.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "line_drawing_full_wrapper_minimal",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/line_drawing_stagec_wrapper_driver.c",
+                "src/app/line_drawing_app_main.c"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 1,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "line_drawing_runtime_wrapper_exit_smoke",
+              "build_target": "line_drawing_full_wrapper_minimal",
+              "run_args": [],
+              "expected_exit_code": 1
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 1,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "line_drawing_golden_wrapper_exit_behavior",
+              "build_target": "line_drawing_full_wrapper_minimal",
+              "run_args": [],
+              "expected_exit_code": 1,
+              "expected_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "expected_stderr_sha256": "f1f372ce0877d050c983584cfa56d53a2eeef654f87c6cfa7647f69147a3c2c0",
+              "expected_stderr_contains": [
+                "line_drawing: wrapper exit stage=7 exit_code=1",
+                "dispatch_count=1 dispatch_ok=1 wrapper_error=0"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "line_drawing"
+          ]
+        }
+      }
+    },
+    {
+      "name": "drawing_program",
+      "kind": "visual",
+      "root": "../drawing_program",
+      "entry": "src/app/main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [],
+      "include_dirs": [
+        "include",
+        "src",
+        "../shared/core/core_base/include",
+        "../shared/core/core_theme/include",
+        "../shared/core/core_font/include",
+        "../shared/core/core_pack/include",
+        "../shared/core/core_pane/include",
+        "../shared/core/core_layout/include",
+        "../shared/core/core_pane_module/include",
+        "third_party/codework_shared/core/core_base/include",
+        "third_party/codework_shared/core/core_theme/include",
+        "third_party/codework_shared/core/core_font/include",
+        "third_party/codework_shared/core/core_pack/include",
+        "third_party/codework_shared/core/core_pane/include",
+        "third_party/codework_shared/core/core_layout/include",
+        "third_party/codework_shared/core/core_pane_module/include",
+        "/usr/local/include"
+      ],
+      "defines": [],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "_THREAD_SAFE"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "drawing_program_color_viewport_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/drawing_program_stageb_color_viewport_subset_driver.c",
+                "src/domain/drawing_program_color_model.c",
+                "src/domain/drawing_program_editor_state.c",
+                "src/domain/drawing_program_viewport.c"
+              ]
+            },
+            {
+              "id": "drawing_program_document_layer_raster_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/drawing_program_stageb_document_layer_raster_subset_driver.c",
+                "src/domain/drawing_program_color_model.c",
+                "src/domain/drawing_program_document.c",
+                "src/domain/drawing_program_layer_raster.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm",
+            "../shared/core/core_pack/build/libcore_pack.a",
+            "../shared/core/core_pane/build/libcore_pane.a",
+            "../shared/core/core_layout/build/libcore_layout.a",
+            "../shared/core/core_pane_module/build/libcore_pane_module.a",
+            "../shared/core/core_theme/build/libcore_theme.a",
+            "../shared/core/core_font/build/libcore_font.a",
+            "../shared/core/core_base/build/libcore_base.a"
+          ],
+          "targets": [
+            {
+              "id": "drawing_program_full_lifecycle_headless_wrapper",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/drawing_program_stagec_visual_stub.c",
+                "../fisiCs/tests/real_projects/fixtures/drawing_program_stagec_full_wrapper_driver.c",
+                "src/domain/drawing_program_color_model.c",
+                "src/domain/drawing_program_document.c",
+                "src/domain/drawing_program_editor_state.c",
+                "src/domain/drawing_program_history.c",
+                "src/domain/drawing_program_layer_raster.c",
+                "src/domain/drawing_program_selection.c",
+                "src/domain/drawing_program_viewport.c",
+                "src/io/session/drawing_program_snapshot.c",
+                "src/io/session/drawing_program_snapshot_bridge.c",
+                "src/runtime/render/drawing_program_render_domain.c",
+                "src/runtime/render/drawing_program_render_backend.c",
+                "src/runtime/orchestration/drawing_program_runtime_orchestration.c",
+                "src/runtime/canvas/drawing_program_visual_canvas_stroke_ops.c",
+                "src/runtime/adapters/drawing_program_pane_host.c",
+                "src/runtime/adapters/drawing_program_overlay_adapter.c",
+                "src/app/drawing_program_app_main.c"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 12,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm",
+            "../shared/core/core_pack/build/libcore_pack.a",
+            "../shared/core/core_pane/build/libcore_pane.a",
+            "../shared/core/core_layout/build/libcore_layout.a",
+            "../shared/core/core_pane_module/build/libcore_pane_module.a",
+            "../shared/core/core_theme/build/libcore_theme.a",
+            "../shared/core/core_font/build/libcore_font.a",
+            "../shared/core/core_base/build/libcore_base.a"
+          ],
+          "targets": [
+            {
+              "id": "drawing_program_runtime_headless_lifecycle_smoke",
+              "build_target": "drawing_program_full_lifecycle_headless_wrapper",
+              "run_args": [],
+              "expected_exit_code": 0
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 12,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm",
+            "../shared/core/core_pack/build/libcore_pack.a",
+            "../shared/core/core_pane/build/libcore_pane.a",
+            "../shared/core/core_layout/build/libcore_layout.a",
+            "../shared/core/core_pane_module/build/libcore_pane_module.a",
+            "../shared/core/core_theme/build/libcore_theme.a",
+            "../shared/core/core_font/build/libcore_font.a",
+            "../shared/core/core_base/build/libcore_base.a"
+          ],
+          "targets": [
+            {
+              "id": "drawing_program_golden_headless_lifecycle_behavior",
+              "build_target": "drawing_program_full_lifecycle_headless_wrapper",
+              "run_args": [],
+              "expected_exit_code": 0,
+              "expected_stdout_sha256": "07b3aa1ba3279f1d053559ac4a3ba25e18b9b4325f27a4cbd6b1a823ed3d788e",
+              "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "expected_stdout_contains": [
+                "drawing_program_stagec_full_wrapper_driver: success"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "build/bin/drawing-program-headless",
+            "build/bin/drawing-program-bin",
+            "dist/sketCh.app/Contents/MacOS/drawing-program-bin"
+          ]
+        }
+      }
+    },
+    {
+      "name": "daw",
+      "kind": "visual",
+      "root": "../daw",
+      "entry": "src/app/main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [],
+      "include_dirs": [
+        "include",
+        "src",
+        "extern",
+        "SDLApp",
+        "third_party/codework_shared/vk_renderer/include",
+        "third_party/codework_shared/timer_hud/include",
+        "third_party/codework_shared/timer_hud/external",
+        "third_party/codework_shared/core/core_base/include",
+        "third_party/codework_shared/core/core_io/include",
+        "third_party/codework_shared/core/core_data/include",
+        "third_party/codework_shared/core/core_pack/include",
+        "third_party/codework_shared/core/core_time/include",
+        "third_party/codework_shared/core/core_theme/include",
+        "third_party/codework_shared/core/core_font/include",
+        "third_party/codework_shared/core/core_queue/include",
+        "third_party/codework_shared/core/core_sched/include",
+        "third_party/codework_shared/core/core_jobs/include",
+        "third_party/codework_shared/core/core_workers/include",
+        "third_party/codework_shared/core/core_wake/include",
+        "third_party/codework_shared/core/core_kernel/include",
+        "third_party/codework_shared/core/core_trace/include",
+        "third_party/codework_shared/kit/kit_viz/include",
+        "/usr/local/include"
+      ],
+      "defines": [
+        "VK_RENDERER_SHADER_ROOT=\"third_party/codework_shared/vk_renderer\""
+      ],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "_THREAD_SAFE",
+            "VK_USE_PLATFORM_METAL_EXT"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 300,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm",
+            "-lpthread"
+          ],
+          "targets": [
+            {
+              "id": "daw_trace_export_contract_subset",
+              "inputs": [
+                "tests/daw_trace_export_contract_test.c",
+                "src/export/daw_trace_export.c",
+                "third_party/codework_shared/core/core_trace/src/core_trace.c",
+                "third_party/codework_shared/core/core_pack/src/core_pack.c",
+                "third_party/codework_shared/core/core_io/src/core_io.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c"
+              ]
+            },
+            {
+              "id": "daw_trace_export_async_contract_subset",
+              "inputs": [
+                "tests/daw_trace_export_async_contract_test.c",
+                "src/export/daw_trace_export.c",
+                "src/export/daw_trace_export_async.c",
+                "third_party/codework_shared/core/core_workers/src/core_workers.c",
+                "third_party/codework_shared/core/core_trace/src/core_trace.c",
+                "third_party/codework_shared/core/core_queue/src/core_queue.c",
+                "third_party/codework_shared/core/core_pack/src/core_pack.c",
+                "third_party/codework_shared/core/core_io/src/core_io.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 300,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm",
+            "-lpthread"
+          ],
+          "targets": [
+            {
+              "id": "daw_full_wrapper_minimal",
+              "inputs": [
+                "tests/daw_trace_export_async_contract_test.c",
+                "src/export/daw_trace_export.c",
+                "src/export/daw_trace_export_async.c",
+                "third_party/codework_shared/core/core_workers/src/core_workers.c",
+                "third_party/codework_shared/core/core_trace/src/core_trace.c",
+                "third_party/codework_shared/core/core_queue/src/core_queue.c",
+                "third_party/codework_shared/core/core_pack/src/core_pack.c",
+                "third_party/codework_shared/core/core_io/src/core_io.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 300,
+          "run_timeout_sec": 12,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm",
+            "-lpthread"
+          ],
+          "targets": [
+            {
+              "id": "daw_runtime_wrapper_exit_smoke",
+              "build_target": "daw_full_wrapper_minimal",
+              "run_args": [],
+              "expected_exit_code": 0
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 300,
+          "run_timeout_sec": 12,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "third_party/codework_shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm",
+            "-lpthread"
+          ],
+          "targets": [
+            {
+              "id": "daw_golden_wrapper_exit_behavior",
+              "build_target": "daw_full_wrapper_minimal",
+              "run_args": [],
+              "expected_exit_code": 0,
+              "expected_stdout_sha256": "08bc0209bf2c328be44004a547d2ce015addb7aae021968407f38cd932e8b442",
+              "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "expected_stdout_contains": [
+                "daw_trace_export_async_contract_test: success"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0
+        }
+      }
+    },
+    {
+      "name": "ide",
+      "kind": "visual",
+      "root": "../ide",
+      "entry": "src/app/main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [
+        "src/Project/*.c",
+        "src/Project/**/*.c",
+        "src/engine/Render/vk_renderer_ref_backup/*.c",
+        "src/engine/Render/vk_renderer_ref_backup/**/*.c",
+        "src/engine/TimerHUD_legacy_backup/*.c",
+        "src/engine/TimerHUD_legacy_backup/**/*.c"
+      ],
+      "include_dirs": [
+        "include",
+        "src",
+        "third_party/codework_shared/vk_renderer/include",
+        "third_party/codework_shared/core/core_base/include",
+        "third_party/codework_shared/core/core_io/include",
+        "third_party/codework_shared/core/core_data/include",
+        "third_party/codework_shared/core/core_pack/include",
+        "third_party/codework_shared/core/core_theme/include",
+        "third_party/codework_shared/core/core_font/include",
+        "third_party/codework_shared/core/core_time/include",
+        "third_party/codework_shared/core/core_queue/include",
+        "third_party/codework_shared/core/core_sched/include",
+        "third_party/codework_shared/core/core_jobs/include",
+        "third_party/codework_shared/core/core_workers/include",
+        "third_party/codework_shared/core/core_wake/include",
+        "third_party/codework_shared/core/core_kernel/include",
+        "../fisiCs/src",
+        "third_party/codework_shared/timer_hud/include",
+        "third_party/codework_shared/timer_hud/external",
+        "/usr/local/include"
+      ],
+      "defines": [
+        "VK_RENDERER_SHADER_ROOT=\"third_party/codework_shared/vk_renderer\""
+      ],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "_THREAD_SAFE"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "ide_runtime_paths_resolution_subset",
+              "inputs": [
+                "tests/runtime_paths_resolution_test.c",
+                "src/app/GlobalInfo/runtime_paths.c"
+              ]
+            },
+            {
+              "id": "ide_runtime_startup_defaults_subset",
+              "inputs": [
+                "tests/runtime_startup_defaults_test.c",
+                "src/app/GlobalInfo/runtime_startup_defaults.c"
+              ]
+            },
+            {
+              "id": "ide_loop_diag_config_subset",
+              "inputs": [
+                "tests/loop_diag_config_regression_test.c",
+                "src/core/LoopDiagnostics/loop_diag_config.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-ljson-c",
+            "-lSDL2"
+          ],
+          "targets": [
+            {
+              "id": "ide_idebridge_phase1_full_target",
+              "inputs": [
+                "tests/idebridge_phase1_check.c",
+                "src/core/Ipc/ide_ipc_server.c",
+                "src/core/Ipc/ide_ipc_server_utils.c",
+                "src/core/Ipc/ide_ipc_build_helpers.c",
+                "src/core/Ipc/ide_ipc_query_helpers.c",
+                "src/core/Ipc/ide_ipc_search_helpers.c",
+                "src/core/Ipc/ide_ipc_path_guard.c",
+                "src/core/Diagnostics/diagnostics_engine.c",
+                "src/core/BuildSystem/build_diagnostics.c",
+                "src/core/Analysis/analysis_symbols_store.c",
+                "src/core/Analysis/analysis_token_store.c",
+                "src/core/Analysis/library_index.c",
+                "src/core/LoopKernel/mainthread_context.c",
+                "src/app/GlobalInfo/workspace_prefs.c"
+              ]
+            },
+            {
+              "id": "ide_runtime_startup_defaults_full_target",
+              "inputs": [
+                "tests/runtime_startup_defaults_test.c",
+                "src/app/GlobalInfo/runtime_startup_defaults.c"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 12,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "targets": [
+            {
+              "id": "ide_runtime_startup_defaults_smoke",
+              "build_target": "ide_runtime_startup_defaults_full_target",
+              "run_args": [],
+              "expected_exit_code": 0
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 12,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "targets": [
+            {
+              "id": "ide_runtime_startup_defaults_golden",
+              "build_target": "ide_runtime_startup_defaults_full_target",
+              "run_args": [],
+              "expected_exit_code": 0,
+              "expected_stdout_sha256": "27d03dc4573fcce074fe293b0dfbc02fcf1e8a311ccde62e9287c2c90dc36912",
+              "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "expected_stdout_contains": [
+                "runtime_startup_defaults_test: success"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0
+        }
+      }
+    },
+    {
+      "name": "physics_sim",
+      "kind": "visual",
+      "root": "../physics_sim",
+      "entry": "src/main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [
+        "src/tools/cli/*.c",
+        "src/tools/cli/**/*.c",
+        "src/render/TimerHUD/*.c",
+        "src/render/TimerHUD/**/*.c",
+        "src/render/TimerHUD_legacy_backup/*.c",
+        "src/render/TimerHUD_legacy_backup/**/*.c"
+      ],
+      "include_dirs": [
+        "include",
+        "src",
+        "src/tools",
+        "../shared/vk_renderer/include",
+        "../shared/core/core_base/include",
+        "../shared/core/core_io/include",
+        "../shared/core/core_data/include",
+        "../shared/core/core_pack/include",
+        "../shared/core/core_scene/include",
+        "../shared/core/core_scene_compile/include",
+        "../shared/core/core_object/include",
+        "../shared/core/core_units/include",
+        "../shared/core/core_trace/include",
+        "../shared/core/core_theme/include",
+        "../shared/core/core_font/include",
+        "../shared/kit/kit_viz/include",
+        "../shared/timer_hud/include",
+        "../shared/timer_hud/external"
+      ],
+      "defines": [
+        "USE_VULKAN=1"
+      ],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "_THREAD_SAFE",
+            "VK_USE_PLATFORM_METAL_EXT"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "physics_sim_data_paths_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/physics_sim_data_paths_subset_driver.c",
+                "src/app/data_paths.c"
+              ]
+            },
+            {
+              "id": "physics_sim_app_main_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/physics_sim_app_main_subset_driver.c",
+                "src/app/physics_sim_app_main.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "physics_sim_full_wrapper_minimal",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/physics_sim_app_main_subset_driver.c",
+                "src/app/physics_sim_app_main.c",
+                "src/app/data_paths.c"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 1,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "physics_sim_runtime_wrapper_exit_smoke",
+              "build_target": "physics_sim_full_wrapper_minimal",
+              "run_args": [],
+              "expected_exit_code": 1
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 1,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "physics_sim_golden_wrapper_exit_behavior",
+              "build_target": "physics_sim_full_wrapper_minimal",
+              "run_args": [],
+              "expected_exit_code": 1,
+              "expected_stdout_sha256": "12a52f9a82da31c4b1820b707eef261a22ebf75538c4efeb1589b51cc842d34f",
+              "expected_stderr_sha256": "1fa8e4d714434b4324ccc37a9cccd0f5b267dfd0d32c1fb80068a115ad65c6c1",
+              "expected_stdout_contains": [
+                "legacy_calls=2 ok=0"
+              ],
+              "expected_stderr_contains": [
+                "physics_sim: wrapper exit stage=7 exit_code=0",
+                "dispatch_count=1 dispatch_ok=1 wrapper_error=0"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "physics_sim"
+          ]
+        }
+      }
+    },
+    {
+      "name": "map_forge",
+      "kind": "visual",
+      "root": "../map_forge",
+      "entry": "src/main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [],
+      "include_dirs": [
+        "include",
+        "src",
+        "third_party/codework_shared/core/core_space/include",
+        "third_party/codework_shared/core/core_base/include",
+        "third_party/codework_shared/core/core_io/include",
+        "third_party/codework_shared/core/core_data/include",
+        "third_party/codework_shared/core/core_pack/include",
+        "third_party/codework_shared/core/core_time/include",
+        "third_party/codework_shared/core/core_queue/include",
+        "third_party/codework_shared/core/core_sched/include",
+        "third_party/codework_shared/core/core_jobs/include",
+        "third_party/codework_shared/core/core_workers/include",
+        "third_party/codework_shared/core/core_wake/include",
+        "third_party/codework_shared/core/core_kernel/include",
+        "third_party/codework_shared/core/core_trace/include",
+        "third_party/codework_shared/core/core_theme/include",
+        "third_party/codework_shared/core/core_font/include",
+        "third_party/codework_shared/kit/kit_runtime_diag/include",
+        "third_party/codework_shared/vk_renderer/include"
+      ],
+      "defines": [
+        "MAPFORGE_HAVE_VK=1"
+      ],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "_THREAD_SAFE"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "map_forge_runtime_input_policy_subset",
+              "inputs": [
+                "tests/app_runtime_input_policy_test.c",
+                "src/app/app_runtime_input_policy.c"
+              ]
+            },
+            {
+              "id": "map_forge_route_service_subset",
+              "inputs": [
+                "tests/app_route_service_test.c",
+                "src/app/route/app_route_service.c"
+              ]
+            },
+            {
+              "id": "map_forge_map_space_subset",
+              "inputs": [
+                "tests/map_space_test.c",
+                "src/map/map_space.c",
+                "src/map/tile_math.c",
+                "src/map/mercator.c",
+                "src/camera/camera.c",
+                "third_party/codework_shared/core/core_space/src/core_space.c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "map_forge_full_wrapper_minimal",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/map_forge_stagec_wrapper_driver.c",
+                "src/app/map_forge_app_main.c"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "map_forge_runtime_wrapper_exit_smoke",
+              "build_target": "map_forge_full_wrapper_minimal",
+              "run_args": [],
+              "expected_exit_code": 0
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "map_forge_golden_wrapper_exit_behavior",
+              "build_target": "map_forge_full_wrapper_minimal",
+              "run_args": [],
+              "expected_exit_code": 0,
+              "expected_stdout_sha256": "16a951f69bd76035715dfef86fe5caa9e5df62d4ebed398dcbd819cb3d3fb289",
+              "expected_stderr_sha256": "2784f31de23734c8585b4402ed1c2f577274fa23b580340255681dee7903c7ae",
+              "expected_stdout_contains": [
+                "stage_c_fullbuild_rc=0"
+              ],
+              "expected_stderr_contains": [
+                "map_forge: wrapper exit stage=7 exit_code=0",
+                "dispatch_count=1 dispatch_ok=1 last_dispatch_exit=0",
+                "wrapper_error=0"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "map_forge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "ray_tracing",
+      "kind": "visual",
+      "root": "../ray_tracing",
+      "entry": "src/app/animation.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [
+        "src/tools/cli/*.c",
+        "src/tools/cli/**/*.c",
+        "src/render/integrators/camera_path_integrator_old_version.c",
+        "src/render/TimerHUD_legacy_backup/*.c",
+        "src/render/TimerHUD_legacy_backup/**/*.c"
+      ],
+      "include_dirs": [
+        "include",
+        "src",
+        "src/tools",
+        "src/tools/ShapeLib",
+        "../shared/vk_renderer/include",
+        "../shared/core/core_base/include",
+        "../shared/core/core_io/include",
+        "../shared/core/core_data/include",
+        "../shared/core/core_pack/include",
+        "../shared/core/core_time/include",
+        "../shared/core/core_scene/include",
+        "../shared/core/core_scene_compile/include",
+        "../shared/core/core_object/include",
+        "../shared/core/core_units/include",
+        "../shared/core/core_trace/include",
+        "../shared/core/core_space/include",
+        "../shared/core/core_theme/include",
+        "../shared/core/core_font/include",
+        "../shared/kit/kit_viz/include",
+        "../shared/kit/kit_runtime_diag/include",
+        "../shared/timer_hud/include",
+        "../shared/timer_hud/external"
+      ],
+      "defines": [
+        "MAIN_DRIVER",
+        "USE_VULKAN=1"
+      ],
+      "platform_overrides": {
+        "darwin": {
+          "defines": [
+            "VK_USE_PLATFORM_METAL_EXT"
+          ],
+          "include_dirs": [
+            "/opt/homebrew/include",
+            "/opt/homebrew/include/SDL2"
+          ]
+        },
+        "linux": {
+          "include_dirs": [
+            "/usr/include/SDL2"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 90,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 90,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "ray_tracing_data_paths_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_data_paths_subset_driver.c",
+                "src/app/data_paths.c"
+              ]
+            },
+            {
+              "id": "ray_tracing_app_main_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_app_main_subset_driver.c",
+                "src/app/ray_tracing_app_main.c"
+              ]
+            },
+            {
+              "id": "ray_tracing_config_file_io_subset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_config_file_io_subset_driver.c",
+                "src/config/io/config_file_io.c"
+              ],
+              "link_args": [
+                "-L/opt/homebrew/lib",
+                "-ljson-c"
+              ]
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-include",
+            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "ray_tracing_full_wrapper_minimal",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_app_main_subset_driver.c",
+                "src/app/ray_tracing_app_main.c"
+              ]
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 1,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "ray_tracing_runtime_wrapper_exit_smoke",
+              "build_target": "ray_tracing_full_wrapper_minimal",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_staged_wrapper_driver.c",
+                "src/app/ray_tracing_app_main.c"
+              ],
+              "run_args": [],
+              "expected_exit_code": 0
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 120,
+          "run_timeout_sec": 8,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "ray_tracing_golden_wrapper_exit_behavior",
+              "build_target": "ray_tracing_full_wrapper_minimal",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_staged_wrapper_driver.c",
+                "src/app/ray_tracing_app_main.c"
+              ],
+              "run_args": [],
+              "expected_exit_code": 0,
+              "expected_stdout_sha256": "c753dd202643cc232727b3598c448164a59a2959fda227ad1c8ecf9bda9dee5e",
+              "expected_stderr_sha256": "bb20d9b80325673d31a0f6a02a539a4436f2c0e0f693216336189e1d121fa021",
+              "expected_stdout_contains": [
+                "stage_d_smoke_rc=0"
+              ],
+              "expected_stderr_contains": [
+                "ray_tracing: wrapper exit stage=7 exit_code=0",
+                "dispatch_count=1 dispatch_ok=1 last_dispatch_exit=0",
+                "wrapper_error=0"
+              ]
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "ray_tracing"
+          ]
+        }
+      }
+    }
+  ]
+}

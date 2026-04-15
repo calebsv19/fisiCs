@@ -9,6 +9,8 @@
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Analysis.h>
+#include <llvm-c/Transforms/PassBuilder.h>
+#include <llvm-c/Error.h>
 
 static bool set_error(char** out, const char* msg, const char* detail) {
     if (!out) return false;
@@ -88,21 +90,37 @@ bool compiler_emit_object_file(LLVMModuleRef module,
     }
     if (targetErr) LLVMDisposeMessage(targetErr);
 
-    LLVMCodeGenOptLevel optLevel = LLVMCodeGenLevelNone;
+    /*
+     * Default to O0 for stability across the final/runtime conformance lane.
+     * LLVM 20's LowerExpectIntrinsic pass can crash on some legal IR patterns
+     * we emit in stress/control-flow tests. Keep opt-level override support so
+     * callers can opt into O1/O2/O3 when they explicitly need it.
+     */
+    LLVMCodeGenOptLevel optLevel = LLVMCodeGenLevelDefault;
     LLVMRelocMode reloc = LLVMRelocDefault;
     LLVMCodeModel codeModel = LLVMCodeModelDefault;
     const char* cpu = "";
     const char* features = "";
+    int requestedOptLevel = 0;
     const char* optEnv = getenv("FISICS_LLVM_OPT_LEVEL");
     if (optEnv && optEnv[0]) {
         int level = atoi(optEnv);
         switch (level) {
-            case 0: optLevel = LLVMCodeGenLevelNone; break;
-            case 1: optLevel = LLVMCodeGenLevelLess; break;
-            case 2: optLevel = LLVMCodeGenLevelDefault; break;
-            case 3: optLevel = LLVMCodeGenLevelAggressive; break;
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                requestedOptLevel = level;
+                break;
             default: break;
         }
+    }
+    switch (requestedOptLevel) {
+        case 0: optLevel = LLVMCodeGenLevelNone; break;
+        case 1: optLevel = LLVMCodeGenLevelLess; break;
+        case 2: optLevel = LLVMCodeGenLevelDefault; break;
+        case 3: optLevel = LLVMCodeGenLevelAggressive; break;
+        default: break;
     }
 
     LLVMTargetMachineRef tm = LLVMCreateTargetMachine(target,
@@ -147,6 +165,52 @@ bool compiler_emit_object_file(LLVMModuleRef module,
         }
         if (verifyErr) {
             LLVMDisposeMessage(verifyErr);
+        }
+    }
+
+    /*
+     * Run optimization pipeline before object emission.
+     * - O0: keep behavior close to debug builds.
+     * - O1/O2/O3: run standard LLVM pass pipelines for runtime viability.
+     */
+    {
+        LLVMPassBuilderOptionsRef pbOptions = LLVMCreatePassBuilderOptions();
+        if (pbOptions) {
+            const char* pipeline = NULL;
+            if (requestedOptLevel == 1) {
+                pipeline = "default<O1>";
+            } else if (requestedOptLevel == 2) {
+                pipeline = "default<O2>";
+            } else if (requestedOptLevel >= 3) {
+                pipeline = "default<O3>";
+            }
+            if (pipeline) {
+                LLVMErrorRef passErr = LLVMRunPasses(module, pipeline, tm, pbOptions);
+                if (passErr) {
+                    char* passErrMsg = LLVMGetErrorMessage(passErr);
+                    if (passErrMsg) {
+                        fprintf(stderr, "Warning: pre-emit %s pipeline failed: %s\n", pipeline, passErrMsg);
+                        LLVMDisposeErrorMessage(passErrMsg);
+                    }
+                }
+            }
+
+            /*
+             * Drop unreferenced internal globals/functions before object emission.
+             * This aligns our object surface with clang for TU-level header-heavy builds
+             * (for example static inline helpers from SDL headers) and prevents link
+             * failures from dead, never-called helper bodies.
+             */
+            LLVMErrorRef dceErr = LLVMRunPasses(module, "globaldce", tm, pbOptions);
+            if (dceErr) {
+                char* dceErrMsg = LLVMGetErrorMessage(dceErr);
+                if (dceErrMsg) {
+                    fprintf(stderr, "Warning: pre-emit globaldce pass failed: %s\n", dceErrMsg);
+                    LLVMDisposeErrorMessage(dceErrMsg);
+                }
+            }
+
+            LLVMDisposePassBuilderOptions(pbOptions);
         }
     }
 

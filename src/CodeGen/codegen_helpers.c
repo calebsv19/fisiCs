@@ -643,6 +643,127 @@ LLVMTypeRef cg_merge_types_for_phi(CodegenContext* ctx,
     return LLVMTypeOf(aVal);
 }
 
+static bool cg_abi_return_contains_fp_or_vector(LLVMTypeRef type, unsigned depth) {
+    if (!type || depth > 8u) return false;
+    switch (LLVMGetTypeKind(type)) {
+        case LLVMHalfTypeKind:
+        case LLVMFloatTypeKind:
+        case LLVMDoubleTypeKind:
+        case LLVMX86_FP80TypeKind:
+        case LLVMFP128TypeKind:
+        case LLVMPPC_FP128TypeKind:
+        case LLVMVectorTypeKind:
+        case LLVMScalableVectorTypeKind:
+            return true;
+        case LLVMArrayTypeKind:
+            return cg_abi_return_contains_fp_or_vector(LLVMGetElementType(type), depth + 1u);
+        case LLVMStructTypeKind: {
+            unsigned count = LLVMCountStructElementTypes(type);
+            if (count == 0) {
+                return false;
+            }
+            LLVMTypeRef* elems = (LLVMTypeRef*)calloc(count, sizeof(LLVMTypeRef));
+            if (!elems) {
+                return true;
+            }
+            LLVMGetStructElementTypes(type, elems);
+            bool hasFloat = false;
+            for (unsigned i = 0; i < count; ++i) {
+                if (cg_abi_return_contains_fp_or_vector(elems[i], depth + 1u)) {
+                    hasFloat = true;
+                    break;
+                }
+            }
+            free(elems);
+            return hasFloat;
+        }
+        default:
+            return false;
+    }
+}
+
+LLVMTypeRef cg_coerce_function_return_type(CodegenContext* ctx, LLVMTypeRef returnType) {
+    if (!ctx || !returnType) {
+        return returnType;
+    }
+    LLVMTypeKind kind = LLVMGetTypeKind(returnType);
+    if (kind != LLVMStructTypeKind && kind != LLVMArrayTypeKind) {
+        return returnType;
+    }
+    LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+    if (!td || !LLVMTypeIsSized(returnType)) {
+        return returnType;
+    }
+    uint64_t size = LLVMABISizeOfType(td, returnType);
+    if (size == 0 || size > 8) {
+        return returnType;
+    }
+    if (cg_abi_return_contains_fp_or_vector(returnType, 0u)) {
+        return returnType;
+    }
+    return LLVMIntTypeInContext(ctx->llvmContext, (unsigned)(size * 8u));
+}
+
+LLVMValueRef cg_pack_aggregate_for_abi_return(CodegenContext* ctx,
+                                              LLVMValueRef value,
+                                              LLVMTypeRef packedType,
+                                              const char* nameHint) {
+    if (!ctx || !value || !packedType) return value;
+    LLVMTypeRef sourceType = LLVMTypeOf(value);
+    if (!sourceType) return value;
+    LLVMTypeKind sourceKind = LLVMGetTypeKind(sourceType);
+    if (sourceKind != LLVMStructTypeKind && sourceKind != LLVMArrayTypeKind) {
+        return value;
+    }
+    LLVMTypeKind packedKind = LLVMGetTypeKind(packedType);
+    if (packedKind != LLVMIntegerTypeKind && packedKind != LLVMArrayTypeKind) {
+        return value;
+    }
+
+    LLVMValueRef slot = cg_build_entry_alloca(ctx, packedType, "ret.abi.pack.slot");
+    if (!slot) return value;
+    LLVMBuildStore(ctx->builder, LLVMConstNull(packedType), slot);
+
+    LLVMTypeRef sourcePtrType = LLVMPointerType(sourceType, 0);
+    LLVMValueRef sourceAddr = LLVMBuildBitCast(ctx->builder, slot, sourcePtrType, "ret.abi.pack.addr");
+    LLVMBuildStore(ctx->builder, value, sourceAddr);
+
+    return LLVMBuildLoad2(ctx->builder,
+                          packedType,
+                          slot,
+                          nameHint ? nameHint : "ret.abi.pack");
+}
+
+LLVMValueRef cg_unpack_aggregate_from_abi_return(CodegenContext* ctx,
+                                                 LLVMValueRef packedValue,
+                                                 LLVMTypeRef aggregateType,
+                                                 const char* nameHint) {
+    if (!ctx || !packedValue || !aggregateType) return packedValue;
+    LLVMTypeKind aggKind = LLVMGetTypeKind(aggregateType);
+    if (aggKind != LLVMStructTypeKind && aggKind != LLVMArrayTypeKind) {
+        return packedValue;
+    }
+    LLVMTypeRef packedType = LLVMTypeOf(packedValue);
+    if (!packedType) return packedValue;
+    LLVMTypeKind packedKind = LLVMGetTypeKind(packedType);
+    if (packedKind != LLVMIntegerTypeKind && packedKind != LLVMArrayTypeKind) {
+        return packedValue;
+    }
+
+    LLVMValueRef slot = cg_build_entry_alloca(ctx, aggregateType, "ret.abi.unpack.slot");
+    if (!slot) return packedValue;
+    LLVMBuildStore(ctx->builder, LLVMConstNull(aggregateType), slot);
+
+    LLVMTypeRef packedPtrType = LLVMPointerType(packedType, 0);
+    LLVMValueRef packedAddr = LLVMBuildBitCast(ctx->builder, slot, packedPtrType, "ret.abi.unpack.addr");
+    LLVMBuildStore(ctx->builder, packedValue, packedAddr);
+
+    return LLVMBuildLoad2(ctx->builder,
+                          aggregateType,
+                          slot,
+                          nameHint ? nameHint : "ret.abi.unpack");
+}
+
 LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
                                     const ParsedType* parsed,
                                     bool* outIndirect,
@@ -670,7 +791,7 @@ LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
             bool haveSize = cg_size_align_for_type(ctx, &adjusted, valueType, &size, &align);
             if (!haveSize) {
                 LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
-                if (td) {
+                if (td && LLVMTypeIsSized(valueType)) {
                     size = LLVMABISizeOfType(td, valueType);
                     align = (uint32_t)LLVMABIAlignmentOfType(td, valueType);
                     haveSize = true;
@@ -742,7 +863,7 @@ bool cg_size_align_for_type(CodegenContext* ctx,
     bool haveLLVM = false;
     uint64_t llvmSize = 0;
     uint32_t llvmAlign = 0;
-    if (tdata && llvmHint) {
+    if (tdata && llvmHint && LLVMTypeIsSized(llvmHint)) {
         llvmSize = LLVMABISizeOfType(tdata, llvmHint);
         llvmAlign = (uint32_t)LLVMABIAlignmentOfType(tdata, llvmHint);
         haveLLVM = true;
@@ -785,7 +906,7 @@ static bool cg_pointer_elem_size(CodegenContext* ctx,
     uint32_t llvmAlign = 0;
     bool haveLLVM = false;
     LLVMTargetDataRef tdata = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
-    if (tdata && llvmHint) {
+    if (tdata && llvmHint && LLVMTypeIsSized(llvmHint)) {
         llvmSize = LLVMABISizeOfType(tdata, llvmHint);
         llvmAlign = (uint32_t)LLVMABIAlignmentOfType(tdata, llvmHint);
         haveLLVM = true;
@@ -863,7 +984,7 @@ static LLVMValueRef cg_build_vla_array_size_bytes(CodegenContext* ctx,
     uint32_t align = 0;
     if (!cg_size_align_for_type(ctx, &cursor, elemTy, &elemBytes, &align) || elemBytes == 0) {
         LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
-        if (td && elemTy) {
+        if (td && elemTy && LLVMTypeIsSized(elemTy)) {
             elemBytes = LLVMABISizeOfType(td, elemTy);
         }
     }
@@ -1047,7 +1168,7 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
     if (!dynamicElemSize) {
         if (!cg_pointer_elem_size(ctx, sizeParsed, sizeHintType, &elemSize, &elemAlign) || elemSize == 0) {
             LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
-            if (td && sizeHintType) {
+            if (td && sizeHintType && LLVMTypeIsSized(sizeHintType)) {
                 elemSize = LLVMABISizeOfType(td, sizeHintType);
             }
         }
@@ -1208,7 +1329,7 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
     }
     if (elemBytes == 0 && elemHint) {
         LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
-        if (td) {
+        if (td && LLVMTypeIsSized(elemHint)) {
             elemBytes = LLVMABISizeOfType(td, elemHint);
         }
     }

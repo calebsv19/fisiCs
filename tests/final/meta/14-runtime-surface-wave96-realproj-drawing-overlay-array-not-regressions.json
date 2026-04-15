@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__realproj_drawing_member_array_unary_not_regression_runtime",
+      "bucket": "runtime-surface",
+      "input": "cases/14__realproj_drawing_member_array_unary_not_regression_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__realproj_drawing_member_array_unary_not_regression_runtime.stdout",
+      "expected_stderr": "expect/14__realproj_drawing_member_array_unary_not_regression_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "realproj",
+        "drawing-program",
+        "regression",
+        "member-array",
+        "unary-not"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

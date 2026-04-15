@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__realproj_ws_nullptr_return_pointer_helpers_runtime",
+      "bucket": "types-conversions",
+      "input": "cases/07__realproj_ws_nullptr_return_pointer_helpers_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__realproj_ws_nullptr_return_pointer_helpers_runtime.stdout",
+      "expected_stderr": "expect/07__realproj_ws_nullptr_return_pointer_helpers_runtime.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "realproj-regression",
+        "semantic",
+        "pointer",
+        "return",
+        "null-constant",
+        "runtime"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -398,40 +398,6 @@ static bool cg_is_external_decl_function(LLVMValueRef function) {
     return LLVMCountBasicBlocks(function) == 0;
 }
 
-static bool cg_is_system_header_path(const char* file) {
-    if (!file || file[0] != '/') return false;
-    static const char* kPrefixes[] = {
-        "/usr/include/",
-        "/usr/local/include/",
-        "/opt/homebrew/include/",
-        "/Library/Developer/",
-        "/Applications/Xcode.app/",
-        "/Applications/Xcode-beta.app/",
-        "/Library/Frameworks/",
-        "/System/Library/"
-    };
-    for (size_t i = 0; i < sizeof(kPrefixes) / sizeof(kPrefixes[0]); ++i) {
-        size_t n = strlen(kPrefixes[i]);
-        if (strncmp(file, kPrefixes[i], n) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool cg_symbol_declared_in_system_header(const Symbol* sym) {
-    if (!sym || !sym->definition) return false;
-    const char* defFile = sym->definition->location.start.file;
-    if (cg_is_system_header_path(defFile)) {
-        return true;
-    }
-    const char* macroFile = sym->definition->macroCallSite.start.file;
-    if (cg_is_system_header_path(macroFile)) {
-        return true;
-    }
-    return false;
-}
-
 static bool cg_is_known_external_abi_function_name(const char* name) {
     if (!name || !*name) return false;
     return strncmp(name, "SDL_", 4) == 0 ||
@@ -683,6 +649,7 @@ static LLVMTypeRef functionTypeFromPointerParsed(CodegenContext* ctx,
     if (!returnType || LLVMGetTypeKind(returnType) == LLVMVoidTypeKind) {
         returnType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
+    returnType = cg_coerce_function_return_type(ctx, returnType);
 
     size_t count = paramCount ? paramCount : fallbackArgCount;
     LLVMTypeRef* params = NULL;
@@ -782,6 +749,7 @@ static LLVMTypeRef cg_function_type_from_symbol(CodegenContext* ctx, const Symbo
     if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
         retType = LLVMVoidTypeInContext(ctx->llvmContext);
     }
+    retType = cg_coerce_function_return_type(ctx, retType);
     if (extractedReturn.kind != TYPE_INVALID) {
         parsedTypeFree(&extractedReturn);
     }
@@ -1211,7 +1179,11 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    if (strcmp(node->expr.op, "-") == 0) {
+    if (strcmp(node->expr.op, "+") == 0) {
+        parsedTypeFree(&operandParsedCopy);
+        if (hasDerivedPointerParsed) parsedTypeFree(&derivedPointerParsed);
+        return operand;
+    } else if (strcmp(node->expr.op, "-") == 0) {
         if (cg_parsed_type_is_complex_value(stableParsed) &&
             LLVMGetTypeKind(LLVMTypeOf(operand)) == LLVMStructTypeKind) {
             LLVMTypeRef complexType = LLVMTypeOf(operand);
@@ -1247,6 +1219,16 @@ LLVMValueRef codegenUnaryExpression(CodegenContext* ctx, ASTNode* node) {
         LLVMValueRef boolVal = cg_build_truthy(ctx, operand, stableParsed, "lnot.bool");
         parsedTypeFree(&operandParsedCopy);
         if (!boolVal) return NULL;
+        LLVMTypeRef boolTy = LLVMTypeOf(boolVal);
+        if (!boolTy || LLVMGetTypeKind(boolTy) != LLVMIntegerTypeKind) {
+            fprintf(stderr, "Error: unary ! requires scalar operand\n");
+            if (hasDerivedPointerParsed) parsedTypeFree(&derivedPointerParsed);
+            return NULL;
+        }
+        if (LLVMGetIntTypeWidth(boolTy) != 1) {
+            LLVMValueRef zero = LLVMConstInt(boolTy, 0, 0);
+            boolVal = LLVMBuildICmp(ctx->builder, LLVMIntNE, boolVal, zero, "lnot.bool.cast");
+        }
         LLVMValueRef inverted = LLVMBuildNot(ctx->builder, boolVal, "lnot.tmp");
         return cg_widen_bool_to_int(ctx, inverted, "lnot.int");
     } else if (strcmp(node->expr.op, "*") == 0) {
@@ -1363,75 +1345,108 @@ LLVMValueRef codegenTernaryExpression(CodegenContext* ctx, ASTNode* node) {
     LLVMValueRef trueValue = codegenNode(ctx, node->ternaryExpr.trueExpr);
     const ParsedType* trueParsed = cg_resolve_expression_type(ctx, node->ternaryExpr.trueExpr);
     LLVMBasicBlockRef trueEndBB = LLVMGetInsertBlock(ctx->builder);
-    if (!LLVMGetBasicBlockTerminator(trueEndBB)) {
-        LLVMBuildBr(ctx->builder, mergeBB);
-    }
+    bool trueFallsThrough = (LLVMGetBasicBlockTerminator(trueEndBB) == NULL);
 
     LLVMPositionBuilderAtEnd(ctx->builder, falseBB);
     LLVMValueRef falseValue = codegenNode(ctx, node->ternaryExpr.falseExpr);
     const ParsedType* falseParsed = cg_resolve_expression_type(ctx, node->ternaryExpr.falseExpr);
     LLVMBasicBlockRef falseEndBB = LLVMGetInsertBlock(ctx->builder);
-    if (!LLVMGetBasicBlockTerminator(falseEndBB)) {
-        LLVMBuildBr(ctx->builder, mergeBB);
+    bool falseFallsThrough = (LLVMGetBasicBlockTerminator(falseEndBB) == NULL);
+
+    LLVMValueRef phiTrueValue = trueFallsThrough ? trueValue : NULL;
+    LLVMValueRef phiFalseValue = falseFallsThrough ? falseValue : NULL;
+
+    if (!trueFallsThrough && !falseFallsThrough) {
+        return NULL;
     }
 
-    LLVMPositionBuilderAtEnd(ctx->builder, mergeBB);
-    // If both arms are void, just merge control flow.
-    if (!trueValue && !falseValue) {
+    // If both arms are void, only merge control flow.
+    if (!phiTrueValue && !phiFalseValue) {
+        if (trueFallsThrough) {
+            LLVMPositionBuilderAtEnd(ctx->builder, trueEndBB);
+            if (!LLVMGetBasicBlockTerminator(trueEndBB)) {
+                LLVMBuildBr(ctx->builder, mergeBB);
+            }
+        }
+        if (falseFallsThrough) {
+            LLVMPositionBuilderAtEnd(ctx->builder, falseEndBB);
+            if (!LLVMGetBasicBlockTerminator(falseEndBB)) {
+                LLVMBuildBr(ctx->builder, mergeBB);
+            }
+        }
+        LLVMPositionBuilderAtEnd(ctx->builder, mergeBB);
         return NULL;
     }
 
     LLVMTypeRef mergedType = NULL;
-    if (trueValue && falseValue) {
-        LLVMTypeRef trueTy = LLVMTypeOf(trueValue);
-        LLVMTypeRef falseTy = LLVMTypeOf(falseValue);
+    if (phiTrueValue && phiFalseValue) {
+        LLVMTypeRef trueTy = LLVMTypeOf(phiTrueValue);
+        LLVMTypeRef falseTy = LLVMTypeOf(phiFalseValue);
         LLVMTypeKind trueKind = trueTy ? LLVMGetTypeKind(trueTy) : LLVMVoidTypeKind;
         LLVMTypeKind falseKind = falseTy ? LLVMGetTypeKind(falseTy) : LLVMVoidTypeKind;
         if (trueKind == LLVMPointerTypeKind && falseKind == LLVMPointerTypeKind) {
             mergedType = trueTy;
         } else if (trueKind == LLVMPointerTypeKind &&
                    falseKind == LLVMIntegerTypeKind &&
-                   LLVMIsAConstantInt(falseValue) &&
-                   LLVMConstIntGetSExtValue(falseValue) == 0) {
+                   LLVMIsAConstantInt(phiFalseValue) &&
+                   LLVMConstIntGetSExtValue(phiFalseValue) == 0) {
             mergedType = trueTy;
         } else if (falseKind == LLVMPointerTypeKind &&
                    trueKind == LLVMIntegerTypeKind &&
-                   LLVMIsAConstantInt(trueValue) &&
-                   LLVMConstIntGetSExtValue(trueValue) == 0) {
+                   LLVMIsAConstantInt(phiTrueValue) &&
+                   LLVMConstIntGetSExtValue(phiTrueValue) == 0) {
             mergedType = falseTy;
         }
         if (!mergedType) {
-            mergedType = cg_merge_types_for_phi(ctx, trueParsed, falseParsed, trueValue, falseValue);
+            mergedType = cg_merge_types_for_phi(ctx, trueParsed, falseParsed, phiTrueValue, phiFalseValue);
         }
-    } else if (trueValue) {
-        mergedType = LLVMTypeOf(trueValue);
+    } else if (phiTrueValue) {
+        mergedType = LLVMTypeOf(phiTrueValue);
     } else {
-        mergedType = LLVMTypeOf(falseValue);
+        mergedType = LLVMTypeOf(phiFalseValue);
     }
     if (!mergedType) {
         mergedType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
-    if (trueValue && LLVMTypeOf(trueValue) != mergedType) {
-        trueValue = cg_cast_value(ctx, trueValue, mergedType, trueParsed, falseParsed, "ternary.true.cast");
+    if (trueFallsThrough) {
+        LLVMPositionBuilderAtEnd(ctx->builder, trueEndBB);
+        if (phiTrueValue && LLVMTypeOf(phiTrueValue) != mergedType) {
+            phiTrueValue = cg_cast_value(ctx, phiTrueValue, mergedType, trueParsed, falseParsed, "ternary.true.cast");
+        }
+        trueEndBB = LLVMGetInsertBlock(ctx->builder);
+        if (!LLVMGetBasicBlockTerminator(trueEndBB)) {
+            LLVMBuildBr(ctx->builder, mergeBB);
+        }
     }
-    if (falseValue && LLVMTypeOf(falseValue) != mergedType) {
-        falseValue = cg_cast_value(ctx, falseValue, mergedType, falseParsed, trueParsed, "ternary.false.cast");
+    if (falseFallsThrough) {
+        LLVMPositionBuilderAtEnd(ctx->builder, falseEndBB);
+        if (phiFalseValue && LLVMTypeOf(phiFalseValue) != mergedType) {
+            phiFalseValue = cg_cast_value(ctx, phiFalseValue, mergedType, falseParsed, trueParsed, "ternary.false.cast");
+        }
+        falseEndBB = LLVMGetInsertBlock(ctx->builder);
+        if (!LLVMGetBasicBlockTerminator(falseEndBB)) {
+            LLVMBuildBr(ctx->builder, mergeBB);
+        }
     }
 
+    LLVMPositionBuilderAtEnd(ctx->builder, mergeBB);
     LLVMValueRef phi = LLVMBuildPhi(ctx->builder, mergedType, "ternaryResult");
     LLVMValueRef incomingVals[2];
     LLVMBasicBlockRef incomingBlocks[2];
     int count = 0;
-    if (trueValue) {
-        incomingVals[count] = trueValue;
+    if (phiTrueValue && trueFallsThrough) {
+        incomingVals[count] = phiTrueValue;
         incomingBlocks[count] = trueEndBB;
         count++;
     }
-    if (falseValue) {
-        incomingVals[count] = falseValue;
+    if (phiFalseValue && falseFallsThrough) {
+        incomingVals[count] = phiFalseValue;
         incomingBlocks[count] = falseEndBB;
         count++;
+    }
+    if (count == 0) {
+        return NULL;
     }
     LLVMAddIncoming(phi, incomingVals, incomingBlocks, count);
 
@@ -1486,11 +1501,7 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
                 lvalInfo.isBitfield);
     }
 
-    LLVMValueRef value = codegenNode(ctx, node->assignment.value);
-    if (!value) {
-        fprintf(stderr, "Error: Assignment value failed to generate\n");
-        return NULL;
-    }
+    LLVMValueRef value = NULL;
     const ParsedType* valueParsed = cg_resolve_expression_type(ctx, node->assignment.value);
     const char* op = node->assignment.op ? node->assignment.op : "=";
 
@@ -1501,6 +1512,11 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
             cg_parsed_type_is_complex_value(targetParsed) || cg_llvm_type_is_complex_value(targetType);
 
         if (strcmp(op, "=") != 0) {
+            value = codegenNode(ctx, node->assignment.value);
+            if (!value) {
+                fprintf(stderr, "Error: Assignment value failed to generate\n");
+                return NULL;
+            }
             if (!isComplexTarget ||
                 (strcmp(op, "+=") != 0 && strcmp(op, "-=") != 0 &&
                  strcmp(op, "*=") != 0 && strcmp(op, "/=") != 0)) {
@@ -1544,13 +1560,14 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
             return result;
         }
 
-        bool rhsIsLValue = node->assignment.value &&
-                           (node->assignment.value->type == AST_IDENTIFIER ||
-                            node->assignment.value->type == AST_ARRAY_ACCESS ||
-                            node->assignment.value->type == AST_POINTER_ACCESS ||
-                            node->assignment.value->type == AST_DOT_ACCESS ||
-                            node->assignment.value->type == AST_COMPOUND_LITERAL);
-        if (!rhsIsLValue || !codegenLValue(ctx, node->assignment.value, &srcPtr, &srcType, &srcParsed, NULL)) {
+        if (!codegenLValue(ctx, node->assignment.value, &srcPtr, &srcType, &srcParsed, NULL)) {
+            if (!value) {
+                value = codegenNode(ctx, node->assignment.value);
+                if (!value) {
+                    fprintf(stderr, "Error: Assignment value failed to generate\n");
+                    return NULL;
+                }
+            }
             LLVMValueRef tmp = cg_build_entry_alloca(ctx, targetType, "agg.tmp");
             LLVMBuildStore(ctx->builder, value, tmp);
             srcPtr = tmp;
@@ -1572,6 +1589,12 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
                         alignVal,
                         sizeVal);
         return value ? value : targetPtr;
+    }
+
+    value = codegenNode(ctx, node->assignment.value);
+    if (!value) {
+        fprintf(stderr, "Error: Assignment value failed to generate\n");
+        return NULL;
     }
 
     LLVMTypeRef storeType = targetType;
@@ -1851,12 +1874,22 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     } else if (arrayType && LLVMGetTypeKind(arrayType) == LLVMArrayTypeKind) {
         aggregateHint = arrayType;
     }
-    LLVMTypeRef elementHint = cg_element_type_hint_from_parsed(ctx, arrayParsed);
-    if (!elementHint && arrayType && LLVMGetTypeKind(arrayType) == LLVMPointerTypeKind) {
+    LLVMTypeRef elementHint = NULL;
+    /* Prefer concrete LLVM array/pointer element hints over semantic fallbacks.
+       This avoids stale parsed-type hints selecting unrelated aggregate element
+       types on member-array expressions (e.g. ptr->arr[idx]). */
+    if (arrayType && LLVMGetTypeKind(arrayType) == LLVMArrayTypeKind) {
+        elementHint = LLVMGetElementType(arrayType);
+    } else if (arrayType &&
+               LLVMGetTypeKind(arrayType) == LLVMPointerTypeKind &&
+               !LLVMPointerTypeIsOpaque(arrayType)) {
         LLVMTypeRef elem = LLVMGetElementType(arrayType);
         if (elem) {
             elementHint = elem;
         }
+    }
+    if (!elementHint) {
+        elementHint = cg_element_type_hint_from_parsed(ctx, arrayParsed);
     }
     LLVMTypeRef derivedElementType = NULL;
     LLVMValueRef elementPtr = buildArrayElementPointer(ctx,
@@ -2372,6 +2405,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     bool isSprintfChkBuiltin = calleeName && strcmp(calleeName, "__builtin___sprintf_chk") == 0;
     bool isMemcpyChkBuiltin = calleeName && strcmp(calleeName, "__builtin___memcpy_chk") == 0;
     bool isMemsetChkBuiltin = calleeName && strcmp(calleeName, "__builtin___memset_chk") == 0;
+    bool isBzeroBuiltin = calleeName && strcmp(calleeName, "__builtin_bzero") == 0;
     bool isStrncpyChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strncpy_chk") == 0;
     bool isStrncatChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strncat_chk") == 0;
     bool isStrcpyChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strcpy_chk") == 0;
@@ -2585,6 +2619,64 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                                                            "memset.chk.lowered");
         free(args);
         return call;
+    }
+    if (isBzeroBuiltin) {
+        if (node->functionCall.argumentCount < 2) {
+            free(args);
+            return NULL;
+        }
+        LLVMValueRef dst = args[0];
+        LLVMValueRef sizeArg = args[1];
+        if (!dst || !sizeArg) {
+            free(args);
+            return NULL;
+        }
+        if (LLVMTypeOf(dst) != i8PtrType) {
+            if (LLVMGetTypeKind(LLVMTypeOf(dst)) != LLVMPointerTypeKind) {
+                free(args);
+                return NULL;
+            }
+            dst = LLVMBuildBitCast(ctx->builder, dst, i8PtrType, "bzero.dst.cast");
+        }
+        if (LLVMTypeOf(sizeArg) != sizeType) {
+            LLVMTypeKind sizeKind = LLVMGetTypeKind(LLVMTypeOf(sizeArg));
+            if (sizeKind == LLVMIntegerTypeKind) {
+                unsigned fromBits = LLVMGetIntTypeWidth(LLVMTypeOf(sizeArg));
+                unsigned toBits = LLVMGetIntTypeWidth(sizeType);
+                if (fromBits != toBits) {
+                    sizeArg = LLVMBuildIntCast2(ctx->builder, sizeArg, sizeType, false, "bzero.size.cast");
+                }
+            } else if (sizeKind == LLVMPointerTypeKind) {
+                sizeArg = LLVMBuildPtrToInt(ctx->builder, sizeArg, sizeType, "bzero.size.ptrtoint");
+            } else {
+                free(args);
+                return NULL;
+            }
+        }
+        LLVMTypeRef memsetParamTypes[3] = { i8PtrType, intType, sizeType };
+        LLVMTypeRef memsetFnTy = LLVMFunctionType(i8PtrType, memsetParamTypes, 3, 0);
+        LLVMValueRef memsetFn = LLVMGetNamedFunction(ctx->module, "memset");
+        if (!memsetFn) {
+            memsetFn = LLVMAddFunction(ctx->module, "memset", memsetFnTy);
+        }
+        LLVMValueRef memsetCallee = memsetFn;
+        LLVMTypeRef memsetPtrTy = LLVMPointerType(memsetFnTy, 0);
+        if (LLVMTypeOf(memsetCallee) != memsetPtrTy) {
+            memsetCallee = LLVMBuildBitCast(ctx->builder, memsetCallee, memsetPtrTy, "bzero.memset.cast");
+        }
+        LLVMValueRef memsetArgs[3] = {
+            dst,
+            LLVMConstInt(intType, 0, false),
+            sizeArg
+        };
+        (void)LLVMBuildCall2(ctx->builder,
+                             memsetFnTy,
+                             memsetCallee,
+                             memsetArgs,
+                             3,
+                             "bzero.builtin.lowered");
+        free(args);
+        return NULL;
     }
     if (isStrncpyChkBuiltin) {
         if (node->functionCall.argumentCount < 4) {
@@ -2812,6 +2904,14 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                 expectVal = LLVMBuildIntCast2(ctx->builder, expectVal, valTy, 0, "expect.cast");
             }
 
+            /* LowerExpectIntrinsic expects a constant hint operand; when the
+             * frontend sees a dynamic second argument, preserve C semantics by
+             * returning the value directly and skipping hint emission. */
+            if (!LLVMIsAConstantInt(expectVal)) {
+                free(args);
+                return val;
+            }
+
             unsigned bits = LLVMGetIntTypeWidth(valTy);
             if (bits == 0) bits = 64;
             char name[32];
@@ -2831,9 +2931,12 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
 
     const Symbol* sym = cg_lookup_function_symbol_for_callee(ctx, node->functionCall.callee);
     bool noPrototype = sym && sym->kind == SYMBOL_FUNCTION && !sym->signature.hasPrototype;
-    bool externalAbiEligible =
-        cg_symbol_declared_in_system_header(sym) ||
-        cg_is_known_external_abi_function_name(calleeName);
+    /*
+     * Do not inspect symbol definition file-path pointers here.
+     * Frontend preprocessor/include-resolver storage is torn down before codegen,
+     * so those location strings are not guaranteed to remain valid.
+     */
+    bool externalAbiEligible = cg_is_known_external_abi_function_name(calleeName);
 
     LLVMTypeRef calleeType = NULL;
     if (sym && !noPrototype) {
@@ -2891,6 +2994,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         if (!retType || LLVMGetTypeKind(retType) == LLVMVoidTypeKind) {
             retType = LLVMVoidTypeInContext(ctx->llvmContext);
         }
+        retType = cg_coerce_function_return_type(ctx, retType);
 
         LLVMTypeRef* paramTypes = NULL;
         if (argCount > 0) {
@@ -2938,6 +3042,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         if (!inferredRet) {
             inferredRet = LLVMInt32TypeInContext(ctx->llvmContext);
         }
+        inferredRet = cg_coerce_function_return_type(ctx, inferredRet);
 
         LLVMTypeRef* inferredParams = NULL;
         if (argCount > 0) {
@@ -2979,6 +3084,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             } else if (refinedReturn && LLVMGetTypeKind(refinedReturn) == LLVMArrayTypeKind) {
                 refinedReturn = LLVMPointerType(refinedReturn, 0);
             }
+            refinedReturn = cg_coerce_function_return_type(ctx, refinedReturn);
             if (refinedReturn && LLVMGetTypeKind(refinedReturn) != LLVMVoidTypeKind) {
                 LLVMTypeRef currentReturn = LLVMGetReturnType(calleeType);
                 const ParsedType* semanticCallResult = cg_resolve_expression_type(ctx, node);
@@ -3213,7 +3319,31 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     if (externalAbiArgs) free(externalAbiArgs);
     if (promotedArgs) free(promotedArgs);
     free(args);
-    return callReturnsVoid ? NULL : call;
+    if (callReturnsVoid) {
+        return NULL;
+    }
+
+    LLVMValueRef result = call;
+    const ParsedType* semanticReturnParsed = cg_resolve_expression_type(ctx, node);
+    if (semanticReturnParsed) {
+        LLVMTypeRef semanticReturnTy = cg_type_from_parsed(ctx, semanticReturnParsed);
+        if (semanticReturnTy && LLVMGetTypeKind(semanticReturnTy) == LLVMFunctionTypeKind) {
+            semanticReturnTy = LLVMPointerType(semanticReturnTy, 0);
+        }
+        if (semanticReturnTy) {
+            LLVMTypeKind semanticKind = LLVMGetTypeKind(semanticReturnTy);
+            LLVMTypeKind callKind = LLVMGetTypeKind(callRetTy);
+            if ((semanticKind == LLVMStructTypeKind || semanticKind == LLVMArrayTypeKind) &&
+                (callKind == LLVMIntegerTypeKind || callKind == LLVMArrayTypeKind) &&
+                semanticReturnTy != callRetTy) {
+                result = cg_unpack_aggregate_from_abi_return(ctx,
+                                                             call,
+                                                             semanticReturnTy,
+                                                             "call.abi.unpack");
+            }
+        }
+    }
+    return result;
 }
 
 

@@ -1,5 +1,5 @@
 /* C code produced by gperf version 3.0.3 */
-/* Command-line: /Library/Developer/CommandLineTools/usr/bin/gperf src/Lexer/keywords.gperf  */
+/* Command-line: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/gperf src/Lexer/keywords.gperf  */
 /* Computed positions: -k'1,3' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
