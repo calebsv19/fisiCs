@@ -23,7 +23,11 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
   - Flow-sensitive pass to ensure non-void functions return on every path, flag unreachable statements, and warn about fallthrough cases.
 
 - `analyze_expr.h` / `analyze_expr.c`
-  - Resolves identifiers, checks operands, enforces deep pointer qualifier compatibility, pointer arithmetic rules, and lvalue/decay. Function calls match argument counts/types, apply default promotions for varargs, and validate `va_start`. Switch cases require integer const-eval; duplicates/default uniqueness are checked. Unary/deref restore pointee categories for arrays/struct members. Emits optional warnings for unsequenced modifications (e.g., `i = i++ + i`) and best-effort `restrict` aliasing violations on function calls.
+  - `analyze_expr.c` now owns the scalar/core expression coordinator: identifiers and literals, assignment, arithmetic/logical/bitwise binaries, unary operators, casts, and `sizeof`/`alignof`.
+  - `analyze_expr_calls_aggregates.c` owns callable and aggregate-heavy expression semantics: function calls, `va_*` validation, member/array/deref access, compound literals, statement expressions, and ternary merge rules.
+  - `analyze_expr_effects.c` owns optional unsequenced access/modification warnings and shared access-path tracking.
+  - `analyze_expr_records.c` owns struct/union field lookup, bitfield/layout lookup, and `offsetof` path evaluation.
+  - `analyze_expr_shared.c` owns cross-file expression utilities used by both the coordinator and aggregate/call lanes.
 
 - `const_eval.h` / `const_eval.c`
   - Integer constant evaluator for literals, enum refs, sizeof/alignof (when complete), arithmetic/bitwise/logical/ternary, and casts. Drives enum folding, case labels, array sizes, and static initializers.
