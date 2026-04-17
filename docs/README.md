@@ -2,6 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
+Last audited: 2026-04-15.
 
 ## Repository Entry
 
@@ -24,6 +25,11 @@ It is intentionally focused on stable user/contributor references.
 Additional public testing references live outside `docs/` under `tests/final/`:
 - bucket scope references (for example `tests/final/11-functions-calls.md`, `tests/final/12-diagnostics-recovery.md`)
 - probe lane references (`tests/final/probes/README.md`, `tests/final/probes/run_probes.py`)
+
+Real-project validation references live under `tests/real_projects/`:
+- scaffold overview and stage contracts: `tests/real_projects/README.md`
+- stage runners (`A`..`F`): `tests/real_projects/runners/`
+- project manifest: `tests/real_projects/config/projects_manifest.json`
 
 ## Private Docs Boundary
 

@@ -35,7 +35,7 @@ make ci-guardrails
 
 - Public docs stay in `fisiCs/docs/`.
 - Internal planning, deep run logs, and private triage stay in:
-  - `docs/private_program_docs/fisiCs/`
+  - `../../docs/private_program_docs/fisiCs/`
 
 ## 5) Troubleshooting Orientation
 

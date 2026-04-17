@@ -11,7 +11,10 @@ The current priority is compiler correctness, stability, and reproducible behavi
 - Bucketed compiler coverage: lexer, preprocessor, parser, semantics, codegen, runtime, torture/differential
 - Recent stabilization work landed for bucket `10` multitu linkage lanes and bucket `13`/`14` probe+fix lanes, with bucket `15` probe deepening active.
 - Binary validation lane: active and expanded (SDL, ABI, linkage, stdio, math, corpus, clang differential)
-- External validation milestones: `datalab` and `line_drawing` successfully compiled and run
+- Real-project validation ladder (`tests/real_projects/`) is active through Stages `A`..`F` with closed lanes for:
+  - `datalab`, `workspace_sandbox`, `mem_console`, `line_drawing`, `ray_tracing`, `physics_sim`, `map_forge`, `ide`
+  - active onboarding lane: `daw` Stage A
+- `Checkpoint Validated Program Lanes` (`2026-04-15`) expanded regression fixtures and added mem_console diagnostic capture/rebuild helpers under `scripts/`
 - Shared subtree adoption is active via `third_party/codework_shared/` with corresponding build/CI lane alignment.
 - `clang` remains a baseline reference compiler while `fisiCs` continues hardening.
 
@@ -95,6 +98,14 @@ python3 tests/final/probes/run_probes.py
 make test-binary
 make test-binary-sdl
 make test-binary-wave WAVE=<n> BINARY_WAVE_BUCKET=<bucket>
+
+# real-project lane
+make realproj-stage-a REAL_PROJECT=<project>
+make realproj-stage-b REAL_PROJECT=<project>
+make realproj-stage-c REAL_PROJECT=<project>
+make realproj-stage-d REAL_PROJECT=<project>
+make realproj-stage-e REAL_PROJECT=<project>
+make realproj-stage-f REAL_PROJECT=<project>
 ```
 
 The harness is auto-discovery based, non-destructive by default, and designed to fail closed.
@@ -121,6 +132,7 @@ The harness is auto-discovery based, non-destructive by default, and designed to
 - Full validation workflow: [`docs/validation_workflow.md`](docs/validation_workflow.md)
 - Compiler/IDE data contract: [`docs/compiler_ide_data_contract.md`](docs/compiler_ide_data_contract.md)
 - CLI release workflow: [`docs/cli_release_workflow.md`](docs/cli_release_workflow.md)
+- Real-project validation scaffold: [`tests/real_projects/README.md`](tests/real_projects/README.md)
 
 ## Contributing
 

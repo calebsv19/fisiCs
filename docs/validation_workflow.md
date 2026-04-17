@@ -37,4 +37,4 @@ Purpose: Validate fisics against real projects by compiling every translation un
 - Always prefer fixes that unblock many files at once.
 - If a failure is due to missing third-party headers, document it clearly and skip unless the headers are available.
 - Keep one live tracking doc while a project is in progress to avoid split state.
-- Keep deep triage logs and wave-by-wave execution notes in private maintainer docs (`docs/private_program_docs/fisiCs/`), not in this public workflow guide.
+- Keep deep triage logs and wave-by-wave execution notes in private maintainer docs (`../../docs/private_program_docs/fisiCs/`), not in this public workflow guide.
