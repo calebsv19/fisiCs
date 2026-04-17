@@ -3,6 +3,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include <stdbool.h>
+#include <stddef.h>
 
 #include "tokens.h"
 

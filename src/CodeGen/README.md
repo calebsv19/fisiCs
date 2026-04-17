@@ -15,11 +15,15 @@ Experimental LLVM IR emitter that lowers the semantic AST into executable IR. Ty
 - `codegen_helpers.c`
   - Reusable expression utilities (value classification, truthiness coercion, pointer arithmetic, pointer difference, integer predicate selection, `cg_cast_value`, ternary arm merge/PHI builder, size/align bridge to layout). Pointer element types are determined by peeling `ParsedType` derivations; VLAs use derivation metadata to compute extents.
 - `codegen_declarations.c`
-  - Handles global prepasses: collecting parameter LLVM types, ensuring functions/globals exist in the module, registering struct symbols, and walking the AST/SemanticModel to predeclare everything prior to body emission.
+  - Handles the predeclare coordinator path: collecting parameter LLVM types, ensuring functions/globals exist in the module, registering struct symbols, and walking the AST/SemanticModel to predeclare everything prior to body emission.
+- `codegen_const_initializers.c`
+  - Owns compile-time LLVM constant materialization for global predeclaration, including folded scalar constants, constant string globals, and constant array/struct initializer builders used by global symbol setup.
+- `codegen_aggregate_access.c`
+  - Owns aggregate-addressing helpers: array element pointer construction, struct field pointer construction, flexible-array/member layout lookups, and aggregate-to-LLVM struct metadata resolution reused by the struct/lvalue lowering path.
 - `codegen_initializers.c`
   - Emits designated/compound initializer stores for arrays/structs/scalars, reusing the expression helpers to fill aggregates element-by-element. Zero-inits use `memset`; aggregate copies use `memcpy` with semantic size/align hints.
 - `codegen_structs.c`
-  - Tracks struct metadata (`StructInfo` cache), bridges to the semantic/type-cache layer, builds struct field pointers/array element pointers, and implements struct/union definition lowering plus lvalue helpers.
+  - Tracks struct metadata (`StructInfo` cache), bridges to the semantic/type-cache layer, and implements struct/union definition lowering plus the lvalue coordinator that delegates aggregate-address calculations to `codegen_aggregate_access.c`.
 - `codegen_expr.c`
   - Expression-level IR generators: arithmetic/logic, casts, literals, compound literals, member/array/pointer access, ternary with merged result type/PHI, function calls, heap allocation nodes, pointer diff arithmetic, and aggregate assignments via memcpy/memset.
 - `codegen_stmt.c`

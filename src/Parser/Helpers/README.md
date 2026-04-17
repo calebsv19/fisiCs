@@ -12,10 +12,10 @@ Utilities shared by every parser module to keep the recursive-descent code lean.
 - `parser_lookahead.h` / `parser_lookahead.c`
   - Predictive probes that inspect upcoming tokens without consuming them: `looksLikeTypeDeclaration`, `looksLikeCastType`, `looksLikeCompoundLiteral`.
   - `printParserState()` dumps the current token window during debugging.
-- `parsed_type.h` / `parsed_type.c`
-  - Data structure describing a fully-qualified C type: kind (primitive/struct/enum/etc.), modifiers, pointer depth, function-pointer metadata. Helper routines (`parsedTypeAddPointerDepth`, `parsedTypeSetFunctionPointer`, `parsedTypeFree`) manage ownership of sub-structures.
-  - `getTokenTypeName()` maps lexer tokens back to readable strings for diagnostics.
-  - `parseType(Parser*)` parses declarator contexts; `parseTypeCtx(Parser*, TypeContext)` toggles between declaration-friendly mode and strict mode used by lookaheads/casts to avoid treating unknown identifiers as types.
+- `parsed_type.h`, `parsed_type.c`, `parsed_type_ops.c`
+  - `parsed_type.c` keeps parser-facing type-name parsing, aggregate/type-specifier handling, and declaration-vs-strict parsing policy.
+  - `parsed_type_ops.c` owns the reusable `ParsedType` model helpers: cloning/freeing, derivation append/reset/query helpers, structural comparisons, function-pointer normalization, and array/pointer/function target transforms.
+  - `getTokenTypeName()` maps lexer tokens back to readable strings for diagnostics, and `parseType(Parser*)` / `parseTypeCtx(Parser*, TypeContext)` remain the parser entry points.
 - `designated_init.h` / `designated_init.c`
   - Builders for designated initialisers used in aggregate declarations (`createDesignatedInit`, `createIndexedInit`, `createCompoundInit`) plus `freeDesignatedInit`.
 

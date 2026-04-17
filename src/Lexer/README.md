@@ -4,12 +4,11 @@ Transforms the raw source buffer into `Token` objects with line tracking, ready 
 
 ## Files & responsibilities
 
-- `lexer.h` / `lexer.c`
+- `lexer.h`, `lexer.c`, `lexer_token_handlers.c`, `lexer_internal.h`
   - `initLexer(Lexer*, const char*, const char*)` seeds the scanning state with both the raw buffer and the logical file path so span metadata can report filenames.
-  - `getNextToken()` drives the tokenisation loop: delegates to specialised handlers for identifiers/keywords, literals, directives, comments, operators, and punctuation. Debug logging is enabled by default to trace each decision.
-  - `skipWhitespace()`, `isEOF()` form the low-level cursor control layer while `LexerMark` helpers build `SourceRange` records for every token.
-  - Handler helpers: `handleIdentifierOrKeyword`, `handleNumber`, `handleStringLiteral`, `handleCharLiteral`, `handlePreprocessorDirective`, `handleComment`, `handleOperator`, `handlePunctuation`, and `handleUnknownToken`.
-  - Keyword lookup consults `lookupKeyword()` which wraps the gperf-generated trie (see below).
+  - `lexer.c` keeps the lexer runtime coordinator: source translation, logical-location diagnostics, `getNextToken()`, `skipWhitespace()`, `isEOF()`, and token range construction.
+  - `lexer_token_handlers.c` owns the token-family handlers: identifiers/keywords, numbers, strings, chars, preprocessor directives, comments, operators, punctuation, unknown-token recovery, and keyword-to-token mapping.
+  - `lexer_internal.h` is the private bridge for handler modules to share `LexerMark`, token construction, and diagnostic helpers without widening the public lexer API.
 - `tokens.h`
   - Declares the `TokenType` enum covering keywords, literals, operators, punctuation, and pseudo tokens.
   - Defines `SourceLocation`, `SourceRange`, and the full `Token` payload (`type`, interned `value`, legacy `line`, plus range metadata for diagnostics/macro tracing).

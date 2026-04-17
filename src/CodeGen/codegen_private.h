@@ -280,6 +280,9 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
                                       LLVMTypeRef aggregateTypeHint,
                                       LLVMTypeRef elementTypeHint,
                                       LLVMTypeRef* outElementType);
+const CCTagFieldLayout* cg_lookup_field_layout(CodegenContext* ctx,
+                                               const ParsedType* aggregateParsed,
+                                               const char* fieldName);
 LLVMTypeRef ensureStructLLVMTypeByName(CodegenContext* ctx, const char* name, bool isUnionHint);
 void declareStructSymbol(CodegenContext* ctx, const Symbol* sym);
 
