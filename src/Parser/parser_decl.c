@@ -71,7 +71,10 @@ static bool parser_allows_block_pointers(Parser* parser) {
 }
 
 static bool parser_allows_atomic_keyword(Parser* parser) {
-    return parser && parser->ctx && cc_extensions_enabled(parser->ctx);
+    if (!parser || !parser->ctx) return false;
+    if (cc_extensions_enabled(parser->ctx)) return true;
+    CCDialect dialect = cc_get_language_dialect(parser->ctx);
+    return dialect == CC_DIALECT_C11 || dialect == CC_DIALECT_C17;
 }
 
 static void skip_gnu_attribute_specifier(Parser* parser) {

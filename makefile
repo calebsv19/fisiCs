@@ -353,7 +353,13 @@ integration-compile-link: $(BIN)
 integration-diags-pack: $(BIN)
 	@./tests/integration/run_emit_diags_pack.sh ./$(BIN)
 
-integration: integration-compile-only integration-compile-link
+integration-std-atomic: $(BIN)
+	@./tests/integration/run_std_atomic.sh ./$(BIN)
+
+integration-std-atomic-link: $(BIN)
+	@./tests/integration/run_std_atomic_link.sh ./$(BIN)
+
+integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link
 
 ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
@@ -727,6 +733,12 @@ semantic-long-double-layout: $(BIN)
 semantic-atomic-qualifier: $(BIN)
 	@./tests/syntax/run_semantic_atomic_qualifier.sh ./$(BIN)
 
+semantic-static-assert-member-array-size: $(BIN)
+	@./tests/syntax/run_semantic_static_assert_member_array_size.sh ./$(BIN)
+
+semantic-static-local-float-constexpr: $(BIN)
+	@./tests/syntax/run_semantic_static_local_float_constexpr.sh ./$(BIN)
+
 semantic-static-float-constexpr: $(BIN)
 	@./tests/syntax/run_static_float_constexpr.sh ./$(BIN)
 
@@ -786,6 +798,8 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
 	              semantic-restrict-alias-fields \
 	              semantic-alignas semantic-bitfield-layout semantic-long-double-layout \
 	              semantic-atomic-qualifier \
+	              semantic-static-assert-member-array-size \
+	              semantic-static-local-float-constexpr \
 	              semantic-static-float-constexpr \
 	              semantic-flexible-array-layout semantic-union-anon-member \
 	              semantic-sizeof-alignof-vla \
@@ -854,7 +868,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-std-atomic integration-std-atomic-link
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1041,7 +1055,8 @@ tests: test frontend-api-test
         frontend-contract-test \
         statement-expr-codegen codegen-bitfield \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
+        semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff test-binary-wave test-binary-id binary-regen \
-        integration-diags-pack ci-guardrails \
+        integration-diags-pack integration-std-atomic integration-std-atomic-link ci-guardrails \
         realproj-stage-a realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

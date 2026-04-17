@@ -29,6 +29,61 @@ static bool set_error(char** out, const char* msg, const char* detail) {
     return true;
 }
 
+static void debug_print_selected_libc_signatures(LLVMModuleRef module) {
+    if (!module) return;
+    const char* traceEnv = getenv("FISICS_VERIFY_IR_TRACE_LIBC");
+    if (!traceEnv || !traceEnv[0] || strcmp(traceEnv, "0") == 0) {
+        return;
+    }
+
+    const char* names[] = {
+        "memset",
+        "memcpy",
+        "memmove",
+        "snprintf",
+        "vsnprintf",
+        "sprintf",
+        "__builtin___memset_chk",
+        "__builtin___snprintf_chk",
+        "__builtin___vsnprintf_chk"
+    };
+
+    for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
+        LLVMValueRef fn = LLVMGetNamedFunction(module, names[i]);
+        if (!fn) continue;
+
+        LLVMTypeRef valueTy = LLVMTypeOf(fn);
+        LLVMTypeRef globalTy = LLVMGlobalGetValueType(fn);
+        char* valueTyStr = valueTy ? LLVMPrintTypeToString(valueTy) : NULL;
+        char* globalTyStr = globalTy ? LLVMPrintTypeToString(globalTy) : NULL;
+        fprintf(stderr,
+                "[verify-trace] fn=%s value-type=%s global-type=%s\n",
+                names[i],
+                valueTyStr ? valueTyStr : "<null>",
+                globalTyStr ? globalTyStr : "<null>");
+        if (valueTyStr) LLVMDisposeMessage(valueTyStr);
+        if (globalTyStr) LLVMDisposeMessage(globalTyStr);
+    }
+}
+
+static void debug_dump_module_on_verify_failure(LLVMModuleRef module) {
+    if (!module) return;
+    const char* dumpPath = getenv("FISICS_VERIFY_IR_DUMP_PATH");
+    if (!dumpPath || !dumpPath[0]) return;
+    char* printErr = NULL;
+    if (LLVMPrintModuleToFile(module, dumpPath, &printErr) != 0) {
+        fprintf(stderr,
+                "[verify-trace] failed to write module dump to %s: %s\n",
+                dumpPath,
+                printErr ? printErr : "unknown");
+    } else {
+        fprintf(stderr, "[verify-trace] wrote module dump to %s\n", dumpPath);
+    }
+    if (printErr) {
+        LLVMDisposeMessage(printErr);
+    }
+}
+
 bool compiler_init_llvm_native(void) {
     static bool initialized = false;
     static bool attempted = false;
@@ -52,6 +107,8 @@ bool compiler_emit_object_file(LLVMModuleRef module,
                                const char* dataLayoutOpt,
                                const char* outputPath,
                                char** errorOut) {
+    const char* debugProgressEnv = getenv("FISICS_DEBUG_PROGRESS");
+    bool debugProgress = debugProgressEnv && debugProgressEnv[0] && strcmp(debugProgressEnv, "0") != 0;
     if (errorOut) *errorOut = NULL;
     if (!module || !outputPath) {
         set_error(errorOut, "Invalid arguments to compiler_emit_object_file", NULL);
@@ -60,6 +117,9 @@ bool compiler_emit_object_file(LLVMModuleRef module,
     if (!compiler_init_llvm_native()) {
         set_error(errorOut, "Failed to initialize LLVM native target", NULL);
         return false;
+    }
+    if (debugProgress) {
+        fprintf(stderr, "[emit] begin output=%s\n", outputPath);
     }
 
     char* triple = NULL;
@@ -137,6 +197,25 @@ bool compiler_emit_object_file(LLVMModuleRef module,
         return false;
     }
 
+    const char* globalIselEnv = getenv("FISICS_LLVM_GLOBAL_ISEL");
+    bool enableGlobalIsel = globalIselEnv && globalIselEnv[0] && strcmp(globalIselEnv, "0") != 0;
+    if (enableGlobalIsel) {
+        LLVMSetTargetMachineGlobalISel(tm, 1);
+        LLVMSetTargetMachineGlobalISelAbort(tm, LLVMGlobalISelAbortDisableWithDiag);
+        if (debugProgress) {
+            fprintf(stderr, "[emit] target machine global-isel enabled\n");
+        }
+    }
+
+    const char* fastIselEnv = getenv("FISICS_LLVM_FAST_ISEL");
+    bool enableFastIsel = fastIselEnv && fastIselEnv[0] && strcmp(fastIselEnv, "0") != 0;
+    if (enableFastIsel) {
+        LLVMSetTargetMachineFastISel(tm, 1);
+        if (debugProgress) {
+            fprintf(stderr, "[emit] target machine fast-isel enabled\n");
+        }
+    }
+
     if (dataLayoutOpt && dataLayoutOpt[0]) {
         LLVMSetDataLayout(module, dataLayoutOpt);
     } else {
@@ -154,6 +233,8 @@ bool compiler_emit_object_file(LLVMModuleRef module,
     if (verifyIR) {
         char* verifyErr = NULL;
         if (LLVMVerifyModule(module, LLVMReturnStatusAction, &verifyErr) != 0) {
+            debug_print_selected_libc_signatures(module);
+            debug_dump_module_on_verify_failure(module);
             set_error(errorOut, "LLVMVerifyModule failed", verifyErr);
             if (verifyErr) {
                 LLVMDisposeMessage(verifyErr);
@@ -176,6 +257,8 @@ bool compiler_emit_object_file(LLVMModuleRef module,
     {
         LLVMPassBuilderOptionsRef pbOptions = LLVMCreatePassBuilderOptions();
         if (pbOptions) {
+            const char* skipGlobalDceEnv = getenv("FISICS_SKIP_GLOBALDCE");
+            bool skipGlobalDce = skipGlobalDceEnv && skipGlobalDceEnv[0] && strcmp(skipGlobalDceEnv, "0") != 0;
             const char* pipeline = NULL;
             if (requestedOptLevel == 1) {
                 pipeline = "default<O1>";
@@ -185,6 +268,9 @@ bool compiler_emit_object_file(LLVMModuleRef module,
                 pipeline = "default<O3>";
             }
             if (pipeline) {
+                if (debugProgress) {
+                    fprintf(stderr, "[emit] run pass pipeline=%s\n", pipeline);
+                }
                 LLVMErrorRef passErr = LLVMRunPasses(module, pipeline, tm, pbOptions);
                 if (passErr) {
                     char* passErrMsg = LLVMGetErrorMessage(passErr);
@@ -192,6 +278,9 @@ bool compiler_emit_object_file(LLVMModuleRef module,
                         fprintf(stderr, "Warning: pre-emit %s pipeline failed: %s\n", pipeline, passErrMsg);
                         LLVMDisposeErrorMessage(passErrMsg);
                     }
+                }
+                if (debugProgress) {
+                    fprintf(stderr, "[emit] pass pipeline complete=%s\n", pipeline);
                 }
             }
 
@@ -201,13 +290,23 @@ bool compiler_emit_object_file(LLVMModuleRef module,
              * (for example static inline helpers from SDL headers) and prevents link
              * failures from dead, never-called helper bodies.
              */
-            LLVMErrorRef dceErr = LLVMRunPasses(module, "globaldce", tm, pbOptions);
-            if (dceErr) {
-                char* dceErrMsg = LLVMGetErrorMessage(dceErr);
-                if (dceErrMsg) {
-                    fprintf(stderr, "Warning: pre-emit globaldce pass failed: %s\n", dceErrMsg);
-                    LLVMDisposeErrorMessage(dceErrMsg);
+            if (!skipGlobalDce) {
+                if (debugProgress) {
+                    fprintf(stderr, "[emit] run pass pipeline=globaldce\n");
                 }
+                LLVMErrorRef dceErr = LLVMRunPasses(module, "globaldce", tm, pbOptions);
+                if (dceErr) {
+                    char* dceErrMsg = LLVMGetErrorMessage(dceErr);
+                    if (dceErrMsg) {
+                        fprintf(stderr, "Warning: pre-emit globaldce pass failed: %s\n", dceErrMsg);
+                        LLVMDisposeErrorMessage(dceErrMsg);
+                    }
+                }
+                if (debugProgress) {
+                    fprintf(stderr, "[emit] pass pipeline complete=globaldce\n");
+                }
+            } else if (debugProgress) {
+                fprintf(stderr, "[emit] skip pass pipeline=globaldce\n");
             }
 
             LLVMDisposePassBuilderOptions(pbOptions);
@@ -215,11 +314,17 @@ bool compiler_emit_object_file(LLVMModuleRef module,
     }
 
     char* emitErr = NULL;
+    if (debugProgress) {
+        fprintf(stderr, "[emit] target machine emit start output=%s\n", outputPath);
+    }
     bool ok = (LLVMTargetMachineEmitToFile(tm,
                                            module,
                                            (char*)outputPath,
                                            LLVMObjectFile,
                                            &emitErr) == 0);
+    if (debugProgress) {
+        fprintf(stderr, "[emit] target machine emit done ok=%d output=%s\n", ok ? 1 : 0, outputPath);
+    }
     if (!ok) {
         set_error(errorOut, "LLVMTargetMachineEmitToFile failed", emitErr);
     }

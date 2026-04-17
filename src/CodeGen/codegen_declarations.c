@@ -56,6 +56,89 @@ static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const Pa
     return type;
 }
 
+static bool cg_eval_const_float_expr(ASTNode* expr, double* outValue) {
+    if (!expr || !outValue) return false;
+
+    switch (expr->type) {
+        case AST_NUMBER_LITERAL:
+        case AST_CHAR_LITERAL: {
+            const char* text = expr->valueNode.value ? expr->valueNode.value : "0";
+            char* end = NULL;
+            double value = strtod(text, &end);
+            if (end == text) return false;
+            *outValue = value;
+            return true;
+        }
+        case AST_CAST_EXPRESSION:
+            return cg_eval_const_float_expr(expr->castExpr.expression, outValue);
+        case AST_UNARY_EXPRESSION: {
+            if (!expr->expr.op || !expr->expr.left) return false;
+            double inner = 0.0;
+            if (!cg_eval_const_float_expr(expr->expr.left, &inner)) return false;
+            if (strcmp(expr->expr.op, "+") == 0) {
+                *outValue = inner;
+                return true;
+            }
+            if (strcmp(expr->expr.op, "-") == 0) {
+                *outValue = -inner;
+                return true;
+            }
+            return false;
+        }
+        case AST_BINARY_EXPRESSION: {
+            if (!expr->expr.op || !expr->expr.left || !expr->expr.right) return false;
+            double lhs = 0.0;
+            double rhs = 0.0;
+            if (!cg_eval_const_float_expr(expr->expr.left, &lhs) ||
+                !cg_eval_const_float_expr(expr->expr.right, &rhs)) {
+                return false;
+            }
+            if (strcmp(expr->expr.op, "+") == 0) {
+                *outValue = lhs + rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, "-") == 0) {
+                *outValue = lhs - rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, "*") == 0) {
+                *outValue = lhs * rhs;
+                return true;
+            }
+            if (strcmp(expr->expr.op, "/") == 0) {
+                if (rhs == 0.0) return false;
+                *outValue = lhs / rhs;
+                return true;
+            }
+            return false;
+        }
+        case AST_TERNARY_EXPRESSION: {
+            if (!expr->ternaryExpr.condition ||
+                !expr->ternaryExpr.trueExpr ||
+                !expr->ternaryExpr.falseExpr) {
+                return false;
+            }
+            double cond = 0.0;
+            if (!cg_eval_const_float_expr(expr->ternaryExpr.condition, &cond)) return false;
+            ASTNode* chosen = (cond != 0.0) ? expr->ternaryExpr.trueExpr : expr->ternaryExpr.falseExpr;
+            return cg_eval_const_float_expr(chosen, outValue);
+        }
+        case AST_COMMA_EXPRESSION: {
+            if (!expr->commaExpr.expressions || expr->commaExpr.exprCount == 0) return false;
+            double last = 0.0;
+            for (size_t i = 0; i < expr->commaExpr.exprCount; ++i) {
+                if (!cg_eval_const_float_expr(expr->commaExpr.expressions[i], &last)) {
+                    return false;
+                }
+            }
+            *outValue = last;
+            return true;
+        }
+        default:
+            return false;
+    }
+}
+
 LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                                         ASTNode* expr,
                                         LLVMTypeRef targetType,
@@ -709,6 +792,10 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
             double val = strtod(text, NULL);
             return LLVMConstReal(targetType, val);
         }
+        double foldedFP = 0.0;
+        if (cg_eval_const_float_expr(expr, &foldedFP)) {
+            return LLVMConstReal(targetType, foldedFP);
+        }
     }
 
     if (targetKind == LLVMPointerTypeKind) {
@@ -723,6 +810,44 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         }
         if (targetExpr && targetExpr->type == AST_IDENTIFIER) {
             const char* name = targetExpr->valueNode.value;
+            if (name) {
+                LLVMValueRef glob = LLVMGetNamedGlobal(ctx->module, name);
+                if (!glob && ctx->semanticModel) {
+                    const Symbol* sym = semanticModelLookupGlobal(ctx->semanticModel, name);
+                    if (sym && sym->kind == SYMBOL_VARIABLE) {
+                        declareGlobalVariableSymbol(ctx, sym);
+                        glob = LLVMGetNamedGlobal(ctx->module, name);
+                    }
+                }
+                if (glob) {
+                    LLVMValueRef pointerValue = NULL;
+                    LLVMTypeRef globalValueType = LLVMGlobalGetValueType(glob);
+                    if (!tookAddress &&
+                        globalValueType &&
+                        LLVMGetTypeKind(globalValueType) == LLVMArrayTypeKind) {
+                        LLVMTypeRef i32Ty = LLVMInt32TypeInContext(ctx->llvmContext);
+                        LLVMValueRef indices[2] = {
+                            LLVMConstInt(i32Ty, 0, 0),
+                            LLVMConstInt(i32Ty, 0, 0)
+                        };
+                        pointerValue = LLVMConstGEP2(globalValueType, glob, indices, 2);
+                    } else if (tookAddress) {
+                        pointerValue = glob;
+                    }
+                    if (pointerValue) {
+                        if (LLVMTypeOf(pointerValue) == targetType) {
+                            return pointerValue;
+                        }
+                        LLVMValueRef casted = LLVMConstPointerCast(pointerValue, targetType);
+                        if (!casted) {
+                            casted = LLVMConstBitCast(pointerValue, targetType);
+                        }
+                        if (casted) {
+                            return casted;
+                        }
+                    }
+                }
+            }
             if (tookAddress && name && ctx->currentScope) {
                 NamedValue* named = cg_scope_lookup(ctx->currentScope, name);
                 if (named && named->value && named->isGlobal) {

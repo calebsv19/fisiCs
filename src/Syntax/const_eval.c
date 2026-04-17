@@ -307,6 +307,11 @@ static bool evalSizeof(ASTNode* target, Scope* scope, long long* out) {
     }
 
     TypeInfo info = analyzeExpression(target, scope);
+    if (info.category == TYPEINFO_ARRAY && info.originalType) {
+        if (sizeFromParsedType(info.originalType, scope, out)) {
+            return true;
+        }
+    }
     if ((info.category == TYPEINFO_STRUCT || info.category == TYPEINFO_UNION) && !info.isComplete) {
         return false;
     }

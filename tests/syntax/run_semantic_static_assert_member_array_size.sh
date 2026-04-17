@@ -11,16 +11,16 @@ fi
 TMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TMP_OUTPUT"' EXIT
 
-if ! "$BIN" -std=c11 tests/syntax/semantic_atomic_qualifier.c > "$TMP_OUTPUT" 2>&1; then
-  echo "semantic_atomic_qualifier failed" >&2
+if ! "$BIN" -std=c11 tests/syntax/semantic_static_assert_member_array_size.c >"$TMP_OUTPUT" 2>&1; then
+  echo "semantic_static_assert_member_array_size failed" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi
 
 if grep -Fq "Error:" "$TMP_OUTPUT"; then
-  echo "semantic_atomic_qualifier produced diagnostics unexpectedly" >&2
+  echo "semantic_static_assert_member_array_size produced diagnostics unexpectedly" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi
 
-echo "semantic_atomic_qualifier test passed."
+echo "semantic_static_assert_member_array_size test passed."

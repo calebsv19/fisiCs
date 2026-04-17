@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_fnptr_large_byval_struct_indirect_call",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_fnptr_large_byval_struct_indirect_call.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_large_byval_struct_indirect_call.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_large_byval_struct_indirect_call.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "fnptr",
+        "abi",
+        "aggregate",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

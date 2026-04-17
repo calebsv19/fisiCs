@@ -202,6 +202,138 @@ static bool cg_is_unsigned_parsed(const ParsedType* type, LLVMTypeRef llvmType) 
     return false;
 }
 
+static LLVMAtomicOrdering cg_atomic_order_from_builtin_arg(LLVMValueRef orderArg,
+                                                            LLVMAtomicOrdering fallback,
+                                                            bool forLoad,
+                                                            bool forStore) {
+    LLVMAtomicOrdering ordering = fallback;
+    if (ordering == LLVMAtomicOrderingNotAtomic || ordering == LLVMAtomicOrderingUnordered) {
+        ordering = LLVMAtomicOrderingSequentiallyConsistent;
+    }
+    if (orderArg && LLVMIsAConstantInt(orderArg)) {
+        long long rawOrder = LLVMConstIntGetSExtValue(orderArg);
+        switch (rawOrder) {
+            case 0: /* memory_order_relaxed */
+                ordering = LLVMAtomicOrderingMonotonic;
+                break;
+            case 1: /* memory_order_consume */
+            case 2: /* memory_order_acquire */
+                ordering = LLVMAtomicOrderingAcquire;
+                break;
+            case 3: /* memory_order_release */
+                ordering = LLVMAtomicOrderingRelease;
+                break;
+            case 4: /* memory_order_acq_rel */
+                ordering = LLVMAtomicOrderingAcquireRelease;
+                break;
+            case 5: /* memory_order_seq_cst */
+                ordering = LLVMAtomicOrderingSequentiallyConsistent;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (forLoad) {
+        if (ordering == LLVMAtomicOrderingRelease || ordering == LLVMAtomicOrderingAcquireRelease) {
+            ordering = LLVMAtomicOrderingAcquire;
+        }
+    } else if (forStore) {
+        if (ordering == LLVMAtomicOrderingAcquire || ordering == LLVMAtomicOrderingAcquireRelease) {
+            ordering = LLVMAtomicOrderingRelease;
+        }
+    }
+
+    if (ordering == LLVMAtomicOrderingNotAtomic || ordering == LLVMAtomicOrderingUnordered) {
+        ordering = LLVMAtomicOrderingSequentiallyConsistent;
+    }
+    return ordering;
+}
+
+static LLVMValueRef cg_atomic_cast_value(CodegenContext* ctx,
+                                         LLVMValueRef value,
+                                         LLVMTypeRef targetType,
+                                         ASTNode* valueNode,
+                                         const char* nameHint) {
+    if (!ctx || !value || !targetType) {
+        return NULL;
+    }
+    if (LLVMTypeOf(value) == targetType) {
+        return value;
+    }
+
+    LLVMTypeKind srcKind = LLVMGetTypeKind(LLVMTypeOf(value));
+    LLVMTypeKind dstKind = LLVMGetTypeKind(targetType);
+    if (srcKind == LLVMPointerTypeKind && dstKind == LLVMPointerTypeKind) {
+        return LLVMBuildBitCast(ctx->builder,
+                                value,
+                                targetType,
+                                nameHint ? nameHint : "atomic.ptr.cast");
+    }
+    if (srcKind == LLVMIntegerTypeKind && dstKind == LLVMIntegerTypeKind) {
+        bool isUnsigned = valueNode ? cg_expression_is_unsigned(ctx, valueNode) : false;
+        return LLVMBuildIntCast2(ctx->builder,
+                                 value,
+                                 targetType,
+                                 !isUnsigned,
+                                 nameHint ? nameHint : "atomic.int.cast");
+    }
+
+    const ParsedType* fromParsed = valueNode ? cg_resolve_expression_type(ctx, valueNode) : NULL;
+    return cg_cast_value(ctx,
+                         value,
+                         targetType,
+                         fromParsed,
+                         NULL,
+                         nameHint ? nameHint : "atomic.value.cast");
+}
+
+static LLVMValueRef cg_atomic_cast_call_result(CodegenContext* ctx,
+                                               ASTNode* callNode,
+                                               LLVMValueRef value,
+                                               const char* nameHint) {
+    if (!ctx || !callNode || !value) {
+        return value;
+    }
+    const ParsedType* callParsed = cg_resolve_expression_type(ctx, callNode);
+    LLVMTypeRef targetType = callParsed ? cg_type_from_parsed(ctx, callParsed) : NULL;
+    if (!targetType || targetType == LLVMTypeOf(value) ||
+        LLVMGetTypeKind(targetType) == LLVMVoidTypeKind) {
+        return value;
+    }
+    return cg_cast_value(ctx,
+                         value,
+                         targetType,
+                         NULL,
+                         callParsed,
+                         nameHint ? nameHint : "atomic.result.cast");
+}
+
+static LLVMValueRef cg_atomic_cast_pointer(CodegenContext* ctx,
+                                           LLVMValueRef pointerValue,
+                                           LLVMTypeRef elementType,
+                                           const char* nameHint) {
+    if (!ctx || !pointerValue || !elementType) {
+        return NULL;
+    }
+    LLVMTypeRef ptrType = LLVMTypeOf(pointerValue);
+    if (!ptrType || LLVMGetTypeKind(ptrType) != LLVMPointerTypeKind) {
+        return NULL;
+    }
+
+    LLVMTypeRef expectedPtrType = LLVMPointerType(elementType, 0);
+    if (ptrType == expectedPtrType) {
+        return pointerValue;
+    }
+    if (LLVMPointerTypeIsOpaque(ptrType)) {
+        return pointerValue;
+    }
+    return LLVMBuildBitCast(ctx->builder,
+                            pointerValue,
+                            expectedPtrType,
+                            nameHint ? nameHint : "atomic.ptr.cast");
+}
+
 static LLVMValueRef cg_build_complex_addsub(CodegenContext* ctx,
                                             LLVMValueRef lhs,
                                             LLVMValueRef rhs,
@@ -727,6 +859,21 @@ static const Symbol* cg_lookup_function_symbol_for_callee(CodegenContext* ctx, A
     }
 
     return NULL;
+}
+
+static const Symbol* cg_lookup_global_function_symbol_by_name(CodegenContext* ctx, const char* name) {
+    if (!ctx || !name || !name[0]) {
+        return NULL;
+    }
+    const SemanticModel* model = cg_context_get_semantic_model(ctx);
+    if (!model) {
+        return NULL;
+    }
+    const Symbol* sym = semanticModelLookupGlobal(model, name);
+    if (!sym || sym->kind != SYMBOL_FUNCTION) {
+        return NULL;
+    }
+    return sym;
 }
 
 static LLVMTypeRef cg_function_type_from_symbol(CodegenContext* ctx, const Symbol* sym) {
@@ -2202,6 +2349,42 @@ static LLVMValueRef cg_apply_default_promotion(CodegenContext* ctx,
     return arg;
 }
 
+static LLVMValueRef cg_prepare_call_argument(CodegenContext* ctx,
+                                             LLVMValueRef arg,
+                                             LLVMTypeRef paramTy,
+                                             const ParsedType* fromParsed,
+                                             const ParsedType* toParsed,
+                                             const char* castName) {
+    if (!ctx || !arg || !paramTy) return arg;
+    if (LLVMGetTypeKind(paramTy) == LLVMVoidTypeKind) return arg;
+
+    LLVMTypeRef argTy = LLVMTypeOf(arg);
+    if (!argTy || argTy == paramTy) {
+        return arg;
+    }
+
+    /* ABI-lowered indirect aggregate params are represented as pointers. */
+    if (LLVMGetTypeKind(paramTy) == LLVMPointerTypeKind) {
+        LLVMTypeKind argKind = LLVMGetTypeKind(argTy);
+        bool argIsAggregate = (argKind == LLVMStructTypeKind || argKind == LLVMArrayTypeKind);
+        bool declaredPointer = toParsed && cg_parsed_type_is_pointerish(toParsed);
+        if (argIsAggregate && !declaredPointer) {
+            LLVMValueRef tmp = cg_build_entry_alloca(ctx, argTy, "call.arg.indirect.tmp");
+            if (tmp) {
+                LLVMBuildStore(ctx->builder, arg, tmp);
+                return tmp;
+            }
+        }
+    }
+
+    return cg_cast_value(ctx,
+                         arg,
+                         paramTy,
+                         fromParsed,
+                         toParsed,
+                         castName ? castName : "call.arg.cast");
+}
+
 static LLVMValueRef cg_emit_va_intrinsic(CodegenContext* ctx,
                                          const char* intrinsicName,
                                          LLVMValueRef listValue) {
@@ -2299,32 +2482,183 @@ static LLVMValueRef cg_emit_rewritten_builtin_call(CodegenContext* ctx,
         loweredParamTypes = paramTypes;
     }
 
-    LLVMTypeRef fnTy = LLVMFunctionType(returnType,
-                                        loweredParamTypes,
-                                        fixedParamCount,
-                                        isVariadic ? 1 : 0);
+    LLVMTypeRef requestedFnTy = LLVMFunctionType(returnType,
+                                                 loweredParamTypes,
+                                                 fixedParamCount,
+                                                 isVariadic ? 1 : 0);
     free(loweredParamTypes);
 
-    LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, targetName);
-    if (!fn) {
-        fn = LLVMAddFunction(ctx->module, targetName, fnTy);
-    }
-    LLVMValueRef callee = fn;
-    LLVMTypeRef calleePtrTy = LLVMPointerType(fnTy, 0);
-    if (LLVMTypeOf(callee) != calleePtrTy) {
-        callee = LLVMBuildBitCast(ctx->builder, callee, calleePtrTy, "builtin.call.cast");
+    /* If semantic analysis already knows the canonical target signature for
+     * this function name, prefer it. This avoids opaque-pointer call type
+     * drift when fortified builtin rewrites run before declaration emission. */
+    const Symbol* targetSym = cg_lookup_global_function_symbol_by_name(ctx, targetName);
+    LLVMTypeRef symbolFnTy = cg_function_type_from_symbol(ctx, targetSym);
+    if (symbolFnTy && LLVMGetTypeKind(symbolFnTy) == LLVMFunctionTypeKind) {
+        requestedFnTy = symbolFnTy;
     }
 
-    bool returnsVoid = LLVMGetTypeKind(returnType) == LLVMVoidTypeKind;
-    const char* emittedName = returnsVoid ? "" : (callName ? callName : "builtin.call");
+    LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, targetName);
+    LLVMTypeRef fnTy = requestedFnTy;
+    if (!fn) {
+        fn = LLVMAddFunction(ctx->module, targetName, requestedFnTy);
+    } else {
+        /*
+         * With LLVM opaque pointers enabled, `ptr` no longer carries pointee
+         * type, so direct call sites must explicitly align to the existing
+         * function signature if one is already present in-module.
+         */
+        LLVMTypeRef existingFnTy = LLVMGlobalGetValueType(fn);
+        if (!existingFnTy || LLVMGetTypeKind(existingFnTy) != LLVMFunctionTypeKind) {
+            LLVMTypeRef fnPtrTy = LLVMTypeOf(fn);
+            if (fnPtrTy && LLVMGetTypeKind(fnPtrTy) == LLVMPointerTypeKind) {
+                LLVMTypeRef derefTy = cg_dereference_ptr_type(ctx, fnPtrTy, targetName);
+                if (derefTy && LLVMGetTypeKind(derefTy) == LLVMFunctionTypeKind) {
+                    existingFnTy = derefTy;
+                }
+            }
+        }
+        if (existingFnTy && LLVMGetTypeKind(existingFnTy) == LLVMFunctionTypeKind) {
+            unsigned existingFixedCount = LLVMCountParamTypes(existingFnTy);
+            bool existingVariadic = LLVMIsFunctionVarArg(existingFnTy) != 0;
+            if (existingFixedCount > keepCount ||
+                (!existingVariadic && keepCount != existingFixedCount)) {
+                free(callArgs);
+                return NULL;
+            }
+            if (existingFixedCount > 0) {
+                LLVMTypeRef* existingParamTypes =
+                    (LLVMTypeRef*)calloc(existingFixedCount, sizeof(LLVMTypeRef));
+                if (!existingParamTypes) {
+                    free(callArgs);
+                    return NULL;
+                }
+                LLVMGetParamTypes(existingFnTy, existingParamTypes);
+                for (unsigned i = 0; i < existingFixedCount; ++i) {
+                    LLVMTypeRef toTy = existingParamTypes[i];
+                    LLVMValueRef arg = callArgs[i];
+                    if (!toTy || !arg) {
+                        free(existingParamTypes);
+                        free(callArgs);
+                        return NULL;
+                    }
+                    if (LLVMTypeOf(arg) == toTy) continue;
+                    LLVMTypeRef fromTy = LLVMTypeOf(arg);
+                    LLVMTypeKind fromKind = fromTy ? LLVMGetTypeKind(fromTy) : LLVMVoidTypeKind;
+                    LLVMTypeKind toKind = LLVMGetTypeKind(toTy);
+                    if (fromKind == LLVMPointerTypeKind && toKind == LLVMPointerTypeKind) {
+                        callArgs[i] = LLVMBuildBitCast(ctx->builder, arg, toTy, "builtin.arg.ptrcast.existing");
+                    } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMIntegerTypeKind) {
+                        unsigned fromBits = LLVMGetIntTypeWidth(fromTy);
+                        unsigned toBits = LLVMGetIntTypeWidth(toTy);
+                        if (fromBits != toBits) {
+                            callArgs[i] = LLVMBuildIntCast2(ctx->builder,
+                                                            arg,
+                                                            toTy,
+                                                            false,
+                                                            "builtin.arg.intcast.existing");
+                        }
+                    } else if (fromKind == LLVMPointerTypeKind && toKind == LLVMIntegerTypeKind) {
+                        callArgs[i] = LLVMBuildPtrToInt(ctx->builder, arg, toTy, "builtin.arg.ptrtoint.existing");
+                    } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMPointerTypeKind) {
+                        callArgs[i] = LLVMBuildIntToPtr(ctx->builder, arg, toTy, "builtin.arg.inttoptr.existing");
+                    } else {
+                        free(existingParamTypes);
+                        free(callArgs);
+                        return NULL;
+                    }
+                }
+                free(existingParamTypes);
+            }
+            fnTy = existingFnTy;
+        }
+    }
+
+    /* Final safety cast: align call arguments to the actual function
+     * signature we will emit with (existing or symbol-derived). */
+    if (fnTy && LLVMGetTypeKind(fnTy) == LLVMFunctionTypeKind) {
+        unsigned emitFixedCount = LLVMCountParamTypes(fnTy);
+        if (emitFixedCount > 0) {
+            LLVMTypeRef* emitParamTypes = (LLVMTypeRef*)calloc(emitFixedCount, sizeof(LLVMTypeRef));
+            if (!emitParamTypes) {
+                free(callArgs);
+                return NULL;
+            }
+            LLVMGetParamTypes(fnTy, emitParamTypes);
+            size_t castCount = keepCount < emitFixedCount ? keepCount : (size_t)emitFixedCount;
+            for (size_t i = 0; i < castCount; ++i) {
+                LLVMTypeRef toTy = emitParamTypes[i];
+                LLVMValueRef arg = callArgs[i];
+                if (!toTy || !arg) {
+                    free(emitParamTypes);
+                    free(callArgs);
+                    return NULL;
+                }
+                if (LLVMTypeOf(arg) == toTy) continue;
+                LLVMTypeRef fromTy = LLVMTypeOf(arg);
+                LLVMTypeKind fromKind = fromTy ? LLVMGetTypeKind(fromTy) : LLVMVoidTypeKind;
+                LLVMTypeKind toKind = LLVMGetTypeKind(toTy);
+                if (fromKind == LLVMPointerTypeKind && toKind == LLVMPointerTypeKind) {
+                    callArgs[i] = LLVMBuildBitCast(ctx->builder, arg, toTy, "builtin.arg.ptrcast.emit");
+                } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMIntegerTypeKind) {
+                    unsigned fromBits = LLVMGetIntTypeWidth(fromTy);
+                    unsigned toBits = LLVMGetIntTypeWidth(toTy);
+                    if (fromBits != toBits) {
+                        callArgs[i] = LLVMBuildIntCast2(ctx->builder,
+                                                        arg,
+                                                        toTy,
+                                                        false,
+                                                        "builtin.arg.intcast.emit");
+                    }
+                } else if (fromKind == LLVMPointerTypeKind && toKind == LLVMIntegerTypeKind) {
+                    callArgs[i] = LLVMBuildPtrToInt(ctx->builder, arg, toTy, "builtin.arg.ptrtoint.emit");
+                } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMPointerTypeKind) {
+                    callArgs[i] = LLVMBuildIntToPtr(ctx->builder, arg, toTy, "builtin.arg.inttoptr.emit");
+                } else {
+                    free(emitParamTypes);
+                    free(callArgs);
+                    return NULL;
+                }
+            }
+            free(emitParamTypes);
+        }
+    }
+
+    bool requestedReturnsVoid = LLVMGetTypeKind(returnType) == LLVMVoidTypeKind;
+    LLVMTypeRef callReturnTy = LLVMGetReturnType(fnTy);
+    bool callReturnsVoid = LLVMGetTypeKind(callReturnTy) == LLVMVoidTypeKind;
+    const char* emittedName = callReturnsVoid ? "" : (callName ? callName : "builtin.call");
     LLVMValueRef call = LLVMBuildCall2(ctx->builder,
                                        fnTy,
-                                       callee,
+                                       fn,
                                        callArgs,
                                        (unsigned)keepCount,
                                        emittedName);
     free(callArgs);
-    return returnsVoid ? NULL : call;
+    if (callReturnsVoid || !call) {
+        return requestedReturnsVoid ? NULL : call;
+    }
+    if (callReturnTy == returnType || requestedReturnsVoid) {
+        return call;
+    }
+
+    LLVMTypeKind fromKind = LLVMGetTypeKind(callReturnTy);
+    LLVMTypeKind toKind = LLVMGetTypeKind(returnType);
+    if (fromKind == LLVMPointerTypeKind && toKind == LLVMPointerTypeKind) {
+        return LLVMBuildBitCast(ctx->builder, call, returnType, "builtin.ret.ptrcast");
+    }
+    if (fromKind == LLVMIntegerTypeKind && toKind == LLVMIntegerTypeKind) {
+        unsigned fromBits = LLVMGetIntTypeWidth(callReturnTy);
+        unsigned toBits = LLVMGetIntTypeWidth(returnType);
+        if (fromBits == toBits) return call;
+        return LLVMBuildIntCast2(ctx->builder, call, returnType, false, "builtin.ret.intcast");
+    }
+    if (fromKind == LLVMPointerTypeKind && toKind == LLVMIntegerTypeKind) {
+        return LLVMBuildPtrToInt(ctx->builder, call, returnType, "builtin.ret.ptrtoint");
+    }
+    if (fromKind == LLVMIntegerTypeKind && toKind == LLVMPointerTypeKind) {
+        return LLVMBuildIntToPtr(ctx->builder, call, returnType, "builtin.ret.inttoptr");
+    }
+    return call;
 }
 
 
@@ -2387,6 +2721,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         (strcmp(calleeName, "va_end") == 0 || strcmp(calleeName, "__builtin_va_end") == 0);
     bool isVaCopyBuiltin = calleeName &&
         (strcmp(calleeName, "__builtin_va_copy") == 0 || strcmp(calleeName, "va_copy") == 0);
+    bool isAllocaBuiltin = calleeName && strcmp(calleeName, "__builtin_alloca") == 0;
     bool isObjectSizeBuiltin = calleeName && strcmp(calleeName, "__builtin_object_size") == 0;
     bool isFabsfBuiltin = calleeName && strcmp(calleeName, "__builtin_fabsf") == 0;
     bool isFabsBuiltin = calleeName && strcmp(calleeName, "__builtin_fabs") == 0;
@@ -2411,6 +2746,18 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     bool isStrcpyChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strcpy_chk") == 0;
     bool isStrcatChkBuiltin = calleeName && strcmp(calleeName, "__builtin___strcat_chk") == 0;
     bool isMemmoveChkBuiltin = calleeName && strcmp(calleeName, "__builtin___memmove_chk") == 0;
+    bool isC11AtomicLoadBuiltin = calleeName &&
+        (strcmp(calleeName, "__c11_atomic_load") == 0 ||
+         strcmp(calleeName, "atomic_load_explicit") == 0);
+    bool isC11AtomicStoreBuiltin = calleeName &&
+        (strcmp(calleeName, "__c11_atomic_store") == 0 ||
+         strcmp(calleeName, "atomic_store_explicit") == 0);
+    bool isC11AtomicExchangeBuiltin = calleeName &&
+        (strcmp(calleeName, "__c11_atomic_exchange") == 0 ||
+         strcmp(calleeName, "atomic_exchange_explicit") == 0);
+    bool isC11AtomicInitBuiltin = calleeName &&
+        (strcmp(calleeName, "__c11_atomic_init") == 0 ||
+         strcmp(calleeName, "atomic_init") == 0);
 
     LLVMValueRef* args = NULL;
     if (node->functionCall.argumentCount > 0) {
@@ -2434,6 +2781,262 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     LLVMTypeRef i8PtrType = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
     LLVMTypeRef sizeType = cg_get_intptr_type(ctx);
     LLVMTypeRef intType = LLVMInt32TypeInContext(ctx->llvmContext);
+
+    if (isC11AtomicLoadBuiltin) {
+        if (node->functionCall.argumentCount < 1 || !args || !args[0]) {
+            free(args);
+            return NULL;
+        }
+        LLVMValueRef atomicPtr = args[0];
+        if (LLVMGetTypeKind(LLVMTypeOf(atomicPtr)) != LLVMPointerTypeKind) {
+            free(args);
+            return NULL;
+        }
+        const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[0]);
+        LLVMTypeRef valueType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(atomicPtr));
+        if (!valueType || LLVMGetTypeKind(valueType) == LLVMVoidTypeKind) {
+            valueType = LLVMInt8TypeInContext(ctx->llvmContext);
+        }
+        LLVMTypeRef atomicType = valueType;
+        if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
+            LLVMGetIntTypeWidth(atomicType) == 1) {
+            atomicType = LLVMInt8TypeInContext(ctx->llvmContext);
+        }
+        atomicPtr = cg_atomic_cast_pointer(ctx, atomicPtr, atomicType, "atomic.load.ptr.cast");
+        if (!atomicPtr) {
+            free(args);
+            return NULL;
+        }
+
+        LLVMValueRef load = LLVMBuildLoad2(ctx->builder, atomicType, atomicPtr, "atomic.load");
+        LLVMAtomicOrdering ordering = LLVMAtomicOrderingSequentiallyConsistent;
+        if (node->functionCall.argumentCount >= 2 && args[1]) {
+            ordering = cg_atomic_order_from_builtin_arg(args[1],
+                                                        LLVMAtomicOrderingSequentiallyConsistent,
+                                                        true,
+                                                        false);
+        }
+        LLVMSetOrdering(load, ordering);
+        LLVMValueRef typedLoad = load;
+        if (atomicType != valueType) {
+            if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
+                LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
+                typedLoad = LLVMBuildIntCast2(ctx->builder,
+                                              typedLoad,
+                                              valueType,
+                                              false,
+                                              "atomic.load.bool.cast");
+            } else {
+                typedLoad = cg_cast_value(ctx,
+                                          typedLoad,
+                                          valueType,
+                                          NULL,
+                                          NULL,
+                                          "atomic.load.result.cast");
+            }
+        }
+        LLVMValueRef result = cg_atomic_cast_call_result(ctx, node, typedLoad, "atomic.load.result.cast");
+        free(args);
+        return result;
+    }
+
+    if (isC11AtomicStoreBuiltin || isC11AtomicInitBuiltin) {
+        if (node->functionCall.argumentCount < 2 || !args || !args[0] || !args[1]) {
+            free(args);
+            return NULL;
+        }
+        LLVMValueRef atomicPtr = args[0];
+        if (LLVMGetTypeKind(LLVMTypeOf(atomicPtr)) != LLVMPointerTypeKind) {
+            free(args);
+            return NULL;
+        }
+        const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[0]);
+        LLVMTypeRef valueType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(atomicPtr));
+        if (!valueType || LLVMGetTypeKind(valueType) == LLVMVoidTypeKind) {
+            valueType = LLVMInt8TypeInContext(ctx->llvmContext);
+        }
+        LLVMTypeRef atomicType = valueType;
+        if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
+            LLVMGetIntTypeWidth(atomicType) == 1) {
+            atomicType = LLVMInt8TypeInContext(ctx->llvmContext);
+        }
+        atomicPtr = cg_atomic_cast_pointer(ctx, atomicPtr, atomicType, "atomic.store.ptr.cast");
+        if (!atomicPtr) {
+            free(args);
+            return NULL;
+        }
+
+        LLVMValueRef desired = cg_atomic_cast_value(ctx,
+                                                    args[1],
+                                                    valueType,
+                                                    node->functionCall.arguments[1],
+                                                    "atomic.store.value.cast");
+        if (!desired) {
+            free(args);
+            return NULL;
+        }
+        LLVMValueRef opValue = desired;
+        if (atomicType != valueType) {
+            if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
+                LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
+                opValue = LLVMBuildIntCast2(ctx->builder,
+                                            opValue,
+                                            atomicType,
+                                            false,
+                                            "atomic.store.op.cast");
+            } else {
+                opValue = cg_cast_value(ctx,
+                                        opValue,
+                                        atomicType,
+                                        NULL,
+                                        NULL,
+                                        "atomic.store.op.cast");
+            }
+        }
+        if (isC11AtomicStoreBuiltin) {
+            LLVMAtomicOrdering ordering = LLVMAtomicOrderingSequentiallyConsistent;
+            if (node->functionCall.argumentCount >= 3 && args[2]) {
+                ordering = cg_atomic_order_from_builtin_arg(args[2],
+                                                            LLVMAtomicOrderingSequentiallyConsistent,
+                                                            false,
+                                                            true);
+            }
+            LLVMValueRef store = LLVMBuildStore(ctx->builder, opValue, atomicPtr);
+            LLVMSetOrdering(store, ordering);
+        } else {
+            (void)LLVMBuildStore(ctx->builder, opValue, atomicPtr);
+        }
+        free(args);
+        return NULL;
+    }
+
+    if (isC11AtomicExchangeBuiltin) {
+        if (node->functionCall.argumentCount < 2 || !args || !args[0] || !args[1]) {
+            free(args);
+            return NULL;
+        }
+        LLVMValueRef atomicPtr = args[0];
+        if (LLVMGetTypeKind(LLVMTypeOf(atomicPtr)) != LLVMPointerTypeKind) {
+            free(args);
+            return NULL;
+        }
+        const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[0]);
+        LLVMTypeRef valueType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(atomicPtr));
+        if (!valueType || LLVMGetTypeKind(valueType) == LLVMVoidTypeKind) {
+            valueType = LLVMInt8TypeInContext(ctx->llvmContext);
+        }
+        LLVMTypeRef atomicType = valueType;
+        if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
+            LLVMGetIntTypeWidth(atomicType) == 1) {
+            atomicType = LLVMInt8TypeInContext(ctx->llvmContext);
+        }
+        atomicPtr = cg_atomic_cast_pointer(ctx, atomicPtr, atomicType, "atomic.exchange.ptr.cast");
+        if (!atomicPtr) {
+            free(args);
+            return NULL;
+        }
+
+        LLVMValueRef desired = cg_atomic_cast_value(ctx,
+                                                    args[1],
+                                                    valueType,
+                                                    node->functionCall.arguments[1],
+                                                    "atomic.exchange.value.cast");
+        if (!desired) {
+            free(args);
+            return NULL;
+        }
+        LLVMValueRef opValue = desired;
+        if (atomicType != valueType) {
+            if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
+                LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
+                opValue = LLVMBuildIntCast2(ctx->builder,
+                                            opValue,
+                                            atomicType,
+                                            false,
+                                            "atomic.exchange.op.cast");
+            } else {
+                opValue = cg_cast_value(ctx,
+                                        opValue,
+                                        atomicType,
+                                        NULL,
+                                        NULL,
+                                        "atomic.exchange.op.cast");
+            }
+        }
+        LLVMAtomicOrdering ordering = LLVMAtomicOrderingSequentiallyConsistent;
+        if (node->functionCall.argumentCount >= 3 && args[2]) {
+            ordering = cg_atomic_order_from_builtin_arg(args[2],
+                                                        LLVMAtomicOrderingSequentiallyConsistent,
+                                                        false,
+                                                        false);
+        }
+        LLVMValueRef exchange = LLVMBuildAtomicRMW(ctx->builder,
+                                                   LLVMAtomicRMWBinOpXchg,
+                                                   atomicPtr,
+                                                   opValue,
+                                                   ordering,
+                                                   0);
+        LLVMValueRef typedExchange = exchange;
+        if (atomicType != valueType) {
+            if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
+                LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
+                typedExchange = LLVMBuildIntCast2(ctx->builder,
+                                                  typedExchange,
+                                                  valueType,
+                                                  false,
+                                                  "atomic.exchange.bool.cast");
+            } else {
+                typedExchange = cg_cast_value(ctx,
+                                              typedExchange,
+                                              valueType,
+                                              NULL,
+                                              NULL,
+                                              "atomic.exchange.result.cast");
+            }
+        }
+        LLVMValueRef result = cg_atomic_cast_call_result(ctx, node, typedExchange, "atomic.exchange.result.cast");
+        free(args);
+        return result;
+    }
+
+    if (isAllocaBuiltin) {
+        if (node->functionCall.argumentCount < 1 || !args || !args[0]) {
+            free(args);
+            return NULL;
+        }
+        LLVMValueRef sizeArg = args[0];
+        LLVMTypeRef sizeArgTy = LLVMTypeOf(sizeArg);
+        if (!sizeArgTy) {
+            free(args);
+            return NULL;
+        }
+        LLVMTypeKind sizeKind = LLVMGetTypeKind(sizeArgTy);
+        if (sizeKind == LLVMPointerTypeKind) {
+            sizeArg = LLVMBuildPtrToInt(ctx->builder, sizeArg, sizeType, "builtin.alloca.size.ptrtoint");
+        } else if (sizeKind == LLVMIntegerTypeKind) {
+            if (LLVMGetTypeKind(sizeType) == LLVMIntegerTypeKind &&
+                LLVMGetIntTypeWidth(sizeArgTy) != LLVMGetIntTypeWidth(sizeType)) {
+                sizeArg = LLVMBuildIntCast2(ctx->builder,
+                                            sizeArg,
+                                            sizeType,
+                                            false,
+                                            "builtin.alloca.size.cast");
+            }
+        } else {
+            free(args);
+            return NULL;
+        }
+        LLVMValueRef stackMem = LLVMBuildArrayAlloca(ctx->builder,
+                                                     LLVMInt8TypeInContext(ctx->llvmContext),
+                                                     sizeArg,
+                                                     "builtin.alloca");
+        const TargetLayout* tl = cg_context_get_target_layout(ctx);
+        if (tl && tl->pointerAlign > 0) {
+            LLVMSetAlignment(stackMem, (unsigned)tl->pointerAlign);
+        }
+        free(args);
+        return stackMem;
+    }
 
     if (isObjectSizeBuiltin) {
         free(args);
@@ -2498,16 +3101,16 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             free(args);
             return NULL;
         }
-        size_t rewrittenCount = node->functionCall.argumentCount - 2;
+        size_t rewrittenCount = node->functionCall.argumentCount - 2; /* drop fortify flag/object-size */
         size_t* keepIndices = (size_t*)calloc(rewrittenCount, sizeof(size_t));
         if (!keepIndices) {
             free(args);
             return NULL;
         }
-        keepIndices[0] = 0;
-        keepIndices[1] = 1;
+        keepIndices[0] = 0; /* dst */
+        keepIndices[1] = 1; /* len */
         for (size_t i = 2; i < rewrittenCount; ++i) {
-            keepIndices[i] = i + 2;
+            keepIndices[i] = i + 2; /* fmt + varargs */
         }
         LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
                                                            "snprintf",
@@ -2551,16 +3154,16 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             free(args);
             return NULL;
         }
-        size_t rewrittenCount = node->functionCall.argumentCount - 2;
+        size_t rewrittenCount = node->functionCall.argumentCount - 2; /* drop fortify flag/object-size */
         size_t* keepIndices = (size_t*)calloc(rewrittenCount, sizeof(size_t));
         if (!keepIndices) {
             free(args);
             return NULL;
         }
-        keepIndices[0] = 0;
-        keepIndices[1] = 3;
+        keepIndices[0] = 0; /* dst */
+        keepIndices[1] = 3; /* fmt */
         for (size_t i = 2; i < rewrittenCount; ++i) {
-            keepIndices[i] = i + 2;
+            keepIndices[i] = i + 2; /* varargs */
         }
         LLVMValueRef call = cg_emit_rewritten_builtin_call(ctx,
                                                            "sprintf",
@@ -3297,6 +3900,50 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                         finalArgs = externalAbiArgs;
                     }
                 }
+            }
+        }
+    }
+
+    if (!noPrototype && argCount > 0 && finalArgs) {
+        unsigned fixedParamCount = LLVMCountParamTypes(calleeType);
+        if (fixedParamCount > 0) {
+            LLVMTypeRef* paramTypes = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * fixedParamCount);
+            if (paramTypes) {
+                LLVMGetParamTypes(calleeType, paramTypes);
+                size_t castCount = argCount < fixedParamCount ? argCount : fixedParamCount;
+                for (size_t i = 0; i < castCount; ++i) {
+                    const ParsedType* fromParsed = NULL;
+                    const ParsedType* toParsed = NULL;
+                    if (node->functionCall.arguments && i < node->functionCall.argumentCount) {
+                        fromParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[i]);
+                    }
+                    if (sym && i < sym->signature.paramCount) {
+                        toParsed = &sym->signature.params[i];
+                    }
+                    if (finalArgs[i] &&
+                        LLVMGetTypeKind(paramTypes[i]) == LLVMPointerTypeKind &&
+                        (!toParsed || !cg_parsed_type_is_pointerish(toParsed))) {
+                        LLVMTypeRef argTy = LLVMTypeOf(finalArgs[i]);
+                        if (argTy) {
+                            LLVMTypeKind argKind = LLVMGetTypeKind(argTy);
+                            if (argKind == LLVMStructTypeKind || argKind == LLVMArrayTypeKind) {
+                                LLVMValueRef tmp = cg_build_entry_alloca(ctx, argTy, "call.arg.byval.indirect.tmp");
+                                if (tmp) {
+                                    LLVMBuildStore(ctx->builder, finalArgs[i], tmp);
+                                    finalArgs[i] = tmp;
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    finalArgs[i] = cg_prepare_call_argument(ctx,
+                                                            finalArgs[i],
+                                                            paramTypes[i],
+                                                            fromParsed,
+                                                            toParsed,
+                                                            "call.arg.param.cast");
+                }
+                free(paramTypes);
             }
         }
     }

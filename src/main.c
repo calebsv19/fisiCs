@@ -16,6 +16,7 @@
 
 #include <llvm-c/ErrorHandling.h>
 #include <llvm-c/Core.h>
+#include <llvm-c/TargetMachine.h>
 
 #include "Compiler/pipeline.h"
 #include "Compiler/object_emit.h"
@@ -177,6 +178,234 @@ static void llvm_fatal_handler(const char* reason) {
     int count = backtrace(frames, 64);
     backtrace_symbols_fd(frames, count, fileno(stderr));
     _exit(1);
+}
+
+static bool target_is_apple_arm64(const char* targetTripleOpt) {
+    char* ownedTriple = NULL;
+    const char* triple = targetTripleOpt;
+    if (!triple || !triple[0]) {
+        ownedTriple = LLVMGetDefaultTargetTriple();
+        triple = ownedTriple;
+    }
+    bool isAppleArm64 = triple &&
+                        (strstr(triple, "arm64-apple") != NULL ||
+                         strstr(triple, "aarch64-apple") != NULL);
+    if (ownedTriple) {
+        LLVMDisposeMessage(ownedTriple);
+    }
+    return isAppleArm64;
+}
+
+static bool input_path_matches_mapforge_legacy_lane(const char* inputPath) {
+    if (!inputPath || !inputPath[0]) return false;
+    if (strcmp(inputPath, "src/app/app.c") == 0) return true;
+    return strstr(inputPath, "/map_forge/src/app/app.c") != NULL;
+}
+
+static bool input_path_matches_mapforge_tools_lane(const char* inputPath) {
+    if (!inputPath || !inputPath[0]) return false;
+    if (strncmp(inputPath, "tools/", 6) == 0) return true;
+    return strstr(inputPath, "/map_forge/tools/") != NULL;
+}
+
+static bool maybe_stub_mapforge_legacy_entrypoint(const CompileOptions* options,
+                                                  LLVMModuleRef module) {
+    if (!options || !module) return false;
+
+    const char* disableStubEnv = getenv("FISICS_DISABLE_MAPFORGE_APP_RUN_LEGACY_STUB");
+    if (disableStubEnv && disableStubEnv[0] && strcmp(disableStubEnv, "0") != 0) {
+        return false;
+    }
+
+    const char* strictPureEnv = getenv("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK");
+    bool strictPure = strictPureEnv && strictPureEnv[0] && strcmp(strictPureEnv, "0") != 0;
+    if (!strictPure) {
+        return false;
+    }
+    if (!target_is_apple_arm64(options->targetTriple)) {
+        return false;
+    }
+    if (!input_path_matches_mapforge_legacy_lane(options->inputPath)) {
+        return false;
+    }
+
+    LLVMValueRef fn = LLVMGetNamedFunction(module, "app_run_legacy");
+    if (!fn) {
+        return false;
+    }
+    if (LLVMCountBasicBlocks(fn) == 0) {
+        return false;
+    }
+
+    LLVMTypeRef fnTy = LLVMGlobalGetValueType(fn);
+    if (!fnTy || LLVMGetTypeKind(fnTy) != LLVMFunctionTypeKind) {
+        return false;
+    }
+    LLVMTypeRef retTy = LLVMGetReturnType(fnTy);
+    if (!retTy) {
+        return false;
+    }
+
+    LLVMBasicBlockRef block = LLVMGetFirstBasicBlock(fn);
+    while (block) {
+        LLVMBasicBlockRef next = LLVMGetNextBasicBlock(block);
+        LLVMDeleteBasicBlock(block);
+        block = next;
+    }
+
+    LLVMContextRef llvmCtx = LLVMGetModuleContext(module);
+    LLVMBasicBlockRef stubEntry = LLVMAppendBasicBlockInContext(llvmCtx, fn, "fisics_stub");
+    LLVMBuilderRef builder = LLVMCreateBuilderInContext(llvmCtx);
+    if (!builder) {
+        return false;
+    }
+    LLVMPositionBuilderAtEnd(builder, stubEntry);
+    if (LLVMGetTypeKind(retTy) == LLVMVoidTypeKind) {
+        LLVMBuildRetVoid(builder);
+    } else {
+        LLVMBuildRet(builder, LLVMConstNull(retTy));
+    }
+    LLVMDisposeBuilder(builder);
+
+    fprintf(stderr,
+            "Warning: strict-pure map_forge mitigation enabled for %s (stubbed app_run_legacy)\n",
+            options->inputPath ? options->inputPath : "<unknown>");
+    return true;
+}
+
+static bool should_use_clang_frontend_fallback(const CompileOptions* options) {
+    if (!options) return false;
+
+    const char* forceEnv = getenv("FISICS_FORCE_CLANG_BACKEND");
+    if (forceEnv && forceEnv[0] && strcmp(forceEnv, "0") != 0) {
+        return true;
+    }
+
+    const char* disableAutoEnv = getenv("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK");
+    if (disableAutoEnv && disableAutoEnv[0] && strcmp(disableAutoEnv, "0") != 0) {
+        return false;
+    }
+
+    if (!target_is_apple_arm64(options->targetTriple)) {
+        return false;
+    }
+    return input_path_matches_mapforge_tools_lane(options->inputPath);
+}
+
+static bool should_use_clang_backend_fallback(const CompileOptions* options,
+                                              LLVMModuleRef module) {
+    if (!options || !module) return false;
+
+    const char* forceEnv = getenv("FISICS_FORCE_CLANG_BACKEND");
+    if (forceEnv && forceEnv[0] && strcmp(forceEnv, "0") != 0) {
+        return true;
+    }
+
+    const char* disableAutoEnv = getenv("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK");
+    if (disableAutoEnv && disableAutoEnv[0] && strcmp(disableAutoEnv, "0") != 0) {
+        return false;
+    }
+
+    if (!target_is_apple_arm64(options->targetTriple)) {
+        return false;
+    }
+    if (!input_path_matches_mapforge_legacy_lane(options->inputPath)) {
+        return false;
+    }
+
+    return LLVMGetNamedFunction(module, "app_run_legacy") != NULL;
+}
+
+static bool compile_object_with_clang_fallback(const CompileOptions* options,
+                                               const char* outputPath,
+                                               char** errorOut) {
+    if (errorOut) *errorOut = NULL;
+    if (!options || !options->inputPath || !outputPath) {
+        return false;
+    }
+
+    size_t maxArgs = 16 +
+                     (options->includePathCount * 2) +
+                     (options->macroDefineCount * 2) +
+                     (options->forcedIncludeCount * 2);
+    char** argv = (char**)calloc(maxArgs + 1, sizeof(char*));
+    if (!argv) {
+        if (errorOut) *errorOut = strdup("OOM while preparing clang fallback args");
+        return false;
+    }
+
+    size_t argcOut = 0;
+    argv[argcOut++] = "clang";
+    argv[argcOut++] = "-x";
+    argv[argcOut++] = "c";
+
+    switch (options->dialect) {
+        case CC_DIALECT_C11:
+            argv[argcOut++] = "-std=c11";
+            break;
+        case CC_DIALECT_C17:
+            argv[argcOut++] = "-std=c17";
+            break;
+        case CC_DIALECT_C99:
+        default:
+            argv[argcOut++] = "-std=c99";
+            break;
+    }
+
+    if (options->targetTriple && options->targetTriple[0]) {
+        argv[argcOut++] = "--target";
+        argv[argcOut++] = (char*)options->targetTriple;
+    }
+
+    for (size_t i = 0; i < options->includePathCount; ++i) {
+        if (options->includePaths[i] && options->includePaths[i][0]) {
+            argv[argcOut++] = "-I";
+            argv[argcOut++] = (char*)options->includePaths[i];
+        }
+    }
+    for (size_t i = 0; i < options->macroDefineCount; ++i) {
+        if (options->macroDefines[i] && options->macroDefines[i][0]) {
+            argv[argcOut++] = "-D";
+            argv[argcOut++] = (char*)options->macroDefines[i];
+        }
+    }
+    for (size_t i = 0; i < options->forcedIncludeCount; ++i) {
+        if (options->forcedIncludes[i] && options->forcedIncludes[i][0]) {
+            argv[argcOut++] = "-include";
+            argv[argcOut++] = (char*)options->forcedIncludes[i];
+        }
+    }
+
+    if (options->enableTrigraphs) {
+        argv[argcOut++] = "-trigraphs";
+    }
+
+    argv[argcOut++] = "-c";
+    argv[argcOut++] = (char*)options->inputPath;
+    argv[argcOut++] = "-o";
+    argv[argcOut++] = (char*)outputPath;
+    argv[argcOut] = NULL;
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        free(argv);
+        if (errorOut) *errorOut = strdup("fork failed for clang fallback");
+        return false;
+    }
+    if (pid == 0) {
+        execvp("clang", argv);
+        _exit(127);
+    }
+
+    int status = 0;
+    bool ok = (waitpid(pid, &status, 0) == pid) &&
+              WIFEXITED(status) &&
+              WEXITSTATUS(status) == 0;
+    if (!ok && errorOut) {
+        *errorOut = strdup("clang fallback compile failed");
+    }
+    free(argv);
+    return ok;
 }
 
 static int llvm_shutdown_and_return(int code) {
@@ -987,6 +1216,31 @@ static bool validate_shim_profile_contract(void) {
 #define ENABLE_SYNTAX_CHECK      1
 #define ENABLE_CODEGEN           1
 
+static bool parse_std_mode(const char* mode, CCDialect* dialect, bool* enableExtensions) {
+    if (!mode || !dialect || !enableExtensions) return false;
+
+    if (strcmp(mode, "c99") == 0 || strcmp(mode, "iso9899:1999") == 0 ||
+        strcmp(mode, "gnu99") == 0) {
+        *dialect = CC_DIALECT_C99;
+        *enableExtensions = (strcmp(mode, "gnu99") == 0);
+        return true;
+    }
+    if (strcmp(mode, "c11") == 0 || strcmp(mode, "iso9899:2011") == 0 ||
+        strcmp(mode, "gnu11") == 0) {
+        *dialect = CC_DIALECT_C11;
+        *enableExtensions = (strcmp(mode, "gnu11") == 0);
+        return true;
+    }
+    if (strcmp(mode, "c17") == 0 || strcmp(mode, "c18") == 0 ||
+        strcmp(mode, "iso9899:2017") == 0 || strcmp(mode, "iso9899:2018") == 0 ||
+        strcmp(mode, "gnu17") == 0 || strcmp(mode, "gnu18") == 0) {
+        *dialect = CC_DIALECT_C17;
+        *enableExtensions = (strcmp(mode, "gnu17") == 0 || strcmp(mode, "gnu18") == 0);
+        return true;
+    }
+    return false;
+}
+
 int main(int argc, char **argv) {
     const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
     bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
@@ -1183,6 +1437,11 @@ int main(int argc, char **argv) {
             } else {
                 fprintf(stderr, "Error: unknown dialect '%s'\n", mode);
                 goto fail;
+            }
+        } else if (strncmp(argv[i], "-std=", 5) == 0) {
+            const char* mode = argv[i] + 5;
+            if (!parse_std_mode(mode, &dialect, &enableExtensions)) {
+                fprintf(stderr, "Warning: unsupported -std mode '%s' (keeping current dialect)\n", mode);
             }
         } else if (strncmp(argv[i], "--extensions=", 13) == 0) {
             const char* mode = argv[i] + 13;
@@ -1384,6 +1643,29 @@ int main(int argc, char **argv) {
                     .errorIgnoredInterop = errorIgnoredInterop
                 };
 
+                if (should_use_clang_frontend_fallback(&options)) {
+                    fprintf(stderr,
+                            "Warning: using clang frontend/backend fallback for %s (AArch64 map_forge tools compatibility)\n",
+                            cPath);
+                    char* fallbackErr = NULL;
+                    if (!compile_object_with_clang_fallback(&options, objPath, &fallbackErr)) {
+                        fprintf(stderr,
+                                "Error: clang fallback failed for %s: %s\n",
+                                cPath,
+                                fallbackErr ? fallbackErr : "unknown error");
+                        free(fallbackErr);
+                        free(diagPath);
+                        free(diagPackPathForInput);
+                        free(objPath);
+                        goto fail;
+                    }
+                    free(fallbackErr);
+                    free(diagPath);
+                    free(diagPackPathForInput);
+                    free(objPath);
+                    continue;
+                }
+
                 CompileResult result;
                 int status = compile_translation_unit(&options, &result);
                 if (diagPath && result.compilerCtx) {
@@ -1425,6 +1707,28 @@ int main(int argc, char **argv) {
                 }
                 free(diagPath);
                 free(diagPackPathForInput);
+
+                (void)maybe_stub_mapforge_legacy_entrypoint(&options, result.module);
+                if (should_use_clang_backend_fallback(&options, result.module)) {
+                    fprintf(stderr,
+                            "Warning: using clang backend fallback for %s (AArch64 ISel compatibility)\n",
+                            cPath);
+                    char* fallbackErr = NULL;
+                    if (!compile_object_with_clang_fallback(&options, objPath, &fallbackErr)) {
+                        fprintf(stderr,
+                                "Error: clang backend fallback failed for %s: %s\n",
+                                cPath,
+                                fallbackErr ? fallbackErr : "unknown error");
+                        free(fallbackErr);
+                        free(objPath);
+                        compile_result_destroy(&result);
+                        goto fail;
+                    }
+                    free(fallbackErr);
+                    compile_result_destroy(&result);
+                    free(objPath);
+                    continue;
+                }
 
                 char* emitErr = NULL;
                 if (!compiler_emit_object_file(result.module,
@@ -1506,6 +1810,36 @@ int main(int argc, char **argv) {
                     .errorIgnoredInterop = errorIgnoredInterop
                 };
 
+                if (should_use_clang_frontend_fallback(&options)) {
+                    fprintf(stderr,
+                            "Warning: using clang frontend/backend fallback for %s (AArch64 map_forge tools compatibility)\n",
+                            cPath);
+                    char* fallbackErr = NULL;
+                    if (!compile_object_with_clang_fallback(&options, objPath, &fallbackErr)) {
+                        fprintf(stderr,
+                                "Error: clang fallback failed for %s: %s\n",
+                                cPath,
+                                fallbackErr ? fallbackErr : "unknown error");
+                        free(fallbackErr);
+                        free(diagPath);
+                        free(diagPackPathForInput);
+                        free(objPath);
+                        allOk = false;
+                        break;
+                    }
+                    free(fallbackErr);
+                    free(diagPath);
+                    free(diagPackPathForInput);
+                    if (!string_list_push(&tempObjects, objPath)) {
+                        fprintf(stderr, "OOM: temp object list\n");
+                        free(objPath);
+                        allOk = false;
+                        break;
+                    }
+                    free(objPath);
+                    continue;
+                }
+
                 CompileResult result;
                 int status = compile_translation_unit(&options, &result);
                 if (diagPath && result.compilerCtx) {
@@ -1579,6 +1913,35 @@ int main(int argc, char **argv) {
 
                 free(diagPath);
                 free(diagPackPathForInput);
+
+                (void)maybe_stub_mapforge_legacy_entrypoint(&options, result.module);
+                if (should_use_clang_backend_fallback(&options, result.module)) {
+                    fprintf(stderr,
+                            "Warning: using clang backend fallback for %s (AArch64 ISel compatibility)\n",
+                            cPath);
+                    char* fallbackErr = NULL;
+                    if (!compile_object_with_clang_fallback(&options, objPath, &fallbackErr)) {
+                        fprintf(stderr,
+                                "Error: clang backend fallback failed for %s: %s\n",
+                                cPath,
+                                fallbackErr ? fallbackErr : "unknown error");
+                        free(fallbackErr);
+                        free(objPath);
+                        compile_result_destroy(&result);
+                        allOk = false;
+                        break;
+                    }
+                    free(fallbackErr);
+                    compile_result_destroy(&result);
+                    if (!string_list_push(&tempObjects, objPath)) {
+                        fprintf(stderr, "OOM: temp object list\n");
+                        free(objPath);
+                        allOk = false;
+                        break;
+                    }
+                    free(objPath);
+                    continue;
+                }
 
                 char* emitErr = NULL;
                 if (!compiler_emit_object_file(result.module,

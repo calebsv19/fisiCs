@@ -1073,9 +1073,7 @@ static bool shouldDowngradeArgTypeMismatchToWarning(const Scope* scope,
                                                     const char* calleeName,
                                                     const TypeInfo* paramInfo,
                                                     const TypeInfo* argInfo) {
-    if (!scope || !scope->ctx || !cc_extensions_enabled(scope->ctx)) {
-        return false;
-    }
+    (void)scope;
     if (!calleeName || strcmp(calleeName, "SDL_SetRenderDrawBlendMode") != 0) {
         return false;
     }

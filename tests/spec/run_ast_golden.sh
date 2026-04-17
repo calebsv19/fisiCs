@@ -43,11 +43,11 @@ extract_sections() {
 }
 
 for src in "${TEST_SOURCES[@]}"; do
-  # Negative unsupported-policy test; validated by dedicated syntax harness.
-  if [ "$src" = "tests/syntax/semantic_atomic_qualifier.c" ]; then
-    continue
-  fi
   rel="${src#tests/}"
+  extra_args=()
+  if [ "$src" = "tests/syntax/semantic_atomic_qualifier.c" ]; then
+    extra_args=(-std=c11)
+  fi
   if [ -n "$SPEC_FILTER" ] && [ "$rel" != "$SPEC_FILTER" ]; then
     continue
   fi
@@ -61,7 +61,7 @@ for src in "${TEST_SOURCES[@]}"; do
   tmp_output=$(mktemp)
   filtered_output=$(mktemp)
 
-  if ! "$BIN" "$src" >"$tmp_output" 2>&1; then
+  if ! "$BIN" "${extra_args[@]}" "$src" >"$tmp_output" 2>&1; then
     echo "Compilation failed for $src" >&2
     cat "$tmp_output" >&2
     rm -f "$tmp_output" "$filtered_output"

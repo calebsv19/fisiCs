@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_builtin_alloca_stack_lowering",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_builtin_alloca_stack_lowering.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_builtin_alloca_stack_lowering.stdout",
+      "expected_stderr": "expect/14__runtime_builtin_alloca_stack_lowering.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "builtin",
+        "alloca",
+        "stack",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
