@@ -8,11 +8,17 @@ Macro handling, conditional skipping, and include resolution live here. This is 
   - Owning structure for macros. Supports both object-like and function-like entries, tracks definition ranges, clones body tokens, and keeps a stack of active expansions so diagnostics can cite spelling vs expansion sites and guard against recursion.
   - API surface: `macro_table_create/destroy`, `macro_table_define_*`, `macro_table_lookup`, `macro_table_undef`, plus `macro_table_push_expansion` / `macro_table_pop_expansion` helpers.
 - `macro_expander.h/.c`
-  - Expansion engine that walks token streams, collects arguments, performs substitution, stringification (`#`), token pasting (`##`), and variadic handling (`__VA_ARGS__`). Each emitted token records both the macro body location and the call site so diagnostics can reference both.
+  - Expansion coordinator that walks token streams, performs substitution, stringification (`#`), token pasting (`##`), variadic handling (`__VA_ARGS__`), and builtin macro emission. Each emitted token records both the macro body location and the call site so diagnostics can reference both.
+- `macro_expander_support.c` + `macro_expander_internal.h`
+  - Private support seam for macro argument parsing/packing, token-buffer ownership helpers, and recursive argument expansion. Keeps the high-risk substitution/orchestration logic in `macro_expander.c` while isolating the lower-coupled storage and argument-prep machinery.
+- `preprocessor_external.h/.c`
+  - Private helper for hybrid/system-include external preprocessing. Builds the subprocess command, appends include search paths, captures tool output, strips stray directives that should not reach the parser, and hands filtered text back for re-lexing.
 - `pp_expr.h/.c`
   - Tiny expression evaluator for `#if` / `#elif`. Parses the limited preprocessor grammar (unary, multiplicative/additive, shifts, comparisons/equality, bitwise/logical ops, ternary), caps arithmetic to 32-bit results, folds `defined(name)` queries via the shared macro table, and treats all other identifiers as `0`.
 - `preprocessor.h/.c`
   - High-level driver that scans the lexer’s token buffer, consumes `#define`/`#undef` directives into the macro table, evaluates `#if/#elif/#else/#endif` with a conditional stack, and flushes active chunks through the expander before handing them to the parser. A `--preserve-pp` flag or `PRESERVE_PP_NODES=1` keeps lightweight directive AST nodes when tooling needs them; otherwise the parser never sees `#` tokens.
+- `preprocessor_directives.c`
+  - Directive handlers for `#define`, `#undef`, `#include`, `#pragma`, and `#line`. Include handling expands operands, resolves recursive/include-next flows, and delegates hybrid external system-header preprocessing to `preprocessor_external`.
 - `include_resolver.h/.c`
   - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`) plus optional `SYSTEM_INCLUDE_PATHS`, caches file contents + mtimes, tracks `#pragma once` and classic guards, records dependency edges for JSON emission, and understands `#include_next` by skipping the directory that produced the current header.
   - Write the include graph to JSON via `include_graph_write_json`; surfaced to users with `--emit-deps-json <file>` or `EMIT_DEPS_JSON=path`.

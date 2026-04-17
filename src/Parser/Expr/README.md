@@ -11,7 +11,9 @@ Two expression engines live side by side so the compiler can evolve without losi
 - `parser_expr_pratt.h` / `parser_expr_pratt.c`
   - Pratt implementation (`parseExpressionPratt(Parser*, int minPrec)`) with per-token `nud` (prefix/primary) and `led` (infix/postfix) handlers.
   - Precedence utilities: `getTokenPrecedence()` and `getTokenRightBindingPower()` encode binding and associativity.
-  - Specialised helpers: `parseFunctionCallPratt`, `parseCastExpressionPratt`, `parseSizeofExpressionPratt`, `consumeBalancedParens`, `looksLikeParenTypeName`.
+  - Coordinator file for the Pratt core loop, `nud`/`led` dispatch, grouped-expression handling, and function-call parsing.
+- `parser_expr_pratt_type_forms.c`
+  - Type-directed Pratt helpers extracted from the coordinator: cast parsing, compound literals, `sizeof`, `alignof`, and the parenthesized type-probe helpers (`consumeBalancedParens`, `looksLikeParenTypeName`, abstract-declarator capture).
   - Uses `parseTypeCtx(..., TYPECTX_Strict)` when probing casts, `sizeof`, and compound literals so expression parsing doesn’t misclassify `(identifier)` unless the identifier is a known type.
 
 ## External API

@@ -28,8 +28,10 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
 - `const_eval.h` / `const_eval.c`
   - Integer constant evaluator for literals, enum refs, sizeof/alignof (when complete), arithmetic/bitwise/logical/ternary, and casts. Drives enum folding, case labels, array sizes, and static initializers.
 
-- `type_checker.h` / `type_checker.c`
-  - Builds `TypeInfo` by replaying derivations; handles pointer/array/function equality and qualifier comparison across pointer chains. Exposes `typesAreEqual()` / `canAssignTypes()` / arithmetic conversions.
+- `type_checker.h` / `type_checker.c` / `type_checker_arithmetic.c`
+  - Builds `TypeInfo` by replaying derivations; handles pointer/array/function equality and qualifier comparison across pointer chains.
+  - `type_checker.c` owns type replay, compatibility, and assignment checks.
+  - `type_checker_arithmetic.c` owns integer/default promotions and usual arithmetic conversions.
 
 - `layout.h` / `layout.c`
   - Computes size/align for structs/unions/arrays via ABI profiles (LP64 default, LLP64 optional), honors packed/aligned attributes, and exposes helpers to semantics/codegen. VLAs are treated as runtime-sized (layout queries fail for them so sizeof is lowered dynamically).
