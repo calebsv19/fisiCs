@@ -7,9 +7,9 @@ This tree implements a single-pass C front-end with optional LLVM IR emission. C
 - **Preprocessor** resolves includes (cached, pragma once/guards, dependency JSON), expands macros, and evaluates `#if/#elif` conditionals before handing a `TokenBuffer` to the parser; preservation mode keeps directive stubs.
 - **Parser** consumes tokens into an annotated AST. Pratt and recursive-descent expression engines coexist, sharing helper utilities for type probing, declarations, and designators.
 - **AST** defines the node model plus printers for debugging.
-- **Syntax** runs semantic checks: storage/linkage, tentative defs, deep qualifier checks, incomplete types, bitfields, const-eval, switch/varargs checks, layout inference (packed/aligned, ABI profile), and lvalue/initializer validation.
+- **Syntax** runs semantic checks: storage/linkage, tentative defs, deep qualifier checks, incomplete types, bitfields, const-eval, switch/varargs checks, layout inference (packed/aligned, ABI profile), and lvalue/initializer validation. Large expression and declaration families now live under `Syntax/Expr/` and `Syntax/Decls/`.
 - **Compiler** tracks typedef/tag namespaces, tag fingerprints/layout flags, include graph, and target/data-layout strings for later phases.
-- **CodeGen** lowers AST nodes into LLVM IR blocks using the semantic layout/info; pointer arithmetic, switches, ternaries, memcpy/memset, and pointer diff are supported.
+- **CodeGen** lowers AST nodes into LLVM IR blocks using the semantic layout/info; pointer arithmetic, switches, ternaries, memcpy/memset, and pointer diff are supported. The split expression emitter family now lives under `CodeGen/Expr/`.
 
 ## Files in this directory
 

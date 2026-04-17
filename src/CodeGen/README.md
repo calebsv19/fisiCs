@@ -29,7 +29,23 @@ Experimental LLVM IR emitter that lowers the semantic AST into executable IR. Ty
 - `codegen_structs.c`
   - Tracks struct metadata (`StructInfo` cache), bridges to the semantic/type-cache layer, and implements struct/union definition lowering plus the lvalue coordinator that delegates aggregate-address calculations to `codegen_aggregate_access.c`.
 - `codegen_expr.c`
-  - Expression-level IR generators: arithmetic/logic, casts, literals, compound literals, member/array/pointer access, ternary with merged result type/PHI, function calls, heap allocation nodes, pointer diff arithmetic, and aggregate assignments via memcpy/memset.
+  - Shared expression helper coordinator for the `CodeGen/Expr/` bucket: complex/atomic/value-shape helpers, common integer/float promotion utilities, and the shared private bridge consumed by the split expression emitters.
+- `Expr/codegen_expr_access.c`
+  - Owns identifier/member/array/pointer access, compound literal materialization, and aggregate-address reuse for lvalue-heavy expression lowering.
+- `Expr/codegen_expr_literals.c`
+  - Owns scalar/string literal lowering plus `sizeof`/`alignof`/heap-allocation expression nodes.
+- `Expr/codegen_expr_unary_assign.c`
+  - Owns unary-expression lowering and assignment/update semantics, including bitfield-aware lvalue stores.
+- `Expr/codegen_expr_scalar_control.c`
+  - Owns cast/comma/ternary/logical short-circuit lowering and the PHI merge path for scalar control expressions.
+- `Expr/codegen_expr_binary.c`
+  - Owns binary arithmetic/comparison/pointer-difference lowering, including complex arithmetic and integer/float promotion handling.
+- `Expr/codegen_expr_call_support.c`
+  - Owns call-signature support helpers: default promotions, call-argument preparation, varargs intrinsics, and builtin call rewrite support.
+- `Expr/codegen_expr_call_builtins.c`
+  - Owns builtin/special-case call lowering for atomics, `va_*`, fortified libc rewrites, allocation/object-size intrinsics, floating-point constants, and `__builtin_expect`.
+- `Expr/codegen_expr_calls.c`
+  - Owns the ordinary function-call emission path: semantic signature recovery, opaque-pointer fallback inference, ABI-adjusted argument preparation, and aggregate return unpacks.
 - `codegen_control_flow.c`
   - Owns CFG-oriented statement lowering: `if`/loop/switch lowering, break/continue dispatch, label/goto handling, and the branch/merge helpers reused by the statement coordinator.
 - `codegen_stmt.c`

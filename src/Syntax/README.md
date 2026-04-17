@@ -10,24 +10,24 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
 - `analyze_core.h` / `analyze_core.c`
   - Central dispatcher `analyze(ASTNode*, Scope*)` creates new scopes for blocks/functions, routes nodes to declaration/statement/expression analyzers, and ensures child lists are traversed. Declarations are always `AST_VARIABLE_DECLARATION`; declarator shapes come from `ParsedType` derivations.
 
-- `analyze_decls.h` / `analyze_decls.c`
-  - `analyze_decls.c` is now the declaration coordinator: it dispatches variable/function/typedef/tag nodes through `analyzeDeclaration()`, keeps static-assert handling local, and wires the smaller declaration support lanes together.
-  - `analyze_decls_types.c` owns typedef alias canonicalization, structural compatibility checks, layout fingerprints, array-bound evaluation, and enum-value helper logic.
-  - `analyze_decls_signature.c` owns function parameter/signature normalization, storage/linkage validation, and interop attribute application.
-  - `analyze_decls_aggregate_init.c` owns aggregate designated-initializer field lookup and recursive nested-field validation.
-  - `analyze_decls_initializers.c` owns variable/array initializer validation, function-pointer initializer compatibility, constant-expression checks for static storage, and bitfield-width validation.
+- `Decls/analyze_decls.h` / `Decls/analyze_decls.c`
+  - The `Syntax/Decls/` bucket owns declaration analysis. `analyze_decls.c` is the declaration coordinator: it dispatches variable/function/typedef/tag nodes through `analyzeDeclaration()`, keeps static-assert handling local, and wires the smaller declaration support lanes together.
+  - `Decls/analyze_decls_types.c` owns typedef alias canonicalization, structural compatibility checks, layout fingerprints, array-bound evaluation, and enum-value helper logic.
+  - `Decls/analyze_decls_signature.c` owns function parameter/signature normalization, storage/linkage validation, and interop attribute application.
+  - `Decls/analyze_decls_aggregate_init.c` owns aggregate designated-initializer field lookup and recursive nested-field validation.
+  - `Decls/analyze_decls_initializers.c` owns variable/array initializer validation, function-pointer initializer compatibility, constant-expression checks for static storage, and bitfield-width validation.
 
 - `analyze_stmt.h` / `analyze_stmt.c`
   - Validates control-flow structures (`if`, `for`, `while`, `switch`, `case`, `return`, etc.) and ensures nested scopes are established where needed.
 - `control_flow.h` / `control_flow.c`
   - Flow-sensitive pass to ensure non-void functions return on every path, flag unreachable statements, and warn about fallthrough cases.
 
-- `analyze_expr.h` / `analyze_expr.c`
-  - `analyze_expr.c` now owns the scalar/core expression coordinator: identifiers and literals, assignment, arithmetic/logical/bitwise binaries, unary operators, casts, and `sizeof`/`alignof`.
-  - `analyze_expr_calls_aggregates.c` owns callable and aggregate-heavy expression semantics: function calls, `va_*` validation, member/array/deref access, compound literals, statement expressions, and ternary merge rules.
-  - `analyze_expr_effects.c` owns optional unsequenced access/modification warnings and shared access-path tracking.
-  - `analyze_expr_records.c` owns struct/union field lookup, bitfield/layout lookup, and `offsetof` path evaluation.
-  - `analyze_expr_shared.c` owns cross-file expression utilities used by both the coordinator and aggregate/call lanes.
+- `Expr/analyze_expr.h` / `Expr/analyze_expr.c`
+  - The `Syntax/Expr/` bucket owns expression analysis. `analyze_expr.c` now owns the scalar/core expression coordinator: identifiers and literals, assignment, arithmetic/logical/bitwise binaries, unary operators, casts, and `sizeof`/`alignof`.
+  - `Expr/analyze_expr_calls_aggregates.c` owns callable and aggregate-heavy expression semantics: function calls, `va_*` validation, member/array/deref access, compound literals, statement expressions, and ternary merge rules.
+  - `Expr/analyze_expr_effects.c` owns optional unsequenced access/modification warnings and shared access-path tracking.
+  - `Expr/analyze_expr_records.c` owns struct/union field lookup, bitfield/layout lookup, and `offsetof` path evaluation.
+  - `Expr/analyze_expr_shared.c` owns cross-file expression utilities used by both the coordinator and aggregate/call lanes.
 
 - `const_eval.h` / `const_eval.c`
   - Integer constant evaluator for literals, enum refs, sizeof/alignof (when complete), arithmetic/bitwise/logical/ternary, and casts. Drives enum folding, case labels, array sizes, and static initializers.

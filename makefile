@@ -54,7 +54,7 @@ CFLAGS = $(BASE_CFLAGS) $(PROFILE_CFLAGS)
 LDFLAGS := $(BASE_LDFLAGS) $(PROFILE_LDFLAGS)
 DEPFLAGS := -MMD -MP
 
-INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax -I$(CORE_BASE_DIR)/include -I$(CORE_IO_DIR)/include -I$(CORE_DATA_DIR)/include -I$(CORE_PACK_DIR)/include
+INCLUDES := -Isrc -Isrc/Lexer -Isrc/Parser -Isrc/Syntax -Isrc/Syntax/Expr -Isrc/Syntax/Decls -Isrc/CodeGen -Isrc/CodeGen/Expr -I$(CORE_BASE_DIR)/include -I$(CORE_IO_DIR)/include -I$(CORE_DATA_DIR)/include -I$(CORE_PACK_DIR)/include
 SRC_DIR := src
 BUILD_DIR := build/$(BUILD_PROFILE)
 BIN := fisics
