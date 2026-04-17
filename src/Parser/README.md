@@ -6,7 +6,7 @@ Builds the compiler's AST from the lexer token stream. The parser mixes recursiv
 
 Every declaration funnels through a shared `ParsedType` structure that records storage specifiers, qualifiers, the base type, and a derivation stack that captures pointer layers, array suffixes (with dimension expressions / VLA flags), and function signatures. Instead of emitting bespoke AST nodes for arrays or function pointers, the parser now records the full declarator grammar inside `ParsedType` so later passes (semantics/codegen) only need to replay the derivations.
 
-Work-in-progress: a dedicated `parseDeclarator` helper will unify the remaining ad-hoc array/function-pointer parsing paths so `AST_VARIABLE_DECLARATION` becomes the single node shape for every declarator form (globals, locals, parameters, typedefs, struct fields).
+The shared declarator engine now lives in a dedicated module so `AST_VARIABLE_DECLARATION` stays the single node shape for globals, locals, parameters, typedefs, and struct fields without forcing every declaration-routing path into one oversized source file.
 
 ## Module map
 
@@ -21,12 +21,14 @@ Work-in-progress: a dedicated `parseDeclarator` helper will unify the remaining 
   - Function declarations/definitions (`parseFunctionDefinition`), parameter list assembly, function calls, and (legacy) function-pointer declarators. These will eventually call the shared declarator helper.
 - `parser_array.h` / `parser_array.c`
   - Array initializer parsing helpers (designators, nested braces). Declarators themselves now build arrays directly via `ParsedType` derivations.
+- `parser_declarator_core.c`
+  - Shared declarator engine: pointer-chain parsing, grouped declarator normalization, function-suffix parsing, and the public `parserParseDeclarator` / `parserDeclaratorDestroy` helpers reused by declaration, function, statement, and expression parsing.
 - `parser_switch.h` / `parser_switch.c`
   - Detailed parsing of `switch`/`case`/`default` constructs including fallthrough chains.
 - `parser_preproc.h` / `parser_preproc.c`
   - (Removed) Preprocessor directive parsing helpers. Directives are now handled in the dedicated preprocessor stage before parsing.
 - `parser_decl.h` / `parser_decl.c`
-  - Handles type-specifier sequences, declarator lists, struct/union/enum bodies, designated initialisers, and attribute capture (`__attribute__`, `[[gnu::...]]`, `__declspec`). Declarators clone the base `ParsedType`, apply pointer layers, and then iterate suffixes (`()`, `[]`) to append derivations.
+  - Handles declaration routing and tag bodies: type-specifier sequences, variable declaration lists, struct/union/enum/typedef parsing, designated initialisers, and attribute capture (`__attribute__`, `[[gnu::...]]`, `__declspec`), while delegating declarator mechanics to `parser_declarator_core.c`.
 - `parser_config.h`
   - Defines `ParserMode` enum toggling between recursive and Pratt expression parsing.
 - GNU statement expressions (`({ ... })`) can be enabled by setting `ENABLE_GNU_STATEMENT_EXPRESSIONS=1` before invoking the compiler or spec harness; when enabled they are parsed into dedicated `AST_STATEMENT_EXPRESSION` nodes that wrap a block and yield the last expression. When disabled the parser emits a diagnostic instead of silently consuming the construct.
