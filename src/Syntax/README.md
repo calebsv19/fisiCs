@@ -11,11 +11,11 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
   - Central dispatcher `analyze(ASTNode*, Scope*)` creates new scopes for blocks/functions, routes nodes to declaration/statement/expression analyzers, and ensures child lists are traversed. Declarations are always `AST_VARIABLE_DECLARATION`; declarator shapes come from `ParsedType` derivations.
 
 - `analyze_decls.h` / `analyze_decls.c`
-  - Registers typedefs, variables, functions, structs, and enums into the current scope via `analyzeDeclaration()`.
-  - Storage/linkage rules: extern/static/register, tentative definitions, internal vs external linkage, duplicate-definition checks.
-  - Struct/union/enum tags use layout fingerprints; the layout engine computes size/align (packed/aligned attributes, ABI profile). Array fields resolve constant lengths; VLAs inside structs are rejected.
-  - Variable/array declarations validate initializer shape by replaying derivations: scalars require a single expression, aggregates demand brace-enclosed lists, arrays check length/designators (including string literal shortcuts), VLAs barred at static storage.
-  - Enum members fold constant values; typedefs/tags update `CompilerContext`.
+  - `analyze_decls.c` is now the declaration coordinator: it dispatches variable/function/typedef/tag nodes through `analyzeDeclaration()`, keeps static-assert handling local, and wires the smaller declaration support lanes together.
+  - `analyze_decls_types.c` owns typedef alias canonicalization, structural compatibility checks, layout fingerprints, array-bound evaluation, and enum-value helper logic.
+  - `analyze_decls_signature.c` owns function parameter/signature normalization, storage/linkage validation, and interop attribute application.
+  - `analyze_decls_aggregate_init.c` owns aggregate designated-initializer field lookup and recursive nested-field validation.
+  - `analyze_decls_initializers.c` owns variable/array initializer validation, function-pointer initializer compatibility, constant-expression checks for static storage, and bitfield-width validation.
 
 - `analyze_stmt.h` / `analyze_stmt.c`
   - Validates control-flow structures (`if`, `for`, `while`, `switch`, `case`, `return`, etc.) and ensures nested scopes are established where needed.

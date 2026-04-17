@@ -1,0 +1,35 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: unsigned char
+        Alias:     IDENTIFIER Uint8
+  TYPEDEF
+        TYPE: union __anon_union_0_5
+        Alias:     IDENTIFIER Event
+  STATIC_ASSERT
+    BINARY EXPRESSION '=='
+      SIZEOF
+                PARSED_TYPE Event
+      SIZEOF
+                POINTER_ACCESS '->'
+          CAST_EXPRESSION
+                        CAST TYPE: Event*
+            NUMBER_LITERAL 0
+          FIELD padding
+    MESSAGE
+      STRING_LITERAL event padding size mismatch
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+
