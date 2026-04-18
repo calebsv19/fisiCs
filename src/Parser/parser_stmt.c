@@ -378,7 +378,7 @@ ASTNode* parseForLoopInitializer(Parser* parser) {
     ASTNode* init = NULL;
     
     if (parser->currentToken.type != TOKEN_SEMICOLON) {
-        if (looksLikeTypeDeclaration(parser)) {
+        if (parserLooksLikeTypeDeclarationAt(parser, PARSER_TYPE_DECL_SITE_FOR_INIT)) {
             init = parseDeclarationForLoop(parser);
         } else {
             init = parseCommaExpression(parser);  // Allow comma operator in init clause
@@ -630,7 +630,7 @@ static bool currentTokenStartsDeclaration(Parser* parser) {
     if (parser->currentToken.type == TOKEN_TYPEDEF) {
         return true;
     }
-    return looksLikeTypeDeclaration(parser);
+    return parserLooksLikeTypeDeclarationAt(parser, PARSER_TYPE_DECL_SITE_SYNC_RECOVERY);
 }
 
 void parserSyncToStatementEnd(Parser* parser) {

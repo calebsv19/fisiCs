@@ -289,26 +289,17 @@ static ASTNode* nud(Parser* parser, Token token) {
 	case TOKEN_LPAREN: {
 	    PARSER_DEBUG_PRINTF("  DEBUG: Entered nud() with TOKEN_LPAREN\n");
 
-    	// 1) Compound literal? (type) { ... }
+    	// Reuse one strict type probe for cast-vs-compound-vs-group classification.
         ProfilerScope probeScope = profiler_begin("parser_pratt_lparen_type_probe");
         profiler_record_value("parser_count_pratt_lparen_type_probe", 1);
-	    Parser probe = cloneParserWithFreshLexer(parser);
-	    ParsedType looked = parseTypeCtx(&probe, TYPECTX_Strict);
-	    bool treatAsCast = false;
-    if (looked.kind != TYPE_INVALID) {
-        consumeAbstractDeclarator(&probe);
-	        if (probe.currentToken.type == TOKEN_RPAREN) {
-	            treatAsCast = true;
-	        }
-	    }
-	    freeParserClone(&probe);
+        ParenthesizedTypeFormKind typeForm = parserProbeParenthesizedTypeForm(parser);
         profiler_end(probeScope);
 
-    if (looksLikeCompoundLiteral(parser)) {
+    if (typeForm == PARENTHESIZED_TYPE_FORM_COMPOUND_LITERAL) {
         return parseCompoundLiteralPratt(parser, /*alreadyConsumedLParen=*/true);
     }
 
-    if (treatAsCast) {
+    if (typeForm == PARENTHESIZED_TYPE_FORM_CAST) {
         return parseCastExpressionPratt(parser, /*alreadyConsumedLParen=*/true);
     }
 
@@ -590,7 +581,8 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
     if (parser->currentToken.type != TOKEN_RPAREN) {
         while (1) {
             ASTNode* arg = NULL;
-            if (isBuiltinOffsetof && argCount == 0 && looksLikeTypeDeclaration(parser)) {
+            if (isBuiltinOffsetof && argCount == 0 &&
+                parserLooksLikeTypeDeclarationAt(parser, PARSER_TYPE_DECL_SITE_BUILTIN_OFFSETOF)) {
                 ParsedType ty = parseType(parser);
                 arg = createParsedTypeNode(ty);
             } else if (isBuiltinOffsetof && argCount == 1) {
@@ -639,7 +631,8 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
                     free(argList);
                     return NULL;
                 }
-            } else if (isBuiltinVaArg && argCount == 1 && looksLikeTypeDeclaration(parser)) {
+            } else if (isBuiltinVaArg && argCount == 1 &&
+                       parserLooksLikeTypeDeclarationAt(parser, PARSER_TYPE_DECL_SITE_BUILTIN_VA_ARG)) {
                 ParsedType ty = parseType(parser);
                 arg = createParsedTypeNode(ty);
             } else {
@@ -681,4 +674,3 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
     PARSER_DEBUG_PRINTF("DEBUG: Function call parsed with %zu argument(s)\n", argCount);
     return createFunctionCallNode(callee, argList, argCount);
 }
-

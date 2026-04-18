@@ -269,7 +269,7 @@ ASTNode* parseProgram(Parser* parser) {
             continue;
         }
 
-        if (looksLikeTypeDeclaration(parser)) {
+        if (parserLooksLikeTypeDeclarationAt(parser, PARSER_TYPE_DECL_SITE_PROGRAM_TOPLEVEL)) {
             ASTNode* decl = handleTypeOrFunctionDeclaration(parser);
             if (!decl) { 
                 parserSyncToDeclarationStart(parser);
@@ -476,7 +476,7 @@ ASTNode* parseStatement(Parser* parser) {
 
     // --- Type-based Declaration (function/variable) ---
     if (parser->currentToken.type != TOKEN_LPAREN &&  // Prevent misfire on cast/group
-        looksLikeTypeDeclaration(parser)) {
+        parserLooksLikeTypeDeclarationAt(parser, PARSER_TYPE_DECL_SITE_STATEMENT)) {
         PARSER_DEBUG_PRINTF("DEBUG: Detected type-based declaration\n");
         parsed = handleTypeOrFunctionDeclaration(parser);
         if (parsed) goto attach_attrs;

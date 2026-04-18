@@ -2,6 +2,7 @@
 
 #include "Parser/Helpers/parser_lookahead.h"
 #include "Parser/Helpers/parser_helpers.h"
+#include "Parser/Helpers/parser_attributes.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 #include "parser_decl.h"
 #include "Utils/profiler.h"
@@ -27,6 +28,101 @@ void printParserState(const char* label, Parser* parser) {
         printf("Cursor index:      %zu\n", parser->cursor);
     }
     printf("===========================\n\n");
+}
+
+static const char* parserTypeDeclSiteScopeName(ParserTypeDeclLookaheadSite site) {
+    switch (site) {
+        case PARSER_TYPE_DECL_SITE_PROGRAM_TOPLEVEL:
+            return "parser_type_decl_site_program_toplevel";
+        case PARSER_TYPE_DECL_SITE_STATEMENT:
+            return "parser_type_decl_site_statement";
+        case PARSER_TYPE_DECL_SITE_FOR_INIT:
+            return "parser_type_decl_site_for_init";
+        case PARSER_TYPE_DECL_SITE_SYNC_RECOVERY:
+            return "parser_type_decl_site_sync_recovery";
+        case PARSER_TYPE_DECL_SITE_BUILTIN_OFFSETOF:
+            return "parser_type_decl_site_builtin_offsetof";
+        case PARSER_TYPE_DECL_SITE_BUILTIN_VA_ARG:
+            return "parser_type_decl_site_builtin_va_arg";
+        default:
+            return "parser_type_decl_site_unknown";
+    }
+}
+
+static void parserRecordTypeDeclSiteCount(ParserTypeDeclLookaheadSite site, bool result) {
+    switch (site) {
+        case PARSER_TYPE_DECL_SITE_PROGRAM_TOPLEVEL:
+            profiler_record_value("parser_count_type_decl_site_program_toplevel", 1);
+            profiler_record_value(result
+                                      ? "parser_count_type_decl_site_program_toplevel_positive"
+                                      : "parser_count_type_decl_site_program_toplevel_negative",
+                                  1);
+            break;
+        case PARSER_TYPE_DECL_SITE_STATEMENT:
+            profiler_record_value("parser_count_type_decl_site_statement", 1);
+            profiler_record_value(result
+                                      ? "parser_count_type_decl_site_statement_positive"
+                                      : "parser_count_type_decl_site_statement_negative",
+                                  1);
+            break;
+        case PARSER_TYPE_DECL_SITE_FOR_INIT:
+            profiler_record_value("parser_count_type_decl_site_for_init", 1);
+            profiler_record_value(result
+                                      ? "parser_count_type_decl_site_for_init_positive"
+                                      : "parser_count_type_decl_site_for_init_negative",
+                                  1);
+            break;
+        case PARSER_TYPE_DECL_SITE_SYNC_RECOVERY:
+            profiler_record_value("parser_count_type_decl_site_sync_recovery", 1);
+            profiler_record_value(result
+                                      ? "parser_count_type_decl_site_sync_recovery_positive"
+                                      : "parser_count_type_decl_site_sync_recovery_negative",
+                                  1);
+            break;
+        case PARSER_TYPE_DECL_SITE_BUILTIN_OFFSETOF:
+            profiler_record_value("parser_count_type_decl_site_builtin_offsetof", 1);
+            profiler_record_value(result
+                                      ? "parser_count_type_decl_site_builtin_offsetof_positive"
+                                      : "parser_count_type_decl_site_builtin_offsetof_negative",
+                                  1);
+            break;
+        case PARSER_TYPE_DECL_SITE_BUILTIN_VA_ARG:
+            profiler_record_value("parser_count_type_decl_site_builtin_va_arg", 1);
+            profiler_record_value(result
+                                      ? "parser_count_type_decl_site_builtin_va_arg_positive"
+                                      : "parser_count_type_decl_site_builtin_va_arg_negative",
+                                  1);
+            break;
+        default:
+            profiler_record_value("parser_count_type_decl_site_unknown", 1);
+            break;
+    }
+}
+
+ParenthesizedTypeFormKind parserProbeParenthesizedTypeForm(Parser* parser) {
+    if (!parser) {
+        return PARENTHESIZED_TYPE_FORM_NONE;
+    }
+
+    Parser probe = cloneParserWithFreshLexer(parser);
+    ParsedType looked = parseTypeCtx(&probe, TYPECTX_Strict);
+    ParenthesizedTypeFormKind result = PARENTHESIZED_TYPE_FORM_NONE;
+
+    if (looked.kind != TYPE_INVALID) {
+        consumeAbstractDeclarator(&probe);
+        if (probe.currentToken.type == TOKEN_RPAREN) {
+            advance(&probe);
+            if (probe.currentToken.type == TOKEN_LBRACE) {
+                result = PARENTHESIZED_TYPE_FORM_COMPOUND_LITERAL;
+            } else if (isValidExpressionStart(probe.currentToken.type)) {
+                result = PARENTHESIZED_TYPE_FORM_CAST;
+            }
+        }
+    }
+
+    parsedTypeFree(&looked);
+    freeParserClone(&probe);
+    return result;
 }
 
 
@@ -88,7 +184,19 @@ bool looksLikeTypeDeclaration(Parser* parser) {
         return true;
     }
 
+    if (parser->currentToken.type == TOKEN_IDENTIFIER &&
+        !parserLookaheadStartsAttribute(parser)) {
+        profiler_record_value("parser_count_type_decl_fast_identifier_negative", 1);
+        profiler_end(scope);
+        return false;
+    }
+
     profiler_record_value("parser_count_type_decl_clone_probe", 1);
+    if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+        profiler_record_value("parser_count_type_decl_clone_probe_identifier", 1);
+    } else {
+        profiler_record_value("parser_count_type_decl_clone_probe_other", 1);
+    }
     Parser temp = cloneParserWithFreshLexer(parser);
     ParsedType probe = parseTypeCtx(&temp, TYPECTX_Strict);
     bool result = false;
@@ -102,6 +210,22 @@ bool looksLikeTypeDeclaration(Parser* parser) {
 
     parsedTypeFree(&probe);
     freeParserClone(&temp);
+    if (result) {
+        profiler_record_value("parser_count_type_decl_clone_probe_positive", 1);
+    } else {
+        profiler_record_value("parser_count_type_decl_clone_probe_negative", 1);
+        if (parser->currentToken.type == TOKEN_IDENTIFIER) {
+            profiler_record_value("parser_count_type_decl_clone_probe_identifier_negative", 1);
+        }
+    }
+    profiler_end(scope);
+    return result;
+}
+
+bool parserLooksLikeTypeDeclarationAt(Parser* parser, ParserTypeDeclLookaheadSite site) {
+    ProfilerScope scope = profiler_begin(parserTypeDeclSiteScopeName(site));
+    bool result = looksLikeTypeDeclaration(parser);
+    parserRecordTypeDeclSiteCount(site, result);
     profiler_end(scope);
     return result;
 }
@@ -113,35 +237,7 @@ bool looksLikeTypeDeclaration(Parser* parser) {
 bool looksLikeCastType(Parser* parser) {
     ProfilerScope scope = profiler_begin("parser_lookahead_cast_type");
     profiler_record_value("parser_count_cast_type_probe", 1);
-    // Precondition: '(' was consumed by Pratt before nud('('),
-    // so parser->currentToken is *after* '('.
-    Parser probe = cloneParserWithFreshLexer(parser);
-
-    // Parse a base type (primitive/typedef/struct/etc.)
-    ParsedType t = parseTypeCtx(&probe, TYPECTX_Strict);
-    if (t.kind == TYPE_INVALID) {
-        parsedTypeFree(&t);
-        freeParserClone(&probe);
-        return false;
-    }
-
-    // Swallow abstract declarators: (*)(...), [N], (...)
-    consumeAbstractDeclarator(&probe);
-
-    // We must be at the closing ')'
-    if (probe.currentToken.type != TOKEN_RPAREN) {
-        parsedTypeFree(&t);
-        freeParserClone(&probe);
-        return false;
-    }
-
-    // (Optional sanity) after ')', should be a valid expr start
-    advance(&probe); // consume ')'
-    bool ok = isValidExpressionStart(probe.currentToken.type);
-
-    parsedTypeFree(&t);
-    parsedTypeFree(&t);
-    freeParserClone(&probe);
+    bool ok = (parserProbeParenthesizedTypeForm(parser) == PARENTHESIZED_TYPE_FORM_CAST);
     profiler_end(scope);
     return ok;
 }
@@ -152,24 +248,7 @@ bool looksLikeCastType(Parser* parser) {
 bool looksLikeCompoundLiteral(Parser* parser) {
     ProfilerScope scope = profiler_begin("parser_lookahead_compound_literal");
     profiler_record_value("parser_count_compound_literal_probe", 1);
-    // Pre: '(' already consumed by nud('('), so parser->currentToken is after '('
-    Parser probe = cloneParserWithFreshLexer(parser);
-
-    ParsedType t = parseTypeCtx(&probe, TYPECTX_Strict);
-    if (t.kind == TYPE_INVALID) { parsedTypeFree(&t); freeParserClone(&probe); return false; }
-
-    // Allow pointers/params/arrays after base type
-    consumeAbstractDeclarator(&probe);
-
-    // Must see ')'
-    if (probe.currentToken.type != TOKEN_RPAREN) { parsedTypeFree(&t); freeParserClone(&probe); return false; }
-    advance(&probe); // consume ')'
-
-    // C99 compound literal: next token must be '{'
-    bool ok = (probe.currentToken.type == TOKEN_LBRACE);
-    parsedTypeFree(&t);
-    parsedTypeFree(&t);
-    freeParserClone(&probe);
+    bool ok = (parserProbeParenthesizedTypeForm(parser) == PARENTHESIZED_TYPE_FORM_COMPOUND_LITERAL);
     profiler_end(scope);
     return ok;
 }
