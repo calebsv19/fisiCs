@@ -10,6 +10,7 @@
 #include "parser_main.h"
 #include "AST/ast_node.h"
 #include "Compiler/diagnostics.h"
+#include "Utils/profiler.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -289,16 +290,19 @@ static ASTNode* nud(Parser* parser, Token token) {
 	    PARSER_DEBUG_PRINTF("  DEBUG: Entered nud() with TOKEN_LPAREN\n");
 
     	// 1) Compound literal? (type) { ... }
-    Parser probe = cloneParserWithFreshLexer(parser);
-    ParsedType looked = parseTypeCtx(&probe, TYPECTX_Strict);
-    bool treatAsCast = false;
+        ProfilerScope probeScope = profiler_begin("parser_pratt_lparen_type_probe");
+        profiler_record_value("parser_count_pratt_lparen_type_probe", 1);
+	    Parser probe = cloneParserWithFreshLexer(parser);
+	    ParsedType looked = parseTypeCtx(&probe, TYPECTX_Strict);
+	    bool treatAsCast = false;
     if (looked.kind != TYPE_INVALID) {
         consumeAbstractDeclarator(&probe);
-        if (probe.currentToken.type == TOKEN_RPAREN) {
-            treatAsCast = true;
-        }
-    }
-    freeParserClone(&probe);
+	        if (probe.currentToken.type == TOKEN_RPAREN) {
+	            treatAsCast = true;
+	        }
+	    }
+	    freeParserClone(&probe);
+        profiler_end(probeScope);
 
     if (looksLikeCompoundLiteral(parser)) {
         return parseCompoundLiteralPratt(parser, /*alreadyConsumedLParen=*/true);
@@ -677,5 +681,4 @@ ASTNode* parseFunctionCallPratt(Parser* parser, ASTNode* callee) {
     PARSER_DEBUG_PRINTF("DEBUG: Function call parsed with %zu argument(s)\n", argCount);
     return createFunctionCallNode(callee, argList, argCount);
 }
-
 

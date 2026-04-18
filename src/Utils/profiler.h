@@ -16,5 +16,6 @@ int profiler_enabled(void);
 
 ProfilerScope profiler_begin(const char* name);
 void profiler_end(ProfilerScope scope);
+void profiler_record_value(const char* name, uint64_t value);
 
 #endif // FISICS_PROFILER_H

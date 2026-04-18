@@ -12,9 +12,62 @@ typedef enum {
     INCLUDE_SEARCH_RAW = 2
 } IncludeSearchOrigin;
 
+typedef enum {
+    INCLUDE_SUMMARY_PROBE_UNKNOWN = 0,
+    INCLUDE_SUMMARY_PROBE_CANDIDATE = 1,
+    INCLUDE_SUMMARY_PROBE_REJECT_NON_LITERAL_INCLUDE = 2,
+    INCLUDE_SUMMARY_PROBE_REJECT_UNSUPPORTED_DIRECTIVE = 3
+} IncludeSummaryProbeStatus;
+
+typedef enum {
+    INCLUDE_HEADER_BEHAVIOR_UNKNOWN = 0,
+    INCLUDE_HEADER_BEHAVIOR_ROUTER_ONLY = 1,
+    INCLUDE_HEADER_BEHAVIOR_ROUTER_RAW_TAIL = 2,
+    INCLUDE_HEADER_BEHAVIOR_INCLUDE_DEFINE_SCAFFOLD = 3,
+    INCLUDE_HEADER_BEHAVIOR_CONDITIONAL_SCAFFOLD = 4,
+    INCLUDE_HEADER_BEHAVIOR_GENERAL_FALLBACK = 5
+} IncludeHeaderBehaviorClass;
+
+typedef struct {
+    IncludeSummaryProbeStatus status;
+    size_t directiveCount;
+    size_t includeCount;
+    size_t defineCount;
+    size_t conditionalCount;
+    IncludeHeaderBehaviorClass behaviorClass;
+    bool routerOnly;
+    bool routerRawTail;
+    bool routerHasPragmaOnce;
+} IncludeSummaryProbe;
+
+typedef enum {
+    INCLUDE_SUMMARY_ACTION_RAW_RANGE = 0,
+    INCLUDE_SUMMARY_ACTION_DEFINE,
+    INCLUDE_SUMMARY_ACTION_INCLUDE,
+    INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT,
+    INCLUDE_SUMMARY_ACTION_IF,
+    INCLUDE_SUMMARY_ACTION_IFDEF,
+    INCLUDE_SUMMARY_ACTION_IFNDEF,
+    INCLUDE_SUMMARY_ACTION_ELIF,
+    INCLUDE_SUMMARY_ACTION_ELSE,
+    INCLUDE_SUMMARY_ACTION_ENDIF,
+    INCLUDE_SUMMARY_ACTION_PRAGMA
+} IncludeSummaryActionKind;
+
+typedef struct {
+    IncludeSummaryActionKind kind;
+    size_t start;
+    size_t end;
+} IncludeSummaryAction;
+
 typedef struct {
     char* path;
     char* contents;
+    char* cachedGuardName;
+    char* canonicalPath;
+    IncludeSummaryProbe summaryProbe;
+    IncludeSummaryAction* summaryActions;
+    size_t summaryActionCount;
     long mtime;
     bool pragmaOnce;
     bool includedOnce;
@@ -23,9 +76,22 @@ typedef struct {
 } IncludeFile;
 
 typedef struct {
+    size_t parentFileIndex; // SIZE_MAX when there is no includer context.
+    char* includeName;
+    bool isSystem;
+    bool isIncludeNext;
+    size_t fileIndex;
+    IncludeSearchOrigin origin;
+    size_t originIndex;
+} IncludeRequestCacheEntry;
+
+typedef struct {
     IncludeFile* files;
     size_t count;
     size_t capacity;
+    IncludeRequestCacheEntry* requestCache;
+    size_t requestCacheCount;
+    size_t requestCacheCapacity;
     char** includePaths;
     size_t includePathCount;
 } IncludeResolver;
@@ -56,6 +122,18 @@ bool include_resolver_set_root_buffer(IncludeResolver* resolver,
 void include_resolver_mark_pragma_once(IncludeResolver* resolver, const char* resolvedPath);
 void include_resolver_mark_included(IncludeResolver* resolver, const char* resolvedPath);
 bool include_resolver_was_included(const IncludeResolver* resolver, const char* resolvedPath);
+const char* include_resolver_get_cached_guard(const IncludeResolver* resolver, const char* resolvedPath);
+void include_resolver_cache_guard(IncludeResolver* resolver, const char* resolvedPath, const char* guardName);
+void include_resolver_cache_summary_probe(IncludeResolver* resolver,
+                                          const char* resolvedPath,
+                                          IncludeSummaryProbe probe);
+void include_resolver_cache_summary_actions(IncludeResolver* resolver,
+                                            const char* resolvedPath,
+                                            const IncludeSummaryAction* actions,
+                                            size_t actionCount);
+const IncludeSummaryAction* include_resolver_get_cached_summary_actions(const IncludeResolver* resolver,
+                                                                        const char* resolvedPath,
+                                                                        size_t* actionCountOut);
 
 // Dependency graph: pairs of edges (parent -> child).
 typedef struct {

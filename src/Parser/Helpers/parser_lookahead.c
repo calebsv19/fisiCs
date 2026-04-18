@@ -4,6 +4,7 @@
 #include "Parser/Helpers/parser_helpers.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 #include "parser_decl.h"
+#include "Utils/profiler.h"
 #include <string.h>
 
 static bool isAlignasToken(const Token* tok) {
@@ -30,13 +31,20 @@ void printParserState(const char* label, Parser* parser) {
 
 
 bool looksLikeTypeDeclaration(Parser* parser) {
+    ProfilerScope scope = profiler_begin("parser_lookahead_type_decl");
     if (parser->currentToken.type == TOKEN_TYPEDEF) {
+        profiler_record_value("parser_count_type_decl_typedef_token", 1);
+        profiler_end(scope);
         return false; // handled explicitly via parseTypedef
     }
     if (isAlignasToken(&parser->currentToken)) {
+        profiler_record_value("parser_count_type_decl_fast_alignas", 1);
+        profiler_end(scope);
         return true;
     }
     if (isAtomicKeywordToken(&parser->currentToken)) {
+        profiler_record_value("parser_count_type_decl_fast_atomic", 1);
+        profiler_end(scope);
         return true;
     }
 
@@ -65,6 +73,8 @@ bool looksLikeTypeDeclaration(Parser* parser) {
         case TOKEN_REGISTER:
         case TOKEN_THREAD_LOCAL:
         case TOKEN_ATOMIC:
+            profiler_record_value("parser_count_type_decl_fast_token", 1);
+            profiler_end(scope);
             return true;
         default:
             break;
@@ -73,9 +83,12 @@ bool looksLikeTypeDeclaration(Parser* parser) {
     if (parser->currentToken.type == TOKEN_IDENTIFIER &&
         parser->ctx &&
         parserIsTypedefVisible(parser, parser->currentToken.value)) {
+        profiler_record_value("parser_count_type_decl_typedef_visible", 1);
+        profiler_end(scope);
         return true;
     }
 
+    profiler_record_value("parser_count_type_decl_clone_probe", 1);
     Parser temp = cloneParserWithFreshLexer(parser);
     ParsedType probe = parseTypeCtx(&temp, TYPECTX_Strict);
     bool result = false;
@@ -89,6 +102,7 @@ bool looksLikeTypeDeclaration(Parser* parser) {
 
     parsedTypeFree(&probe);
     freeParserClone(&temp);
+    profiler_end(scope);
     return result;
 }
 
@@ -97,6 +111,8 @@ bool looksLikeTypeDeclaration(Parser* parser) {
 
 
 bool looksLikeCastType(Parser* parser) {
+    ProfilerScope scope = profiler_begin("parser_lookahead_cast_type");
+    profiler_record_value("parser_count_cast_type_probe", 1);
     // Precondition: '(' was consumed by Pratt before nud('('),
     // so parser->currentToken is *after* '('.
     Parser probe = cloneParserWithFreshLexer(parser);
@@ -126,6 +142,7 @@ bool looksLikeCastType(Parser* parser) {
     parsedTypeFree(&t);
     parsedTypeFree(&t);
     freeParserClone(&probe);
+    profiler_end(scope);
     return ok;
 }
 
@@ -133,6 +150,8 @@ bool looksLikeCastType(Parser* parser) {
 
 
 bool looksLikeCompoundLiteral(Parser* parser) {
+    ProfilerScope scope = profiler_begin("parser_lookahead_compound_literal");
+    profiler_record_value("parser_count_compound_literal_probe", 1);
     // Pre: '(' already consumed by nud('('), so parser->currentToken is after '('
     Parser probe = cloneParserWithFreshLexer(parser);
 
@@ -151,5 +170,6 @@ bool looksLikeCompoundLiteral(Parser* parser) {
     parsedTypeFree(&t);
     parsedTypeFree(&t);
     freeParserClone(&probe);
+    profiler_end(scope);
     return ok;
 }

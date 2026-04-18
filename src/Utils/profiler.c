@@ -91,6 +91,17 @@ void profiler_end(ProfilerScope scope) {
     }
 }
 
+void profiler_record_value(const char* name, uint64_t value) {
+    if (!profiler_enabled() || !name) {
+        return;
+    }
+    profiler_add_entry(name, value);
+    if (g_stream_file) {
+        fprintf(g_stream_file, "%s,%llu,0.000\n", name, (unsigned long long)value);
+        fflush(g_stream_file);
+    }
+}
+
 void profiler_shutdown(void) {
     if (!profiler_enabled()) return;
 

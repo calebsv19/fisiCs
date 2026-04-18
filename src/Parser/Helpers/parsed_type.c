@@ -8,6 +8,7 @@
 #include "Parser/parser_decl.h"
 #include "Parser/Expr/parser_expr.h"
 #include "AST/ast_node.h"
+#include "Utils/profiler.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -732,7 +733,16 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
 }
 
 ParsedType parseTypeCtx(Parser* parser, TypeContext ctx) {
-    return parseTypeCore(parser, ctx);
+    ProfilerScope scope = profiler_begin("parser_parse_type_ctx");
+    profiler_record_value("parser_count_parse_type_ctx", 1);
+    if (ctx == TYPECTX_Strict) {
+        profiler_record_value("parser_count_parse_type_ctx_strict", 1);
+    } else if (ctx == TYPECTX_Declaration) {
+        profiler_record_value("parser_count_parse_type_ctx_declaration", 1);
+    }
+    ParsedType type = parseTypeCore(parser, ctx);
+    profiler_end(scope);
+    return type;
 }
 
 ParsedType parseType(Parser* parser) {

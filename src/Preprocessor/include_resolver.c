@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Preprocessor/include_resolver.h"
+#include "Utils/profiler.h"
 #include "core_io.h"
 
 #include <stdint.h>
@@ -21,16 +22,26 @@ static char* ir_strdup(const char* s) {
 
 static char* ir_canonicalize_path(const char* path) {
     if (!path) return NULL;
+    profiler_record_value("pp_count_path_canonicalize_calls", 1);
+    ProfilerScope scope = profiler_begin("pp_fs_canonicalize");
     char resolved[4096];
     if (realpath(path, resolved)) {
+        profiler_end(scope);
         return ir_strdup(resolved);
     }
+    profiler_end(scope);
     return ir_strdup(path);
 }
 
 static bool ir_path_exists(const char* path, long* mtimeOut) {
+    profiler_record_value("pp_count_fs_stat_calls", 1);
+    ProfilerScope scope = profiler_begin("pp_fs_stat");
     struct stat st;
-    if (stat(path, &st) != 0) return false;
+    if (stat(path, &st) != 0) {
+        profiler_end(scope);
+        return false;
+    }
+    profiler_end(scope);
     if (mtimeOut) *mtimeOut = (long)st.st_mtime;
     return true;
 }
@@ -42,13 +53,20 @@ static bool ir_path_is_dir(const char* path) {
 }
 
 static char* ir_read_file(const char* path) {
+    profiler_record_value("pp_count_file_open_read_calls", 1);
+    ProfilerScope scope = profiler_begin("pp_fs_read");
     CoreBuffer file_data = {0};
     CoreResult read_result = core_io_read_all(path, &file_data);
-    if (read_result.code != CORE_OK) return NULL;
+    if (read_result.code != CORE_OK) {
+        profiler_end(scope);
+        return NULL;
+    }
+    profiler_record_value("pp_bytes_file_read", file_data.size);
 
     char* buffer = malloc(file_data.size + 1u);
     if (!buffer) {
         core_io_buffer_free(&file_data);
+        profiler_end(scope);
         return NULL;
     }
     if (file_data.size > 0u) {
@@ -56,12 +74,29 @@ static char* ir_read_file(const char* path) {
     }
     buffer[file_data.size] = '\0';
     core_io_buffer_free(&file_data);
+    profiler_end(scope);
     return buffer;
 }
 
 static bool ir_append_file(IncludeResolver* resolver, IncludeFile file);
-static const IncludeFile* ir_lookup(const IncludeResolver* resolver, const char* path);
-static const IncludeFile* ir_lookup_equivalent(const IncludeResolver* resolver, const char* path);
+static size_t ir_lookup_exact_index(const IncludeResolver* resolver, const char* path);
+static size_t ir_lookup_canonical_index(const IncludeResolver* resolver, const char* canonicalPath);
+static const IncludeFile* ir_lookup_exact_path(const IncludeResolver* resolver, const char* path);
+static const IncludeFile* ir_lookup_by_canonical_path(const IncludeResolver* resolver,
+                                                      const char* canonicalPath);
+static size_t ir_lookup_request_cache_index(const IncludeResolver* resolver,
+                                            size_t parentFileIndex,
+                                            const char* name,
+                                            bool isSystem,
+                                            bool isIncludeNext);
+static bool ir_cache_request_result(IncludeResolver* resolver,
+                                    size_t parentFileIndex,
+                                    const char* name,
+                                    bool isSystem,
+                                    bool isIncludeNext,
+                                    size_t fileIndex,
+                                    IncludeSearchOrigin origin,
+                                    size_t originIndex);
 
 static const IncludeFile* ir_try_virtual_audio_toolbox(IncludeResolver* resolver, const char* name) {
     static const char* kAudioToolboxName = "AudioToolbox/AudioToolbox.h";
@@ -129,25 +164,32 @@ static const IncludeFile* ir_try_virtual_audio_toolbox(IncludeResolver* resolver
     if (!resolver || !name || strcmp(name, kAudioToolboxName) != 0) {
         return NULL;
     }
-    const IncludeFile* cached = ir_lookup(resolver, kVirtualPath);
+    const IncludeFile* cached = ir_lookup_exact_path(resolver, kVirtualPath);
     if (cached) return cached;
 
     IncludeFile file = {0};
     file.path = ir_strdup(kVirtualPath);
     file.contents = ir_strdup(kShim);
+    file.cachedGuardName = NULL;
+    file.canonicalPath = ir_strdup(kVirtualPath);
+    file.summaryProbe = (IncludeSummaryProbe){0};
+    file.summaryActions = NULL;
+    file.summaryActionCount = 0;
     file.mtime = 0;
     file.pragmaOnce = true;
     file.includedOnce = false;
     file.origin = INCLUDE_SEARCH_RAW;
     file.originIndex = (size_t)-1;
-    if (!file.path || !file.contents) {
+    if (!file.path || !file.contents || !file.canonicalPath) {
         free(file.path);
         free(file.contents);
+        free(file.canonicalPath);
         return NULL;
     }
     if (!ir_append_file(resolver, file)) {
         free(file.path);
         free(file.contents);
+        free(file.canonicalPath);
         return NULL;
     }
     return &resolver->files[resolver->count - 1];
@@ -165,40 +207,109 @@ static bool ir_append_file(IncludeResolver* resolver, IncludeFile file) {
     return true;
 }
 
-static const IncludeFile* ir_lookup(const IncludeResolver* resolver, const char* path) {
-    if (!resolver || !path) return NULL;
+static size_t ir_lookup_exact_index(const IncludeResolver* resolver, const char* path) {
+    if (!resolver || !path) return (size_t)-1;
     for (size_t i = 0; i < resolver->count; ++i) {
         if (strcmp(resolver->files[i].path, path) == 0) {
-            return &resolver->files[i];
+            return i;
         }
     }
-    return NULL;
+    return (size_t)-1;
 }
 
-static const IncludeFile* ir_lookup_equivalent(const IncludeResolver* resolver, const char* path) {
-    if (!resolver || !path) return NULL;
-    const IncludeFile* direct = ir_lookup(resolver, path);
-    if (direct) return direct;
-
-    char* canonical = ir_canonicalize_path(path);
-    if (!canonical) return NULL;
-
+static size_t ir_lookup_canonical_index(const IncludeResolver* resolver, const char* canonicalPath) {
+    if (!resolver || !canonicalPath) return (size_t)-1;
     for (size_t i = 0; i < resolver->count; ++i) {
-        char* existing = ir_canonicalize_path(resolver->files[i].path);
-        bool equal = existing && strcmp(existing, canonical) == 0;
-        free(existing);
+        const char* existing = resolver->files[i].canonicalPath
+                                   ? resolver->files[i].canonicalPath
+                                   : resolver->files[i].path;
+        bool equal = existing && strcmp(existing, canonicalPath) == 0;
         if (equal) {
-            free(canonical);
-            return &resolver->files[i];
+            return i;
         }
     }
+    return (size_t)-1;
+}
 
-    free(canonical);
-    return NULL;
+static const IncludeFile* ir_lookup_exact_path(const IncludeResolver* resolver, const char* path) {
+    size_t index = ir_lookup_exact_index(resolver, path);
+    if (index == (size_t)-1) return NULL;
+    return &resolver->files[index];
+}
+
+static const IncludeFile* ir_lookup_by_canonical_path(const IncludeResolver* resolver,
+                                                      const char* canonicalPath) {
+    size_t index = ir_lookup_canonical_index(resolver, canonicalPath);
+    if (index == (size_t)-1) return NULL;
+    return &resolver->files[index];
+}
+
+static size_t ir_lookup_request_cache_index(const IncludeResolver* resolver,
+                                            size_t parentFileIndex,
+                                            const char* name,
+                                            bool isSystem,
+                                            bool isIncludeNext) {
+    if (!resolver || !name) return (size_t)-1;
+    for (size_t i = 0; i < resolver->requestCacheCount; ++i) {
+        const IncludeRequestCacheEntry* entry = &resolver->requestCache[i];
+        if (entry->parentFileIndex != parentFileIndex) continue;
+        if (entry->isSystem != isSystem) continue;
+        if (entry->isIncludeNext != isIncludeNext) continue;
+        if (strcmp(entry->includeName, name) != 0) continue;
+        return i;
+    }
+    return (size_t)-1;
+}
+
+static bool ir_cache_request_result(IncludeResolver* resolver,
+                                    size_t parentFileIndex,
+                                    const char* name,
+                                    bool isSystem,
+                                    bool isIncludeNext,
+                                    size_t fileIndex,
+                                    IncludeSearchOrigin origin,
+                                    size_t originIndex) {
+    if (!resolver || !name || fileIndex >= resolver->count) return false;
+
+    size_t existingIndex = ir_lookup_request_cache_index(resolver,
+                                                         parentFileIndex,
+                                                         name,
+                                                         isSystem,
+                                                         isIncludeNext);
+    if (existingIndex != (size_t)-1) {
+        IncludeRequestCacheEntry* entry = &resolver->requestCache[existingIndex];
+        entry->fileIndex = fileIndex;
+        entry->origin = origin;
+        entry->originIndex = originIndex;
+        return true;
+    }
+
+    if (resolver->requestCacheCount == resolver->requestCacheCapacity) {
+        size_t newCapacity = resolver->requestCacheCapacity ? resolver->requestCacheCapacity * 2 : 16;
+        IncludeRequestCacheEntry* entries =
+            realloc(resolver->requestCache, newCapacity * sizeof(IncludeRequestCacheEntry));
+        if (!entries) return false;
+        resolver->requestCache = entries;
+        resolver->requestCacheCapacity = newCapacity;
+    }
+
+    char* includeName = ir_strdup(name);
+    if (!includeName) return false;
+
+    IncludeRequestCacheEntry entry = {0};
+    entry.parentFileIndex = parentFileIndex;
+    entry.includeName = includeName;
+    entry.isSystem = isSystem;
+    entry.isIncludeNext = isIncludeNext;
+    entry.fileIndex = fileIndex;
+    entry.origin = origin;
+    entry.originIndex = originIndex;
+    resolver->requestCache[resolver->requestCacheCount++] = entry;
+    return true;
 }
 
 const IncludeFile* include_resolver_lookup(const IncludeResolver* resolver, const char* path) {
-    return ir_lookup(resolver, path);
+    return ir_lookup_exact_path(resolver, path);
 }
 
 bool include_resolver_set_root_buffer(IncludeResolver* resolver,
@@ -206,25 +317,33 @@ bool include_resolver_set_root_buffer(IncludeResolver* resolver,
                                       char* contents_owned,
                                       long mtime) {
     if (!resolver || !path || !contents_owned) return false;
-    if (ir_lookup(resolver, path)) {
+    if (ir_lookup_exact_path(resolver, path)) {
         free(contents_owned);
         return true;
     }
     IncludeFile file;
     file.path = ir_strdup(path);
     file.contents = contents_owned;
+    file.cachedGuardName = NULL;
+    file.canonicalPath = ir_canonicalize_path(path);
+    file.summaryProbe = (IncludeSummaryProbe){0};
+    file.summaryActions = NULL;
+    file.summaryActionCount = 0;
     file.mtime = mtime;
     file.pragmaOnce = false;
     file.includedOnce = false;
     file.origin = INCLUDE_SEARCH_RAW;
     file.originIndex = (size_t)-1;
-    if (!file.path) {
+    if (!file.path || !file.canonicalPath) {
+        free(file.path);
+        free(file.canonicalPath);
         free(contents_owned);
         return false;
     }
     if (!ir_append_file(resolver, file)) {
         free(file.path);
         free(file.contents);
+        free(file.canonicalPath);
         return false;
     }
     return true;
@@ -475,9 +594,16 @@ IncludeResolver* include_resolver_create(const char* const* includePaths, size_t
 
 void include_resolver_destroy(IncludeResolver* resolver) {
     if (!resolver) return;
+    for (size_t i = 0; i < resolver->requestCacheCount; ++i) {
+        free(resolver->requestCache[i].includeName);
+    }
+    free(resolver->requestCache);
     for (size_t i = 0; i < resolver->count; ++i) {
         free(resolver->files[i].path);
         free(resolver->files[i].contents);
+        free(resolver->files[i].cachedGuardName);
+        free(resolver->files[i].canonicalPath);
+        free(resolver->files[i].summaryActions);
     }
     free(resolver->files);
     if (resolver->includePaths) {
@@ -493,6 +619,7 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
                                       const char* path,
                                       IncludeSearchOrigin origin,
                                       size_t originIndex) {
+    profiler_record_value("pp_count_resolver_try_load", 1);
     char* canonical = ir_canonicalize_path(path);
     if (!canonical) return NULL;
 
@@ -502,12 +629,14 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
         return NULL;
     }
 
-    const IncludeFile* cached = ir_lookup_equivalent(resolver, canonical);
+    const IncludeFile* cached = ir_lookup_by_canonical_path(resolver, canonical);
     if (cached && cached->mtime == mtime) {
+        profiler_record_value("pp_count_resolver_cache_hit", 1);
         free(canonical);
         // cached origin is authoritative; ignore requested origin/index
         return cached;
     }
+    profiler_record_value("pp_count_resolver_cache_miss", 1);
 
     char* data = ir_read_file(canonical);
     if (!data) {
@@ -523,18 +652,24 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
         return NULL;
     }
     file.contents = data;
+    file.cachedGuardName = NULL;
+    file.canonicalPath = canonical;
+    file.summaryProbe = (IncludeSummaryProbe){0};
+    file.summaryActions = NULL;
+    file.summaryActionCount = 0;
     file.mtime = mtime;
     file.pragmaOnce = false;
     file.includedOnce = false;
     file.origin = origin;
     file.originIndex = originIndex;
 
-    free(canonical);
     if (!ir_append_file(resolver, file)) {
         free(file.path);
         free(file.contents);
+        free(file.canonicalPath);
         return NULL;
     }
+    profiler_record_value("pp_count_unique_files_loaded", 1);
 
     return &resolver->files[resolver->count - 1];
 }
@@ -553,7 +688,7 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
     size_t parentIndex = (size_t)-1;
 
     if (includingFile) {
-        const IncludeFile* parent = ir_lookup(resolver, includingFile);
+        const IncludeFile* parent = ir_lookup_exact_path(resolver, includingFile);
         if (parent) {
             parentOrigin = parent->origin;
             parentIndex = parent->originIndex;
@@ -656,6 +791,7 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
                                          IncludeSearchOrigin* originOut,
                                          size_t* originIndexOut) {
     if (!resolver || !name) return NULL;
+    profiler_record_value("pp_count_include_resolver_load_calls", 1);
     if (isSystem) {
         const IncludeFile* virtualAudioToolbox = ir_try_virtual_audio_toolbox(resolver, name);
         if (virtualAudioToolbox) {
@@ -664,24 +800,60 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
             return virtualAudioToolbox;
         }
     }
-    const IncludeFile* cached = ir_lookup_equivalent(resolver, name);
-    if (cached) {
-        if (originOut) *originOut = cached->origin;
-        if (originIndexOut) *originIndexOut = cached->originIndex;
-        return cached;
+
+    size_t parentFileIndex = (size_t)-1;
+    bool canUseRequestCache = true;
+    if (includingFile && (!isSystem || isIncludeNext)) {
+        parentFileIndex = ir_lookup_exact_index(resolver, includingFile);
+        if (parentFileIndex == (size_t)-1) {
+            canUseRequestCache = false;
+        }
     }
-    return ir_search_and_load(resolver,
-                              includingFile,
-                              name,
-                              isSystem,
-                              isIncludeNext,
-                              originOut,
-                              originIndexOut);
+
+    if (canUseRequestCache) {
+        size_t cacheIndex = ir_lookup_request_cache_index(resolver,
+                                                          parentFileIndex,
+                                                          name,
+                                                          isSystem,
+                                                          isIncludeNext);
+        if (cacheIndex != (size_t)-1) {
+            const IncludeRequestCacheEntry* entry = &resolver->requestCache[cacheIndex];
+            if (entry->fileIndex < resolver->count) {
+                profiler_record_value("pp_count_resolver_front_cache_hit", 1);
+                if (originOut) *originOut = entry->origin;
+                if (originIndexOut) *originIndexOut = entry->originIndex;
+                return &resolver->files[entry->fileIndex];
+            }
+        }
+    }
+
+    profiler_record_value("pp_count_resolver_front_cache_miss", 1);
+    const IncludeFile* file = ir_search_and_load(resolver,
+                                                 includingFile,
+                                                 name,
+                                                 isSystem,
+                                                 isIncludeNext,
+                                                 originOut,
+                                                 originIndexOut);
+    if (file && canUseRequestCache) {
+        size_t fileIndex = (size_t)(file - resolver->files);
+        IncludeSearchOrigin cachedOrigin = originOut ? *originOut : file->origin;
+        size_t cachedOriginIndex = originIndexOut ? *originIndexOut : file->originIndex;
+        (void)ir_cache_request_result(resolver,
+                                      parentFileIndex,
+                                      name,
+                                      isSystem,
+                                      isIncludeNext,
+                                      fileIndex,
+                                      cachedOrigin,
+                                      cachedOriginIndex);
+    }
+    return file;
 }
 
 void include_resolver_mark_pragma_once(IncludeResolver* resolver, const char* resolvedPath) {
     if (!resolver || !resolvedPath) return;
-    IncludeFile* file = (IncludeFile*)ir_lookup(resolver, resolvedPath);
+    IncludeFile* file = (IncludeFile*)ir_lookup_exact_path(resolver, resolvedPath);
     if (file) {
         file->pragmaOnce = true;
     }
@@ -689,15 +861,74 @@ void include_resolver_mark_pragma_once(IncludeResolver* resolver, const char* re
 
 void include_resolver_mark_included(IncludeResolver* resolver, const char* resolvedPath) {
     if (!resolver || !resolvedPath) return;
-    IncludeFile* file = (IncludeFile*)ir_lookup(resolver, resolvedPath);
+    IncludeFile* file = (IncludeFile*)ir_lookup_exact_path(resolver, resolvedPath);
     if (file) {
         file->includedOnce = true;
     }
 }
 
 bool include_resolver_was_included(const IncludeResolver* resolver, const char* resolvedPath) {
-    const IncludeFile* file = ir_lookup(resolver, resolvedPath);
+    const IncludeFile* file = ir_lookup_exact_path(resolver, resolvedPath);
     return file ? file->includedOnce : false;
+}
+
+const char* include_resolver_get_cached_guard(const IncludeResolver* resolver, const char* resolvedPath) {
+    const IncludeFile* file = ir_lookup_exact_path(resolver, resolvedPath);
+    return file ? file->cachedGuardName : NULL;
+}
+
+void include_resolver_cache_guard(IncludeResolver* resolver, const char* resolvedPath, const char* guardName) {
+    if (!resolver || !resolvedPath || !guardName || !guardName[0]) return;
+    IncludeFile* file = (IncludeFile*)ir_lookup_exact_path(resolver, resolvedPath);
+    if (!file) return;
+    if (file->cachedGuardName && strcmp(file->cachedGuardName, guardName) == 0) {
+        return;
+    }
+    char* copy = ir_strdup(guardName);
+    if (!copy) return;
+    free(file->cachedGuardName);
+    file->cachedGuardName = copy;
+}
+
+void include_resolver_cache_summary_probe(IncludeResolver* resolver,
+                                          const char* resolvedPath,
+                                          IncludeSummaryProbe probe) {
+    if (!resolver || !resolvedPath) return;
+    IncludeFile* file = (IncludeFile*)ir_lookup_exact_path(resolver, resolvedPath);
+    if (!file) return;
+    file->summaryProbe = probe;
+}
+
+void include_resolver_cache_summary_actions(IncludeResolver* resolver,
+                                            const char* resolvedPath,
+                                            const IncludeSummaryAction* actions,
+                                            size_t actionCount) {
+    if (!resolver || !resolvedPath) return;
+    IncludeFile* file = (IncludeFile*)ir_lookup_exact_path(resolver, resolvedPath);
+    if (!file) return;
+
+    IncludeSummaryAction* copy = NULL;
+    if (actions && actionCount > 0) {
+        copy = (IncludeSummaryAction*)malloc(actionCount * sizeof(IncludeSummaryAction));
+        if (!copy) return;
+        memcpy(copy, actions, actionCount * sizeof(IncludeSummaryAction));
+    }
+
+    free(file->summaryActions);
+    file->summaryActions = copy;
+    file->summaryActionCount = copy ? actionCount : 0;
+}
+
+const IncludeSummaryAction* include_resolver_get_cached_summary_actions(const IncludeResolver* resolver,
+                                                                        const char* resolvedPath,
+                                                                        size_t* actionCountOut) {
+    const IncludeFile* file = ir_lookup_exact_path(resolver, resolvedPath);
+    if (!file) {
+        if (actionCountOut) *actionCountOut = 0;
+        return NULL;
+    }
+    if (actionCountOut) *actionCountOut = file->summaryActionCount;
+    return file->summaryActions;
 }
 
 void include_graph_init(IncludeGraph* graph) {

@@ -5,6 +5,7 @@
 #include "parser_config.h"
 #include "Compiler/diagnostics.h"
 #include "Compiler/compiler_context.h"
+#include "Utils/profiler.h"
 #include <stdlib.h>   // malloc, free
 #include <string.h>   // memcpy
 
@@ -127,6 +128,7 @@ Parser cloneParserWithFreshLexer(Parser* original) {
     Parser clone = *original;
     // Keep context so typedef/tag lookups remain accurate during speculative parses.
     clone.suppressErrors = true;
+    profiler_record_value("parser_count_clone_parser", 1);
     return clone;
 }
 

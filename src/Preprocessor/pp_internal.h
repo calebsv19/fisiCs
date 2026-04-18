@@ -47,6 +47,11 @@ bool pp_append_number_literal(Preprocessor* pp,
                               PPTokenBuffer* buffer,
                               const Token* base,
                               const char* text);
+bool pp_summary_raw_range_can_clone_direct(Preprocessor* pp,
+                                           const Token* tokens,
+                                           size_t count,
+                                           size_t start,
+                                           size_t end);
 bool pp_prepare_expr_tokens(Preprocessor* pp,
                             const Token* tokens,
                             size_t count,
@@ -71,6 +76,33 @@ bool preprocess_tokens(Preprocessor* pp,
                        const TokenBuffer* input,
                        PPTokenBuffer* output,
                        bool appendEOF);
+
+typedef enum {
+    PP_SUMMARY_REPLAY_USED = 0,
+    PP_SUMMARY_REPLAY_UNSUPPORTED = 1,
+    PP_SUMMARY_REPLAY_ERROR = 2
+} PPSummaryReplayResult;
+
+PPSummaryReplayResult preprocess_tokens_summary_replay(Preprocessor* pp,
+                                                       const TokenBuffer* input,
+                                                       const IncludeSummaryAction* actions,
+                                                       size_t actionCount,
+                                                       PPTokenBuffer* output,
+                                                       bool appendEOF);
+PPSummaryReplayResult preprocess_tokens_router_replay(Preprocessor* pp,
+                                                      const TokenBuffer* input,
+                                                      const IncludeSummaryProbe* probe,
+                                                      const IncludeSummaryAction* actions,
+                                                      size_t actionCount,
+                                                      PPTokenBuffer* output,
+                                                      bool appendEOF);
+PPSummaryReplayResult preprocess_tokens_scaffold_replay(Preprocessor* pp,
+                                                        const TokenBuffer* input,
+                                                        const IncludeSummaryProbe* probe,
+                                                        const IncludeSummaryAction* actions,
+                                                        size_t actionCount,
+                                                        PPTokenBuffer* output,
+                                                        bool appendEOF);
 
 // Conditional handlers (defined in preprocessor_conditionals.c)
 bool conditional_stack_is_active(const PPConditionalFrame* stack, size_t depth);
