@@ -9,13 +9,15 @@
 #include "Parser/Helpers/designated_init.h"
 #include "Parser/Helpers/parsed_type.h"
 #include "Syntax/target_layout.h"
+#include "Utils/profiler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 static TypeInfo sizeTypeFromScope(Scope* scope) {
     Symbol* sym = resolveInScopeChain(scope, "size_t");
     if (sym && sym->kind == SYMBOL_TYPEDEF) {
-        TypeInfo info = typeInfoFromParsedType(&sym->type, scope);
+        profiler_record_value("semantic_count_type_info_site_symbol", 1);
+        TypeInfo info = typeInfoFromSymbolCached(sym, scope);
         info.isLValue = false;
         return info;
     }
@@ -406,6 +408,8 @@ static TypeInfo functionCallResultTypeFromSymbol(const Symbol* sym, Scope* scope
     }
     ParsedType retParsed = parsedTypeFunctionReturnType(&sym->type);
     if (retParsed.kind != TYPE_INVALID) {
+        profiler_record_value("semantic_count_type_info_site_temp", 1);
+        profiler_record_value("semantic_count_type_info_temp_fn_symbol_ret", 1);
         TypeInfo result = typeInfoFromParsedType(&retParsed, scope);
         typeInfoAdoptParsedType(&result, &retParsed);
         parsedTypeFree(&retParsed);
@@ -413,7 +417,8 @@ static TypeInfo functionCallResultTypeFromSymbol(const Symbol* sym, Scope* scope
         return result;
     }
     parsedTypeFree(&retParsed);
-    TypeInfo fallback = typeInfoFromParsedType(&sym->type, scope);
+    profiler_record_value("semantic_count_type_info_site_symbol", 1);
+    TypeInfo fallback = typeInfoFromSymbolCached((Symbol*)sym, scope);
     fallback.isLValue = false;
     return fallback;
 }
@@ -440,6 +445,8 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
                 addError(node->line, 0, "__builtin_offsetof expects a field name as the second argument", NULL);
                 return sizeTypeFromScope(scope);
             }
+            profiler_record_value("semantic_count_type_info_site_temp", 1);
+            profiler_record_value("semantic_count_type_info_temp_offsetof_base", 1);
             TypeInfo base = typeInfoFromParsedType(&typeArg->parsedTypeNode.parsed, scope);
             if (base.category != TYPEINFO_STRUCT && base.category != TYPEINFO_UNION) {
                 addError(node->line, 0, "__builtin_offsetof expects a struct or union type", NULL);
@@ -497,6 +504,8 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
         if (argCount == 2 &&
             node->functionCall.arguments[1] &&
             node->functionCall.arguments[1]->type == AST_PARSED_TYPE) {
+            profiler_record_value("semantic_count_type_info_site_temp", 1);
+            profiler_record_value("semantic_count_type_info_temp_va_arg", 1);
             result = typeInfoFromParsedType(&node->functionCall.arguments[1]->parsedTypeNode.parsed, scope);
             result.isLValue = false;
             free(argInfos);
@@ -547,6 +556,7 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
         bool* paramRestrict = pairCount ? calloc(pairCount, sizeof(bool)) : NULL;
         char** argPaths = pairCount ? calloc(pairCount, sizeof(char*)) : NULL;
         for (size_t i = 0; i < pairCount; ++i) {
+            profiler_record_value("semantic_count_type_info_site_signature", 1);
             TypeInfo paramInfo = typeInfoFromParsedType(&sig->params[i], scope);
             if (paramInfo.isArray) {
                 paramInfo = decayToRValue(paramInfo);
@@ -708,6 +718,8 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
         if (haveTarget) {
             ParsedType retParsed = parsedTypeFunctionReturnType(&fnTarget);
             if (retParsed.kind != TYPE_INVALID) {
+                profiler_record_value("semantic_count_type_info_site_temp", 1);
+                profiler_record_value("semantic_count_type_info_temp_fn_callable_ret", 1);
                 result = typeInfoFromParsedType(&retParsed, scope);
                 typeInfoAdoptParsedType(&result, &retParsed);
             }
@@ -734,6 +746,8 @@ TypeInfo analyzePointerDereferenceExpression(ASTNode* node, Scope* scope) {
         if (base.originalType) {
             ParsedType targetParsed = parsedTypePointerTargetType(base.originalType);
             if (targetParsed.kind != TYPE_INVALID) {
+                profiler_record_value("semantic_count_type_info_site_temp", 1);
+                profiler_record_value("semantic_count_type_info_temp_deref_target", 1);
                 TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
                 typeInfoAdoptParsedType(&targetInfo, &targetParsed);
                 targetInfo.isLValue = true;
@@ -785,6 +799,8 @@ TypeInfo analyzeMemberAccessExpression(ASTNode* node, Scope* scope) {
 
     const ParsedType* fieldType = analyzeExprLookupFieldType(&base, node->memberAccess.field, scope);
     if (fieldType) {
+        profiler_record_value("semantic_count_type_info_site_temp", 1);
+        profiler_record_value("semantic_count_type_info_temp_member_field", 1);
         TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, scope);
         fieldInfo.originalType = fieldType;
         fieldInfo.isLValue = true;
@@ -819,6 +835,8 @@ TypeInfo analyzeArrayAccessExpression(ASTNode* node, Scope* scope) {
     analyzeExpression(node->arrayAccess.index, scope);
     if (arrayInfo.originalType && parsedTypeIsDirectArray(arrayInfo.originalType)) {
         ParsedType elementParsed = parsedTypeArrayElementType(arrayInfo.originalType);
+        profiler_record_value("semantic_count_type_info_site_temp", 1);
+        profiler_record_value("semantic_count_type_info_temp_array_element", 1);
         TypeInfo elementInfo = typeInfoFromParsedType(&elementParsed, scope);
         ParsedType* owned = malloc(sizeof(ParsedType));
         if (owned) {
@@ -838,6 +856,8 @@ TypeInfo analyzeArrayAccessExpression(ASTNode* node, Scope* scope) {
         if (arrayInfo.originalType) {
             ParsedType targetParsed = parsedTypePointerTargetType(arrayInfo.originalType);
             if (targetParsed.kind != TYPE_INVALID) {
+                profiler_record_value("semantic_count_type_info_site_temp", 1);
+                profiler_record_value("semantic_count_type_info_temp_array_pointer_target", 1);
                 TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
                 typeInfoAdoptParsedType(&targetInfo, &targetParsed);
                 parsedTypeFree(&targetParsed);
@@ -866,6 +886,8 @@ TypeInfo analyzeCompoundLiteralExpression(ASTNode* node, Scope* scope) {
         analyzeDesignatedInitializerExpr(node->compoundLiteral.entries[i], scope);
     }
     inferCompoundLiteralArrayLength(node, scope);
+    profiler_record_value("semantic_count_type_info_site_temp", 1);
+    profiler_record_value("semantic_count_type_info_temp_compound_literal", 1);
     TypeInfo info = typeInfoFromParsedType(&node->compoundLiteral.literalType, scope);
     node->compoundLiteral.isStaticStorage = scope ? (scope->depth == 0) : false;
     info.isLValue = true;

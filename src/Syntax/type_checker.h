@@ -8,6 +8,7 @@
 
 struct Scope;
 struct CCTagFieldLayout;
+struct Symbol;
 
 typedef enum {
     TYPEINFO_INVALID = 0,
@@ -71,6 +72,9 @@ TypeInfo makeBoolType(void);
 TypeInfo makeIntegerType(unsigned bitWidth, bool isSigned, TokenType primitive);
 TypeInfo makeFloatTypeInfo(FloatKind kind, bool isComplex, struct Scope* scope);
 TypeInfo typeInfoFromParsedType(const ParsedType* type, struct Scope* scope);
+TypeInfo typeInfoFromSymbolCached(struct Symbol* sym, struct Scope* scope);
+void invalidateSymbolTypeInfoCache(struct Symbol* sym);
+void primeSymbolTypeInfoCache(struct Symbol* sym, struct Scope* scope);
 
 bool typeInfoIsInteger(const TypeInfo* info);
 bool typeInfoIsFloating(const TypeInfo* info);

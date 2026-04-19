@@ -10,6 +10,7 @@
 #include "literal_utils.h"
 #include "Compiler/compiler_context.h"
 #include "Syntax/target_layout.h"
+#include "Utils/profiler.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
@@ -160,7 +161,8 @@ static TypeInfo makeWCharType(Scope* scope) {
     if (!scope) return info;
     Symbol* w = resolveInScopeChain(scope, "wchar_t");
     if (w && w->kind == SYMBOL_TYPEDEF) {
-        info = typeInfoFromParsedType(&w->type, scope);
+        profiler_record_value("semantic_count_type_info_site_symbol", 1);
+        info = typeInfoFromSymbolCached(w, scope);
     }
     return info;
 }
@@ -257,6 +259,7 @@ static bool isModifiableLValue(const TypeInfo* info) {
 
 TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
     if (!node) return makeInvalidType();
+    profiler_record_value("semantic_count_analyze_expression", 1);
 
     analyzeExpressionEffects(node, scope);
 
@@ -289,7 +292,8 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                 return fnInfo;
             }
 
-            TypeInfo info = typeInfoFromParsedType(&sym->type, scope);
+            profiler_record_value("semantic_count_type_info_site_symbol", 1);
+            TypeInfo info = typeInfoFromSymbolCached(sym, scope);
             info.isLValue = (sym->kind == SYMBOL_VARIABLE) &&
                             !isBuiltinLiteralConstName(sym->name);
             return info;
@@ -327,6 +331,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         }
 
         case AST_PARSED_TYPE: {
+            profiler_record_value("semantic_count_type_info_site_temp", 1);
             return typeInfoFromParsedType(&node->parsedTypeNode.parsed, scope);
         }
 
@@ -629,6 +634,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                         if (isFuncDesignator) {
                             ptrType.isFunctionPointer = true;
                         }
+                        profiler_record_value("semantic_count_type_info_temp_address_of", 1);
                         TypeInfo addrInfo = typeInfoFromParsedType(&ptrType, scope);
                         typeInfoAdoptParsedType(&addrInfo, &ptrType);
                         addrInfo.isArray = false;
@@ -684,6 +690,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                                     targetParsed.derivationCount);
                         }
                         if (targetParsed.kind != TYPE_INVALID) {
+                            profiler_record_value("semantic_count_type_info_site_temp", 1);
                             TypeInfo targetInfo = typeInfoFromParsedType(&targetParsed, scope);
                             ParsedType* owned = malloc(sizeof(ParsedType));
                             if (owned) {
@@ -754,6 +761,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
         }
 
         case AST_CAST_EXPRESSION: {
+            profiler_record_value("semantic_count_type_info_temp_cast_expr", 1);
             TypeInfo target = typeInfoFromParsedType(&node->castExpr.castType, scope);
             TypeInfo source = analyzeExpression(node->castExpr.expression, scope);
             source = decayToRValue(source);

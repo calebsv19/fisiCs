@@ -5,6 +5,7 @@
 #include "const_eval.h"
 #include "target_layout.h"
 #include "Compiler/compiler_context.h"
+#include "Utils/profiler.h"
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -117,6 +118,7 @@ bool size_align_of_parsed_type(ParsedType* type,
         return true;
     }
 
+    profiler_record_value("semantic_count_type_info_site_layout", 1);
     TypeInfo info = typeInfoFromParsedType(type, scope);
     size_t sz = 0, al = 0;
     if (!size_align_of_typeinfo(info, scope, &sz, &al)) return false;
@@ -260,6 +262,7 @@ static bool layout_struct_fields(ASTNode* def,
         if (varNames0 && varNames0[0]) {
             fieldName = varNames0[0]->valueNode.value;
         }
+        profiler_record_value("semantic_count_type_info_site_layout", 1);
         TypeInfo baseInfo = typeInfoFromParsedType(baseType, scope);
 
         if (isBitfield) {
@@ -425,6 +428,7 @@ static bool layout_struct_fields(ASTNode* def,
                 if (al > maxAlign) maxAlign = al;
                 if (layouts) {
                     const char* nm = nameNode ? nameNode->valueNode.value : NULL;
+                    profiler_record_value("semantic_count_type_info_site_layout", 1);
                     TypeInfo info = typeInfoFromParsedType(t, scope);
                     CCTagFieldLayout lay = {
                         .name = nm ? strdup(nm) : NULL,
@@ -496,6 +500,7 @@ static bool layout_union_fields(ASTNode* def,
             if (varNames0 && varNames0[0]) {
                 nm = varNames0[0]->valueNode.value;
             }
+            profiler_record_value("semantic_count_type_info_site_layout", 1);
             TypeInfo info = typeInfoFromParsedType(baseType, scope);
             CCTagFieldLayout lay = {
                 .name = nm ? strdup(nm) : NULL,
@@ -524,6 +529,7 @@ static bool layout_union_fields(ASTNode* def,
                 if (layouts) {
                     ASTNode* nameNode = varNames ? varNames[k] : NULL;
                     const char* nm2 = nameNode ? nameNode->valueNode.value : NULL;
+                    profiler_record_value("semantic_count_type_info_site_layout", 1);
                     TypeInfo info2 = typeInfoFromParsedType(t, scope);
                     CCTagFieldLayout lay = {
                         .name = nm2 ? strdup(nm2) : NULL,

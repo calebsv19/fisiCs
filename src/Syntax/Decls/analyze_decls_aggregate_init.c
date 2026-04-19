@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "analyze_decls_internal.h"
+#include "Utils/profiler.h"
 
 static bool typeInfoIsStructLike(const TypeInfo* info);
 static bool inlineAggregateHasField(const ASTNode* aggregateDef, const char* fieldName);
@@ -159,6 +160,7 @@ static const ParsedType* lookupFieldTypeInAggregateDefForInitValidation(ASTNode*
 
         if (field->varDecl.varCount == 0) {
             const ParsedType* anonType = &field->varDecl.declaredType;
+            profiler_record_value("semantic_count_type_info_decl_anon_field", 1);
             TypeInfo anonInfo = typeInfoFromParsedType(anonType, scope);
             if (anonInfo.category == TYPEINFO_STRUCT || anonInfo.category == TYPEINFO_UNION) {
                 const ParsedType* nested = NULL;
@@ -262,6 +264,7 @@ void validateAggregateDesignatedFieldsRecursive(const ParsedType* aggregateType,
             continue;
         }
 
+        profiler_record_value("semantic_count_type_info_site_decl", 1);
         TypeInfo fieldInfo = typeInfoFromParsedType(fieldType, scope);
         if (!typeInfoIsStructLike(&fieldInfo)) {
             continue;

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "analyze_decls_internal.h"
+#include "Utils/profiler.h"
 
 static const char* staticAssertHint(ASTNode* node) {
     if (!node || node->type != AST_STATIC_ASSERT) return NULL;
@@ -40,6 +41,8 @@ static void analyzeInlineAggregateDefinition(const ParsedType* type, Scope* scop
 }
 
 void analyzeDeclaration(ASTNode* node, Scope* scope) {
+    ProfilerScope declScope = profiler_begin("semantic_analyze_declaration");
+    profiler_record_value("semantic_count_analyze_declaration", 1);
     switch (node->type) {
         case AST_STATIC_ASSERT:
             analyzeStaticAssertDeclaration(node, scope);
@@ -75,6 +78,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 }
                 analyzeInlineAggregateDefinition(varType, scope);
                 evaluateArrayDerivations(varType, scope);
+                profiler_record_value("semantic_count_type_info_site_decl", 1);
                 TypeInfo varInfo = typeInfoFromParsedType(varType, scope);
                 StorageClass storage = deduceStorageClass(varType);
                 SymbolLinkage linkage = deduceLinkage(varType, scopeIsFileScope(scope));
@@ -171,6 +175,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         existing->isTentative = false;
                         existing->definition = node;
                     }
+                    primeSymbolTypeInfoCache(existing, scope);
                     boundSym = existing;
                 } else {
                     if (!fileScope && storage == STORAGE_EXTERN) {
@@ -199,6 +204,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     sym->isTentative = tentative;
                     sym->next = NULL;
                     resetFunctionSignature(sym);
+                    primeSymbolTypeInfoCache(sym, scope);
                     applyInteropAttributes(sym, node, scope, true);
 
                     if (!addToScope(scope, sym)) {
@@ -305,11 +311,12 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             bool isDefinition = (node->type == AST_FUNCTION_DEFINITION);
 
             Symbol* existing = lookupSymbol(&scope->table, funcName->valueNode.value);
-            if (existing && existing->kind == SYMBOL_FUNCTION) {
+                if (existing && existing->kind == SYMBOL_FUNCTION) {
                 if (!existing->definition) {
                     existing->type = node->type == AST_FUNCTION_DEFINITION
                                          ? node->functionDef.returnType
                                          : node->functionDecl.returnType;
+                    invalidateSymbolTypeInfoCache(existing);
                     resetFunctionSignature(existing);
                     if (node->type == AST_FUNCTION_DEFINITION) {
                         assignFunctionSignature(existing,
@@ -326,6 +333,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     existing->storage = storage;
                     existing->linkage = linkage;
                     existing->hasDefinition = isDefinition;
+                    primeSymbolTypeInfoCache(existing, scope);
                     applyInteropAttributes(existing, node, scope, true);
                     break;
                 }
@@ -416,6 +424,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
 
                 if (node->type == AST_FUNCTION_DEFINITION) {
                     existing->type = node->functionDef.returnType;
+                    invalidateSymbolTypeInfoCache(existing);
                     existing->definition = node;
                     resetFunctionSignature(existing);
                     assignFunctionSignature(existing,
@@ -424,6 +433,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                             node->functionDef.isVariadic);
                     existing->hasDefinition = true;
                 }
+                primeSymbolTypeInfoCache(existing, scope);
                 applyInteropAttributes(existing, node, scope, true);
                 break;
             }
@@ -442,6 +452,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             sym->isTentative = false;
             sym->next = NULL;
             resetFunctionSignature(sym);
+            primeSymbolTypeInfoCache(sym, scope);
             if (node->type == AST_FUNCTION_DEFINITION) {
                 assignFunctionSignature(sym,
                                         node->functionDef.parameters,
@@ -501,6 +512,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                 if (existing->definition == NULL) {
                     existing->type = node->typedefStmt.baseType;
                     existing->definition = node;
+                    primeSymbolTypeInfoCache(existing, scope);
                     break;
                 }
             }
@@ -513,6 +525,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
             sym->definition = node;
             sym->next = NULL;
             resetFunctionSignature(sym);
+            primeSymbolTypeInfoCache(sym, scope);
 
             if (!addToScope(scope, sym)) {
                 addErrorWithRanges(node ? node->location : (SourceRange){0},
@@ -811,4 +824,5 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                      "This node is not handled in analyzeDeclaration()");
             break;
     }
+    profiler_end(declScope);
 }

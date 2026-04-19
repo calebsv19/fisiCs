@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "analyze_decls_internal.h"
+#include "Utils/profiler.h"
 
 static int countParameterDeclarators(ASTNode** params, size_t paramCount);
 static bool isVoidParameterDecl(ASTNode* param);
@@ -210,6 +211,7 @@ bool validateFunctionParameters(ASTNode** params,
                 }
             }
 
+            profiler_record_value("semantic_count_type_info_site_decl", 1);
             TypeInfo info = typeInfoFromParsedType(paramType, scope);
             bool directArray = parsedTypeIsDirectArray(paramType);
             bool directFunction = parsedTypeIsDirectFunction(paramType);

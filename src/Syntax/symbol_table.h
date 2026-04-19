@@ -7,6 +7,8 @@
 #include "AST/ast_node.h"
 #include <stdbool.h>
 
+struct TypeInfo;
+
 typedef enum {
     SYMBOL_VARIABLE,
     SYMBOL_FUNCTION,
@@ -62,6 +64,7 @@ typedef struct Symbol {
     bool isTentative;
     bool hasConstValue;
     long long constValue;
+    struct TypeInfo* cachedTypeInfo;
     struct Symbol* next; // For linked list in hash buckets
 } Symbol;
 

@@ -3,6 +3,7 @@
 #include "control_flow.h"
 #include "syntax_errors.h"
 #include "type_checker.h"
+#include "Utils/profiler.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -377,6 +378,7 @@ static void traverse(ASTNode* node, Scope* scope) {
             };
             FlowResult flow = checkStatement(node->functionDef.body, scope, ctx);
 
+            profiler_record_value("semantic_count_type_info_site_return", 1);
             TypeInfo retInfo = typeInfoFromParsedType(&node->functionDef.returnType, scope);
             if (retInfo.category != TYPEINFO_VOID && !flow.returns) {
                 const char* name = node->functionDef.funcName && node->functionDef.funcName->valueNode.value
@@ -404,8 +406,14 @@ static void traverse(ASTNode* node, Scope* scope) {
 }
 
 void analyzeControlFlow(ASTNode* root, Scope* scope) {
-    if (!root || !scope) return;
+    ProfilerScope flowScope = profiler_begin("semantic_control_flow");
+    profiler_record_value("semantic_count_control_flow", 1);
+    if (!root || !scope) {
+        profiler_end(flowScope);
+        return;
+    }
     traverse(root, scope);
+    profiler_end(flowScope);
 }
 
 static bool conditionlessLoopMayExit(ASTNode* node, int nestedLoopDepth, int nestedSwitchDepth) {

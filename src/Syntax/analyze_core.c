@@ -9,6 +9,7 @@
 #include "symbol_table.h"
 #include "type_checker.h"
 #include "Parser/Helpers/parsed_type.h"
+#include "Utils/profiler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,12 +41,15 @@ static void addFuncBuiltinIdentifiers(Scope* scope, const char* funcName) {
     t.isConst = true;
     parsedTypeAppendPointer(&t);
     sym->type = t;
+    primeSymbolTypeInfoCache(sym, scope);
     addToScope(scope, sym);
     (void)funcName;
 }
 
 void analyze(ASTNode* node, Scope* scope) {
     if (!node) return;
+    ProfilerScope analyzeScope = profiler_begin("semantic_analyze_dispatch");
+    profiler_record_value("semantic_count_analyze_node", 1);
 
     switch (node->type) {
     case AST_PROGRAM: {
@@ -68,6 +72,7 @@ void analyze(ASTNode* node, Scope* scope) {
         Scope* fscope = createScope(scope);
         if (fscope) {
             fscope->hasReturnType = true;
+            profiler_record_value("semantic_count_type_info_site_return", 1);
             fscope->returnType = typeInfoFromParsedType(&node->functionDef.returnType, scope);
             fscope->inFunction = true;
             fscope->currentFunctionIsVariadic = node->functionDef.isVariadic;
@@ -200,4 +205,6 @@ void analyze(ASTNode* node, Scope* scope) {
         // fprintf(stderr, "Semantic: unhandled node type %d\n", node->type);
         break;
     }
+
+    profiler_end(analyzeScope);
 }

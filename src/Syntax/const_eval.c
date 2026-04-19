@@ -10,6 +10,7 @@
 #include "type_checker.h"
 #include "syntax_errors.h"
 #include "target_layout.h"
+#include "Utils/profiler.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -251,7 +252,8 @@ static TypeInfo lookupWCharType(Scope* scope) {
     if (!scope) return info;
     Symbol* w = resolveInScopeChain(scope, "wchar_t");
     if (w && w->kind == SYMBOL_TYPEDEF) {
-        info = typeInfoFromParsedType(&w->type, scope);
+        profiler_record_value("semantic_count_type_info_site_symbol", 1);
+        info = typeInfoFromSymbolCached(w, scope);
     }
     return info;
 }
@@ -343,6 +345,7 @@ static bool evalCast(long long value,
                      unsigned* bitsOut,
                      bool* isUnsignedOut) {
     if (!castType || !out) return false;
+    profiler_record_value("semantic_count_type_info_site_temp", 1);
     TypeInfo info = typeInfoFromParsedType(castType, scope);
     unsigned bits = 0;
     bool isUnsigned = false;
@@ -720,9 +723,12 @@ bool constEvalInteger(ASTNode* expr,
                       Scope* scope,
                       long long* out,
                       bool allowEnumRefs) {
+    ProfilerScope constScope = profiler_begin("semantic_const_eval_integer");
+    profiler_record_value("semantic_count_const_eval_integer", 1);
     ConstEvalResult res = constEvalInternal(expr, scope, allowEnumRefs);
     if (res.isConst && out) {
         *out = res.value;
     }
+    profiler_end(constScope);
     return res.isConst;
 }

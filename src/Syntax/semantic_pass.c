@@ -7,6 +7,7 @@
 #include "analyze_core.h"
 #include "builtins.h"
 #include "control_flow.h"
+#include "Utils/profiler.h"
 
 #include <stdio.h>
 
@@ -16,12 +17,15 @@ static Scope* runSemanticAnalysis(ASTNode* root,
                                   CompilerContext* ctx,
                                   size_t* outErrorCount,
                                   bool printSummary) {
+    ProfilerScope semanticScope = profiler_begin("semantic_run_analysis");
+    profiler_record_value("semantic_count_run_analysis", 1);
     initErrorList(ctx);
 
     Scope* globalScope = createScope(NULL);
     if (!globalScope) {
         if (outErrorCount) *outErrorCount = 1;
         freeErrorList();
+        profiler_end(semanticScope);
         return NULL;
     }
     globalScope->ctx = ctx;
@@ -57,6 +61,7 @@ static Scope* runSemanticAnalysis(ASTNode* root,
     }
     if (outErrorCount) *outErrorCount = errors;
     freeErrorList();
+    profiler_end(semanticScope);
 
     return globalScope;
 }

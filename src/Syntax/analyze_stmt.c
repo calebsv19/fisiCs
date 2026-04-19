@@ -10,6 +10,7 @@
 #include "symbol_table.h"
 #include "Parser/Helpers/parsed_type.h"
 #include "Lexer/tokens.h"
+#include "Utils/profiler.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -853,9 +854,12 @@ static void analyzeStatementInternal(ASTNode* node,
 }
 
 void analyzeStatement(ASTNode* node, Scope* scope) {
+    ProfilerScope stmtScope = profiler_begin("semantic_analyze_statement");
+    profiler_record_value("semantic_count_analyze_statement", 1);
     SwitchStack stack = {0};
     LabelTracker labels = {0};
     analyzeStatementInternal(node, scope, &stack, &labels, 0);
     free(labels.names);
     free(labels.locations);
+    profiler_end(stmtScope);
 }

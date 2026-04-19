@@ -2,6 +2,7 @@
 
 #include "builtins.h"
 #include "Parser/Helpers/parsed_type.h"
+#include "Utils/profiler.h"
 #include "syntax_errors.h"
 #include <stdlib.h>
 #include <string.h>
@@ -122,7 +123,12 @@ static Symbol* makeBuiltinFunc(const char* name, ParsedType retType, size_t para
 }
 
 void seedBuiltins(Scope* globalScope) {
-    if (!globalScope) return;
+    ProfilerScope builtinsScope = profiler_begin("semantic_seed_builtins");
+    profiler_record_value("semantic_count_seed_builtins", 1);
+    if (!globalScope) {
+        profiler_end(builtinsScope);
+        return;
+    }
 
     Scope* scope = globalScope;
 
@@ -591,4 +597,5 @@ void seedBuiltins(Scope* globalScope) {
     if (dblMin) addToScope(scope, dblMin);
     if (ldMin)  addToScope(scope, ldMin);
 
+    profiler_end(builtinsScope);
 }

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "analyze_decls_internal.h"
+#include "Utils/profiler.h"
 
 static ASTNode* symbolConstInitializerExpr(const Symbol* sym);
 static bool isSimpleFloatingConstExpr(ASTNode* expr, Scope* scope, int depth);
@@ -125,6 +126,7 @@ void maybeRecordConstIntegerValue(Symbol* sym,
     if (!sym || !varType || !init || !init->expression || !scope) return;
     if (!varType->isConst) return;
 
+    profiler_record_value("semantic_count_type_info_site_decl", 1);
     TypeInfo info = typeInfoFromParsedType(varType, scope);
     if (info.category != TYPEINFO_INTEGER && info.category != TYPEINFO_ENUM) {
         return;
@@ -177,6 +179,7 @@ void validateVariableInitializer(ParsedType* type,
 
     if (!init) return;
     const char* name = safeIdentifierName(nameNode);
+    profiler_record_value("semantic_count_type_info_decl_var_init_target", 1);
     TypeInfo info = typeInfoFromParsedType(type, scope);
     if (init->expression &&
         typeInfoIsPointerLike(&info) &&
@@ -421,7 +424,9 @@ static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destT
         }
     }
 
+    profiler_record_value("semantic_count_type_info_decl_ptr_compat_dest", 1);
     TypeInfo destInfo = typeInfoFromParsedType(destType, NULL);
+    profiler_record_value("semantic_count_type_info_decl_ptr_compat_src", 1);
     TypeInfo srcInfo = typeInfoFromParsedType(srcType, NULL);
     int depth = destInfo.pointerDepth < srcInfo.pointerDepth ? destInfo.pointerDepth
                                                              : srcInfo.pointerDepth;
@@ -506,6 +511,7 @@ static void validateArrayInitializerEntries(ParsedType* type,
     if (elementParsed.kind == TYPE_INVALID) {
         return;
     }
+    profiler_record_value("semantic_count_type_info_site_decl", 1);
     TypeInfo elementInfo = typeInfoFromParsedType(&elementParsed, scope);
     bool elementIsArray = parsedTypeIsDirectArray(&elementParsed);
 
@@ -808,6 +814,7 @@ void validateBitField(ASTNode* field, ParsedType* fieldType, Scope* scope) {
         return;
     }
 
+    profiler_record_value("semantic_count_type_info_site_decl", 1);
     TypeInfo info = typeInfoFromParsedType(fieldType, scope);
     if (!typeInfoIsInteger(&info) && info.category != TYPEINFO_ENUM) {
         addErrorWithRanges(field->location,

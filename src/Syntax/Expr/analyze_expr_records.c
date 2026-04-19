@@ -4,6 +4,7 @@
 #include "symbol_table.h"
 #include "Syntax/layout.h"
 #include "Compiler/compiler_context.h"
+#include "Utils/profiler.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -90,6 +91,7 @@ static const ParsedType* lookupFieldTypeInRecordDef(ASTNode* def,
 
         if (field->varDecl.varCount == 0) {
             const ParsedType* anonType = &field->varDecl.declaredType;
+            profiler_record_value("semantic_count_type_info_temp_record_anon", 1);
             TypeInfo anonInfo = typeInfoFromParsedType(anonType, scope);
             if (anonInfo.category == TYPEINFO_STRUCT || anonInfo.category == TYPEINFO_UNION) {
                 const ParsedType* nested = NULL;
@@ -200,6 +202,7 @@ bool evalOffsetofFieldPath(const ParsedType* baseType,
         return false;
     }
 
+    profiler_record_value("semantic_count_type_info_temp_offsetof_path_base", 1);
     TypeInfo current = typeInfoFromParsedType(baseType, scope);
     if (current.category != TYPEINFO_STRUCT && current.category != TYPEINFO_UNION) {
         return false;
@@ -243,6 +246,7 @@ bool evalOffsetofFieldPath(const ParsedType* baseType,
         if (!nested) {
             return false;
         }
+        profiler_record_value("semantic_count_type_info_temp_offsetof_path_nested", 1);
         current = typeInfoFromParsedType(nested, scope);
         if (current.category != TYPEINFO_STRUCT && current.category != TYPEINFO_UNION) {
             return false;

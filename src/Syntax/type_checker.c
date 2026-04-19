@@ -7,6 +7,7 @@
 #include "Syntax/target_layout.h"
 #include "AST/ast_node.h"
 #include "Parser/Helpers/parsed_type_format.h"
+#include "Utils/profiler.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -396,6 +397,8 @@ static TypeInfo typeInfoFromDerivationIndex(const ParsedType* type, size_t index
 
 TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
     if (!type) return makeInvalidType();
+    ProfilerScope typeScope = profiler_begin("semantic_type_info_from_parsed_type");
+    profiler_record_value("semantic_count_type_info_from_parsed_type", 1);
 
     TypeInfo info;
     if (type->derivationCount > 0) {
@@ -428,7 +431,43 @@ TypeInfo typeInfoFromParsedType(const ParsedType* type, Scope* scope) {
 
     applyQualifiers(&info, type);
     propagateVLAFlag(&info, type);
+    profiler_end(typeScope);
     return info;
+}
+
+void invalidateSymbolTypeInfoCache(Symbol* sym) {
+    if (!sym) {
+        return;
+    }
+    free(sym->cachedTypeInfo);
+    sym->cachedTypeInfo = NULL;
+}
+
+void primeSymbolTypeInfoCache(Symbol* sym, Scope* scope) {
+    if (!sym) {
+        return;
+    }
+    TypeInfo computed = typeInfoFromParsedType(&sym->type, scope);
+    if (!sym->cachedTypeInfo) {
+        sym->cachedTypeInfo = malloc(sizeof(*sym->cachedTypeInfo));
+        if (!sym->cachedTypeInfo) {
+            return;
+        }
+    }
+    *sym->cachedTypeInfo = computed;
+}
+
+TypeInfo typeInfoFromSymbolCached(Symbol* sym, Scope* scope) {
+    if (!sym) {
+        return makeInvalidType();
+    }
+    if (!sym->cachedTypeInfo) {
+        primeSymbolTypeInfoCache(sym, scope);
+    }
+    if (!sym->cachedTypeInfo) {
+        return makeInvalidType();
+    }
+    return *sym->cachedTypeInfo;
 }
 
 bool typeInfoIsInteger(const TypeInfo* info) {
