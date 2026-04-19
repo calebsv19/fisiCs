@@ -550,14 +550,22 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
 static void predeclareGlobalSymbolCallback(const Symbol* sym, void* userData) {
     CodegenContext* ctx = (CodegenContext*)userData;
     if (!ctx || !sym) return;
+    profiler_record_value("codegen_count_predeclare_symbol", 1);
     switch (sym->kind) {
         case SYMBOL_VARIABLE:
+            profiler_record_value("codegen_count_predeclare_variable", 1);
             declareGlobalVariableSymbol(ctx, sym);
             break;
         case SYMBOL_FUNCTION:
+            if (!sym->hasDefinition) {
+                profiler_record_value("codegen_count_predeclare_function_decl_only", 1);
+                break;
+            }
+            profiler_record_value("codegen_count_predeclare_function_with_definition", 1);
             declareFunctionSymbol(ctx, sym);
             break;
         case SYMBOL_STRUCT:
+            profiler_record_value("codegen_count_predeclare_struct", 1);
             declareStructSymbol(ctx, sym);
             break;
         case SYMBOL_ENUM:
@@ -658,7 +666,11 @@ void declareGlobalVariable(CodegenContext* ctx, ASTNode* node) {
 }
 
 void predeclareGlobals(CodegenContext* ctx, ASTNode* program) {
-    if (!ctx) return;
+    ProfilerScope scope = profiler_begin("codegen_predeclare_globals");
+    if (!ctx) {
+        profiler_end(scope);
+        return;
+    }
 
     const SemanticModel* model = cg_context_get_semantic_model(ctx);
     if (model) {
@@ -676,10 +688,14 @@ void predeclareGlobals(CodegenContext* ctx, ASTNode* program) {
                 }
             }
         }
+        profiler_end(scope);
         return;
     }
 
-    if (!program || program->type != AST_PROGRAM) return;
+    if (!program || program->type != AST_PROGRAM) {
+        profiler_end(scope);
+        return;
+    }
 
     for (size_t i = 0; i < program->block.statementCount; ++i) {
         ASTNode* stmt = program->block.statements[i];
@@ -705,4 +721,5 @@ void predeclareGlobals(CodegenContext* ctx, ASTNode* program) {
                 break;
         }
     }
+    profiler_end(scope);
 }

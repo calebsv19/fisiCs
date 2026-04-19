@@ -197,13 +197,17 @@ static LLVMValueRef codegenVLAElementCount(CodegenContext* ctx, const ParsedType
 }
 
 LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
+    ProfilerScope scope = profiler_begin("codegen_variable_declaration");
+    profiler_record_value("codegen_count_variable_declaration", 1);
     if (node->type != AST_VARIABLE_DECLARATION) {
         fprintf(stderr, "Error: Invalid node type for codegenVariableDeclaration\n");
+        profiler_end(scope);
         return NULL;
     }
 
     CG_DEBUG("[CG] Var decl count=%zu\n", node->varDecl.varCount);
     if (!ctx->currentScope || ctx->currentScope->parent == NULL) {
+        profiler_end(scope);
         return NULL;
     }
     for (size_t i = 0; i < node->varDecl.varCount; i++) {
@@ -444,5 +448,6 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         }
     }
 
+    profiler_end(scope);
     return NULL;
 }

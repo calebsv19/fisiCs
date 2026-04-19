@@ -37,12 +37,19 @@ typedef struct CGStructLLVMInfo {
     bool resolving;
 } CGStructLLVMInfo;
 
+typedef struct CGParsedTypeLLVM {
+    char* key;
+    LLVMTypeRef type;
+} CGParsedTypeLLVM;
+
 typedef struct CGTypeCache {
     const SemanticModel* model;
     CGNamedLLVMType* typedefCache;
     size_t typedefCount;
     CGStructLLVMInfo* structCache;
     size_t structCount;
+    CGParsedTypeLLVM* parsedCache;
+    size_t parsedCount;
 } CGTypeCache;
 
 CGTypeCache* cg_type_cache_create(const SemanticModel* model);
@@ -54,6 +61,8 @@ CGStructLLVMInfo* cg_type_cache_get_struct_info(CGTypeCache* cache, const char* 
 CGNamedLLVMType* cg_type_cache_get_typedef_info(CGTypeCache* cache, const char* name);
 CGStructLLVMInfo* cg_type_cache_get_struct_by_definition(CGTypeCache* cache, const ASTNode* definition);
 CGStructLLVMInfo* cg_type_cache_find_struct_by_llvm(CGTypeCache* cache, LLVMTypeRef llvmType);
+LLVMTypeRef cg_type_cache_lookup_parsed(CGTypeCache* cache, const char* key);
+bool cg_type_cache_store_parsed(CGTypeCache* cache, const char* key, LLVMTypeRef type);
 
 #ifdef __cplusplus
 }

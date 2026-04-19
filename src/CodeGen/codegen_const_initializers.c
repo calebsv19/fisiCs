@@ -645,11 +645,18 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                                         ASTNode* expr,
                                         LLVMTypeRef targetType,
                                         const ParsedType* parsedType) {
-    if (!ctx || !expr || !targetType) return NULL;
+#define CG_CONST_INIT_RETURN(value) \
+    do {                            \
+        profiler_end(scope);        \
+        return (value);             \
+    } while (0)
+    ProfilerScope scope = profiler_begin("codegen_const_initializer");
+    profiler_record_value("codegen_count_const_initializer", 1);
+    if (!ctx || !expr || !targetType) CG_CONST_INIT_RETURN(NULL);
 
     LLVMTypeKind targetKind = LLVMGetTypeKind(targetType);
     if (targetKind == LLVMVoidTypeKind) {
-        return NULL;
+        CG_CONST_INIT_RETURN(NULL);
     }
 
     const ParsedType* effectiveParsed = parsedType;
@@ -660,24 +667,24 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
     if (expr->type == AST_COMPOUND_LITERAL &&
         (targetKind == LLVMArrayTypeKind || targetKind == LLVMStructTypeKind)) {
         if (targetKind == LLVMArrayTypeKind) {
-            return cg_build_const_array(ctx,
-                                        targetType,
-                                        effectiveParsed,
-                                        expr->compoundLiteral.entries,
-                                        expr->compoundLiteral.entryCount);
+            CG_CONST_INIT_RETURN(cg_build_const_array(ctx,
+                                                      targetType,
+                                                      effectiveParsed,
+                                                      expr->compoundLiteral.entries,
+                                                      expr->compoundLiteral.entryCount));
         }
-        return cg_build_const_struct(ctx,
-                                     targetType,
-                                     effectiveParsed,
-                                     expr->compoundLiteral.entries,
-                                     expr->compoundLiteral.entryCount);
+        CG_CONST_INIT_RETURN(cg_build_const_struct(ctx,
+                                                   targetType,
+                                                   effectiveParsed,
+                                                   expr->compoundLiteral.entries,
+                                                   expr->compoundLiteral.entryCount));
     }
 
     if (expr->type == AST_COMPOUND_LITERAL && targetKind == LLVMPointerTypeKind) {
         LLVMTypeRef literalType = NULL;
         LLVMValueRef literalPtr = cg_emit_compound_literal_pointer(ctx, expr, &literalType);
         if (!literalPtr || !literalType) {
-            return NULL;
+            CG_CONST_INIT_RETURN(NULL);
         }
         LLVMValueRef result = literalPtr;
         if (LLVMGetTypeKind(literalType) == LLVMArrayTypeKind) {
@@ -691,7 +698,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         if (LLVMTypeOf(result) != targetType) {
             result = LLVMConstBitCast(result, targetType);
         }
-        return result;
+        CG_CONST_INIT_RETURN(result);
     }
 
     if (targetKind == LLVMArrayTypeKind && expr->type == AST_STRING_LITERAL) {
@@ -701,7 +708,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         unsigned len = LLVMGetArrayLength(targetType);
         LLVMTypeRef elem = LLVMGetElementType(targetType);
         if (!elem || LLVMGetTypeKind(elem) != LLVMIntegerTypeKind) {
-            return NULL;
+            CG_CONST_INIT_RETURN(NULL);
         }
         unsigned elemBits = LLVMGetIntTypeWidth(elem);
         if (enc == LIT_ENC_WIDE && elemBits > 8) {
@@ -711,7 +718,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
             LLVMValueRef* chars = (LLVMValueRef*)calloc(len, sizeof(LLVMValueRef));
             if (!chars) {
                 free(codepoints);
-                return NULL;
+                CG_CONST_INIT_RETURN(NULL);
             }
             for (unsigned i = 0; i < len; ++i) {
                 uint32_t c = 0;
@@ -725,14 +732,14 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
             LLVMValueRef arr = LLVMConstArray(elem, chars, len);
             free(chars);
             free(codepoints);
-            return arr;
+            CG_CONST_INIT_RETURN(arr);
         }
 
         if (elemBits != 8) {
-            return NULL;
+            CG_CONST_INIT_RETURN(NULL);
         }
         LLVMValueRef* chars = (LLVMValueRef*)calloc(len, sizeof(LLVMValueRef));
-        if (!chars) return NULL;
+        if (!chars) CG_CONST_INIT_RETURN(NULL);
         size_t textLen = text ? strlen(text) : 0;
         for (unsigned i = 0; i < len; ++i) {
             unsigned char c = 0;
@@ -745,7 +752,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         }
         LLVMValueRef arr = LLVMConstArray(elem, chars, len);
         free(chars);
-        return arr;
+        CG_CONST_INIT_RETURN(arr);
     }
 
     if (targetKind == LLVMPointerTypeKind && expr->type == AST_STRING_LITERAL) {
@@ -753,13 +760,13 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         LiteralEncoding enc = ast_literal_encoding(expr->valueNode.value, &payload);
         const char* text = payload ? payload : expr->valueNode.value;
         if (enc == LIT_ENC_WIDE) {
-            return cg_make_const_wstring_global(ctx, text, targetType);
+            CG_CONST_INIT_RETURN(cg_make_const_wstring_global(ctx, text, targetType));
         }
-        return cg_make_const_string_global(ctx, text ? text : "", targetType);
+        CG_CONST_INIT_RETURN(cg_make_const_string_global(ctx, text ? text : "", targetType));
     }
 
     if (targetKind == LLVMStructTypeKind && expr->type == AST_STRING_LITERAL) {
-        return NULL;
+        CG_CONST_INIT_RETURN(NULL);
     }
 
     if (targetKind == LLVMFloatTypeKind ||
@@ -768,11 +775,11 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
         if (expr->type == AST_NUMBER_LITERAL || expr->type == AST_CHAR_LITERAL) {
             const char* text = expr->valueNode.value ? expr->valueNode.value : "0";
             double val = strtod(text, NULL);
-            return LLVMConstReal(targetType, val);
+            CG_CONST_INIT_RETURN(LLVMConstReal(targetType, val));
         }
         double foldedFP = 0.0;
         if (cg_eval_const_float_expr(expr, &foldedFP)) {
-            return LLVMConstReal(targetType, foldedFP);
+            CG_CONST_INIT_RETURN(LLVMConstReal(targetType, foldedFP));
         }
     }
 
@@ -821,7 +828,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                             casted = LLVMConstBitCast(pointerValue, targetType);
                         }
                         if (casted) {
-                            return casted;
+                            CG_CONST_INIT_RETURN(casted);
                         }
                     }
                 }
@@ -837,7 +844,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                         casted = LLVMConstBitCast(named->value, targetType);
                     }
                     if (casted) {
-                        return casted;
+                        CG_CONST_INIT_RETURN(casted);
                     }
                 }
             }
@@ -866,7 +873,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                     if (castType) LLVMDisposeMessage(castType);
                     if (targetStr) LLVMDisposeMessage(targetStr);
                 }
-                return casted;
+                CG_CONST_INIT_RETURN(casted);
             }
             if (tookAddress && name) {
                 LLVMValueRef glob = LLVMGetNamedGlobal(ctx->module, name);
@@ -875,7 +882,7 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                     if (!casted) {
                         casted = LLVMConstBitCast(glob, targetType);
                     }
-                    return casted;
+                    CG_CONST_INIT_RETURN(casted);
                 }
             }
         }
@@ -887,12 +894,13 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
     }
     ConstEvalResult res = constEval(expr, globalScope, true);
     if (!res.isConst) {
-        return NULL;
+        CG_CONST_INIT_RETURN(NULL);
     }
     LLVMValueRef folded = cg_const_from_eval(ctx, &res, targetType, effectiveParsed);
     if (folded) {
-        return folded;
+        CG_CONST_INIT_RETURN(folded);
     }
 
-    return NULL;
+    CG_CONST_INIT_RETURN(NULL);
+#undef CG_CONST_INIT_RETURN
 }

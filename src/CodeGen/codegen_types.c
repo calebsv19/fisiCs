@@ -6,6 +6,8 @@
 #include "codegen_type_cache.h"
 #include "Syntax/const_eval.h"
 #include "Syntax/semantic_model.h"
+#include "Utils/profiler.h"
+#include "Parser/Helpers/parsed_type_format.h"
 
 /* Forward declaration to materialize inline struct/union definitions. */
 LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node);
@@ -57,6 +59,45 @@ static bool cg_is_builtin_int128_alias(const char* name, bool* outIsUnsigned) {
         return true;
     }
     return false;
+}
+
+static bool cg_parsed_type_has_uncacheable_array_expr(const ParsedType* type) {
+    if (!type) {
+        return false;
+    }
+    for (size_t i = 0; i < type->derivationCount; ++i) {
+        const TypeDerivation* deriv = parsedTypeGetDerivation(type, i);
+        if (!deriv || deriv->kind != TYPE_DERIVATION_ARRAY) {
+            continue;
+        }
+        if (deriv->as.array.sizeExpr &&
+            !deriv->as.array.hasConstantSize &&
+            !deriv->as.array.isFlexible &&
+            !deriv->as.array.isVLA) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool cg_type_cacheable_key_allowed(const ParsedType* type) {
+    if (!type) {
+        return false;
+    }
+    if (type->inlineStructOrUnionDef || type->inlineEnumDef) {
+        return false;
+    }
+    if (type->attributeCount > 0 || type->hasAlignOverride) {
+        return false;
+    }
+    if (type->isVLA || cg_parsed_type_has_uncacheable_array_expr(type)) {
+        return false;
+    }
+    if ((type->kind == TYPE_STRUCT || type->kind == TYPE_UNION || type->kind == TYPE_NAMED) &&
+        !type->userTypeName) {
+        return false;
+    }
+    return true;
 }
 
 static LLVMTypeRef primitiveType(CodegenContext* ctx, const ParsedType* type) {
@@ -287,6 +328,23 @@ static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type,
 }
 
 LLVMTypeRef cg_type_from_parsed(CodegenContext* ctx, const ParsedType* type) {
+    ProfilerScope scope = profiler_begin("codegen_type_from_parsed");
+    profiler_record_value("codegen_count_type_from_parsed", 1);
+    CGTypeCache* cache = ctx ? cg_context_get_type_cache(ctx) : NULL;
+    char* cacheKey = NULL;
+    if (cache && cg_type_cacheable_key_allowed(type)) {
+        cacheKey = parsed_type_to_string(type);
+        if (cacheKey) {
+            LLVMTypeRef cached = cg_type_cache_lookup_parsed(cache, cacheKey);
+            if (cached) {
+                profiler_record_value("codegen_count_type_from_parsed_cache_hit", 1);
+                free(cacheKey);
+                profiler_end(scope);
+                return cached;
+            }
+            profiler_record_value("codegen_count_type_from_parsed_cache_miss", 1);
+        }
+    }
     LLVMTypeRef derived = buildDerivedType(ctx, type, 0);
     if (!derived) {
         derived = baseType(ctx, type);
@@ -296,8 +354,19 @@ LLVMTypeRef cg_type_from_parsed(CodegenContext* ctx, const ParsedType* type) {
         LLVMTypeRef fnPtr = functionPointerType(ctx, type, derived);
         int extraDepthLegacy = type ? type->pointerDepth : 0;
         if (extraDepthLegacy > 0) {
-            return applyPointerDepth(ctx, fnPtr, extraDepthLegacy);
+            LLVMTypeRef result = applyPointerDepth(ctx, fnPtr, extraDepthLegacy);
+            if (cache && cacheKey && result) {
+                cg_type_cache_store_parsed(cache, cacheKey, result);
+            }
+            free(cacheKey);
+            profiler_end(scope);
+            return result;
         }
+        if (cache && cacheKey && fnPtr) {
+            cg_type_cache_store_parsed(cache, cacheKey, fnPtr);
+        }
+        free(cacheKey);
+        profiler_end(scope);
         return fnPtr;
     }
 
@@ -307,7 +376,13 @@ LLVMTypeRef cg_type_from_parsed(CodegenContext* ctx, const ParsedType* type) {
     }
     int depth = type ? type->pointerDepth - pointerDerivations : 0;
     if (depth < 0) depth = 0;
-    return applyPointerDepth(ctx, derived, depth);
+    LLVMTypeRef result = applyPointerDepth(ctx, derived, depth);
+    if (cache && cacheKey && result) {
+        cg_type_cache_store_parsed(cache, cacheKey, result);
+    }
+    free(cacheKey);
+    profiler_end(scope);
+    return result;
 }
 
 static LLVMTypeRef ensureStructFromInfo(CodegenContext* ctx, CGStructLLVMInfo* info) {

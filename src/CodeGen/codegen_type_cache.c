@@ -29,6 +29,14 @@ static void freeStructCache(CGStructLLVMInfo* cache, size_t count) {
     free(cache);
 }
 
+static void freeParsedCache(CGParsedTypeLLVM* cache, size_t count) {
+    if (!cache) return;
+    for (size_t i = 0; i < count; ++i) {
+        free(cache[i].key);
+    }
+    free(cache);
+}
+
 CGTypeCache* cg_type_cache_create(const SemanticModel* model) {
     CGTypeCache* cache = (CGTypeCache*)calloc(1, sizeof(CGTypeCache));
     if (!cache) return NULL;
@@ -108,6 +116,7 @@ void cg_type_cache_destroy(CGTypeCache* cache) {
     if (!cache) return;
     freeTypedefCache(cache->typedefCache, cache->typedefCount);
     freeStructCache(cache->structCache, cache->structCount);
+    freeParsedCache(cache->parsedCache, cache->parsedCount);
     free(cache);
 }
 
@@ -186,4 +195,39 @@ CGStructLLVMInfo* cg_type_cache_find_struct_by_llvm(CGTypeCache* cache, LLVMType
         }
     }
     return NULL;
+}
+
+LLVMTypeRef cg_type_cache_lookup_parsed(CGTypeCache* cache, const char* key) {
+    if (!cache || !key) {
+        return NULL;
+    }
+    for (size_t i = 0; i < cache->parsedCount; ++i) {
+        if (cache->parsedCache[i].key && strcmp(cache->parsedCache[i].key, key) == 0) {
+            return cache->parsedCache[i].type;
+        }
+    }
+    return NULL;
+}
+
+bool cg_type_cache_store_parsed(CGTypeCache* cache, const char* key, LLVMTypeRef type) {
+    if (!cache || !key || !type) {
+        return false;
+    }
+    if (cg_type_cache_lookup_parsed(cache, key)) {
+        return true;
+    }
+    CGParsedTypeLLVM* grown =
+        (CGParsedTypeLLVM*)realloc(cache->parsedCache,
+                                   (cache->parsedCount + 1) * sizeof(CGParsedTypeLLVM));
+    if (!grown) {
+        return false;
+    }
+    cache->parsedCache = grown;
+    cache->parsedCache[cache->parsedCount].key = strdup(key);
+    if (!cache->parsedCache[cache->parsedCount].key) {
+        return false;
+    }
+    cache->parsedCache[cache->parsedCount].type = type;
+    cache->parsedCount++;
+    return true;
 }

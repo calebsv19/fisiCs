@@ -70,6 +70,8 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
     if (pt->isUnsigned) if (!sb_append(b, "unsigned ")) return false;
     if (pt->isShort)    if (!sb_append(b, "short ")) return false;
     if (pt->isLong)     if (!sb_append(b, "long ")) return false;
+    if (pt->isComplex)  if (!sb_append(b, "_Complex ")) return false;
+    if (pt->isImaginary) if (!sb_append(b, "_Imaginary ")) return false;
     if (pt->isVolatile) if (!sb_append(b, "volatile ")) return false;
     if (pt->isRestrict) if (!sb_append(b, "restrict ")) return false;
     if (pt->isInline)   if (!sb_append(b, "inline ")) return false;

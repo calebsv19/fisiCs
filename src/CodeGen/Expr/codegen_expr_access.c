@@ -484,6 +484,14 @@ LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
     LLVMValueRef global = LLVMGetNamedGlobal(ctx->module, node->valueNode.value);
     if (!global) {
         LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, node->valueNode.value);
+        if (!fn && model) {
+            const Symbol* sym = semanticModelLookupGlobal(model, node->valueNode.value);
+            if (sym && sym->kind == SYMBOL_FUNCTION) {
+                profiler_record_value("codegen_count_lazy_function_materialize", 1);
+                declareFunctionSymbol(ctx, sym);
+                fn = LLVMGetNamedFunction(ctx->module, node->valueNode.value);
+            }
+        }
         if (fn) {
             return fn;
         }

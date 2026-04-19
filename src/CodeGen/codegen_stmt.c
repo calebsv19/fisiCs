@@ -182,8 +182,10 @@ static LLVMValueRef cg_finalize_statement_expr_result(CodegenContext* ctx, LLVMV
 }
 
 LLVMValueRef codegenProgram(CodegenContext* ctx, ASTNode* node) {
+    ProfilerScope scope = profiler_begin("codegen_program");
     if (node->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid node type for codegenProgram\n");
+        profiler_end(scope);
         return NULL;
     }
 
@@ -192,6 +194,7 @@ LLVMValueRef codegenProgram(CodegenContext* ctx, ASTNode* node) {
     for (size_t i = 0; i < node->block.statementCount; i++) {
         last = codegenNode(ctx, node->block.statements[i]);
     }
+    profiler_end(scope);
     return last;
 }
 
@@ -263,9 +266,16 @@ LLVMValueRef codegenStatementExpression(CodegenContext* ctx, ASTNode* node) {
 }
 
 LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
+    ProfilerScope scope = profiler_begin("codegen_function_definition");
+    profiler_record_value("codegen_count_function_definition", 1);
+#define CG_FUNCTION_RETURN(value) \
+    do {                          \
+        profiler_end(scope);      \
+        return (value);           \
+    } while (0)
     if (node->type != AST_FUNCTION_DEFINITION) {
         fprintf(stderr, "Error: Invalid node type for codegenFunctionDefinition\n");
-        return NULL;
+        CG_FUNCTION_RETURN(NULL);
     }
 
     const char* dbgRun = getenv("DEBUG_RUN");
@@ -316,7 +326,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                 free(paramPassIndirect);
             }
             cg_free_param_infos(paramInfos);
-            return NULL;
+            CG_FUNCTION_RETURN(NULL);
         }
         for (size_t i = 0; i < paramCount; i++) {
             const ParsedType* paramType = paramInfos[i].parsedType;
@@ -513,7 +523,8 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     if (dbgRun) {
         fprintf(stderr, "[CG] exit function %s\n", fnLabel);
     }
-    return function;
+    CG_FUNCTION_RETURN(function);
+#undef CG_FUNCTION_RETURN
 }
 
 

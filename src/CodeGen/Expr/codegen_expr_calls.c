@@ -7,14 +7,21 @@
 #include <string.h>
 
 LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
+#define CG_CALL_RETURN(value) \
+    do {                      \
+        profiler_end(scope);  \
+        return (value);       \
+    } while (0)
+    ProfilerScope scope = profiler_begin("codegen_function_call");
+    profiler_record_value("codegen_count_function_call", 1);
     if (node->type != AST_FUNCTION_CALL) {
         fprintf(stderr, "Error: Invalid node type for codegenFunctionCall\n");
-        return NULL;
+        CG_CALL_RETURN(NULL);
     }
 
     if (!node->functionCall.callee) {
         fprintf(stderr, "Error: Unsupported callee in function call\n");
-        return NULL;
+        CG_CALL_RETURN(NULL);
     }
 
     const ParsedType* calleeParsed = cg_resolve_expression_type(ctx, node->functionCall.callee);
@@ -40,17 +47,17 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         const TargetLayout* tl = cg_context_get_target_layout(ctx);
         unsigned bits = (tl && tl->pointerBits) ? (unsigned)tl->pointerBits : 64;
         LLVMTypeRef offTy = LLVMIntTypeInContext(ctx->llvmContext, bits);
-        return LLVMConstInt(offTy, ok ? (unsigned long long)offset : 0ULL, false);
+        CG_CALL_RETURN(LLVMConstInt(offTy, ok ? (unsigned long long)offset : 0ULL, false));
     }
     if (calleeName && strcmp(calleeName, "__builtin_constant_p") == 0) {
-        return LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, false);
+        CG_CALL_RETURN(LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, false));
     }
 
     LLVMValueRef function = codegenNode(ctx, node->functionCall.callee);
     if (!function) {
         fprintf(stderr, "Error: Undefined function %s\n",
                 calleeName ? calleeName : "<expr>");
-        return NULL;
+        CG_CALL_RETURN(NULL);
     }
 
     bool isVaStartBuiltin = calleeName &&
@@ -65,7 +72,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     LLVMValueRef* args = NULL;
     if (node->functionCall.argumentCount > 0) {
         args = (LLVMValueRef*)malloc(sizeof(LLVMValueRef) * node->functionCall.argumentCount);
-        if (!args) return NULL;
+        if (!args) CG_CALL_RETURN(NULL);
         for (size_t i = 0; i < node->functionCall.argumentCount; i++) {
             if ((isVaStartBuiltin || isVaArgBuiltin || isVaEndBuiltin) && i == 0) {
                 args[i] = NULL;
@@ -159,7 +166,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         LLVMTypeRef* paramTypes = NULL;
         if (argCount > 0) {
             paramTypes = (LLVMTypeRef*)calloc(argCount, sizeof(LLVMTypeRef));
-            if (!paramTypes) return NULL;
+            if (!paramTypes) CG_CALL_RETURN(NULL);
             for (size_t i = 0; i < argCount; ++i) {
                 LLVMValueRef val = finalArgs ? finalArgs[i] : NULL;
                 LLVMTypeRef argTy = val ? LLVMTypeOf(val) : LLVMInt32TypeInContext(ctx->llvmContext);
@@ -208,7 +215,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             if (!inferredParams) {
                 if (promotedArgs) free(promotedArgs);
                 free(args);
-                return NULL;
+                CG_CALL_RETURN(NULL);
             }
             for (size_t i = 0; i < argCount; ++i) {
                 LLVMValueRef val = finalArgs ? finalArgs[i] : NULL;
@@ -230,7 +237,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         fprintf(stderr, "Error: call target is not a function type\n");
         if (promotedArgs) free(promotedArgs);
         free(args);
-        return NULL;
+        CG_CALL_RETURN(NULL);
     }
 
     if (!noPrototype) {
@@ -520,7 +527,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     if (promotedArgs) free(promotedArgs);
     free(args);
     if (callReturnsVoid) {
-        return NULL;
+        CG_CALL_RETURN(NULL);
     }
 
     LLVMValueRef result = call;
@@ -543,5 +550,6 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
             }
         }
     }
-    return result;
+    CG_CALL_RETURN(result);
+#undef CG_CALL_RETURN
 }

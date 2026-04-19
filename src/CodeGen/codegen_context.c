@@ -10,14 +10,17 @@ static CGScope* cg_scope_create(CGScope* parent);
 static void cg_scope_destroy(CGScope* scope);
 
 CodegenContext* codegen_context_create(const char* moduleName, const SemanticModel* semanticModel) {
+    ProfilerScope scope = profiler_begin("codegen_context_create");
     CodegenContext* ctx = (CodegenContext*)calloc(1, sizeof(CodegenContext));
     if (!ctx) {
+        profiler_end(scope);
         return NULL;
     }
 
     ctx->llvmContext = LLVMContextCreate();
     if (!ctx->llvmContext) {
         free(ctx);
+        profiler_end(scope);
         return NULL;
     }
 
@@ -26,6 +29,7 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
     if (!ctx->module) {
         LLVMContextDispose(ctx->llvmContext);
         free(ctx);
+        profiler_end(scope);
         return NULL;
     }
 
@@ -34,6 +38,7 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
         LLVMDisposeModule(ctx->module);
         LLVMContextDispose(ctx->llvmContext);
         free(ctx);
+        profiler_end(scope);
         return NULL;
     }
 
@@ -49,6 +54,7 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
             LLVMDisposeModule(ctx->module);
             LLVMContextDispose(ctx->llvmContext);
             free(ctx);
+            profiler_end(scope);
             return NULL;
         }
 
@@ -83,6 +89,7 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
         }
     }
 
+    profiler_end(scope);
     return ctx;
 }
 

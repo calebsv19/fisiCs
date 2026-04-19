@@ -10,6 +10,7 @@
 #include "Parser/Helpers/parsed_type.h"
 #include "Syntax/semantic_model.h"
 #include "Syntax/target_layout.h"
+#include "Utils/profiler.h"
 
 #include <llvm-c/Core.h>
 

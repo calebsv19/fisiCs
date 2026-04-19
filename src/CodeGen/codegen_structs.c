@@ -753,8 +753,11 @@ bool codegenLValue(CodegenContext* ctx,
 }
 
 LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
+    ProfilerScope scope = profiler_begin("codegen_struct_definition");
+    profiler_record_value("codegen_count_struct_definition", 1);
     if (node->type != AST_STRUCT_DEFINITION && node->type != AST_UNION_DEFINITION) {
         fprintf(stderr, "Error: Invalid node type for codegenStructDefinition\n");
+        profiler_end(scope);
         return NULL;
     }
 
@@ -812,6 +815,7 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (!LLVMIsOpaqueStruct(structType)) {
+        profiler_end(scope);
         return structType;
     }
 
@@ -827,6 +831,7 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
     if (totalFields == 0) {
         LLVMStructSetBody(structType, NULL, 0, 0);
         recordStructInfo(ctx, structName, isUnion, NULL, 0, structType);
+        profiler_end(scope);
         return structType;
     }
 
@@ -835,6 +840,7 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
     if (!fieldTypes || !infos) {
         free(fieldTypes);
         free(infos);
+        profiler_end(scope);
         return NULL;
     }
 
@@ -925,6 +931,7 @@ LLVMTypeRef codegenStructDefinition(CodegenContext* ctx, ASTNode* node) {
     }
     recordStructInfo(ctx, structName, isUnion, infos, fieldIndex, structType);
     free(fieldTypes);
+    profiler_end(scope);
     return structType;
 }
 

@@ -216,11 +216,18 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
                                      LLVMTypeRef destType,
                                      const ParsedType* destParsed,
                                      ASTNode* expr) {
-    if (!ctx || !destPtr || !expr) return false;
+#define CG_STORE_INIT_RETURN(value) \
+    do {                            \
+        profiler_end(scope);        \
+        return (value);             \
+    } while (0)
+    ProfilerScope scope = profiler_begin("codegen_store_initializer_expression");
+    profiler_record_value("codegen_count_store_initializer_expression", 1);
+    if (!ctx || !destPtr || !expr) CG_STORE_INIT_RETURN(false);
     LLVMTypeRef storeType = destType;
     if (!storeType || LLVMGetTypeKind(storeType) == LLVMVoidTypeKind) {
         fprintf(stderr, "Error: Invalid initializer destination type\n");
-        return false;
+        CG_STORE_INIT_RETURN(false);
     }
 
     LLVMTypeKind storeKind = LLVMGetTypeKind(storeType);
@@ -239,7 +246,7 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
                         LLVMConstInt(LLVMInt8TypeInContext(ctx->llvmContext), 0, 0),
                         sizeVal,
                         align ? align : 1);
-        return true;
+        CG_STORE_INIT_RETURN(true);
     }
 
     if (isAggregateStore) {
@@ -258,7 +265,7 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
             }
             if (bytes == 0) {
                 fprintf(stderr, "Error: Unable to determine aggregate initializer size\n");
-                return false;
+                CG_STORE_INIT_RETURN(false);
             }
             unsigned alignVal = align ? align : 1;
             LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
@@ -266,14 +273,14 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
             LLVMValueRef srcCast = LLVMBuildBitCast(ctx->builder, srcPtr, i8Ptr, "init.agg.src");
             LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
             LLVMBuildMemCpy(ctx->builder, dstCast, alignVal, srcCast, alignVal, sizeVal);
-            return true;
+            CG_STORE_INIT_RETURN(true);
         }
     }
 
     LLVMValueRef value = codegenNode(ctx, expr);
     if (!value) {
         fprintf(stderr, "Error: Failed to evaluate initializer expression\n");
-        return false;
+        CG_STORE_INIT_RETURN(false);
     }
 
     if (!destType || LLVMGetTypeKind(destType) == LLVMVoidTypeKind) {
@@ -281,12 +288,13 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
     }
     if (!storeType || LLVMGetTypeKind(storeType) == LLVMVoidTypeKind) {
         fprintf(stderr, "Error: Invalid initializer destination type\n");
-        return false;
+        CG_STORE_INIT_RETURN(false);
     }
 
     LLVMValueRef casted = cg_cast_value(ctx, value, storeType, cg_resolve_expression_type(ctx, expr), destParsed, "init.cast");
     LLVMBuildStore(ctx->builder, casted, destPtr);
-    return true;
+    CG_STORE_INIT_RETURN(true);
+#undef CG_STORE_INIT_RETURN
 }
 
 static bool cg_store_struct_entries(CodegenContext* ctx,

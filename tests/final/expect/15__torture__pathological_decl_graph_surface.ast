@@ -1357,30 +1357,6 @@ target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64
 @sys_nerr = external global i32, align 4
 @.str.0 = private unnamed_addr constant [7 x i8] c"%d %d\0A\00"
 
-declare i32 @putc(i32 %0, ptr %1)
-
-declare i32 @vasprintf(ptr %0, ptr %1, ptr %2)
-
-declare i32 @fseeko(ptr %0, i64 %1, i32 %2)
-
-declare i32 @fileno(ptr %0)
-
-declare i64 @atomic_load_explicit(...)
-
-declare ptr @__builtin___memmove_chk(ptr %0, ptr %1, i64 %2, i64 %3)
-
-declare double @__builtin_huge_val()
-
-declare i32 @feof(ptr %0)
-
-declare i64 @__c11_atomic_exchange(...)
-
-declare ptr @popen(ptr %0, ptr %1)
-
-declare i32 @fputc(i32 %0, ptr %1)
-
-declare i32 @renameatx_np(i32 %0, ptr %1, i32 %2, ptr %3, i32 %4)
-
 define internal i32 @op_fold(i32 %0, i32 %1) {
 entry:
   %b = alloca i32, align 4
@@ -1394,78 +1370,6 @@ entry:
   %addtmp = add i32 %multmp, %xortmp
   ret i32 %addtmp
 }
-
-declare i32 @__srget(ptr %0)
-
-declare i32 @getc(ptr %0)
-
-declare i64 @__builtin_object_size(ptr %0, i32 %1)
-
-declare i32 @sprintf(ptr %0, ptr %1, ...)
-
-declare i32 @fgetc(ptr %0)
-
-declare i32 @vsnprintf(ptr %0, i64 %1, ptr %2, ptr %3)
-
-declare i32 @puts(ptr %0)
-
-declare i32 @vdprintf(i32 %0, ptr %1, ptr %2)
-
-declare i32 @vfprintf(ptr %0, ptr %1, ptr %2)
-
-declare i32 @putw(i32 %0, ptr %1)
-
-declare i64 @fwrite(ptr %0, i64 %1, i64 %2, ptr %3)
-
-declare i32 @fscanf(ptr %0, ptr %1, ...)
-
-declare double @__builtin_nan(ptr %0)
-
-declare ptr @tempnam(ptr %0, ptr %1)
-
-declare i32 @fputs(ptr %0, ptr %1)
-
-declare ptr @gets(ptr %0)
-
-declare i32 @getw(ptr %0)
-
-declare i32 @getc_unlocked(ptr %0)
-
-declare float @__builtin_inff()
-
-declare i32 @rename(ptr %0, ptr %1)
-
-declare i32 @fgetpos(ptr %0, ptr %1)
-
-declare void @__builtin_va_start(...)
-
-declare i32 @__sprintf_chk(ptr %0, i32 %1, i64 %2, ptr %3, ...)
-
-declare ptr @ctermid_r(ptr %0)
-
-declare ptr @fgets(ptr %0, i32 %1, ptr %2)
-
-declare ptr @__builtin___strncpy_chk(ptr %0, ptr %1, i64 %2, i64 %3)
-
-declare i32 @__builtin___snprintf_chk(ptr %0, i64 %1, i32 %2, i64 %3, ptr %4, ...)
-
-declare i32 @fclose(ptr %0)
-
-declare i32 @__vsnprintf_chk(ptr %0, i64 %1, i32 %2, i64 %3, ptr %4, ptr %5)
-
-declare double @__builtin_infl()
-
-declare i32 @setvbuf(ptr %0, ptr %1, i32 %2, i64 %3)
-
-declare i64 @atomic_exchange_explicit(...)
-
-declare i32 @vscanf(ptr %0, ptr %1)
-
-declare i32 @fsetpos(ptr %0, ptr %1)
-
-declare i32 @__swbuf(i32 %0, ptr %1)
-
-declare void @__builtin_va_copy(...)
 
 define internal i32 @run_graph(ptr %0, ptr %1, i32 %2) {
 entry:
@@ -1599,10 +1503,6 @@ ifcont54:                                         ; preds = %then53, %ifcont
   br label %forinc
 }
 
-declare ptr @__builtin___strncat_chk(ptr %0, ptr %1, i64 %2, i64 %3)
-
-declare i32 @vfscanf(ptr %0, ptr %1, ptr %2)
-
 define internal i32 @op_sub(i32 %0, i32 %1) {
 entry:
   %b = alloca i32, align 4
@@ -1614,16 +1514,6 @@ entry:
   %subtmp = sub i32 %a1, %b2
   ret i32 %subtmp
 }
-
-declare i64 @getline(ptr %0, ptr %1, ptr %2)
-
-declare ptr @ctermid(ptr %0)
-
-declare i32 @fflush(ptr %0)
-
-declare void @rewind(ptr %0)
-
-declare i64 @getdelim(ptr %0, ptr %1, i32 %2, ptr %3)
 
 define internal i32 @op_mix(i32 %0, i32 %1) {
 entry:
@@ -1639,114 +1529,6 @@ entry:
   %xortmp = xor i32 %shltmp, %addtmp
   ret i32 %xortmp
 }
-
-declare i32 @ftrylockfile(ptr %0)
-
-declare i32 @fseek(ptr %0, i64 %1, i32 %2)
-
-declare i32 @__vsprintf_chk(ptr %0, i32 %1, i64 %2, ptr %3, ptr %4)
-
-declare i32 @putc_unlocked(i32 %0, ptr %1)
-
-declare i32 @ferror(ptr %0)
-
-declare double @__builtin_fabs(double %0)
-
-declare void @atomic_init(...)
-
-declare void @funlockfile(ptr %0)
-
-declare ptr @__builtin___memcpy_chk(ptr %0, ptr %1, i64 %2, i64 %3)
-
-declare i32 @printf(ptr %0, ...)
-
-declare float @__builtin_fabsf(float %0)
-
-declare ptr @fmemopen(ptr %0, i64 %1, ptr %2)
-
-declare i32 @dprintf(i32 %0, ptr %1, ...)
-
-declare i32 @putchar(i32 %0)
-
-declare float @__builtin_nanf(ptr %0)
-
-declare i32 @__svfscanf(ptr %0, ptr %1, ptr %2)
-
-declare i32 @fprintf(ptr %0, ptr %1, ...)
-
-declare void @exit()
-
-declare ptr @funopen(ptr %0, ptr %1, ptr %2, ptr %3, ptr %4)
-
-declare i64 @__builtin_bswap64(i64 %0)
-
-declare ptr @fdopen(i32 %0, ptr %1)
-
-declare double @__builtin_fabsl(double %0)
-
-declare double @__builtin_nanl(ptr %0)
-
-declare i32 @sscanf(ptr %0, ptr %1, ...)
-
-declare i64 @__c11_atomic_load(...)
-
-declare ptr @strncat(ptr %0, ptr %1, i64 %2)
-
-declare ptr @__builtin_alloca(i64 %0)
-
-declare i64 @fread(ptr %0, i64 %1, i64 %2, ptr %3)
-
-declare i32 @ungetc(i32 %0, ptr %1)
-
-declare i32 @__snprintf_chk(ptr %0, i64 %1, i32 %2, i64 %3, ptr %4, ...)
-
-declare i32 @fpurge(ptr %0)
-
-declare i32 @vprintf(ptr %0, ptr %1)
-
-declare void @setbuf(ptr %0, ptr %1)
-
-declare i32 @putchar_unlocked(i32 %0)
-
-declare i32 @scanf(ptr %0, ...)
-
-declare void @__c11_atomic_store(...)
-
-declare i32 @renamex_np(ptr %0, ptr %1, i32 %2)
-
-declare i32 @renameat(i32 %0, ptr %1, i32 %2, ptr %3)
-
-declare i32 @__builtin_constant_p(...)
-
-declare ptr @freopen(ptr %0, ptr %1, ptr %2)
-
-declare void @clearerr(ptr %0)
-
-declare ptr @strcat(ptr %0, ptr %1)
-
-declare i32 @getchar_unlocked()
-
-declare ptr @__builtin___memset_chk(ptr %0, i32 %1, i64 %2, i64 %3)
-
-declare i32 @vsscanf(ptr %0, ptr %1, ptr %2)
-
-declare void @__builtin_bzero(ptr %0, i64 %1)
-
-declare i32 @__builtin_bswap32(i32 %0)
-
-declare ptr @open_memstream(ptr %0, ptr %1)
-
-declare i32 @vsprintf(ptr %0, ptr %1, ptr %2)
-
-declare i64 @__builtin_expect(i64 %0, i64 %1)
-
-declare i32 @getchar()
-
-declare ptr @fgetln(ptr %0, ptr %1)
-
-declare void @__builtin_va_end(...)
-
-declare i32 @__builtin_va_arg(ptr %0, i32 %1, ...)
 
 define i32 @main() {
 entry:
@@ -1855,16 +1637,6 @@ entry:
   ret i32 0
 }
 
-declare ptr @fmtcheck(ptr %0, ptr %1)
-
-declare float @__builtin_huge_valf()
-
-declare void @setbuffer(ptr %0, ptr %1, i32 %2)
-
-declare i64 @ftello(ptr %0)
-
-declare i32 @pclose(ptr %0)
-
 define internal i32 @op_add(i32 %0, i32 %1) {
 entry:
   %b = alloca i32, align 4
@@ -1877,43 +1649,7 @@ entry:
   ret i32 %addtmp
 }
 
-declare i32 @asprintf(ptr %0, ptr %1, ...)
-
-declare void @atomic_store_explicit(...)
-
-declare double @__builtin_huge_vall()
-
-declare ptr @__builtin___strcpy_chk(ptr %0, ptr %1, i64 %2)
-
-declare ptr @tmpnam(ptr %0)
-
-declare i32 @__builtin___sprintf_chk(ptr %0, i32 %1, i64 %2, ptr %3, ...)
-
-declare i32 @remove(ptr %0)
-
-declare void @flockfile(ptr %0)
-
-declare i32 @setlinebuf(ptr %0)
-
-declare ptr @tmpfile()
-
-declare double @__builtin_inf()
-
-declare i32 @__builtin___vsnprintf_chk(...)
-
-declare void @__c11_atomic_init(...)
-
-declare i32 @snprintf(ptr %0, i64 %1, ptr %2, ...)
-
-declare i32 @__builtin_mul_overflow(...)
-
-declare i64 @ftell(ptr %0)
-
-declare ptr @fopen(ptr %0, ptr %1)
-
-declare ptr @__builtin___strcat_chk(ptr %0, ptr %1, i64 %2)
-
-declare void @perror(ptr %0)
+declare i32 @printf(ptr %0, ...)
         TYPE: int
         IDENTIFIER b
     BLOCK
