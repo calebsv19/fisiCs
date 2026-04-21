@@ -792,6 +792,27 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
                                          size_t* originIndexOut) {
     if (!resolver || !name) return NULL;
     profiler_record_value("pp_count_include_resolver_load_calls", 1);
+
+    // Fast path for resolver-seeded files (for example, in-memory root buffers)
+    // so callers are not forced to provide a filesystem-backed path.
+    const IncludeFile* seeded = ir_lookup_exact_path(resolver, name);
+    if (seeded) {
+        if (originOut) *originOut = seeded->origin;
+        if (originIndexOut) *originIndexOut = seeded->originIndex;
+        return seeded;
+    }
+
+    char* canonicalName = ir_canonicalize_path(name);
+    if (canonicalName) {
+        seeded = ir_lookup_by_canonical_path(resolver, canonicalName);
+        free(canonicalName);
+        if (seeded) {
+            if (originOut) *originOut = seeded->origin;
+            if (originIndexOut) *originIndexOut = seeded->originIndex;
+            return seeded;
+        }
+    }
+
     if (isSystem) {
         const IncludeFile* virtualAudioToolbox = ir_try_virtual_audio_toolbox(resolver, name);
         if (virtualAudioToolbox) {
