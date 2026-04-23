@@ -248,6 +248,146 @@ static unsigned long long cg_eval_initializer_index_const(CodegenContext* ctx,
     return 0;
 }
 
+static bool cg_eval_initializer_signed_const(CodegenContext* ctx,
+                                             ASTNode* expr,
+                                             long long* outValue) {
+    if (!ctx || !expr || !outValue) return false;
+    struct Scope* globalScope = NULL;
+    if (ctx->semanticModel) {
+        globalScope = semanticModelGetGlobalScope(ctx->semanticModel);
+    }
+    ConstEvalResult res = constEval(expr, globalScope, true);
+    if (!res.isConst) return false;
+    *outValue = res.value;
+    return true;
+}
+
+static LLVMValueRef cg_const_resolve_global_lvalue(CodegenContext* ctx,
+                                                   ASTNode* expr,
+                                                   LLVMTypeRef* outValueType) {
+    if (outValueType) *outValueType = NULL;
+    if (!ctx || !expr) return NULL;
+
+    if (expr->type == AST_IDENTIFIER) {
+        const char* name = expr->valueNode.value;
+        if (!name) return NULL;
+
+        LLVMValueRef glob = LLVMGetNamedGlobal(ctx->module, name);
+        if (!glob && ctx->semanticModel) {
+            const Symbol* sym = semanticModelLookupGlobal(ctx->semanticModel, name);
+            if (sym && sym->kind == SYMBOL_VARIABLE) {
+                declareGlobalVariableSymbol(ctx, sym);
+                glob = LLVMGetNamedGlobal(ctx->module, name);
+            }
+        }
+        if (!glob) return NULL;
+        if (outValueType) *outValueType = LLVMGlobalGetValueType(glob);
+        return glob;
+    }
+
+    if (expr->type == AST_ARRAY_ACCESS &&
+        expr->arrayAccess.array &&
+        expr->arrayAccess.index) {
+        bool indexOk = false;
+        unsigned long long index =
+            cg_eval_initializer_index_const(ctx, expr->arrayAccess.index, &indexOk);
+        if (!indexOk) return NULL;
+
+        LLVMTypeRef baseValueType = NULL;
+        LLVMValueRef basePointer =
+            cg_const_resolve_global_lvalue(ctx, expr->arrayAccess.array, &baseValueType);
+        if (!basePointer || !baseValueType) return NULL;
+        if (LLVMGetTypeKind(baseValueType) != LLVMArrayTypeKind) return NULL;
+
+        LLVMTypeRef indexType = cg_get_intptr_type(ctx);
+        LLVMValueRef indices[2] = {
+            LLVMConstInt(indexType, 0, 0),
+            LLVMConstInt(indexType, index, 0),
+        };
+        LLVMValueRef elementPointer = LLVMConstGEP2(baseValueType, basePointer, indices, 2);
+        if (!elementPointer) return NULL;
+
+        if (outValueType) *outValueType = LLVMGetElementType(baseValueType);
+        return elementPointer;
+    }
+
+    return NULL;
+}
+
+static LLVMTypeRef cg_const_pointer_element_type(CodegenContext* ctx,
+                                                 const ParsedType* parsedType,
+                                                 LLVMTypeRef targetType,
+                                                 LLVMValueRef basePointer) {
+    if (!ctx) return NULL;
+
+    const ParsedType* resolved = cg_resolve_typedef_parsed(ctx, parsedType);
+    if (resolved &&
+        (resolved->pointerDepth > 0 ||
+         resolved->isFunctionPointer ||
+         parsedTypeCountDerivationsOfKind(resolved, TYPE_DERIVATION_POINTER) > 0)) {
+        ParsedType elemParsed = parsedTypePointerTargetType(resolved);
+        LLVMTypeRef elemType = cg_type_from_parsed(ctx, &elemParsed);
+        parsedTypeFree(&elemParsed);
+        if (elemType && LLVMGetTypeKind(elemType) != LLVMVoidTypeKind) {
+            return elemType;
+        }
+    }
+
+    if (targetType && LLVMGetTypeKind(targetType) == LLVMPointerTypeKind) {
+        LLVMTypeRef targetElem = LLVMGetElementType(targetType);
+        if (targetElem && LLVMGetTypeKind(targetElem) != LLVMVoidTypeKind) {
+            return targetElem;
+        }
+    }
+
+    if (basePointer) {
+        LLVMTypeRef basePtrType = LLVMTypeOf(basePointer);
+        if (basePtrType && LLVMGetTypeKind(basePtrType) == LLVMPointerTypeKind) {
+            LLVMTypeRef baseElem = LLVMGetElementType(basePtrType);
+            if (baseElem && LLVMGetTypeKind(baseElem) != LLVMVoidTypeKind) {
+                return baseElem;
+            }
+        }
+    }
+    return NULL;
+}
+
+static LLVMValueRef cg_const_pointer_with_element_offset(CodegenContext* ctx,
+                                                         LLVMValueRef basePointer,
+                                                         long long elementOffset,
+                                                         LLVMTypeRef targetType,
+                                                         const ParsedType* parsedType) {
+    if (!ctx || !basePointer || !targetType) return NULL;
+    if (LLVMGetTypeKind(targetType) != LLVMPointerTypeKind) return NULL;
+
+    LLVMTypeRef basePtrType = LLVMTypeOf(basePointer);
+    if (!basePtrType || LLVMGetTypeKind(basePtrType) != LLVMPointerTypeKind) {
+        return NULL;
+    }
+
+    LLVMValueRef result = basePointer;
+    if (elementOffset != 0) {
+        LLVMTypeRef elementType = cg_const_pointer_element_type(ctx, parsedType, targetType, basePointer);
+        if (!elementType) return NULL;
+        LLVMTypeRef indexType = cg_get_intptr_type(ctx);
+        LLVMValueRef index = LLVMConstInt(indexType, (unsigned long long)elementOffset, 1);
+        result = LLVMConstGEP2(elementType, basePointer, &index, 1);
+        if (!result) {
+            return NULL;
+        }
+    }
+
+    if (LLVMTypeOf(result) == targetType) {
+        return result;
+    }
+
+    LLVMValueRef casted = LLVMConstPointerCast(result, targetType);
+    if (!casted) {
+        casted = LLVMConstBitCast(result, targetType);
+    }
+    return casted;
+}
+
 static bool cg_entries_flat_scalars(DesignatedInit** entries, size_t entryCount) {
     if (!entries || entryCount == 0) return false;
     for (size_t i = 0; i < entryCount; ++i) {
@@ -784,6 +924,46 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
     }
 
     if (targetKind == LLVMPointerTypeKind) {
+        if (expr->type == AST_BINARY_EXPRESSION &&
+            expr->expr.op &&
+            expr->expr.left &&
+            expr->expr.right &&
+            (strcmp(expr->expr.op, "+") == 0 || strcmp(expr->expr.op, "-") == 0)) {
+            long long rhsOffset = 0;
+            if (cg_eval_initializer_signed_const(ctx, expr->expr.right, &rhsOffset)) {
+                long long signedOffset = (strcmp(expr->expr.op, "-") == 0) ? -rhsOffset : rhsOffset;
+                LLVMValueRef basePointer = cg_build_const_initializer(ctx,
+                                                                      expr->expr.left,
+                                                                      targetType,
+                                                                      parsedType);
+                LLVMValueRef adjusted = cg_const_pointer_with_element_offset(ctx,
+                                                                             basePointer,
+                                                                             signedOffset,
+                                                                             targetType,
+                                                                             parsedType);
+                if (adjusted) {
+                    CG_CONST_INIT_RETURN(adjusted);
+                }
+            }
+            if (strcmp(expr->expr.op, "+") == 0) {
+                long long lhsOffset = 0;
+                if (cg_eval_initializer_signed_const(ctx, expr->expr.left, &lhsOffset)) {
+                    LLVMValueRef basePointer = cg_build_const_initializer(ctx,
+                                                                          expr->expr.right,
+                                                                          targetType,
+                                                                          parsedType);
+                    LLVMValueRef adjusted = cg_const_pointer_with_element_offset(ctx,
+                                                                                 basePointer,
+                                                                                 lhsOffset,
+                                                                                 targetType,
+                                                                                 parsedType);
+                    if (adjusted) {
+                        CG_CONST_INIT_RETURN(adjusted);
+                    }
+                }
+            }
+        }
+
         ASTNode* targetExpr = expr;
         bool tookAddress = false;
         if (expr->type == AST_UNARY_EXPRESSION &&
@@ -883,6 +1063,39 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                         casted = LLVMConstBitCast(glob, targetType);
                     }
                     CG_CONST_INIT_RETURN(casted);
+                }
+            }
+        }
+
+        if (targetExpr && targetExpr->type == AST_ARRAY_ACCESS) {
+            LLVMTypeRef accessValueType = NULL;
+            LLVMValueRef accessPointer =
+                cg_const_resolve_global_lvalue(ctx, targetExpr, &accessValueType);
+            if (accessPointer && accessValueType) {
+                LLVMValueRef pointerValue = NULL;
+                if (!tookAddress &&
+                    LLVMGetTypeKind(accessValueType) == LLVMArrayTypeKind) {
+                    LLVMTypeRef indexType = cg_get_intptr_type(ctx);
+                    LLVMValueRef indices[2] = {
+                        LLVMConstInt(indexType, 0, 0),
+                        LLVMConstInt(indexType, 0, 0),
+                    };
+                    pointerValue = LLVMConstGEP2(accessValueType, accessPointer, indices, 2);
+                } else if (tookAddress) {
+                    pointerValue = accessPointer;
+                }
+
+                if (pointerValue) {
+                    if (LLVMTypeOf(pointerValue) == targetType) {
+                        CG_CONST_INIT_RETURN(pointerValue);
+                    }
+                    LLVMValueRef casted = LLVMConstPointerCast(pointerValue, targetType);
+                    if (!casted) {
+                        casted = LLVMConstBitCast(pointerValue, targetType);
+                    }
+                    if (casted) {
+                        CG_CONST_INIT_RETURN(casted);
+                    }
                 }
             }
         }

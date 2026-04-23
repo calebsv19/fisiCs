@@ -467,18 +467,10 @@ static bool substitute_macro(MacroExpander* expander,
                 adjacentPaste = leftPaste || rightPaste;
 
                 if (gnuCommaVariadic) {
-                    // GNU extension: ", ##__VA_ARGS__" consumes the paste operator and
-                    // conditionally consumes the comma when no variadic arguments are provided.
-                    (void)pp_token_buffer_pop_if_type(&working, TOKEN_DOUBLE_HASH);
-                    if (!args || args->variadicCount == 0) {
-                        (void)pp_token_buffer_pop_if_type(&working, TOKEN_COMMA);
-                        continue;
-                    }
-                    if (!append_variadic_tokens(&working, args, false, callSite)) {
-                        pp_token_buffer_release(&working);
-                        return false;
-                    }
-                    continue;
+                    // We intentionally reject GNU ", ##__VA_ARGS__" extension syntax.
+                    macro_expander_set_unsupported_gnu_comma_va_args_error(expander, def, callSite);
+                    pp_token_buffer_release(&working);
+                    return false;
                 }
 
                 if (!append_variadic_tokens(&working, args, adjacentPaste, callSite)) {

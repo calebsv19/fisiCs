@@ -1,0 +1,429 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave3",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave4",
+        "multitu",
+        "regstack"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave5",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave6",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave7",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave8",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave9",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave10",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave11",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave12",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave13",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave14",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave15",
+        "multitu",
+        "regstack"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave16",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "runtime",
+        "axis3",
+        "wave17",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,2 +1,2 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error at (12:0): Incompatible initializer type for 'fp'

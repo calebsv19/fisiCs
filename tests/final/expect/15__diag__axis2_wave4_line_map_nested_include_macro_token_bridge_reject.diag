@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (340798:34): Undeclared identifier
+   Hint: axis2_wave4_token_missing_symbol
+   Spelling: axis2_wave4_token_layer_d.h:340798:34
+Error at (340697:32): Operator '+' requires arithmetic operands
+   Spelling: axis2_wave4_token_layer_d.h:340697:32

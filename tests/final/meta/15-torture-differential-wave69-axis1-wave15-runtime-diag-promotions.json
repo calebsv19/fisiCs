@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__axis1_wave15_multitu_tu_order_flip_route_hash",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis1_wave15_multitu_tu_order_flip_route_hash_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis1_wave15_multitu_tu_order_flip_route_hash_main.c",
+        "probes/runtime/15__probe_axis1_wave15_multitu_tu_order_flip_route_hash_lib.c",
+        "probes/runtime/15__probe_axis1_wave15_multitu_tu_order_flip_route_hash_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis1_wave15_multitu_tu_order_flip_route_hash.stdout",
+      "expected_stderr": "expect/15__torture__axis1_wave15_multitu_tu_order_flip_route_hash.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis1",
+        "wave15",
+        "multitu",
+        "tu-order",
+        "flip",
+        "route",
+        "hash"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_lib.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_aux.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave15",
+        "multitu",
+        "function",
+        "object",
+        "alias",
+        "three-plan",
+        "replay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_lib.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_aux.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave15",
+        "multitu",
+        "function",
+        "object",
+        "alias",
+        "three-plan",
+        "replay"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

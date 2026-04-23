@@ -1,0 +1,5 @@
+Diagnostics:
+<unknown>:0:0: error: macro expansion failed (possible recursion) for '<macro>'
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_pp_token_paste_variadic_tail_no_crash.c:0:0: error: macro expansion failed (possible recursion) for '<macro>'
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_pp_token_paste_variadic_tail_no_crash.c:0:0: error: macro expansion failed (possible recursion) for '<macro>'

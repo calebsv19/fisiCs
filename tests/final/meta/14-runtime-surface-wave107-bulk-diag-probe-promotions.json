@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__diag__axis2_wave1_line_map_runtime_guard_conflict_bridge",
+      "bucket": "runtime-surface",
+      "input": "probes/diagnostics/14__probe_diag_axis2_wave1_line_map_runtime_guard_conflict_bridge.c",
+      "inputs": [
+        "probes/diagnostics/14__probe_diag_axis2_wave1_line_map_runtime_guard_conflict_bridge.c"
+      ],
+      "expects": [
+        "expect/14__diag__axis2_wave1_line_map_runtime_guard_conflict_bridge.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "wave1",
+        "line",
+        "map",
+        "runtime",
+        "guard",
+        "conflict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__axis2_wave2_line_map_nested_include_macro_guard_reentry_reject",
+      "bucket": "runtime-surface",
+      "input": "probes/diagnostics/14__probe_diag_axis2_wave2_line_map_nested_include_macro_guard_reentry_reject.c",
+      "inputs": [
+        "probes/diagnostics/14__probe_diag_axis2_wave2_line_map_nested_include_macro_guard_reentry_reject.c"
+      ],
+      "expects": [
+        "expect/14__diag__axis2_wave2_line_map_nested_include_macro_guard_reentry_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "wave2",
+        "line",
+        "map",
+        "nested",
+        "include",
+        "macro"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__axis2_wave3_line_map_nested_include_macro_type_bridge_reject",
+      "bucket": "runtime-surface",
+      "input": "probes/diagnostics/14__probe_diag_axis2_wave3_line_map_nested_include_macro_type_bridge_reject.c",
+      "inputs": [
+        "probes/diagnostics/14__probe_diag_axis2_wave3_line_map_nested_include_macro_type_bridge_reject.c"
+      ],
+      "expects": [
+        "expect/14__diag__axis2_wave3_line_map_nested_include_macro_type_bridge_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "wave3",
+        "line",
+        "map",
+        "nested",
+        "include",
+        "macro"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diag__axis2_wave4_line_map_nested_include_macro_arity_overflow_reject",
+      "bucket": "runtime-surface",
+      "input": "probes/diagnostics/14__probe_diag_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.c",
+      "inputs": [
+        "probes/diagnostics/14__probe_diag_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.c"
+      ],
+      "expects": [
+        "expect/14__diag__axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "wave4",
+        "line",
+        "map",
+        "nested",
+        "include",
+        "macro"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__axis2_wave2_line_map_nested_include_macro_guard_reentry_reject",
+      "bucket": "runtime-surface",
+      "input": "probes/diagnostics/14__probe_diag_axis2_wave2_line_map_nested_include_macro_guard_reentry_reject.c",
+      "inputs": [
+        "probes/diagnostics/14__probe_diag_axis2_wave2_line_map_nested_include_macro_guard_reentry_reject.c"
+      ],
+      "expects": [
+        "expect/14__diagjson__axis2_wave2_line_map_nested_include_macro_guard_reentry_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "wave2",
+        "line",
+        "map",
+        "nested",
+        "include",
+        "macro"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__axis2_wave3_line_map_nested_include_macro_type_bridge_reject",
+      "bucket": "runtime-surface",
+      "input": "probes/diagnostics/14__probe_diag_axis2_wave3_line_map_nested_include_macro_type_bridge_reject.c",
+      "inputs": [
+        "probes/diagnostics/14__probe_diag_axis2_wave3_line_map_nested_include_macro_type_bridge_reject.c"
+      ],
+      "expects": [
+        "expect/14__diagjson__axis2_wave3_line_map_nested_include_macro_type_bridge_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "wave3",
+        "line",
+        "map",
+        "nested",
+        "include",
+        "macro"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__diagjson__axis2_wave4_line_map_nested_include_macro_arity_overflow_reject",
+      "bucket": "runtime-surface",
+      "input": "probes/diagnostics/14__probe_diag_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.c",
+      "inputs": [
+        "probes/diagnostics/14__probe_diag_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.c"
+      ],
+      "expects": [
+        "expect/14__diagjson__axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "wave4",
+        "line",
+        "map",
+        "nested",
+        "include",
+        "macro"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -287,221 +287,321 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     }
 
     CG_DEBUG("[CG] Function definition paramCount=%zu\n", node->functionDef.paramCount);
-    LLVMTypeRef returnType = cg_type_from_parsed(ctx, &node->functionDef.returnType);
-    if (returnType && LLVMGetTypeKind(returnType) == LLVMFunctionTypeKind) {
-        returnType = LLVMPointerType(returnType, 0);
-    } else if (returnType && LLVMGetTypeKind(returnType) == LLVMArrayTypeKind) {
-        returnType = LLVMPointerType(returnType, 0);
-    }
-    if (!returnType) {
-        returnType = LLVMVoidTypeInContext(ctx->llvmContext);
-    }
-    returnType = cg_coerce_function_return_type(ctx, returnType);
-
+    LLVMTypeRef returnType = NULL;
     CGParamInfo* paramInfos = NULL;
-    size_t paramCount = cg_expand_parameters(node->functionDef.parameters,
-                                             node->functionDef.paramCount,
-                                             &paramInfos,
-                                             NULL);
+    size_t paramCount = 0;
     ParsedType* adjustedParamTypes = NULL;
     LLVMTypeRef* paramTypes = NULL;
     LLVMTypeRef* paramValueTypes = NULL;
     bool* paramPassIndirect = NULL;
-    if (paramCount > 0) {
-        adjustedParamTypes = (ParsedType*)calloc(paramCount, sizeof(ParsedType));
-        paramTypes = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * paramCount);
-        paramValueTypes = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
-        paramPassIndirect = (bool*)calloc(paramCount, sizeof(bool));
-        if (!paramTypes || !adjustedParamTypes || !paramValueTypes || !paramPassIndirect) {
+    bool useVariadicSRet = false;
+    LLVMTypeRef functionIRReturnType = NULL;
+    size_t functionParamIndexOffset = 0;
+    {
+        ProfilerScope returnTypeScope = profiler_begin("codegen_function_definition_return_type");
+        returnType = cg_type_from_parsed(ctx, &node->functionDef.returnType);
+        if (returnType && LLVMGetTypeKind(returnType) == LLVMFunctionTypeKind) {
+            returnType = LLVMPointerType(returnType, 0);
+        } else if (returnType && LLVMGetTypeKind(returnType) == LLVMArrayTypeKind) {
+            returnType = LLVMPointerType(returnType, 0);
+        }
+        if (!returnType) {
+            returnType = LLVMVoidTypeInContext(ctx->llvmContext);
+        }
+        returnType = cg_coerce_function_return_type(ctx, returnType);
+        useVariadicSRet = cg_should_lower_variadic_sret(ctx,
+                                                        returnType,
+                                                        node->functionDef.isVariadic);
+        functionIRReturnType = useVariadicSRet
+            ? LLVMVoidTypeInContext(ctx->llvmContext)
+            : returnType;
+        functionParamIndexOffset = useVariadicSRet ? 1u : 0u;
+        profiler_end(returnTypeScope);
+    }
+    {
+        ProfilerScope paramSignatureScope = profiler_begin("codegen_function_definition_param_signature");
+        paramCount = cg_expand_parameters(node->functionDef.parameters,
+                                          node->functionDef.paramCount,
+                                          &paramInfos,
+                                          NULL);
+        if (paramCount > 0) {
+            adjustedParamTypes = (ParsedType*)calloc(paramCount, sizeof(ParsedType));
+            paramTypes = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * paramCount);
+            paramValueTypes = (LLVMTypeRef*)calloc(paramCount, sizeof(LLVMTypeRef));
+            paramPassIndirect = (bool*)calloc(paramCount, sizeof(bool));
+            if (!paramTypes || !adjustedParamTypes || !paramValueTypes || !paramPassIndirect) {
+                if (adjustedParamTypes) {
+                    free(adjustedParamTypes);
+                }
+                if (paramTypes) {
+                    free(paramTypes);
+                }
+                if (paramValueTypes) {
+                    free(paramValueTypes);
+                }
+                if (paramPassIndirect) {
+                    free(paramPassIndirect);
+                }
+                cg_free_param_infos(paramInfos);
+                profiler_end(paramSignatureScope);
+                CG_FUNCTION_RETURN(NULL);
+            }
+            for (size_t i = 0; i < paramCount; i++) {
+                const ParsedType* paramType = paramInfos[i].parsedType;
+                adjustedParamTypes[i] = parsedTypeClone(paramType);
+                bool passIndirect = false;
+                LLVMTypeRef valueType = NULL;
+                LLVMTypeRef inferred = cg_lower_parameter_type(ctx,
+                                                               &adjustedParamTypes[i],
+                                                               &passIndirect,
+                                                               &valueType);
+                if (!inferred || LLVMGetTypeKind(inferred) == LLVMVoidTypeKind) {
+                    inferred = LLVMInt32TypeInContext(ctx->llvmContext);
+                }
+                paramTypes[i] = inferred;
+                paramValueTypes[i] = valueType;
+                paramPassIndirect[i] = passIndirect;
+            }
+        }
+        profiler_end(paramSignatureScope);
+    }
+
+    LLVMTypeRef* functionParamTypes = paramTypes;
+    size_t functionParamCount = paramCount;
+    if (useVariadicSRet) {
+        functionParamTypes = (LLVMTypeRef*)calloc(paramCount + 1u, sizeof(LLVMTypeRef));
+        if (!functionParamTypes) {
+            cg_free_param_infos(paramInfos);
+            free(paramTypes);
+            free(paramValueTypes);
+            free(paramPassIndirect);
             if (adjustedParamTypes) {
+                for (size_t i = 0; i < paramCount; ++i) {
+                    parsedTypeFree(&adjustedParamTypes[i]);
+                }
                 free(adjustedParamTypes);
             }
-            if (paramTypes) {
-                free(paramTypes);
-            }
-            if (paramValueTypes) {
-                free(paramValueTypes);
-            }
-            if (paramPassIndirect) {
-                free(paramPassIndirect);
-            }
-            cg_free_param_infos(paramInfos);
             CG_FUNCTION_RETURN(NULL);
         }
-        for (size_t i = 0; i < paramCount; i++) {
-            const ParsedType* paramType = paramInfos[i].parsedType;
-            adjustedParamTypes[i] = parsedTypeClone(paramType);
-            bool passIndirect = false;
-            LLVMTypeRef valueType = NULL;
-            LLVMTypeRef inferred = cg_lower_parameter_type(ctx,
-                                                           &adjustedParamTypes[i],
-                                                           &passIndirect,
-                                                           &valueType);
-            if (!inferred || LLVMGetTypeKind(inferred) == LLVMVoidTypeKind) {
-                inferred = LLVMInt32TypeInContext(ctx->llvmContext);
-            }
-            paramTypes[i] = inferred;
-            paramValueTypes[i] = valueType;
-            paramPassIndirect[i] = passIndirect;
+        functionParamTypes[0] = LLVMPointerType(returnType, 0);
+        for (size_t i = 0; i < paramCount; ++i) {
+            functionParamTypes[i + 1u] = paramTypes[i];
         }
+        functionParamCount = paramCount + 1u;
     }
 
-    LLVMTypeRef funcType = LLVMFunctionType(returnType,
-                                            paramTypes,
-                                            (unsigned)paramCount,
+    LLVMTypeRef funcType = LLVMFunctionType(functionIRReturnType,
+                                            functionParamTypes,
+                                            (unsigned)functionParamCount,
                                             node->functionDef.isVariadic ? 1 : 0);
+    if (useVariadicSRet) {
+        free(functionParamTypes);
+    }
     const char* fnName = node->functionDef.funcName->valueNode.value;
-    LLVMValueRef function = LLVMGetNamedFunction(ctx->module, fnName);
-    if (function) {
-        // If a prototype already exists, reuse it; otherwise fall back to a fresh function.
-        // Best-effort type nudge: replace the function's type if it mismatches.
-        LLVMTypeRef existingType = NULL;
-        LLVMTypeRef valueType = LLVMTypeOf(function);
-        if (valueType && LLVMGetTypeKind(valueType) == LLVMFunctionTypeKind) {
-            existingType = valueType;
-        } else {
-            existingType = cg_dereference_ptr_type(ctx, valueType, "function redeclaration");
-        }
-        bool opaqueFallback = false;
-        if (valueType && LLVMGetTypeKind(valueType) == LLVMPointerTypeKind) {
-            opaqueFallback = true;
-        }
-        if (existingType &&
-            LLVMGetTypeKind(existingType) == LLVMIntegerTypeKind &&
-            LLVMGetIntTypeWidth(existingType) == 8) {
-            opaqueFallback = true;
-        }
-        if (existingType != funcType && !opaqueFallback) {
-            if (getenv("FISICS_DEBUG_CONST")) {
-                char* valueStr = valueType ? LLVMPrintTypeToString(valueType) : NULL;
-                char* existStr = existingType ? LLVMPrintTypeToString(existingType) : NULL;
-                char* funcStr = LLVMPrintTypeToString(funcType);
-                char* fnValStr = LLVMPrintValueToString(function);
-                fprintf(stderr,
-                        "[fn] deleting prototype for %s due to signature mismatch (value=%s, existing=%s, new=%s)\n",
-                        fnName,
-                        valueStr ? valueStr : "<null>",
-                        existStr ? existStr : "<null>",
-                        funcStr ? funcStr : "<null>");
-                fprintf(stderr, "[fn] existing value: %s\n", fnValStr ? fnValStr : "<null>");
-                if (valueStr) LLVMDisposeMessage(valueStr);
-                if (existStr) LLVMDisposeMessage(existStr);
-                if (funcStr) LLVMDisposeMessage(funcStr);
-                if (fnValStr) LLVMDisposeMessage(fnValStr);
-            }
-            LLVMDeleteFunction(function);
-            function = NULL;
-        }
-    }
-    if (!function) {
-        function = LLVMAddFunction(ctx->module, fnName, funcType);
-    }
-    LLVMSetLinkage(function, LLVMExternalLinkage);
+    LLVMValueRef function = NULL;
     {
-        const SemanticModel* model = cg_context_get_semantic_model(ctx);
-        const Symbol* fnSym = model ? semanticModelLookupGlobal(model, fnName) : NULL;
-        if (fnSym && (fnSym->linkage == LINKAGE_INTERNAL || fnSym->storage == STORAGE_STATIC)) {
-            LLVMSetLinkage(function, LLVMInternalLinkage);
-        } else if (node->functionDef.returnType.isInline) {
-            /* Header inline defs can appear in many TUs; avoid strong duplicate symbols. */
-            LLVMSetLinkage(function, LLVMLinkOnceODRLinkage);
-        }
-        if (cg_function_has_gnu_weak_attribute(node) &&
-            LLVMGetLinkage(function) == LLVMExternalLinkage) {
-            LLVMSetLinkage(function, LLVMWeakAnyLinkage);
-        }
-    }
-
-    LLVMBasicBlockRef entry = LLVMAppendBasicBlock(function, "entry");
-    LLVMPositionBuilderAtEnd(ctx->builder, entry);
-
-    const ParsedType* previousReturnType = ctx->currentFunctionReturnType;
-    ctx->currentFunctionReturnType = &node->functionDef.returnType;
-    const char* previousFunctionName = ctx->currentFunctionName;
-    ctx->currentFunctionName = fnName;
-
-    // Labels are function-local in C; drop bindings from the previous function.
-    cg_clear_labels(ctx);
-    cg_scope_push(ctx);
-
-    for (size_t i = 0; i < paramCount; i++) {
-        CGParamInfo* info = &paramInfos[i];
-        ASTNode* nameNode = info->nameNode;
-        const char* label =
-            (nameNode && nameNode->type == AST_IDENTIFIER && nameNode->valueNode.value)
-                ? nameNode->valueNode.value
-            : "param";
-        LLVMTypeRef paramType = paramTypes ? paramTypes[i] : LLVMInt32TypeInContext(ctx->llvmContext);
-        const ParsedType* storedType = adjustedParamTypes
-            ? &adjustedParamTypes[i]
-            : (info->parsedType ? info->parsedType : &info->declaration->varDecl.declaredType);
-        LLVMValueRef allocaInst = NULL;
-        LLVMValueRef incomingParam = LLVMGetParam(function, (unsigned)i);
-        if (paramPassIndirect && paramPassIndirect[i] && paramValueTypes && paramValueTypes[i]) {
-            LLVMTypeRef valueTy = paramValueTypes[i];
-            allocaInst = cg_build_entry_alloca(ctx, valueTy, label);
-            LLVMTypeRef expectedPtrTy = LLVMPointerType(valueTy, 0);
-            if (LLVMTypeOf(incomingParam) != expectedPtrTy) {
-                incomingParam = LLVMBuildBitCast(ctx->builder,
-                                                 incomingParam,
-                                                 expectedPtrTy,
-                                                 "param.byval.cast");
-            }
-            uint64_t paramSize = 0;
-            uint32_t paramAlign = 0;
-            if (!cg_size_align_for_type(ctx, storedType, valueTy, &paramSize, &paramAlign) || paramSize == 0) {
-                LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
-                if (td) {
-                    paramSize = LLVMABISizeOfType(td, valueTy);
-                    paramAlign = (uint32_t)LLVMABIAlignmentOfType(td, valueTy);
+        ProfilerScope symbolBindScope = profiler_begin("codegen_function_definition_symbol_bind");
+        function = LLVMGetNamedFunction(ctx->module, fnName);
+        if (function) {
+            // If a prototype already exists, reuse it; otherwise fall back to a fresh function.
+            // Best-effort type nudge: replace the function's type if it mismatches.
+            LLVMTypeRef existingType = LLVMGlobalGetValueType(function);
+            LLVMTypeRef valueType = LLVMTypeOf(function);
+            if (!existingType || LLVMGetTypeKind(existingType) != LLVMFunctionTypeKind) {
+                if (valueType && LLVMGetTypeKind(valueType) == LLVMFunctionTypeKind) {
+                    existingType = valueType;
+                } else {
+                    existingType = cg_dereference_ptr_type(ctx, valueType, "function redeclaration");
                 }
             }
-            if (paramAlign == 0) {
-                paramAlign = 1;
+            bool opaqueFallback =
+                (!existingType || LLVMGetTypeKind(existingType) != LLVMFunctionTypeKind);
+            if (existingType != funcType && !opaqueFallback) {
+                if (getenv("FISICS_DEBUG_CONST")) {
+                    char* valueStr = valueType ? LLVMPrintTypeToString(valueType) : NULL;
+                    char* existStr = existingType ? LLVMPrintTypeToString(existingType) : NULL;
+                    char* funcStr = LLVMPrintTypeToString(funcType);
+                    char* fnValStr = LLVMPrintValueToString(function);
+                    fprintf(stderr,
+                            "[fn] deleting prototype for %s due to signature mismatch (value=%s, existing=%s, new=%s)\n",
+                            fnName,
+                            valueStr ? valueStr : "<null>",
+                            existStr ? existStr : "<null>",
+                            funcStr ? funcStr : "<null>");
+                    fprintf(stderr, "[fn] existing value: %s\n", fnValStr ? fnValStr : "<null>");
+                    if (valueStr) LLVMDisposeMessage(valueStr);
+                    if (existStr) LLVMDisposeMessage(existStr);
+                    if (funcStr) LLVMDisposeMessage(funcStr);
+                    if (fnValStr) LLVMDisposeMessage(fnValStr);
+                }
+                LLVMDeleteFunction(function);
+                function = NULL;
             }
-            LLVMValueRef copySize = LLVMConstInt(cg_get_intptr_type(ctx), (unsigned long long)paramSize, 0);
-            LLVMBuildMemCpy(ctx->builder,
-                            allocaInst,
-                            paramAlign,
-                            incomingParam,
-                            paramAlign,
-                            copySize);
-        } else {
-            allocaInst = cg_build_entry_alloca(ctx, paramType, label);
-            LLVMBuildStore(ctx->builder, incomingParam, allocaInst);
         }
-        LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedType);
-        cg_scope_insert(ctx->currentScope,
-                        label,
-                        allocaInst,
-                        (paramPassIndirect && paramPassIndirect[i] && paramValueTypes && paramValueTypes[i])
-                            ? paramValueTypes[i]
-                            : paramType,
-                        false,
-                        elementLLVM != NULL /* addressOnly */ ? false : false,
-                        elementLLVM,
-                        storedType);
+        if (!function) {
+            function = LLVMAddFunction(ctx->module, fnName, funcType);
+        }
+        LLVMSetLinkage(function, LLVMExternalLinkage);
+        {
+            const SemanticModel* model = cg_context_get_semantic_model(ctx);
+            const Symbol* fnSym = model ? semanticModelLookupGlobal(model, fnName) : NULL;
+            if (fnSym && (fnSym->linkage == LINKAGE_INTERNAL || fnSym->storage == STORAGE_STATIC)) {
+                LLVMSetLinkage(function, LLVMInternalLinkage);
+            } else if (node->functionDef.returnType.isInline) {
+                /* Header inline defs can appear in many TUs; avoid strong duplicate symbols. */
+                LLVMSetLinkage(function, LLVMLinkOnceODRLinkage);
+            }
+            if (cg_function_has_gnu_weak_attribute(node) &&
+                LLVMGetLinkage(function) == LLVMExternalLinkage) {
+                LLVMSetLinkage(function, LLVMWeakAnyLinkage);
+            }
+        }
+        if (useVariadicSRet) {
+            unsigned sretKind = LLVMGetEnumAttributeKindForName("sret", 4);
+            if (sretKind != 0) {
+                LLVMAttributeRef sretAttr = LLVMCreateTypeAttribute(ctx->llvmContext,
+                                                                    sretKind,
+                                                                    returnType);
+                LLVMAddAttributeAtIndex(function, 1, sretAttr);
+            }
+        }
+        profiler_end(symbolBindScope);
     }
 
-    if (dbgRun) fprintf(stderr, "[CG] body begin %s\n", fnLabel);
-    codegenNode(ctx, node->functionDef.body);
-    if (dbgRun) fprintf(stderr, "[CG] body end %s\n", fnLabel);
-
-    // Ensure function IR is always well-formed: C allows falling off the end of
-    // void functions, so emit an implicit terminator when the final block is open.
-    LLVMBasicBlockRef finalBB = LLVMGetInsertBlock(ctx->builder);
-    if (finalBB && !LLVMGetBasicBlockTerminator(finalBB)) {
-        if (returnType && LLVMGetTypeKind(returnType) != LLVMVoidTypeKind) {
-            LLVMBuildRet(ctx->builder, LLVMConstNull(returnType));
+    LLVMBasicBlockRef entry = NULL;
+    const ParsedType* previousReturnType = ctx->currentFunctionReturnType;
+    const char* previousFunctionName = ctx->currentFunctionName;
+    bool previousUsesVariadicSRet = ctx->currentFunctionUsesVariadicSRet;
+    LLVMValueRef previousVariadicSRetPtr = ctx->currentFunctionVariadicSRetPtr;
+    LLVMTypeRef previousVariadicSRetType = ctx->currentFunctionVariadicSRetType;
+    LLVMValueRef functionVariadicSRetParam = NULL;
+    {
+        ProfilerScope frameSetupScope = profiler_begin("codegen_function_definition_frame_setup");
+        entry = LLVMAppendBasicBlock(function, "entry");
+        LLVMPositionBuilderAtEnd(ctx->builder, entry);
+        ctx->currentFunctionReturnType = &node->functionDef.returnType;
+        ctx->currentFunctionName = fnName;
+        ctx->currentFunctionUsesVariadicSRet = useVariadicSRet;
+        ctx->currentFunctionVariadicSRetType = returnType;
+        if (useVariadicSRet) {
+            functionVariadicSRetParam = LLVMGetParam(function, 0);
+            ctx->currentFunctionVariadicSRetPtr = functionVariadicSRetParam;
         } else {
-            LLVMBuildRetVoid(ctx->builder);
+            ctx->currentFunctionVariadicSRetPtr = NULL;
         }
+
+        // Labels are function-local in C; drop bindings from the previous function.
+        cg_clear_labels(ctx);
+        cg_scope_push(ctx);
+        profiler_end(frameSetupScope);
+    }
+
+    {
+        ProfilerScope paramMaterializeScope = profiler_begin("codegen_function_definition_param_materialize");
+        for (size_t i = 0; i < paramCount; i++) {
+            CGParamInfo* info = &paramInfos[i];
+            ASTNode* nameNode = info->nameNode;
+            const char* label =
+                (nameNode && nameNode->type == AST_IDENTIFIER && nameNode->valueNode.value)
+                    ? nameNode->valueNode.value
+                    : "param";
+            LLVMTypeRef paramType = paramTypes ? paramTypes[i] : LLVMInt32TypeInContext(ctx->llvmContext);
+            const ParsedType* storedType = adjustedParamTypes
+                ? &adjustedParamTypes[i]
+                : (info->parsedType ? info->parsedType : &info->declaration->varDecl.declaredType);
+            LLVMValueRef allocaInst = NULL;
+            LLVMValueRef incomingParam =
+                LLVMGetParam(function, (unsigned)(i + functionParamIndexOffset));
+            if (paramPassIndirect && paramPassIndirect[i] && paramValueTypes && paramValueTypes[i]) {
+                LLVMTypeRef valueTy = paramValueTypes[i];
+                allocaInst = cg_build_entry_alloca(ctx, valueTy, label);
+                LLVMTypeRef expectedPtrTy = LLVMPointerType(valueTy, 0);
+                if (LLVMTypeOf(incomingParam) != expectedPtrTy) {
+                    incomingParam = LLVMBuildBitCast(ctx->builder,
+                                                     incomingParam,
+                                                     expectedPtrTy,
+                                                     "param.byval.cast");
+                }
+                uint64_t paramSize = 0;
+                uint32_t paramAlign = 0;
+                if (!cg_size_align_for_type(ctx, storedType, valueTy, &paramSize, &paramAlign) || paramSize == 0) {
+                    LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+                    if (td) {
+                        paramSize = LLVMABISizeOfType(td, valueTy);
+                        paramAlign = (uint32_t)LLVMABIAlignmentOfType(td, valueTy);
+                    }
+                }
+                if (paramAlign == 0) {
+                    paramAlign = 1;
+                }
+                LLVMValueRef copySize = LLVMConstInt(cg_get_intptr_type(ctx), (unsigned long long)paramSize, 0);
+                LLVMBuildMemCpy(ctx->builder,
+                                allocaInst,
+                                paramAlign,
+                                incomingParam,
+                                paramAlign,
+                                copySize);
+            } else {
+                allocaInst = cg_build_entry_alloca(ctx, paramType, label);
+                LLVMBuildStore(ctx->builder, incomingParam, allocaInst);
+            }
+            LLVMTypeRef elementLLVM = cg_element_type_from_pointer_parsed(ctx, storedType);
+            cg_scope_insert(ctx->currentScope,
+                            label,
+                            allocaInst,
+                            (paramPassIndirect && paramPassIndirect[i] && paramValueTypes && paramValueTypes[i])
+                                ? paramValueTypes[i]
+                                : paramType,
+                            false,
+                            elementLLVM != NULL /* addressOnly */ ? false : false,
+                            elementLLVM,
+                            storedType);
+        }
+        profiler_end(paramMaterializeScope);
+    }
+
+    {
+        ProfilerScope bodyScope = profiler_begin("codegen_function_definition_body");
+        if (dbgRun) fprintf(stderr, "[CG] body begin %s\n", fnLabel);
+        codegenNode(ctx, node->functionDef.body);
+        if (dbgRun) fprintf(stderr, "[CG] body end %s\n", fnLabel);
+        profiler_end(bodyScope);
+    }
+
+    {
+        ProfilerScope finalizeScope = profiler_begin("codegen_function_definition_finalize");
+        // Ensure function IR is always well-formed: C allows falling off the end of
+        // void functions, so emit an implicit terminator when the final block is open.
+        LLVMBasicBlockRef finalBB = LLVMGetInsertBlock(ctx->builder);
+        if (finalBB && !LLVMGetBasicBlockTerminator(finalBB)) {
+            if (useVariadicSRet && functionVariadicSRetParam && returnType &&
+                LLVMGetTypeKind(returnType) != LLVMVoidTypeKind) {
+                LLVMTypeRef expectedPtrTy = LLVMPointerType(returnType, 0);
+                LLVMValueRef sretPtr = functionVariadicSRetParam;
+                if (LLVMTypeOf(sretPtr) != expectedPtrTy) {
+                    sretPtr = LLVMBuildBitCast(ctx->builder,
+                                               sretPtr,
+                                               expectedPtrTy,
+                                               "ret.sret.cast");
+                }
+                LLVMBuildStore(ctx->builder, LLVMConstNull(returnType), sretPtr);
+                LLVMBuildRetVoid(ctx->builder);
+            } else if (returnType && LLVMGetTypeKind(returnType) != LLVMVoidTypeKind) {
+                LLVMBuildRet(ctx->builder, LLVMConstNull(returnType));
+            } else {
+                LLVMBuildRetVoid(ctx->builder);
+            }
+        }
+        profiler_end(finalizeScope);
     }
 
     cg_scope_pop(ctx);
     cg_clear_labels(ctx);
     ctx->currentFunctionReturnType = previousReturnType;
     ctx->currentFunctionName = previousFunctionName;
+    ctx->currentFunctionUsesVariadicSRet = previousUsesVariadicSRet;
+    ctx->currentFunctionVariadicSRetPtr = previousVariadicSRetPtr;
+    ctx->currentFunctionVariadicSRetType = previousVariadicSRetType;
     cg_free_param_infos(paramInfos);
     free(paramTypes);
     free(paramValueTypes);
@@ -513,12 +613,14 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
         free(adjustedParamTypes);
     }
     if (ctx->verifyFunctions && function) {
+        ProfilerScope verifyScope = profiler_begin("codegen_function_definition_verify");
         if (LLVMVerifyFunction(function, LLVMPrintMessageAction) != 0) {
             fprintf(stderr, "Warning: LLVM verification failed for function %s\n",
                     node->functionDef.funcName && node->functionDef.funcName->valueNode.value
                         ? node->functionDef.funcName->valueNode.value
                         : "<anonymous>");
         }
+        profiler_end(verifyScope);
     }
     if (dbgRun) {
         fprintf(stderr, "[CG] exit function %s\n", fnLabel);
@@ -677,12 +779,42 @@ LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
             }
         }
 
+        if (ctx->currentFunctionUsesVariadicSRet &&
+            ctx->currentFunctionVariadicSRetPtr &&
+            declaredReturnLLVM &&
+            LLVMGetTypeKind(declaredReturnLLVM) != LLVMVoidTypeKind) {
+            LLVMTypeRef expectedPtrTy = LLVMPointerType(declaredReturnLLVM, 0);
+            LLVMValueRef sretPtr = ctx->currentFunctionVariadicSRetPtr;
+            if (LLVMTypeOf(sretPtr) != expectedPtrTy) {
+                sretPtr = LLVMBuildBitCast(ctx->builder,
+                                           sretPtr,
+                                           expectedPtrTy,
+                                           "return.sret.cast");
+            }
+            LLVMBuildStore(ctx->builder, value, sretPtr);
+            CG_DEBUG("[CG] Return emitting variadic sret value\n");
+            return LLVMBuildRetVoid(ctx->builder);
+        }
+
         CG_DEBUG("[CG] Return emitting with value\n");
         return LLVMBuildRet(ctx->builder, value);
     }
 
     if (declaredReturnLLVM && LLVMGetTypeKind(declaredReturnLLVM) != LLVMVoidTypeKind) {
         fprintf(stderr, "Error: Non-void function missing return value; defaulting to zero\n");
+        if (ctx->currentFunctionUsesVariadicSRet &&
+            ctx->currentFunctionVariadicSRetPtr) {
+            LLVMTypeRef expectedPtrTy = LLVMPointerType(declaredReturnLLVM, 0);
+            LLVMValueRef sretPtr = ctx->currentFunctionVariadicSRetPtr;
+            if (LLVMTypeOf(sretPtr) != expectedPtrTy) {
+                sretPtr = LLVMBuildBitCast(ctx->builder,
+                                           sretPtr,
+                                           expectedPtrTy,
+                                           "return.sret.zero.cast");
+            }
+            LLVMBuildStore(ctx->builder, LLVMConstNull(declaredReturnLLVM), sretPtr);
+            return LLVMBuildRetVoid(ctx->builder);
+        }
         LLVMValueRef zero = LLVMConstNull(declaredReturnLLVM);
         return LLVMBuildRet(ctx->builder, zero);
     }

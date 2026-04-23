@@ -1,6 +1,7 @@
 # Docs Index
 
 This is the table of contents for the public `docs/` tree in `fisiCs`.
+Last audited: 2026-04-22.
 
 ## Start Here
 
@@ -54,6 +55,10 @@ Versioned compiler-to-IDE communication contract (schema, stability, compatibili
 ### `docs/cli_release_workflow.md`
 
 CLI release packaging/sign/notarize workflow for macOS distribution artifacts.
+
+### `docs/make_final_timing_log.md`
+
+Public timing-baseline lane for `make final`, including capture workflow and CSV metrics contract.
 
 ## Private Docs
 

@@ -1,0 +1,218 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_axis1_wave3_multitu_const_table_reloc_crc",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_main.c",
+        "probes/runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_lib.c",
+        "probes/runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave3_multitu_const_table_reloc_crc.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave3_multitu_const_table_reloc_crc.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave3",
+        "multitu",
+        "reloc",
+        "crc"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave3_multitu_static_fnptr_export_bridge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_main.c",
+        "probes/runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_lib.c",
+        "probes/runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave3_multitu_static_fnptr_export_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave3_multitu_static_fnptr_export_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave3",
+        "multitu",
+        "fnptr",
+        "export"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave3_multitu_static_fnptr_export_bridge_reduced",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_main.c",
+        "probes/runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_lib.c",
+        "probes/runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave3_multitu_static_fnptr_export_bridge_reduced.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave3_multitu_static_fnptr_export_bridge_reduced.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave3",
+        "multitu",
+        "fnptr",
+        "reduced"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_main.c",
+        "probes/runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_lib.c",
+        "probes/runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave4",
+        "multitu",
+        "fnptr",
+        "dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_main.c",
+        "probes/runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_lib.c",
+        "probes/runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave5",
+        "multitu",
+        "fnptr",
+        "typedef"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_main.c",
+        "probes/runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_lib.c",
+        "probes/runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave6",
+        "multitu",
+        "fnptr",
+        "callback"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_main.c",
+        "probes/runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_lib.c",
+        "probes/runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave6",
+        "multitu",
+        "fnptr",
+        "array",
+        "permute"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

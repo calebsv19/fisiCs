@@ -406,7 +406,8 @@ static TypeInfo functionCallResultTypeFromSymbol(const Symbol* sym, Scope* scope
     if (!sym) {
         return makeInvalidType();
     }
-    ParsedType retParsed = parsedTypeFunctionReturnType(&sym->type);
+
+    ParsedType retParsed = parsedTypeClone(&sym->type);
     if (retParsed.kind != TYPE_INVALID) {
         profiler_record_value("semantic_count_type_info_site_temp", 1);
         profiler_record_value("semantic_count_type_info_temp_fn_symbol_ret", 1);

@@ -52,6 +52,18 @@ void macro_expander_set_arg_count_error(MacroExpander* expander,
     expander->lastError.variadic = def ? def->params.variadic : false;
 }
 
+void macro_expander_set_unsupported_gnu_comma_va_args_error(MacroExpander* expander,
+                                                            const MacroDefinition* def,
+                                                            SourceRange callSite) {
+    if (!expander) return;
+    expander->lastError.kind = ME_ERR_UNSUPPORTED_GNU_COMMA_VA_ARGS;
+    expander->lastError.macro = def;
+    expander->lastError.callSite = callSite;
+    expander->lastError.expectedArgs = 0;
+    expander->lastError.providedArgs = 0;
+    expander->lastError.variadic = def ? def->params.variadic : false;
+}
+
 char* pp_strdup(const char* s) {
     if (!s) return NULL;
     size_t len = strlen(s) + 1;

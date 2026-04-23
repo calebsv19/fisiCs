@@ -211,6 +211,39 @@ static unsigned long long cg_eval_initializer_index(ASTNode* expr, bool* outSucc
     return 0;
 }
 
+static bool cg_zero_initialize_storage(CodegenContext* ctx,
+                                       LLVMValueRef destPtr,
+                                       LLVMTypeRef destType,
+                                       const ParsedType* destParsed) {
+    if (!ctx || !destPtr || !destType || LLVMGetTypeKind(destType) == LLVMVoidTypeKind) {
+        return false;
+    }
+
+    uint64_t bytes = 0;
+    uint32_t align = 0;
+    if (!cg_size_align_for_type(ctx, destParsed, destType, &bytes, &align) || bytes == 0) {
+        LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+        if (td) {
+            bytes = LLVMABISizeOfType(td, destType);
+            align = (uint32_t)LLVMABIAlignmentOfType(td, destType);
+        }
+    }
+    if (bytes == 0) {
+        fprintf(stderr, "Error: Unable to determine aggregate initializer size\n");
+        return false;
+    }
+
+    LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+    LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, destPtr, i8Ptr, "init.zero.dst");
+    LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
+    LLVMBuildMemSet(ctx->builder,
+                    dstCast,
+                    LLVMConstInt(LLVMInt8TypeInContext(ctx->llvmContext), 0, 0),
+                    sizeVal,
+                    align ? align : 1);
+    return true;
+}
+
 bool cg_store_initializer_expression(CodegenContext* ctx,
                                      LLVMValueRef destPtr,
                                      LLVMTypeRef destType,
@@ -235,17 +268,9 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
 
     // Zero initializer to memset if possible
     if (expr->type == AST_NUMBER_LITERAL && expr->valueNode.value && strcmp(expr->valueNode.value, "0") == 0) {
-        uint64_t bytes = 0;
-        uint32_t align = 0;
-        cg_size_align_for_type(ctx, destParsed, storeType, &bytes, &align);
-        LLVMTypeRef i8Ptr = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
-        LLVMValueRef dstCast = LLVMBuildBitCast(ctx->builder, destPtr, i8Ptr, "init.zero.dst");
-        LLVMValueRef sizeVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), bytes, 0);
-        LLVMBuildMemSet(ctx->builder,
-                        dstCast,
-                        LLVMConstInt(LLVMInt8TypeInContext(ctx->llvmContext), 0, 0),
-                        sizeVal,
-                        align ? align : 1);
+        if (!cg_zero_initialize_storage(ctx, destPtr, storeType, destParsed)) {
+            CG_STORE_INIT_RETURN(false);
+        }
         CG_STORE_INIT_RETURN(true);
     }
 
@@ -324,10 +349,12 @@ bool cg_store_designated_entries(CodegenContext* ctx,
     if (kind == LLVMStructTypeKind || kind == LLVMArrayTypeKind) {
         /*
          * C aggregate initialization is fail-closed: any field/element not explicitly
-         * initialized must become zero-initialized. Seed with a full zeroinitializer
+         * initialized must become zero-initialized. Seed with a full byte-wise zero
          * before applying explicit designators/entries.
          */
-        LLVMBuildStore(ctx->builder, LLVMConstNull(destType), destPtr);
+        if (!cg_zero_initialize_storage(ctx, destPtr, destType, destParsed)) {
+            return false;
+        }
 
         if (kind == LLVMStructTypeKind) {
             return cg_store_struct_entries(ctx, destPtr, destType, destParsed, entries, entryCount);

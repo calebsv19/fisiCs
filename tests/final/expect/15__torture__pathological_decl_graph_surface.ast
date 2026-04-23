@@ -1539,7 +1539,7 @@ entry:
   %l2 = alloca %Layer, align 8
   %l3 = alloca %Layer, align 8
   %values = alloca [7 x i32], align 4
-  store [7 x i32] zeroinitializer, ptr %values, align 4
+  call void @llvm.memset.p0.i64(ptr align 4 %values, i8 0, i64 28, i1 false)
   %init.elem = getelementptr [7 x i32], ptr %values, i32 0, i32 0
   store i32 3, ptr %init.elem, align 4
   %init.elem1 = getelementptr [7 x i32], ptr %values, i32 0, i32 1
@@ -1554,13 +1554,13 @@ entry:
   store i32 34, ptr %init.elem5, align 4
   %init.elem6 = getelementptr [7 x i32], ptr %values, i32 0, i32 6
   store i32 55, ptr %init.elem6, align 4
-  store %Layer zeroinitializer, ptr %l3, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %l3, i8 0, i64 48, i1 false)
   %fieldPtr = getelementptr inbounds nuw %Layer, ptr %l3, i32 0, i32 0
-  store %__anon_struct_1_12 zeroinitializer, ptr %fieldPtr, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %fieldPtr, i8 0, i64 40, i1 false)
   %fieldPtr7 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr, i32 0, i32 0
   store i32 4, ptr %fieldPtr7, align 4
   %fieldPtr8 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr, i32 0, i32 1
-  store [3 x ptr] zeroinitializer, ptr %fieldPtr8, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %fieldPtr8, i8 0, i64 24, i1 false)
   %init.elem9 = getelementptr [3 x ptr], ptr %fieldPtr8, i32 0, i32 0
   store ptr @op_mix, ptr %init.elem9, align 8
   %init.elem10 = getelementptr [3 x ptr], ptr %fieldPtr8, i32 0, i32 1
@@ -1571,13 +1571,13 @@ entry:
   store ptr null, ptr %fieldPtr12, align 8
   %fieldPtr13 = getelementptr inbounds nuw %Layer, ptr %l3, i32 0, i32 1
   store i32 9, ptr %fieldPtr13, align 4
-  store %Layer zeroinitializer, ptr %l2, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %l2, i8 0, i64 48, i1 false)
   %fieldPtr14 = getelementptr inbounds nuw %Layer, ptr %l2, i32 0, i32 0
-  store %__anon_struct_1_12 zeroinitializer, ptr %fieldPtr14, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %fieldPtr14, i8 0, i64 40, i1 false)
   %fieldPtr15 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr14, i32 0, i32 0
   store i32 3, ptr %fieldPtr15, align 4
   %fieldPtr16 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr14, i32 0, i32 1
-  store [3 x ptr] zeroinitializer, ptr %fieldPtr16, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %fieldPtr16, i8 0, i64 24, i1 false)
   %init.elem17 = getelementptr [3 x ptr], ptr %fieldPtr16, i32 0, i32 0
   store ptr @op_sub, ptr %init.elem17, align 8
   %init.elem18 = getelementptr [3 x ptr], ptr %fieldPtr16, i32 0, i32 1
@@ -1588,13 +1588,13 @@ entry:
   store ptr %l3, ptr %fieldPtr20, align 8
   %fieldPtr21 = getelementptr inbounds nuw %Layer, ptr %l2, i32 0, i32 1
   store i32 7, ptr %fieldPtr21, align 4
-  store %Layer zeroinitializer, ptr %l1, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %l1, i8 0, i64 48, i1 false)
   %fieldPtr22 = getelementptr inbounds nuw %Layer, ptr %l1, i32 0, i32 0
-  store %__anon_struct_1_12 zeroinitializer, ptr %fieldPtr22, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %fieldPtr22, i8 0, i64 40, i1 false)
   %fieldPtr23 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr22, i32 0, i32 0
   store i32 2, ptr %fieldPtr23, align 4
   %fieldPtr24 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr22, i32 0, i32 1
-  store [3 x ptr] zeroinitializer, ptr %fieldPtr24, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %fieldPtr24, i8 0, i64 24, i1 false)
   %init.elem25 = getelementptr [3 x ptr], ptr %fieldPtr24, i32 0, i32 0
   store ptr @op_fold, ptr %init.elem25, align 8
   %init.elem26 = getelementptr [3 x ptr], ptr %fieldPtr24, i32 0, i32 1
@@ -1605,13 +1605,13 @@ entry:
   store ptr %l2, ptr %fieldPtr28, align 8
   %fieldPtr29 = getelementptr inbounds nuw %Layer, ptr %l1, i32 0, i32 1
   store i32 5, ptr %fieldPtr29, align 4
-  store %Layer zeroinitializer, ptr %l0, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %l0, i8 0, i64 48, i1 false)
   %fieldPtr30 = getelementptr inbounds nuw %Layer, ptr %l0, i32 0, i32 0
-  store %__anon_struct_1_12 zeroinitializer, ptr %fieldPtr30, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %fieldPtr30, i8 0, i64 40, i1 false)
   %fieldPtr31 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr30, i32 0, i32 0
   store i32 1, ptr %fieldPtr31, align 4
   %fieldPtr32 = getelementptr inbounds nuw %__anon_struct_1_12, ptr %fieldPtr30, i32 0, i32 1
-  store [3 x ptr] zeroinitializer, ptr %fieldPtr32, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %fieldPtr32, i8 0, i64 24, i1 false)
   %init.elem33 = getelementptr [3 x ptr], ptr %fieldPtr32, i32 0, i32 0
   store ptr @op_add, ptr %init.elem33, align 8
   %init.elem34 = getelementptr [3 x ptr], ptr %fieldPtr32, i32 0, i32 1
@@ -1649,7 +1649,12 @@ entry:
   ret i32 %addtmp
 }
 
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
 declare i32 @printf(ptr %0, ...)
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }
         TYPE: int
         IDENTIFIER b
     BLOCK

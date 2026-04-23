@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (260697:38): Too few arguments in call to 'axis2_wave3_nested_binary' (expected 2, got 1)
+   Spelling: axis2_wave3_nested_layer_d.h:260697:38

@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-04-15.
+Last audited: 2026-04-22.
 
 ## Repository Entry
 
@@ -21,6 +21,7 @@ Last audited: 2026-04-15.
 - `frontend_api.md`: reusable frontend library API notes
 - `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.4.0`)
 - `cli_release_workflow.md`: CLI release packaging/sign/notarize flow for macOS artifacts
+- `make_final_timing_log.md`: public timing-baseline lane and capture policy for `make final`
 
 Additional public testing references live outside `docs/` under `tests/final/`:
 - bucket scope references (for example `tests/final/11-functions-calls.md`, `tests/final/12-diagnostics-recovery.md`)
@@ -30,6 +31,10 @@ Real-project validation references live under `tests/real_projects/`:
 - scaffold overview and stage contracts: `tests/real_projects/README.md`
 - stage runners (`A`..`F`): `tests/real_projects/runners/`
 - project manifest: `tests/real_projects/config/projects_manifest.json`
+
+Current public test campaign context:
+- higher-stress runtime and diagnostics validation expansion is active under `tests/final/`
+- real-project compile and runtime-smoke validation continues under `tests/real_projects/`
 
 ## Private Docs Boundary
 

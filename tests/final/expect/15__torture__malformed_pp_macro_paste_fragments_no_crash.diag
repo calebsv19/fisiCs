@@ -1,2 +1,5 @@
 Diagnostics:
-Semantic analysis: no issues found.
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c:4:12: error: GNU ', ##__VA_ARGS__' extension is not supported
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c:4:12: error: GNU ', ##__VA_ARGS__' extension is not supported
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c:4:12: error: GNU ', ##__VA_ARGS__' extension is not supported

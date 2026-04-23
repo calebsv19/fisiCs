@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+axis4_wave1_guard_depth_layer_e.h:380501:10: error: detected recursive include of '/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave1_malformed_include_guard_reentry_depth_no_crash_b.h'
+axis4_wave1_guard_depth_layer_e.h:380501:10: error: detected recursive include of '/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave1_malformed_include_guard_reentry_depth_no_crash_b.h'

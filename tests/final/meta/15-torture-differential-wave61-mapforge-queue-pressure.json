@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__multitu_queue_rollback_pressure",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__multitu_queue_rollback_pressure_main.c",
+      "inputs": [
+        "cases/15__torture__multitu_queue_rollback_pressure_main.c",
+        "cases/15__torture__multitu_queue_rollback_pressure_lib.c",
+        "cases/15__torture__multitu_queue_rollback_pressure_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_queue_rollback_pressure.stdout",
+      "expected_stderr": "expect/15__torture__multitu_queue_rollback_pressure.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "queue",
+        "rollback",
+        "pressure"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_inline_reset_generation_bridge",
+      "bucket": "torture-differential",
+      "input": "cases/15__torture__multitu_inline_reset_generation_bridge_main.c",
+      "inputs": [
+        "cases/15__torture__multitu_inline_reset_generation_bridge_main.c",
+        "cases/15__torture__multitu_inline_reset_generation_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_inline_reset_generation_bridge.stdout",
+      "expected_stderr": "expect/15__torture__multitu_inline_reset_generation_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "inline",
+        "generation",
+        "bridge"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,620 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_link_order_static_init_crc_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_link_order_static_init_crc_matrix_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_link_order_static_init_crc_matrix_main.c",
+        "probes/runtime/14__probe_multitu_link_order_static_init_crc_matrix_lib_a.c",
+        "probes/runtime/14__probe_multitu_link_order_static_init_crc_matrix_lib_b.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_link_order_static_init_crc_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_link_order_static_init_crc_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "multitu",
+        "link",
+        "order",
+        "static",
+        "init",
+        "crc"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_repeatable_multitu_symbol_permutation_hash",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_repeatable_multitu_symbol_permutation_hash_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_repeatable_multitu_symbol_permutation_hash_main.c",
+        "probes/runtime/14__probe_repeatable_multitu_symbol_permutation_hash_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_repeatable_multitu_symbol_permutation_hash.stdout",
+      "expected_stderr": "expect/14__runtime_repeatable_multitu_symbol_permutation_hash.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "repeatable",
+        "multitu",
+        "symbol",
+        "permutation",
+        "hash"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_repeatable_runtime_stdout_hash_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_repeatable_runtime_stdout_hash_matrix.c",
+      "inputs": [
+        "probes/runtime/14__probe_repeatable_runtime_stdout_hash_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_repeatable_runtime_stdout_hash_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_repeatable_runtime_stdout_hash_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "repeatable",
+        "runtime",
+        "stdout",
+        "hash",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_realproj_map_forge_layer_toggle_residency_trim_runtime",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_realproj_map_forge_layer_toggle_residency_trim_runtime.c",
+      "inputs": [
+        "probes/runtime/14__probe_realproj_map_forge_layer_toggle_residency_trim_runtime.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_realproj_map_forge_layer_toggle_residency_trim_runtime.stdout",
+      "expected_stderr": "expect/14__runtime_realproj_map_forge_layer_toggle_residency_trim_runtime.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "realproj",
+        "map",
+        "forge",
+        "layer",
+        "toggle",
+        "residency"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_realproj_map_forge_tile_queue_generation_guard_runtime",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_realproj_map_forge_tile_queue_generation_guard_runtime.c",
+      "inputs": [
+        "probes/runtime/14__probe_realproj_map_forge_tile_queue_generation_guard_runtime.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_realproj_map_forge_tile_queue_generation_guard_runtime.stdout",
+      "expected_stderr": "expect/14__runtime_realproj_map_forge_tile_queue_generation_guard_runtime.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "realproj",
+        "map",
+        "forge",
+        "tile",
+        "queue",
+        "generation"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_realproj_map_forge_owner_transfer_single_release_runtime",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_realproj_map_forge_owner_transfer_single_release_runtime.c",
+      "inputs": [
+        "probes/runtime/14__probe_realproj_map_forge_owner_transfer_single_release_runtime.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_realproj_map_forge_owner_transfer_single_release_runtime.stdout",
+      "expected_stderr": "expect/14__runtime_realproj_map_forge_owner_transfer_single_release_runtime.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "realproj",
+        "map",
+        "forge",
+        "owner",
+        "transfer",
+        "single"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_cleanup_double_call_guard_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_cleanup_double_call_guard_matrix.c",
+      "inputs": [
+        "probes/runtime/14__probe_cleanup_double_call_guard_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_cleanup_double_call_guard_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_cleanup_double_call_guard_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "cleanup",
+        "double",
+        "call",
+        "guard",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_queue_trim_idempotent_window_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_queue_trim_idempotent_window_matrix.c",
+      "inputs": [
+        "probes/runtime/14__probe_queue_trim_idempotent_window_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_queue_trim_idempotent_window_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_queue_trim_idempotent_window_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "queue",
+        "trim",
+        "idempotent",
+        "window",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_generation_gate_stale_entry_drop_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_generation_gate_stale_entry_drop_matrix.c",
+      "inputs": [
+        "probes/runtime/14__probe_generation_gate_stale_entry_drop_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_generation_gate_stale_entry_drop_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_generation_gate_stale_entry_drop_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "generation",
+        "gate",
+        "stale",
+        "entry",
+        "drop",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_fnptr_struct_return_long_double_bridge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_fnptr_struct_return_long_double_bridge.c",
+      "inputs": [
+        "probes/runtime/14__probe_fnptr_struct_return_long_double_bridge.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_fnptr_struct_return_long_double_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_fnptr_struct_return_long_double_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "fnptr",
+        "struct",
+        "return",
+        "long",
+        "double",
+        "bridge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_variadic_fnptr_struct_payload_bridge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_variadic_fnptr_struct_payload_bridge.c",
+      "inputs": [
+        "probes/runtime/14__probe_variadic_fnptr_struct_payload_bridge.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_variadic_fnptr_struct_payload_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_variadic_fnptr_struct_payload_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "variadic",
+        "fnptr",
+        "struct",
+        "payload",
+        "bridge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_fnptr_variadic_state_pipeline",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_fnptr_variadic_state_pipeline_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_fnptr_variadic_state_pipeline_main.c",
+        "probes/runtime/14__probe_multitu_fnptr_variadic_state_pipeline_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_fnptr_variadic_state_pipeline.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_fnptr_variadic_state_pipeline.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "multitu",
+        "fnptr",
+        "variadic",
+        "state",
+        "pipeline"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_restrict_char_alias_rebase_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_restrict_char_alias_rebase_matrix.c",
+      "inputs": [
+        "probes/runtime/14__probe_restrict_char_alias_rebase_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_restrict_char_alias_rebase_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_restrict_char_alias_rebase_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "restrict",
+        "char",
+        "alias",
+        "rebase",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_ptrdiff_roundtrip_through_uintptr_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_ptrdiff_roundtrip_through_uintptr_matrix.c",
+      "inputs": [
+        "probes/runtime/14__probe_ptrdiff_roundtrip_through_uintptr_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_ptrdiff_roundtrip_through_uintptr_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_ptrdiff_roundtrip_through_uintptr_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "ptrdiff",
+        "roundtrip",
+        "through",
+        "uintptr",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_ptr_alias_window_stability",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_ptr_alias_window_stability_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_ptr_alias_window_stability_main.c",
+        "probes/runtime/14__probe_multitu_ptr_alias_window_stability_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_ptr_alias_window_stability.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_ptr_alias_window_stability.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "multitu",
+        "ptr",
+        "alias",
+        "window",
+        "stability"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_main.c",
+        "probes/runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave1",
+        "multitu",
+        "tentative",
+        "def",
+        "coalesce"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave1_multitu_static_extern_shadow_reloc_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_main.c",
+        "probes/runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave1_multitu_static_extern_shadow_reloc_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave1_multitu_static_extern_shadow_reloc_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave1",
+        "multitu",
+        "static",
+        "extern",
+        "shadow"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_main.c",
+        "probes/runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_lib.c",
+        "probes/runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave2",
+        "multitu",
+        "weak",
+        "strong",
+        "symbol"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis1_wave2_multitu_extern_array_extent_reloc_bridge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_main.c",
+        "probes/runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_lib.c",
+        "probes/runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis1_wave2_multitu_extern_array_extent_reloc_bridge.stdout",
+      "expected_stderr": "expect/14__runtime_axis1_wave2_multitu_extern_array_extent_reloc_bridge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis1",
+        "wave2",
+        "multitu",
+        "extern",
+        "array",
+        "extent"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis3",
+        "wave1",
+        "multitu",
+        "abi",
+        "hfa",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "axis3",
+        "wave2",
+        "multitu",
+        "abi",
+        "hfa",
+        "struct"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

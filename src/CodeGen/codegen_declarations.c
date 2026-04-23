@@ -311,10 +311,40 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
         returnLLVM = LLVMVoidTypeInContext(ctx->llvmContext);
     }
     returnLLVM = cg_coerce_function_return_type(ctx, returnLLVM);
+    bool useVariadicSRet = cg_should_lower_variadic_sret(ctx, returnLLVM, isVariadic);
+    LLVMTypeRef fnReturnType = useVariadicSRet
+        ? LLVMVoidTypeInContext(ctx->llvmContext)
+        : returnLLVM;
+    LLVMTypeRef* fnParamTypes = paramTypes;
+    size_t fnParamCount = paramCount;
+    LLVMTypeRef* loweredParamTypes = NULL;
+    if (useVariadicSRet) {
+        loweredParamTypes = (LLVMTypeRef*)calloc(paramCount + 1u, sizeof(LLVMTypeRef));
+        if (!loweredParamTypes) {
+            return NULL;
+        }
+        loweredParamTypes[0] = LLVMPointerType(returnLLVM, 0);
+        for (size_t i = 0; i < paramCount; ++i) {
+            loweredParamTypes[i + 1u] = paramTypes ? paramTypes[i] : NULL;
+        }
+        fnParamTypes = loweredParamTypes;
+        fnParamCount = paramCount + 1u;
+    }
 
-    LLVMTypeRef fnType = LLVMFunctionType(returnLLVM, paramTypes, (unsigned)paramCount, isVariadic ? 1 : 0);
+    LLVMTypeRef fnType = LLVMFunctionType(fnReturnType,
+                                          fnParamTypes,
+                                          (unsigned)fnParamCount,
+                                          isVariadic ? 1 : 0);
+    free(loweredParamTypes);
     LLVMValueRef existing = LLVMGetNamedFunction(ctx->module, name);
     LLVMValueRef fn = existing ? existing : LLVMAddFunction(ctx->module, name, fnType);
+    if (useVariadicSRet) {
+        unsigned sretKind = LLVMGetEnumAttributeKindForName("sret", 4);
+        if (sretKind != 0) {
+            LLVMAttributeRef sretAttr = LLVMCreateTypeAttribute(ctx->llvmContext, sretKind, returnLLVM);
+            LLVMAddAttributeAtIndex(fn, 1, sretAttr);
+        }
+    }
 
     if (symHint) {
         switch (symHint->signature.callConv) {
@@ -437,7 +467,15 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     } else if (cg_is_builtin_const_name(sym->name)) {
         LLVMSetLinkage(existing, LLVMInternalLinkage);
     } else if (sym->isTentative) {
-        LLVMSetLinkage(existing, LLVMCommonLinkage);
+        const char* useCommonTentative = getenv("FISICS_ENABLE_TENTATIVE_COMMON_LINKAGE");
+        if (useCommonTentative && useCommonTentative[0] == '1') {
+            LLVMSetLinkage(existing, LLVMCommonLinkage);
+        } else {
+            /* Match modern clang default (-fno-common): tentative defs emit as
+             * regular extern-linked zero-initialized globals, allowing duplicate
+             * tentative definitions across TUs to diagnose at link stage. */
+            LLVMSetLinkage(existing, LLVMExternalLinkage);
+        }
     } else if (sym->linkage == LINKAGE_INTERNAL) {
         LLVMSetLinkage(existing, LLVMInternalLinkage);
     } else {

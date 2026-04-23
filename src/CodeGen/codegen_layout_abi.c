@@ -463,6 +463,24 @@ LLVMTypeRef cg_coerce_function_return_type(CodegenContext* ctx, LLVMTypeRef retu
     return LLVMIntTypeInContext(ctx->llvmContext, (unsigned)(size * 8u));
 }
 
+bool cg_should_lower_variadic_sret(CodegenContext* ctx,
+                                   LLVMTypeRef returnType,
+                                   bool isVariadicFunction) {
+    if (!ctx || !returnType || !isVariadicFunction) {
+        return false;
+    }
+    LLVMTypeKind kind = LLVMGetTypeKind(returnType);
+    if (kind != LLVMStructTypeKind && kind != LLVMArrayTypeKind) {
+        return false;
+    }
+    LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+    if (!td || !LLVMTypeIsSized(returnType)) {
+        return false;
+    }
+    uint64_t size = LLVMABISizeOfType(td, returnType);
+    return size > 24u;
+}
+
 LLVMValueRef cg_pack_aggregate_for_abi_return(CodegenContext* ctx,
                                               LLVMValueRef value,
                                               LLVMTypeRef packedType,

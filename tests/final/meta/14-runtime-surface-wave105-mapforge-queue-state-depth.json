@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_queue_pop_fail_preserves_window_state",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_queue_pop_fail_preserves_window_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_queue_pop_fail_preserves_window_state.stdout",
+      "expected_stderr": "expect/14__runtime_queue_pop_fail_preserves_window_state.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "queue",
+        "pop-fail",
+        "state-window",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_token_reserve_commit_abort",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_token_reserve_commit_abort_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_token_reserve_commit_abort_main.c",
+        "cases/14__runtime_multitu_token_reserve_commit_abort_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_reserve_commit_abort.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_token_reserve_commit_abort.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "multitu",
+        "token",
+        "reserve",
+        "commit",
+        "abort"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_layer_budget_trim_generation",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_layer_budget_trim_generation_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_layer_budget_trim_generation_main.c",
+        "cases/14__runtime_multitu_layer_budget_trim_generation_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_layer_budget_trim_generation.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_layer_budget_trim_generation.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "multitu",
+        "layer-budget",
+        "trim",
+        "generation"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

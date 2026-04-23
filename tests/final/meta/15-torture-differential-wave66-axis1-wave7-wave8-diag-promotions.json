@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__axis1_wave7_multitu_function_object_alias_perm_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_lib.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_aux.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave7_multitu_function_object_alias_perm_conflict_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave7",
+        "multitu",
+        "function",
+        "object",
+        "alias",
+        "perm"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_lib.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_aux.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave8",
+        "multitu",
+        "function",
+        "object",
+        "alias",
+        "perm",
+        "dual"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave7_multitu_function_object_alias_perm_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_lib.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_aux.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave7_multitu_function_object_alias_perm_conflict_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave7",
+        "multitu",
+        "function",
+        "object",
+        "alias",
+        "perm"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_lib.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_aux.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave8",
+        "multitu",
+        "function",
+        "object",
+        "alias",
+        "perm",
+        "dual"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

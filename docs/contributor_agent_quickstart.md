@@ -1,6 +1,7 @@
 # Contributor and Agent Quickstart
 
 This file is the fastest entrypoint for both human contributors and Codex-style agents.
+Last updated: 2026-04-22.
 
 ## 1) Read First
 
@@ -34,8 +35,7 @@ make ci-guardrails
 ## 4) Docs Boundary
 
 - Public docs stay in `fisiCs/docs/`.
-- Internal planning, deep run logs, and private triage stay in:
-  - `../../docs/private_program_docs/fisiCs/`
+- Internal planning, deep run logs, and private triage stay in maintainer-only docs outside this public docs lane.
 
 ## 5) Troubleshooting Orientation
 

@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (500502:12): Undeclared identifier
+   Hint: axis4_wave4_missing_symbol
+   Spelling: axis4_wave4_depth_layer_e.h:500502:12
+Error at (500502:12): Operator '+' requires arithmetic operands
+   Spelling: axis4_wave4_depth_layer_e.h:500502:12

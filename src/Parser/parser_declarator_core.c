@@ -403,8 +403,13 @@ static bool parseFunctionSuffix(Parser* parser,
     size_t paramCount = 0;
     bool isVariadic = false;
     ParsedType* paramTypes = NULL;
+    bool captureDeclParams = captureFunctionParams &&
+                             topLevel &&
+                             !groupedDeclarator &&
+                             decl != NULL &&
+                             decl->functionParameters == NULL;
 
-    if (captureFunctionParams) {
+    if (captureDeclParams) {
         paramList = parseParameterList(parser, &paramCount, &isVariadic);
         if (!paramList && paramCount == 0) {
             printParseError("Invalid function parameter list", parser);
@@ -445,7 +450,16 @@ static bool parseFunctionSuffix(Parser* parser,
                                             info.count,
                                             info.isVariadic);
     if (groupedDeclarator) {
-        parsedTypeSetFunctionPointer(type, info.count, info.params);
+        bool hasGroupedPointer = false;
+        for (size_t i = 0; i < type->derivationCount; ++i) {
+            if (type->derivations[i].kind == TYPE_DERIVATION_POINTER) {
+                hasGroupedPointer = true;
+                break;
+            }
+        }
+        if (hasGroupedPointer) {
+            parsedTypeSetFunctionPointer(type, info.count, info.params);
+        }
     }
     if (captureFunctionParams) {
         free(paramTypes);

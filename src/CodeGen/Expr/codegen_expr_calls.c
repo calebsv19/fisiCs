@@ -510,44 +510,124 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         }
     }
 
-    LLVMTypeRef callRetTy = LLVMGetReturnType(calleeType);
+    const ParsedType* semanticReturnParsed = cg_resolve_expression_type(ctx, node);
+    LLVMTypeRef semanticReturnTy = NULL;
+    if (semanticReturnParsed) {
+        semanticReturnTy = cg_type_from_parsed(ctx, semanticReturnParsed);
+        if (semanticReturnTy && LLVMGetTypeKind(semanticReturnTy) == LLVMFunctionTypeKind) {
+            semanticReturnTy = LLVMPointerType(semanticReturnTy, 0);
+        } else if (semanticReturnTy && LLVMGetTypeKind(semanticReturnTy) == LLVMArrayTypeKind) {
+            semanticReturnTy = LLVMPointerType(semanticReturnTy, 0);
+        }
+    }
+
+    bool useVariadicSRet = false;
+    LLVMValueRef variadicSRetSlot = NULL;
+    LLVMValueRef* variadicSRetArgs = NULL;
+    LLVMValueRef* callArgs = finalArgs;
+    size_t callArgCount = argCount;
+    LLVMTypeRef callType = calleeType;
+    if (semanticReturnTy &&
+        cg_should_lower_variadic_sret(ctx, semanticReturnTy, LLVMIsFunctionVarArg(calleeType) != 0)) {
+        variadicSRetSlot = cg_build_entry_alloca(ctx, semanticReturnTy, "call.variadic.sret.slot");
+        if (variadicSRetSlot) {
+            unsigned fixedParamCount = LLVMCountParamTypes(calleeType);
+            LLVMTypeRef* fixedParamTypes = NULL;
+            LLVMTypeRef* loweredParamTypes = NULL;
+            bool isVariadic = LLVMIsFunctionVarArg(calleeType) != 0;
+            if (fixedParamCount > 0) {
+                fixedParamTypes = (LLVMTypeRef*)calloc(fixedParamCount, sizeof(LLVMTypeRef));
+                if (fixedParamTypes) {
+                    LLVMGetParamTypes(calleeType, fixedParamTypes);
+                }
+            }
+            loweredParamTypes = (LLVMTypeRef*)calloc(fixedParamCount + 1u, sizeof(LLVMTypeRef));
+            if (loweredParamTypes) {
+                loweredParamTypes[0] = LLVMPointerType(semanticReturnTy, 0);
+                for (unsigned i = 0; i < fixedParamCount; ++i) {
+                    loweredParamTypes[i + 1u] = fixedParamTypes ? fixedParamTypes[i] : NULL;
+                }
+                callType = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvmContext),
+                                            loweredParamTypes,
+                                            fixedParamCount + 1u,
+                                            isVariadic ? 1 : 0);
+                function = LLVMBuildBitCast(ctx->builder,
+                                            function,
+                                            LLVMPointerType(callType, 0),
+                                            "call.variadic.sret.cast");
+                variadicSRetArgs = (LLVMValueRef*)calloc(argCount + 1u, sizeof(LLVMValueRef));
+                if (variadicSRetArgs) {
+                    LLVMValueRef sretArg = variadicSRetSlot;
+                    LLVMTypeRef expectedPtrTy = LLVMPointerType(semanticReturnTy, 0);
+                    if (LLVMTypeOf(sretArg) != expectedPtrTy) {
+                        sretArg = LLVMBuildBitCast(ctx->builder,
+                                                   sretArg,
+                                                   expectedPtrTy,
+                                                   "call.variadic.sret.arg.cast");
+                    }
+                    variadicSRetArgs[0] = sretArg;
+                    for (size_t i = 0; i < argCount; ++i) {
+                        variadicSRetArgs[i + 1u] = finalArgs ? finalArgs[i] : NULL;
+                    }
+                    callArgs = variadicSRetArgs;
+                    callArgCount = argCount + 1u;
+                    useVariadicSRet = true;
+                }
+            }
+            free(loweredParamTypes);
+            free(fixedParamTypes);
+        }
+    }
+
+    LLVMTypeRef callRetTy = LLVMGetReturnType(callType);
     bool callReturnsVoid = callRetTy && LLVMGetTypeKind(callRetTy) == LLVMVoidTypeKind;
     LLVMValueRef call = LLVMBuildCall2(ctx->builder,
-                                       calleeType,
+                                       callType,
                                        function,
-                                       finalArgs,
-                                       argCount,
+                                       callArgs,
+                                       callArgCount,
                                        callReturnsVoid ? "" : "calltmp");
+    if (useVariadicSRet && semanticReturnTy) {
+        unsigned sretKind = LLVMGetEnumAttributeKindForName("sret", 4);
+        if (sretKind != 0) {
+            LLVMAttributeRef sretAttr = LLVMCreateTypeAttribute(ctx->llvmContext,
+                                                                sretKind,
+                                                                semanticReturnTy);
+            LLVMAddCallSiteAttribute(call, 1, sretAttr);
+        }
+    }
     unsigned fnCC = LLVMGetFunctionCallConv(function);
     if (fnCC != 0) {
         LLVMSetInstructionCallConv(call, fnCC);
     }
     if (externalAbiParamTypes) free(externalAbiParamTypes);
     if (externalAbiArgs) free(externalAbiArgs);
+    if (variadicSRetArgs) free(variadicSRetArgs);
     if (promotedArgs) free(promotedArgs);
     free(args);
-    if (callReturnsVoid) {
+    if (callReturnsVoid && !useVariadicSRet) {
         CG_CALL_RETURN(NULL);
     }
 
     LLVMValueRef result = call;
-    const ParsedType* semanticReturnParsed = cg_resolve_expression_type(ctx, node);
-    if (semanticReturnParsed) {
-        LLVMTypeRef semanticReturnTy = cg_type_from_parsed(ctx, semanticReturnParsed);
-        if (semanticReturnTy && LLVMGetTypeKind(semanticReturnTy) == LLVMFunctionTypeKind) {
-            semanticReturnTy = LLVMPointerType(semanticReturnTy, 0);
-        }
-        if (semanticReturnTy) {
-            LLVMTypeKind semanticKind = LLVMGetTypeKind(semanticReturnTy);
-            LLVMTypeKind callKind = LLVMGetTypeKind(callRetTy);
-            if ((semanticKind == LLVMStructTypeKind || semanticKind == LLVMArrayTypeKind) &&
-                (callKind == LLVMIntegerTypeKind || callKind == LLVMArrayTypeKind) &&
-                semanticReturnTy != callRetTy) {
-                result = cg_unpack_aggregate_from_abi_return(ctx,
-                                                             call,
-                                                             semanticReturnTy,
-                                                             "call.abi.unpack");
-            }
+    if (useVariadicSRet && variadicSRetSlot && semanticReturnTy) {
+        result = LLVMBuildLoad2(ctx->builder,
+                                semanticReturnTy,
+                                variadicSRetSlot,
+                                "call.variadic.sret.result");
+        CG_CALL_RETURN(result);
+    }
+
+    if (semanticReturnTy) {
+        LLVMTypeKind semanticKind = LLVMGetTypeKind(semanticReturnTy);
+        LLVMTypeKind callKind = LLVMGetTypeKind(callRetTy);
+        if ((semanticKind == LLVMStructTypeKind || semanticKind == LLVMArrayTypeKind) &&
+            (callKind == LLVMIntegerTypeKind || callKind == LLVMArrayTypeKind) &&
+            semanticReturnTy != callRetTy) {
+            result = cg_unpack_aggregate_from_abi_return(ctx,
+                                                         call,
+                                                         semanticReturnTy,
+                                                         "call.abi.unpack");
         }
     }
     CG_CALL_RETURN(result);

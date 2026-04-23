@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (240308:9): if controlling expression must be scalar
+   Spelling: axis2_wave2_guard_layer_c.h:240308:9

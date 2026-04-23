@@ -30,6 +30,7 @@ class DiagnosticProbe:
     probe_id: str
     source: Path
     note: str
+    expect_any_diagnostic: bool = True
     required_substrings: Sequence[str] | None = None
     inputs: Sequence[Path] | None = None
 
@@ -1002,6 +1003,30 @@ RUNTIME_PROBES = [
         note="multi-TU link-path hash matrix should remain stable across repeated calls",
     ),
     RuntimeProbe(
+        probe_id="14__probe_multitu_link_order_static_init_crc_matrix",
+        source=PROBE_DIR / "runtime/14__probe_multitu_link_order_static_init_crc_matrix_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_link_order_static_init_crc_matrix_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_link_order_static_init_crc_matrix_lib_a.c",
+            PROBE_DIR / "runtime/14__probe_multitu_link_order_static_init_crc_matrix_lib_b.c",
+        ),
+        note="multi-TU static-init and call-order CRC matrix should remain deterministic and match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_repeatable_multitu_symbol_permutation_hash",
+        source=PROBE_DIR / "runtime/14__probe_repeatable_multitu_symbol_permutation_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_repeatable_multitu_symbol_permutation_hash_main.c",
+            PROBE_DIR / "runtime/14__probe_repeatable_multitu_symbol_permutation_hash_lib.c",
+        ),
+        note="multi-TU symbol permutation dispatch hash should remain deterministic and match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_repeatable_runtime_stdout_hash_matrix",
+        source=PROBE_DIR / "runtime/14__probe_repeatable_runtime_stdout_hash_matrix.c",
+        note="text-output hash matrix should remain deterministic across repeated runs and match clang runtime behavior",
+    ),
+    RuntimeProbe(
         probe_id="14__probe_abi_long_double_variadic_regstack_hardening",
         source=PROBE_DIR / "runtime/14__probe_abi_long_double_variadic_regstack_hardening.c",
         note="long-double variadic ABI mix should be repeatable and match clang at reg/stack boundaries",
@@ -1014,6 +1039,661 @@ RUNTIME_PROBES = [
             PROBE_DIR / "runtime/14__probe_multitu_static_init_order_depth_bridge_lib.c",
         ),
         note="multi-TU static init/order depth bridge should remain deterministic and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_queue_push_fail_preserves_committed_slot",
+        source=PROBE_DIR / "runtime/14__probe_queue_push_fail_preserves_committed_slot.c",
+        note="queue push-fail path should preserve committed slot state and match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_token_generation_stale_drop",
+        source=PROBE_DIR / "runtime/14__probe_multitu_token_generation_stale_drop_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_token_generation_stale_drop_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_token_generation_stale_drop_lib.c",
+        ),
+        note="multi-TU token generation stale-drop path should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_owner_transfer_release_once",
+        source=PROBE_DIR / "runtime/14__probe_multitu_owner_transfer_release_once_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_owner_transfer_release_once_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_owner_transfer_release_once_lib.c",
+        ),
+        note="multi-TU owner-transfer release-once path should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_queue_pop_fail_preserves_window_state",
+        source=PROBE_DIR / "runtime/14__probe_queue_pop_fail_preserves_window_state.c",
+        note="queue pop-fail path should preserve read window state and match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_token_reserve_commit_abort",
+        source=PROBE_DIR / "runtime/14__probe_multitu_token_reserve_commit_abort_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_token_reserve_commit_abort_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_token_reserve_commit_abort_lib.c",
+        ),
+        note="multi-TU token reserve/commit/abort transitions should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_layer_budget_trim_generation",
+        source=PROBE_DIR / "runtime/14__probe_multitu_layer_budget_trim_generation_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_layer_budget_trim_generation_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_layer_budget_trim_generation_lib.c",
+        ),
+        note="multi-TU layer-budget trim and generation transitions should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_realproj_map_forge_layer_toggle_residency_trim_runtime",
+        source=PROBE_DIR / "runtime/14__probe_realproj_map_forge_layer_toggle_residency_trim_runtime.c",
+        note="reduced map_forge layer-toggle and residency trim behavior should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_realproj_map_forge_tile_queue_generation_guard_runtime",
+        source=PROBE_DIR / "runtime/14__probe_realproj_map_forge_tile_queue_generation_guard_runtime.c",
+        note="reduced map_forge tile-queue generation guard behavior should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_realproj_map_forge_owner_transfer_single_release_runtime",
+        source=PROBE_DIR / "runtime/14__probe_realproj_map_forge_owner_transfer_single_release_runtime.c",
+        note="reduced map_forge owner-transfer single-release behavior should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_cleanup_double_call_guard_matrix",
+        source=PROBE_DIR / "runtime/14__probe_cleanup_double_call_guard_matrix.c",
+        note="cleanup double-call guard matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_queue_trim_idempotent_window_matrix",
+        source=PROBE_DIR / "runtime/14__probe_queue_trim_idempotent_window_matrix.c",
+        note="queue trim idempotent-window matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_generation_gate_stale_entry_drop_matrix",
+        source=PROBE_DIR / "runtime/14__probe_generation_gate_stale_entry_drop_matrix.c",
+        note="generation-gate stale-entry drop matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_fnptr_struct_return_long_double_bridge",
+        source=PROBE_DIR / "runtime/14__probe_fnptr_struct_return_long_double_bridge.c",
+        note="function-pointer selected long-double struct return bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_variadic_fnptr_struct_payload_bridge",
+        source=PROBE_DIR / "runtime/14__probe_variadic_fnptr_struct_payload_bridge.c",
+        note="variadic function-pointer struct payload fold bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_fnptr_variadic_state_pipeline",
+        source=PROBE_DIR / "runtime/14__probe_multitu_fnptr_variadic_state_pipeline_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_fnptr_variadic_state_pipeline_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_fnptr_variadic_state_pipeline_lib.c",
+        ),
+        note="multi-TU variadic function-pointer state pipeline should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_restrict_char_alias_rebase_matrix",
+        source=PROBE_DIR / "runtime/14__probe_restrict_char_alias_rebase_matrix.c",
+        note="restrict copy with char-alias rebasing matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_ptrdiff_roundtrip_through_uintptr_matrix",
+        source=PROBE_DIR / "runtime/14__probe_ptrdiff_roundtrip_through_uintptr_matrix.c",
+        note="ptrdiff roundtrip through uintptr bridge matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_multitu_ptr_alias_window_stability",
+        source=PROBE_DIR / "runtime/14__probe_multitu_ptr_alias_window_stability_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_multitu_ptr_alias_window_stability_main.c",
+            PROBE_DIR / "runtime/14__probe_multitu_ptr_alias_window_stability_lib.c",
+        ),
+        note="multi-TU pointer alias window stability path should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_lib.c",
+        ),
+        note="axis1 wave1: multi-TU tentative-definition coalesce and relocation matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_lib.c",
+        ),
+        note="axis1 wave1: static-vs-extern same-name shadow relocation matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_lib.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_aux.c",
+        ),
+        note="axis1 wave2: multi-TU weak/common-vs-strong symbol precedence matrix should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_lib.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_aux.c",
+        ),
+        note="axis1 wave2: multi-TU extern-array extent relocation bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave3_multitu_const_table_reloc_crc",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_lib.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_aux.c",
+        ),
+        note="axis1 wave3: multi-TU const-table relocation CRC fold should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave3_multitu_static_fnptr_export_bridge",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_lib.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_aux.c",
+        ),
+        note="axis1 wave3: multi-TU static function-pointer export bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_lib.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_aux.c",
+        ),
+        note="axis1 wave3 reduced: single-path function-pointer export bridge remains stable while branch-lane strict probe is blocked",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_lib.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_aux.c",
+        ),
+        note="axis1 wave4: multi-TU exported function-pointer table dispatch should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge",
+        source=PROBE_DIR / "runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_main.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_lib.c",
+            PROBE_DIR / "runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_aux.c",
+        ),
+        note="axis1 wave5: multi-TU function-pointer typedef/qualifier bridge should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_aux.c",
+        ),
+        note="axis1 wave6: callback-returned function-pointer reseed matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_aux.c",
+        ),
+        note="axis1 wave6: function-pointer array permutation dispatch matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix_aux.c",
+        ),
+        note="axis1 wave7: owner-table rotation over exported function-pointer mix lanes should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix_aux.c",
+        ),
+        note="axis1 wave7: const-owner window pointer-depth matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix_aux.c",
+        ),
+        note="axis1 wave9: owner-ring function-pointer reseed matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix_aux.c",
+        ),
+        note="axis1 wave9: owner-route window depth matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix_aux.c",
+        ),
+        note="axis1 wave10: owner-checkpoint function-pointer dispatch matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge_aux.c",
+        ),
+        note="axis1 wave10: owner-checkpoint window bridge should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix_aux.c",
+        ),
+        note="axis1 wave11: nested decay pointer-table rebase matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge_aux.c",
+        ),
+        note="axis1 wave11: two-step pointer-table window rebase bridge should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix_aux.c",
+        ),
+        note="axis1 wave12: checkpoint link-order pointer-table reseed matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge_aux.c",
+        ),
+        note="axis1 wave12: mixed signed/unsigned offset pointer-table bridge should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix_aux.c",
+        ),
+        note="axis1 wave13: four-level pointer-table rebase permutation matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge_aux.c",
+        ),
+        note="axis1 wave13: constexpr signed/unsigned offset blend bridge should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix_aux.c",
+        ),
+        note="axis1 wave14: relocation-order checkpoint matrix over signed/unsigned offsets should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge_aux.c",
+        ),
+        note="axis1 wave14: signed/unsigned checkpoint replay bridge should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix_aux.c",
+        ),
+        note="axis1 wave15: three-plan pointer-table rebase drift matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge_lib.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge_aux.c",
+        ),
+        note="axis1 wave15: permutation-depth checkpoint replay bridge should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge",
+        source=PROBE_DIR / "runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_main.c",
+            PROBE_DIR / "runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_lib.c",
+        ),
+        note="axis3 wave1: multi-TU HFA struct-return plus variadic edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_lib.c",
+        ),
+        note="axis3 wave2: multi-TU HFA struct-return plus variadic permutation edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_lib.c",
+        ),
+        note="axis3 wave3: multi-TU HFA struct-return plus variadic crossmix edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_lib.c",
+        ),
+        note="axis3 wave4: multi-TU HFA struct-return plus variadic reg/stack pressure edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_lib.c",
+        ),
+        note="axis3 wave5: multi-TU HFA struct-return plus variadic checkpoint-rotation edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_lib.c",
+        ),
+        note="axis3 wave6: multi-TU HFA struct-return plus variadic epoch/frontier edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_lib.c",
+        ),
+        note="axis3 wave7: multi-TU HFA struct-return plus variadic frontier/replay edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_lib.c",
+        ),
+        note="axis3 wave8: multi-TU HFA struct-return plus variadic handoff/permutation edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_lib.c",
+        ),
+        note="axis3 wave9: multi-TU HFA struct-return plus variadic epoch/handoff edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_lib.c",
+        ),
+        note="axis3 wave10: multi-TU HFA struct-return plus variadic frontier/fold edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_lib.c",
+        ),
+        note="axis3 wave11: multi-TU HFA struct-return plus variadic checkpoint/fold edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_lib.c",
+        ),
+        note="axis3 wave12: multi-TU HFA struct-return plus variadic rotation/fold edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_lib.c",
+        ),
+        note="axis3 wave13: multi-TU HFA struct-return plus variadic epoch-rotation/fold edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_lib.c",
+        ),
+        note="axis3 wave14: multi-TU HFA struct-return plus variadic frontier-epoch/fold edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_lib.c",
+        ),
+        note="axis3 wave15: multi-TU HFA struct-return plus variadic regstack/frontier fold edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_lib.c",
+        ),
+        note="axis3 wave16: multi-TU HFA struct-return plus variadic regwindow/handoff fold edge lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge",
+        source=PROBE_DIR
+        / "runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_lib.c",
+        ),
+        note="axis3 wave17: multi-TU HFA struct-return plus variadic spill/checkpoint fold edge lane should match clang runtime behavior",
     ),
     RuntimeProbe(
         probe_id="15__probe_switch_loop_lite",
@@ -1198,6 +1878,80 @@ RUNTIME_PROBES = [
         note="multi-TU layout/stride pressure lane should match clang runtime behavior",
     ),
     RuntimeProbe(
+        probe_id="15__probe_multitu_queue_rollback_pressure",
+        source=PROBE_DIR / "runtime/15__probe_multitu_queue_rollback_pressure_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_queue_rollback_pressure_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_queue_rollback_pressure_lib.c",
+            PROBE_DIR / "runtime/15__probe_multitu_queue_rollback_pressure_aux.c",
+        ),
+        note="multi-TU queue rollback-pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_inline_reset_generation_bridge",
+        source=PROBE_DIR / "runtime/15__probe_multitu_inline_reset_generation_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_inline_reset_generation_bridge_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_inline_reset_generation_bridge_lib.c",
+        ),
+        note="multi-TU inline reset generation bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_queue_epoch_reclaim_pressure",
+        source=PROBE_DIR / "runtime/15__probe_multitu_queue_epoch_reclaim_pressure_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_queue_epoch_reclaim_pressure_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_queue_epoch_reclaim_pressure_lib.c",
+            PROBE_DIR / "runtime/15__probe_multitu_queue_epoch_reclaim_pressure_aux.c",
+        ),
+        note="multi-TU queue epoch/reclaim pressure lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_token_window_wraparound_churn",
+        source=PROBE_DIR / "runtime/15__probe_multitu_token_window_wraparound_churn_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_token_window_wraparound_churn_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_token_window_wraparound_churn_lib.c",
+        ),
+        note="multi-TU token-window wraparound churn lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_owner_epoch_rotation_matrix",
+        source=PROBE_DIR / "runtime/15__probe_multitu_owner_epoch_rotation_matrix_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_owner_epoch_rotation_matrix_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_owner_epoch_rotation_matrix_lib.c",
+        ),
+        note="multi-TU owner epoch-rotation matrix lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_queue_generation_reclaim_churn",
+        source=PROBE_DIR / "runtime/15__probe_multitu_queue_generation_reclaim_churn_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_queue_generation_reclaim_churn_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_queue_generation_reclaim_churn_lib.c",
+        ),
+        note="multi-TU queue generation/reclaim churn lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_owner_transfer_toggle_storm",
+        source=PROBE_DIR / "runtime/15__probe_multitu_owner_transfer_toggle_storm_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_owner_transfer_toggle_storm_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_owner_transfer_toggle_storm_lib.c",
+        ),
+        note="multi-TU owner transfer/toggle storm lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_token_epoch_wraparound_reseed",
+        source=PROBE_DIR / "runtime/15__probe_multitu_token_epoch_wraparound_reseed_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_token_epoch_wraparound_reseed_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_token_epoch_wraparound_reseed_lib.c",
+        ),
+        note="multi-TU token epoch wraparound/reseed lane should match clang runtime behavior",
+    ),
+    RuntimeProbe(
         probe_id="15__probe_corpus_external_compile_smoke",
         source=PROBE_DIR / "runtime/15__probe_corpus_external_compile_smoke.c",
         note="external-corpus styled deterministic parser/normalizer should compile/run and match clang",
@@ -1221,6 +1975,308 @@ RUNTIME_PROBES = [
         probe_id="15__probe_corpus_external_parser_fragment_d_smoke",
         source=PROBE_DIR / "runtime/15__probe_corpus_external_parser_fragment_d_smoke.c",
         note="external-corpus parser fragment D should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_a_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_a_smoke.c",
+        note="map_forge reduced app fragment A corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_b_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_b_smoke.c",
+        note="map_forge reduced app fragment B corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_c_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_c_smoke.c",
+        note="map_forge reduced app fragment C corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_d_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_d_smoke.c",
+        note="map_forge reduced app fragment D corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_e_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_e_smoke.c",
+        note="map_forge reduced app fragment E corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_corpus_reduction_replay_hash",
+        source=PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_lib.c",
+        ),
+        note="multi-TU corpus reduction/replay hash lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_f_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_f_smoke.c",
+        note="map_forge reduced app fragment F corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_g_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_g_smoke.c",
+        note="map_forge reduced app fragment G corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_corpus_reduction_replay_hash_ii",
+        source=PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_ii_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_ii_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_ii_lib.c",
+        ),
+        note="second multi-TU corpus reduction/replay hash lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_h_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_h_smoke.c",
+        note="map_forge reduced app fragment H corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_i_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_i_smoke.c",
+        note="map_forge reduced app fragment I corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_corpus_reduction_replay_hash_iii",
+        source=PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_iii_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_iii_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_iii_lib.c",
+        ),
+        note="third multi-TU corpus reduction/replay hash lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_j_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_j_smoke.c",
+        note="map_forge reduced app fragment J corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_k_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_k_smoke.c",
+        note="map_forge reduced app fragment K corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_corpus_reduction_replay_hash_iv",
+        source=PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_iv_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_iv_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_iv_lib.c",
+        ),
+        note="fourth multi-TU corpus reduction/replay hash lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_l_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_l_smoke.c",
+        note="map_forge reduced app fragment L corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_corpus_realproj_map_forge_app_fragment_m_smoke",
+        source=PROBE_DIR / "runtime/15__probe_corpus_realproj_map_forge_app_fragment_m_smoke.c",
+        note="map_forge reduced app fragment M corpus lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_multitu_corpus_reduction_replay_hash_v",
+        source=PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_v_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_v_main.c",
+            PROBE_DIR / "runtime/15__probe_multitu_corpus_reduction_replay_hash_v_lib.c",
+        ),
+        note="fifth multi-TU corpus reduction/replay hash lane should compile/run deterministically and match clang",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash_aux.c",
+        ),
+        note="axis1 wave1: multi-TU function+data symbol interleave relocation hash should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash_aux.c",
+        ),
+        note="axis1 wave2: multi-TU common-vs-nocommon symbol emission hash should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave3_multitu_symbol_partition_crc_bridge",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave3_multitu_symbol_partition_crc_bridge_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave3_multitu_symbol_partition_crc_bridge_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave3_multitu_symbol_partition_crc_bridge_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave3_multitu_symbol_partition_crc_bridge_aux.c",
+        ),
+        note="axis1 wave3: multi-TU symbol partition CRC bridge should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave4_multitu_symbol_weight_fold_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave4_multitu_symbol_weight_fold_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave4_multitu_symbol_weight_fold_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave4_multitu_symbol_weight_fold_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave4_multitu_symbol_weight_fold_hash_aux.c",
+        ),
+        note="axis1 wave4: multi-TU symbol-weight fold hash should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave5_multitu_symbol_owner_partition_reloc_chain",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave5_multitu_symbol_owner_partition_reloc_chain_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave5_multitu_symbol_owner_partition_reloc_chain_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave5_multitu_symbol_owner_partition_reloc_chain_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave5_multitu_symbol_owner_partition_reloc_chain_aux.c",
+        ),
+        note="axis1 wave5: multi-TU symbol-owner partition relocation chain should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave6_multitu_owner_hop_rebase_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_aux.c",
+        ),
+        note="axis1 wave6: owner-hop pointer-indirection relocation hash should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_reduced",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_reduced_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_reduced_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_reduced_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave6_multitu_owner_hop_rebase_hash_reduced_aux.c",
+        ),
+        note="axis1 wave6 reduced: minimal owner-hop pointer-indirection chain should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_aux.c",
+        ),
+        note="axis1 wave7: owner-hop permutation depth hash over two-level pointer tables should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_current",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_current_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_current_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_current_lib.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave7_multitu_owner_hop_permutation_depth_hash_current_aux.c",
+        ),
+        note="axis1 wave7 current-threshold: single-lane owner-hop chain remains clang-parity stable while strict permutation-depth lane is blocked",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave8_multitu_owner_hop_routeptr_offset_depth_hash",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis1_wave8_multitu_owner_hop_routeptr_offset_depth_hash_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave8_multitu_owner_hop_routeptr_offset_depth_hash_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave8_multitu_owner_hop_routeptr_offset_depth_hash_lib.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave8_multitu_owner_hop_routeptr_offset_depth_hash_aux.c",
+        ),
+        note="axis1 wave8: offset-heavy owner-hop route-pointer depth hash should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave8_multitu_owner_hop_routeptr_nooffset_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis1_wave8_multitu_owner_hop_routeptr_nooffset_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave8_multitu_owner_hop_routeptr_nooffset_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave8_multitu_owner_hop_routeptr_nooffset_matrix_lib.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis1_wave8_multitu_owner_hop_routeptr_nooffset_matrix_aux.c",
+        ),
+        note="axis1 wave8: no-offset owner-hop route-pointer matrix should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave9_multitu_owner_ring_route_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave9_multitu_owner_ring_route_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave9_multitu_owner_ring_route_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave9_multitu_owner_ring_route_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave9_multitu_owner_ring_route_hash_aux.c",
+        ),
+        note="axis1 wave9: owner-ring route hash over nested pointer tables should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave10_multitu_owner_checkpoint_route_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave10_multitu_owner_checkpoint_route_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave10_multitu_owner_checkpoint_route_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave10_multitu_owner_checkpoint_route_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave10_multitu_owner_checkpoint_route_hash_aux.c",
+        ),
+        note="axis1 wave10: owner-checkpoint route hash over partitioned plans should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave11_multitu_ptrtable_nested_decay_route_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave11_multitu_ptrtable_nested_decay_route_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave11_multitu_ptrtable_nested_decay_route_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave11_multitu_ptrtable_nested_decay_route_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave11_multitu_ptrtable_nested_decay_route_hash_aux.c",
+        ),
+        note="axis1 wave11: nested decay pointer-table route hash should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave12_multitu_ptrtable_linkorder_checkpoint_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave12_multitu_ptrtable_linkorder_checkpoint_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave12_multitu_ptrtable_linkorder_checkpoint_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave12_multitu_ptrtable_linkorder_checkpoint_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave12_multitu_ptrtable_linkorder_checkpoint_hash_aux.c",
+        ),
+        note="axis1 wave12: link-order checkpoint pointer-table hash should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave13_multitu_ptrtable_four_level_route_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave13_multitu_ptrtable_four_level_route_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave13_multitu_ptrtable_four_level_route_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave13_multitu_ptrtable_four_level_route_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave13_multitu_ptrtable_four_level_route_hash_aux.c",
+        ),
+        note="axis1 wave13: four-level pointer-table route hash should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave14_multitu_ptrtable_relocation_order_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave14_multitu_ptrtable_relocation_order_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave14_multitu_ptrtable_relocation_order_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave14_multitu_ptrtable_relocation_order_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave14_multitu_ptrtable_relocation_order_hash_aux.c",
+        ),
+        note="axis1 wave14: relocation-order checkpoint hash should remain clang-parity stable",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis1_wave15_multitu_tu_order_flip_route_hash",
+        source=PROBE_DIR / "runtime/15__probe_axis1_wave15_multitu_tu_order_flip_route_hash_main.c",
+        inputs=(
+            PROBE_DIR / "runtime/15__probe_axis1_wave15_multitu_tu_order_flip_route_hash_main.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave15_multitu_tu_order_flip_route_hash_lib.c",
+            PROBE_DIR / "runtime/15__probe_axis1_wave15_multitu_tu_order_flip_route_hash_aux.c",
+        ),
+        note="axis1 wave15: TU-order flip route hash should remain clang-parity stable",
     ),
     RuntimeProbe(
         probe_id="15__probe_corpus_external_decl_chain_smoke",
@@ -1368,6 +2424,560 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / "runtime/15__probe_runtime_clang_gcc_tri_diff_abi_variadic_regstack_matrix.c",
         note="ABI variadic reg/stack matrix lane should match both clang and gcc when gcc is available",
         extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge_lib.c",
+        ),
+        note="axis3 wave1: multi-TU variadic struct-return edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_edge.c",
+        note="axis3 wave1: long-double reg/stack callchain edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_lib.c",
+        ),
+        note="axis3 wave2: multi-TU variadic struct-return permutation edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_permute_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_permute_edge.c",
+        note="axis3 wave2: long-double reg/stack callchain permutation edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave3_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_crossmix_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave3_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_crossmix_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave3_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_crossmix_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave3_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_crossmix_edge_lib.c",
+        ),
+        note="axis3 wave3: multi-TU variadic struct-return crossmix edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave3_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_crossmix_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave3_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_crossmix_edge.c",
+        note="axis3 wave3: long-double reg/stack callchain crossmix edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave4_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regstack_pressure_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave4_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regstack_pressure_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave4_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regstack_pressure_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave4_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regstack_pressure_edge_lib.c",
+        ),
+        note="axis3 wave4: multi-TU variadic struct-return reg/stack pressure edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave4_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_regstack_pressure_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave4_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_regstack_pressure_edge.c",
+        note="axis3 wave4: long-double reg/stack callchain pressure edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave5_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_checkpoint_rotation_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave5_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_checkpoint_rotation_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave5_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_checkpoint_rotation_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave5_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_checkpoint_rotation_edge_lib.c",
+        ),
+        note="axis3 wave5: multi-TU variadic struct-return checkpoint-rotation edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave5_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_checkpoint_rotation_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave5_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_checkpoint_rotation_edge.c",
+        note="axis3 wave5: long-double reg/stack callchain checkpoint-rotation edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave6_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_frontier_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave6_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_frontier_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave6_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_frontier_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave6_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_frontier_edge_lib.c",
+        ),
+        note="axis3 wave6: multi-TU variadic struct-return epoch/frontier edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave6_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_epoch_frontier_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave6_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_epoch_frontier_edge.c",
+        note="axis3 wave6: long-double reg/stack callchain epoch/frontier edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave7_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_replay_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave7_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_replay_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave7_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_replay_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave7_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_replay_edge_lib.c",
+        ),
+        note="axis3 wave7: multi-TU variadic struct-return frontier/replay edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave7_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_frontier_replay_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave7_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_frontier_replay_edge.c",
+        note="axis3 wave7: long-double reg/stack callchain frontier/replay edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave8_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_handoff_permute_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave8_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_handoff_permute_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave8_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_handoff_permute_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave8_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_handoff_permute_edge_lib.c",
+        ),
+        note="axis3 wave8: multi-TU variadic struct-return handoff/permutation edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave8_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_handoff_permute_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave8_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_handoff_permute_edge.c",
+        note="axis3 wave8: long-double reg/stack callchain handoff/permutation edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave9_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_handoff_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave9_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_handoff_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave9_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_handoff_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave9_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_handoff_edge_lib.c",
+        ),
+        note="axis3 wave9: multi-TU variadic struct-return epoch/handoff edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave9_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_epoch_handoff_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave9_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_epoch_handoff_edge.c",
+        note="axis3 wave9: long-double reg/stack callchain epoch/handoff edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave10_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave10_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave10_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave10_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_fold_edge_lib.c",
+        ),
+        note="axis3 wave10: multi-TU variadic struct-return frontier/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave10_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_frontier_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave10_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_frontier_fold_edge.c",
+        note="axis3 wave10: long-double reg/stack callchain frontier/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave11_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_checkpoint_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave11_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_checkpoint_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave11_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_checkpoint_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave11_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_checkpoint_fold_edge_lib.c",
+        ),
+        note="axis3 wave11: multi-TU variadic struct-return checkpoint/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave11_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_checkpoint_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave11_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_checkpoint_fold_edge.c",
+        note="axis3 wave11: long-double reg/stack callchain checkpoint/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave12_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_rotation_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave12_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_rotation_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave12_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_rotation_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave12_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_rotation_fold_edge_lib.c",
+        ),
+        note="axis3 wave12: multi-TU variadic struct-return rotation/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave12_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_rotation_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave12_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_rotation_fold_edge.c",
+        note="axis3 wave12: long-double reg/stack callchain rotation/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave13_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_rotation_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave13_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_rotation_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave13_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_rotation_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave13_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_epoch_rotation_fold_edge_lib.c",
+        ),
+        note="axis3 wave13: multi-TU variadic struct-return epoch-rotation/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave13_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_epoch_rotation_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave13_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_epoch_rotation_fold_edge.c",
+        note="axis3 wave13: long-double reg/stack callchain epoch-rotation/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave14_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_epoch_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave14_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_epoch_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave14_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_epoch_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave14_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_frontier_epoch_fold_edge_lib.c",
+        ),
+        note="axis3 wave14: multi-TU variadic struct-return frontier-epoch/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave14_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_frontier_epoch_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave14_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_frontier_epoch_fold_edge.c",
+        note="axis3 wave14: long-double reg/stack callchain frontier-epoch/fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave15_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regstack_frontier_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave15_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regstack_frontier_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave15_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regstack_frontier_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave15_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regstack_frontier_fold_edge_lib.c",
+        ),
+        note="axis3 wave15: multi-TU variadic struct-return regstack/frontier fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave15_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_regwindow_frontier_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave15_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_regwindow_frontier_fold_edge.c",
+        note="axis3 wave15: long-double reg/stack callchain regwindow/frontier fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave16_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regwindow_handoff_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave16_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regwindow_handoff_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave16_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regwindow_handoff_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave16_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_regwindow_handoff_fold_edge_lib.c",
+        ),
+        note="axis3 wave16: multi-TU variadic struct-return regwindow/handoff fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave16_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_spill_handoff_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave16_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_spill_handoff_fold_edge.c",
+        note="axis3 wave16: long-double reg/stack callchain spill/handoff fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave17_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_spill_checkpoint_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave17_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_spill_checkpoint_fold_edge_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave17_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_spill_checkpoint_fold_edge_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis3_wave17_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_spill_checkpoint_fold_edge_lib.c",
+        ),
+        note="axis3 wave17: multi-TU variadic struct-return spill/checkpoint fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis3_wave17_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_spill_checkpoint_fold_edge",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis3_wave17_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_spill_checkpoint_fold_edge.c",
+        note="axis3 wave17: long-double reg/stack callchain spill/checkpoint fold edge lane should match both clang and gcc when gcc is available",
+        extra_differential_compiler="gcc",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave1_reducer_signature_preservation_matrix",
+        source=PROBE_DIR / "runtime/15__probe_axis5_wave1_reducer_signature_preservation_matrix.c",
+        note="axis5 wave1: reducer signature-preservation matrix should keep canonical and encoded reduction signatures identical",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave1_reducer_minimization_idempotence_matrix",
+        source=PROBE_DIR / "runtime/15__probe_axis5_wave1_reducer_minimization_idempotence_matrix.c",
+        note="axis5 wave1: reducer minimization-idempotence matrix should keep first-pass and second-pass reduced signatures identical",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave1_reducer_cross_tu_signature_stability_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave1_reducer_cross_tu_signature_stability_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave1_reducer_cross_tu_signature_stability_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave1_reducer_cross_tu_signature_stability_matrix_lib.c",
+        ),
+        note="axis5 wave1: reducer cross-TU signature-stability matrix should keep deterministic nonzero signatures across full and partitioned folds",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave2_reducer_permutation_canonicalization_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave2_reducer_permutation_canonicalization_matrix.c",
+        note="axis5 wave2: reducer permutation-canonicalization matrix should keep canonical signatures invariant across equivalent permutations",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave2_reducer_replay_window_stability_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave2_reducer_replay_window_stability_matrix.c",
+        note="axis5 wave2: reducer replay-window stability matrix should preserve final reducer signature across chunked replay with state encode/decode",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave2_reducer_cross_tu_repartition_invariance_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave2_reducer_cross_tu_repartition_invariance_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave2_reducer_cross_tu_repartition_invariance_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave2_reducer_cross_tu_repartition_invariance_matrix_lib.c",
+        ),
+        note="axis5 wave2: reducer cross-TU repartition invariance matrix should keep full-fold and partitioned-fold signatures identical",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave3_reducer_delta_roundtrip_invariance_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave3_reducer_delta_roundtrip_invariance_matrix.c",
+        note="axis5 wave3: reducer delta roundtrip invariance matrix should preserve signature after encode/decode reconstruction",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave3_reducer_shard_fold_associativity_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave3_reducer_shard_fold_associativity_matrix.c",
+        note="axis5 wave3: reducer shard-fold associativity matrix should preserve signatures across equivalent merge orderings",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_lib.c",
+        ),
+        note="axis5 wave3: reducer cross-TU checkpoint/resume matrix should preserve signatures across checkpoint serialization boundaries",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave4_reducer_cancel_pair_confluence_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave4_reducer_cancel_pair_confluence_matrix.c",
+        note="axis5 wave4: reducer cancel-pair confluence matrix should preserve normal-form signatures across opposing elimination directions",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave4_reducer_tombstone_compaction_invariance_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave4_reducer_tombstone_compaction_invariance_matrix.c",
+        note="axis5 wave4: reducer tombstone-compaction invariance matrix should preserve live-set signatures before and after compaction",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_lib.c",
+        ),
+        note="axis5 wave4: reducer cross-TU epoch-frontier replay matrix should preserve signatures across exported frontier replay boundaries",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave5_reducer_phase_order_convergence_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave5_reducer_phase_order_convergence_matrix.c",
+        note="axis5 wave5: reducer phase-order convergence matrix should preserve signatures across equivalent normalization pipelines",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave5_reducer_neutral_element_elision_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave5_reducer_neutral_element_elision_matrix.c",
+        note="axis5 wave5: reducer neutral-element elision matrix should preserve signatures when no-op and zero-payload elements are present",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix_lib.c",
+        ),
+        note="axis5 wave5: reducer cross-TU speculative-rollback frontier matrix should preserve signatures across rollback boundary export/import",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave6_reducer_window_rotation_hash_invariance_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave6_reducer_window_rotation_hash_invariance_matrix.c",
+        note="axis5 wave6: reducer window-rotation hash invariance matrix should preserve canonical signatures under storage rotation with adjusted head offsets",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave6_reducer_eager_lazy_prune_equivalence_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave6_reducer_eager_lazy_prune_equivalence_matrix.c",
+        note="axis5 wave6: reducer eager-vs-lazy prune equivalence matrix should preserve signatures across equivalent zero-elision schedules",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix_lib.c",
+        ),
+        note="axis5 wave6: reducer cross-TU shard-checkpoint stitch matrix should preserve signatures after per-shard encode/decode and merge",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave7_reducer_alpha_renaming_equivalence_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave7_reducer_alpha_renaming_equivalence_matrix.c",
+        note="axis5 wave7: reducer alpha-renaming equivalence matrix should preserve multiset signatures under key relabeling",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave7_reducer_chunk_boundary_decode_invariance_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave7_reducer_chunk_boundary_decode_invariance_matrix.c",
+        note="axis5 wave7: reducer chunk-boundary decode invariance matrix should preserve signatures across run decoding chunk schedules",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix_lib.c",
+        ),
+        note="axis5 wave7: reducer cross-TU frontier-join commutativity matrix should preserve signatures across merge orderings after frontier encode/decode",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave8_reducer_lane_projection_fold_equivalence_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave8_reducer_lane_projection_fold_equivalence_matrix.c",
+        note="axis5 wave8: reducer lane-projection fold equivalence matrix should preserve signatures across direct and projected fold pipelines",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave8_reducer_snapshot_double_encode_idempotence_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave8_reducer_snapshot_double_encode_idempotence_matrix.c",
+        note="axis5 wave8: reducer snapshot double-encode idempotence matrix should preserve signatures across repeated encode/decode passes",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix_lib.c",
+        ),
+        note="axis5 wave8: reducer cross-TU frontier roundtrip associativity matrix should preserve signatures across frontier roundtrip and merge ordering",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave9_reducer_sparse_dense_materialization_equivalence_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave9_reducer_sparse_dense_materialization_equivalence_matrix.c",
+        note="axis5 wave9: reducer sparse-vs-dense materialization equivalence matrix should preserve signatures across equivalent accumulator layouts",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave9_reducer_chunked_prefix_rebase_invariance_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave9_reducer_chunked_prefix_rebase_invariance_matrix.c",
+        note="axis5 wave9: reducer chunked-prefix rebase invariance matrix should preserve signatures across chunked and direct prefix decodes",
+    ),
+    RuntimeProbe(
+        probe_id="15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix",
+        source=PROBE_DIR
+        / "runtime/15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix_main.c",
+        inputs=(
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix_main.c",
+            PROBE_DIR
+            / "runtime/15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix_lib.c",
+        ),
+        note="axis5 wave9: reducer cross-TU checkpoint-chain merge invariance matrix should preserve signatures after chained checkpoint decode and merge",
     ),
     RuntimeProbe(
         probe_id="15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix",
@@ -4212,6 +5822,30 @@ DIAG_PROBES = [
         required_substrings=("GNU ', ##__VA_ARGS__' extension is not supported",),
     ),
     DiagnosticProbe(
+        probe_id="15__probe_diag_pp_macro_paste_variadic_comma_extension_no_diag",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c",
+        note="GNU-style ', ##__VA_ARGS__' macro-paste extension should fail closed with preprocessing diagnostics",
+        required_substrings=("GNU ', ##__VA_ARGS__' extension is not supported",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_pp_macro_paste_operator_tail_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_macro_paste_operator_tail_no_crash.c",
+        note="operator-tail token-paste malformed lane should fail closed with preprocessing diagnostics",
+        required_substrings=("macro expansion failed (possible recursion)",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_pp_gnu_comma_vaargs_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_gnu_comma_vaargs_chain_no_crash.c",
+        note="GNU comma-vaargs nested chain should fail closed with preprocessing diagnostics",
+        required_substrings=("GNU ', ##__VA_ARGS__' extension is not supported",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_malformed_pp_token_paste_variadic_tail_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_token_paste_variadic_tail_no_crash.c",
+        note="variadic token-paste tail lane should fail closed with preprocessing diagnostics",
+        required_substrings=("macro expansion failed (possible recursion)",),
+    ),
+    DiagnosticProbe(
         probe_id="15__probe_diag_malformed_pp_nested_ifdef_chain_seeded_d_no_crash",
         source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_nested_ifdef_chain_seeded_d_no_crash.c",
         note="malformed nested #if/#elif chain should fail closed without crashing",
@@ -4268,6 +5902,445 @@ DIAG_PROBES = [
         ),
         note="multi-TU duplicate external symbol definitions should fail at link stage",
         required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave1_multitu_duplicate_definition_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave1_multitu_duplicate_definition_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave1_multitu_duplicate_definition_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave1_multitu_duplicate_definition_reject_lib.c",
+        ),
+        note="axis1 wave1: multi-TU duplicate data definitions should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave2_multitu_duplicate_weak_strong_conflict_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave2_multitu_duplicate_weak_strong_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave2_multitu_duplicate_weak_strong_conflict_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave2_multitu_duplicate_weak_strong_conflict_reject_lib.c",
+        ),
+        note="axis1 wave2: multi-TU duplicate weak/strong conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c",
+        ),
+        note="axis1 wave3: multi-TU duplicate tentative-definition matrix should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_current_no_diag",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c",
+        ),
+        note="axis1 wave3 current-threshold: duplicate tentative-definition matrix now emits deterministic duplicate-symbol diagnostics",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_lib.c",
+        ),
+        note="axis1 wave4: multi-TU function-vs-data same-name symbol conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_lib.c",
+        ),
+        note="axis1 wave5: multi-TU duplicate initialized globals should fail at link stage (always-hard lane)",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_lib.c",
+        ),
+        note="axis1 wave5 current-threshold: duplicate tentative split lane now emits deterministic duplicate-symbol diagnostics",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_aux.c",
+        ),
+        note="axis1 wave6: multi-TU function-vs-object alias partition conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_aux.c",
+        ),
+        note="axis1 wave7: mixed function-vs-object alias collisions across three TU partitions should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_aux.c",
+        ),
+        note="axis1 wave8: dual mixed function-vs-object alias permutations should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject_aux.c",
+        ),
+        note="axis1 wave9: mixed function-vs-object alias ring conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject_aux.c",
+        ),
+        note="axis1 wave10: mixed function-vs-object alias checkpoint conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject_aux.c",
+        ),
+        note="axis1 wave11: mixed function-vs-object alias pointer-table rebase conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject_aux.c",
+        ),
+        note="axis1 wave12: mixed function-vs-object alias link-order checkpoint conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject_aux.c",
+        ),
+        note="axis1 wave13: mixed function-vs-object alias four-level checkpoint conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject_aux.c",
+        ),
+        note="axis1 wave14: mixed function-vs-object alias relocation-order conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_aux.c",
+        ),
+        note="axis1 wave15: mixed function-vs-object alias three-plan replay conflict should fail at link stage",
+        required_substrings=("duplicate symbol",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_axis2_wave1_line_map_runtime_guard_conflict_bridge",
+        source=PROBE_DIR
+        / "diagnostics/14__probe_diag_axis2_wave1_line_map_runtime_guard_conflict_bridge.c",
+        note="axis2 wave1: #line remap through nested include+macro guard conflict should preserve virtual spelling location",
+        required_substrings=("axis2_wave1_guard_layer_a.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis2_wave1_line_map_nested_include_macro_chain_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis2_wave1_line_map_nested_include_macro_chain_reject.c",
+        note="axis2 wave1: #line remap through nested include+macro chain should preserve virtual spelling location",
+        required_substrings=("axis2_wave1_nested_layer_a.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_axis2_wave2_line_map_nested_include_macro_guard_reentry_reject",
+        source=PROBE_DIR
+        / "diagnostics/14__probe_diag_axis2_wave2_line_map_nested_include_macro_guard_reentry_reject.c",
+        note="axis2 wave2: #line remap through nested include+macro guard reentry should preserve deep virtual spelling location",
+        required_substrings=("axis2_wave2_guard_layer_c.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis2_wave2_line_map_nested_include_macro_function_chain_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis2_wave2_line_map_nested_include_macro_function_chain_reject.c",
+        note="axis2 wave2: #line remap through nested include+macro function chain should preserve deep virtual spelling location",
+        required_substrings=("axis2_wave2_nested_layer_c.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_axis2_wave3_line_map_nested_include_macro_type_bridge_reject",
+        source=PROBE_DIR
+        / "diagnostics/14__probe_diag_axis2_wave3_line_map_nested_include_macro_type_bridge_reject.c",
+        note="axis2 wave3: #line remap through four-layer include+macro type-bridge lane should preserve deep virtual spelling location",
+        required_substrings=("axis2_wave3_guard_layer_d.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis2_wave3_line_map_nested_include_macro_arity_bridge_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis2_wave3_line_map_nested_include_macro_arity_bridge_reject.c",
+        note="axis2 wave3: #line remap through four-layer include+macro arity bridge should preserve deep virtual spelling location",
+        required_substrings=("axis2_wave3_nested_layer_d.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="14__probe_diag_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject",
+        source=PROBE_DIR
+        / "diagnostics/14__probe_diag_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.c",
+        note="axis2 wave4: #line remap through five-layer include+macro arity overflow lane should preserve deep virtual spelling location",
+        required_substrings=("axis2_wave4_arity_layer_e.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis2_wave4_line_map_nested_include_macro_token_bridge_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis2_wave4_line_map_nested_include_macro_token_bridge_reject.c",
+        note="axis2 wave4: #line remap through token-paste include+macro bridge should preserve deep virtual spelling location",
+        required_substrings=("axis2_wave4_token_layer_d.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave1_malformed_include_guard_reentry_depth_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave1_malformed_include_guard_reentry_depth_no_crash.c",
+        note="axis4 wave1: deep include-guard reentry chain should fail closed and preserve deep virtual #line location",
+        required_substrings=("axis4_wave1_guard_depth_layer_e.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave1_malformed_include_graph_mixed_arity_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave1_malformed_include_graph_mixed_arity_reentry_no_crash.c",
+        note="axis4 wave1: include-graph macro reentry with arity drift should fail closed with deterministic preprocessing diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave1_mixed_arity_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave2_malformed_include_guard_cycle_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave2_malformed_include_guard_cycle_reentry_no_crash.c",
+        note="axis4 wave2: include-guard contradiction cycle should fail closed with deterministic recursive-include diagnostics",
+        required_substrings=("detected recursive include of",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave2_malformed_include_macro_arity_flip_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave2_malformed_include_macro_arity_flip_reentry_no_crash.c",
+        note="axis4 wave2: include-graph macro reentry should deterministically surface arity drift diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave2_arity_flip_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash.c",
+        note="axis4 wave3: include-graph variadic macro reentry should fail closed on GNU comma-paste extension usage",
+        required_substrings=("GNU ', ##__VA_ARGS__' extension is not supported",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave3_malformed_include_token_paste_tail_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave3_malformed_include_token_paste_tail_reentry_no_crash.c",
+        note="axis4 wave3: include-graph token-paste tail lane should fail closed with deterministic expansion diagnostics",
+        required_substrings=("macro expansion failed (possible recursion)",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash.c",
+        note="axis4 wave4: deep include reentry line-map lane should preserve virtual spelling location for semantic failures",
+        required_substrings=("axis4_wave4_depth_layer_e.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave4_line_map_deep_arity_bridge_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave4_line_map_deep_arity_bridge_reentry_no_crash.c",
+        note="axis4 wave4: deep include reentry arity-bridge lane should fail closed with deterministic preprocessing diagnostics",
+        required_substrings=("requires 5 argument(s), got 4", "axis4_wave4_arity_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave5_conditional_dead_branch_skip_reentry_no_diag",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave5_conditional_dead_branch_skip_reentry_no_diag.c",
+        note="axis4 wave5: malformed tokens hidden behind dead include-branch conditionals should be skipped without diagnostics",
+        expect_any_diagnostic=False,
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave5_conditional_active_branch_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave5_conditional_active_branch_arity_fail_no_crash.c",
+        note="axis4 wave5: active include-branch macro reentry should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave5_active_branch_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave6_guard_namespace_collision_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave6_guard_namespace_collision_reentry_no_crash.c",
+        note="axis4 wave6: shared include-guard namespace collisions should fail closed on missing active-path symbol surfaces",
+        required_substrings=("axis4_wave6_guard_collision_layer_a.h",),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash.c",
+        note="axis4 wave6: cross-header #undef/#define macro-state churn should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave6_state_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave7_include_order_permute_a_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave7_include_order_permute_a_arity_fail_no_crash.c",
+        note="axis4 wave7: include-order permutation A should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave7_perm_a_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave7_include_order_permute_b_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave7_include_order_permute_b_arity_fail_no_crash.c",
+        note="axis4 wave7: include-order permutation B should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave7_perm_b_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave8_depth_conditional_dead_branch_matrix_no_diag",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave8_depth_conditional_dead_branch_matrix_no_diag.c",
+        note="axis4 wave8: depth-amplified dead-branch conditional matrix should skip malformed lanes without diagnostics",
+        expect_any_diagnostic=False,
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash.c",
+        note="axis4 wave8: depth-amplified active-branch conditional matrix should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave8_active_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave9_macro_alias_permute_a_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_a_arity_fail_no_crash.c",
+        note="axis4 wave9: macro-alias rename permutation A should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave9_perm_a_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash.c",
+        note="axis4 wave9: macro-alias rename permutation B should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave9_perm_b_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave10_branch_convergence_inactive_path_no_diag",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave10_branch_convergence_inactive_path_no_diag.c",
+        note="axis4 wave10: inactive branch-convergence path should keep winner-only malformed surface suppressed without diagnostics",
+        expect_any_diagnostic=False,
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash.c",
+        note="axis4 wave10: converged macro-state winner should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave10_winner_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave11_dual_convergence_order_a_winner_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_a_winner_arity_fail_no_crash.c",
+        note="axis4 wave11: dual convergence order-A winner should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave11_order_a_layer_a.h"),
+    ),
+    DiagnosticProbe(
+        probe_id="15__probe_diag_axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash.c",
+        note="axis4 wave11: dual convergence order-B winner should fail closed with deterministic arity diagnostics",
+        required_substrings=("requires 3 argument(s), got 2", "axis4_wave11_order_b_layer_a.h"),
     ),
     DiagnosticProbe(
         probe_id="15__probe_diag_corpus_external_compile_reject",
@@ -7246,6 +9319,382 @@ DIAG_JSON_PROBES = [
         expected_codes=(4001,),
     ),
     DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave1_multitu_duplicate_definition_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave1_multitu_duplicate_definition_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave1_multitu_duplicate_definition_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave1_multitu_duplicate_definition_reject_lib.c",
+        ),
+        note="axis1 wave1: diagnostics JSON should be exported for multi-TU duplicate data-definition link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave2_multitu_duplicate_weak_strong_conflict_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave2_multitu_duplicate_weak_strong_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave2_multitu_duplicate_weak_strong_conflict_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave2_multitu_duplicate_weak_strong_conflict_reject_lib.c",
+        ),
+        note="axis1 wave2: diagnostics JSON should be exported for multi-TU duplicate weak/strong conflict link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave3_multitu_duplicate_tentative_matrix_reject",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c",
+        ),
+        note="axis1 wave3: diagnostics JSON should be exported for multi-TU duplicate tentative-definition link failures",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave3_multitu_duplicate_tentative_matrix_current_empty",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+        inputs=(
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+            PROBE_DIR / "diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c",
+        ),
+        note="axis1 wave3 current-threshold: diagnostics JSON export may be empty for duplicate tentative-definition matrix under current defaults",
+        require_any_diagnostic=False,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave4_multitu_function_data_symbol_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_lib.c",
+        ),
+        note="axis1 wave4: diagnostics JSON should be exported for multi-TU function-vs-data symbol conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave5_multitu_duplicate_initialized_global_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_lib.c",
+        ),
+        note="axis1 wave5: diagnostics JSON should be exported for duplicate initialized-global link conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave5_multitu_duplicate_tentative_split_current",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_lib.c",
+        ),
+        note="axis1 wave5 current-threshold: diagnostics JSON may be empty for duplicate tentative split lane under current defaults",
+        require_any_diagnostic=False,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave6_multitu_function_object_alias_partition_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_aux.c",
+        ),
+        note="axis1 wave6: diagnostics JSON should be exported for function-vs-object alias partition link conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave7_multitu_function_object_alias_perm_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave7_multitu_function_object_alias_perm_conflict_reject_aux.c",
+        ),
+        note="axis1 wave7: diagnostics JSON should be exported for mixed function-vs-object alias permutation link conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject_aux.c",
+        ),
+        note="axis1 wave8: diagnostics JSON should be exported for dual mixed function-vs-object alias permutation link conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave9_multitu_function_object_alias_ring_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave9_multitu_function_object_alias_ring_conflict_reject_aux.c",
+        ),
+        note="axis1 wave9: diagnostics JSON should be exported for mixed function-vs-object alias ring conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject_aux.c",
+        ),
+        note="axis1 wave10: diagnostics JSON should be exported for mixed function-vs-object alias checkpoint conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject_aux.c",
+        ),
+        note="axis1 wave11: diagnostics JSON should be exported for mixed function-vs-object alias pointer-table rebase conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject_aux.c",
+        ),
+        note="axis1 wave12: diagnostics JSON should be exported for mixed function-vs-object alias link-order checkpoint conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject_aux.c",
+        ),
+        note="axis1 wave13: diagnostics JSON should be exported for mixed function-vs-object alias four-level checkpoint conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject_aux.c",
+        ),
+        note="axis1 wave14: diagnostics JSON should be exported for mixed function-vs-object alias relocation-order conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_main.c",
+        inputs=(
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_main.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_lib.c",
+            PROBE_DIR
+            / "diagnostics/15__probe_diag_axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject_aux.c",
+        ),
+        note="axis1 wave15: diagnostics JSON should be exported for mixed function-vs-object alias three-plan replay conflicts",
+        expected_codes=(4001,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis2_wave1_line_map_nested_include_macro_chain_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis2_wave1_line_map_nested_include_macro_chain_reject.c",
+        note="axis2 wave1: diagnostics JSON should preserve line/file presence for nested include+macro #line remap lane",
+        expected_codes=(2000,),
+        expected_line=300299,
+        expected_column=33,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_axis2_wave2_line_map_nested_include_macro_guard_reentry_reject",
+        source=PROBE_DIR
+        / "diagnostics/14__probe_diag_axis2_wave2_line_map_nested_include_macro_guard_reentry_reject.c",
+        note="axis2 wave2: diagnostics JSON should preserve deep line/file presence for nested include+macro guard reentry #line remap lane",
+        expected_codes=(2000,),
+        expected_line=240308,
+        expected_column=9,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis2_wave2_line_map_nested_include_macro_function_chain_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis2_wave2_line_map_nested_include_macro_function_chain_reject.c",
+        note="axis2 wave2: diagnostics JSON should preserve deep line/file presence for nested include+macro function-chain #line remap lane",
+        expected_codes=(2000,),
+        expected_line=340304,
+        expected_column=12,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_axis2_wave3_line_map_nested_include_macro_type_bridge_reject",
+        source=PROBE_DIR
+        / "diagnostics/14__probe_diag_axis2_wave3_line_map_nested_include_macro_type_bridge_reject.c",
+        note="axis2 wave3: diagnostics JSON should preserve deep line/file presence for four-layer include+macro type-bridge #line remap lane",
+        expected_codes=(2000,),
+        expected_line=240697,
+        expected_column=37,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis2_wave3_line_map_nested_include_macro_arity_bridge_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis2_wave3_line_map_nested_include_macro_arity_bridge_reject.c",
+        note="axis2 wave3: diagnostics JSON should preserve deep line/file presence for four-layer include+macro arity-bridge #line remap lane",
+        expected_codes=(2000,),
+        expected_line=260697,
+        expected_column=38,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="14__probe_diagjson_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject",
+        source=PROBE_DIR
+        / "diagnostics/14__probe_diag_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.c",
+        note="axis2 wave4: diagnostics JSON should preserve deep line/file presence for five-layer include+macro arity-overflow #line remap lane",
+        expected_codes=(2000,),
+        expected_line=320897,
+        expected_column=32,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis2_wave4_line_map_nested_include_macro_token_bridge_reject",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis2_wave4_line_map_nested_include_macro_token_bridge_reject.c",
+        note="axis2 wave4: diagnostics JSON should preserve deep line/file presence for token-paste include+macro bridge #line remap lane",
+        expected_codes=(2000,),
+        expected_line=340798,
+        expected_column=34,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave1_malformed_include_guard_reentry_depth_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave1_malformed_include_guard_reentry_depth_no_crash.c",
+        note="axis4 wave1: diagnostics JSON should preserve deep line/file presence for include-guard reentry depth lane",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave2_malformed_include_guard_cycle_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave2_malformed_include_guard_cycle_reentry_no_crash.c",
+        note="axis4 wave2: diagnostics JSON should preserve file-presence fields for include-guard contradiction cycle diagnostics",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash.c",
+        note="axis4 wave3: diagnostics JSON should preserve file-presence fields for include-graph GNU comma-paste rejection",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash.c",
+        note="axis4 wave4: diagnostics JSON should preserve deep virtual file-presence for line-map semantic failure lanes",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave5_conditional_active_branch_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave5_conditional_active_branch_arity_fail_no_crash.c",
+        note="axis4 wave5: diagnostics JSON should preserve file-presence fields for active-branch include reentry arity failures",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave6_macro_state_undef_rebind_reentry_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash.c",
+        note="axis4 wave6: diagnostics JSON should preserve file-presence fields for macro-state churn include reentry failures",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave7_include_order_permute_b_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave7_include_order_permute_b_arity_fail_no_crash.c",
+        note="axis4 wave7: diagnostics JSON should preserve file-presence fields across include-order permutation arity failures",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash.c",
+        note="axis4 wave8: diagnostics JSON should preserve file-presence fields for depth-amplified active-branch conditional failures",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash.c",
+        note="axis4 wave9: diagnostics JSON should preserve file-presence fields across macro-alias permutation failures",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave10_branch_convergence_winner_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash.c",
+        note="axis4 wave10: diagnostics JSON should preserve file-presence fields for converged macro-state winner failures",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash",
+        source=PROBE_DIR
+        / "diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash.c",
+        note="axis4 wave11: diagnostics JSON should preserve file-presence fields for dual convergence order-B winner failures",
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
         probe_id="15__probe_diagjson_pathological_initializer_shape_reject",
         source=PROBE_DIR / "diagnostics/15__probe_diag_pathological_initializer_shape_reject.c",
         note="diagnostics JSON should be exported for pathological designated-initializer rejection",
@@ -7343,6 +9792,30 @@ DIAG_JSON_PROBES = [
         probe_id="15__probe_diagjson_malformed_pp_macro_paste_fragments_no_crash",
         source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c",
         note="diagnostics JSON should be exported for malformed macro-paste fragment lane",
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_pp_macro_paste_variadic_comma_extension_no_diag",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c",
+        note="GNU-style ', ##__VA_ARGS__' extension lane should export preprocessing diagnostics JSON",
+        expected_codes=(3000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_pp_macro_paste_operator_tail_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_macro_paste_operator_tail_no_crash.c",
+        note="operator-tail token-paste malformed lane should export preprocessing diagnostics JSON",
+        expected_codes=(3000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_pp_gnu_comma_vaargs_chain_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_gnu_comma_vaargs_chain_no_crash.c",
+        note="GNU comma-vaargs nested chain should export preprocessing diagnostics JSON",
+        expected_codes=(3000,),
+    ),
+    DiagnosticJsonProbe(
+        probe_id="15__probe_diagjson_malformed_pp_token_paste_variadic_tail_no_crash",
+        source=PROBE_DIR / "diagnostics/15__probe_diag_malformed_pp_token_paste_variadic_tail_no_crash.c",
+        note="variadic token-paste tail lane should export preprocessing diagnostics JSON",
+        expected_codes=(3000,),
     ),
     DiagnosticJsonProbe(
         probe_id="15__probe_diagjson_malformed_pp_nested_ifdef_chain_seeded_d_no_crash",
@@ -7589,9 +10062,13 @@ def run_diag_probe(probe):
         return ("BLOCKED", "expected diagnostic substring missing", "")
 
     has_diag = "Error at (" in out or "Error:" in out or ": error:" in out
+    if probe.expect_any_diagnostic:
+        if has_diag:
+            return ("RESOLVED", "diagnostic now emitted", "")
+        return ("BLOCKED", "diagnostic missing", "")
     if has_diag:
-        return ("RESOLVED", "diagnostic now emitted", "")
-    return ("BLOCKED", "diagnostic missing", "")
+        return ("BLOCKED", "unexpected diagnostic emitted", "")
+    return ("RESOLVED", "no diagnostic emitted (expected for this lane)", "")
 
 
 def run_diag_json_probe(probe):

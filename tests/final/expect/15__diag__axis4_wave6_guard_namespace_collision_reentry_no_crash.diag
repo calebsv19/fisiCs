@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (520105:12): Undeclared identifier
+   Hint: axis4_wave6_guard_collision_symbol
+   Spelling: axis4_wave6_guard_collision_layer_a.h:520105:12
+Error at (520105:12): Operator '+' requires arithmetic operands
+   Spelling: axis4_wave6_guard_collision_layer_a.h:520105:12

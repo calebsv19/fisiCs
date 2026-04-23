@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash_a.h:9:12: error: GNU ', ##__VA_ARGS__' extension is not supported
+Error: preprocessing failed
+axis4_wave3_gnu_layer_a.h:490105:12: error: GNU ', ##__VA_ARGS__' extension is not supported
+axis4_wave3_gnu_layer_a.h:490105:12: error: GNU ', ##__VA_ARGS__' extension is not supported

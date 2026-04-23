@@ -882,13 +882,7 @@ LLVMTypeRef cg_function_type_from_symbol(CodegenContext* ctx, const Symbol* sym)
         return NULL;
     }
 
-    ParsedType extractedReturn = parsedTypeFunctionReturnType(&sym->type);
-    const ParsedType* returnParsed = &sym->type;
-    if (extractedReturn.kind != TYPE_INVALID) {
-        returnParsed = &extractedReturn;
-    }
-
-    LLVMTypeRef retType = cg_type_from_parsed(ctx, returnParsed);
+    LLVMTypeRef retType = cg_type_from_parsed(ctx, &sym->type);
     if (retType && LLVMGetTypeKind(retType) == LLVMFunctionTypeKind) {
         retType = LLVMPointerType(retType, 0);
     } else if (retType && LLVMGetTypeKind(retType) == LLVMArrayTypeKind) {
@@ -898,10 +892,6 @@ LLVMTypeRef cg_function_type_from_symbol(CodegenContext* ctx, const Symbol* sym)
         retType = LLVMVoidTypeInContext(ctx->llvmContext);
     }
     retType = cg_coerce_function_return_type(ctx, retType);
-    if (extractedReturn.kind != TYPE_INVALID) {
-        parsedTypeFree(&extractedReturn);
-    }
-
     size_t paramCount = sym->signature.paramCount;
     LLVMTypeRef* paramTypes = NULL;
     if (paramCount > 0) {

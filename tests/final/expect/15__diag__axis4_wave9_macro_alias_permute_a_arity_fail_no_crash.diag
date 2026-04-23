@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (1084299:28): Undeclared identifier
+   Hint: AX4_W9_PERM_A_TARGET
+   Spelling: axis4_wave9_perm_a_layer_a.h:1084299:28

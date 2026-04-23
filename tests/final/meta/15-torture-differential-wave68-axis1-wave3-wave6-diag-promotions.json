@@ -1,0 +1,321 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__axis1_wave3_multitu_duplicate_tentative_matrix_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave3_multitu_duplicate_tentative_matrix_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave3",
+        "multitu",
+        "duplicate",
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__axis1_wave3_multitu_duplicate_tentative_matrix_current_no_diag",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave3_multitu_duplicate_tentative_matrix_current_no_diag.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave3",
+        "current",
+        "multitu",
+        "duplicate",
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__axis1_wave4_multitu_function_data_symbol_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave4_multitu_function_data_symbol_conflict_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave4",
+        "multitu",
+        "function",
+        "data",
+        "conflict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__axis1_wave5_multitu_duplicate_initialized_global_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave5_multitu_duplicate_initialized_global_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave5",
+        "multitu",
+        "duplicate",
+        "initialized",
+        "global"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__axis1_wave5_multitu_duplicate_tentative_split_current",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave5_multitu_duplicate_tentative_split_current.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave5",
+        "current",
+        "multitu",
+        "duplicate",
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__axis1_wave6_multitu_function_object_alias_partition_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_lib.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_aux.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis1_wave6_multitu_function_object_alias_partition_conflict_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis1",
+        "wave6",
+        "multitu",
+        "function",
+        "object",
+        "alias",
+        "partition"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave3_multitu_duplicate_tentative_matrix_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave3_multitu_duplicate_tentative_matrix_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave3",
+        "multitu",
+        "duplicate",
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave3_multitu_duplicate_tentative_matrix_current_empty",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave3_multitu_duplicate_tentative_matrix_current_empty.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave3",
+        "current",
+        "multitu",
+        "duplicate",
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave4_multitu_function_data_symbol_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave4_multitu_function_data_symbol_conflict_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave4_multitu_function_data_symbol_conflict_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave4",
+        "multitu",
+        "function",
+        "data",
+        "conflict"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave5_multitu_duplicate_initialized_global_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_initialized_global_reject_lib.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave5_multitu_duplicate_initialized_global_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave5",
+        "multitu",
+        "duplicate",
+        "initialized",
+        "global"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave5_multitu_duplicate_tentative_split_current",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_lib.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave5_multitu_duplicate_tentative_split_current.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave5",
+        "current",
+        "multitu",
+        "duplicate",
+        "tentative"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__axis1_wave6_multitu_function_object_alias_partition_conflict_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_main.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_main.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_lib.c",
+        "probes/diagnostics/15__probe_diag_axis1_wave6_multitu_function_object_alias_partition_conflict_reject_aux.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis1_wave6_multitu_function_object_alias_partition_conflict_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis1",
+        "wave6",
+        "multitu",
+        "function",
+        "object",
+        "alias",
+        "partition"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

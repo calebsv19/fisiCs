@@ -1,0 +1,1616 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__torture__multitu_queue_generation_reclaim_churn",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_queue_generation_reclaim_churn_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_queue_generation_reclaim_churn_main.c",
+        "probes/runtime/15__probe_multitu_queue_generation_reclaim_churn_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_queue_generation_reclaim_churn.stdout",
+      "expected_stderr": "expect/15__torture__multitu_queue_generation_reclaim_churn.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "queue",
+        "generation",
+        "reclaim",
+        "churn"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_owner_transfer_toggle_storm",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_owner_transfer_toggle_storm_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_owner_transfer_toggle_storm_main.c",
+        "probes/runtime/15__probe_multitu_owner_transfer_toggle_storm_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_owner_transfer_toggle_storm.stdout",
+      "expected_stderr": "expect/15__torture__multitu_owner_transfer_toggle_storm.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "owner",
+        "transfer",
+        "toggle",
+        "storm"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_token_epoch_wraparound_reseed",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_token_epoch_wraparound_reseed_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_token_epoch_wraparound_reseed_main.c",
+        "probes/runtime/15__probe_multitu_token_epoch_wraparound_reseed_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_token_epoch_wraparound_reseed.stdout",
+      "expected_stderr": "expect/15__torture__multitu_token_epoch_wraparound_reseed.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "token",
+        "epoch",
+        "wraparound",
+        "reseed"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_a_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_a_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_a_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_a_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_a_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "a",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_b_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_b_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_b_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_b_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_b_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "b",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_c_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_c_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_c_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_c_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_c_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "c",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_d_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_d_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_d_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_d_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_d_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "d",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_e_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_e_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_e_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_e_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_e_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "e",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_corpus_reduction_replay_hash",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_main.c",
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_corpus_reduction_replay_hash.stdout",
+      "expected_stderr": "expect/15__torture__multitu_corpus_reduction_replay_hash.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "corpus",
+        "reduction",
+        "replay",
+        "hash"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_f_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_f_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_f_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_f_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_f_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "f",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_g_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_g_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_g_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_g_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_g_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "g",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_corpus_reduction_replay_hash_ii",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_ii_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_ii_main.c",
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_ii_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_corpus_reduction_replay_hash_ii.stdout",
+      "expected_stderr": "expect/15__torture__multitu_corpus_reduction_replay_hash_ii.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "corpus",
+        "reduction",
+        "replay",
+        "hash",
+        "ii"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_h_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_h_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_h_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_h_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_h_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "h",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_i_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_i_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_i_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_i_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_i_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "i",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_corpus_reduction_replay_hash_iii",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_iii_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_iii_main.c",
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_iii_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_corpus_reduction_replay_hash_iii.stdout",
+      "expected_stderr": "expect/15__torture__multitu_corpus_reduction_replay_hash_iii.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "corpus",
+        "reduction",
+        "replay",
+        "hash",
+        "iii"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_j_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_j_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_j_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_j_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_j_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "j",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_k_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_k_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_k_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_k_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_k_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "k",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_corpus_reduction_replay_hash_iv",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_iv_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_iv_main.c",
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_iv_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_corpus_reduction_replay_hash_iv.stdout",
+      "expected_stderr": "expect/15__torture__multitu_corpus_reduction_replay_hash_iv.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "corpus",
+        "reduction",
+        "replay",
+        "hash",
+        "iv"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_l_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_l_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_l_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_l_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_l_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "l",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__corpus_realproj_map_forge_app_fragment_m_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_m_smoke.c",
+      "inputs": [
+        "probes/runtime/15__probe_corpus_realproj_map_forge_app_fragment_m_smoke.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__corpus_realproj_map_forge_app_fragment_m_smoke.stdout",
+      "expected_stderr": "expect/15__torture__corpus_realproj_map_forge_app_fragment_m_smoke.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "corpus",
+        "realproj",
+        "map",
+        "forge",
+        "app",
+        "fragment",
+        "m",
+        "smoke"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__multitu_corpus_reduction_replay_hash_v",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_v_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_v_main.c",
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_v_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__multitu_corpus_reduction_replay_hash_v.stdout",
+      "expected_stderr": "expect/15__torture__multitu_corpus_reduction_replay_hash_v.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "multitu",
+        "corpus",
+        "reduction",
+        "replay",
+        "hash",
+        "v"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash_main.c",
+        "probes/runtime/15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash_lib.c",
+        "probes/runtime/15__probe_axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash.stdout",
+      "expected_stderr": "expect/15__torture__axis1_wave1_multitu_fn_data_symbol_interleave_reloc_hash.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis1",
+        "wave1",
+        "multitu",
+        "fn",
+        "data",
+        "symbol",
+        "interleave",
+        "reloc"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis1_wave2_multitu_common_vs_nocommon_emission_hash",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash_main.c",
+        "probes/runtime/15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash_lib.c",
+        "probes/runtime/15__probe_axis1_wave2_multitu_common_vs_nocommon_emission_hash_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis1_wave2_multitu_common_vs_nocommon_emission_hash.stdout",
+      "expected_stderr": "expect/15__torture__axis1_wave2_multitu_common_vs_nocommon_emission_hash.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis1",
+        "wave2",
+        "multitu",
+        "common",
+        "vs",
+        "nocommon",
+        "emission",
+        "hash"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge_main.c",
+        "probes/runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge.stdout",
+      "expected_stderr": "expect/15__torture__axis3_wave1_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis3",
+        "wave1",
+        "runtime",
+        "clang",
+        "gcc",
+        "tri",
+        "diff",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis3_wave1_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_edge",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_edge.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis3_wave1_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_edge.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis3_wave1_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_edge.stdout",
+      "expected_stderr": "expect/15__torture__axis3_wave1_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis3",
+        "wave1",
+        "runtime",
+        "clang",
+        "gcc",
+        "tri",
+        "diff",
+        "long"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_main.c",
+        "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge.stdout",
+      "expected_stderr": "expect/15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_multitu_variadic_struct_return_permute_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis3",
+        "wave2",
+        "runtime",
+        "clang",
+        "gcc",
+        "tri",
+        "diff",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_permute_edge",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_permute_edge.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis3_wave2_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_permute_edge.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_permute_edge.stdout",
+      "expected_stderr": "expect/15__torture__axis3_wave2_runtime_clang_gcc_tri_diff_long_double_regstack_callchain_permute_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis3",
+        "wave2",
+        "runtime",
+        "clang",
+        "gcc",
+        "tri",
+        "diff",
+        "long"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave1_reducer_signature_preservation_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave1_reducer_signature_preservation_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave1_reducer_signature_preservation_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave1_reducer_signature_preservation_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave1_reducer_signature_preservation_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave1",
+        "reducer",
+        "signature",
+        "preservation",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave1_reducer_minimization_idempotence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave1_reducer_minimization_idempotence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave1_reducer_minimization_idempotence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave1_reducer_minimization_idempotence_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave1_reducer_minimization_idempotence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave1",
+        "reducer",
+        "minimization",
+        "idempotence",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave1_reducer_cross_tu_signature_stability_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave1_reducer_cross_tu_signature_stability_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave1_reducer_cross_tu_signature_stability_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave1_reducer_cross_tu_signature_stability_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave1_reducer_cross_tu_signature_stability_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave1_reducer_cross_tu_signature_stability_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave1",
+        "reducer",
+        "cross",
+        "tu",
+        "signature",
+        "stability",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave2_reducer_permutation_canonicalization_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave2_reducer_permutation_canonicalization_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave2_reducer_permutation_canonicalization_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave2_reducer_permutation_canonicalization_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave2_reducer_permutation_canonicalization_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave2",
+        "reducer",
+        "permutation",
+        "canonicalization",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave2_reducer_replay_window_stability_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave2_reducer_replay_window_stability_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave2_reducer_replay_window_stability_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave2_reducer_replay_window_stability_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave2_reducer_replay_window_stability_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave2",
+        "reducer",
+        "replay",
+        "window",
+        "stability",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave2_reducer_cross_tu_repartition_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave2_reducer_cross_tu_repartition_invariance_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave2_reducer_cross_tu_repartition_invariance_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave2_reducer_cross_tu_repartition_invariance_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave2_reducer_cross_tu_repartition_invariance_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave2_reducer_cross_tu_repartition_invariance_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave2",
+        "reducer",
+        "cross",
+        "tu",
+        "repartition",
+        "invariance",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave3_reducer_delta_roundtrip_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave3_reducer_delta_roundtrip_invariance_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave3_reducer_delta_roundtrip_invariance_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave3_reducer_delta_roundtrip_invariance_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave3_reducer_delta_roundtrip_invariance_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave3",
+        "reducer",
+        "delta",
+        "roundtrip",
+        "invariance",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave3_reducer_shard_fold_associativity_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave3_reducer_shard_fold_associativity_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave3_reducer_shard_fold_associativity_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave3_reducer_shard_fold_associativity_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave3_reducer_shard_fold_associativity_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave3",
+        "reducer",
+        "shard",
+        "fold",
+        "associativity",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave3",
+        "reducer",
+        "cross",
+        "tu",
+        "checkpoint",
+        "resume",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave4_reducer_cancel_pair_confluence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave4_reducer_cancel_pair_confluence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave4_reducer_cancel_pair_confluence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave4_reducer_cancel_pair_confluence_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave4_reducer_cancel_pair_confluence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave4",
+        "reducer",
+        "cancel",
+        "pair",
+        "confluence",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave4_reducer_tombstone_compaction_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave4_reducer_tombstone_compaction_invariance_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave4_reducer_tombstone_compaction_invariance_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave4_reducer_tombstone_compaction_invariance_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave4_reducer_tombstone_compaction_invariance_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave4",
+        "reducer",
+        "tombstone",
+        "compaction",
+        "invariance",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave4",
+        "reducer",
+        "cross",
+        "tu",
+        "epoch",
+        "frontier",
+        "replay"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave5_reducer_phase_order_convergence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave5_reducer_phase_order_convergence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave5_reducer_phase_order_convergence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave5_reducer_phase_order_convergence_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave5_reducer_phase_order_convergence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave5",
+        "reducer",
+        "phase",
+        "order",
+        "convergence",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave5_reducer_neutral_element_elision_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave5_reducer_neutral_element_elision_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave5_reducer_neutral_element_elision_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave5_reducer_neutral_element_elision_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave5_reducer_neutral_element_elision_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave5",
+        "reducer",
+        "neutral",
+        "element",
+        "elision",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave5_reducer_cross_tu_speculative_rollback_frontier_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave5",
+        "reducer",
+        "cross",
+        "tu",
+        "speculative",
+        "rollback",
+        "frontier"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave6_reducer_window_rotation_hash_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave6_reducer_window_rotation_hash_invariance_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave6_reducer_window_rotation_hash_invariance_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave6_reducer_window_rotation_hash_invariance_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave6_reducer_window_rotation_hash_invariance_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave6",
+        "reducer",
+        "window",
+        "rotation",
+        "hash",
+        "invariance",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave6_reducer_eager_lazy_prune_equivalence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave6_reducer_eager_lazy_prune_equivalence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave6_reducer_eager_lazy_prune_equivalence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave6_reducer_eager_lazy_prune_equivalence_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave6_reducer_eager_lazy_prune_equivalence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave6",
+        "reducer",
+        "eager",
+        "lazy",
+        "prune",
+        "equivalence",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave6_reducer_cross_tu_shard_checkpoint_stitch_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave6",
+        "reducer",
+        "cross",
+        "tu",
+        "shard",
+        "checkpoint",
+        "stitch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave7_reducer_alpha_renaming_equivalence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave7_reducer_alpha_renaming_equivalence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave7_reducer_alpha_renaming_equivalence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave7_reducer_alpha_renaming_equivalence_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave7_reducer_alpha_renaming_equivalence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave7",
+        "reducer",
+        "alpha",
+        "renaming",
+        "equivalence",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave7_reducer_chunk_boundary_decode_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave7_reducer_chunk_boundary_decode_invariance_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave7_reducer_chunk_boundary_decode_invariance_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave7_reducer_chunk_boundary_decode_invariance_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave7_reducer_chunk_boundary_decode_invariance_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave7",
+        "reducer",
+        "chunk",
+        "boundary",
+        "decode",
+        "invariance",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave7_reducer_cross_tu_frontier_join_commutativity_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave7",
+        "reducer",
+        "cross",
+        "tu",
+        "frontier",
+        "join",
+        "commutativity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave8_reducer_lane_projection_fold_equivalence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave8_reducer_lane_projection_fold_equivalence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave8_reducer_lane_projection_fold_equivalence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave8_reducer_lane_projection_fold_equivalence_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave8_reducer_lane_projection_fold_equivalence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave8",
+        "reducer",
+        "lane",
+        "projection",
+        "fold",
+        "equivalence",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave8_reducer_snapshot_double_encode_idempotence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave8_reducer_snapshot_double_encode_idempotence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave8_reducer_snapshot_double_encode_idempotence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave8_reducer_snapshot_double_encode_idempotence_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave8_reducer_snapshot_double_encode_idempotence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave8",
+        "reducer",
+        "snapshot",
+        "double",
+        "encode",
+        "idempotence",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave8_reducer_cross_tu_frontier_roundtrip_associativity_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave8",
+        "reducer",
+        "cross",
+        "tu",
+        "frontier",
+        "roundtrip",
+        "associativity"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave9_reducer_sparse_dense_materialization_equivalence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave9_reducer_sparse_dense_materialization_equivalence_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave9_reducer_sparse_dense_materialization_equivalence_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave9_reducer_sparse_dense_materialization_equivalence_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave9_reducer_sparse_dense_materialization_equivalence_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave9",
+        "reducer",
+        "sparse",
+        "dense",
+        "materialization",
+        "equivalence",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave9_reducer_chunked_prefix_rebase_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave9_reducer_chunked_prefix_rebase_invariance_matrix.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave9_reducer_chunked_prefix_rebase_invariance_matrix.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave9_reducer_chunked_prefix_rebase_invariance_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave9_reducer_chunked_prefix_rebase_invariance_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave9",
+        "reducer",
+        "chunked",
+        "prefix",
+        "rebase",
+        "invariance",
+        "matrix"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__torture__axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__torture__axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix.stdout",
+      "expected_stderr": "expect/15__torture__axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "torture",
+        "runtime",
+        "axis5",
+        "wave9",
+        "reducer",
+        "cross",
+        "tu",
+        "checkpoint",
+        "chain",
+        "merge"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (300299:33): Undeclared identifier
+   Hint: axis2_wave1_nested_missing_symbol
+   Spelling: axis2_wave1_nested_layer_a.h:300299:33
+Error at (300299:33): Operator '+' requires arithmetic operands
+   Spelling: axis2_wave1_nested_layer_a.h:300299:33

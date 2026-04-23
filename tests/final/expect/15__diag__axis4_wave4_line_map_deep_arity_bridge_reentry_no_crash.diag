@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave4_line_map_deep_arity_bridge_reentry_no_crash_a.h:9:12: error: macro 'AX4_W4_NEEDF' requires 5 argument(s), got 4
+Error: preprocessing failed
+axis4_wave4_arity_layer_a.h:501105:12: error: macro 'AX4_W4_NEEDF' requires 5 argument(s), got 4
+axis4_wave4_arity_layer_a.h:501105:12: error: macro 'AX4_W4_NEEDF' requires 5 argument(s), got 4

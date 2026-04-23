@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (240697:37): Undeclared identifier
+   Hint: axis2_wave3_guard_missing_symbol
+   Spelling: axis2_wave3_guard_layer_d.h:240697:37
+Error at (240697:37): Operator '+' requires arithmetic operands
+   Spelling: axis2_wave3_guard_layer_d.h:240697:37

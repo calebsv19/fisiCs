@@ -254,6 +254,21 @@ static bool flush_chunk(Preprocessor* pp,
             pp_token_buffer_destroy(&expanded);
             return false;
         }
+        if (expandErr.kind == ME_ERR_UNSUPPORTED_GNU_COMMA_VA_ARGS) {
+            Token tmp = {0};
+            tmp.location = expandErr.callSite;
+            pp_report_diag(pp,
+                           &tmp,
+                           DIAG_ERROR,
+                           CDIAG_PREPROCESSOR_GENERIC,
+                           "GNU ', ##__VA_ARGS__' extension is not supported");
+            fprintf(stderr, "%s:%d:%d: error: GNU ', ##__VA_ARGS__' extension is not supported\n",
+                    expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
+                    expandErr.callSite.start.line,
+                    expandErr.callSite.start.column);
+            pp_token_buffer_destroy(&expanded);
+            return false;
+        }
         const MacroExpansionFrame* top = NULL;
         MacroExpansionError err = macro_table_last_error(pp->table, &top);
         if (err == MT_ERR_RECURSION || err == MT_ERR_DEPTH || err == MT_ERR_NONE) {

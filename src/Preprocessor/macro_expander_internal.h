@@ -30,6 +30,9 @@ void macro_expander_set_arg_count_error(MacroExpander* expander,
                                         SourceRange callSite,
                                         size_t expectedArgs,
                                         size_t providedArgs);
+void macro_expander_set_unsupported_gnu_comma_va_args_error(MacroExpander* expander,
+                                                            const MacroDefinition* def,
+                                                            SourceRange callSite);
 
 char* pp_strdup(const char* s);
 void token_free(Token* tok);

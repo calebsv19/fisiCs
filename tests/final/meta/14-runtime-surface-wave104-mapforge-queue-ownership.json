@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_queue_push_fail_preserves_committed_slot",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_queue_push_fail_preserves_committed_slot.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_queue_push_fail_preserves_committed_slot.stdout",
+      "expected_stderr": "expect/14__runtime_queue_push_fail_preserves_committed_slot.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "queue",
+        "rollback",
+        "ownership",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_token_generation_stale_drop",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_token_generation_stale_drop_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_token_generation_stale_drop_main.c",
+        "cases/14__runtime_multitu_token_generation_stale_drop_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_generation_stale_drop.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_token_generation_stale_drop.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "multitu",
+        "token",
+        "generation",
+        "stale"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_owner_transfer_release_once",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_multitu_owner_transfer_release_once_main.c",
+      "inputs": [
+        "cases/14__runtime_multitu_owner_transfer_release_once_main.c",
+        "cases/14__runtime_multitu_owner_transfer_release_once_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_owner_transfer_release_once.stdout",
+      "expected_stderr": "expect/14__runtime_multitu_owner_transfer_release_once.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "multitu",
+        "ownership",
+        "transfer",
+        "release"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

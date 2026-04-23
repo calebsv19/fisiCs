@@ -13,6 +13,19 @@
 #include "Compiler/diagnostics.h"
 #include "Compiler/object_emit.h"
 
+static bool env_flag_enabled(const char* name) {
+    if (!name || !name[0]) return false;
+    const char* value = getenv(name);
+    return value && value[0] && strcmp(value, "0") != 0;
+}
+
+static bool mapforge_auto_fallback_enabled(void) {
+    if (env_flag_enabled("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK")) {
+        return false;
+    }
+    return env_flag_enabled("FISICS_ENABLE_AUTO_CLANG_BACKEND_FALLBACK");
+}
+
 static bool target_is_apple_arm64(const char* targetTripleOpt) {
     char* ownedTriple = NULL;
     const char* triple = targetTripleOpt;
@@ -45,14 +58,14 @@ static bool maybe_stub_mapforge_legacy_entrypoint(const CompileOptions* options,
                                                   LLVMModuleRef module) {
     if (!options || !module) return false;
 
-    const char* disableStubEnv = getenv("FISICS_DISABLE_MAPFORGE_APP_RUN_LEGACY_STUB");
-    if (disableStubEnv && disableStubEnv[0] && strcmp(disableStubEnv, "0") != 0) {
+    if (!env_flag_enabled("FISICS_ENABLE_MAPFORGE_APP_RUN_LEGACY_STUB")) {
+        return false;
+    }
+    if (env_flag_enabled("FISICS_DISABLE_MAPFORGE_APP_RUN_LEGACY_STUB")) {
         return false;
     }
 
-    const char* strictPureEnv = getenv("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK");
-    bool strictPure = strictPureEnv && strictPureEnv[0] && strcmp(strictPureEnv, "0") != 0;
-    if (!strictPure) {
+    if (!env_flag_enabled("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK")) {
         return false;
     }
     if (!target_is_apple_arm64(options->targetTriple)) {
@@ -109,13 +122,11 @@ static bool maybe_stub_mapforge_legacy_entrypoint(const CompileOptions* options,
 static bool should_use_clang_frontend_fallback(const CompileOptions* options) {
     if (!options) return false;
 
-    const char* forceEnv = getenv("FISICS_FORCE_CLANG_BACKEND");
-    if (forceEnv && forceEnv[0] && strcmp(forceEnv, "0") != 0) {
+    if (env_flag_enabled("FISICS_FORCE_CLANG_BACKEND")) {
         return true;
     }
 
-    const char* disableAutoEnv = getenv("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK");
-    if (disableAutoEnv && disableAutoEnv[0] && strcmp(disableAutoEnv, "0") != 0) {
+    if (!mapforge_auto_fallback_enabled()) {
         return false;
     }
 
@@ -129,13 +140,11 @@ static bool should_use_clang_backend_fallback(const CompileOptions* options,
                                               LLVMModuleRef module) {
     if (!options || !module) return false;
 
-    const char* forceEnv = getenv("FISICS_FORCE_CLANG_BACKEND");
-    if (forceEnv && forceEnv[0] && strcmp(forceEnv, "0") != 0) {
+    if (env_flag_enabled("FISICS_FORCE_CLANG_BACKEND")) {
         return true;
     }
 
-    const char* disableAutoEnv = getenv("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK");
-    if (disableAutoEnv && disableAutoEnv[0] && strcmp(disableAutoEnv, "0") != 0) {
+    if (!mapforge_auto_fallback_enabled()) {
         return false;
     }
 

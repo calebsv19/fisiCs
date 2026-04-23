@@ -45,6 +45,9 @@ CodegenContext* codegen_context_create(const char* moduleName, const SemanticMod
     const char* verifyEnv = getenv("CODEGEN_VERIFY");
     ctx->verifyFunctions = (verifyEnv && verifyEnv[0] == '1');
     ctx->currentFunctionName = NULL;
+    ctx->currentFunctionUsesVariadicSRet = false;
+    ctx->currentFunctionVariadicSRetPtr = NULL;
+    ctx->currentFunctionVariadicSRetType = NULL;
 
     ctx->semanticModel = semanticModel;
     if (semanticModel) {

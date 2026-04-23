@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave7_include_order_permute_b_arity_fail_no_crash_a.h:9:12: error: macro 'AX4_W7B_CALL' requires 3 argument(s), got 2
+Error: preprocessing failed
+axis4_wave7_perm_b_layer_a.h:531105:12: error: macro 'AX4_W7B_CALL' requires 3 argument(s), got 2
+axis4_wave7_perm_b_layer_a.h:531105:12: error: macro 'AX4_W7B_CALL' requires 3 argument(s), got 2

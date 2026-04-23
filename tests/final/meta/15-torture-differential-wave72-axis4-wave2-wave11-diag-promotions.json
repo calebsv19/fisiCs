@@ -1,0 +1,636 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__axis4_wave2_malformed_include_guard_cycle_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave2_malformed_include_guard_cycle_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave2_malformed_include_guard_cycle_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave2_malformed_include_guard_cycle_reentry_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave2_malformed_include_macro_arity_flip_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave2_malformed_include_macro_arity_flip_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave2_malformed_include_macro_arity_flip_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave2_malformed_include_macro_arity_flip_reentry_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave3_malformed_include_token_paste_tail_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_token_paste_tail_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_token_paste_tail_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave3_malformed_include_token_paste_tail_reentry_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave4_line_map_deep_arity_bridge_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave4_line_map_deep_arity_bridge_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave4_line_map_deep_arity_bridge_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave4_line_map_deep_arity_bridge_reentry_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave5_conditional_dead_branch_skip_reentry_no_diag",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave5_conditional_dead_branch_skip_reentry_no_diag.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave5_conditional_dead_branch_skip_reentry_no_diag.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave5_conditional_dead_branch_skip_reentry_no_diag.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave5_conditional_active_branch_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave5_conditional_active_branch_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave5_conditional_active_branch_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave5_conditional_active_branch_arity_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave6_guard_namespace_collision_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave6_guard_namespace_collision_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave6_guard_namespace_collision_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave6_guard_namespace_collision_reentry_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave6_macro_state_undef_rebind_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave6_macro_state_undef_rebind_reentry_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave7_include_order_permute_a_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave7_include_order_permute_a_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave7_include_order_permute_a_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave7_include_order_permute_a_arity_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave7_include_order_permute_b_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave7_include_order_permute_b_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave7_include_order_permute_b_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave7_include_order_permute_b_arity_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave8_depth_conditional_dead_branch_matrix_no_diag",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave8_depth_conditional_dead_branch_matrix_no_diag.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave8_depth_conditional_dead_branch_matrix_no_diag.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave8_depth_conditional_dead_branch_matrix_no_diag.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave9_macro_alias_permute_a_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_a_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_a_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave9_macro_alias_permute_a_arity_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave9_macro_alias_permute_b_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave9_macro_alias_permute_b_arity_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave10_branch_convergence_inactive_path_no_diag",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_inactive_path_no_diag.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_inactive_path_no_diag.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave10_branch_convergence_inactive_path_no_diag.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave10_branch_convergence_winner_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave10_branch_convergence_winner_arity_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave11_dual_convergence_order_a_winner_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_a_winner_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_a_winner_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave11_dual_convergence_order_a_winner_arity_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diag__axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave2_malformed_include_guard_cycle_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave2_malformed_include_guard_cycle_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave2_malformed_include_guard_cycle_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave2_malformed_include_guard_cycle_reentry_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave4_line_map_deep_missing_symbol_reentry_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave5_conditional_active_branch_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave5_conditional_active_branch_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave5_conditional_active_branch_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave5_conditional_active_branch_arity_fail_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave6_macro_state_undef_rebind_reentry_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave6_macro_state_undef_rebind_reentry_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave7_include_order_permute_b_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave7_include_order_permute_b_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave7_include_order_permute_b_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave7_include_order_permute_b_arity_fail_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave8_depth_conditional_active_branch_matrix_fail_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave9_macro_alias_permute_b_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave9_macro_alias_permute_b_arity_fail_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave10_branch_convergence_winner_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave10_branch_convergence_winner_arity_fail_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+,
+    {
+      "id": "15__diagjson__axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__axis4_wave11_dual_convergence_order_b_winner_arity_fail_no_crash.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "axis4"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

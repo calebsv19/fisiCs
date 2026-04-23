@@ -365,7 +365,7 @@ ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
 
 # Final C99 behavior suite
-.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime
+.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime final-timing final-timing-sync-db final-timing-rollup final-timing-sync
 final: $(BIN)
 	@python3 tests/final/run_final.py ./$(BIN)
 
@@ -409,6 +409,43 @@ final-wave: $(BIN)
 # Runtime convenience slice (all bucket-14 tests)
 final-runtime: $(BIN)
 	@FINAL_PREFIX="14__" python3 tests/final/run_final.py ./$(BIN)
+
+FINAL_TIMING_RUNS ?= 1
+FINAL_TIMING_TAG ?= manual
+FINAL_TIMING_LOG ?= $(abspath ../docs/private_program_docs/fisiCs/audits/make_final_timing_log.csv)
+FINAL_TIMING_NOTES ?= $(abspath ../docs/private_program_docs/fisiCs/audits/make_final_timing_notes.md)
+FINAL_TIMING_DB ?= $(abspath ../data/fisics_timing/make_final_timing.sqlite)
+FINAL_TIMING_ROLLUP ?= $(abspath ../docs/private_program_docs/fisiCs/audits/make_final_timing_rollup.md)
+FINAL_TIMING_NOTE ?=
+
+# Full-suite timing capture with append-only logging.
+# Examples:
+#   make final-timing
+#   make final-timing FINAL_TIMING_RUNS=3 FINAL_TIMING_TAG=checkpoint
+#   make final-timing FINAL_TIMING_NOTE="after bucket 15 wave update"
+final-timing: $(BIN)
+	@FINAL_TIMING_RUNS="$(FINAL_TIMING_RUNS)" \
+	  FINAL_TIMING_TAG="$(FINAL_TIMING_TAG)" \
+	  FINAL_TIMING_LOG="$(FINAL_TIMING_LOG)" \
+	  FINAL_TIMING_NOTES="$(FINAL_TIMING_NOTES)" \
+	  FINAL_TIMING_NOTE="$(FINAL_TIMING_NOTE)" \
+	  ./scripts/capture_make_final_timing.sh
+
+# Mirror canonical CSV rows into SQLite for query/rollup use.
+final-timing-sync-db:
+	@./scripts/sync_make_final_timing_sqlite.py \
+	  --csv "$(FINAL_TIMING_LOG)" \
+	  --db "$(FINAL_TIMING_DB)"
+
+# Render markdown rollup from SQLite.
+final-timing-rollup:
+	@./scripts/render_make_final_timing_rollup.py \
+	  --csv "$(FINAL_TIMING_LOG)" \
+	  --db "$(FINAL_TIMING_DB)" \
+	  --output "$(FINAL_TIMING_ROLLUP)"
+
+# End-to-end timing capture + sqlite mirror + markdown rollup.
+final-timing-sync: final-timing final-timing-sync-db final-timing-rollup
 
 # === Run the compiled binary ===
 run: src/Lexer/keyword_lookup.c $(BIN)

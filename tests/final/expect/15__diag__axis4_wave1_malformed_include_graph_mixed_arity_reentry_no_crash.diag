@@ -1,0 +1,5 @@
+Diagnostics:
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave1_malformed_include_graph_mixed_arity_reentry_no_crash_a.h:9:12: error: macro 'AX4_W1_MIX_NEEDN' requires 3 argument(s), got 2
+Error: preprocessing failed
+axis4_wave1_mixed_arity_layer_a.h:390105:12: error: macro 'AX4_W1_MIX_NEEDN' requires 3 argument(s), got 2
+axis4_wave1_mixed_arity_layer_a.h:390105:12: error: macro 'AX4_W1_MIX_NEEDN' requires 3 argument(s), got 2

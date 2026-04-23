@@ -1557,6 +1557,7 @@ bool process_include(Preprocessor* pp,
     }
     bool ok = false;
     if (origin == INCLUDE_SEARCH_INCLUDE_PATH &&
+        pp_summary_replay_experiment_enabled() &&
         summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE &&
         (summaryProbe.behaviorClass == INCLUDE_HEADER_BEHAVIOR_ROUTER_ONLY ||
          summaryProbe.behaviorClass == INCLUDE_HEADER_BEHAVIOR_ROUTER_RAW_TAIL)) {
@@ -1582,6 +1583,7 @@ bool process_include(Preprocessor* pp,
             ok = false;
         }
     } else if (origin == INCLUDE_SEARCH_INCLUDE_PATH &&
+               pp_summary_replay_experiment_enabled() &&
                summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE &&
                summaryProbe.behaviorClass == INCLUDE_HEADER_BEHAVIOR_INCLUDE_DEFINE_SCAFFOLD) {
         PPSummaryReplayResult replayResult =

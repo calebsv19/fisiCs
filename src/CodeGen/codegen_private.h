@@ -132,6 +132,9 @@ struct CodegenContext {
     CGTypeCache* typeCache;
     const ParsedType* currentFunctionReturnType;
     const char* currentFunctionName;
+    bool currentFunctionUsesVariadicSRet;
+    LLVMValueRef currentFunctionVariadicSRetPtr;
+    LLVMTypeRef currentFunctionVariadicSRetType;
     bool verifyFunctions;
 };
 
@@ -219,10 +222,13 @@ LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
                                          const ParsedType* pointerParsed,
                                          LLVMTypeRef pointerLLVM);
 LLVMTypeRef cg_coerce_function_return_type(CodegenContext* ctx, LLVMTypeRef returnType);
+bool cg_should_lower_variadic_sret(CodegenContext* ctx,
+                                   LLVMTypeRef returnType,
+                                   bool isVariadicFunction);
 LLVMValueRef cg_pack_aggregate_for_abi_return(CodegenContext* ctx,
-                                               LLVMValueRef value,
-                                               LLVMTypeRef packedType,
-                                               const char* nameHint);
+                                              LLVMValueRef value,
+                                              LLVMTypeRef packedType,
+                                              const char* nameHint);
 LLVMValueRef cg_unpack_aggregate_from_abi_return(CodegenContext* ctx,
                                                  LLVMValueRef packedValue,
                                                  LLVMTypeRef aggregateType,

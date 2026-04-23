@@ -238,11 +238,7 @@ static const ParsedType* cg_lookup_function_symbol_return_type(CodegenContext* c
     }
     static ParsedType symbolReturnType;
     parsedTypeFree(&symbolReturnType);
-    symbolReturnType = parsedTypeFunctionReturnType(&sym->type);
-    if (symbolReturnType.kind == TYPE_INVALID) {
-        parsedTypeFree(&symbolReturnType);
-        symbolReturnType = parsedTypeClone(&sym->type);
-    }
+    symbolReturnType = parsedTypeClone(&sym->type);
     if (symbolReturnType.kind == TYPE_INVALID) {
         parsedTypeFree(&symbolReturnType);
         return NULL;

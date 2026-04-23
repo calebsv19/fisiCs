@@ -26,7 +26,8 @@ typedef struct {
 
 typedef enum {
     ME_ERR_NONE = 0,
-    ME_ERR_MACRO_ARG_COUNT = 1
+    ME_ERR_MACRO_ARG_COUNT = 1,
+    ME_ERR_UNSUPPORTED_GNU_COMMA_VA_ARGS = 2
 } MacroExpandError;
 
 typedef struct {
