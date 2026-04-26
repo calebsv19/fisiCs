@@ -98,6 +98,13 @@ Each shard file uses the per-test schema below:
   - `FINAL_TAG=<tag>[,<tag>...]`
 - Selector safety: if a selector is provided and matches zero tests, the run
   fails closed.
+- Failure reporting: failing paths now emit canonical taxonomy labels directly
+  in harness output:
+  - `failure_kind=<...>`
+  - `severity=<...>`
+  - `source_lane=final`
+  - `trust_layer=<...>`
+  - `owner_lane=<bucket-or-final-harness>`
 - Token expectations use `--dump-tokens` on the compiler when needed.
 - IR expectations use `--dump-ir` on the compiler when needed.
 - `capture_frontend_diag: true` records early `Error:` / `Warning:` lines that

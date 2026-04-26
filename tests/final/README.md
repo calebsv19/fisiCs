@@ -1,8 +1,9 @@
 # C99 Behavior Test Suite (Final)
 
-This directory is a clean, separate test suite for full C99 behavior coverage.
-Each file below describes one bucket, what it covers, and how the tests should
-be validated (tokens, AST, diagnostics, IR, or runtime output).
+This directory is the canonical bucketed compiler-behavior suite for `fisiCs`.
+Each file below describes one public bucket reference: what it covers, what
+kind of oracle it uses, and when contributors should route a stable regression
+into it.
 
 Quick run entrypoints:
 - `make final`: full suite (checkpoint/integration run).
@@ -33,6 +34,12 @@ Quick run entrypoints:
 - `15-conformance-strategy.md`: Feature matrix and intentional support gaps.
 - `probes/README.md`: Triage repro fixtures and probe runner (not in `make final`).
 
-Related planning docs:
-- `docs/plans/runtime_bucket_14_execution_plan.md`: active wave plan for expanding bucket `14`.
-- `docs/plans/torture_bucket_15_execution_plan.md`: active wave plan for expanding bucket `15`.
+Related public references:
+- `docs/compiler_test_architecture.md`
+- `docs/compiler_test_workflow_guide.md`
+- `docs/compiler_test_failure_taxonomy.md`
+- `docs/compiler_test_regression_intake.md`
+- `docs/compiler_test_confidence_tiers.md`
+
+Detailed promotion batches, probe queues, and expansion sequencing are
+maintainer-facing and intentionally kept out of this public README.

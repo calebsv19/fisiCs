@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-04-22.
+Last audited: 2026-04-25.
 
 ## Repository Entry
 
@@ -13,8 +13,12 @@ Last audited: 2026-04-22.
 
 - `00_docs_index.md`: primary table of contents for all Markdown docs in `docs/`
 - `public_roadmap.md`: high-level public roadmap and current focus areas
-- `contributor_agent_quickstart.md`: concise operating flow for contributors and agentic tooling
+- `contributor_agent_quickstart.md`: concise operating flow for contributors and automated tooling
 - `compiler_test_system_rearchitecture_context.md`: core constraints and end-state targets for test architecture
+- `compiler_test_architecture.md`: authoritative public architecture map for the compiler test system
+- `compiler_test_failure_taxonomy.md`: shared failure-kind, severity, and origin vocabulary across compiler test lanes
+- `compiler_test_regression_intake.md`: canonical reduce, classify, tag, promote, and revalidate workflow for real-world regressions
+- `compiler_test_confidence_tiers.md`: canonical day-to-day command ladder from fast sanity through full trust and timing checkpoints
 - `compiler_test_coverage_blueprint.md`: coverage map and harness structure for compiler validation
 - `compiler_test_workflow_guide.md`: operator guide for bucket-by-bucket validation/fix workflows
 - `validation_workflow.md`: full-project validation workflow for external program compile checks

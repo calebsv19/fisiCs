@@ -14,6 +14,14 @@ META_DIR = ROOT / "meta"
 META_INDEX_PATH = META_DIR / "index.json"
 
 
+def configure_stdio():
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(line_buffering=True, write_through=True)
+
+
 def extract_sections(text, capture_frontend_diag=False):
     lines = text.splitlines()
     section = None
@@ -208,7 +216,41 @@ def parse_csv_env(name):
     return [value.strip() for value in raw.split(",") if value.strip()]
 
 
+def classify_final_trust_layer(test_bucket, input_count, run_enabled, differential):
+    if run_enabled or differential or test_bucket == "runtime-surface":
+        return "Layer E"
+    if input_count > 1 or test_bucket == "scopes-linkage":
+        return "Layer D"
+    return "Layer B"
+
+
+def emit_final_failure(
+    message,
+    *,
+    failure_kind,
+    severity,
+    test_id=None,
+    test_bucket="",
+    input_count=1,
+    run_enabled=False,
+    differential=False,
+):
+    trust_layer = classify_final_trust_layer(
+        test_bucket, input_count, run_enabled, differential
+    )
+    owner_lane = test_bucket or "final-harness"
+    prefix = "FAIL"
+    if test_id:
+        prefix += f" {test_id}"
+    print(
+        f"{prefix} [failure_kind={failure_kind} severity={severity} "
+        f"source_lane=final trust_layer={trust_layer} owner_lane={owner_lane}]: "
+        f"{message}"
+    )
+
+
 def main():
+    configure_stdio()
     bin_path = sys.argv[1] if len(sys.argv) > 1 else "./fisics"
     update = os.environ.get("UPDATE_FINAL", "0") == "1" or "--update" in sys.argv
     filt = os.environ.get("FINAL_FILTER", "").strip()
@@ -300,9 +342,19 @@ def main():
         run_args = [str(a) for a in test.get("run_args", [])]
         run_stdin = test.get("run_stdin")
         run_env_overrides = {str(k): str(v) for k, v in test.get("run_env", {}).items()}
+        input_count = len(input_paths)
 
         if differential and not run_enabled:
-            print(f"FAIL {test_id}: differential=true requires run=true")
+            emit_final_failure(
+                "differential=true requires run=true",
+                failure_kind="harness_error",
+                severity="medium",
+                test_id=test_id,
+                test_bucket=test_bucket,
+                input_count=input_count,
+                run_enabled=run_enabled,
+                differential=differential,
+            )
             failures += 1
             continue
 
@@ -316,9 +368,12 @@ def main():
             cmd.append("--dump-tokens")
         if has_ir:
             cmd.append("--dump-ir")
+        frontend_only_diag = only_diag and input_count == 1 and not run_enabled and not has_ir
         cmd_env = os.environ.copy()
         for key, value in test.get("env", {}).items():
             cmd_env[str(key)] = str(value)
+        if frontend_only_diag:
+            cmd_env["DISABLE_CODEGEN"] = "1"
 
         runtime_tmp = None
         runtime_exec_path = None
@@ -327,7 +382,16 @@ def main():
         diag_json_raw = None
         if run_enabled:
             if has_tokens:
-                print(f"FAIL {test_id}: run=true tests do not support token expectations")
+                emit_final_failure(
+                    "run=true tests do not support token expectations",
+                    failure_kind="harness_error",
+                    severity="medium",
+                    test_id=test_id,
+                    test_bucket=test_bucket,
+                    input_count=input_count,
+                    run_enabled=run_enabled,
+                    differential=differential,
+                )
                 failures += 1
                 continue
             runtime_tmp = tempfile.TemporaryDirectory(prefix=f"final-{test_id}-")
@@ -343,18 +407,45 @@ def main():
 
             if run_enabled:
                 if exit_code != 0:
-                    print(f"FAIL {test_id}: compiler exited {exit_code}")
+                    emit_final_failure(
+                        f"compiler exited {exit_code}",
+                        failure_kind="ir_or_codegen_fail",
+                        severity="high",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
                     print(output)
                     failures += 1
                     continue
             else:
                 if has_ast and exit_code != 0:
-                    print(f"FAIL {test_id}: compiler exited {exit_code}")
+                    emit_final_failure(
+                        f"compiler exited {exit_code}",
+                        failure_kind="parser_fail",
+                        severity="high",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
                     print(output)
                     failures += 1
                     continue
                 if not has_ast and not only_diag and exit_code != 0 and not allow_nonzero_exit:
-                    print(f"FAIL {test_id}: compiler exited {exit_code}")
+                    emit_final_failure(
+                        f"compiler exited {exit_code}",
+                        failure_kind="ir_or_codegen_fail",
+                        severity="high",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
                     print(output)
                     failures += 1
                     continue
@@ -378,7 +469,16 @@ def main():
                     actual = ir_text
                 elif ext == ".diagjson":
                     if diag_json_raw is None:
-                        print(f"FAIL {test_id}: missing diagnostics JSON export")
+                        emit_final_failure(
+                            "missing diagnostics JSON export",
+                            failure_kind="harness_error",
+                            severity="medium",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
                         print(output)
                         failures += 1
                         test_failed = True
@@ -386,14 +486,32 @@ def main():
                     try:
                         actual = normalize_diag_json_text(diag_json_raw)
                     except json.JSONDecodeError as exc:
-                        print(f"FAIL {test_id}: invalid diagnostics JSON ({exc})")
+                        emit_final_failure(
+                            f"invalid diagnostics JSON ({exc})",
+                            failure_kind="harness_error",
+                            severity="medium",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
                         print(diag_json_raw)
                         failures += 1
                         test_failed = True
                         continue
                 elif ext == ".pdiag":
                     if diag_json_raw is None:
-                        print(f"FAIL {test_id}: missing diagnostics JSON export")
+                        emit_final_failure(
+                            "missing diagnostics JSON export",
+                            failure_kind="harness_error",
+                            severity="medium",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
                         print(output)
                         failures += 1
                         test_failed = True
@@ -401,7 +519,16 @@ def main():
                     try:
                         actual = render_parser_diag_text(diag_json_raw)
                     except json.JSONDecodeError as exc:
-                        print(f"FAIL {test_id}: invalid diagnostics JSON ({exc})")
+                        emit_final_failure(
+                            f"invalid diagnostics JSON ({exc})",
+                            failure_kind="harness_error",
+                            severity="medium",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
                         print(diag_json_raw)
                         failures += 1
                         test_failed = True
@@ -418,14 +545,39 @@ def main():
                     continue
 
                 if not expect_path.exists():
-                    print(f"FAIL {test_id}: missing expectation {expect_path}")
+                    emit_final_failure(
+                        f"missing expectation {expect_path}",
+                        failure_kind="harness_error",
+                        severity="medium",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
                     failures += 1
                     test_failed = True
                     continue
 
                 expected = expect_path.read_text(encoding="utf-8")
                 if expected != actual:
-                    print(f"FAIL {test_id}: mismatch in {expect_path.name}")
+                    failure_kind = "ir_or_codegen_fail"
+                    severity = "high"
+                    if ext in (".ast", ".tokens"):
+                        failure_kind = "parser_fail"
+                    elif ext in (".diag", ".diagjson", ".pdiag"):
+                        failure_kind = "wrong_diagnostics"
+                        severity = "medium"
+                    emit_final_failure(
+                        f"mismatch in {expect_path.name}",
+                        failure_kind=failure_kind,
+                        severity=severity,
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
                     print(diff_text(expected, actual, expect_path))
                     failures += 1
                     test_failed = True
@@ -444,13 +596,31 @@ def main():
                 try:
                     expect_exit = int(expect_exit)
                 except (TypeError, ValueError):
-                    print(f"FAIL {test_id}: expect_exit must be an integer")
+                    emit_final_failure(
+                        "expect_exit must be an integer",
+                        failure_kind="harness_error",
+                        severity="medium",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
                     failures += 1
                     test_failed = True
                     expect_exit = None
 
                 if expect_exit is not None and run_exit != expect_exit:
-                    print(f"FAIL {test_id}: runtime exit mismatch (expected {expect_exit}, got {run_exit})")
+                    emit_final_failure(
+                        f"runtime exit mismatch (expected {expect_exit}, got {run_exit})",
+                        failure_kind="runtime_mismatch",
+                        severity="critical",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
                     failures += 1
                     test_failed = True
 
@@ -460,13 +630,31 @@ def main():
                         expected_stdout_path.write_text(run_stdout, encoding="utf-8")
                     else:
                         if not expected_stdout_path.exists():
-                            print(f"FAIL {test_id}: missing expectation {expected_stdout_path}")
+                            emit_final_failure(
+                                f"missing expectation {expected_stdout_path}",
+                                failure_kind="harness_error",
+                                severity="medium",
+                                test_id=test_id,
+                                test_bucket=test_bucket,
+                                input_count=input_count,
+                                run_enabled=run_enabled,
+                                differential=differential,
+                            )
                             failures += 1
                             test_failed = True
                         else:
                             expected_stdout = expected_stdout_path.read_text(encoding="utf-8")
                             if expected_stdout != run_stdout:
-                                print(f"FAIL {test_id}: mismatch in {expected_stdout_path.name}")
+                                emit_final_failure(
+                                    f"mismatch in {expected_stdout_path.name}",
+                                    failure_kind="runtime_mismatch",
+                                    severity="critical",
+                                    test_id=test_id,
+                                    test_bucket=test_bucket,
+                                    input_count=input_count,
+                                    run_enabled=run_enabled,
+                                    differential=differential,
+                                )
                                 print(diff_text(expected_stdout, run_stdout, expected_stdout_path))
                                 failures += 1
                                 test_failed = True
@@ -477,13 +665,31 @@ def main():
                         expected_stderr_path.write_text(run_stderr, encoding="utf-8")
                     else:
                         if not expected_stderr_path.exists():
-                            print(f"FAIL {test_id}: missing expectation {expected_stderr_path}")
+                            emit_final_failure(
+                                f"missing expectation {expected_stderr_path}",
+                                failure_kind="harness_error",
+                                severity="medium",
+                                test_id=test_id,
+                                test_bucket=test_bucket,
+                                input_count=input_count,
+                                run_enabled=run_enabled,
+                                differential=differential,
+                            )
                             failures += 1
                             test_failed = True
                         else:
                             expected_stderr = expected_stderr_path.read_text(encoding="utf-8")
                             if expected_stderr != run_stderr:
-                                print(f"FAIL {test_id}: mismatch in {expected_stderr_path.name}")
+                                emit_final_failure(
+                                    f"mismatch in {expected_stderr_path.name}",
+                                    failure_kind="runtime_mismatch",
+                                    severity="critical",
+                                    test_id=test_id,
+                                    test_bucket=test_bucket,
+                                    input_count=input_count,
+                                    run_enabled=run_enabled,
+                                    differential=differential,
+                                )
                                 print(diff_text(expected_stderr, run_stderr, expected_stderr_path))
                                 failures += 1
                                 test_failed = True
@@ -522,9 +728,16 @@ def main():
                                 ]
                                 reference_compile_exit, reference_compile_output = run_cmd(reference_cmd)
                                 if reference_compile_exit != 0:
-                                    print(
-                                        f"FAIL {test_id}: {reference_compiler_name} compile failed "
-                                        f"({reference_compile_exit})"
+                                    emit_final_failure(
+                                        f"{reference_compiler_name} compile failed "
+                                        f"({reference_compile_exit})",
+                                        failure_kind="harness_error",
+                                        severity="medium",
+                                        test_id=test_id,
+                                        test_bucket=test_bucket,
+                                        input_count=input_count,
+                                        run_enabled=run_enabled,
+                                        differential=differential,
                                     )
                                     print(reference_compile_output)
                                     failures += 1
@@ -536,14 +749,30 @@ def main():
                                         stdin_text=run_stdin,
                                     )
                                     if reference_exit != run_exit:
-                                        print(
-                                            f"FAIL {test_id}: differential exit mismatch "
-                                            f"(fisics={run_exit}, {reference_compiler_name}={reference_exit})"
+                                        emit_final_failure(
+                                            f"differential exit mismatch "
+                                            f"(fisics={run_exit}, {reference_compiler_name}={reference_exit})",
+                                            failure_kind="runtime_mismatch",
+                                            severity="critical",
+                                            test_id=test_id,
+                                            test_bucket=test_bucket,
+                                            input_count=input_count,
+                                            run_enabled=run_enabled,
+                                            differential=differential,
                                         )
                                         failures += 1
                                         test_failed = True
                                     if reference_stdout != run_stdout:
-                                        print(f"FAIL {test_id}: differential stdout mismatch")
+                                        emit_final_failure(
+                                            "differential stdout mismatch",
+                                            failure_kind="runtime_mismatch",
+                                            severity="critical",
+                                            test_id=test_id,
+                                            test_bucket=test_bucket,
+                                            input_count=input_count,
+                                            run_enabled=run_enabled,
+                                            differential=differential,
+                                        )
                                         print(
                                             diff_text(
                                                 reference_stdout,
@@ -554,7 +783,16 @@ def main():
                                         failures += 1
                                         test_failed = True
                                     if reference_stderr != run_stderr:
-                                        print(f"FAIL {test_id}: differential stderr mismatch")
+                                        emit_final_failure(
+                                            "differential stderr mismatch",
+                                            failure_kind="runtime_mismatch",
+                                            severity="critical",
+                                            test_id=test_id,
+                                            test_bucket=test_bucket,
+                                            input_count=input_count,
+                                            run_enabled=run_enabled,
+                                            differential=differential,
+                                        )
                                         print(
                                             diff_text(
                                                 reference_stderr,
@@ -577,10 +815,12 @@ def main():
         print(f"\n{failures} failing, {skipped} skipped")
         return 1
     if has_selector and selected == 0:
-        print(
-            "FAIL: selector matched 0 tests "
+        emit_final_failure(
+            "selector matched 0 tests "
             "(FINAL_FILTER / FINAL_PREFIX / FINAL_GLOB / FINAL_BUCKET / "
-            "FINAL_TAG / FINAL_MANIFEST / FINAL_MANIFEST_GLOB)"
+            "FINAL_TAG / FINAL_MANIFEST / FINAL_MANIFEST_GLOB)",
+            failure_kind="harness_error",
+            severity="medium",
         )
         return 1
     if skipped:

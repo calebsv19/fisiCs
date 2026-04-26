@@ -1,7 +1,7 @@
 # Docs Index
 
 This is the table of contents for the public `docs/` tree in `fisiCs`.
-Last audited: 2026-04-22.
+Last audited: 2026-04-25.
 
 ## Start Here
 
@@ -22,7 +22,7 @@ Public docs layout summary and private-boundary policy.
 
 ### `docs/contributor_agent_quickstart.md`
 
-Fast operating flow for contributors and agentic tooling.
+Fast operating flow for contributors and automated tooling.
 
 ### `docs/public_roadmap.md`
 
@@ -31,6 +31,22 @@ High-level roadmap and current priorities.
 ### `docs/compiler_test_system_rearchitecture_context.md`
 
 Core constraints and end-state targets for compiler test architecture.
+
+### `docs/compiler_test_architecture.md`
+
+Authoritative public map of the test-system structure, confidence layers, suite roles, and test-routing model.
+
+### `docs/compiler_test_failure_taxonomy.md`
+
+Authoritative public vocabulary for failure kinds, severity, origin, and lane mapping across compiler test suites.
+
+### `docs/compiler_test_regression_intake.md`
+
+Canonical public workflow for taking a failure found in a real program or canary lane and turning it into permanent regression coverage.
+
+### `docs/compiler_test_confidence_tiers.md`
+
+Canonical public command ladder for choosing the right confidence tier, from build-only sanity through full trust and timing checkpoints.
 
 ### `docs/compiler_test_coverage_blueprint.md`
 

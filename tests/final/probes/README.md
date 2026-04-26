@@ -7,10 +7,26 @@ Purpose:
 - Provide a small, fixed input set for fix-phase verification.
 - Keep differential/runtime/diagnostic checks fast while iterating on parser/semantic/codegen fixes.
 
+Selector rule:
+- `PROBE_FILTER=... python3 tests/final/probes/run_probes.py` is fail-closed.
+- If a provided filter matches zero probes, the runner exits non-zero instead of reporting a green no-op summary.
+
+Blocked-result reporting:
+- `BLOCKED` probe results now include a canonical classification line:
+  - `failure_kind=<...>`
+  - `severity=<...>`
+  - `source_lane=probe`
+  - `trust_layer=<...>`
+  - `owner_lane=<final-bucket>`
+  - `raw_status=BLOCKED`
+- `RESOLVED` and `SKIP` output stay unchanged.
+
 ## Layout
 - `runtime/`: runtime differential repros (`fisics` vs `clang`).
 - `diagnostics/`: diagnostics/constraint repros.
-- `run_probes.py`: runs all probes and prints current status.
+- `lib/`: shared probe runner helpers for models, command execution, selection, blocker taxonomy, and the extracted family runner/CLI orchestration in `lib/runner.py`.
+- `inventory/`: authoritative probe inventories stitched together by `registry.py`; the inventory is bucket-owned, and the two largest surfaces now live as ordered subpackages under `bucket_14_runtime_surface/` and `bucket_15_torture_differential/`.
+- `run_probes.py`: minimal launcher that delegates to `lib.runner.main()` over registry-owned inventories.
 
 The authoritative probe inventory is the on-disk fixture set discovered by `run_probes.py`.
 The explicit lists below are maintained as high-signal anchors and may lag brief in-flight additions.

@@ -1,0 +1,545 @@
+from pathlib import Path
+
+from lib.models import DiagnosticJsonProbe, DiagnosticProbe, RuntimeProbe
+
+
+PROBE_DIR = Path(__file__).resolve().parent.parent.parent
+
+RUNTIME_PROBES = [
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_main.c',
+        note='axis1 wave1: multi-TU tentative-definition coalesce and relocation matrix should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave1_multitu_tentative_def_coalesce_reloc_matrix_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_main.c',
+        note='axis1 wave1: static-vs-extern same-name shadow relocation matrix should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave1_multitu_static_extern_shadow_reloc_matrix_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_main.c',
+        note='axis1 wave2: multi-TU weak/common-vs-strong symbol precedence matrix should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave2_multitu_weak_strong_symbol_precedence_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_main.c',
+        note='axis1 wave2: multi-TU extern-array extent relocation bridge should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave2_multitu_extern_array_extent_reloc_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave3_multitu_const_table_reloc_crc',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_main.c',
+        note='axis1 wave3: multi-TU const-table relocation CRC fold should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_const_table_reloc_crc_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave3_multitu_static_fnptr_export_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_main.c',
+        note='axis1 wave3: multi-TU static function-pointer export bridge should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_main.c',
+        note='axis1 wave3 reduced: single-path function-pointer export bridge remains stable while branch-lane strict probe is blocked',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave3_multitu_static_fnptr_export_bridge_reduced_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_main.c',
+        note='axis1 wave4: multi-TU exported function-pointer table dispatch should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave4_multitu_fnptr_table_rebase_dispatch_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_main.c',
+        note='axis1 wave5: multi-TU function-pointer typedef/qualifier bridge should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave5_multitu_fnptr_typedef_qualifier_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_main.c',
+        note='axis1 wave6: callback-returned function-pointer reseed matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave6_multitu_fnptr_callback_return_reseed_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_main.c',
+        note='axis1 wave6: function-pointer array permutation dispatch matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave6_multitu_fnptr_array_permute_dispatch_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix_main.c',
+        note='axis1 wave7: owner-table rotation over exported function-pointer mix lanes should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave7_multitu_fnptr_owner_table_rotation_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix_main.c',
+        note='axis1 wave7: const-owner window pointer-depth matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave7_multitu_owner_window_pointer_depth_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix_main.c',
+        note='axis1 wave9: owner-ring function-pointer reseed matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave9_multitu_fnptr_owner_ring_reseed_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix_main.c',
+        note='axis1 wave9: owner-route window depth matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave9_multitu_owner_route_window_depth_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix_main.c',
+        note='axis1 wave10: owner-checkpoint function-pointer dispatch matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave10_multitu_fnptr_owner_checkpoint_dispatch_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge_main.c',
+        note='axis1 wave10: owner-checkpoint window bridge should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave10_multitu_owner_checkpoint_window_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix_main.c',
+        note='axis1 wave11: nested decay pointer-table rebase matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave11_multitu_ptrtable_nested_decay_rebase_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge_main.c',
+        note='axis1 wave11: two-step pointer-table window rebase bridge should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave11_multitu_ptrtable_two_step_rebase_window_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix_main.c',
+        note='axis1 wave12: checkpoint link-order pointer-table reseed matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave12_multitu_ptrtable_checkpoint_linkorder_reseed_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge_main.c',
+        note='axis1 wave12: mixed signed/unsigned offset pointer-table bridge should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave12_multitu_ptrtable_signed_unsigned_offset_window_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix_main.c',
+        note='axis1 wave13: four-level pointer-table rebase permutation matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave13_multitu_ptrtable_four_level_rebase_permutation_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge_main.c',
+        note='axis1 wave13: constexpr signed/unsigned offset blend bridge should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave13_multitu_ptrtable_constexpr_offset_blend_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix_main.c',
+        note='axis1 wave14: relocation-order checkpoint matrix over signed/unsigned offsets should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave14_multitu_ptrtable_relocation_order_checkpoint_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge_main.c',
+        note='axis1 wave14: signed/unsigned checkpoint replay bridge should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave14_multitu_ptrtable_signed_unsigned_checkpoint_replay_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix_main.c',
+        note='axis1 wave15: three-plan pointer-table rebase drift matrix should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave15_multitu_ptrtable_three_plan_rebase_drift_matrix_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge_main.c',
+        note='axis1 wave15: permutation-depth checkpoint replay bridge should remain clang-parity stable',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge_main.c', PROBE_DIR / 'runtime/14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge_lib.c', PROBE_DIR / 'runtime/14__probe_axis1_wave15_multitu_ptrtable_checkpoint_replay_permutation_bridge_aux.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_main.c',
+        note='axis3 wave1: multi-TU HFA struct-return plus variadic edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave1_multitu_abi_hfa_struct_return_variadic_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_main.c',
+        note='axis3 wave2: multi-TU HFA struct-return plus variadic permutation edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave2_multitu_abi_hfa_struct_return_variadic_permute_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_main.c',
+        note='axis3 wave3: multi-TU HFA struct-return plus variadic crossmix edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave3_multitu_abi_hfa_struct_return_variadic_crossmix_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_main.c',
+        note='axis3 wave4: multi-TU HFA struct-return plus variadic reg/stack pressure edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave4_multitu_abi_hfa_struct_return_variadic_regstack_pressure_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_main.c',
+        note='axis3 wave5: multi-TU HFA struct-return plus variadic checkpoint-rotation edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave5_multitu_abi_hfa_struct_return_variadic_checkpoint_rotation_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_main.c',
+        note='axis3 wave6: multi-TU HFA struct-return plus variadic epoch/frontier edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave6_multitu_abi_hfa_struct_return_variadic_epoch_frontier_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_main.c',
+        note='axis3 wave7: multi-TU HFA struct-return plus variadic frontier/replay edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave7_multitu_abi_hfa_struct_return_variadic_frontier_replay_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_main.c',
+        note='axis3 wave8: multi-TU HFA struct-return plus variadic handoff/permutation edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave8_multitu_abi_hfa_struct_return_variadic_handoff_permute_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_main.c',
+        note='axis3 wave9: multi-TU HFA struct-return plus variadic epoch/handoff edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave9_multitu_abi_hfa_struct_return_variadic_epoch_handoff_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_main.c',
+        note='axis3 wave10: multi-TU HFA struct-return plus variadic frontier/fold edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave10_multitu_abi_hfa_struct_return_variadic_frontier_fold_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_main.c',
+        note='axis3 wave11: multi-TU HFA struct-return plus variadic checkpoint/fold edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave11_multitu_abi_hfa_struct_return_variadic_checkpoint_fold_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_main.c',
+        note='axis3 wave12: multi-TU HFA struct-return plus variadic rotation/fold edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave12_multitu_abi_hfa_struct_return_variadic_rotation_fold_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_main.c',
+        note='axis3 wave13: multi-TU HFA struct-return plus variadic epoch-rotation/fold edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave13_multitu_abi_hfa_struct_return_variadic_epoch_rotation_fold_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_main.c',
+        note='axis3 wave14: multi-TU HFA struct-return plus variadic frontier-epoch/fold edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave14_multitu_abi_hfa_struct_return_variadic_frontier_epoch_fold_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_main.c',
+        note='axis3 wave15: multi-TU HFA struct-return plus variadic regstack/frontier fold edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave15_multitu_abi_hfa_struct_return_variadic_regstack_frontier_fold_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_main.c',
+        note='axis3 wave16: multi-TU HFA struct-return plus variadic regwindow/handoff fold edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave16_multitu_abi_hfa_struct_return_variadic_regwindow_handoff_fold_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge',
+        source=PROBE_DIR / 'runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_main.c',
+        note='axis3 wave17: multi-TU HFA struct-return plus variadic spill/checkpoint fold edge lane should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_main.c', PROBE_DIR / 'runtime/14__probe_axis3_wave17_multitu_abi_hfa_struct_return_variadic_spill_checkpoint_fold_edge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_control_goto_cleanup_counter_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_control_goto_cleanup_counter_matrix.c',
+        note='goto cleanup edges across nested loops should preserve deterministic control/data flow',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_vla_sizeof_rebind_stride_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_vla_sizeof_rebind_stride_matrix.c',
+        note='VLA rebind + sizeof(row) stride behavior should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_fnptr_array_ternary_reseed_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_fnptr_array_ternary_reseed_matrix.c',
+        note='function-pointer array + ternary reseed chain should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_ptrdiff_signed_index_rebase_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_ptrdiff_signed_index_rebase_matrix.c',
+        note='signed/unsigned index rebasing and ptrdiff scaling should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_local_counter_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_local_counter_bridge_main.c',
+        note='multi-TU static local state should persist across calls and match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_local_counter_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_local_counter_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_storage_slice_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_storage_slice_bridge_main.c',
+        note='multi-TU static storage slice updates should remain deterministic and match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_storage_slice_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_storage_slice_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_array_window_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_bridge_main.c',
+        note='multi-TU static array window updates and fold checks should match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_array_window_negative_seed_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_negative_seed_bridge_main.c',
+        note='multi-TU static array window lane with negative seed rebasing should match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_negative_seed_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_negative_seed_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_array_window_reprime_sequence',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_reprime_sequence_main.c',
+        note='multi-TU static array reprime sequence should remain deterministic and match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_reprime_sequence_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_array_window_reprime_sequence_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_vla_row_pointer_handoff_rebase_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_vla_row_pointer_handoff_rebase_matrix.c',
+        note='VLA row-pointer handoff/rebase and stride math should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_fnptr_struct_state_reseed_loop_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_fnptr_struct_state_reseed_loop_matrix.c',
+        note='function-pointer struct state reseed loops should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_fnptr_rotation_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_fnptr_rotation_bridge_main.c',
+        note='multi-TU function-pointer rotation bridge should match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_fnptr_rotation_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_fnptr_rotation_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_pair_fold_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_pair_fold_bridge_main.c',
+        note='multi-TU struct pair fold/update bridge should match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_pair_fold_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_pair_fold_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_vla_column_pointer_stride_mix',
+        source=PROBE_DIR / 'runtime/14__probe_vla_column_pointer_stride_mix.c',
+        note='VLA column-pointer stride arithmetic should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_switch_goto_reentry_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_switch_goto_reentry_matrix.c',
+        note='switch+goto reentry control-flow matrix should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_restrict_nonoverlap_accumulate_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_restrict_nonoverlap_accumulate_matrix.c',
+        note='restrict-qualified non-overlap accumulate matrix should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_restrict_vla_window_stride_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_restrict_vla_window_stride_matrix.c',
+        note='restrict-qualified VLA window/stride matrix should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_restrict_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_restrict_bridge_main.c',
+        note='multi-TU restrict bridge pipeline should match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_restrict_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_restrict_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_restrict_alias_overlap_ub_path',
+        source=PROBE_DIR / 'runtime/14__probe_restrict_alias_overlap_ub_path.c',
+        note='restrict overlap UB lane should be tracked deterministically',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_volatile_restrict_store_order_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_volatile_restrict_store_order_matrix.c',
+        note='volatile+restrict store-order matrix should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_restrict_nonoverlap_rebind_chain',
+        source=PROBE_DIR / 'runtime/14__probe_restrict_nonoverlap_rebind_chain.c',
+        note='restrict non-overlap rebind chain should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_volatile_fnptr_control_chain',
+        source=PROBE_DIR / 'runtime/14__probe_volatile_fnptr_control_chain.c',
+        note='volatile-gated function-pointer control chain should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_long_double_call_chain_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_long_double_call_chain_matrix.c',
+        note='long double call-chain arithmetic should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_long_double_variadic_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_long_double_variadic_bridge.c',
+        note='long double variadic bridge should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_long_double_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_long_double_bridge_main.c',
+        note='multi-TU long double bridge should match clang',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_long_double_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_long_double_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_long_double_struct_pass_return',
+        source=PROBE_DIR / 'runtime/14__probe_long_double_struct_pass_return.c',
+        note='long double struct pass/return ABI path should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_long_double_variadic_struct_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_long_double_variadic_struct_bridge.c',
+        note='long double variadic struct bridge should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_long_double_bridge_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_complex_long_double_bridge_matrix.c',
+        note='complex<long double> bridge matrix should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_long_double_variadic_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_long_double_variadic_bridge_main.c',
+        note='multi-TU long double variadic bridge should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_long_double_variadic_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_long_double_variadic_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_addsub_eq_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_complex_addsub_eq_matrix.c',
+        note='complex add/sub and equality matrix should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_unary_scalar_promotion_chain',
+        source=PROBE_DIR / 'runtime/14__probe_complex_unary_scalar_promotion_chain.c',
+        note='complex unary and scalar-promotion chain should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_param_return_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_complex_param_return_bridge.c',
+        note='complex function parameter/return bridge should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_complex_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_complex_bridge_main.c',
+        note='multi-TU complex call bridge should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_complex_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_complex_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_struct_pass_return_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_complex_struct_pass_return_bridge.c',
+        note='complex-field struct pass/return bridge should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_struct_array_pass_return_chain',
+        source=PROBE_DIR / 'runtime/14__probe_complex_struct_array_pass_return_chain.c',
+        note='complex-array struct pass/return chain should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_nested_struct_field_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_complex_nested_struct_field_bridge.c',
+        note='nested struct field path with complex values should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_struct_ternary_select_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_complex_struct_ternary_select_bridge.c',
+        note='ternary selection over structs carrying complex values should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_complex_struct_pass_return',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_complex_struct_pass_return_main.c',
+        note='multi-TU complex-field struct pass/return should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_complex_struct_pass_return_main.c', PROBE_DIR / 'runtime/14__probe_multitu_complex_struct_pass_return_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_complex_nested_route',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_complex_nested_route_main.c',
+        note='multi-TU nested struct route with complex field should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_complex_nested_route_main.c', PROBE_DIR / 'runtime/14__probe_multitu_complex_nested_route_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_struct_pointer_roundtrip_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_complex_struct_pointer_roundtrip_bridge.c',
+        note='pointer roundtrip reads over struct complex fields should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_ptr_field_writeback_direct',
+        source=PROBE_DIR / 'runtime/14__probe_complex_ptr_field_writeback_direct.c',
+        note='direct pointer-member writeback over complex fields should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_ptr_field_compound_writeback',
+        source=PROBE_DIR / 'runtime/14__probe_complex_ptr_field_compound_writeback.c',
+        note='compound pointer-member writeback over complex fields should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_ptr_field_mul_writeback',
+        source=PROBE_DIR / 'runtime/14__probe_complex_ptr_field_mul_writeback.c',
+        note="complex pointer-member '*=' writeback should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_ptr_field_div_writeback',
+        source=PROBE_DIR / 'runtime/14__probe_complex_ptr_field_div_writeback.c',
+        note="complex pointer-member '/=' writeback should match clang runtime behavior",
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_mul_div_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_complex_mul_div_matrix.c',
+        note='complex multiply/divide matrix should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_scalar_mul_div_chain',
+        source=PROBE_DIR / 'runtime/14__probe_complex_scalar_mul_div_chain.c',
+        note='complex scalar multiply/divide promotion chain should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_struct_copy_assign_chain',
+        source=PROBE_DIR / 'runtime/14__probe_complex_struct_copy_assign_chain.c',
+        note='copy/assign chains over struct complex fields should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_layout_size_align_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_complex_layout_size_align_matrix.c',
+        note='complex size/alignment and field-offset matrix should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_layout_nested_offset_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_complex_layout_nested_offset_matrix.c',
+        note='nested struct offsets around complex fields should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_layout_array_stride_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_complex_layout_array_stride_matrix.c',
+        note='array stride and aggregate value flow for structs with complex fields should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_complex_layout_union_overlay_roundtrip',
+        source=PROBE_DIR / 'runtime/14__probe_complex_layout_union_overlay_roundtrip.c',
+        note='union overlay roundtrip through struct/flat complex views should match clang runtime behavior',
+    ),
+]
+
+DIAG_PROBES = []
+
+DIAG_JSON_PROBES = []

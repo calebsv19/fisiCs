@@ -13,6 +13,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from failure_taxonomy import (
+    classify_real_project_blocker,
+    format_real_project_blocker_line,
+)
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REAL_PROJECTS_ROOT = SCRIPT_DIR.parent
@@ -273,6 +278,14 @@ def run_stage_a(
         sources = [s for s in sources if args.filter in s.relative_to(project_root).as_posix()]
     if args.limit > 0:
         sources = sources[: args.limit]
+    if not sources:
+        detail = []
+        if args.filter:
+            detail.append(f"filter={args.filter}")
+        if args.limit > 0:
+            detail.append(f"limit={args.limit}")
+        suffix = f" ({', '.join(detail)})" if detail else ""
+        raise RuntimeError(f"no stage A sources selected{suffix}")
 
     latest_stage_dir = (
         DEFAULT_ARTIFACT_ROOT / "latest" / project["name"] / DEFAULT_STAGE_KEY
@@ -340,12 +353,25 @@ def run_stage_a(
                 clang_failure_class = classify_failure(clang_result)
             parity = parity_label(fisics_result, clang_result)
             is_blocker = (not fisics_result.ok) and (clang_result is None or clang_result.ok)
+            blocker_classification = None
+            if is_blocker:
+                blocker_classification = classify_real_project_blocker(
+                    DEFAULT_STAGE_KEY,
+                    {
+                        "source": rel_source.as_posix(),
+                        "parity": parity,
+                        "fisics": {
+                            "failure_class": fisics_failure_class,
+                        },
+                    },
+                )
 
             results.append(
                 {
                     "source": rel_source.as_posix(),
                     "parity": parity,
                     "is_blocker": is_blocker,
+                    "blocker_classification": blocker_classification,
                     "fisics": {
                         "ok": fisics_result.ok,
                         "returncode": fisics_result.returncode,
@@ -435,6 +461,9 @@ def print_summary(report: dict[str, Any], latest_path: Path, history_path: Path)
     parity_counts = summary["parity_counts"]
     print(f"project={report['project']['name']} stage={report['stage']} sources={report['sources_total']}")
     print(f"blockers={summary['blockers']} parity={json.dumps(parity_counts, sort_keys=True)}")
+    for row in report["results"]:
+        if row["is_blocker"]:
+            print(format_real_project_blocker_line(report["stage"], row))
     print(f"timing_ms fisics={summary['fisics_total_ms']} clang={summary['clang_total_ms']}")
     print(f"latest_report={latest_path}")
     print(f"history_report={history_path}")

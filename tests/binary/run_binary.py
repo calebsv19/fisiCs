@@ -287,11 +287,62 @@ def classify_compile_failure(output_text):
     return "compile_fail"
 
 
+def classify_binary_trust_layer(category, input_count, level, differential_with):
+    if category == "runtime" or differential_with:
+        return "Layer E"
+    if category in ("link_fail", "link_only") or input_count > 1 or level == "link":
+        return "Layer D"
+    return "Layer C"
+
+
+def classify_binary_owner_lane(category, input_count, level):
+    if category == "runtime":
+        return "binary-runtime"
+    if category in ("link_fail", "link_only") or input_count > 1 or level == "link":
+        return "binary-link"
+    return "binary-compile"
+
+
+def emit_binary_failure(
+    message,
+    *,
+    failure_kind,
+    severity,
+    raw_status,
+    test_id=None,
+    category="",
+    input_count=1,
+    level="",
+    differential_with="",
+):
+    trust_layer = classify_binary_trust_layer(
+        category, input_count, level, differential_with
+    )
+    owner_lane = (
+        classify_binary_owner_lane(category, input_count, level)
+        if (category or input_count > 1 or level)
+        else "binary-harness"
+    )
+    prefix = "FAIL"
+    if test_id:
+        prefix += f" {test_id}"
+    print(
+        f"{prefix} [failure_kind={failure_kind} severity={severity} "
+        f"source_lane=binary trust_layer={trust_layer} owner_lane={owner_lane} "
+        f"raw_status={raw_status}]: {message}"
+    )
+
+
 def main():
     raw_bin_path = sys.argv[1] if len(sys.argv) > 1 else "./fisics"
     bin_path = str(Path(raw_bin_path).resolve())
     if not Path(bin_path).exists():
-        print(f"FAIL: compiler binary not found at {bin_path}")
+        emit_binary_failure(
+            f"compiler binary not found at {bin_path}",
+            failure_kind="harness_error",
+            severity="medium",
+            raw_status="missing_compiler_binary",
+        )
         return 1
     update = os.environ.get("UPDATE_BINARY", "0") == "1" or "--update" in sys.argv
 
@@ -302,7 +353,13 @@ def main():
     has_selector = bool(filt or prefixes or levels or manifests)
 
     if update and not has_selector:
-        print("FAIL: UPDATE_BINARY requires selector (BINARY_FILTER/BINARY_PREFIX/BINARY_LEVEL/BINARY_MANIFEST)")
+        emit_binary_failure(
+            "UPDATE_BINARY requires selector "
+            "(BINARY_FILTER/BINARY_PREFIX/BINARY_LEVEL/BINARY_MANIFEST)",
+            failure_kind="harness_error",
+            severity="medium",
+            raw_status="update_requires_selector",
+        )
         return 1
 
     meta = load_meta()
@@ -342,12 +399,14 @@ def main():
         env_overrides = test.get("env", {})
         run_env_overrides = test.get("run_env", {})
         profile_name = str(test.get("resource_profile", "default"))
+        differential_with = str(test.get("differential_with", "")).strip()
 
         inputs = test.get("inputs")
         if inputs:
             input_paths = [resolve_rel_path(p) for p in inputs]
         else:
             input_paths = [resolve_rel_path(test["input"])]
+        input_count = len(input_paths)
 
         run_dir = ARTIFACT_ROOT / test_id
         if run_dir.exists():
@@ -358,15 +417,32 @@ def main():
         try:
             pkg_config_flags = resolve_pkg_config_flags(test, env_overrides)
         except RuntimeError as exc:
-            print(f"FAIL {test_id} [harness_error]: {exc}")
+            emit_binary_failure(
+                str(exc),
+                failure_kind="harness_error",
+                severity="medium",
+                raw_status="harness_error",
+                test_id=test_id,
+                category=category,
+                input_count=input_count,
+                level=test_level,
+                differential_with=differential_with,
+            )
             failures += 1
             continue
 
         if category == "compile_only" or category == "compile_fail":
             if len(input_paths) != 1:
-                print(
-                    f"FAIL {test_id} [harness_error]: "
-                    f"{category} requires exactly one input"
+                emit_binary_failure(
+                    f"{category} requires exactly one input",
+                    failure_kind="harness_error",
+                    severity="medium",
+                    raw_status="harness_error",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
                 )
                 failures += 1
                 continue
@@ -388,7 +464,17 @@ def main():
                 + ["-o", str(output_path)]
             )
         else:
-            print(f"FAIL {test_id} [harness_error]: unsupported category '{category}'")
+            emit_binary_failure(
+                f"unsupported category '{category}'",
+                failure_kind="harness_error",
+                severity="medium",
+                raw_status="harness_error",
+                test_id=test_id,
+                category=category,
+                input_count=input_count,
+                level=test_level,
+                differential_with=differential_with,
+            )
             failures += 1
             continue
 
@@ -404,13 +490,30 @@ def main():
             if expect_compile_timeout:
                 print(f"PASS {test_id}")
             else:
-                print(f"FAIL {test_id} [compile_timeout]: compiler timed out after {compile_timeout}s")
+                emit_binary_failure(
+                    f"compiler timed out after {compile_timeout}s",
+                    failure_kind="ir_or_codegen_fail",
+                    severity="high",
+                    raw_status="compile_timeout",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
+                )
                 failures += 1
             continue
         if expect_compile_timeout:
-            print(
-                f"FAIL {test_id} [compile_timeout_unexpected]: "
-                f"expected compiler timeout after {compile_timeout}s"
+            emit_binary_failure(
+                f"expected compiler timeout after {compile_timeout}s",
+                failure_kind="harness_error",
+                severity="medium",
+                raw_status="compile_timeout_unexpected",
+                test_id=test_id,
+                category=category,
+                input_count=input_count,
+                level=test_level,
+                differential_with=differential_with,
             )
             failures += 1
             continue
@@ -425,9 +528,17 @@ def main():
                 if fragment.lower() in lowered_output:
                     found_fragments.append(fragment)
             if found_fragments:
-                print(
-                    f"FAIL {test_id} [compile_output_forbidden]: "
-                    f"found forbidden compile output fragments: {', '.join(found_fragments)}"
+                emit_binary_failure(
+                    "found forbidden compile output fragments: "
+                    f"{', '.join(found_fragments)}",
+                    failure_kind="wrong_diagnostics",
+                    severity="medium",
+                    raw_status="compile_output_forbidden",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
                 )
                 if compile_result["output"]:
                     print(compile_result["output"])
@@ -436,14 +547,31 @@ def main():
 
         if category == "link_fail":
             if compile_result["exit_code"] == 0:
-                print(f"FAIL {test_id} [compile_succeeded_unexpected]: expected link failure")
+                emit_binary_failure(
+                    "expected link failure",
+                    failure_kind="link_fail",
+                    severity="high",
+                    raw_status="compile_succeeded_unexpected",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
+                )
                 failures += 1
                 continue
             failure_kind = classify_compile_failure(compile_result["output"])
             if failure_kind != "link_fail":
-                print(
-                    f"FAIL {test_id} [compile_fail_unexpected]: expected link-stage failure, "
-                    f"got compile-stage failure"
+                emit_binary_failure(
+                    "expected link-stage failure, got compile-stage failure",
+                    failure_kind="ir_or_codegen_fail",
+                    severity="high",
+                    raw_status="compile_fail_unexpected",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
                 )
                 if compile_result["output"]:
                     print(compile_result["output"])
@@ -456,9 +584,17 @@ def main():
                 if fragment.lower() not in lowered_output:
                     missing_contains.append(fragment)
             if missing_contains:
-                print(
-                    f"FAIL {test_id} [link_fail_unexpected]: missing expected output fragments: "
-                    f"{', '.join(missing_contains)}"
+                emit_binary_failure(
+                    "missing expected output fragments: "
+                    f"{', '.join(missing_contains)}",
+                    failure_kind="wrong_diagnostics",
+                    severity="medium",
+                    raw_status="link_fail_unexpected",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
                 )
                 if compile_result["output"]:
                     print(compile_result["output"])
@@ -469,14 +605,31 @@ def main():
 
         if category == "compile_fail":
             if compile_result["exit_code"] == 0:
-                print(f"FAIL {test_id} [compile_succeeded_unexpected]: expected compile failure")
+                emit_binary_failure(
+                    "expected compile failure",
+                    failure_kind="wrong_diagnostics",
+                    severity="high",
+                    raw_status="compile_succeeded_unexpected",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
+                )
                 failures += 1
                 continue
             failure_kind = classify_compile_failure(compile_result["output"])
             if failure_kind != "compile_fail":
-                print(
-                    f"FAIL {test_id} [link_fail_unexpected]: expected compile-stage failure, "
-                    f"got link-stage failure"
+                emit_binary_failure(
+                    "expected compile-stage failure, got link-stage failure",
+                    failure_kind="link_fail",
+                    severity="high",
+                    raw_status="link_fail_unexpected",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
                 )
                 if compile_result["output"]:
                     print(compile_result["output"])
@@ -489,9 +642,17 @@ def main():
                 if fragment.lower() not in lowered_output:
                     missing_contains.append(fragment)
             if missing_contains:
-                print(
-                    f"FAIL {test_id} [compile_fail_unexpected]: missing expected output fragments: "
-                    f"{', '.join(missing_contains)}"
+                emit_binary_failure(
+                    "missing expected output fragments: "
+                    f"{', '.join(missing_contains)}",
+                    failure_kind="wrong_diagnostics",
+                    severity="medium",
+                    raw_status="compile_fail_unexpected",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
                 )
                 if compile_result["output"]:
                     print(compile_result["output"])
@@ -501,15 +662,44 @@ def main():
             continue
 
         if compile_result["exit_code"] != 0:
-            failure_kind = classify_compile_failure(compile_result["output"])
-            fail_code = "link_fail_unexpected" if failure_kind == "link_fail" else "compile_fail_unexpected"
-            print(f"FAIL {test_id} [{fail_code}]: compiler exited {compile_result['exit_code']}")
+            compile_failure_kind = classify_compile_failure(compile_result["output"])
+            fail_code = (
+                "link_fail_unexpected"
+                if compile_failure_kind == "link_fail"
+                else "compile_fail_unexpected"
+            )
+            canonical_kind = (
+                "link_fail"
+                if compile_failure_kind == "link_fail"
+                else "ir_or_codegen_fail"
+            )
+            emit_binary_failure(
+                f"compiler exited {compile_result['exit_code']}",
+                failure_kind=canonical_kind,
+                severity="high",
+                raw_status=fail_code,
+                test_id=test_id,
+                category=category,
+                input_count=input_count,
+                level=test_level,
+                differential_with=differential_with,
+            )
             if compile_result["output"]:
                 print(compile_result["output"])
             failures += 1
             continue
         if not output_path.exists():
-            print(f"FAIL {test_id} [harness_error]: expected output missing: {output_path}")
+            emit_binary_failure(
+                f"expected output missing: {output_path}",
+                failure_kind="harness_error",
+                severity="medium",
+                raw_status="harness_error",
+                test_id=test_id,
+                category=category,
+                input_count=input_count,
+                level=test_level,
+                differential_with=differential_with,
+            )
             failures += 1
             continue
 
@@ -528,7 +718,17 @@ def main():
             profile_name=profile_name,
         )
         if run_result["timed_out"]:
-            print(f"FAIL {test_id} [runtime_timeout]: program timed out after {run_timeout}s")
+            emit_binary_failure(
+                f"program timed out after {run_timeout}s",
+                failure_kind="runtime_crash",
+                severity="critical",
+                raw_status="runtime_timeout",
+                test_id=test_id,
+                category=category,
+                input_count=input_count,
+                level=test_level,
+                differential_with=differential_with,
+            )
             failures += 1
             continue
 
@@ -536,12 +736,30 @@ def main():
         try:
             expect_exit = int(test.get("expect_exit", 0))
         except (TypeError, ValueError):
-            print(f"FAIL {test_id} [harness_error]: expect_exit must be an integer")
+            emit_binary_failure(
+                "expect_exit must be an integer",
+                failure_kind="harness_error",
+                severity="medium",
+                raw_status="harness_error",
+                test_id=test_id,
+                category=category,
+                input_count=input_count,
+                level=test_level,
+                differential_with=differential_with,
+            )
             failures += 1
             continue
         if run_result["exit_code"] != expect_exit:
-            print(
-                f"FAIL {test_id} [runtime_exit_mismatch]: expected {expect_exit}, got {run_result['exit_code']}"
+            emit_binary_failure(
+                f"expected {expect_exit}, got {run_result['exit_code']}",
+                failure_kind="runtime_mismatch",
+                severity="critical",
+                raw_status="runtime_exit_mismatch",
+                test_id=test_id,
+                category=category,
+                input_count=input_count,
+                level=test_level,
+                differential_with=differential_with,
             )
             failures += 1
             test_failed = True
@@ -556,19 +774,49 @@ def main():
                     path.write_text(actual, encoding="utf-8")
                     return
                 if not path.exists():
-                    print(f"FAIL {test_id} [harness_error]: missing expectation {path}")
+                    emit_binary_failure(
+                        f"missing expectation {path}",
+                        failure_kind="harness_error",
+                        severity="medium",
+                        raw_status="harness_error",
+                        test_id=test_id,
+                        category=category,
+                        input_count=input_count,
+                        level=test_level,
+                        differential_with=differential_with,
+                    )
                     failures += 1
                     test_failed = True
                     return
                 expected = path.read_text(encoding="utf-8")
                 if expected != actual:
-                    print(f"FAIL {test_id} [runtime_{kind}_mismatch]: mismatch in {path.name}")
+                    emit_binary_failure(
+                        f"mismatch in {path.name}",
+                        failure_kind="runtime_mismatch",
+                        severity="critical",
+                        raw_status=f"runtime_{kind}_mismatch",
+                        test_id=test_id,
+                        category=category,
+                        input_count=input_count,
+                        level=test_level,
+                        differential_with=differential_with,
+                    )
                     print(diff_text(expected, actual, path))
                     failures += 1
                     test_failed = True
             else:
                 if actual != "":
-                    print(f"FAIL {test_id} [runtime_{kind}_mismatch]: expected empty {kind}")
+                    emit_binary_failure(
+                        f"expected empty {kind}",
+                        failure_kind="runtime_mismatch",
+                        severity="critical",
+                        raw_status=f"runtime_{kind}_mismatch",
+                        test_id=test_id,
+                        category=category,
+                        input_count=input_count,
+                        level=test_level,
+                        differential_with=differential_with,
+                    )
                     failures += 1
                     test_failed = True
 
@@ -579,15 +827,33 @@ def main():
         if expected_files:
             for file_spec in expected_files:
                 if not isinstance(file_spec, dict) or "path" not in file_spec:
-                    print(f"FAIL {test_id} [harness_error]: expected_files entries require 'path'")
+                    emit_binary_failure(
+                        "expected_files entries require 'path'",
+                        failure_kind="harness_error",
+                        severity="medium",
+                        raw_status="harness_error",
+                        test_id=test_id,
+                        category=category,
+                        input_count=input_count,
+                        level=test_level,
+                        differential_with=differential_with,
+                    )
                     failures += 1
                     test_failed = True
                     continue
                 rel_path = str(file_spec["path"])
                 full_path = run_dir / rel_path
                 if not full_path.exists():
-                    print(
-                        f"FAIL {test_id} [harness_error]: expected runtime file missing: {full_path}"
+                    emit_binary_failure(
+                        f"expected runtime file missing: {full_path}",
+                        failure_kind="runtime_mismatch",
+                        severity="critical",
+                        raw_status="runtime_file_missing",
+                        test_id=test_id,
+                        category=category,
+                        input_count=input_count,
+                        level=test_level,
+                        differential_with=differential_with,
                     )
                     failures += 1
                     test_failed = True
@@ -596,14 +862,21 @@ def main():
                     actual_content = full_path.read_text(encoding="utf-8")
                     expected_content = str(file_spec["content"])
                     if actual_content != expected_content:
-                        print(
-                            f"FAIL {test_id} [harness_error]: runtime file content mismatch for {rel_path}"
+                        emit_binary_failure(
+                            f"runtime file content mismatch for {rel_path}",
+                            failure_kind="runtime_mismatch",
+                            severity="critical",
+                            raw_status="runtime_file_mismatch",
+                            test_id=test_id,
+                            category=category,
+                            input_count=input_count,
+                            level=test_level,
+                            differential_with=differential_with,
                         )
                         print(diff_text(expected_content, actual_content, full_path))
                         failures += 1
                         test_failed = True
 
-        differential_with = str(test.get("differential_with", "")).strip()
         if not test_failed and differential_with:
             ub = bool(test.get("ub", False))
             impl_defined = bool(test.get("impl_defined", False))
@@ -616,8 +889,16 @@ def main():
                 skipped += 1
                 continue
             if differential_with != "clang":
-                print(
-                    f"FAIL {test_id} [harness_error]: unsupported differential_with='{differential_with}'"
+                emit_binary_failure(
+                    f"unsupported differential_with='{differential_with}'",
+                    failure_kind="harness_error",
+                    severity="medium",
+                    raw_status="harness_error",
+                    test_id=test_id,
+                    category=category,
+                    input_count=input_count,
+                    level=test_level,
+                    differential_with=differential_with,
                 )
                 failures += 1
                 test_failed = True
@@ -664,24 +945,46 @@ def main():
                 )
 
                 if clang_compile["timed_out"]:
-                    print(
-                        f"FAIL {test_id} [differential_compile_timeout]: "
-                        f"clang timed out after {clang_compile_timeout}s"
+                    emit_binary_failure(
+                        f"clang timed out after {clang_compile_timeout}s",
+                        failure_kind="harness_error",
+                        severity="medium",
+                        raw_status="differential_compile_timeout",
+                        test_id=test_id,
+                        category=category,
+                        input_count=input_count,
+                        level=test_level,
+                        differential_with=differential_with,
                     )
                     failures += 1
                     test_failed = True
                 elif clang_compile["exit_code"] != 0:
-                    print(
-                        f"FAIL {test_id} [differential_compile_fail]: "
-                        f"clang exited {clang_compile['exit_code']}"
+                    emit_binary_failure(
+                        f"clang exited {clang_compile['exit_code']}",
+                        failure_kind="harness_error",
+                        severity="medium",
+                        raw_status="differential_compile_fail",
+                        test_id=test_id,
+                        category=category,
+                        input_count=input_count,
+                        level=test_level,
+                        differential_with=differential_with,
                     )
                     if clang_compile["output"]:
                         print(clang_compile["output"])
                     failures += 1
                     test_failed = True
                 elif not clang_output.exists():
-                    print(
-                        f"FAIL {test_id} [differential_compile_fail]: clang output missing: {clang_output}"
+                    emit_binary_failure(
+                        f"clang output missing: {clang_output}",
+                        failure_kind="harness_error",
+                        severity="medium",
+                        raw_status="differential_compile_fail",
+                        test_id=test_id,
+                        category=category,
+                        input_count=input_count,
+                        level=test_level,
+                        differential_with=differential_with,
                     )
                     failures += 1
                     test_failed = True
@@ -695,30 +998,61 @@ def main():
                         profile_name=profile_name,
                     )
                     if clang_run["timed_out"]:
-                        print(
-                            f"FAIL {test_id} [differential_runtime_timeout]: "
-                            f"clang binary timed out after {clang_run_timeout}s"
+                        emit_binary_failure(
+                            f"clang binary timed out after {clang_run_timeout}s",
+                            failure_kind="harness_error",
+                            severity="medium",
+                            raw_status="differential_runtime_timeout",
+                            test_id=test_id,
+                            category=category,
+                            input_count=input_count,
+                            level=test_level,
+                            differential_with=differential_with,
                         )
                         failures += 1
                         test_failed = True
                     else:
                         if run_result["exit_code"] != clang_run["exit_code"]:
-                            print(
-                                f"FAIL {test_id} [differential_mismatch]: "
-                                f"exit mismatch fisics={run_result['exit_code']} clang={clang_run['exit_code']}"
+                            emit_binary_failure(
+                                "exit mismatch "
+                                f"fisics={run_result['exit_code']} clang={clang_run['exit_code']}",
+                                failure_kind="runtime_mismatch",
+                                severity="critical",
+                                raw_status="differential_mismatch",
+                                test_id=test_id,
+                                category=category,
+                                input_count=input_count,
+                                level=test_level,
+                                differential_with=differential_with,
                             )
                             failures += 1
                             test_failed = True
                         if run_result["stdout"] != clang_run["stdout"]:
-                            print(
-                                f"FAIL {test_id} [differential_mismatch]: stdout mismatch vs clang"
+                            emit_binary_failure(
+                                "stdout mismatch vs clang",
+                                failure_kind="runtime_mismatch",
+                                severity="critical",
+                                raw_status="differential_mismatch",
+                                test_id=test_id,
+                                category=category,
+                                input_count=input_count,
+                                level=test_level,
+                                differential_with=differential_with,
                             )
                             print(diff_text(clang_run["stdout"], run_result["stdout"], "clang.stdout"))
                             failures += 1
                             test_failed = True
                         if run_result["stderr"] != clang_run["stderr"]:
-                            print(
-                                f"FAIL {test_id} [differential_mismatch]: stderr mismatch vs clang"
+                            emit_binary_failure(
+                                "stderr mismatch vs clang",
+                                failure_kind="runtime_mismatch",
+                                severity="critical",
+                                raw_status="differential_mismatch",
+                                test_id=test_id,
+                                category=category,
+                                input_count=input_count,
+                                level=test_level,
+                                differential_with=differential_with,
                             )
                             print(diff_text(clang_run["stderr"], run_result["stderr"], "clang.stderr"))
                             failures += 1
@@ -731,7 +1065,12 @@ def main():
         print(f"\n{failures} failing, {skipped} skipped")
         return 1
     if has_selector and selected == 0:
-        print("FAIL: selector matched 0 binary tests")
+        emit_binary_failure(
+            "selector matched 0 binary tests",
+            failure_kind="harness_error",
+            severity="medium",
+            raw_status="selector_zero_match",
+        )
         return 1
     if skipped:
         print(f"\n0 failing, {skipped} skipped")

@@ -2,11 +2,11 @@
 
 This document defines the `make final` timing capture system.
 The goal is to track full-suite runtime as validation coverage grows.
-Last updated: 2026-04-22.
+Last updated: 2026-04-25.
 
 ## Scope
 
-- Measure end-to-end wall time for `make -C /Users/calebsv/Desktop/CodeWork/fisiCs final`.
+- Measure end-to-end wall time for `make final` from the repository root.
 - Record current suite size from harness output (`PASS` / `FAIL` / `SKIP` counts).
 - Track average seconds per test (`median_seconds / total_count`) for trend comparisons.
 - Keep detailed time-series data in maintainer audit storage configured by timing make variables.
@@ -37,6 +37,9 @@ The timing system writes using make variables:
 - `FINAL_TIMING_NOTES` (optional notes target when `FINAL_TIMING_NOTE` or `--note` is provided)
 
 Defaults point to maintainer/internal audit locations and can be overridden per run.
+
+Within the public trust ladder, this is the `Tier 7` maintainer checkpoint from
+`docs/compiler_test_confidence_tiers.md`, not the normal inner-loop validation path.
 
 ## SQLite Mirror And Rollups
 

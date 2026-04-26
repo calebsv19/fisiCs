@@ -232,7 +232,7 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
             parsedTypeFree(&decl.type);
             return NULL;
         }
-        ParsedType funcReturnType = parsedTypeFunctionReturnType(&decl.type);
+        ParsedType funcReturnType = parsedTypeDeclaredFunctionReturnType(&decl.type);
         ASTNode* funcName = decl.identifier;
         ASTNode** paramList = decl.functionParameters;
         size_t paramCount = decl.functionParamCount;

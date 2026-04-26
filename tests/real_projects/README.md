@@ -66,15 +66,38 @@ python3 tests/real_projects/runners/run_project_compile_tests.py --project datal
 python3 tests/real_projects/runners/run_project_compile_tests.py --project datalab --skip-clang
 ```
 
+Fail-closed selector rule:
+- if `--filter` and/or `--limit` reduces Stage A to zero selected sources, the runner exits with an error instead of reporting a green no-op pass
+
 Exit codes:
 - `0`: no Stage-A blockers (`fisics` compile failures with clang pass)
 - `2`: blockers present
 - `1`: runner/config error
 
+Blocker reporting:
+- Stage `A` through `E` blocker summaries now emit canonical classification with `failure_kind`, `severity`, `source_lane=real_project`, `trust_layer=Layer F`, `owner_lane`, and preserved `raw_status`
+- JSON report rows now carry `blocker_classification` for blocker cases so downstream ledgers and reduction work can reuse the same vocabulary
+
+## Regression Intake From Real Projects
+
+Real-project failures should not remain only in Stage `A` through `F` reports.
+
+Preferred path:
+
+1. reproduce the blocker in the relevant stage
+2. classify it with `docs/compiler_test_failure_taxonomy.md`
+3. reduce it to a focused repro
+4. route that repro into `tests/final/probes/` if still unstable
+5. promote it into `tests/final/` or `tests/binary/` once the oracle is stable
+6. keep the real-project case only if it still adds canary value
+
+Use `docs/compiler_test_regression_intake.md` as the public contract for this flow.
+
 ## Next Stage Expansion
 
 Stages `A`, `B`, `C`, `D`, `E`, and `F` are active in this scaffold.
-For any expansion, follow ladder order and keep `docs/private_program_docs/fisiCs/active/real_project_failing.md` active-only.
+For any expansion, follow the public stage ladder in order and keep detailed
+blocker ledgers in maintainer documentation rather than this public scaffold.
 
 ## Stage-B Usage
 

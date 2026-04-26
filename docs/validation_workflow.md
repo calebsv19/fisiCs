@@ -38,4 +38,4 @@ Last updated: 2026-04-22.
 - Always prefer fixes that unblock many files at once.
 - If a failure is due to missing third-party headers, document it clearly and skip unless the headers are available.
 - Keep one live tracking doc while a project is in progress to avoid split state.
-- Keep deep triage execution notes in maintainer-only documentation, not in this public workflow guide.
+- Keep deep triage execution notes outside this public workflow guide.

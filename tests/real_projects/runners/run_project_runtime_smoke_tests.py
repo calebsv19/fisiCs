@@ -14,6 +14,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from failure_taxonomy import (
+    classify_real_project_blocker,
+    format_real_project_blocker_line,
+)
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REAL_PROJECTS_ROOT = SCRIPT_DIR.parent
@@ -614,6 +619,19 @@ def run_stage_d(
                     failure_class = "runtime_crash"
                 elif fisics_run_result.returncode != expected_exit_code:
                     failure_class = "runtime"
+            blocker_classification = None
+            if is_blocker:
+                blocker_classification = classify_real_project_blocker(
+                    DEFAULT_STAGE_KEY,
+                    {
+                        "target": target_id,
+                        "parity": parity,
+                        "fisics": {
+                            "failure_phase": failure_phase,
+                            "failure_class": failure_class,
+                        },
+                    },
+                )
 
             results.append(
                 {
@@ -628,6 +646,7 @@ def run_stage_d(
                     },
                     "parity": parity,
                     "is_blocker": is_blocker,
+                    "blocker_classification": blocker_classification,
                     "fisics": {
                         "ok": fisics_ok,
                         "compile_ok": fisics_compile_ok,
@@ -742,6 +761,9 @@ def print_summary(report: dict[str, Any], latest_path: Path, history_path: Path)
     parity_counts = summary["parity_counts"]
     print(f"project={report['project']['name']} stage={report['stage']} targets={report['targets_total']}")
     print(f"blockers={summary['blockers']} parity={json.dumps(parity_counts, sort_keys=True)}")
+    for row in report["results"]:
+        if row["is_blocker"]:
+            print(format_real_project_blocker_line(report["stage"], row))
     print(f"timing_ms fisics={summary['fisics_total_ms']} clang={summary['clang_total_ms']}")
     print(f"latest_report={latest_path}")
     print(f"history_report={history_path}")

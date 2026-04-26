@@ -111,6 +111,13 @@ Current coverage:
 - timeout per test phase (`compile_timeout_sec` / `run_timeout_sec` / `timeout_sec`)
 - basic resource limits by `resource_profile` (`smoke|default|heavy`)
 - fail-closed expectation checks (no implicit pass on missing/mismatched output)
+- failure reporting now emits canonical taxonomy labels on failing paths:
+  - `failure_kind=<...>`
+  - `severity=<...>`
+  - `source_lane=binary`
+  - `trust_layer=<...>`
+  - `owner_lane=<binary-compile|binary-link|binary-runtime>`
+  - `raw_status=<existing binary status code>`
 
 ## Metadata Fields (Phase A)
 

@@ -2,6 +2,9 @@
 
 This is the public-facing test-system overview for `fisiCs`.
 
+For the current authoritative structure and suite map, read
+`docs/compiler_test_architecture.md`.
+
 ## Purpose
 
 The `fisiCs` test system is designed to be fail-closed, reproducible, and practical for contributors.
@@ -11,7 +14,7 @@ Goals:
 - Catch regressions early.
 - Make expected behavior explicit.
 - Keep test additions simple and reviewable.
-- Support both human contributors and agentic tooling workflows.
+- Support both human contributors and automated tooling workflows.
 
 ## Current Test Surface
 
@@ -79,6 +82,8 @@ Deep internal planning, wave execution logs, and maintainer triage artifacts are
 
 ## Related Public Docs
 
+- `docs/compiler_test_architecture.md`
+- `docs/compiler_test_failure_taxonomy.md`
 - `docs/contributor_agent_quickstart.md`
 - `docs/compiler_test_coverage_blueprint.md`
 - `docs/compiler_test_workflow_guide.md`
