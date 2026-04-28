@@ -9,6 +9,7 @@ class RuntimeProbe:
     source: Path
     note: str
     inputs: Sequence[Path] | None = None
+    mixed_clang_inputs: Sequence[Path] | None = None
     extra_differential_compiler: str | None = None
 
 

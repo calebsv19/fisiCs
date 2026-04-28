@@ -309,9 +309,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
             returnType = LLVMVoidTypeInContext(ctx->llvmContext);
         }
         returnType = cg_coerce_function_return_type(ctx, returnType);
-        useVariadicSRet = cg_should_lower_variadic_sret(ctx,
-                                                        returnType,
-                                                        node->functionDef.isVariadic);
+        useVariadicSRet = cg_should_lower_indirect_aggregate_return(ctx, returnType);
         functionIRReturnType = useVariadicSRet
             ? LLVMVoidTypeInContext(ctx->llvmContext)
             : returnType;
@@ -541,6 +539,22 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
                                 incomingParam,
                                 paramAlign,
                                 copySize);
+            } else if (paramValueTypes && paramValueTypes[i] && paramValueTypes[i] != paramType) {
+                LLVMTypeRef valueTy = paramValueTypes[i];
+                LLVMTypeKind valueKind = LLVMGetTypeKind(valueTy);
+                LLVMTypeKind paramKind = LLVMGetTypeKind(paramType);
+                if ((valueKind == LLVMStructTypeKind || valueKind == LLVMArrayTypeKind) &&
+                    (paramKind == LLVMIntegerTypeKind || paramKind == LLVMArrayTypeKind)) {
+                    allocaInst = cg_build_entry_alloca(ctx, valueTy, label);
+                    LLVMValueRef unpacked = cg_unpack_aggregate_from_abi_return(ctx,
+                                                                               incomingParam,
+                                                                               valueTy,
+                                                                               "param.abi.unpack");
+                    LLVMBuildStore(ctx->builder, unpacked, allocaInst);
+                } else {
+                    allocaInst = cg_build_entry_alloca(ctx, paramType, label);
+                    LLVMBuildStore(ctx->builder, incomingParam, allocaInst);
+                }
             } else {
                 allocaInst = cg_build_entry_alloca(ctx, paramType, label);
                 LLVMBuildStore(ctx->builder, incomingParam, allocaInst);
@@ -627,6 +641,7 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     }
     CG_FUNCTION_RETURN(function);
 #undef CG_FUNCTION_RETURN
+    return NULL;
 }
 
 

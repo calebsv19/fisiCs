@@ -28,6 +28,21 @@ static bool parseDeclaratorInternal(Parser* parser,
                                     bool requireIdentifier,
                                     bool captureFunctionParams,
                                     bool topLevel);
+
+static bool declaratorGroupIsTransparentIdentifier(Parser* parser) {
+    if (!parser || parser->currentToken.type != TOKEN_LPAREN) {
+        return false;
+    }
+    Parser probe = cloneParserWithFreshLexer(parser);
+    advance(&probe); // consume '('
+    bool transparent = false;
+    if (probe.currentToken.type == TOKEN_IDENTIFIER) {
+        advance(&probe);
+        transparent = (probe.currentToken.type == TOKEN_RPAREN);
+    }
+    freeParserClone(&probe);
+    return transparent;
+}
 static bool parseFunctionTypeParameterList(Parser* parser, FunctionTypeParseResult* out);
 static void freeFunctionTypeParseResult(FunctionTypeParseResult* out);
 static bool parser_allows_block_pointers(Parser* parser);
@@ -532,6 +547,7 @@ static bool parseDeclaratorInternal(Parser* parser,
         advance(parser);
         sawIdentifier = true;
     } else if (parser->currentToken.type == TOKEN_LPAREN) {
+        bool transparentGroup = declaratorGroupIsTransparentIdentifier(parser);
         advance(parser);
         if (!parseDeclaratorInternal(parser,
                                      type,
@@ -547,7 +563,7 @@ static bool parseDeclaratorInternal(Parser* parser,
             return false;
         }
         advance(parser);
-        groupedDeclarator = true;
+        groupedDeclarator = !transparentGroup;
     } else {
         if (requireIdentifier && !sawIdentifier) {
             printParseError("Expected identifier in declarator", parser);
@@ -612,6 +628,13 @@ static bool parseDeclaratorInternal(Parser* parser,
             fprintf(stderr, "%s%s", (i ? "," : ""), kind);
         }
         fprintf(stderr, "\n");
+    }
+
+    if (trackDirectFunction &&
+        topLevel &&
+        type->derivationCount > 0 &&
+        type->derivations[0].kind == TYPE_DERIVATION_FUNCTION) {
+        decl->declaresFunction = true;
     }
 
     if (requireIdentifier && !decl->identifier) {

@@ -23,9 +23,31 @@ def run_runtime_probe(probe, clang_path):
         fisics_exe = tmp_dir / "fisics.out"
         clang_exe = tmp_dir / "clang.out"
         sources = list(probe.inputs) if probe.inputs else [probe.source]
+        mixed_clang_inputs = list(probe.mixed_clang_inputs) if probe.mixed_clang_inputs else []
+
+        mixed_clang_objects = []
+        for src in mixed_clang_inputs:
+            obj_path = tmp_dir / f"{src.stem}.clang.o"
+            clang_obj_exit, clang_obj_out, clang_obj_timeout = run_cmd(
+                [clang_path or "clang", "-std=c99", "-O0", "-c", str(src), "-o", str(obj_path)],
+                COMPILE_TIMEOUT_SEC,
+            )
+            if clang_obj_timeout:
+                return (
+                    "BLOCKED",
+                    f"clang object compile timeout ({COMPILE_TIMEOUT_SEC}s)",
+                    clang_obj_out.strip(),
+                )
+            if clang_obj_exit != 0:
+                return (
+                    "BLOCKED",
+                    f"clang object compile failed ({clang_obj_exit})",
+                    clang_obj_out.strip(),
+                )
+            mixed_clang_objects.append(obj_path)
 
         fisics_compile_exit, fisics_compile_out, fisics_compile_timeout = run_cmd(
-            [str(FISICS)] + [str(src) for src in sources] + ["-o", str(fisics_exe)],
+            [str(FISICS)] + [str(src) for src in sources] + [str(obj) for obj in mixed_clang_objects] + ["-o", str(fisics_exe)],
             COMPILE_TIMEOUT_SEC,
         )
         if fisics_compile_timeout:
@@ -59,7 +81,7 @@ def run_runtime_probe(probe, clang_path):
             )
 
         clang_compile_exit, clang_compile_out, clang_compile_timeout = run_cmd(
-            [clang_path, "-std=c99", "-O0"] + [str(src) for src in sources] + ["-o", str(clang_exe)],
+            [clang_path, "-std=c99", "-O0"] + [str(src) for src in sources + mixed_clang_inputs] + ["-o", str(clang_exe)],
             COMPILE_TIMEOUT_SEC,
         )
         if clang_compile_timeout:
@@ -104,7 +126,7 @@ def run_runtime_probe(probe, clang_path):
             extra_exe = tmp_dir / f"{extra_compiler_name}.out"
             extra_compile_exit, extra_compile_out, extra_compile_timeout = run_cmd(
                 [extra_compiler_path, "-std=c99", "-O0"]
-                + [str(src) for src in sources]
+                + [str(src) for src in sources + mixed_clang_inputs]
                 + ["-o", str(extra_exe)],
                 COMPILE_TIMEOUT_SEC,
             )

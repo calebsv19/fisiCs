@@ -92,6 +92,7 @@ LLVMValueRef cg_emit_va_intrinsic(CodegenContext* ctx,
 }
 
 LLVMValueRef cg_emit_rewritten_builtin_call(CodegenContext* ctx,
+                                            ASTNode* callNode,
                                             const char* targetName,
                                             LLVMTypeRef returnType,
                                             LLVMValueRef* sourceArgs,
@@ -144,6 +145,14 @@ LLVMValueRef cg_emit_rewritten_builtin_call(CodegenContext* ctx,
                 free(callArgs);
                 return NULL;
             }
+        }
+        if (isVariadic && i >= fixedParamCount) {
+            ASTNode* argNode = NULL;
+            if (callNode && callNode->type == AST_FUNCTION_CALL &&
+                idx < callNode->functionCall.argumentCount) {
+                argNode = callNode->functionCall.arguments[idx];
+            }
+            callArgs[i] = cg_apply_default_promotion(ctx, callArgs[i], argNode);
         }
     }
 

@@ -3,6 +3,7 @@
 #include "codegen_types.h"
 
 #include "codegen_internal.h"
+#include "codegen_private.h"
 #include "codegen_type_cache.h"
 #include "Syntax/const_eval.h"
 #include "Syntax/semantic_model.h"
@@ -249,7 +250,7 @@ static LLVMTypeRef functionPointerType(CodegenContext* ctx, const ParsedType* ty
         params = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * count);
         if (!params) return LLVMPointerType(returnType, 0);
         for (size_t i = 0; i < count; ++i) {
-            params[i] = cg_type_from_parsed(ctx, &type->fpParams[i]);
+            params[i] = cg_lower_parameter_type(ctx, &type->fpParams[i], NULL, NULL);
             if (!params[i]) {
                 params[i] = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
             }
@@ -309,7 +310,10 @@ static LLVMTypeRef buildDerivedType(CodegenContext* ctx, const ParsedType* type,
                                             deriv->as.function.isVariadic ? 1 : 0);
                 }
                 for (size_t i = 0; i < paramCount; ++i) {
-                    params[i] = cg_type_from_parsed(ctx, &deriv->as.function.params[i]);
+                    params[i] = cg_lower_parameter_type(ctx,
+                                                        &deriv->as.function.params[i],
+                                                        NULL,
+                                                        NULL);
                     if (!params[i]) {
                         params[i] = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
                     }

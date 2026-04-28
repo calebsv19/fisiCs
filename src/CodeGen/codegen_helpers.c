@@ -4,6 +4,7 @@
 
 #include "codegen_types.h"
 #include "Syntax/literal_utils.h"
+#include "Syntax/Expr/analyze_expr_internal.h"
 
 #include <llvm-c/Core.h>
 #include <stdio.h>
@@ -249,6 +250,52 @@ static const ParsedType* cg_lookup_function_symbol_return_type(CodegenContext* c
 
 static bool cg_parsed_type_is_complex(const ParsedType* type) {
     return type && (type->isComplex || type->isImaginary);
+}
+
+static bool cg_kind_is_aggregate_like(LLVMTypeKind kind) {
+    return kind == LLVMStructTypeKind || kind == LLVMArrayTypeKind;
+}
+
+static bool cg_kind_is_abi_pack_scalar(LLVMTypeKind kind) {
+    return kind == LLVMIntegerTypeKind || kind == LLVMArrayTypeKind;
+}
+
+static LLVMValueRef cg_reinterpret_via_stack(CodegenContext* ctx,
+                                             LLVMValueRef value,
+                                             LLVMTypeRef targetType,
+                                             const char* tag) {
+    if (!ctx || !value || !targetType || !ctx->module) {
+        return value;
+    }
+    LLVMTypeRef sourceType = LLVMTypeOf(value);
+    if (!sourceType) {
+        return value;
+    }
+
+    LLVMTargetDataRef td = LLVMGetModuleDataLayout(ctx->module);
+    if (!td) {
+        return value;
+    }
+
+    uint64_t srcSize = LLVMABISizeOfType(td, sourceType);
+    uint64_t dstSize = LLVMABISizeOfType(td, targetType);
+    if (srcSize == 0 || dstSize == 0 || srcSize != dstSize) {
+        return value;
+    }
+
+    LLVMValueRef slot = cg_build_entry_alloca(ctx, targetType, "cast.repack.slot");
+    if (!slot) {
+        return value;
+    }
+
+    if (!cg_kind_is_aggregate_like(LLVMGetTypeKind(targetType))) {
+        LLVMBuildStore(ctx->builder, LLVMConstNull(targetType), slot);
+    }
+
+    LLVMTypeRef sourcePtrType = LLVMPointerType(sourceType, 0);
+    LLVMValueRef sourceAddr = LLVMBuildBitCast(ctx->builder, slot, sourcePtrType, "cast.repack.addr");
+    LLVMBuildStore(ctx->builder, value, sourceAddr);
+    return LLVMBuildLoad2(ctx->builder, targetType, slot, tag);
 }
 
 static LLVMTypeRef cg_complex_element_type(CodegenContext* ctx, const ParsedType* type) {
@@ -662,6 +709,37 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
                     }
                 }
             }
+            if (structParsed && fieldName && ctx->semanticModel) {
+                Scope* semanticScope = semanticModelGetGlobalScope(ctx->semanticModel);
+                if (semanticScope) {
+                    TypeInfo baseInfo = typeInfoFromParsedType(structParsed, semanticScope);
+                    const ParsedType* resolvedField =
+                        analyzeExprLookupFieldType(&baseInfo, fieldName, semanticScope);
+                    if (resolvedField) {
+                        parsedTypeFree(&baseCopy);
+                        return resolvedField;
+                    }
+                }
+            }
+            if (structParsed && fieldName && structParsed->inlineStructOrUnionDef) {
+                ASTNode* def = structParsed->inlineStructOrUnionDef;
+                if (def && (def->type == AST_STRUCT_DEFINITION || def->type == AST_UNION_DEFINITION)) {
+                    for (size_t f = 0; f < def->structDef.fieldCount; ++f) {
+                        ASTNode* fieldDecl = def->structDef.fields ? def->structDef.fields[f] : NULL;
+                        if (!fieldDecl || fieldDecl->type != AST_VARIABLE_DECLARATION) continue;
+                        for (size_t v = 0; v < fieldDecl->varDecl.varCount; ++v) {
+                            ASTNode* nameNode = fieldDecl->varDecl.varNames[v];
+                            const char* declFieldName = (nameNode && nameNode->type == AST_IDENTIFIER)
+                                ? nameNode->valueNode.value
+                                : NULL;
+                            if (declFieldName && strcmp(declFieldName, fieldName) == 0) {
+                                parsedTypeFree(&baseCopy);
+                                return astVarDeclTypeAt(fieldDecl, v);
+                            }
+                        }
+                    }
+                }
+            }
             parsedTypeFree(&baseCopy);
             return base;
         }
@@ -941,6 +1019,14 @@ LLVMValueRef cg_cast_value(CodegenContext* ctx,
             realPart = LLVMBuildExtractValue(ctx->builder, value, 1, "complex.imag");
         }
         return cg_cast_value(ctx, realPart, targetType, NULL, toParsed, "complex.to.scalar");
+    }
+
+    if ((cg_kind_is_aggregate_like(srcKind) && cg_kind_is_abi_pack_scalar(dstKind)) ||
+        (cg_kind_is_abi_pack_scalar(srcKind) && cg_kind_is_aggregate_like(dstKind))) {
+        LLVMValueRef repacked = cg_reinterpret_via_stack(ctx, value, targetType, tag);
+        if (repacked && LLVMTypeOf(repacked) == targetType) {
+            return repacked;
+        }
     }
 
     if (srcKind == LLVMIntegerTypeKind && dstKind == LLVMIntegerTypeKind) {

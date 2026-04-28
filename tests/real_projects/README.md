@@ -10,6 +10,7 @@ Current scope in this scaffold:
 - Stage `E_golden_behavior` (deterministic output hash/marker parity)
 - Stage `F_perf_telemetry` (timing + commit + binary snapshot telemetry)
 - validated projects: `datalab`, `workspace_sandbox`, `mem_console`, `line_drawing`, `ray_tracing`, `physics_sim`, `map_forge`, `ide` (Stages A-F closed)
+- self-host compile canary: `fisiCs` (Stage A compile-only lane active)
 - active onboarding project: `daw` (Stage A running; blockers active)
 
 ## Layout

@@ -11,6 +11,27 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/11__probe_function_param_function_type_adjust_ok.c',
         note='function parameter declared as function type should adjust to pointer and accept matching function argument',
     ),
+    RuntimeProbe(
+        probe_id='11__probe_external_small_struct_byval_pointer_bridge',
+        source=PROBE_DIR / 'runtime/11__probe_external_small_struct_byval_pointer_bridge_main.c',
+        note='small struct by-value call into clang-built external callee should preserve trailing pointer argument on arm64',
+        mixed_clang_inputs=[PROBE_DIR / 'runtime/11__probe_external_small_struct_byval_pointer_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_external_large_struct_sret_bridge',
+        source=PROBE_DIR / 'runtime/11__probe_external_large_struct_sret_bridge_main.c',
+        note='large struct return from clang-built external callee should use hidden sret and preserve trailing arguments on arm64',
+        mixed_clang_inputs=[PROBE_DIR / 'runtime/11__probe_external_large_struct_sret_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_small_struct_byval_multitu_definition',
+        source=PROBE_DIR / 'runtime/11__probe_small_struct_byval_multitu_definition_main.c',
+        note='separate-TU declaration and definition should agree on arm64 small-struct by-value parameter ABI',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_small_struct_byval_multitu_definition_main.c',
+            PROBE_DIR / 'runtime/11__probe_small_struct_byval_multitu_definition_lib.c',
+        ],
+    ),
 ]
 
 DIAG_PROBES = [

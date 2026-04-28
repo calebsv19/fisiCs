@@ -222,6 +222,8 @@ LLVMTypeRef cg_element_type_from_pointer(CodegenContext* ctx,
                                          const ParsedType* pointerParsed,
                                          LLVMTypeRef pointerLLVM);
 LLVMTypeRef cg_coerce_function_return_type(CodegenContext* ctx, LLVMTypeRef returnType);
+LLVMTypeRef cg_external_abi_coerce_param_type(CodegenContext* ctx, LLVMTypeRef paramType);
+bool cg_should_lower_indirect_aggregate_return(CodegenContext* ctx, LLVMTypeRef returnType);
 bool cg_should_lower_variadic_sret(CodegenContext* ctx,
                                    LLVMTypeRef returnType,
                                    bool isVariadicFunction);

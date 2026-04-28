@@ -226,8 +226,17 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     evaluateArrayDerivations(varType, scope);
                 }
                 const ParsedType* resolvedVar = resolveTypedefInScope(varType, scope);
+                bool canAdoptTypedefArrayShape =
+                    varType &&
+                    varType->pointerDepth == 0 &&
+                    varType->derivationCount == 0 &&
+                    !varType->isFunctionPointer;
                 const ParsedType* arrayType =
-                    (resolvedVar && parsedTypeIsDirectArray(resolvedVar)) ? resolvedVar : varType;
+                    (canAdoptTypedefArrayShape &&
+                     resolvedVar &&
+                     parsedTypeIsDirectArray(resolvedVar))
+                        ? resolvedVar
+                        : varType;
                 bool isArrayVar = arrayType && parsedTypeIsDirectArray(arrayType);
                 if (isArrayVar) {
                     if (parsedTypeHasVLA(arrayType) && staticStorage) {
@@ -244,6 +253,9 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
 
                 if (i < node->varDecl.varCount && node->varDecl.initializers) {
                     DesignatedInit* init = node->varDecl.initializers[i];
+                    if (boundSym) {
+                        boundSym->initializer = init;
+                    }
                     analyzeDesignatedInitializer(init, scope);
                     maybeRecordConstIntegerValue(boundSym, varType, init, scope);
                     if (isArrayVar) {

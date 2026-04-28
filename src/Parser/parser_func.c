@@ -218,6 +218,21 @@ static bool currentListIsKNR(Parser* parser) {
     return ok;
 }
 
+static bool currentTokenIsTransparentGroupedIdentifier(Parser* parser) {
+    if (!parser || parser->currentToken.type != TOKEN_LPAREN) {
+        return false;
+    }
+    Parser probe = cloneParserWithFreshLexer(parser);
+    advance(&probe); // consume '('
+    bool transparent = false;
+    if (probe.currentToken.type == TOKEN_IDENTIFIER) {
+        advance(&probe);
+        transparent = (probe.currentToken.type == TOKEN_RPAREN);
+    }
+    freeParserClone(&probe);
+    return transparent;
+}
+
 
 
 ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
@@ -298,7 +313,15 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
     applyPointerChainToType(&funcReturnType, &chain);
     pointerChainFree(&chain);
 
-    if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+    ASTNode* funcName = NULL;
+    if (parser->currentToken.type == TOKEN_LPAREN &&
+        currentTokenIsTransparentGroupedIdentifier(parser)) {
+        advance(parser); // consume '('
+        funcName = createIdentifierNode(parser->currentToken.value);
+        astNodeSetProvenance(funcName, &parser->currentToken);
+        advance(parser); // consume identifier
+        advance(parser); // consume ')'
+    } else if (parser->currentToken.type != TOKEN_IDENTIFIER) {
         /* Gracefully consume complex declarators like
          *   void (*bsd_signal(int, void (*)(int)))(int);
          * so we stay in sync instead of erroring. */
@@ -327,11 +350,11 @@ ASTNode* parseFunctionDefinition(Parser* parser, ParsedType returnType) {
         parsedTypeFree(&base);
         freeParserClone(&probe);
         return NULL;
+    } else {
+        funcName = createIdentifierNode(parser->currentToken.value);
+        astNodeSetProvenance(funcName, &parser->currentToken);
+        advance(parser);  // Consume function name
     }
-
-    ASTNode* funcName = createIdentifierNode(parser->currentToken.value);
-    astNodeSetProvenance(funcName, &parser->currentToken);
-    advance(parser);  // Consume function name
 
     // Expect opening parenthesis
     if (parser->currentToken.type != TOKEN_LPAREN) {

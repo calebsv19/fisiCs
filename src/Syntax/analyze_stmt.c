@@ -790,7 +790,7 @@ static void analyzeStatementInternal(ASTNode* node,
                              "label before declaration is not allowed in C99; wrap declaration in a block",
                              NULL);
                 }
-                analyze(node->label.statement, scope);
+                analyzeStatementInternal(node->label.statement, scope, switchStack, labels, loopDepth);
             }
             break;
 

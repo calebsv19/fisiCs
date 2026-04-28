@@ -740,6 +740,9 @@ semantic-struct-definition-only: $(BIN)
 semantic-struct-inline-declarator: $(BIN)
 	@./tests/syntax/run_semantic_struct_inline_declarator.sh ./$(BIN)
 
+semantic-anon-record-flatten: $(BIN)
+	@./tests/syntax/run_semantic_anon_record_flatten.sh ./$(BIN)
+
 semantic-vla-param-decay: $(BIN)
 	@./tests/syntax/run_semantic_vla_param_decay.sh ./$(BIN)
 
@@ -839,6 +842,7 @@ syntax-tests: semantic-typedef semantic-initializer semantic-undeclared semantic
 	              semantic-static-local-float-constexpr \
 	              semantic-static-float-constexpr \
 	              semantic-flexible-array-layout semantic-union-anon-member \
+	              semantic-anon-record-flatten \
 	              semantic-sizeof-alignof-vla \
 	              semantic-case-non-ice semantic-char-escape-consteval \
               semantic-ternary-merge-ptr semantic-shift-unsigned \
@@ -1046,6 +1050,9 @@ REAL_PROJECT_RUNS ?= 5
 realproj-stage-a:
 	@python3 $(REAL_PROJECTS_STAGE_A_RUNNER) --project $(REAL_PROJECT)
 
+realproj-stage-a-self:
+	@python3 $(REAL_PROJECTS_STAGE_A_RUNNER) --project fisiCs
+
 realproj-stage-a-repeat:
 	@i=1; \
 	while [ $$i -le $(REAL_PROJECT_RUNS) ]; do \
@@ -1090,10 +1097,10 @@ tests: test frontend-api-test
         codegen-bitfield \
         statement-expr-enabled statement-expr-default statement-expr-disabled recovery preprocessor-tests frontend-harness \
         frontend-contract-test \
-        statement-expr-codegen codegen-bitfield \
+        statement-expr-codegen codegen-bitfield semantic-anon-record-flatten \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff test-binary-wave test-binary-id binary-regen \
         integration-diags-pack integration-std-atomic integration-std-atomic-link ci-guardrails \
-        realproj-stage-a realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
+        realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

@@ -188,6 +188,23 @@ static TypeInfo typeFromStringLiteral(Scope* scope, const char* value) {
     info.isConst = true;
     info.isComplete = true;
     info.isLValue = false;
+
+    ParsedType owned;
+    memset(&owned, 0, sizeof(owned));
+    if (enc == LIT_ENC_WIDE) {
+        owned.kind = TYPE_PRIMITIVE;
+        owned.primitiveType = TOKEN_INT;
+        owned.isConst = true;
+    } else {
+        owned.kind = TYPE_PRIMITIVE;
+        owned.primitiveType = TOKEN_CHAR;
+        owned.isConst = true;
+    }
+    if (parsedTypePrependPointer(&owned)) {
+        typeInfoAdoptParsedType(&info, &owned);
+    } else {
+        parsedTypeFree(&owned);
+    }
     return info;
 }
 

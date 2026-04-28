@@ -20,8 +20,11 @@
 #include "Compiler/pipeline.h"
 #include "Syntax/target_layout.h"
 #include "Utils/profiler.h"
+#include "Utils/utils.h"
 
 static char g_proc_guard_path[PATH_MAX] = {0};
+static pid_t g_proc_guard_group_pid = 0;
+static int g_proc_guard_timeout_sec = 0;
 
 static void fisics_proc_guard_cleanup(void) {
     if (g_proc_guard_path[0] != '\0') {
@@ -30,12 +33,14 @@ static void fisics_proc_guard_cleanup(void) {
     }
 }
 
-static int parse_positive_int_env(const char* key) {
+static int parse_nonnegative_int_env_with_default(const char* key, int defaultValue) {
     const char* raw = getenv(key);
-    if (!raw || !raw[0]) return 0;
+    if (!raw || !raw[0]) return defaultValue;
     char* end = NULL;
     long v = strtol(raw, &end, 10);
-    if (!end || *end != '\0' || v <= 0 || v > 100000) return 0;
+    if (!end || *end != '\0' || v < 0 || v > 100000) {
+        return defaultValue;
+    }
     return (int)v;
 }
 
@@ -73,8 +78,55 @@ static int count_guard_entries(const char* dirPath) {
     return count;
 }
 
+static void fisics_timeout_handler(int signo) {
+    (void)signo;
+    fisics_proc_guard_cleanup();
+    const char msg[] =
+        "Error: fisics compile watchdog timed out; aborting hung compiler process.\n";
+    (void)write(STDERR_FILENO, msg, sizeof(msg) - 1u);
+    if (g_proc_guard_group_pid > 0) {
+        (void)kill(-g_proc_guard_group_pid, SIGKILL);
+    }
+    _exit(124);
+}
+
+static void fisics_proc_guard_disarm_timeout(void) {
+    if (g_proc_guard_timeout_sec > 0) {
+        alarm(0);
+    }
+}
+
+static void fisics_proc_guard_arm_timeout(void) {
+    g_proc_guard_timeout_sec =
+        parse_nonnegative_int_env_with_default("FISICS_TIMEOUT_SEC", 180);
+    if (g_proc_guard_timeout_sec <= 0) {
+        return;
+    }
+
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = fisics_timeout_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    if (sigaction(SIGALRM, &sa, NULL) != 0) {
+        fprintf(stderr,
+                "Warning: failed to install fisics watchdog handler; continuing without timeout.\n");
+        g_proc_guard_timeout_sec = 0;
+        return;
+    }
+
+    if (setpgid(0, 0) == 0 || (errno == EACCES || errno == EPERM)) {
+        pid_t groupPid = getpgrp();
+        if (groupPid == getpid()) {
+            g_proc_guard_group_pid = groupPid;
+        }
+    }
+
+    alarm((unsigned int)g_proc_guard_timeout_sec);
+}
+
 static bool fisics_proc_guard_enter(void) {
-    int maxProcs = parse_positive_int_env("FISICS_MAX_PROCS");
+    int maxProcs = parse_nonnegative_int_env_with_default("FISICS_MAX_PROCS", 1);
     if (maxProcs <= 0) return true;
 
     const char* dirPath = "/tmp/fisics_proc_guard";
@@ -91,7 +143,7 @@ static bool fisics_proc_guard_enter(void) {
                 maxProcs,
                 running);
         fprintf(stderr,
-                "Hint: set FISICS_MAX_PROCS higher, or unset it to disable this guard.\n");
+                "Hint: set FISICS_MAX_PROCS higher, or set it to 0 to disable this guard.\n");
         return false;
     }
 
@@ -167,6 +219,7 @@ static int llvm_shutdown_and_return(int code) {
     if (profiler_enabled()) {
         profiler_shutdown();
     }
+    fisics_proc_guard_disarm_timeout();
     fisics_proc_guard_cleanup();
     fflush(NULL);
     _Exit(code);
@@ -380,6 +433,7 @@ int main(int argc, char **argv) {
     if (!fisics_proc_guard_enter()) {
         return 1;
     }
+    fisics_proc_guard_arm_timeout();
 
     LLVMInstallFatalErrorHandler(llvm_fatal_handler);
 

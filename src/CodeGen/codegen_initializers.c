@@ -320,6 +320,7 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
     LLVMBuildStore(ctx->builder, casted, destPtr);
     CG_STORE_INIT_RETURN(true);
 #undef CG_STORE_INIT_RETURN
+    return false;
 }
 
 static bool cg_store_struct_entries(CodegenContext* ctx,

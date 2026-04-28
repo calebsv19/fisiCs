@@ -29,6 +29,7 @@
     "04-declarations-wave7-parserdiag.json",
     "04-declarations-wave8-fnptr-factory-thresholds.json",
     "04-declarations-wave9-fnptr-typedef-thresholds.json",
+    "04-declarations-wave10-typedef-multi-alias.json",
     "04-declarations.json",
     "05-expressions-wave2.json",
     "05-expressions-wave3.json",
@@ -140,6 +141,8 @@
     "11-functions-calls-wave19-line-directive-multitu-diagjson-frontier.json",
     "11-functions-calls-wave20-line-directive-multitu-fnptr-return-diagjson-depth.json",
     "11-functions-calls-wave21-realproj-fnptr-typedef-tag-parity.json",
+    "11-functions-calls-wave22-fnptr-return-pointer-runtime.json",
+    "11-functions-calls-wave23-large-struct-return-runtime.json",
     "11-functions-calls.json",
     "12-diagnostics-recovery-wave2.json",
     "12-diagnostics-recovery-wave3.json",
@@ -366,6 +369,10 @@
     "14-runtime-surface-wave111-axis1-wave9-wave14-runtime-promotions.json",
     "15-torture-differential-wave70-axis1-wave9-wave14-runtime-diag-promotions.json",
     "14-runtime-surface-wave112-axis3-wave3-wave17-runtime-promotions.json",
+    "14-runtime-surface-wave113-builtin-snprintf-chk-struct-float-promotion.json",
+    "14-runtime-surface-wave114-tentative-header-strong-def-bridge.json",
+    "14-runtime-surface-wave115-anon-member-charptr-array-access.json",
+    "14-runtime-surface-wave116-labelled-switch-break.json",
     "15-torture-differential-wave71-axis3-wave3-wave17-runtime-promotions.json",
     "15-torture-differential-wave72-axis4-wave2-wave11-diag-promotions.json"
   ]

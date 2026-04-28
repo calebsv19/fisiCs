@@ -3,6 +3,54 @@
   "default_project": "datalab",
   "projects": [
     {
+      "name": "fisiCs",
+      "kind": "compiler",
+      "root": ".",
+      "entry": "src/main.c",
+      "file_globs": [
+        "src/**/*.c"
+      ],
+      "exclude_globs": [],
+      "include_dirs": [
+        "src",
+        "src/Lexer",
+        "src/Parser",
+        "src/Syntax",
+        "src/Syntax/Expr",
+        "src/Syntax/Decls",
+        "src/CodeGen",
+        "src/CodeGen/Expr",
+        "third_party/codework_shared/core/core_base/include",
+        "third_party/codework_shared/core/core_io/include",
+        "third_party/codework_shared/core/core_data/include",
+        "third_party/codework_shared/core/core_pack/include"
+      ],
+      "defines": [],
+      "platform_overrides": {
+        "darwin": {
+          "include_dirs": [
+            "/opt/homebrew/opt/llvm/include"
+          ],
+          "defines": [
+            "_THREAD_SAFE"
+          ]
+        }
+      },
+      "stages": {
+        "A_tu_compile": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ]
+        }
+      }
+    },
+    {
       "name": "datalab",
       "kind": "visual",
       "root": "../datalab",

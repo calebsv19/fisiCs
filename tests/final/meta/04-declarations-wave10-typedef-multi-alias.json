@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__typedef__multi_alias_struct_pointer_runtime",
+      "bucket": "declarations",
+      "input": "cases/04__typedef__multi_alias_struct_pointer_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "typedef",
+        "struct",
+        "pointer-alias",
+        "runtime",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__declarator__transparent_grouped_function_decl_runtime",
+      "bucket": "declarations",
+      "input": "cases/04__declarator__transparent_grouped_function_decl_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "declarators",
+        "grouped-identifier",
+        "typedef-array",
+        "runtime",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

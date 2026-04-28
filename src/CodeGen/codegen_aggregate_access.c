@@ -110,6 +110,17 @@ static bool cg_parsed_is_flexible_array(const ParsedType* t) {
     return false;
 }
 
+static bool cg_parsed_is_record_like(const ParsedType* parsed) {
+    if (!parsed) return false;
+    if (parsed->tag == TAG_STRUCT || parsed->tag == TAG_UNION) {
+        return true;
+    }
+    if (parsed->inlineStructOrUnionDef) {
+        return true;
+    }
+    return false;
+}
+
 static const StructInfo* lookupStructInfo(CodegenContext* ctx, const char* name, LLVMTypeRef llvmType) {
     if (!ctx) return NULL;
     for (size_t i = 0; i < ctx->structInfoCount; ++i) {
@@ -121,6 +132,67 @@ static const StructInfo* lookupStructInfo(CodegenContext* ctx, const char* name,
         }
     }
     return NULL;
+}
+
+static uint64_t cg_field_offset_bytes(CodegenContext* ctx,
+                                      LLVMTypeRef aggregateType,
+                                      bool isUnion,
+                                      unsigned fieldIndex) {
+    if (!ctx || !aggregateType || isUnion) {
+        return 0;
+    }
+    LLVMModuleRef module = cg_context_get_module(ctx);
+    LLVMTargetDataRef td = module ? LLVMGetModuleDataLayout(module) : NULL;
+    if (!td) {
+        return 0;
+    }
+    return LLVMOffsetOfElement(td, aggregateType, fieldIndex);
+}
+
+static bool cg_lookup_nested_field_in_legacy(CodegenContext* ctx,
+                                             const StructInfo* info,
+                                             const char* fieldName,
+                                             uint64_t baseOffset,
+                                             LLVMTypeRef* outFieldType,
+                                             const ParsedType** outFieldParsedType,
+                                             uint64_t* outByteOffset,
+                                             unsigned depth) {
+    if (!ctx || !info || !fieldName || depth > 16) {
+        return false;
+    }
+
+    for (size_t i = 0; i < info->fieldCount; ++i) {
+        const StructFieldInfo* field = &info->fields[i];
+        uint64_t fieldOffset = baseOffset + cg_field_offset_bytes(ctx, info->llvmType, info->isUnion, field->index);
+        if (field->name && strcmp(field->name, fieldName) == 0) {
+            if (outFieldType) {
+                *outFieldType = field->type;
+            }
+            if (outFieldParsedType) {
+                *outFieldParsedType = &field->parsedType;
+            }
+            if (outByteOffset) {
+                *outByteOffset = fieldOffset;
+            }
+            return true;
+        }
+
+        if (field->name == NULL && cg_parsed_is_record_like(&field->parsedType)) {
+            const StructInfo* nested = lookupStructInfo(ctx, NULL, field->type);
+            if (nested && cg_lookup_nested_field_in_legacy(ctx,
+                                                           nested,
+                                                           fieldName,
+                                                           fieldOffset,
+                                                           outFieldType,
+                                                           outFieldParsedType,
+                                                           outByteOffset,
+                                                           depth + 1)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
@@ -440,6 +512,8 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
     unsigned fieldIndex = 0;
     LLVMTypeRef fieldLLVMType = NULL;
     bool found = false;
+    bool useByteOffsetOnly = false;
+    uint64_t resolvedByteOffset = 0;
 
     bool isUnion = false;
     CGStructLLVMInfo* semanticInfo =
@@ -472,6 +546,18 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
                     found = true;
                     break;
                 }
+            }
+            if (!found &&
+                cg_lookup_nested_field_in_legacy(ctx,
+                                                 legacy,
+                                                 fieldName,
+                                                 0,
+                                                 &fieldLLVMType,
+                                                 outFieldParsedType,
+                                                 &resolvedByteOffset,
+                                                 0)) {
+                found = true;
+                useByteOffsetOnly = true;
             }
         }
     }
@@ -532,8 +618,11 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
 
     const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, structHint, fieldName);
 
-    LLVMValueRef ptr = LLVMBuildStructGEP2(ctx->builder, aggregateType, basePtr, fieldIndex, "fieldPtr");
-    if (!ptr && lay && !lay->isBitfield) {
+    LLVMValueRef ptr = NULL;
+    if (!useByteOffsetOnly) {
+        ptr = LLVMBuildStructGEP2(ctx->builder, aggregateType, basePtr, fieldIndex, "fieldPtr");
+    }
+    if ((useByteOffsetOnly || !ptr) && ((lay && !lay->isBitfield) || useByteOffsetOnly)) {
         LLVMTypeRef pointeeTy = fieldLLVMType;
         if (!pointeeTy || LLVMGetTypeKind(pointeeTy) == LLVMVoidTypeKind) {
             pointeeTy = LLVMInt32TypeInContext(ctx->llvmContext);
@@ -548,7 +637,8 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
 
         LLVMTypeRef i8Ty = LLVMInt8TypeInContext(ctx->llvmContext);
         LLVMValueRef baseI8 = LLVMBuildBitCast(ctx->builder, basePtr, LLVMPointerType(i8Ty, 0), "field.base.i8");
-        LLVMValueRef offsetVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), lay->byteOffset, 0);
+        uint64_t byteOffset = useByteOffsetOnly ? resolvedByteOffset : lay->byteOffset;
+        LLVMValueRef offsetVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), byteOffset, 0);
         LLVMValueRef ptrI8 = LLVMBuildGEP2(ctx->builder, i8Ty, baseI8, &offsetVal, 1, "field.byte.gep");
         ptr = LLVMBuildBitCast(ctx->builder,
                                ptrI8,
@@ -567,10 +657,12 @@ LLVMValueRef buildStructFieldPointer(CodegenContext* ctx,
         LLVMTypeRef i8Ty = LLVMInt8TypeInContext(ctx->llvmContext);
         LLVMValueRef baseI8 = LLVMBuildBitCast(ctx->builder, basePtr, LLVMPointerType(i8Ty, 0), "flex.base");
 
-        uint64_t byteOffset = 0;
-        const CCTagFieldLayout* flexLay = cg_lookup_field_layout(ctx, structHint, fieldName);
-        if (flexLay) {
-            byteOffset = flexLay->byteOffset;
+        uint64_t byteOffset = useByteOffsetOnly ? resolvedByteOffset : 0;
+        if (!useByteOffsetOnly) {
+            const CCTagFieldLayout* flexLay = cg_lookup_field_layout(ctx, structHint, fieldName);
+            if (flexLay) {
+                byteOffset = flexLay->byteOffset;
+            }
         }
         LLVMValueRef offsetVal = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvmContext), byteOffset, 0);
         LLVMValueRef ptrI8 = LLVMBuildGEP2(ctx->builder, i8Ty, baseI8, &offsetVal, 1, "flex.byteptr");

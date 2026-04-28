@@ -1116,4 +1116,5 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
 
     CG_CONST_INIT_RETURN(NULL);
 #undef CG_CONST_INIT_RETURN
+    return NULL;
 }

@@ -81,6 +81,7 @@ unsigned cg_float_rank_from_kind(LLVMTypeKind kind);
 bool cg_is_external_decl_function(LLVMValueRef function);
 bool cg_is_known_external_abi_function_name(const char* name);
 LLVMTypeRef cg_external_abi_coerce_param_type(CodegenContext* ctx, LLVMTypeRef paramType);
+bool cg_should_lower_indirect_aggregate_return(CodegenContext* ctx, LLVMTypeRef returnType);
 LLVMValueRef cg_pack_aggregate_for_external_abi(CodegenContext* ctx,
                                                 LLVMValueRef value,
                                                 LLVMTypeRef packedType,
@@ -111,6 +112,7 @@ LLVMValueRef cg_emit_va_intrinsic(CodegenContext* ctx,
                                   const char* intrinsicName,
                                   LLVMValueRef listValue);
 LLVMValueRef cg_emit_rewritten_builtin_call(CodegenContext* ctx,
+                                            ASTNode* callNode,
                                             const char* targetName,
                                             LLVMTypeRef returnType,
                                             LLVMValueRef* sourceArgs,

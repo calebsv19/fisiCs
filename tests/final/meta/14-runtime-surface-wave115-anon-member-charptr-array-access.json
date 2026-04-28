@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_anon_member_charptr_array_access",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_anon_member_charptr_array_access.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_anon_member_charptr_array_access.stdout",
+      "expected_stderr": "expect/14__runtime_anon_member_charptr_array_access.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "anon",
+        "member",
+        "charptr",
+        "array",
+        "access"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

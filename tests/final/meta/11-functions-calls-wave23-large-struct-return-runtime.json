@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__large_struct_return_multitu_runtime",
+      "bucket": "functions-calls",
+      "input": "cases/11__large_struct_return_multitu_runtime_main.c",
+      "inputs": [
+        "cases/11__large_struct_return_multitu_runtime_main.c",
+        "cases/11__large_struct_return_multitu_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "aggregate-return",
+        "multitu",
+        "runtime",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

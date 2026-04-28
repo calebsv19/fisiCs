@@ -34,14 +34,19 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
          strcmp(calleeName, "offsetof") == 0)) {
         size_t offset = 0;
         bool ok = false;
-        if (node->functionCall.argumentCount == 2 &&
-            node->functionCall.arguments[0] &&
-            node->functionCall.arguments[0]->type == AST_PARSED_TYPE &&
-            node->functionCall.arguments[1] &&
-            node->functionCall.arguments[1]->type == AST_IDENTIFIER) {
+        ASTNode* offsetofTypeArg = NULL;
+        ASTNode* offsetofFieldArg = NULL;
+        if (node->functionCall.argumentCount == 2) {
+            offsetofTypeArg = node->functionCall.arguments[0];
+            offsetofFieldArg = node->functionCall.arguments[1];
+        }
+        if (offsetofTypeArg &&
+            offsetofTypeArg->type == AST_PARSED_TYPE &&
+            offsetofFieldArg &&
+            offsetofFieldArg->type == AST_IDENTIFIER) {
             ok = cg_eval_builtin_offsetof(ctx,
-                                          &node->functionCall.arguments[0]->parsedTypeNode.parsed,
-                                          node->functionCall.arguments[1]->valueNode.value,
+                                          &offsetofTypeArg->parsedTypeNode.parsed,
+                                          offsetofFieldArg->valueNode.value,
                                           &offset);
         }
         const TargetLayout* tl = cg_context_get_target_layout(ctx);
@@ -104,6 +109,9 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     const Symbol* sym = cg_lookup_function_symbol_for_callee(ctx, node->functionCall.callee);
     bool noPrototype = sym && sym->kind == SYMBOL_FUNCTION && !sym->signature.hasPrototype;
     bool externalAbiEligible = cg_is_known_external_abi_function_name(calleeName);
+    bool externalDeclFunction = function &&
+        LLVMIsAFunction(function) &&
+        cg_is_external_decl_function(function);
 
     LLVMTypeRef calleeType = NULL;
     if (sym && !noPrototype) {
@@ -129,6 +137,10 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     if ((!calleeType || LLVMGetTypeKind(calleeType) != LLVMFunctionTypeKind) &&
         sym && !noPrototype) {
         calleeType = cg_function_type_from_symbol(ctx, sym);
+    }
+
+    if (!noPrototype && externalDeclFunction) {
+        externalAbiEligible = true;
     }
 
     size_t argCount = node->functionCall.argumentCount;
@@ -311,15 +323,30 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                 } else if (extParamTy && LLVMGetTypeKind(extParamTy) == LLVMArrayTypeKind) {
                     extParamTy = LLVMPointerType(extParamTy, 0);
                 }
+                extParamTy = cg_external_abi_coerce_param_type(ctx, extParamTy);
                 if (!extParamTy || LLVMGetTypeKind(extParamTy) == LLVMVoidTypeKind) {
                     continue;
                 }
-                args[i] = cg_cast_value(ctx,
-                                        args[i],
-                                        extParamTy,
-                                        fromParsed,
-                                        &sym->signature.params[i],
-                                        "call.arg.extabi.cast");
+                if (args[i]) {
+                    LLVMTypeRef argTy = LLVMTypeOf(args[i]);
+                    LLVMTypeKind argKind = argTy ? LLVMGetTypeKind(argTy) : LLVMVoidTypeKind;
+                    LLVMTypeKind dstKind = LLVMGetTypeKind(extParamTy);
+                    if ((argKind == LLVMStructTypeKind || argKind == LLVMArrayTypeKind) &&
+                        (dstKind == LLVMIntegerTypeKind || dstKind == LLVMArrayTypeKind) &&
+                        argTy != extParamTy) {
+                        args[i] = cg_pack_aggregate_for_external_abi(ctx,
+                                                                     args[i],
+                                                                     extParamTy,
+                                                                     "call.arg.extabi.pack");
+                    } else {
+                        args[i] = cg_cast_value(ctx,
+                                                args[i],
+                                                extParamTy,
+                                                fromParsed,
+                                                &sym->signature.params[i],
+                                                "call.arg.extabi.cast");
+                    }
+                }
                 continue;
             }
 
@@ -348,12 +375,26 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                     args[i] = tmp;
                 }
             } else {
-                args[i] = cg_cast_value(ctx,
-                                        args[i],
-                                        paramTy,
-                                        fromParsed,
-                                        &sym->signature.params[i],
-                                        "call.arg.cast");
+                if (args[i]) {
+                    LLVMTypeRef argTy = LLVMTypeOf(args[i]);
+                    LLVMTypeKind argKind = argTy ? LLVMGetTypeKind(argTy) : LLVMVoidTypeKind;
+                    LLVMTypeKind dstKind = LLVMGetTypeKind(paramTy);
+                    if ((argKind == LLVMStructTypeKind || argKind == LLVMArrayTypeKind) &&
+                        (dstKind == LLVMIntegerTypeKind || dstKind == LLVMArrayTypeKind) &&
+                        argTy != paramTy) {
+                        args[i] = cg_pack_aggregate_for_external_abi(ctx,
+                                                                     args[i],
+                                                                     paramTy,
+                                                                     "call.arg.pack");
+                    } else {
+                        args[i] = cg_cast_value(ctx,
+                                                args[i],
+                                                paramTy,
+                                                fromParsed,
+                                                &sym->signature.params[i],
+                                                "call.arg.cast");
+                    }
+                }
             }
         }
     }
@@ -380,10 +421,8 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (!noPrototype &&
-        function &&
-        LLVMIsAFunction(function) &&
         externalAbiEligible &&
-        cg_is_external_decl_function(function)) {
+        externalDeclFunction) {
         unsigned fixedParamCount = LLVMCountParamTypes(calleeType);
         bool isVariadic = LLVMIsFunctionVarArg(calleeType) != 0;
         if (fixedParamCount > 0) {
@@ -498,6 +537,22 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                             }
                         }
                     }
+                    if (finalArgs[i]) {
+                        LLVMTypeRef argTy = LLVMTypeOf(finalArgs[i]);
+                        if (argTy) {
+                            LLVMTypeKind argKind = LLVMGetTypeKind(argTy);
+                            LLVMTypeKind paramKind = LLVMGetTypeKind(paramTypes[i]);
+                            if ((argKind == LLVMStructTypeKind || argKind == LLVMArrayTypeKind) &&
+                                (paramKind == LLVMIntegerTypeKind || paramKind == LLVMArrayTypeKind) &&
+                                argTy != paramTypes[i]) {
+                                finalArgs[i] = cg_pack_aggregate_for_external_abi(ctx,
+                                                                                  finalArgs[i],
+                                                                                  paramTypes[i],
+                                                                                  "call.arg.abi.pack");
+                                continue;
+                            }
+                        }
+                    }
                     finalArgs[i] = cg_prepare_call_argument(ctx,
                                                             finalArgs[i],
                                                             paramTypes[i],
@@ -521,61 +576,94 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         }
     }
 
-    bool useVariadicSRet = false;
-    LLVMValueRef variadicSRetSlot = NULL;
-    LLVMValueRef* variadicSRetArgs = NULL;
+    bool useCallIndirectSRet = false;
+    LLVMValueRef callIndirectSRetSlot = NULL;
+    LLVMValueRef* callIndirectSRetArgs = NULL;
     LLVMValueRef* callArgs = finalArgs;
     size_t callArgCount = argCount;
     LLVMTypeRef callType = calleeType;
-    if (semanticReturnTy &&
-        cg_should_lower_variadic_sret(ctx, semanticReturnTy, LLVMIsFunctionVarArg(calleeType) != 0)) {
-        variadicSRetSlot = cg_build_entry_alloca(ctx, semanticReturnTy, "call.variadic.sret.slot");
-        if (variadicSRetSlot) {
-            unsigned fixedParamCount = LLVMCountParamTypes(calleeType);
-            LLVMTypeRef* fixedParamTypes = NULL;
-            LLVMTypeRef* loweredParamTypes = NULL;
-            bool isVariadic = LLVMIsFunctionVarArg(calleeType) != 0;
-            if (fixedParamCount > 0) {
-                fixedParamTypes = (LLVMTypeRef*)calloc(fixedParamCount, sizeof(LLVMTypeRef));
-                if (fixedParamTypes) {
-                    LLVMGetParamTypes(calleeType, fixedParamTypes);
-                }
-            }
-            loweredParamTypes = (LLVMTypeRef*)calloc(fixedParamCount + 1u, sizeof(LLVMTypeRef));
-            if (loweredParamTypes) {
-                loweredParamTypes[0] = LLVMPointerType(semanticReturnTy, 0);
-                for (unsigned i = 0; i < fixedParamCount; ++i) {
-                    loweredParamTypes[i + 1u] = fixedParamTypes ? fixedParamTypes[i] : NULL;
-                }
-                callType = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvmContext),
-                                            loweredParamTypes,
-                                            fixedParamCount + 1u,
-                                            isVariadic ? 1 : 0);
-                function = LLVMBuildBitCast(ctx->builder,
-                                            function,
-                                            LLVMPointerType(callType, 0),
-                                            "call.variadic.sret.cast");
-                variadicSRetArgs = (LLVMValueRef*)calloc(argCount + 1u, sizeof(LLVMValueRef));
-                if (variadicSRetArgs) {
-                    LLVMValueRef sretArg = variadicSRetSlot;
+    bool needsIndirectAggregateReturn =
+        semanticReturnTy && cg_should_lower_indirect_aggregate_return(ctx, semanticReturnTy);
+    bool calleeAlreadyUsesIndirectSRet = false;
+    if (needsIndirectAggregateReturn &&
+        LLVMGetTypeKind(calleeType) == LLVMFunctionTypeKind &&
+        LLVMGetTypeKind(LLVMGetReturnType(calleeType)) == LLVMVoidTypeKind &&
+        LLVMCountParamTypes(calleeType) > 0) {
+        LLVMTypeRef firstParamTy = NULL;
+        LLVMGetParamTypes(calleeType, &firstParamTy);
+        LLVMTypeRef expectedPtrTy = LLVMPointerType(semanticReturnTy, 0);
+        calleeAlreadyUsesIndirectSRet = (firstParamTy == expectedPtrTy);
+    }
+
+    if (needsIndirectAggregateReturn) {
+        callIndirectSRetSlot = cg_build_entry_alloca(ctx, semanticReturnTy, "call.indirect.sret.slot");
+        if (callIndirectSRetSlot) {
+            if (calleeAlreadyUsesIndirectSRet) {
+                callIndirectSRetArgs = (LLVMValueRef*)calloc(argCount + 1u, sizeof(LLVMValueRef));
+                if (callIndirectSRetArgs) {
+                    LLVMValueRef sretArg = callIndirectSRetSlot;
                     LLVMTypeRef expectedPtrTy = LLVMPointerType(semanticReturnTy, 0);
                     if (LLVMTypeOf(sretArg) != expectedPtrTy) {
                         sretArg = LLVMBuildBitCast(ctx->builder,
                                                    sretArg,
                                                    expectedPtrTy,
-                                                   "call.variadic.sret.arg.cast");
+                                                   "call.indirect.sret.arg.cast");
                     }
-                    variadicSRetArgs[0] = sretArg;
+                    callIndirectSRetArgs[0] = sretArg;
                     for (size_t i = 0; i < argCount; ++i) {
-                        variadicSRetArgs[i + 1u] = finalArgs ? finalArgs[i] : NULL;
+                        callIndirectSRetArgs[i + 1u] = finalArgs ? finalArgs[i] : NULL;
                     }
-                    callArgs = variadicSRetArgs;
+                    callArgs = callIndirectSRetArgs;
                     callArgCount = argCount + 1u;
-                    useVariadicSRet = true;
+                    useCallIndirectSRet = true;
                 }
+            } else {
+                unsigned fixedParamCount = LLVMCountParamTypes(calleeType);
+                LLVMTypeRef* fixedParamTypes = NULL;
+                LLVMTypeRef* loweredParamTypes = NULL;
+                bool isVariadic = LLVMIsFunctionVarArg(calleeType) != 0;
+                if (fixedParamCount > 0) {
+                    fixedParamTypes = (LLVMTypeRef*)calloc(fixedParamCount, sizeof(LLVMTypeRef));
+                    if (fixedParamTypes) {
+                        LLVMGetParamTypes(calleeType, fixedParamTypes);
+                    }
+                }
+                loweredParamTypes = (LLVMTypeRef*)calloc(fixedParamCount + 1u, sizeof(LLVMTypeRef));
+                if (loweredParamTypes) {
+                    loweredParamTypes[0] = LLVMPointerType(semanticReturnTy, 0);
+                    for (unsigned i = 0; i < fixedParamCount; ++i) {
+                        loweredParamTypes[i + 1u] = fixedParamTypes ? fixedParamTypes[i] : NULL;
+                    }
+                    callType = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvmContext),
+                                                loweredParamTypes,
+                                                fixedParamCount + 1u,
+                                                isVariadic ? 1 : 0);
+                    function = LLVMBuildBitCast(ctx->builder,
+                                                function,
+                                                LLVMPointerType(callType, 0),
+                                                "call.indirect.sret.cast");
+                    callIndirectSRetArgs = (LLVMValueRef*)calloc(argCount + 1u, sizeof(LLVMValueRef));
+                    if (callIndirectSRetArgs) {
+                        LLVMValueRef sretArg = callIndirectSRetSlot;
+                        LLVMTypeRef expectedPtrTy = LLVMPointerType(semanticReturnTy, 0);
+                        if (LLVMTypeOf(sretArg) != expectedPtrTy) {
+                            sretArg = LLVMBuildBitCast(ctx->builder,
+                                                       sretArg,
+                                                       expectedPtrTy,
+                                                       "call.indirect.sret.arg.cast");
+                        }
+                        callIndirectSRetArgs[0] = sretArg;
+                        for (size_t i = 0; i < argCount; ++i) {
+                            callIndirectSRetArgs[i + 1u] = finalArgs ? finalArgs[i] : NULL;
+                        }
+                        callArgs = callIndirectSRetArgs;
+                        callArgCount = argCount + 1u;
+                        useCallIndirectSRet = true;
+                    }
+                }
+                free(loweredParamTypes);
+                free(fixedParamTypes);
             }
-            free(loweredParamTypes);
-            free(fixedParamTypes);
         }
     }
 
@@ -587,7 +675,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                                        callArgs,
                                        callArgCount,
                                        callReturnsVoid ? "" : "calltmp");
-    if (useVariadicSRet && semanticReturnTy) {
+    if (useCallIndirectSRet && semanticReturnTy) {
         unsigned sretKind = LLVMGetEnumAttributeKindForName("sret", 4);
         if (sretKind != 0) {
             LLVMAttributeRef sretAttr = LLVMCreateTypeAttribute(ctx->llvmContext,
@@ -602,19 +690,19 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     }
     if (externalAbiParamTypes) free(externalAbiParamTypes);
     if (externalAbiArgs) free(externalAbiArgs);
-    if (variadicSRetArgs) free(variadicSRetArgs);
+    if (callIndirectSRetArgs) free(callIndirectSRetArgs);
     if (promotedArgs) free(promotedArgs);
     free(args);
-    if (callReturnsVoid && !useVariadicSRet) {
+    if (callReturnsVoid && !useCallIndirectSRet) {
         CG_CALL_RETURN(NULL);
     }
 
     LLVMValueRef result = call;
-    if (useVariadicSRet && variadicSRetSlot && semanticReturnTy) {
+    if (useCallIndirectSRet && callIndirectSRetSlot && semanticReturnTy) {
         result = LLVMBuildLoad2(ctx->builder,
                                 semanticReturnTy,
-                                variadicSRetSlot,
-                                "call.variadic.sret.result");
+                                callIndirectSRetSlot,
+                                "call.indirect.sret.result");
         CG_CALL_RETURN(result);
     }
 
@@ -632,4 +720,5 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     }
     CG_CALL_RETURN(result);
 #undef CG_CALL_RETURN
+    return NULL;
 }

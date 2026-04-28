@@ -466,7 +466,14 @@ LLVMTypeRef cg_coerce_function_return_type(CodegenContext* ctx, LLVMTypeRef retu
 bool cg_should_lower_variadic_sret(CodegenContext* ctx,
                                    LLVMTypeRef returnType,
                                    bool isVariadicFunction) {
-    if (!ctx || !returnType || !isVariadicFunction) {
+    if (!isVariadicFunction) {
+        return false;
+    }
+    return cg_should_lower_indirect_aggregate_return(ctx, returnType);
+}
+
+bool cg_should_lower_indirect_aggregate_return(CodegenContext* ctx, LLVMTypeRef returnType) {
+    if (!ctx || !returnType) {
         return false;
     }
     LLVMTypeKind kind = LLVMGetTypeKind(returnType);
@@ -478,7 +485,7 @@ bool cg_should_lower_variadic_sret(CodegenContext* ctx,
         return false;
     }
     uint64_t size = LLVMABISizeOfType(td, returnType);
-    return size > 24u;
+    return size > 16u;
 }
 
 LLVMValueRef cg_pack_aggregate_for_abi_return(CodegenContext* ctx,
@@ -590,6 +597,15 @@ LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
     }
     if (passIndirect && valueType) {
         return LLVMPointerType(valueType, 0);
+    }
+    if (valueType) {
+        LLVMTypeKind kind = LLVMGetTypeKind(valueType);
+        if (kind == LLVMStructTypeKind || kind == LLVMArrayTypeKind) {
+            LLVMTypeRef coercedType = cg_external_abi_coerce_param_type(ctx, valueType);
+            if (coercedType) {
+                return coercedType;
+            }
+        }
     }
     return valueType;
 }

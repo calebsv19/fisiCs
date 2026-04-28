@@ -396,7 +396,9 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             ? LLVMFloatTypeInContext(ctx->llvmContext)
             : LLVMDoubleTypeInContext(ctx->llvmContext);
         LLVMTypeRef argTy = retTy;
+        bool promoteFlags[1] = {false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     targetName,
                                                     retTy,
                                                     args,
@@ -405,7 +407,7 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     1,
                                                     1,
                                                     &argTy,
-                                                    (bool[]){false},
+                                                    promoteFlags,
                                                     false,
                                                     isFabsfBuiltin
                                                         ? "fabsf.builtin.lowered"
@@ -433,7 +435,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         for (size_t i = 2; i < rewrittenCount; ++i) {
             keepIndices[i] = i + 2;
         }
+        LLVMTypeRef snprintfParamTypes[3] = {i8PtrType, sizeType, i8PtrType};
+        bool snprintfPromoteFlags[3] = {false, false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "snprintf",
                                                     intType,
                                                     args,
@@ -441,8 +446,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     rewrittenCount,
                                                     3,
-                                                    (LLVMTypeRef[]){i8PtrType, sizeType, i8PtrType},
-                                                    (bool[]){false, false, false},
+                                                    snprintfParamTypes,
+                                                    snprintfPromoteFlags,
                                                     true,
                                                     "snprintf.chk.lowered");
         free(keepIndices);
@@ -456,7 +461,12 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             return true;
         }
         const size_t keepIndices[] = {0, 1, 4, 5};
+        LLVMTypeRef vsnprintfParamTypes[4] = {
+            i8PtrType, sizeType, i8PtrType, LLVMTypeOf(args[5])
+        };
+        bool vsnprintfPromoteFlags[4] = {false, false, false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "vsnprintf",
                                                     intType,
                                                     args,
@@ -464,8 +474,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     4,
                                                     4,
-                                                    (LLVMTypeRef[]){i8PtrType, sizeType, i8PtrType, LLVMTypeOf(args[5])},
-                                                    (bool[]){false, false, false, false},
+                                                    vsnprintfParamTypes,
+                                                    vsnprintfPromoteFlags,
                                                     false,
                                                     "vsnprintf.chk.lowered");
         free(args);
@@ -489,7 +499,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         for (size_t i = 2; i < rewrittenCount; ++i) {
             keepIndices[i] = i + 2;
         }
+        LLVMTypeRef sprintfParamTypes[2] = {i8PtrType, i8PtrType};
+        bool sprintfPromoteFlags[2] = {false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "sprintf",
                                                     intType,
                                                     args,
@@ -497,8 +510,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     rewrittenCount,
                                                     2,
-                                                    (LLVMTypeRef[]){i8PtrType, i8PtrType},
-                                                    (bool[]){false, false},
+                                                    sprintfParamTypes,
+                                                    sprintfPromoteFlags,
                                                     true,
                                                     "sprintf.chk.lowered");
         free(keepIndices);
@@ -512,7 +525,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             return true;
         }
         const size_t keepIndices[] = {0, 1, 2};
+        LLVMTypeRef memcpyParamTypes[3] = {i8PtrType, i8PtrType, sizeType};
+        bool memcpyPromoteFlags[3] = {false, false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "memcpy",
                                                     i8PtrType,
                                                     args,
@@ -520,8 +536,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     3,
                                                     3,
-                                                    (LLVMTypeRef[]){i8PtrType, i8PtrType, sizeType},
-                                                    (bool[]){false, false, false},
+                                                    memcpyParamTypes,
+                                                    memcpyPromoteFlags,
                                                     false,
                                                     "memcpy.chk.lowered");
         free(args);
@@ -534,7 +550,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             return true;
         }
         const size_t keepIndices[] = {0, 1, 2};
+        LLVMTypeRef memsetParamTypesRewrite[3] = {i8PtrType, intType, sizeType};
+        bool memsetPromoteFlags[3] = {false, true, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "memset",
                                                     i8PtrType,
                                                     args,
@@ -542,8 +561,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     3,
                                                     3,
-                                                    (LLVMTypeRef[]){i8PtrType, intType, sizeType},
-                                                    (bool[]){false, true, false},
+                                                    memsetParamTypesRewrite,
+                                                    memsetPromoteFlags,
                                                     false,
                                                     "memset.chk.lowered");
         free(args);
@@ -619,7 +638,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             return true;
         }
         const size_t keepIndices[] = {0, 1, 2};
+        LLVMTypeRef strncpyParamTypes[3] = {i8PtrType, i8PtrType, sizeType};
+        bool strncpyPromoteFlags[3] = {false, false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "strncpy",
                                                     i8PtrType,
                                                     args,
@@ -627,8 +649,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     3,
                                                     3,
-                                                    (LLVMTypeRef[]){i8PtrType, i8PtrType, sizeType},
-                                                    (bool[]){false, false, false},
+                                                    strncpyParamTypes,
+                                                    strncpyPromoteFlags,
                                                     false,
                                                     "strncpy.chk.lowered");
         free(args);
@@ -641,7 +663,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             return true;
         }
         const size_t keepIndices[] = {0, 1, 2};
+        LLVMTypeRef strncatParamTypes[3] = {i8PtrType, i8PtrType, sizeType};
+        bool strncatPromoteFlags[3] = {false, false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "strncat",
                                                     i8PtrType,
                                                     args,
@@ -649,8 +674,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     3,
                                                     3,
-                                                    (LLVMTypeRef[]){i8PtrType, i8PtrType, sizeType},
-                                                    (bool[]){false, false, false},
+                                                    strncatParamTypes,
+                                                    strncatPromoteFlags,
                                                     false,
                                                     "strncat.chk.lowered");
         free(args);
@@ -663,7 +688,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             return true;
         }
         const size_t keepIndices[] = {0, 1};
+        LLVMTypeRef strcpyParamTypes[2] = {i8PtrType, i8PtrType};
+        bool strcpyPromoteFlags[2] = {false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "strcpy",
                                                     i8PtrType,
                                                     args,
@@ -671,8 +699,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     2,
                                                     2,
-                                                    (LLVMTypeRef[]){i8PtrType, i8PtrType},
-                                                    (bool[]){false, false},
+                                                    strcpyParamTypes,
+                                                    strcpyPromoteFlags,
                                                     false,
                                                     "strcpy.chk.lowered");
         free(args);
@@ -685,7 +713,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             return true;
         }
         const size_t keepIndices[] = {0, 1};
+        LLVMTypeRef strcatParamTypes[2] = {i8PtrType, i8PtrType};
+        bool strcatPromoteFlags[2] = {false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "strcat",
                                                     i8PtrType,
                                                     args,
@@ -693,8 +724,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     2,
                                                     2,
-                                                    (LLVMTypeRef[]){i8PtrType, i8PtrType},
-                                                    (bool[]){false, false},
+                                                    strcatParamTypes,
+                                                    strcatPromoteFlags,
                                                     false,
                                                     "strcat.chk.lowered");
         free(args);
@@ -707,7 +738,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             return true;
         }
         const size_t keepIndices[] = {0, 1, 2};
+        LLVMTypeRef memmoveParamTypes[3] = {i8PtrType, i8PtrType, sizeType};
+        bool memmovePromoteFlags[3] = {false, false, false};
         *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
                                                     "memmove",
                                                     i8PtrType,
                                                     args,
@@ -715,8 +749,8 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                     keepIndices,
                                                     3,
                                                     3,
-                                                    (LLVMTypeRef[]){i8PtrType, i8PtrType, sizeType},
-                                                    (bool[]){false, false, false},
+                                                    memmoveParamTypes,
+                                                    memmovePromoteFlags,
                                                     false,
                                                     "memmove.chk.lowered");
         free(args);
@@ -740,10 +774,12 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
     }
     if (isVaArgBuiltin) {
         LLVMValueRef val = NULL;
-        if (node->functionCall.argumentCount >= 2 &&
-            node->functionCall.arguments[1] &&
-            node->functionCall.arguments[1]->type == AST_PARSED_TYPE) {
-            LLVMTypeRef resTy = cg_type_from_parsed(ctx, &node->functionCall.arguments[1]->parsedTypeNode.parsed);
+        ASTNode* vaArgTypeNode = NULL;
+        if (node->functionCall.argumentCount >= 2) {
+            vaArgTypeNode = node->functionCall.arguments[1];
+        }
+        if (vaArgTypeNode && vaArgTypeNode->type == AST_PARSED_TYPE) {
+            LLVMTypeRef resTy = cg_type_from_parsed(ctx, &vaArgTypeNode->parsedTypeNode.parsed);
             if (resTy) {
                 LLVMValueRef listPtr = NULL;
                 LLVMTypeRef listTy = NULL;
@@ -850,12 +886,14 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
             if (bits == 0) bits = 64;
             char name[32];
             snprintf(name, sizeof(name), "llvm.expect.i%u", bits);
-            LLVMTypeRef fnTy = LLVMFunctionType(valTy, (LLVMTypeRef[]){ valTy, valTy }, 2, 0);
+            LLVMTypeRef expectParamTypes[2] = {valTy, valTy};
+            LLVMTypeRef fnTy = LLVMFunctionType(valTy, expectParamTypes, 2, 0);
             LLVMValueRef fn = LLVMGetNamedFunction(ctx->module, name);
             if (!fn) {
                 fn = LLVMAddFunction(ctx->module, name, fnTy);
             }
-            *resultOut = LLVMBuildCall2(ctx->builder, fnTy, fn, (LLVMValueRef[]){ val, expectVal }, 2, "expect");
+            LLVMValueRef expectArgs[2] = {val, expectVal};
+            *resultOut = LLVMBuildCall2(ctx->builder, fnTy, fn, expectArgs, 2, "expect");
             free(args);
             return true;
         }

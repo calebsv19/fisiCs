@@ -20,11 +20,15 @@ typedef enum {
 
 static inline LiteralEncoding ast_literal_encoding(const char* value, const char** payloadOut) {
     if (value) {
-        if (strncmp(value, "W|", 2) == 0) {
+        if (value[0] == 'N' && value[1] == '|') {
+            if (payloadOut) *payloadOut = value + 2;
+            return LIT_ENC_NARROW;
+        }
+        if (value[0] == 'W' && value[1] == '|') {
             if (payloadOut) *payloadOut = value + 2;
             return LIT_ENC_WIDE;
         }
-        if (strncmp(value, "U8|", 3) == 0) {
+        if (value[0] == 'U' && value[1] == '8' && value[2] == '|') {
             if (payloadOut) *payloadOut = value + 3;
             return LIT_ENC_UTF8;
         }

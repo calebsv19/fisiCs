@@ -3,6 +3,7 @@
 #include "codegen_private.h"
 
 #include "codegen_types.h"
+#include "Syntax/symbol_table.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,22 +55,7 @@ static const ParsedType* cg_resolve_typedef_parsed(CodegenContext* ctx, const Pa
 
 
 static DesignatedInit* cg_find_initializer_for_symbol(const Symbol* sym) {
-    if (!sym || !sym->definition) {
-        return NULL;
-    }
-    ASTNode* def = sym->definition;
-    if (def->type != AST_VARIABLE_DECLARATION) {
-        return NULL;
-    }
-    for (size_t i = 0; i < def->varDecl.varCount; ++i) {
-        ASTNode* nameNode = def->varDecl.varNames[i];
-        if (nameNode && nameNode->type == AST_IDENTIFIER &&
-            nameNode->valueNode.value &&
-            strcmp(nameNode->valueNode.value, sym->name) == 0) {
-            return def->varDecl.initializers ? def->varDecl.initializers[i] : NULL;
-        }
-    }
-    return NULL;
+    return sym ? sym->initializer : NULL;
 }
 
 static bool parsedTypeIsPlainVoid(const ParsedType* type) {
@@ -311,7 +297,7 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
         returnLLVM = LLVMVoidTypeInContext(ctx->llvmContext);
     }
     returnLLVM = cg_coerce_function_return_type(ctx, returnLLVM);
-    bool useVariadicSRet = cg_should_lower_variadic_sret(ctx, returnLLVM, isVariadic);
+    bool useVariadicSRet = cg_should_lower_indirect_aggregate_return(ctx, returnLLVM);
     LLVMTypeRef fnReturnType = useVariadicSRet
         ? LLVMVoidTypeInContext(ctx->llvmContext)
         : returnLLVM;
@@ -347,23 +333,17 @@ LLVMValueRef ensureFunction(CodegenContext* ctx,
     }
 
     if (symHint) {
-        switch (symHint->signature.callConv) {
-            case CALLCONV_STDCALL:
-                if (supportsStdcall) {
-                    LLVMSetFunctionCallConv(fn, LLVMX86StdcallCallConv);
-                }
-                break;
-            case CALLCONV_FASTCALL:
-                if (supportsFastcall) {
-                    LLVMSetFunctionCallConv(fn, LLVMX86FastcallCallConv);
-                }
-                break;
-            case CALLCONV_CDECL:
-                LLVMSetFunctionCallConv(fn, LLVMCCallConv);
-                break;
-            case CALLCONV_DEFAULT:
-            default:
-                break;
+        int callConv = (int)symHint->signature.callConv;
+        if (callConv == 1) {
+            if (supportsStdcall) {
+                LLVMSetFunctionCallConv(fn, LLVMX86StdcallCallConv);
+            }
+        } else if (callConv == 2) {
+            if (supportsFastcall) {
+                LLVMSetFunctionCallConv(fn, LLVMX86FastcallCallConv);
+            }
+        } else if (callConv == 3) {
+            LLVMSetFunctionCallConv(fn, LLVMCCallConv);
         }
         if (supportsDllStorage) {
             if (symHint->dllStorage == DLL_STORAGE_EXPORT) {
@@ -467,15 +447,11 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     } else if (cg_is_builtin_const_name(sym->name)) {
         LLVMSetLinkage(existing, LLVMInternalLinkage);
     } else if (sym->isTentative) {
-        const char* useCommonTentative = getenv("FISICS_ENABLE_TENTATIVE_COMMON_LINKAGE");
-        if (useCommonTentative && useCommonTentative[0] == '1') {
-            LLVMSetLinkage(existing, LLVMCommonLinkage);
-        } else {
-            /* Match modern clang default (-fno-common): tentative defs emit as
-             * regular extern-linked zero-initialized globals, allowing duplicate
-             * tentative definitions across TUs to diagnose at link stage. */
-            LLVMSetLinkage(existing, LLVMExternalLinkage);
-        }
+        /* Match the host clang toolchain used across CodeWork apps: file-scope
+         * tentative definitions are emitted as common symbols so header-level
+         * `int x;` declarations can coalesce with one strong definition or
+         * other tentative declarations across translation units. */
+        LLVMSetLinkage(existing, LLVMCommonLinkage);
     } else if (sym->linkage == LINKAGE_INTERNAL) {
         LLVMSetLinkage(existing, LLVMInternalLinkage);
     } else {

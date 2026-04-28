@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__fnptr_return_pointer_runtime",
+      "bucket": "functions-calls",
+      "input": "cases/11__fnptr_return_pointer_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "function-pointer",
+        "pointer-return",
+        "runtime",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

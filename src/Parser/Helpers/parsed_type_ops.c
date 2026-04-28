@@ -382,9 +382,6 @@ ParsedType parsedTypeFunctionReturnType(const ParsedType* t) {
         int dec = (int)removedPointers;
         copy.pointerDepth = copy.pointerDepth > dec ? (copy.pointerDepth - dec) : 0;
     }
-    if (t->isFunctionPointer && copy.pointerDepth > 0) {
-        copy.pointerDepth -= 1;
-    }
     refreshFunctionFlags(&copy);
     return copy;
 }

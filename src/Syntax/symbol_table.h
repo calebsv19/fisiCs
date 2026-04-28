@@ -31,18 +31,20 @@ typedef enum {
     LINKAGE_EXTERNAL
 } SymbolLinkage;
 
+typedef enum {
+    CALLCONV_DEFAULT = 0,
+    CALLCONV_STDCALL,
+    CALLCONV_FASTCALL,
+    CALLCONV_CDECL
+} FunctionCallConv;
+
 typedef struct FunctionSignature {
     ParsedType* params;
     size_t paramCount;
     bool isVariadic;
     bool hasPrototype;
     /* Optional interop metadata */
-    enum {
-        CALLCONV_DEFAULT = 0,
-        CALLCONV_STDCALL,
-        CALLCONV_FASTCALL,
-        CALLCONV_CDECL
-    } callConv;
+    FunctionCallConv callConv;
 } FunctionSignature;
 
 typedef enum {
@@ -56,6 +58,7 @@ typedef struct Symbol {
     SymbolKind kind;
     ParsedType type;
     ASTNode* definition;
+    struct DesignatedInit* initializer;
     FunctionSignature signature;
     StorageClass storage;
     SymbolLinkage linkage;

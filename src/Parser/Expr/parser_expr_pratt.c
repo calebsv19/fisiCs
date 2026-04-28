@@ -178,12 +178,15 @@ static ASTNode* nud(Parser* parser, Token token) {
             char* buf = NULL;
             bool sawWide = false;
             bool sawUtf8 = false;
+            bool sawEscapedNarrow = false;
             const char* firstPayload = NULL;
             LiteralEncoding firstEnc = ast_literal_encoding(token.value ? token.value : "", &firstPayload);
             if (firstEnc == LIT_ENC_WIDE) {
                 sawWide = true;
             } else if (firstEnc == LIT_ENC_UTF8) {
                 sawUtf8 = true;
+            } else if (token.value && strncmp(token.value, "N|", 2) == 0) {
+                sawEscapedNarrow = true;
             }
             const char* first = firstPayload ? firstPayload : "";
             size_t firstLen = strlen(first);
@@ -206,6 +209,8 @@ static ASTNode* nud(Parser* parser, Token token) {
                     sawWide = true;
                 } else if (enc == LIT_ENC_UTF8) {
                     sawUtf8 = true;
+                } else if (strncmp(text, "N|", 2) == 0) {
+                    sawEscapedNarrow = true;
                 }
                 const char* piece = payload ? payload : "";
                 size_t tlen = strlen(piece);
@@ -228,10 +233,12 @@ static ASTNode* nud(Parser* parser, Token token) {
             if (!buf) {
                 buf = strdup("");
             }
-            if (sawWide || sawUtf8) {
-                const char* prefix = "U8|";
+            if (sawWide || sawUtf8 || sawEscapedNarrow) {
+                const char* prefix = "N|";
                 if (sawWide) {
                     prefix = "W|";
+                } else if (sawUtf8) {
+                    prefix = "U8|";
                 }
                 size_t plen = strlen(prefix);
                 size_t total = plen + len + 1;

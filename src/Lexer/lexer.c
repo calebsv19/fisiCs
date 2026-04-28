@@ -261,6 +261,14 @@ static void prepend_literal_prefix(Token* tok, const char* prefix) {
     free(tok->value);
     tok->value = buf;
 }
+
+static void mark_ambiguous_narrow_string_literal(Token* tok) {
+    if (!tok || tok->type != TOKEN_STRING || !tok->value) return;
+    if (strncmp(tok->value, "W|", 2) == 0 || strncmp(tok->value, "U8|", 3) == 0) {
+        prepend_literal_prefix(tok, "N|");
+    }
+}
+
 LexerMark lexer_mark(const Lexer* lexer) {
     LexerMark mark = {0};
     if (lexer) {
@@ -509,7 +517,9 @@ Token getNextToken(Lexer* lexer) {
     }
 
     if (lexer->source[lexer->position] == '"') {
-        return handleStringLiteral(lexer);
+        Token t = handleStringLiteral(lexer);
+        mark_ambiguous_narrow_string_literal(&t);
+        return t;
     }
 
 

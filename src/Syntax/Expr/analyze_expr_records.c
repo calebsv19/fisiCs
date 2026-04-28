@@ -89,7 +89,12 @@ static const ParsedType* lookupFieldTypeInRecordDef(ASTNode* def,
             return &field->varDecl.declaredType;
         }
 
-        if (field->varDecl.varCount == 0) {
+        bool isAnonymousAggregateField =
+            field->varDecl.varCount == 0 ||
+            (field->varDecl.varCount == 1 &&
+             field->varDecl.varNames &&
+             field->varDecl.varNames[0] == NULL);
+        if (isAnonymousAggregateField) {
             const ParsedType* anonType = &field->varDecl.declaredType;
             profiler_record_value("semantic_count_type_info_temp_record_anon", 1);
             TypeInfo anonInfo = typeInfoFromParsedType(anonType, scope);
@@ -150,6 +155,32 @@ bool analyzeExprLookupFieldIsBitfield(const TypeInfo* base,
             }
             return field->varDecl.bitFieldWidth != NULL;
         }
+
+        bool isAnonymousAggregateField =
+            field->varDecl.varCount == 0 ||
+            (field->varDecl.varCount == 1 &&
+             field->varDecl.varNames &&
+             field->varDecl.varNames[0] == NULL);
+        if (isAnonymousAggregateField) {
+            const ParsedType* anonType = &field->varDecl.declaredType;
+            profiler_record_value("semantic_count_type_info_temp_record_anon_bitfield", 1);
+            TypeInfo anonInfo = typeInfoFromParsedType(anonType, scope);
+            if (anonInfo.category == TYPEINFO_STRUCT || anonInfo.category == TYPEINFO_UNION) {
+                ASTNode* anonDef = resolveRecordDefinition(&anonInfo, scope);
+                if (anonDef && analyzeExprLookupFieldIsBitfield(&anonInfo, fieldName, scope)) {
+                    return true;
+                }
+                if (!anonDef && anonType->inlineStructOrUnionDef) {
+                    profiler_record_value("semantic_count_type_info_temp_record_anon_bitfield_inline", 1);
+                    TypeInfo inlineInfo = typeInfoFromParsedType(anonType, scope);
+                    if (inlineInfo.category == TYPEINFO_STRUCT || inlineInfo.category == TYPEINFO_UNION) {
+                        if (analyzeExprLookupFieldIsBitfield(&inlineInfo, fieldName, scope)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
     }
     return false;
 }
@@ -187,6 +218,36 @@ const CCTagFieldLayout* analyzeExprLookupFieldLayout(const TypeInfo* base,
         if (!lay->name) continue;
         if (strcmp(lay->name, fieldName) == 0) {
             return lay;
+        }
+    }
+
+    ASTNode* def = resolveRecordDefinition(base, scope);
+    if (!def) {
+        return NULL;
+    }
+    for (size_t i = 0; i < def->structDef.fieldCount; ++i) {
+        ASTNode* field = def->structDef.fields ? def->structDef.fields[i] : NULL;
+        if (!field || field->type != AST_VARIABLE_DECLARATION) {
+            continue;
+        }
+        bool isAnonymousAggregateField =
+            field->varDecl.varCount == 0 ||
+            (field->varDecl.varCount == 1 &&
+             field->varDecl.varNames &&
+             field->varDecl.varNames[0] == NULL);
+        if (!isAnonymousAggregateField) {
+            continue;
+        }
+
+        const ParsedType* anonType = &field->varDecl.declaredType;
+        profiler_record_value("semantic_count_type_info_temp_record_anon_layout", 1);
+        TypeInfo anonInfo = typeInfoFromParsedType(anonType, scope);
+        if (anonInfo.category != TYPEINFO_STRUCT && anonInfo.category != TYPEINFO_UNION) {
+            continue;
+        }
+        const CCTagFieldLayout* nested = analyzeExprLookupFieldLayout(&anonInfo, fieldName, scope);
+        if (nested) {
+            return nested;
         }
     }
     return NULL;
