@@ -5,5 +5,5 @@ PROGRAM
     IDENTIFIER takes_callback
     PARAMETERS:
       VAR_DECL
-        TYPE: int (*)(int) (int)
+        TYPE: int (*)(int)
         IDENTIFIER __unnamed_param0

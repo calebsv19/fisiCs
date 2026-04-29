@@ -7,6 +7,7 @@
 #include "analyze_core.h"
 #include "builtins.h"
 #include "control_flow.h"
+#include "Extensions/extension_hooks.h"
 #include "Utils/profiler.h"
 
 #include <stdio.h>
@@ -37,6 +38,7 @@ static Scope* runSemanticAnalysis(ASTNode* root,
     } else {
         analyze(root, globalScope);
         analyzeControlFlow(root, globalScope);
+        fisics_extension_run_semantic_scaffold(root, globalScope);
     }
 
     // Tentative definitions: promote remaining external tentative declarations to definitions

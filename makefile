@@ -359,7 +359,13 @@ integration-std-atomic: $(BIN)
 integration-std-atomic-link: $(BIN)
 	@./tests/integration/run_std_atomic_link.sh ./$(BIN)
 
-integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link
+integration-compat-routing: $(BIN)
+	@bash ./tests/integration/run_compat_routing.sh ./$(BIN)
+
+integration-overlay-units-scaffold: $(BIN)
+	@bash ./tests/integration/run_overlay_units_scaffold.sh ./$(BIN)
+
+integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold
 
 ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
@@ -909,7 +915,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-std-atomic integration-std-atomic-link
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1101,6 +1107,6 @@ tests: test frontend-api-test
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff test-binary-wave test-binary-id binary-regen \
-        integration-diags-pack integration-std-atomic integration-std-atomic-link ci-guardrails \
+        integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold ci-guardrails \
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

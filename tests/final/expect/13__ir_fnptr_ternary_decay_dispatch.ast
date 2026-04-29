@@ -37,7 +37,7 @@ PROGRAM
         IDENTIFIER pick
           = NUMBER_LITERAL 1
       VAR_DECL
-        TYPE: int (*)(int) (int)
+        TYPE: int (*)(int)
         IDENTIFIER fp
           = 
             TERNARY_EXPRESSION

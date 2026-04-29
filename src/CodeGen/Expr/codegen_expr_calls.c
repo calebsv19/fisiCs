@@ -109,9 +109,6 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     const Symbol* sym = cg_lookup_function_symbol_for_callee(ctx, node->functionCall.callee);
     bool noPrototype = sym && sym->kind == SYMBOL_FUNCTION && !sym->signature.hasPrototype;
     bool externalAbiEligible = cg_is_known_external_abi_function_name(calleeName);
-    bool externalDeclFunction = function &&
-        LLVMIsAFunction(function) &&
-        cg_is_external_decl_function(function);
 
     LLVMTypeRef calleeType = NULL;
     if (sym && !noPrototype) {
@@ -137,10 +134,6 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     if ((!calleeType || LLVMGetTypeKind(calleeType) != LLVMFunctionTypeKind) &&
         sym && !noPrototype) {
         calleeType = cg_function_type_from_symbol(ctx, sym);
-    }
-
-    if (!noPrototype && externalDeclFunction) {
-        externalAbiEligible = true;
     }
 
     size_t argCount = node->functionCall.argumentCount;
@@ -421,8 +414,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (!noPrototype &&
-        externalAbiEligible &&
-        externalDeclFunction) {
+        externalAbiEligible) {
         unsigned fixedParamCount = LLVMCountParamTypes(calleeType);
         bool isVariadic = LLVMIsFunctionVarArg(calleeType) != 0;
         if (fixedParamCount > 0) {
@@ -502,6 +494,13 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                     }
                 }
             }
+        }
+    }
+
+    if (!noPrototype && sym && sym->signature.hasPrototype) {
+        LLVMTypeRef signatureCalleeType = cg_function_type_from_symbol(ctx, sym);
+        if (signatureCalleeType && LLVMGetTypeKind(signatureCalleeType) == LLVMFunctionTypeKind) {
+            calleeType = signatureCalleeType;
         }
     }
 
@@ -598,6 +597,9 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     if (needsIndirectAggregateReturn) {
         callIndirectSRetSlot = cg_build_entry_alloca(ctx, semanticReturnTy, "call.indirect.sret.slot");
         if (callIndirectSRetSlot) {
+            LLVMBuildStore(ctx->builder,
+                           LLVMConstNull(semanticReturnTy),
+                           callIndirectSRetSlot);
             if (calleeAlreadyUsesIndirectSRet) {
                 callIndirectSRetArgs = (LLVMValueRef*)calloc(argCount + 1u, sizeof(LLVMValueRef));
                 if (callIndirectSRetArgs) {

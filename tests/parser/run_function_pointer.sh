@@ -14,7 +14,7 @@ trap 'rm -f "$TMP_OUTPUT"' EXIT
 "$BIN" tests/parser/function_pointer.c > "$TMP_OUTPUT"
 
 if ! grep -Fq "FUNCTION DECLARATION" "$TMP_OUTPUT" && ! grep -Fq "FUNCTION_POINTER" "$TMP_OUTPUT"; then
-  if ! grep -Fq "VAR_DECL" "$TMP_OUTPUT" || { ! grep -Fq "(*fn)" "$TMP_OUTPUT" && ! grep -Fq "TYPE: I* ()" "$TMP_OUTPUT" && ! grep -Fq "TYPE: I (*)() ()" "$TMP_OUTPUT"; }; then
+  if ! grep -Fq "VAR_DECL" "$TMP_OUTPUT" || { ! grep -Fq "(*fn)" "$TMP_OUTPUT" && ! grep -Fq "TYPE: I (*)()" "$TMP_OUTPUT" && ! grep -Fq "TYPE: I* ()" "$TMP_OUTPUT" && ! grep -Fq "TYPE: I (*)() ()" "$TMP_OUTPUT"; }; then
     echo "Expected function pointer declaration not present" >&2
     cat "$TMP_OUTPUT" >&2
     exit 1

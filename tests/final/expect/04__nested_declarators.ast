@@ -4,14 +4,14 @@ PROGRAM
     TYPE: int*
     IDENTIFIER p
   VAR_DECL
-    TYPE: int (*)(int, char) (int, char)
+    TYPE: int (*)(int, char)
     IDENTIFIER fp
   VAR_DECL
-    TYPE: int (*)() [3] ()
+    TYPE: int (*)() [3]
     IDENTIFIER ap
   VAR_DECL
-    TYPE: int (**)(int, char*) (int, char*)
+    TYPE: int (**)(int, char*)
     IDENTIFIER fpa
   VAR_DECL
-    TYPE: int (**)(char*) (int) (char*)
+    TYPE: int (**)(char*)
     IDENTIFIER fn

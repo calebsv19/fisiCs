@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "Preprocessor/include_resolver.h"
 #include "Compiler/diagnostics.h"
+#include "Extensions/extension_profile.h"
 #include "Syntax/target_layout.h"
 
 #ifdef __cplusplus
@@ -35,6 +36,7 @@ typedef struct {
 // ---- CompilerContext: shared across the whole translation unit ----
 struct ASTNode;
 struct CCTagFieldLayout;
+struct FisicsExtensionState;
 
 typedef struct {
     char* name;
@@ -154,6 +156,15 @@ typedef struct {
     size_t capacity;
 } CompilerIncludes;
 
+typedef uint64_t CCCompatFeatures;
+
+enum {
+    CC_COMPAT_NONE = 0,
+    CC_COMPAT_PROFILE_GNU = (1ULL << 0),
+    CC_COMPAT_BLOCK_POINTERS = (1ULL << 1),
+    CC_COMPAT_RELAXED_ATOMIC = (1ULL << 2)
+};
+
 typedef struct CompilerContext {
     CCStringSet typedef_names;  // names introduced by 'typedef'
     CCTagTable tag_struct;      // struct tag metadata
@@ -174,7 +185,9 @@ typedef struct CompilerContext {
     CompilerIncludes includes;
     struct ASTNode* translationUnit;
     int languageDialect;        // CCDialect encoded as int to avoid circular include
-    bool enableExtensions;
+    CCCompatFeatures compatFeatures;
+    FisicsOverlayFeatures overlayFeatures;
+    struct FisicsExtensionState* extensionState;
 } CompilerContext;
 
 typedef enum {
@@ -195,8 +208,18 @@ void cc_destroy(CompilerContext* ctx);
 void cc_seed_builtins(CompilerContext* ctx);
 void cc_set_language_dialect(CompilerContext* ctx, CCDialect dialect);
 CCDialect cc_get_language_dialect(const CompilerContext* ctx);
-void cc_set_extensions_enabled(CompilerContext* ctx, bool enabled);
-bool cc_extensions_enabled(const CompilerContext* ctx);
+CCCompatFeatures cc_gnu_compat_features(void);
+void cc_set_compat_features(CompilerContext* ctx, CCCompatFeatures features);
+CCCompatFeatures cc_get_compat_features(const CompilerContext* ctx);
+bool cc_has_compat_feature(const CompilerContext* ctx, CCCompatFeatures feature);
+bool cc_has_any_compat_features(const CompilerContext* ctx);
+bool cc_compat_block_pointers_enabled(const CompilerContext* ctx);
+bool cc_compat_relaxed_atomic_enabled(const CompilerContext* ctx);
+void cc_set_overlay_features(CompilerContext* ctx, FisicsOverlayFeatures features);
+FisicsOverlayFeatures cc_get_overlay_features(const CompilerContext* ctx);
+bool cc_has_overlay_feature(const CompilerContext* ctx, FisicsOverlayFeatures feature);
+bool cc_has_any_overlay_features(const CompilerContext* ctx);
+bool cc_overlay_physics_units_enabled(const CompilerContext* ctx);
 long cc_dialect_stdc_version(CCDialect dialect);
 
 // ---- Typedef-name namespace ----

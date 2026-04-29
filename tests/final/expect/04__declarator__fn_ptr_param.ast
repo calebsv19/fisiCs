@@ -5,7 +5,7 @@ PROGRAM
     IDENTIFIER apply_callback
     PARAMETERS
       VAR_DECL
-        TYPE: int (*)(int) (int)
+        TYPE: int (*)(int)
         IDENTIFIER cb
       VAR_DECL
         TYPE: int

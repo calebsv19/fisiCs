@@ -1,5 +1,17 @@
 AST:
 PROGRAM
+  FUNCTION DECLARATION
+    RETURN TYPE: int
+    IDENTIFIER annotated
+    PARAMETERS:
+      ATTRIBUTE [GNU] unused
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER x
+      ATTRIBUTE [CXX] maybe_unused
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER y
   FUNCTION DEFINITION
     RETURN TYPE: int
     IDENTIFIER main

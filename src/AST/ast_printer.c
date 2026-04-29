@@ -70,8 +70,8 @@ static void printParsedType_inner(const ParsedType* pt) {
         printf(" (");
         if (pt->derivationCount > 0) {
             bool sawPointer = false;
-            for (size_t i = 0; i < pt->derivationCount; ++i) {
-                const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i);
+            for (size_t i = pt->derivationCount; i > 0; --i) {
+                const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i - 1);
                 if (!deriv || deriv->kind != TYPE_DERIVATION_POINTER) {
                     continue;
                 }
@@ -97,8 +97,8 @@ static void printParsedType_inner(const ParsedType* pt) {
         printf(")");
     } else {
         if (pt->derivationCount > 0) {
-            for (size_t i = 0; i < pt->derivationCount; ++i) {
-                const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i);
+            for (size_t i = pt->derivationCount; i > 0; --i) {
+                const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i - 1);
                 if (!deriv || deriv->kind != TYPE_DERIVATION_POINTER) {
                     continue;
                 }
@@ -138,6 +138,9 @@ static void printParsedType_inner(const ParsedType* pt) {
                 printf("]");
                 break;
             case TYPE_DERIVATION_FUNCTION: {
+                if (pt->isFunctionPointer) {
+                    break;
+                }
                 printf(" (");
                 for (size_t p = 0; p < deriv->as.function.paramCount; ++p) {
                     if (p) printf(", ");

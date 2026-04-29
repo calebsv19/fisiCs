@@ -59,8 +59,10 @@ PROGRAM
 
 
 Diagnostics:
-Error at (0:0): Flexible array member must be the last field in a struct
+Error at (4:33): Flexible array member must be the last field in a struct
    Hint: data
-Error at (0:0): Flexible array members are not allowed in unions
+   Spelling: tests/syntax/semantic_flexible_array.c:4:33
+Error at (5:34): Flexible array members are not allowed in unions
    Hint: data
+   Spelling: tests/syntax/semantic_flexible_array.c:5:34
 

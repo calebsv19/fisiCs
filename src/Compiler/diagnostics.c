@@ -44,6 +44,9 @@ static int map_diag_severity_id(DiagKind kind) {
 }
 
 static int map_diag_category_id(int code) {
+    if (code >= FISICS_DIAG_CODE_EXTENSION_GENERIC) {
+        return FISICS_DIAG_CATEGORY_EXTENSION;
+    }
     if (code >= FISICS_DIAG_CODE_PREPROCESSOR_GENERIC) {
         return FISICS_DIAG_CATEGORY_PREPROCESSOR;
     }

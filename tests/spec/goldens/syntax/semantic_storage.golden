@@ -69,7 +69,7 @@ Error at (17:0): Invalid storage class at file scope
 Error at (18:11): Undeclared identifier
    Hint: regvar
    Spelling: tests/syntax/semantic_storage.c:18:11
-Error at (18:11): Operator '&' requires lvalue operand
-   Spelling: tests/syntax/semantic_storage.c:18:11
+Error at (18:10): Operator '&' requires lvalue operand
+   Spelling: tests/syntax/semantic_storage.c:18:10
 Error at (18:0): Initializer for static variable 'p' is not a constant expression
 

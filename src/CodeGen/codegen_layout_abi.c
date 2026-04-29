@@ -598,15 +598,6 @@ LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
     if (passIndirect && valueType) {
         return LLVMPointerType(valueType, 0);
     }
-    if (valueType) {
-        LLVMTypeKind kind = LLVMGetTypeKind(valueType);
-        if (kind == LLVMStructTypeKind || kind == LLVMArrayTypeKind) {
-            LLVMTypeRef coercedType = cg_external_abi_coerce_param_type(ctx, valueType);
-            if (coercedType) {
-                return coercedType;
-            }
-        }
-    }
     return valueType;
 }
 

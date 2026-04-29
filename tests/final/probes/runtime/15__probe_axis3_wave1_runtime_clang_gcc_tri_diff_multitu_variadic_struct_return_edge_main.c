@@ -33,7 +33,7 @@ int main(void) {
             1.0L + (long double)i * 0.25L,
             0.75L + (long double)i * 0.125L,
             i + 2,
-            7,
+            6,
             0, 0.5L + (long double)i * 0.0625L,
             1, 9 + i * 3,
             0, 1.125L + (long double)i * 0.03125L,

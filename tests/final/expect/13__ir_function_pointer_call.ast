@@ -21,7 +21,7 @@ PROGRAM
         IDENTIFIER __unnamed_param0
     BLOCK
       VAR_DECL
-        TYPE: int (*)(int) (int)
+        TYPE: int (*)(int)
         IDENTIFIER fp
           = IDENTIFIER inc
       RETURN

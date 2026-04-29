@@ -40,6 +40,8 @@ PROGRAM
 
 
 Diagnostics:
-Error at (7:0): Assignment discards qualifiers from pointer target
-Error at (12:0): Return discards qualifiers from pointer target
+Error at (7:5): Assignment discards qualifiers from pointer target
+   Spelling: tests/syntax/semantic_pointer_qualifier_deep.c:7:5
+Error at (12:12): Return discards qualifiers from pointer target
+   Spelling: tests/syntax/semantic_pointer_qualifier_deep.c:12:12
 

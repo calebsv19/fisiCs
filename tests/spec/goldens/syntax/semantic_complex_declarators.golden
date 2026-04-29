@@ -63,7 +63,7 @@ PROGRAM
         IDENTIFIER x
           = NUMBER_LITERAL 3
       VAR_DECL
-        TYPE: int (**)(int*) (int*)
+        TYPE: int (**)(int*)
         IDENTIFIER fp
           = IDENTIFIER retptr
       VAR_DECL

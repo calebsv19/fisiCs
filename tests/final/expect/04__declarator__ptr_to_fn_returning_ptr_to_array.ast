@@ -21,7 +21,7 @@ PROGRAM
         UNARY EXPRESSION '&' (prefix)
           IDENTIFIER storage
   VAR_DECL
-    TYPE: int (**)() () [3]
+    TYPE: int (**)() [3]
     IDENTIFIER fp
       = IDENTIFIER ret_array
   FUNCTION DEFINITION

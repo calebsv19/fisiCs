@@ -3,7 +3,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER S
     VAR_DECL
-      TYPE: int (*)(int) (int)
+      TYPE: int (*)(int)
       IDENTIFIER fn
     VAR_DECL
       TYPE: int

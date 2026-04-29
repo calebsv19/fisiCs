@@ -33,7 +33,7 @@ PROGRAM
         IDENTIFIER __unnamed_param0
     BLOCK
       VAR_DECL
-        TYPE: int (*)(int) [2] (int)
+        TYPE: int (*)(int) [2]
         IDENTIFIER ops
             = IDENTIFIER inc
 

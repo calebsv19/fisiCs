@@ -18,6 +18,7 @@
 
 #include "main_internal.h"
 #include "Compiler/pipeline.h"
+#include "Extensions/extension_profile.h"
 #include "Syntax/target_layout.h"
 #include "Utils/profiler.h"
 #include "Utils/utils.h"
@@ -392,26 +393,109 @@ static bool validate_shim_profile_contract(void) {
 #define ENABLE_SYNTAX_CHECK      1
 #define ENABLE_CODEGEN           1
 
-static bool parse_std_mode(const char* mode, CCDialect* dialect, bool* enableExtensions) {
-    if (!mode || !dialect || !enableExtensions) return false;
+static char* trim_in_place(char* text) {
+    if (!text) return NULL;
+    while (*text == ' ' || *text == '\t' || *text == '\n' || *text == '\r') {
+        ++text;
+    }
+    size_t len = strlen(text);
+    while (len > 0) {
+        char c = text[len - 1];
+        if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+            break;
+        }
+        text[--len] = '\0';
+    }
+    return text;
+}
+
+static bool parse_compat_mode(const char* mode, CCCompatFeatures* compatFeatures) {
+    if (!mode || !compatFeatures) return false;
+
+    if (strcmp(mode, "0") == 0 ||
+        strcmp(mode, "off") == 0 ||
+        strcmp(mode, "none") == 0) {
+        *compatFeatures = CC_COMPAT_NONE;
+        return true;
+    }
+    if (strcmp(mode, "1") == 0 ||
+        strcmp(mode, "on") == 0 ||
+        strcmp(mode, "gnu") == 0 ||
+        strcmp(mode, "all") == 0) {
+        *compatFeatures = cc_gnu_compat_features();
+        return true;
+    }
+
+    char* copy = strdup(mode);
+    if (!copy) {
+        return false;
+    }
+
+    bool ok = true;
+    CCCompatFeatures parsed = CC_COMPAT_NONE;
+    char* save = NULL;
+    for (char* tok = strtok_r(copy, ",", &save);
+         tok;
+         tok = strtok_r(NULL, ",", &save)) {
+        char* part = trim_in_place(tok);
+        if (!part || part[0] == '\0') {
+            ok = false;
+            break;
+        }
+        if (strcmp(part, "gnu") == 0 ||
+            strcmp(part, "profile-gnu") == 0 ||
+            strcmp(part, "profile_gnu") == 0 ||
+            strcmp(part, "all") == 0) {
+            parsed |= cc_gnu_compat_features();
+        } else if (strcmp(part, "block-pointers") == 0 ||
+                   strcmp(part, "block_pointers") == 0 ||
+                   strcmp(part, "blocks") == 0) {
+            parsed |= CC_COMPAT_BLOCK_POINTERS;
+        } else if (strcmp(part, "relaxed-atomic") == 0 ||
+                   strcmp(part, "relaxed_atomic") == 0 ||
+                   strcmp(part, "atomic") == 0) {
+            parsed |= CC_COMPAT_RELAXED_ATOMIC;
+        } else {
+            ok = false;
+            break;
+        }
+    }
+
+    free(copy);
+    if (!ok) {
+        return false;
+    }
+
+    *compatFeatures = parsed;
+    return true;
+}
+
+static bool parse_std_mode(const char* mode, CCDialect* dialect, CCCompatFeatures* compatFeatures) {
+    if (!mode || !dialect || !compatFeatures) return false;
 
     if (strcmp(mode, "c99") == 0 || strcmp(mode, "iso9899:1999") == 0 ||
         strcmp(mode, "gnu99") == 0) {
         *dialect = CC_DIALECT_C99;
-        *enableExtensions = (strcmp(mode, "gnu99") == 0);
+        *compatFeatures = (strcmp(mode, "gnu99") == 0)
+            ? cc_gnu_compat_features()
+            : CC_COMPAT_NONE;
         return true;
     }
     if (strcmp(mode, "c11") == 0 || strcmp(mode, "iso9899:2011") == 0 ||
         strcmp(mode, "gnu11") == 0) {
         *dialect = CC_DIALECT_C11;
-        *enableExtensions = (strcmp(mode, "gnu11") == 0);
+        *compatFeatures = (strcmp(mode, "gnu11") == 0)
+            ? cc_gnu_compat_features()
+            : CC_COMPAT_NONE;
         return true;
     }
     if (strcmp(mode, "c17") == 0 || strcmp(mode, "c18") == 0 ||
         strcmp(mode, "iso9899:2017") == 0 || strcmp(mode, "iso9899:2018") == 0 ||
         strcmp(mode, "gnu17") == 0 || strcmp(mode, "gnu18") == 0) {
         *dialect = CC_DIALECT_C17;
-        *enableExtensions = (strcmp(mode, "gnu17") == 0 || strcmp(mode, "gnu18") == 0);
+        *compatFeatures = (strcmp(mode, "gnu17") == 0 || strcmp(mode, "gnu18") == 0)
+            ? cc_gnu_compat_features()
+            : CC_COMPAT_NONE;
         return true;
     }
     return false;
@@ -459,7 +543,8 @@ int main(int argc, char **argv) {
     const char* externalPreprocessCmd = NULL;
     const char* externalPreprocessArgs = NULL;
     CCDialect dialect = CC_DIALECT_C99;
-    bool enableExtensions = false;
+    CCCompatFeatures compatFeatures = CC_COMPAT_NONE;
+    FisicsOverlayFeatures overlayFeatures = FISICS_OVERLAY_NONE;
     StringList includePaths = {0};
     StringList macroDefines = {0};
     StringList forcedIncludes = {0};
@@ -617,17 +702,25 @@ int main(int argc, char **argv) {
             }
         } else if (strncmp(argv[i], "-std=", 5) == 0) {
             const char* mode = argv[i] + 5;
-            if (!parse_std_mode(mode, &dialect, &enableExtensions)) {
+            if (!parse_std_mode(mode, &dialect, &compatFeatures)) {
                 fprintf(stderr, "Warning: unsupported -std mode '%s' (keeping current dialect)\n", mode);
+            }
+        } else if (strncmp(argv[i], "--compat=", 9) == 0) {
+            const char* mode = argv[i] + 9;
+            if (!parse_compat_mode(mode, &compatFeatures)) {
+                fprintf(stderr, "Error: unknown compatibility mode '%s'\n", mode);
+                goto fail;
             }
         } else if (strncmp(argv[i], "--extensions=", 13) == 0) {
             const char* mode = argv[i] + 13;
-            if (strcmp(mode, "gnu") == 0 || strcmp(mode, "on") == 0) {
-                enableExtensions = true;
-            } else if (strcmp(mode, "off") == 0 || strcmp(mode, "none") == 0) {
-                enableExtensions = false;
-            } else {
+            if (!parse_compat_mode(mode, &compatFeatures)) {
                 fprintf(stderr, "Error: unknown extensions mode '%s'\n", mode);
+                goto fail;
+            }
+        } else if (strncmp(argv[i], "--overlay=", 10) == 0) {
+            const char* mode = argv[i] + 10;
+            if (!fisics_parse_overlay_mode(mode, &overlayFeatures)) {
+                fprintf(stderr, "Error: unknown overlay mode '%s'\n", mode);
                 goto fail;
             }
         } else if (strncmp(argv[i], "--preprocess=", 13) == 0) {
@@ -722,11 +815,29 @@ int main(int argc, char **argv) {
             dialect = CC_DIALECT_C17;
         }
     }
+    const char* compatEnv = getenv("FISICS_COMPAT");
+    if (compatEnv && compatEnv[0]) {
+        if (!parse_compat_mode(compatEnv, &compatFeatures)) {
+            fprintf(stderr,
+                    "Warning: unsupported FISICS_COMPAT mode '%s' (keeping current compatibility profile)\n",
+                    compatEnv);
+        }
+    }
     const char* extEnv = getenv("FISICS_EXTENSIONS");
     if (extEnv && extEnv[0]) {
-        enableExtensions = (strcmp(extEnv, "1") == 0 ||
-                            strcmp(extEnv, "on") == 0 ||
-                            strcmp(extEnv, "gnu") == 0);
+        if (!parse_compat_mode(extEnv, &compatFeatures)) {
+            fprintf(stderr,
+                    "Warning: unsupported FISICS_EXTENSIONS mode '%s' (keeping current compatibility profile)\n",
+                    extEnv);
+        }
+    }
+    const char* overlayEnv = getenv("FISICS_OVERLAY");
+    if (overlayEnv && overlayEnv[0]) {
+        if (!fisics_parse_overlay_mode(overlayEnv, &overlayFeatures)) {
+            fprintf(stderr,
+                    "Warning: unsupported FISICS_OVERLAY mode '%s' (keeping current overlay profile)\n",
+                    overlayEnv);
+        }
     }
 
     const char* depsEnv = getenv("EMIT_DEPS_JSON");
@@ -781,7 +892,8 @@ int main(int argc, char **argv) {
             .externalPreprocessCmd = externalPreprocessCmd,
             .externalPreprocessArgs = externalPreprocessArgs,
             .dialect = dialect,
-            .enableExtensions = enableExtensions,
+            .compatFeatures = compatFeatures,
+            .overlayFeatures = overlayFeatures,
             .enableCodegen = enableCodegen,
             .includePaths = &includePaths,
             .macroDefines = &macroDefines,
@@ -830,7 +942,8 @@ int main(int argc, char **argv) {
         .externalPreprocessCmd = externalPreprocessCmd,
         .externalPreprocessArgs = externalPreprocessArgs,
         .dialect = dialect,
-        .enableExtensions = enableExtensions,
+        .compatFeatures = compatFeatures,
+        .overlayFeatures = overlayFeatures,
         .dumpAst = dumpAst || ENABLE_AST_PRINT,
         .dumpSemantic = dumpSemantic || ENABLE_SYNTAX_CHECK,
         .dumpIR = dumpIR || (enableCodegen && ENABLE_CODEGEN),

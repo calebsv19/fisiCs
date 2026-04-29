@@ -1,0 +1,256 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER Base
+  TYPEDEF
+        TYPE: Base [4]
+        Alias:     IDENTIFIER Vec4
+  TYPEDEF
+        TYPE: Base (*)(Base)
+        Alias:     IDENTIFIER UnaryFn
+  TYPEDEF
+        TYPE: Base (*)(Base, Base)
+        Alias:     IDENTIFIER BinaryFn
+  TYPEDEF
+        TYPE: struct Node
+        Alias:     IDENTIFIER Node
+  FUNCTION DEFINITION
+    RETURN TYPE: static Base
+    IDENTIFIER inc
+    PARAMETERS
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: static Base
+    IDENTIFIER dec
+    PARAMETERS
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '-'
+          IDENTIFIER x
+          NUMBER_LITERAL 1
+  FUNCTION DEFINITION
+    RETURN TYPE: static Base
+    IDENTIFIER add
+    PARAMETERS
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER x
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER y
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: static Base
+    IDENTIFIER apply_unary
+    PARAMETERS
+      VAR_DECL
+        TYPE: UnaryFn
+        IDENTIFIER fn
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER x
+    BLOCK
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER fn
+          ARGUMENTS
+            IDENTIFIER x
+  FUNCTION DEFINITION
+    RETURN TYPE: static Base
+    IDENTIFIER apply_binary
+    PARAMETERS
+      VAR_DECL
+        TYPE: BinaryFn
+        IDENTIFIER fn
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER x
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER y
+    BLOCK
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER fn
+          ARGUMENTS
+            IDENTIFIER x
+            IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: static Base
+    IDENTIFIER bench_type_forms
+    PARAMETERS
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER seed
+    BLOCK
+      VAR_DECL
+        TYPE: Vec4
+        IDENTIFIER local
+            = NUMBER_LITERAL 1
+
+            = NUMBER_LITERAL 2
+
+            = NUMBER_LITERAL 3
+
+            = NUMBER_LITERAL 4
+
+      VAR_DECL
+        TYPE: UnaryFn [2]
+        IDENTIFIER unary_table
+            = IDENTIFIER inc
+
+            = IDENTIFIER dec
+
+      VAR_DECL
+        TYPE: BinaryFn [1]
+        IDENTIFIER binary_table
+            = IDENTIFIER add
+
+      VAR_DECL
+        TYPE: Node [2]
+        IDENTIFIER nodes
+            = 
+              = IDENTIFIER seed
+
+              = NUMBER_LITERAL 0
+
+            = 
+              = (Unrecognized for inline: type 19)              = NUMBER_LITERAL 0
+
+      VAR_DECL
+        TYPE: Node*
+        IDENTIFIER head
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              ARRAY_ACCESS
+                IDENTIFIER nodes
+                NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: Base (**)(int) [2]
+        IDENTIFIER pick_table
+      VAR_DECL
+        TYPE: Base
+        IDENTIFIER sum
+          = NUMBER_LITERAL 0
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          ARRAY_ACCESS
+            IDENTIFIER nodes
+            NUMBER_LITERAL 0
+          FIELD next
+        UNARY EXPRESSION '&' (prefix)
+          ARRAY_ACCESS
+            IDENTIFIER nodes
+            NUMBER_LITERAL 1
+      ASSIGNMENT (=)
+        IDENTIFIER head
+        POINTER_ACCESS '->'
+          IDENTIFIER head
+          FIELD next
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        FUNCTION CALL
+          IDENTIFIER apply_unary
+          ARGUMENTS
+            ARRAY_ACCESS
+              IDENTIFIER unary_table
+              NUMBER_LITERAL 0
+            IDENTIFIER seed
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        FUNCTION CALL
+          IDENTIFIER apply_unary
+          ARGUMENTS
+            ARRAY_ACCESS
+              IDENTIFIER unary_table
+              NUMBER_LITERAL 1
+            IDENTIFIER seed
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        FUNCTION CALL
+          IDENTIFIER apply_binary
+          ARGUMENTS
+            ARRAY_ACCESS
+              IDENTIFIER binary_table
+              NUMBER_LITERAL 0
+            ARRAY_ACCESS
+              IDENTIFIER local
+              NUMBER_LITERAL 0
+            ARRAY_ACCESS
+              IDENTIFIER local
+              NUMBER_LITERAL 1
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        CAST_EXPRESSION
+                    CAST TYPE: Base
+          ARRAY_ACCESS
+            IDENTIFIER local
+            NUMBER_LITERAL 2
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        DOT_ACCESS '.'
+          COMPOUND_LITERAL
+            TYPE: Node
+            = (Unrecognized for inline: type 19)            = IDENTIFIER head
+
+          FIELD value
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        POINTER_ACCESS '->'
+          DOT_ACCESS '.'
+            COMPOUND_LITERAL
+              TYPE: Node
+              = (Unrecognized for inline: type 19)              = IDENTIFIER head
+
+            FIELD next
+          FIELD value
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        SIZEOF
+                    PARSED_TYPE Vec4
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        SIZEOF
+                    PARSED_TYPE UnaryFn
+      ASSIGNMENT (+=)
+        IDENTIFIER sum
+        BINARY EXPRESSION '=='
+          IDENTIFIER pick_table
+          NUMBER_LITERAL 0
+      RETURN
+        IDENTIFIER sum
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '=='
+          FUNCTION CALL
+            IDENTIFIER bench_type_forms
+            ARGUMENTS
+              NUMBER_LITERAL 7
+          NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

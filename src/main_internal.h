@@ -41,7 +41,8 @@ typedef struct {
     const char* externalPreprocessCmd;
     const char* externalPreprocessArgs;
     CCDialect dialect;
-    bool enableExtensions;
+    CCCompatFeatures compatFeatures;
+    FisicsOverlayFeatures overlayFeatures;
     int enableCodegen;
     const StringList* includePaths;
     const StringList* macroDefines;

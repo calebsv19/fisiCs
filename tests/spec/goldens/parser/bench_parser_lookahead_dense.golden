@@ -1,0 +1,302 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T0
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T1
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T2
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T3
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T4
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T5
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T6
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T7
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T8
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T9
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T10
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T11
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T12
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T13
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T14
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T15
+  TYPEDEF
+        TYPE: struct Pair
+        Alias:     IDENTIFIER Pair
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER bench_statement_mix
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER seed
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER acc
+          = IDENTIFIER seed
+      BLOCK
+        VAR_DECL
+          TYPE: T0
+          IDENTIFIER a0
+            = IDENTIFIER acc
+        VAR_DECL
+          TYPE: T1
+          IDENTIFIER b0
+            = 
+              CAST_EXPRESSION
+                                CAST TYPE: T1
+                BINARY EXPRESSION '+'
+                  IDENTIFIER a0
+                  NUMBER_LITERAL 1
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          IDENTIFIER a0
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          CAST_EXPRESSION
+                        CAST TYPE: T2
+            IDENTIFIER b0
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          CAST_EXPRESSION
+                        CAST TYPE: T3
+            IDENTIFIER acc
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          DOT_ACCESS '.'
+            COMPOUND_LITERAL
+              TYPE: Pair
+              = IDENTIFIER a0
+
+              = IDENTIFIER b0
+
+            FIELD left
+      BLOCK
+        VAR_DECL
+          TYPE: T4
+          IDENTIFIER a1
+            = IDENTIFIER acc
+        VAR_DECL
+          TYPE: T5
+          IDENTIFIER b1
+            = 
+              CAST_EXPRESSION
+                                CAST TYPE: T5
+                BINARY EXPRESSION '+'
+                  IDENTIFIER a1
+                  NUMBER_LITERAL 2
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          IDENTIFIER a1
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          CAST_EXPRESSION
+                        CAST TYPE: T6
+            IDENTIFIER b1
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          CAST_EXPRESSION
+                        CAST TYPE: T7
+            IDENTIFIER acc
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          DOT_ACCESS '.'
+            COMPOUND_LITERAL
+              TYPE: Pair
+              = IDENTIFIER a1
+
+              = IDENTIFIER b1
+
+            FIELD right
+      BLOCK
+        VAR_DECL
+          TYPE: T8
+          IDENTIFIER a2
+            = IDENTIFIER acc
+        VAR_DECL
+          TYPE: T9
+          IDENTIFIER b2
+            = 
+              CAST_EXPRESSION
+                                CAST TYPE: T9
+                BINARY EXPRESSION '+'
+                  IDENTIFIER a2
+                  NUMBER_LITERAL 3
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          IDENTIFIER a2
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          CAST_EXPRESSION
+                        CAST TYPE: T10
+            IDENTIFIER b2
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          CAST_EXPRESSION
+                        CAST TYPE: T11
+            IDENTIFIER acc
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          DOT_ACCESS '.'
+            COMPOUND_LITERAL
+              TYPE: Pair
+              = IDENTIFIER a2
+
+              = IDENTIFIER b2
+
+            FIELD left
+      BLOCK
+        VAR_DECL
+          TYPE: T12
+          IDENTIFIER a3
+            = IDENTIFIER acc
+        VAR_DECL
+          TYPE: T13
+          IDENTIFIER b3
+            = 
+              CAST_EXPRESSION
+                                CAST TYPE: T13
+                BINARY EXPRESSION '+'
+                  IDENTIFIER a3
+                  NUMBER_LITERAL 4
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          IDENTIFIER a3
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          CAST_EXPRESSION
+                        CAST TYPE: T14
+            IDENTIFIER b3
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          CAST_EXPRESSION
+                        CAST TYPE: T15
+            IDENTIFIER acc
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          DOT_ACCESS '.'
+            COMPOUND_LITERAL
+              TYPE: Pair
+              = IDENTIFIER a3
+
+              = IDENTIFIER b3
+
+            FIELD right
+      ASSIGNMENT (+=)
+        IDENTIFIER acc
+        CAST_EXPRESSION
+                    CAST TYPE: T0
+          BINARY EXPRESSION '+'
+            IDENTIFIER acc
+            NUMBER_LITERAL 5
+      ASSIGNMENT (+=)
+        IDENTIFIER acc
+        CAST_EXPRESSION
+                    CAST TYPE: T1
+          BINARY EXPRESSION '+'
+            IDENTIFIER acc
+            NUMBER_LITERAL 6
+      ASSIGNMENT (+=)
+        IDENTIFIER acc
+        CAST_EXPRESSION
+                    CAST TYPE: T2
+          BINARY EXPRESSION '+'
+            IDENTIFIER acc
+            NUMBER_LITERAL 7
+      ASSIGNMENT (+=)
+        IDENTIFIER acc
+        CAST_EXPRESSION
+                    CAST TYPE: T3
+          BINARY EXPRESSION '+'
+            IDENTIFIER acc
+            NUMBER_LITERAL 8
+      ASSIGNMENT (+=)
+        IDENTIFIER acc
+        DOT_ACCESS '.'
+          COMPOUND_LITERAL
+            TYPE: Pair
+            = IDENTIFIER acc
+
+            = NUMBER_LITERAL 9
+
+          FIELD left
+      ASSIGNMENT (+=)
+        IDENTIFIER acc
+        DOT_ACCESS '.'
+          COMPOUND_LITERAL
+            TYPE: Pair
+            = IDENTIFIER acc
+
+            = NUMBER_LITERAL 10
+
+          FIELD right
+      RETURN
+        IDENTIFIER acc
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER total
+          = NUMBER_LITERAL 0
+      ASSIGNMENT (+=)
+        IDENTIFIER total
+        FUNCTION CALL
+          IDENTIFIER bench_statement_mix
+          ARGUMENTS
+            NUMBER_LITERAL 1
+      ASSIGNMENT (+=)
+        IDENTIFIER total
+        FUNCTION CALL
+          IDENTIFIER bench_statement_mix
+          ARGUMENTS
+            NUMBER_LITERAL 2
+      ASSIGNMENT (+=)
+        IDENTIFIER total
+        FUNCTION CALL
+          IDENTIFIER bench_statement_mix
+          ARGUMENTS
+            NUMBER_LITERAL 3
+      RETURN
+        BINARY EXPRESSION '=='
+          IDENTIFIER total
+          NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

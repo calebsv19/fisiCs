@@ -204,7 +204,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_pthread_handler_rec
     VAR_DECL
-      TYPE: void (*)(void*) (void*)
+      TYPE: void (*)(void*)
       IDENTIFIER __routine
     VAR_DECL
       TYPE: void*

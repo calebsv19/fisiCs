@@ -20,7 +20,7 @@ PROGRAM
     IDENTIFIER apply
     PARAMETERS
       VAR_DECL
-        TYPE: int (*)(int, int) (int, int)
+        TYPE: int (*)(int, int)
         IDENTIFIER fn
       VAR_DECL
         TYPE: int

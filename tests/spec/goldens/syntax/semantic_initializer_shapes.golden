@@ -94,7 +94,8 @@ PROGRAM
 Diagnostics:
 Error at (8:0): Excess elements in scalar initializer for 'scalar_bad'
 Error at (12:0): Too many initializers for array 'arr_too_many' (size 2)
-Error at (14:0): Array 'arr_designator' designator index 2 is out of bounds (size 2)
+Error at (14:32): Array 'arr_designator' designator index 2 is out of bounds (size 2)
+   Spelling: tests/syntax/semantic_initializer_shapes.c:14:32
 Error at (16:0): Excess elements in scalar initializer for 'nested'
 Error at (18:0): String literal for array 'label' is too long (needs 5, size 3)
 

@@ -37,7 +37,7 @@ PROGRAM
         IDENTIFIER p
           = IDENTIFIER arr
       VAR_DECL
-        TYPE: int (*)(int, int) (int, int)
+        TYPE: int (*)(int, int)
         IDENTIFIER fp
           = IDENTIFIER add
       RETURN

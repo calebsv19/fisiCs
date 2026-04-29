@@ -11,6 +11,7 @@ static void validateScalarCompoundLiteral(ASTNode* compound,
                                           const char* name);
 static bool typeInfoIsStructLike(const TypeInfo* info);
 static bool typeInfoIsCharLike(const TypeInfo* info);
+static bool typeInfoIsWideCharLike(const TypeInfo* info);
 static const TypeDerivation* findFunctionDerivationInType(const ParsedType* type);
 static bool parsedTypeIsPlainVoidType(const ParsedType* type);
 static bool functionDerivationHasPrototypeParams(const TypeDerivation* fn);
@@ -278,6 +279,10 @@ static bool typeInfoIsCharLike(const TypeInfo* info) {
     return info && info->category == TYPEINFO_INTEGER && info->bitWidth == 8;
 }
 
+static bool typeInfoIsWideCharLike(const TypeInfo* info) {
+    return info && info->category == TYPEINFO_INTEGER && info->bitWidth > 8;
+}
+
 static const TypeDerivation* findFunctionDerivationInType(const ParsedType* type) {
     if (!type) return NULL;
     for (size_t i = 0; i < type->derivationCount; ++i) {
@@ -515,13 +520,19 @@ static void validateArrayInitializerEntries(ParsedType* type,
     TypeInfo elementInfo = typeInfoFromParsedType(&elementParsed, scope);
     bool elementIsArray = parsedTypeIsDirectArray(&elementParsed);
 
-    if (valueCount == 1 && isStringLiteralInitializer(values[0]) && typeInfoIsCharLike(&elementInfo)) {
+    if (valueCount == 1 && isStringLiteralInitializer(values[0])) {
+        const char* payload = NULL;
+        LiteralEncoding enc = ast_literal_encoding(values[0]->expression->valueNode.value, &payload);
+        bool narrowCompat = (enc == LIT_ENC_NARROW || enc == LIT_ENC_UTF8) && typeInfoIsCharLike(&elementInfo);
+        bool wideCompat = enc == LIT_ENC_WIDE && typeInfoIsWideCharLike(&elementInfo);
+        if (!narrowCompat && !wideCompat) {
+            parsedTypeFree(&elementParsed);
+            return;
+        }
         int charBitWidth = elementInfo.bitWidth ? (int)elementInfo.bitWidth : 8;
-        LiteralDecodeResult res =
-            decode_c_string_literal(values[0]->expression->valueNode.value,
-                                    charBitWidth,
-                                    NULL,
-                                    NULL);
+        LiteralDecodeResult res = wideCompat
+            ? decode_c_string_literal_wide(payload ? payload : "", charBitWidth, NULL, NULL)
+            : decode_c_string_literal(payload ? payload : "", charBitWidth, NULL, NULL);
         size_t needed = res.length + 1;
         if (!res.ok) {
             char buffer[256];

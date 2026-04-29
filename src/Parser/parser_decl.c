@@ -11,13 +11,14 @@
 #include "Parser/Helpers/parser_attributes.h"
 
 #include "Compiler/compiler_context.h" // make sure this is visible via include path
+#include "Extensions/extension_hooks.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static bool parser_allows_block_pointers(Parser* parser) {
-    return parser && parser->ctx && cc_extensions_enabled(parser->ctx);
+    return parser && parser->ctx && cc_compat_block_pointers_enabled(parser->ctx);
 }
 
 static void skip_gnu_attribute_specifier(Parser* parser) {
@@ -224,6 +225,7 @@ ASTNode* parseVariableDeclaration(Parser* parser, ParsedType declaredType, size_
         node->varDecl.declaredTypes = perTypes;
         astNodeCloneTypeAttributes(node, &declaredType);
         astNodeAppendAttributes(node, trailingAttrs, trailingAttrCount);
+        fisics_extension_note_declaration(parser ? parser->ctx : NULL, node);
         trailingAttrs = NULL;
         trailingAttrCount = 0;
         for (size_t i = 0; i < varCount; ++i) {
@@ -314,6 +316,7 @@ ASTNode* parseDeclarationForLoop(Parser* parser) {
     if (node) {
         node->varDecl.declaredTypes = perTypes;
         astNodeCloneTypeAttributes(node, &parsedType);
+        fisics_extension_note_declaration(parser ? parser->ctx : NULL, node);
         for (size_t i = 0; i < varCount; ++i) {
             ASTNode* ident = varNames[i];
             if (ident && ident->type == AST_IDENTIFIER && ident->valueNode.value) {
@@ -618,6 +621,7 @@ ASTNode** parseStructOrUnionFields(Parser* parser, size_t* outCount, bool* outHa
             if (fieldDecl) {
                 astNodeCloneTypeAttributes(fieldDecl, &decl.type);
                 astNodeAppendAttributes(fieldDecl, fieldAttrs, fieldAttrCount);
+                fisics_extension_note_declaration(parser ? parser->ctx : NULL, fieldDecl);
                 fieldAttrs = NULL;
                 fieldAttrCount = 0;
             } else {

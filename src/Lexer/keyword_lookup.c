@@ -53,7 +53,9 @@ inline
 #endif
 #endif
 static unsigned int
-keyword_hash(register const char *str, register unsigned int len)
+keyword_hash (str, len)
+     register const char *str;
+     register unsigned int len;
 {
   static const unsigned char asso_values[] =
     {
@@ -100,7 +102,9 @@ keyword_hash(register const char *str, register unsigned int len)
 }
 
 const char *
-in_keyword_set(register const char *str, register unsigned int len)
+in_keyword_set (str, len)
+     register const char *str;
+     register unsigned int len;
 {
   static const char * const wordlist[] =
     {
@@ -183,3 +187,4 @@ in_keyword_set(register const char *str, register unsigned int len)
   return 0;
 }
 #line 62 "src/Lexer/keywords.gperf"
+

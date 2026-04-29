@@ -32,7 +32,7 @@ bool consumeBalancedParens(Parser* p) {
 void consumeAbstractDeclarator(Parser* p) {
     for (;;) {
         if (p->currentToken.type == TOKEN_ASTERISK ||
-            (p->ctx && cc_extensions_enabled(p->ctx) &&
+            (p->ctx && cc_compat_block_pointers_enabled(p->ctx) &&
              p->currentToken.type == TOKEN_BITWISE_XOR)) {
             advance(p);
             continue;
@@ -61,7 +61,7 @@ void consumeAbstractDeclaratorIntoType(Parser* p, ParsedType* type) {
     }
 
     while (p->currentToken.type == TOKEN_ASTERISK ||
-           (p->ctx && cc_extensions_enabled(p->ctx) &&
+           (p->ctx && cc_compat_block_pointers_enabled(p->ctx) &&
             p->currentToken.type == TOKEN_BITWISE_XOR)) {
         parsedTypeAppendPointer(type);
         advance(p);

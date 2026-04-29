@@ -1,0 +1,69 @@
+AST:
+PROGRAM
+  STRUCT
+        Name:     IDENTIFIER Outer
+    VAR_DECL
+      TYPE: int
+      IDENTIFIER tag
+    VAR_DECL
+      TYPE: union __anon_union_2_11
+      IDENTIFIER <unnamed>
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER use_outer
+    PARAMETERS
+      VAR_DECL
+        TYPE: struct Outer*
+        IDENTIFIER outer
+    BLOCK
+      ASSIGNMENT (=)
+        POINTER_ACCESS '->'
+          IDENTIFIER outer
+          FIELD block
+        NUMBER_LITERAL 7
+      ASSIGNMENT (=)
+        DOT_ACCESS '.'
+          POINTER_ACCESS '->'
+            IDENTIFIER outer
+            FIELD pair
+          FIELD right
+        BINARY EXPRESSION '+'
+          POINTER_ACCESS '->'
+            IDENTIFIER outer
+            FIELD block
+          NUMBER_LITERAL 1
+      RETURN
+        DOT_ACCESS '.'
+          POINTER_ACCESS '->'
+            IDENTIFIER outer
+            FIELD pair
+          FIELD right
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: struct Outer
+        IDENTIFIER outer
+            = NUMBER_LITERAL 0
+
+      RETURN
+        TERNARY_EXPRESSION
+          BINARY EXPRESSION '=='
+            FUNCTION CALL
+              IDENTIFIER use_outer
+              ARGUMENTS
+                UNARY EXPRESSION '&' (prefix)
+                  IDENTIFIER outer
+            NUMBER_LITERAL 8
+          NUMBER_LITERAL 0
+          NUMBER_LITERAL 1
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

@@ -25,5 +25,6 @@ PROGRAM
 
 
 Diagnostics:
-Error at (4:0): Assignment discards qualifiers from pointer target
+Error at (4:5): Assignment discards qualifiers from pointer target
+   Spelling: tests/syntax/semantic_pointer_qualifier.c:4:5
 

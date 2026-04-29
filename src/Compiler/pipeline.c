@@ -729,7 +729,8 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
         return 1;
     }
     cc_set_language_dialect(ctx, options->dialect);
-    cc_set_extensions_enabled(ctx, options->enableExtensions);
+    cc_set_compat_features(ctx, options->compatFeatures);
+    cc_set_overlay_features(ctx, options->overlayFeatures);
     if (debug_layout_enabled()) {
         LOG_WARN("codegen", "ctx dataLayout initially %p canaries=%llx/%llx",
                  (void*)cc_get_data_layout(ctx),

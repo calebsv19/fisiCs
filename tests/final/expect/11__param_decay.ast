@@ -17,7 +17,7 @@ PROGRAM
     IDENTIFIER takes_fn
     PARAMETERS
       VAR_DECL
-        TYPE: int (*)(int) (int)
+        TYPE: int (*)(int)
         IDENTIFIER fn
     BLOCK
       RETURN

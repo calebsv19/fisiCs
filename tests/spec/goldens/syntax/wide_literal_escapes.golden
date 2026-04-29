@@ -132,7 +132,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_pthread_handler_rec
     VAR_DECL
-      TYPE: void (*)(void*) (void*)
+      TYPE: void (*)(void*)
       IDENTIFIER __routine
     VAR_DECL
       TYPE: void*
@@ -1240,16 +1240,16 @@ PROGRAM
         TYPE: const void*
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: int (*)(void*, char*, int) (void*, char*, int)
+        TYPE: int (*)(void*, char*, int)
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: int (*)(void*, const char*, int) (void*, const char*, int)
+        TYPE: int (*)(void*, const char*, int)
         IDENTIFIER __unnamed_param2
       VAR_DECL
-        TYPE: fpos_t (*)(void*, fpos_t, int) (void*, fpos_t, int)
+        TYPE: fpos_t (*)(void*, fpos_t, int)
         IDENTIFIER __unnamed_param3
       VAR_DECL
-        TYPE: int (*)(void*) (void*)
+        TYPE: int (*)(void*)
         IDENTIFIER __unnamed_param4
   FUNCTION DECLARATION
     RETURN TYPE: extern int

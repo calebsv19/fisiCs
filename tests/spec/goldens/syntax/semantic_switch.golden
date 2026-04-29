@@ -35,4 +35,5 @@ Error at (5:14): Duplicate case label with value 1
 Warning at (3:0): Previous case label with same value here
 Error at (10:20): Duplicate default label in switch
    Spelling: tests/syntax/semantic_switch.c:10:20
+Warning at (8:0): Previous default label is here
 

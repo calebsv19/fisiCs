@@ -132,7 +132,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_pthread_handler_rec
     VAR_DECL
-      TYPE: void (*)(void*) (void*)
+      TYPE: void (*)(void*)
       IDENTIFIER __routine
     VAR_DECL
       TYPE: void*
@@ -1080,7 +1080,7 @@ PROGRAM
     IDENTIFIER getdelim
     PARAMETERS:
       VAR_DECL
-        TYPE: char* restrict*
+        TYPE: char** restrict
         IDENTIFIER __linep
       VAR_DECL
         TYPE: size_t* restrict
@@ -1096,7 +1096,7 @@ PROGRAM
     IDENTIFIER getline
     PARAMETERS:
       VAR_DECL
-        TYPE: char* restrict*
+        TYPE: char** restrict
         IDENTIFIER __linep
       VAR_DECL
         TYPE: size_t* restrict
@@ -1139,7 +1139,7 @@ PROGRAM
     IDENTIFIER asprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: char* restrict*
+        TYPE: char** restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: const char* restrict
@@ -1206,7 +1206,7 @@ PROGRAM
     IDENTIFIER vasprintf
     PARAMETERS:
       VAR_DECL
-        TYPE: char* restrict*
+        TYPE: char** restrict
         IDENTIFIER __unnamed_param0
       VAR_DECL
         TYPE: const char* restrict
@@ -1222,16 +1222,16 @@ PROGRAM
         TYPE: const void*
         IDENTIFIER __unnamed_param0
       VAR_DECL
-        TYPE: int (*)(void*, char*, int) (void*, char*, int)
+        TYPE: int (*)(void*, char*, int)
         IDENTIFIER __unnamed_param1
       VAR_DECL
-        TYPE: int (*)(void*, const char*, int) (void*, const char*, int)
+        TYPE: int (*)(void*, const char*, int)
         IDENTIFIER __unnamed_param2
       VAR_DECL
-        TYPE: fpos_t (*)(void*, fpos_t, int) (void*, fpos_t, int)
+        TYPE: fpos_t (*)(void*, fpos_t, int)
         IDENTIFIER __unnamed_param3
       VAR_DECL
-        TYPE: int (*)(void*) (void*)
+        TYPE: int (*)(void*)
         IDENTIFIER __unnamed_param4
   FUNCTION DECLARATION
     RETURN TYPE: extern int
@@ -1312,7 +1312,7 @@ PROGRAM
         TYPE: va_list
         IDENTIFIER __unnamed_param4
   TYPEDEF
-        TYPE: int (*)(int, int) (int, int)
+        TYPE: int (*)(int, int)
         Alias:     IDENTIFIER Op
   TYPEDEF
         TYPE: Op [3]
@@ -1339,7 +1339,12 @@ PROGRAM
         TYPE: int
         IDENTIFIER a
       VAR_DECL
-; ModuleID = 'compiler_module'
+        TYPE: int
+        IDENTIFIER b
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+  ; ModuleID = 'compiler_module'
 source_filename = "compiler_module"
 target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
 
@@ -1655,12 +1660,7 @@ declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 i
 declare i32 @printf(ptr %0, ...)
 
 attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }
-        TYPE: int
-        IDENTIFIER b
-    BLOCK
-      RETURN
-        BINARY EXPRESSION '+'
-          IDENTIFIER a
+        IDENTIFIER a
           IDENTIFIER b
   FUNCTION DEFINITION
     RETURN TYPE: static int

@@ -116,8 +116,12 @@ PROGRAM
 
 
 Diagnostics:
-Error at (19:0): Too few arguments in call to 'takes_two' (expected 2, got 1)
-Error at (20:0): Too many arguments in call to 'takes_two' (expected 2, got 3)
-Error at (21:0): Argument 1 of 'takes_two' has incompatible type
-Error at (24:0): Argument 1 of 'takes_mutable' discards qualifiers from pointer target
+Error at (19:5): Too few arguments in call to 'takes_two' (expected 2, got 1)
+   Spelling: tests/syntax/semantic_function_calls.c:19:5
+Error at (20:5): Too many arguments in call to 'takes_two' (expected 2, got 3)
+   Spelling: tests/syntax/semantic_function_calls.c:20:5
+Error at (21:15): Argument 1 of 'takes_two' has incompatible type
+   Spelling: tests/syntax/semantic_function_calls.c:21:15
+Error at (24:19): Argument 1 of 'takes_mutable' discards qualifiers from pointer target
+   Spelling: tests/syntax/semantic_function_calls.c:24:19
 

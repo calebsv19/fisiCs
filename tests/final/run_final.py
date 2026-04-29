@@ -370,6 +370,9 @@ def main():
             cmd.append("--dump-ir")
         frontend_only_diag = only_diag and input_count == 1 and not run_enabled and not has_ir
         cmd_env = os.environ.copy()
+        # The final suite spawns the compiler many times from one parent process.
+        # Default the process guard off here unless a caller explicitly overrides it.
+        cmd_env.setdefault("FISICS_MAX_PROCS", "0")
         for key, value in test.get("env", {}).items():
             cmd_env[str(key)] = str(value)
         if frontend_only_diag:

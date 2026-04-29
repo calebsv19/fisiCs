@@ -93,12 +93,12 @@ static bool looksLikeIdentifierParamList(Parser* parser) {
 }
 
 static bool parser_allows_block_pointers(Parser* parser) {
-    return parser && parser->ctx && cc_extensions_enabled(parser->ctx);
+    return parser && parser->ctx && cc_compat_block_pointers_enabled(parser->ctx);
 }
 
 static bool parser_allows_atomic_keyword(Parser* parser) {
     if (!parser || !parser->ctx) return false;
-    if (cc_extensions_enabled(parser->ctx)) return true;
+    if (cc_compat_relaxed_atomic_enabled(parser->ctx)) return true;
     CCDialect dialect = cc_get_language_dialect(parser->ctx);
     return dialect == CC_DIALECT_C11 || dialect == CC_DIALECT_C17;
 }
@@ -234,7 +234,8 @@ void applyPointerChainToType(ParsedType* type, const PointerChain* chain) {
 
 bool parserConsumeArraySuffixes(Parser* parser, ParsedType* type) {
     if (!parser || !type) return false;
-    while (parser->currentToken.type == TOKEN_LBRACKET) {
+    while (parser->currentToken.type == TOKEN_LBRACKET &&
+           !parserLookaheadStartsAttribute(parser)) {
         bool isVLA = false;
         ParsedArrayInfo arrayInfo = {0};
         ASTNode* sizeExpr = parseArraySize(parser, &isVLA, &arrayInfo);
@@ -572,7 +573,8 @@ static bool parseDeclaratorInternal(Parser* parser,
     }
 
     bool sawArraySuffix = false;
-    while (parser->currentToken.type == TOKEN_LBRACKET ||
+    while ((parser->currentToken.type == TOKEN_LBRACKET &&
+            !parserLookaheadStartsAttribute(parser)) ||
            parser->currentToken.type == TOKEN_LPAREN) {
         if (parser->currentToken.type == TOKEN_LBRACKET) {
             bool isVLA = false;

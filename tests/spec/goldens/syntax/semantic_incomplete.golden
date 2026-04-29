@@ -48,5 +48,5 @@ Error at (4:13): Variable has incomplete type
 Error at (5:13): Array has incomplete element type
    Hint: arr
    Spelling: tests/syntax/semantic_incomplete.c:5:13
-Error at (0:0): sizeof applied to incomplete type
+Error at (8:0): sizeof applied to incomplete type
 

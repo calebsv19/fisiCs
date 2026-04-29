@@ -1,7 +1,7 @@
 AST:
 PROGRAM
   TYPEDEF
-        TYPE: int (*)(int, int) (int, int)
+        TYPE: int (*)(int, int)
         Alias:     IDENTIFIER BinOp
   TYPEDEF
         TYPE: BinOp [2]

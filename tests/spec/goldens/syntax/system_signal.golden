@@ -132,7 +132,7 @@ PROGRAM
   STRUCT
         Name:     IDENTIFIER __darwin_pthread_handler_rec
     VAR_DECL
-      TYPE: void (*)(void*) (void*)
+      TYPE: void (*)(void*)
       IDENTIFIER __routine
     VAR_DECL
       TYPE: void*
@@ -604,7 +604,7 @@ PROGRAM
       TYPE: union sigval
       IDENTIFIER sigev_value
     VAR_DECL
-      TYPE: void (*)(union sigval) (union sigval)
+      TYPE: void (*)(union sigval)
       IDENTIFIER sigev_notify_function
     VAR_DECL
       TYPE: pthread_attr_t*
@@ -615,10 +615,10 @@ PROGRAM
   UNION
         Name:     IDENTIFIER __sigaction_u
     VAR_DECL
-      TYPE: void (*)(int) (int)
+      TYPE: void (*)(int)
       IDENTIFIER __sa_handler
     VAR_DECL
-      TYPE: void (*)(int, struct __siginfo*, void*) (int, struct __siginfo*, void*)
+      TYPE: void (*)(int, struct __siginfo*, void*)
       IDENTIFIER __sa_sigaction
   STRUCT
         Name:     IDENTIFIER __sigaction
@@ -626,7 +626,7 @@ PROGRAM
       TYPE: union __sigaction_u
       IDENTIFIER __sigaction_u
     VAR_DECL
-      TYPE: void (*)(void*, int, int, siginfo_t*, void*) (void*, int, int, siginfo_t*, void*)
+      TYPE: void (*)(void*, int, int, siginfo_t*, void*)
       IDENTIFIER sa_tramp
     VAR_DECL
       TYPE: sigset_t
@@ -646,12 +646,12 @@ PROGRAM
       TYPE: int
       IDENTIFIER sa_flags
   TYPEDEF
-        TYPE: void (*)(int) (int)
+        TYPE: void (*)(int)
         Alias:     IDENTIFIER sig_t
   STRUCT
         Name:     IDENTIFIER sigvec
     VAR_DECL
-      TYPE: void (*)(int) (int)
+      TYPE: void (*)(int)
       IDENTIFIER sv_handler
     VAR_DECL
       TYPE: int
@@ -668,12 +668,15 @@ PROGRAM
       TYPE: int
       IDENTIFIER ss_onstack
   FUNCTION DECLARATION
-    RETURN TYPE: void (*)(int) (int)
+    RETURN TYPE: void (*)(int)
     IDENTIFIER signal
     PARAMETERS:
       VAR_DECL
         TYPE: int
         IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: void (*)(int)
+        IDENTIFIER __unnamed_param1
   TYPEDEF
         TYPE: __darwin_pthread_t
         Alias:     IDENTIFIER pthread_t
@@ -691,12 +694,15 @@ PROGRAM
         TYPE: int
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: void (*)(int) (int)
+    RETURN TYPE: void (*)(int)
     IDENTIFIER bsd_signal
     PARAMETERS:
       VAR_DECL
         TYPE: int
         IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: void (*)(int)
+        IDENTIFIER __unnamed_param1
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION
     RETURN TYPE: int
@@ -873,12 +879,15 @@ PROGRAM
         TYPE: int
         IDENTIFIER __unnamed_param0
   FUNCTION DECLARATION
-    RETURN TYPE: void (*)(int) (int)
+    RETURN TYPE: void (*)(int)
     IDENTIFIER sigset
     PARAMETERS:
       VAR_DECL
         TYPE: int
         IDENTIFIER __unnamed_param0
+      VAR_DECL
+        TYPE: void (*)(int)
+        IDENTIFIER __unnamed_param1
   ATTRIBUTE [GNU] "_""x"
   FUNCTION DECLARATION
     RETURN TYPE: int

@@ -86,12 +86,26 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
 
     if (pt->isFunctionPointer) {
         if (!sb_append(b, " (")) return false;
-        if (pt->pointerDepth > 0) {
-            for (int i = 0; i < pt->pointerDepth; i++) {
+        bool sawPointerDerivation = false;
+        for (size_t i = pt->derivationCount; i > 0; --i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i - 1);
+            if (!deriv || deriv->kind != TYPE_DERIVATION_POINTER) {
+                continue;
+            }
+            sawPointerDerivation = true;
+            if (!sb_append(b, "*")) return false;
+            if (deriv->as.pointer.isConst) if (!sb_append(b, " const")) return false;
+            if (deriv->as.pointer.isVolatile) if (!sb_append(b, " volatile")) return false;
+            if (deriv->as.pointer.isRestrict) if (!sb_append(b, " restrict")) return false;
+        }
+        if (!sawPointerDerivation) {
+            if (pt->pointerDepth > 0) {
+                for (int i = 0; i < pt->pointerDepth; i++) {
+                    if (!sb_append(b, "*")) return false;
+                }
+            } else {
                 if (!sb_append(b, "*")) return false;
             }
-        } else {
-            if (!sb_append(b, "*")) return false;
         }
         if (!sb_append(b, ")(")) return false;
         for (size_t i = 0; i < pt->fpParamCount; i++) {
@@ -100,8 +114,22 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
         }
         if (!sb_append(b, ")")) return false;
     } else {
-        for (int i = 0; i < pt->pointerDepth; i++) {
+        bool sawPointerDerivation = false;
+        for (size_t i = pt->derivationCount; i > 0; --i) {
+            const TypeDerivation* deriv = parsedTypeGetDerivation(pt, i - 1);
+            if (!deriv || deriv->kind != TYPE_DERIVATION_POINTER) {
+                continue;
+            }
+            sawPointerDerivation = true;
             if (!sb_append(b, "*")) return false;
+            if (deriv->as.pointer.isConst) if (!sb_append(b, " const")) return false;
+            if (deriv->as.pointer.isVolatile) if (!sb_append(b, " volatile")) return false;
+            if (deriv->as.pointer.isRestrict) if (!sb_append(b, " restrict")) return false;
+        }
+        if (!sawPointerDerivation) {
+            for (int i = 0; i < pt->pointerDepth; i++) {
+                if (!sb_append(b, "*")) return false;
+            }
         }
     }
 
@@ -125,6 +153,9 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
                 if (!sb_append(b, "]")) return false;
                 break;
             case TYPE_DERIVATION_FUNCTION:
+                if (pt->isFunctionPointer) {
+                    break;
+                }
                 if (!sb_append(b, " (")) return false;
                 for (size_t p = 0; p < deriv->as.function.paramCount; ++p) {
                     if (p && !sb_append(b, ", ")) return false;
@@ -139,6 +170,7 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
                 if (!sb_append(b, ")")) return false;
                 break;
             case TYPE_DERIVATION_POINTER:
+                break;
             default:
                 break;
         }

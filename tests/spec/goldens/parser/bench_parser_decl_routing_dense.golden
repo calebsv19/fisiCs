@@ -1,0 +1,263 @@
+AST:
+PROGRAM
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T0
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T1
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T2
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T3
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T4
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T5
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T6
+  TYPEDEF
+        TYPE: int
+        Alias:     IDENTIFIER T7
+  TYPEDEF
+        TYPE: struct Pair
+        Alias:     IDENTIFIER Pair
+  VAR_DECL
+    TYPE: static T0
+    IDENTIFIER g0
+      = NUMBER_LITERAL 0
+  VAR_DECL
+    TYPE: static T1
+    IDENTIFIER g1
+      = NUMBER_LITERAL 1
+  VAR_DECL
+    TYPE: static T2
+    IDENTIFIER g2
+      = NUMBER_LITERAL 2
+  VAR_DECL
+    TYPE: static T3
+    IDENTIFIER g3
+      = NUMBER_LITERAL 3
+  FUNCTION DECLARATION
+    RETURN TYPE: static int
+    IDENTIFIER helper_add
+    PARAMETERS:
+      VAR_DECL
+        TYPE: T4
+        IDENTIFIER x
+      VAR_DECL
+        TYPE: T5
+        IDENTIFIER y
+  FUNCTION DECLARATION
+    RETURN TYPE: static int
+    IDENTIFIER helper_mix
+    PARAMETERS:
+      VAR_DECL
+        TYPE: T6
+        IDENTIFIER x
+      VAR_DECL
+        TYPE: T7
+        IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER helper_add
+    PARAMETERS
+      VAR_DECL
+        TYPE: T4
+        IDENTIFIER x
+      VAR_DECL
+        TYPE: T5
+        IDENTIFIER y
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '+'
+          IDENTIFIER x
+          IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER helper_mix
+    PARAMETERS
+      VAR_DECL
+        TYPE: T6
+        IDENTIFIER x
+      VAR_DECL
+        TYPE: T7
+        IDENTIFIER y
+    BLOCK
+      RETURN
+        BINARY EXPRESSION '-'
+          IDENTIFIER x
+          IDENTIFIER y
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER bench_decl_routing_dense
+    PARAMETERS
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER seed
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER acc
+          = 
+            BINARY EXPRESSION '+'
+              BINARY EXPRESSION '+'
+                BINARY EXPRESSION '+'
+                  BINARY EXPRESSION '+'
+                    IDENTIFIER seed
+                    IDENTIFIER g0
+                  IDENTIFIER g1
+                IDENTIFIER g2
+              IDENTIFIER g3
+      BLOCK
+        VAR_DECL
+          TYPE: T0
+          IDENTIFIER a
+            = IDENTIFIER acc
+        VAR_DECL
+          TYPE: T1
+          IDENTIFIER b
+            = 
+              BINARY EXPRESSION '+'
+                IDENTIFIER a
+                NUMBER_LITERAL 1
+        VAR_DECL
+          TYPE: Pair
+          IDENTIFIER p
+              = IDENTIFIER a
+
+              = IDENTIFIER b
+
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          BINARY EXPRESSION '+'
+            DOT_ACCESS '.'
+              IDENTIFIER p
+              FIELD left
+            DOT_ACCESS '.'
+              IDENTIFIER p
+              FIELD right
+      BLOCK
+        VAR_DECL
+          TYPE: T2
+          IDENTIFIER c
+            = 
+              BINARY EXPRESSION '+'
+                IDENTIFIER acc
+                NUMBER_LITERAL 2
+        VAR_DECL
+          TYPE: T3
+          IDENTIFIER d
+            = 
+              BINARY EXPRESSION '+'
+                IDENTIFIER c
+                NUMBER_LITERAL 3
+        VAR_DECL
+          TYPE: Pair
+          IDENTIFIER p
+              = IDENTIFIER c
+
+              = IDENTIFIER d
+
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          DOT_ACCESS '.'
+            IDENTIFIER p
+            FIELD left
+        ASSIGNMENT (+=)
+          IDENTIFIER acc
+          DOT_ACCESS '.'
+            IDENTIFIER p
+            FIELD right
+      FOR_LOOP
+        VAR_DECL
+          TYPE: T4
+          IDENTIFIER i
+            = NUMBER_LITERAL 0
+        BINARY EXPRESSION '<'
+          IDENTIFIER i
+          NUMBER_LITERAL 3
+        UNARY EXPRESSION '++' (prefix)
+          IDENTIFIER i
+        BLOCK
+          VAR_DECL
+            TYPE: T5
+            IDENTIFIER local
+              = 
+                FUNCTION CALL
+                  IDENTIFIER helper_add
+                  ARGUMENTS
+                    IDENTIFIER i
+                    IDENTIFIER acc
+          ASSIGNMENT (+=)
+            IDENTIFIER acc
+            IDENTIFIER local
+      FOR_LOOP
+        VAR_DECL
+          TYPE: T6
+          IDENTIFIER j
+            = NUMBER_LITERAL 0
+        BINARY EXPRESSION '<'
+          IDENTIFIER j
+          NUMBER_LITERAL 2
+        UNARY EXPRESSION '++' (prefix)
+          IDENTIFIER j
+        BLOCK
+          VAR_DECL
+            TYPE: T7
+            IDENTIFIER local
+              = 
+                FUNCTION CALL
+                  IDENTIFIER helper_mix
+                  ARGUMENTS
+                    IDENTIFIER acc
+                    IDENTIFIER j
+          ASSIGNMENT (+=)
+            IDENTIFIER acc
+            IDENTIFIER local
+      RETURN
+        IDENTIFIER acc
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: int
+        IDENTIFIER total
+          = NUMBER_LITERAL 0
+      ASSIGNMENT (+=)
+        IDENTIFIER total
+        FUNCTION CALL
+          IDENTIFIER bench_decl_routing_dense
+          ARGUMENTS
+            NUMBER_LITERAL 1
+      ASSIGNMENT (+=)
+        IDENTIFIER total
+        FUNCTION CALL
+          IDENTIFIER bench_decl_routing_dense
+          ARGUMENTS
+            NUMBER_LITERAL 2
+      ASSIGNMENT (+=)
+        IDENTIFIER total
+        FUNCTION CALL
+          IDENTIFIER bench_decl_routing_dense
+          ARGUMENTS
+            NUMBER_LITERAL 3
+      RETURN
+        BINARY EXPRESSION '=='
+          IDENTIFIER total
+          NUMBER_LITERAL 0
+
+
+Diagnostics:
+Semantic analysis: no issues found.
+

@@ -13,6 +13,6 @@ PROGRAM
           IDENTIFIER x
           NUMBER_LITERAL 1
   VAR_DECL
-    TYPE: int (*)(int) (int)
+    TYPE: int (*)(int)
     IDENTIFIER fn_ptr
       = IDENTIFIER add_one

@@ -66,7 +66,8 @@ PROGRAM
 
 
 Diagnostics:
-Error at (1:0): Control reaches end of non-void function 'missing_return'
+Error at (1:5): Control reaches end of non-void function 'missing_return'
+   Spelling: tests/syntax/semantic_flow.c:1:5
 Warning at (10:0): Unreachable statement
 Warning at (16:0): Switch case may fall through
 

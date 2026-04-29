@@ -23,7 +23,7 @@ if ! grep -q "@padded = .*\\[5 x i8\\] c\\\"abc\\\\00\\\\00\\\"" "$OUT"; then
   cat "$OUT" >&2
   exit 1
 fi
-if ! grep -q "@ptr = .*constant" "$OUT"; then
+if ! grep -Eq "@ptr = .*(global|constant) ptr @\\.str\\.0" "$OUT"; then
   echo "Pointer-to-string initializer not emitted" >&2
   cat "$OUT" >&2
   exit 1

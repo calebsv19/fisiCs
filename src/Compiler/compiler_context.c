@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Compiler/compiler_context.h"
+#include "Extensions/extension_hooks.h"
 #include "Syntax/target_layout.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "Syntax/target_layout.h"
 #include "Utils/logging.h"
 
 #define CC_GROW_CAP(cap) ((cap) < 8 ? 8 : (cap) * 2)
@@ -155,7 +155,8 @@ CompilerContext* cc_create(void) {
     c->warnIgnoredInterop = true;
     c->errorIgnoredInterop = false;
     c->languageDialect = CC_DIALECT_C99;
-    c->enableExtensions = false;
+    c->compatFeatures = CC_COMPAT_NONE;
+    c->overlayFeatures = FISICS_OVERLAY_NONE;
     return c;
 }
 
@@ -170,6 +171,7 @@ void cc_destroy(CompilerContext* ctx) {
     cc_clear_token_spans(ctx);
     cc_clear_symbols(ctx);
     cc_clear_includes(ctx);
+    fisics_extension_state_destroy(ctx->extensionState);
     free(ctx->targetTriple);
     free(ctx->targetLayout);
     free(ctx->dataLayout);
@@ -210,13 +212,56 @@ CCDialect cc_get_language_dialect(const CompilerContext* ctx) {
     return (CCDialect)ctx->languageDialect;
 }
 
-void cc_set_extensions_enabled(CompilerContext* ctx, bool enabled) {
-    if (!ctx) return;
-    ctx->enableExtensions = enabled;
+CCCompatFeatures cc_gnu_compat_features(void) {
+    return CC_COMPAT_PROFILE_GNU |
+           CC_COMPAT_BLOCK_POINTERS |
+           CC_COMPAT_RELAXED_ATOMIC;
 }
 
-bool cc_extensions_enabled(const CompilerContext* ctx) {
-    return ctx ? ctx->enableExtensions : false;
+void cc_set_compat_features(CompilerContext* ctx, CCCompatFeatures features) {
+    if (!ctx) return;
+    ctx->compatFeatures = features;
+}
+
+CCCompatFeatures cc_get_compat_features(const CompilerContext* ctx) {
+    return ctx ? ctx->compatFeatures : CC_COMPAT_NONE;
+}
+
+bool cc_has_compat_feature(const CompilerContext* ctx, CCCompatFeatures feature) {
+    return ctx ? (ctx->compatFeatures & feature) != 0 : false;
+}
+
+bool cc_has_any_compat_features(const CompilerContext* ctx) {
+    return ctx ? ctx->compatFeatures != CC_COMPAT_NONE : false;
+}
+
+bool cc_compat_block_pointers_enabled(const CompilerContext* ctx) {
+    return cc_has_compat_feature(ctx, CC_COMPAT_BLOCK_POINTERS);
+}
+
+bool cc_compat_relaxed_atomic_enabled(const CompilerContext* ctx) {
+    return cc_has_compat_feature(ctx, CC_COMPAT_RELAXED_ATOMIC);
+}
+
+void cc_set_overlay_features(CompilerContext* ctx, FisicsOverlayFeatures features) {
+    if (!ctx) return;
+    ctx->overlayFeatures = features;
+}
+
+FisicsOverlayFeatures cc_get_overlay_features(const CompilerContext* ctx) {
+    return ctx ? ctx->overlayFeatures : FISICS_OVERLAY_NONE;
+}
+
+bool cc_has_overlay_feature(const CompilerContext* ctx, FisicsOverlayFeatures feature) {
+    return ctx ? (ctx->overlayFeatures & feature) != 0 : false;
+}
+
+bool cc_has_any_overlay_features(const CompilerContext* ctx) {
+    return ctx ? ctx->overlayFeatures != FISICS_OVERLAY_NONE : false;
+}
+
+bool cc_overlay_physics_units_enabled(const CompilerContext* ctx) {
+    return cc_has_overlay_feature(ctx, FISICS_OVERLAY_PHYSICS_UNITS);
 }
 
 long cc_dialect_stdc_version(CCDialect dialect) {

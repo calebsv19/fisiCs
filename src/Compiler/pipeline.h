@@ -31,7 +31,8 @@ typedef struct {
     const char* externalPreprocessCmd;
     const char* externalPreprocessArgs;
     CCDialect dialect;
-    bool enableExtensions;
+    CCCompatFeatures compatFeatures;
+    FisicsOverlayFeatures overlayFeatures;
     bool dumpAst;
     bool dumpSemantic;
     bool dumpIR;

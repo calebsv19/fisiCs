@@ -25,6 +25,7 @@ cc -Wall -Wextra -std=c99 \
   "$ROOT_DIR/src/Preprocessor/pp_expr.c" \
   "$ROOT_DIR/src/Preprocessor/macro_table.c" \
   "$ROOT_DIR/src/Lexer/lexer.c" \
+  "$ROOT_DIR/src/Lexer/lexer_token_handlers.c" \
   "$ROOT_DIR/src/Lexer/token_buffer.c" \
   "$ROOT_DIR/src/Lexer/keyword_lookup.c" \
   -o "$OUT_BIN"

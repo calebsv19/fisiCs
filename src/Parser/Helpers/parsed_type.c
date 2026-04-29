@@ -98,7 +98,7 @@ typedef struct PointerQuals {
 
 static bool parser_allows_atomic_keyword(Parser* parser) {
     if (!parser || !parser->ctx) return false;
-    if (cc_extensions_enabled(parser->ctx)) return true;
+    if (cc_compat_relaxed_atomic_enabled(parser->ctx)) return true;
     CCDialect dialect = cc_get_language_dialect(parser->ctx);
     return dialect == CC_DIALECT_C11 || dialect == CC_DIALECT_C17;
 }
@@ -707,7 +707,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
     // Pointer qualifiers (only consumed eagerly outside declaration contexts)
     if (ctx != TYPECTX_Declaration) {
         while (parser->currentToken.type == TOKEN_ASTERISK ||
-               (parser->ctx && cc_extensions_enabled(parser->ctx) &&
+               (parser->ctx && cc_compat_block_pointers_enabled(parser->ctx) &&
                 parser->currentToken.type == TOKEN_BITWISE_XOR)) {
             advance(parser);
             PointerQuals quals = consumePointerQualifiers(parser);

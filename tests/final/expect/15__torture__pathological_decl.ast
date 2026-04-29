@@ -1,7 +1,7 @@
 AST:
 PROGRAM
   TYPEDEF
-        TYPE: int (*)(int) (int)
+        TYPE: int (*)(int)
         Alias:     IDENTIFIER unary_fn_t
   FUNCTION DEFINITION
     RETURN TYPE: int

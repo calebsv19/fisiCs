@@ -1642,7 +1642,7 @@ bool preprocessor_init(Preprocessor* pp,
         define_builtin_object(pp, "__FISICS__", "1");
         snprintf(buf, sizeof(buf), "%ldL", stdc);
         define_builtin_object(pp, "__FISICS_DIALECT__", buf);
-        if (pp->ctx && cc_extensions_enabled(pp->ctx)) {
+        if (pp->ctx && cc_has_any_compat_features(pp->ctx)) {
             define_builtin_object(pp, "__FISICS_EXTENSIONS__", "1");
         }
     }

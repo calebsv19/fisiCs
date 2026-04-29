@@ -7,6 +7,7 @@
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 #include "Parser/Helpers/parser_attributes.h"
+#include "Extensions/extension_hooks.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -522,6 +523,7 @@ ASTNode** parseParameterList(Parser* parser, size_t* paramCount, bool* isVariadi
                 paramDecl->varDecl.declaredTypes = per;
             }
             astNodeCloneTypeAttributes(paramDecl, &decl.type);
+            fisics_extension_note_declaration(parser ? parser->ctx : NULL, paramDecl);
         }
     
         // Expand if needed
