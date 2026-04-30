@@ -8,6 +8,7 @@
 #include "Compiler/compiler_context.h"
 #include "Extensions/extension_diagnostics.h"
 #include "Extensions/Units/units_parser.h"
+#include "Extensions/Units/units_registry.h"
 
 bool fisics_units_resolve_annotation(CompilerContext* ctx,
                                      const ASTNode* node,
@@ -35,6 +36,42 @@ bool fisics_units_resolve_annotation(CompilerContext* ctx,
     }
     if (outCanonical) {
         *outCanonical = fisics_dim_to_string(dim);
+    }
+    return true;
+}
+
+bool fisics_units_resolve_unit_annotation(CompilerContext* ctx,
+                                          const ASTNode* node,
+                                          const char* unitText,
+                                          bool overlayEnabled,
+                                          bool hasResolvedDim,
+                                          FisicsDim8 declDim,
+                                          const FisicsUnitDef** outUnitDef) {
+    if (outUnitDef) *outUnitDef = NULL;
+    if (!overlayEnabled) {
+        fisics_extension_diag_units_disabled(ctx, node, unitText);
+        return false;
+    }
+    if (!hasResolvedDim) {
+        fisics_extension_diag_unit_requires_dim(ctx, node, unitText);
+        return false;
+    }
+
+    const FisicsUnitDef* unit = NULL;
+    if (!fisics_unit_lookup(unitText, &unit) || !unit) {
+        fisics_extension_diag_invalid_unit_attr(ctx,
+                                                node,
+                                                unitText,
+                                                "unknown concrete unit; Phase 7 currently accepts only seeded registry entries");
+        return false;
+    }
+    if (!fisics_dim_equal(unit->dim, declDim)) {
+        fisics_extension_diag_unit_dim_mismatch(ctx, node, unitText, declDim, unit->dim);
+        return false;
+    }
+
+    if (outUnitDef) {
+        *outUnitDef = unit;
     }
     return true;
 }

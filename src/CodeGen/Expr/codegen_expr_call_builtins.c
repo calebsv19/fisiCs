@@ -2,10 +2,27 @@
 
 #include "codegen_expr_internal.h"
 
+#include "AST/ast_node.h"
+#include "Extensions/Units/units_conversion.h"
+#include "Extensions/extension_units_expr_table.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static bool isFisicsUnitConvertBuiltin(const char* calleeName) {
+    return calleeName &&
+           (strcmp(calleeName, "fisics_convert_unit") == 0 ||
+            strcmp(calleeName, "__builtin_fisics_convert_unit") == 0);
+}
+
+static const char* builtinStringLiteralPayload(const ASTNode* node) {
+    if (!node || node->type != AST_STRING_LITERAL) return NULL;
+    const char* payload = NULL;
+    (void)ast_literal_encoding(node->valueNode.value, &payload);
+    return payload;
+}
 
 bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                  ASTNode* node,
@@ -65,6 +82,7 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         strcmp(calleeName, "__c11_atomic_init") == 0 ||
         strcmp(calleeName, "atomic_init") == 0;
     bool isExpectBuiltin = strcmp(calleeName, "__builtin_expect") == 0;
+    bool isFisicsConvertBuiltin = isFisicsUnitConvertBuiltin(calleeName);
 
     if (!isVaStartBuiltin && !isVaArgBuiltin && !isVaEndBuiltin &&
         !isVaCopyBuiltin && !isAllocaBuiltin && !isObjectSizeBuiltin &&
@@ -78,8 +96,82 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         !isStrcatChkBuiltin && !isMemmoveChkBuiltin &&
         !isC11AtomicLoadBuiltin && !isC11AtomicStoreBuiltin &&
         !isC11AtomicExchangeBuiltin && !isC11AtomicInitBuiltin &&
-        !isExpectBuiltin) {
+        !isExpectBuiltin && !isFisicsConvertBuiltin) {
         return false;
+    }
+
+    if (isFisicsConvertBuiltin) {
+        if (node->functionCall.argumentCount < 2 || !args || !args[0]) {
+            free(args);
+            *resultOut = NULL;
+            return true;
+        }
+        LLVMValueRef sourceValue = args[0];
+        ASTNode* sourceNode = node->functionCall.arguments ? node->functionCall.arguments[0] : NULL;
+        ASTNode* targetNode = node->functionCall.arguments ? node->functionCall.arguments[1] : NULL;
+        const char* targetText = builtinStringLiteralPayload(targetNode);
+        const FisicsUnitDef* targetUnit = NULL;
+        if (!targetText || !fisics_unit_lookup(targetText, &targetUnit) || !targetUnit) {
+            free(args);
+            *resultOut = sourceValue;
+            return true;
+        }
+        CompilerContext* cctx = ctx->semanticModel ? semanticModelGetContext(ctx->semanticModel) : NULL;
+        const FisicsUnitsExprResult* sourceResult =
+            cctx ? fisics_extension_lookup_units_expr_result(cctx, sourceNode) : NULL;
+        if (!sourceResult || !sourceResult->unitResolved || !sourceResult->unitDef) {
+            free(args);
+            *resultOut = sourceValue;
+            return true;
+        }
+        const char* detail = NULL;
+        if (!fisics_unit_can_convert(sourceResult->unitDef, targetUnit, &detail)) {
+            (void)detail;
+            free(args);
+            *resultOut = sourceValue;
+            return true;
+        }
+        if (sourceResult->unitDef == targetUnit) {
+            free(args);
+            *resultOut = sourceValue;
+            return true;
+        }
+        LLVMTypeRef valueType = LLVMTypeOf(sourceValue);
+        if (!cg_is_float_type(valueType)) {
+            free(args);
+            *resultOut = sourceValue;
+            return true;
+        }
+
+        LLVMValueRef value = sourceValue;
+        LLVMValueRef sourceScale = LLVMConstReal(valueType, sourceResult->unitDef->scale_to_canonical);
+        LLVMValueRef sourceOffset = LLVMConstReal(valueType, sourceResult->unitDef->offset_to_canonical);
+        LLVMValueRef targetScale = LLVMConstReal(valueType, targetUnit->scale_to_canonical);
+        LLVMValueRef targetOffset = LLVMConstReal(valueType, targetUnit->offset_to_canonical);
+
+        LLVMValueRef canonical = LLVMBuildFMul(ctx->builder, value, sourceScale, "fisics.unit.to_canonical.scale");
+        if (sourceResult->unitDef->offset_to_canonical != 0.0) {
+            canonical = LLVMBuildFAdd(ctx->builder,
+                                      canonical,
+                                      sourceOffset,
+                                      "fisics.unit.to_canonical.offset");
+        }
+        LLVMValueRef targetValue = canonical;
+        if (targetUnit->offset_to_canonical != 0.0) {
+            targetValue = LLVMBuildFSub(ctx->builder,
+                                        targetValue,
+                                        targetOffset,
+                                        "fisics.unit.from_canonical.offset");
+        }
+        if (targetUnit->scale_to_canonical != 1.0) {
+            targetValue = LLVMBuildFDiv(ctx->builder,
+                                        targetValue,
+                                        targetScale,
+                                        "fisics.unit.from_canonical.scale");
+        }
+        free(args);
+        *resultOut = targetValue;
+        return true;
     }
 
     if (isC11AtomicLoadBuiltin) {

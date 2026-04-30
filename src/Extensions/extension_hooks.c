@@ -20,8 +20,9 @@ FisicsExtensionState* fisics_extension_state_create(void) {
 void fisics_extension_state_destroy(FisicsExtensionState* state) {
     if (!state) return;
     for (size_t i = 0; i < state->unitsAnnotationCount; ++i) {
-        free(state->unitsAnnotations[i].exprText);
+        free(state->unitsAnnotations[i].dimExprText);
         free(state->unitsAnnotations[i].canonicalText);
+        free(state->unitsAnnotations[i].unitExprText);
     }
     free(state->unitsAnnotations);
     free(state->unitsExprResults);
@@ -61,31 +62,62 @@ static FisicsUnitsAnnotation* find_units_annotation(FisicsExtensionState* state,
     return NULL;
 }
 
-static bool note_units_attr(CompilerContext* ctx, ASTNode* node, char* exprText) {
-    if (!ctx || !node || !exprText) {
-        free(exprText);
-        return false;
-    }
+static FisicsUnitsAnnotation* ensure_units_annotation(CompilerContext* ctx, ASTNode* node) {
+    if (!ctx || !node) return NULL;
     if (!fisics_extension_state_ensure(ctx)) {
-        free(exprText);
-        return false;
+        return NULL;
     }
     FisicsExtensionState* state = ctx->extensionState;
     FisicsUnitsAnnotation* existing = find_units_annotation(state, node);
     if (existing) {
-        existing->duplicateCount++;
-        free(exprText);
-        return true;
+        return existing;
     }
     if (!units_annotation_reserve(state, 1)) {
-        free(exprText);
-        return false;
+        return NULL;
     }
     FisicsUnitsAnnotation* ann = &state->unitsAnnotations[state->unitsAnnotationCount++];
     memset(ann, 0, sizeof(*ann));
     ann->node = node;
-    ann->exprText = exprText;
-    ann->duplicateCount = 1;
+    return ann;
+}
+
+static bool note_units_dim_attr(CompilerContext* ctx, ASTNode* node, char* exprText) {
+    if (!ctx || !node || !exprText) {
+        free(exprText);
+        return false;
+    }
+    FisicsUnitsAnnotation* ann = ensure_units_annotation(ctx, node);
+    if (!ann) {
+        free(exprText);
+        return false;
+    }
+    if (ann->dimExprText) {
+        ann->dimDuplicateCount++;
+        free(exprText);
+        return true;
+    }
+    ann->dimExprText = exprText;
+    ann->dimDuplicateCount = 1;
+    return true;
+}
+
+static bool note_units_unit_attr(CompilerContext* ctx, ASTNode* node, char* unitText) {
+    if (!ctx || !node || !unitText) {
+        free(unitText);
+        return false;
+    }
+    FisicsUnitsAnnotation* ann = ensure_units_annotation(ctx, node);
+    if (!ann) {
+        free(unitText);
+        return false;
+    }
+    if (ann->unitExprText) {
+        ann->unitDuplicateCount++;
+        free(unitText);
+        return true;
+    }
+    ann->unitExprText = unitText;
+    ann->unitDuplicateCount = 1;
     return true;
 }
 
@@ -97,11 +129,16 @@ static size_t note_units_attrs_from_list(CompilerContext* ctx,
     size_t noted = 0;
     for (size_t i = 0; i < attrCount; ++i) {
         char* exprText = NULL;
-        if (!fisics_units_attribute_extract(attrs[i], &exprText)) {
+        if (fisics_units_dim_attribute_extract(attrs[i], &exprText)) {
+            (void)note_units_dim_attr(ctx, node, exprText);
+            noted++;
             continue;
         }
-        (void)note_units_attr(ctx, node, exprText);
-        noted++;
+        char* unitText = NULL;
+        if (fisics_units_unit_attribute_extract(attrs[i], &unitText)) {
+            (void)note_units_unit_attr(ctx, node, unitText);
+            noted++;
+        }
     }
     return noted;
 }
@@ -126,21 +163,39 @@ static void run_units_decl_scaffold(CompilerContext* ctx) {
     bool overlayEnabled = cc_overlay_physics_units_enabled(ctx);
     for (size_t i = 0; i < state->unitsAnnotationCount; ++i) {
         FisicsUnitsAnnotation* ann = &state->unitsAnnotations[i];
-        if (!ann->node || !ann->exprText) continue;
+        if (!ann->node) continue;
 
-        if (ann->duplicateCount > 1) {
+        if (ann->dimDuplicateCount > 1) {
             fisics_extension_diag_duplicate_units_attr(ctx, ann->node);
-            continue;
+        }
+        if (ann->unitDuplicateCount > 1) {
+            fisics_extension_diag_duplicate_unit_attr(ctx, ann->node);
         }
 
         free(ann->canonicalText);
         ann->canonicalText = NULL;
-        ann->resolved = fisics_units_resolve_annotation(ctx,
-                                                        ann->node,
-                                                        ann->exprText,
-                                                        overlayEnabled,
-                                                        &ann->dim,
-                                                        &ann->canonicalText);
+        ann->resolved = false;
+        ann->unitDef = NULL;
+        ann->unitResolved = false;
+
+        if (ann->dimExprText && ann->dimDuplicateCount <= 1) {
+            ann->resolved = fisics_units_resolve_annotation(ctx,
+                                                            ann->node,
+                                                            ann->dimExprText,
+                                                            overlayEnabled,
+                                                            &ann->dim,
+                                                            &ann->canonicalText);
+        }
+
+        if (ann->unitExprText && ann->unitDuplicateCount <= 1) {
+            ann->unitResolved = fisics_units_resolve_unit_annotation(ctx,
+                                                                     ann->node,
+                                                                     ann->unitExprText,
+                                                                     overlayEnabled,
+                                                                     ann->resolved,
+                                                                     ann->dim,
+                                                                     &ann->unitDef);
+        }
     }
 }
 

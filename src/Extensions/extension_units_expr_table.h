@@ -22,6 +22,12 @@ bool fisics_extension_set_units_expr_result(struct CompilerContext* ctx,
                                             const struct ASTNode* node,
                                             FisicsDim8 dim,
                                             bool resolved);
+bool fisics_extension_set_units_expr_result_with_unit(struct CompilerContext* ctx,
+                                                      const struct ASTNode* node,
+                                                      FisicsDim8 dim,
+                                                      bool resolved,
+                                                      const FisicsUnitDef* unitDef,
+                                                      bool unitResolved);
 void fisics_extension_clear_units_expr_results(struct CompilerContext* ctx);
 
 const FisicsUnitsExprResult* fisics_extension_lookup_units_expr_result(

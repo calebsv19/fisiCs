@@ -24,6 +24,40 @@ typedef struct {
     int8_t e[FISICS_DIM_COUNT];
 } FisicsDim8;
 
+typedef enum {
+    FISICS_DIM_FAMILY_DIMENSIONLESS = 0,
+    FISICS_DIM_FAMILY_LENGTH,
+    FISICS_DIM_FAMILY_MASS,
+    FISICS_DIM_FAMILY_TIME,
+    FISICS_DIM_FAMILY_CURRENT,
+    FISICS_DIM_FAMILY_TEMPERATURE,
+    FISICS_DIM_FAMILY_AMOUNT,
+    FISICS_DIM_FAMILY_LUMINOUS,
+    FISICS_DIM_FAMILY_CUSTOM,
+    FISICS_DIM_FAMILY_VELOCITY,
+    FISICS_DIM_FAMILY_ACCELERATION,
+    FISICS_DIM_FAMILY_FORCE,
+    FISICS_DIM_FAMILY_ENERGY,
+    FISICS_DIM_FAMILY_POWER,
+    FISICS_DIM_FAMILY_PRESSURE,
+    FISICS_DIM_FAMILY_CHARGE,
+    FISICS_DIM_FAMILY_VOLTAGE,
+    FISICS_DIM_FAMILY_RESISTANCE
+} FisicsDimFamily;
+
+typedef enum {
+    FISICS_DIM_ATOM_UNKNOWN = 0,
+    FISICS_DIM_ATOM_DIMENSION = 1,
+    FISICS_DIM_ATOM_DEFERRED_UNIT = 2
+} FisicsDimAtomKind;
+
+typedef struct {
+    FisicsDimAtomKind kind;
+    FisicsDimFamily family;
+    const char* family_name;
+    FisicsDim8 dim;
+} FisicsDimAtomInfo;
+
 FisicsDim8 fisics_dim_zero(void);
 bool fisics_dim_equal(FisicsDim8 a, FisicsDim8 b);
 bool fisics_dim_add(FisicsDim8 a, FisicsDim8 b, FisicsDim8* outDim);
@@ -50,3 +84,6 @@ FisicsDim8 fisics_dim_pressure(void);
 FisicsDim8 fisics_dim_charge(void);
 FisicsDim8 fisics_dim_voltage(void);
 FisicsDim8 fisics_dim_resistance(void);
+
+const char* fisics_dim_family_name(FisicsDimFamily family);
+bool fisics_dim_lookup_atom(const char* name, FisicsDimAtomInfo* outInfo);

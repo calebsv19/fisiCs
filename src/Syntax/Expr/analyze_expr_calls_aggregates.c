@@ -2,6 +2,7 @@
 
 #include "analyze_expr_internal.h"
 #include "analyze_core.h"
+#include "Extensions/extension_diagnostics.h"
 #include "syntax_errors.h"
 #include "symbol_table.h"
 #include "const_eval.h"
@@ -424,6 +425,12 @@ static TypeInfo functionCallResultTypeFromSymbol(const Symbol* sym, Scope* scope
     return fallback;
 }
 
+static bool isFisicsUnitConvertHelper(const char* calleeName) {
+    return calleeName &&
+           (strcmp(calleeName, "fisics_convert_unit") == 0 ||
+            strcmp(calleeName, "__builtin_fisics_convert_unit") == 0);
+}
+
 TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
     const char* calleeName = NULL;
     if (node->functionCall.callee &&
@@ -508,6 +515,18 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
             profiler_record_value("semantic_count_type_info_site_temp", 1);
             profiler_record_value("semantic_count_type_info_temp_va_arg", 1);
             result = typeInfoFromParsedType(&node->functionCall.arguments[1]->parsedTypeNode.parsed, scope);
+            result.isLValue = false;
+            free(argInfos);
+            free(argRawInfos);
+            return result;
+        }
+    }
+    if (isFisicsUnitConvertHelper(calleeName)) {
+        if (argCount == 2 && argInfos) {
+            if (!typeInfoIsFloating(&argInfos[0]) && scope && scope->ctx) {
+                fisics_extension_diag_units_conversion_requires_floating(scope->ctx, node, calleeName);
+            }
+            result = argInfos[0];
             result.isLValue = false;
             free(argInfos);
             free(argRawInfos);

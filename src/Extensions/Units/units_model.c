@@ -1,11 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "Extensions/Units/units_model.h"
+#include "Extensions/Units/units_registry.h"
 
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+typedef struct {
+    const char* name;
+    FisicsDimAtomKind kind;
+    FisicsDimFamily family;
+    FisicsDim8 dim;
+} DimAtomEntry;
+
+#define DIM_INIT(...) ((FisicsDim8){{__VA_ARGS__}})
 
 static bool checked_cast_i8(int value, int8_t* out) {
     if (!out) return false;
@@ -21,6 +31,90 @@ static FisicsDim8 dim_with_slot(FisicsDimSlot slot) {
     dim.e[slot] = 1;
     return dim;
 }
+
+static const char* family_name(FisicsDimFamily family) {
+    switch (family) {
+        case FISICS_DIM_FAMILY_DIMENSIONLESS: return "dimensionless";
+        case FISICS_DIM_FAMILY_LENGTH: return "length";
+        case FISICS_DIM_FAMILY_MASS: return "mass";
+        case FISICS_DIM_FAMILY_TIME: return "time";
+        case FISICS_DIM_FAMILY_CURRENT: return "current";
+        case FISICS_DIM_FAMILY_TEMPERATURE: return "temperature";
+        case FISICS_DIM_FAMILY_AMOUNT: return "amount";
+        case FISICS_DIM_FAMILY_LUMINOUS: return "luminous";
+        case FISICS_DIM_FAMILY_CUSTOM: return "custom";
+        case FISICS_DIM_FAMILY_VELOCITY: return "velocity";
+        case FISICS_DIM_FAMILY_ACCELERATION: return "acceleration";
+        case FISICS_DIM_FAMILY_FORCE: return "force";
+        case FISICS_DIM_FAMILY_ENERGY: return "energy";
+        case FISICS_DIM_FAMILY_POWER: return "power";
+        case FISICS_DIM_FAMILY_PRESSURE: return "pressure";
+        case FISICS_DIM_FAMILY_CHARGE: return "charge";
+        case FISICS_DIM_FAMILY_VOLTAGE: return "voltage";
+        case FISICS_DIM_FAMILY_RESISTANCE: return "resistance";
+        default: return "unknown";
+    }
+}
+
+static const DimAtomEntry kDimAtoms[] = {
+    { "1", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_DIMENSIONLESS, DIM_INIT(0, 0, 0, 0, 0, 0, 0, 0) },
+    { "dimensionless", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_DIMENSIONLESS, DIM_INIT(0, 0, 0, 0, 0, 0, 0, 0) },
+    { "scalar", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_DIMENSIONLESS, DIM_INIT(0, 0, 0, 0, 0, 0, 0, 0) },
+
+    { "m", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_LENGTH, DIM_INIT(1, 0, 0, 0, 0, 0, 0, 0) },
+    { "length", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_LENGTH, DIM_INIT(1, 0, 0, 0, 0, 0, 0, 0) },
+    { "distance", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_LENGTH, DIM_INIT(1, 0, 0, 0, 0, 0, 0, 0) },
+    { "displacement", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_LENGTH, DIM_INIT(1, 0, 0, 0, 0, 0, 0, 0) },
+
+    { "kg", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_MASS, DIM_INIT(0, 1, 0, 0, 0, 0, 0, 0) },
+    { "mass", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_MASS, DIM_INIT(0, 1, 0, 0, 0, 0, 0, 0) },
+
+    { "s", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_TIME, DIM_INIT(0, 0, 1, 0, 0, 0, 0, 0) },
+    { "time", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_TIME, DIM_INIT(0, 0, 1, 0, 0, 0, 0, 0) },
+    { "duration", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_TIME, DIM_INIT(0, 0, 1, 0, 0, 0, 0, 0) },
+
+    { "A", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_CURRENT, DIM_INIT(0, 0, 0, 1, 0, 0, 0, 0) },
+    { "current", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_CURRENT, DIM_INIT(0, 0, 0, 1, 0, 0, 0, 0) },
+    { "electric_current", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_CURRENT, DIM_INIT(0, 0, 0, 1, 0, 0, 0, 0) },
+
+    { "K", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_TEMPERATURE, DIM_INIT(0, 0, 0, 0, 1, 0, 0, 0) },
+    { "temperature", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_TEMPERATURE, DIM_INIT(0, 0, 0, 0, 1, 0, 0, 0) },
+
+    { "mol", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_AMOUNT, DIM_INIT(0, 0, 0, 0, 0, 1, 0, 0) },
+    { "amount", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_AMOUNT, DIM_INIT(0, 0, 0, 0, 0, 1, 0, 0) },
+    { "amount_of_substance", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_AMOUNT, DIM_INIT(0, 0, 0, 0, 0, 1, 0, 0) },
+
+    { "cd", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_LUMINOUS, DIM_INIT(0, 0, 0, 0, 0, 0, 1, 0) },
+    { "luminous", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_LUMINOUS, DIM_INIT(0, 0, 0, 0, 0, 0, 1, 0) },
+    { "luminous_intensity", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_LUMINOUS, DIM_INIT(0, 0, 0, 0, 0, 0, 1, 0) },
+
+    { "X", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_CUSTOM, DIM_INIT(0, 0, 0, 0, 0, 0, 0, 1) },
+    { "custom", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_CUSTOM, DIM_INIT(0, 0, 0, 0, 0, 0, 0, 1) },
+    { "custom_dimension", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_CUSTOM, DIM_INIT(0, 0, 0, 0, 0, 0, 0, 1) },
+
+    { "velocity", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_VELOCITY, DIM_INIT(1, 0, -1, 0, 0, 0, 0, 0) },
+    { "speed", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_VELOCITY, DIM_INIT(1, 0, -1, 0, 0, 0, 0, 0) },
+
+    { "acceleration", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_ACCELERATION, DIM_INIT(1, 0, -2, 0, 0, 0, 0, 0) },
+
+    { "force", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_FORCE, DIM_INIT(1, 1, -2, 0, 0, 0, 0, 0) },
+
+    { "energy", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_ENERGY, DIM_INIT(2, 1, -2, 0, 0, 0, 0, 0) },
+    { "work", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_ENERGY, DIM_INIT(2, 1, -2, 0, 0, 0, 0, 0) },
+    { "kinetic_energy", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_ENERGY, DIM_INIT(2, 1, -2, 0, 0, 0, 0, 0) },
+    { "potential_energy", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_ENERGY, DIM_INIT(2, 1, -2, 0, 0, 0, 0, 0) },
+
+    { "power", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_POWER, DIM_INIT(2, 1, -3, 0, 0, 0, 0, 0) },
+
+    { "pressure", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_PRESSURE, DIM_INIT(-1, 1, -2, 0, 0, 0, 0, 0) },
+
+    { "charge", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_CHARGE, DIM_INIT(0, 0, 1, 1, 0, 0, 0, 0) },
+
+    { "voltage", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_VOLTAGE, DIM_INIT(2, 1, -3, -1, 0, 0, 0, 0) },
+    { "electric_potential", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_VOLTAGE, DIM_INIT(2, 1, -3, -1, 0, 0, 0, 0) },
+
+    { "resistance", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_RESISTANCE, DIM_INIT(2, 1, -3, -2, 0, 0, 0, 0) },
+};
 
 FisicsDim8 fisics_dim_zero(void) {
     FisicsDim8 dim = {{0}};
@@ -175,4 +269,33 @@ FisicsDim8 fisics_dim_voltage(void) {
 FisicsDim8 fisics_dim_resistance(void) {
     FisicsDim8 dim = {{2, 1, -3, -2, 0, 0, 0, 0}};
     return dim;
+}
+
+const char* fisics_dim_family_name(FisicsDimFamily family) {
+    return family_name(family);
+}
+
+bool fisics_dim_lookup_atom(const char* name, FisicsDimAtomInfo* outInfo) {
+    if (!name || !outInfo) return false;
+    memset(outInfo, 0, sizeof(*outInfo));
+    outInfo->kind = FISICS_DIM_ATOM_UNKNOWN;
+
+    for (size_t i = 0; i < sizeof(kDimAtoms) / sizeof(kDimAtoms[0]); ++i) {
+        if (strcmp(kDimAtoms[i].name, name) != 0) continue;
+        outInfo->kind = kDimAtoms[i].kind;
+        outInfo->family = kDimAtoms[i].family;
+        outInfo->family_name = family_name(kDimAtoms[i].family);
+        outInfo->dim = kDimAtoms[i].dim;
+        return true;
+    }
+
+    const FisicsUnitDef* unit = NULL;
+    if (fisics_unit_lookup(name, &unit) && unit) {
+        outInfo->kind = FISICS_DIM_ATOM_DEFERRED_UNIT;
+        outInfo->family = unit->family;
+        outInfo->family_name = family_name(unit->family);
+        outInfo->dim = fisics_dim_zero();
+        return true;
+    }
+    return false;
 }

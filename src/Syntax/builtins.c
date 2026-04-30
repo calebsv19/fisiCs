@@ -511,6 +511,23 @@ void seedBuiltins(Scope* globalScope) {
         addToScope(scope, constantPSym);
     }
 
+    Symbol* fisicsConvertBuiltin =
+        makeBuiltin("__builtin_fisics_convert_unit", SYMBOL_FUNCTION, floatType(true), NULL);
+    if (fisicsConvertBuiltin) {
+        fisicsConvertBuiltin->signature.isVariadic = true;
+        fisicsConvertBuiltin->signature.paramCount = 0;
+        fisicsConvertBuiltin->signature.hasPrototype = false;
+        addToScope(scope, fisicsConvertBuiltin);
+    }
+    Symbol* fisicsConvertHelper =
+        makeBuiltin("fisics_convert_unit", SYMBOL_FUNCTION, floatType(true), NULL);
+    if (fisicsConvertHelper) {
+        fisicsConvertHelper->signature.isVariadic = true;
+        fisicsConvertHelper->signature.paramCount = 0;
+        fisicsConvertHelper->signature.hasPrototype = false;
+        addToScope(scope, fisicsConvertHelper);
+    }
+
     ParsedType bswap32Arg[1] = { intType() };
     Symbol* bswap32 = makeBuiltinFunc("__builtin_bswap32", intType(), 1, bswap32Arg);
     if (bswap32) addToScope(scope, bswap32);

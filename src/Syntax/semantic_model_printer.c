@@ -24,11 +24,18 @@ static void printSymbol(const Symbol* sym) {
     const FisicsUnitsAnnotation* unitsAnn = symbolGetUnitsAnnotation(sym);
     if (unitsAnn) {
         const char* text = unitsAnn->canonicalText ? unitsAnn->canonicalText
-                                                   : (unitsAnn->exprText ? unitsAnn->exprText : "<missing>");
+                                                   : (unitsAnn->dimExprText ? unitsAnn->dimExprText : "<no-dim>");
         printf("  - %s: %s [units=%s", kindStr, sym->name, text);
         printf(", %s", unitsAnn->resolved ? "resolved" : "pending");
-        if (unitsAnn->duplicateCount > 1) {
-            printf(", duplicates=%zu", unitsAnn->duplicateCount);
+        if (unitsAnn->dimDuplicateCount > 1) {
+            printf(", duplicates=%zu", unitsAnn->dimDuplicateCount);
+        }
+        if (unitsAnn->unitExprText) {
+            printf(", unit=%s", unitsAnn->unitDef ? unitsAnn->unitDef->name : unitsAnn->unitExprText);
+            printf(", unit-%s", unitsAnn->unitResolved ? "resolved" : "pending");
+            if (unitsAnn->unitDuplicateCount > 1) {
+                printf(", unit-duplicates=%zu", unitsAnn->unitDuplicateCount);
+            }
         }
         printf(", decl-index=%zu]\n", symbolGetUnitsDeclaratorIndex(sym));
         return;

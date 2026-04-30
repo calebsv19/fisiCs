@@ -80,6 +80,18 @@ static void describe_expr_node(const ASTNode* node, char* buffer, size_t bufferS
         case AST_TERNARY_EXPRESSION:
             snprintf(buffer, bufferSize, "ternary-expression");
             return;
+        case AST_FUNCTION_CALL:
+            if (node->functionCall.callee &&
+                node->functionCall.callee->type == AST_IDENTIFIER &&
+                node->functionCall.callee->valueNode.value &&
+                node->functionCall.callee->valueNode.value[0] != '\0') {
+                snprintf(buffer,
+                         bufferSize,
+                         "function-call(%s)",
+                         node->functionCall.callee->valueNode.value);
+                return;
+            }
+            break;
         default:
             break;
     }
@@ -91,6 +103,15 @@ bool fisics_extension_set_units_expr_result(CompilerContext* ctx,
                                             const ASTNode* node,
                                             FisicsDim8 dim,
                                             bool resolved) {
+    return fisics_extension_set_units_expr_result_with_unit(ctx, node, dim, resolved, NULL, false);
+}
+
+bool fisics_extension_set_units_expr_result_with_unit(CompilerContext* ctx,
+                                                      const ASTNode* node,
+                                                      FisicsDim8 dim,
+                                                      bool resolved,
+                                                      const FisicsUnitDef* unitDef,
+                                                      bool unitResolved) {
     if (!ctx || !node) return false;
     if (!fisics_extension_state_ensure(ctx)) return false;
     FisicsExtensionState* state = ctx->extensionState;
@@ -99,6 +120,8 @@ bool fisics_extension_set_units_expr_result(CompilerContext* ctx,
         if (result->node == node) {
             result->dim = dim;
             result->resolved = resolved;
+            result->unitDef = unitDef;
+            result->unitResolved = unitResolved && unitDef != NULL;
             return true;
         }
     }
@@ -108,6 +131,8 @@ bool fisics_extension_set_units_expr_result(CompilerContext* ctx,
     result->node = (ASTNode*)node;
     result->dim = dim;
     result->resolved = resolved;
+    result->unitDef = unitDef;
+    result->unitResolved = unitResolved && unitDef != NULL;
     return true;
 }
 
@@ -169,11 +194,15 @@ void fisics_extension_dump_units_expr_results(const CompilerContext* ctx, FILE* 
         char exprLabel[128];
         describe_expr_node(result->node, exprLabel, sizeof(exprLabel));
         fprintf(stream,
-                "  - line %u: %s [dim=%s, %s]\n",
+                "  - line %u: %s [dim=%s, %s",
                 line,
                 exprLabel,
                 dimText ? dimText : "<oom>",
                 result->resolved ? "resolved" : "pending");
+        if (result->unitResolved && result->unitDef) {
+            fprintf(stream, ", unit=%s", result->unitDef->name);
+        }
+        fprintf(stream, "]\n");
         free(dimText);
     }
 }

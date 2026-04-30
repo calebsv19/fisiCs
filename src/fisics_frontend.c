@@ -18,7 +18,7 @@
 
 #define FISICS_CONTRACT_ID "fisiCs.analysis.contract"
 #define FISICS_CONTRACT_MAJOR 1
-#define FISICS_CONTRACT_MINOR 5
+#define FISICS_CONTRACT_MINOR 7
 #define FISICS_CONTRACT_PATCH 0
 #define FISICS_CONTRACT_PRODUCER "fisiCs"
 #define FISICS_CONTRACT_PRODUCER_VERSION "0.1.0"
@@ -692,6 +692,16 @@ static bool copy_units_attachments(const SemanticModel* model, FisicsAnalysisRes
                                               &out->units_attachment_count);
 }
 
+static bool has_concrete_unit_metadata(const FisicsAnalysisResult* out) {
+    if (!out || !out->units_attachments || out->units_attachment_count == 0) return false;
+    for (size_t i = 0; i < out->units_attachment_count; ++i) {
+        if (out->units_attachments[i].unit_resolved) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool fisics_analyze_buffer(const char* file_path,
                            const char* source,
                            size_t length,
@@ -784,6 +794,9 @@ bool fisics_analyze_buffer(const char* file_path,
     init_contract(out, source, length, lenient, ok);
     if (out->units_attachment_count > 0) {
         out->contract.capabilities |= FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS;
+        if (has_concrete_unit_metadata(out)) {
+            out->contract.capabilities |= FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE;
+        }
     }
 
     cc_destroy(ctx);
@@ -839,6 +852,10 @@ void fisics_free_analysis_result(FisicsAnalysisResult* result) {
         for (size_t i = 0; i < result->units_attachment_count; ++i) {
             safe_free_ptr((void*)result->units_attachments[i].symbol_name);
             safe_free_ptr((void*)result->units_attachments[i].dim_text);
+            safe_free_ptr((void*)result->units_attachments[i].unit_source_text);
+            safe_free_ptr((void*)result->units_attachments[i].unit_name);
+            safe_free_ptr((void*)result->units_attachments[i].unit_symbol);
+            safe_free_ptr((void*)result->units_attachments[i].unit_family);
         }
         safe_free_ptr(result->units_attachments);
     }

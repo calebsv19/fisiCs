@@ -59,14 +59,21 @@ void fisics_extension_dump_units_annotations(const CompilerContext* ctx, FILE* o
             line = ann->node->location.start.line ? ann->node->location.start.line : (unsigned)ann->node->line;
         }
         const char* text = ann->canonicalText ? ann->canonicalText
-                                              : (ann->exprText ? ann->exprText : "<missing>");
+                                              : (ann->dimExprText ? ann->dimExprText : "<no-dim>");
         fprintf(stream,
                 "  - line %u: %s [%s",
                 line,
                 text,
                 ann->resolved ? "resolved" : "pending");
-        if (ann->duplicateCount > 1) {
-            fprintf(stream, ", duplicates=%zu", ann->duplicateCount);
+        if (ann->dimDuplicateCount > 1) {
+            fprintf(stream, ", duplicates=%zu", ann->dimDuplicateCount);
+        }
+        if (ann->unitExprText) {
+            fprintf(stream, ", unit=%s", ann->unitDef ? ann->unitDef->name : ann->unitExprText);
+            fprintf(stream, ", unit-%s", ann->unitResolved ? "resolved" : "pending");
+            if (ann->unitDuplicateCount > 1) {
+                fprintf(stream, ", unit-duplicates=%zu", ann->unitDuplicateCount);
+            }
         }
         fprintf(stream, "]\n");
     }

@@ -12,7 +12,7 @@ int main(void) {
         return 1;
     }
 
-    if (res.contract.contract_major != 1 || res.contract.contract_minor < 5) {
+    if (res.contract.contract_major != 1 || res.contract.contract_minor < 7) {
         fprintf(stderr, "unexpected contract version %u.%u.%u\n",
                 (unsigned)res.contract.contract_major,
                 (unsigned)res.contract.contract_minor,

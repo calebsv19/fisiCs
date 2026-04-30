@@ -12,7 +12,7 @@ int main(void) {
         return 1;
     }
 
-    if (res.contract.contract_major != 1 || res.contract.contract_minor < 5) {
+    if (res.contract.contract_major != 1 || res.contract.contract_minor < 7) {
         fprintf(stderr, "unexpected contract version %u.%u.%u\n",
                 (unsigned)res.contract.contract_major,
                 (unsigned)res.contract.contract_minor,
@@ -23,6 +23,11 @@ int main(void) {
 
     if ((res.contract.capabilities & FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS) != 0) {
         fprintf(stderr, "units attachment capability unexpectedly advertised before export implementation\n");
+        fisics_free_analysis_result(&res);
+        return 1;
+    }
+    if ((res.contract.capabilities & FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE) != 0) {
+        fprintf(stderr, "concrete-units capability unexpectedly advertised before export implementation\n");
         fisics_free_analysis_result(&res);
         return 1;
     }

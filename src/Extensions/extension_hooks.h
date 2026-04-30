@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 #include "Extensions/Units/units_model.h"
+#include "Extensions/Units/units_registry.h"
 
 struct ASTNode;
 struct CompilerContext;
@@ -15,11 +16,15 @@ typedef struct FisicsUnitsAnnotation {
     /* Pipeline-lifetime owner key for the current declaration-side scaffold. */
     struct ASTNode* node;
     /* Compiler-owned copies of the source expression and canonical spelling. */
-    char* exprText;
+    char* dimExprText;
     char* canonicalText;
     FisicsDim8 dim;
     bool resolved;
-    size_t duplicateCount;
+    size_t dimDuplicateCount;
+    char* unitExprText;
+    const FisicsUnitDef* unitDef;
+    bool unitResolved;
+    size_t unitDuplicateCount;
 } FisicsUnitsAnnotation;
 
 typedef struct FisicsUnitsExprResult {
@@ -30,6 +35,8 @@ typedef struct FisicsUnitsExprResult {
     struct ASTNode* node;
     FisicsDim8 dim;
     bool resolved;
+    const FisicsUnitDef* unitDef;
+    bool unitResolved;
 } FisicsUnitsExprResult;
 
 typedef struct FisicsUnitsExprBinding {
@@ -40,8 +47,9 @@ typedef struct FisicsUnitsExprBinding {
 typedef struct FisicsExtensionState {
     /*
      * Current Phase 2/2.5 declaration-side storage.
-     * One canonical slot per owner node, with duplicateCount recording repeated
-     * [[fisics::dim(...)]] use against that same owner in the current scaffold.
+     * One canonical slot per owner node, with per-attribute duplicate counters
+     * recording repeated [[fisics::dim(...)]] / [[fisics::unit(...)]] use
+     * against that same owner in the current scaffold.
      */
     FisicsUnitsAnnotation* unitsAnnotations;
     size_t unitsAnnotationCount;

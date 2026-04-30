@@ -25,7 +25,8 @@ typedef enum {
     FISICS_CONTRACT_CAP_TOKENS = (1ULL << 3),
     FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID = (1ULL << 4),
     FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY = (1ULL << 5),
-    FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS = (1ULL << 6)
+    FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS = (1ULL << 6),
+    FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE = (1ULL << 7)
 } FisicsContractCapability;
 
 enum {
@@ -56,6 +57,11 @@ typedef struct {
     const char* dim_text;
     int8_t dim[FISICS_UNITS_DIM_SLOTS];
     bool resolved;
+    const char* unit_source_text;
+    const char* unit_name;
+    const char* unit_symbol;
+    const char* unit_family;
+    bool unit_resolved;
 } FisicsUnitsAttachment;
 
 typedef struct {

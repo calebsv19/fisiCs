@@ -89,7 +89,7 @@ static bool append_units_attachment(UnitsAttachmentBuffer* buf,
     dst->symbol_name = dup_cstr(symbol->name);
     if (!dst->symbol_name) return false;
 
-    const char* dim_text = ann->canonicalText ? ann->canonicalText : ann->exprText;
+    const char* dim_text = ann->canonicalText ? ann->canonicalText : ann->dimExprText;
     dst->dim_text = dup_cstr(dim_text);
     if (!dst->dim_text) {
         free((void*)dst->symbol_name);
@@ -99,6 +99,23 @@ static bool append_units_attachment(UnitsAttachmentBuffer* buf,
 
     memcpy(dst->dim, ann->dim.e, sizeof(dst->dim));
     dst->resolved = ann->resolved;
+    if (ann->unitDef && ann->unitResolved) {
+        dst->unit_source_text = dup_cstr(ann->unitExprText ? ann->unitExprText : ann->unitDef->name);
+        dst->unit_name = dup_cstr(ann->unitDef->name);
+        dst->unit_symbol = dup_cstr(ann->unitDef->symbol);
+        dst->unit_family = dup_cstr(fisics_dim_family_name(ann->unitDef->family));
+        if (!dst->unit_source_text || !dst->unit_name || !dst->unit_symbol || !dst->unit_family) {
+            free((void*)dst->symbol_name);
+            free((void*)dst->dim_text);
+            free((void*)dst->unit_source_text);
+            free((void*)dst->unit_name);
+            free((void*)dst->unit_symbol);
+            free((void*)dst->unit_family);
+            memset(dst, 0, sizeof(*dst));
+            return false;
+        }
+        dst->unit_resolved = true;
+    }
     buf->count++;
     return true;
 }
@@ -108,6 +125,10 @@ static void free_units_attachment_buffer(UnitsAttachmentBuffer* buf) {
     for (size_t i = 0; i < buf->count; ++i) {
         free((void*)buf->items[i].symbol_name);
         free((void*)buf->items[i].dim_text);
+        free((void*)buf->items[i].unit_source_text);
+        free((void*)buf->items[i].unit_name);
+        free((void*)buf->items[i].unit_symbol);
+        free((void*)buf->items[i].unit_family);
     }
     free(buf->items);
     buf->items = NULL;

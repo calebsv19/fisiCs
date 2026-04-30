@@ -3,6 +3,7 @@
 #include "Extensions/Units/units_parser.h"
 
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,28 +32,20 @@ static char* dup_slice(const char* start, size_t len) {
     return out;
 }
 
-static FisicsDim8 alias_dim(const char* name, bool* ok) {
-    *ok = true;
-    if (strcmp(name, "1") == 0 || strcmp(name, "dimensionless") == 0) return fisics_dim_zero();
-    if (strcmp(name, "m") == 0) return fisics_dim_length();
-    if (strcmp(name, "kg") == 0) return fisics_dim_mass();
-    if (strcmp(name, "s") == 0) return fisics_dim_time();
-    if (strcmp(name, "A") == 0) return fisics_dim_current();
-    if (strcmp(name, "K") == 0) return fisics_dim_temperature();
-    if (strcmp(name, "mol") == 0) return fisics_dim_amount();
-    if (strcmp(name, "cd") == 0) return fisics_dim_luminous();
-    if (strcmp(name, "X") == 0) return fisics_dim_custom();
-    if (strcmp(name, "velocity") == 0) return fisics_dim_velocity();
-    if (strcmp(name, "acceleration") == 0) return fisics_dim_acceleration();
-    if (strcmp(name, "force") == 0) return fisics_dim_force();
-    if (strcmp(name, "energy") == 0) return fisics_dim_energy();
-    if (strcmp(name, "power") == 0) return fisics_dim_power();
-    if (strcmp(name, "pressure") == 0) return fisics_dim_pressure();
-    if (strcmp(name, "charge") == 0) return fisics_dim_charge();
-    if (strcmp(name, "voltage") == 0) return fisics_dim_voltage();
-    if (strcmp(name, "resistance") == 0) return fisics_dim_resistance();
-    *ok = false;
-    return fisics_dim_zero();
+static char* dup_printf1(const char* fmt, const char* a) {
+    size_t need = (size_t)snprintf(NULL, 0, fmt, a ? a : "");
+    char* out = (char*)malloc(need + 1);
+    if (!out) return NULL;
+    snprintf(out, need + 1, fmt, a ? a : "");
+    return out;
+}
+
+static char* dup_printf2(const char* fmt, const char* a, const char* b) {
+    size_t need = (size_t)snprintf(NULL, 0, fmt, a ? a : "", b ? b : "");
+    char* out = (char*)malloc(need + 1);
+    if (!out) return NULL;
+    snprintf(out, need + 1, fmt, a ? a : "", b ? b : "");
+    return out;
 }
 
 static bool parse_int(DimCursor* cur, int* outValue) {
@@ -92,13 +85,25 @@ static bool parse_atom(DimCursor* cur, FisicsDim8* outDim, char** outErrorDetail
         return false;
     }
 
-    bool ok = false;
-    FisicsDim8 base = alias_dim(ident, &ok);
-    free(ident);
-    if (!ok) {
-        if (outErrorDetail) *outErrorDetail = strdup("unknown dimension atom");
+    FisicsDimAtomInfo atomInfo;
+    bool ok = fisics_dim_lookup_atom(ident, &atomInfo);
+    if (!ok || atomInfo.kind == FISICS_DIM_ATOM_UNKNOWN) {
+        if (outErrorDetail) *outErrorDetail = dup_printf1("unknown dimension atom '%s'", ident);
+        free(ident);
         return false;
     }
+    if (atomInfo.kind == FISICS_DIM_ATOM_DEFERRED_UNIT) {
+        if (outErrorDetail) {
+            *outErrorDetail = dup_printf2(
+                "concrete unit word '%s' belongs in [[fisics::unit(...)]] rather than fisics::dim(...) (%s family)",
+                ident,
+                atomInfo.family_name ? atomInfo.family_name : "unknown");
+        }
+        free(ident);
+        return false;
+    }
+    FisicsDim8 base = atomInfo.dim;
+    free(ident);
 
     skip_ws(cur);
     if (cur->text[cur->pos] == '^') {
@@ -118,12 +123,13 @@ static bool parse_atom(DimCursor* cur, FisicsDim8* outDim, char** outErrorDetail
     return true;
 }
 
-bool fisics_units_attribute_extract(const ASTAttribute* attr, char** outExprText) {
-    if (outExprText) *outExprText = NULL;
-    if (!attr || attr->syntax != AST_ATTRIBUTE_SYNTAX_CXX || !attr->payload) {
+static bool extract_cxx_attr_payload(const ASTAttribute* attr,
+                                     const char* prefix,
+                                     char** outText) {
+    if (outText) *outText = NULL;
+    if (!attr || attr->syntax != AST_ATTRIBUTE_SYNTAX_CXX || !attr->payload || !prefix) {
         return false;
     }
-    const char* prefix = "fisics::dim(";
     size_t prefixLen = strlen(prefix);
     if (strncmp(attr->payload, prefix, prefixLen) != 0) {
         return false;
@@ -132,11 +138,24 @@ bool fisics_units_attribute_extract(const ASTAttribute* attr, char** outExprText
     if (payloadLen < prefixLen + 1 || attr->payload[payloadLen - 1] != ')') {
         return false;
     }
-    if (!outExprText) {
+    if (!outText) {
         return true;
     }
-    *outExprText = dup_slice(attr->payload + prefixLen, payloadLen - prefixLen - 1);
-    return *outExprText != NULL;
+    *outText = dup_slice(attr->payload + prefixLen, payloadLen - prefixLen - 1);
+    return *outText != NULL;
+}
+
+bool fisics_units_dim_attribute_extract(const ASTAttribute* attr, char** outExprText) {
+    return extract_cxx_attr_payload(attr, "fisics::dim(", outExprText);
+}
+
+bool fisics_units_unit_attribute_extract(const ASTAttribute* attr, char** outUnitText) {
+    return extract_cxx_attr_payload(attr, "fisics::unit(", outUnitText);
+}
+
+bool fisics_units_attribute_extract(const ASTAttribute* attr, char** outExprText) {
+    if (outExprText) *outExprText = NULL;
+    return fisics_units_dim_attribute_extract(attr, outExprText);
 }
 
 bool fisics_units_parse_dim_expr(const char* text, FisicsDim8* outDim, char** outErrorDetail) {

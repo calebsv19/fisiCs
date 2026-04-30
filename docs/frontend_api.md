@@ -35,7 +35,7 @@ fisics_free_analysis_result(&res);
 - `symbols`: top-level and nested symbol metadata with start/end ranges, ownership, deterministic `stable_id` values, and optional ownership link identity via `parent_stable_id` when available.
 - `includes`: include usage edges with resolved/unresolved origin info.
 - `contract`: metadata describing contract id/version, producer, mode (`strict`/`lenient`), partial/fatal flags, trust fields, and additive capability flags (`capabilities`) for optional consumer lanes.
-- `units_attachments`: optional declaration/symbol units metadata exported only when the producer advertises `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS`.
+- `units_attachments`: optional declaration/symbol units metadata exported only when the producer advertises `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS`. In contract `1.7.0+`, this lane may also carry optional concrete unit identity fields (`unit_source_text`, `unit_name`, `unit_symbol`, `unit_family`, `unit_resolved`) when `FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE` is advertised.
 
 ## Overlay Options
 

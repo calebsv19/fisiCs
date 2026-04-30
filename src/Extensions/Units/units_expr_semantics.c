@@ -8,11 +8,13 @@
 #include "Extensions/extension_units_expr_bindings.h"
 #include "Extensions/extension_units_expr_table.h"
 #include "Extensions/extension_units_view.h"
+#include "Extensions/Units/units_conversion.h"
 #include "Syntax/scope.h"
 
 #include <string.h>
 
 static void walk_expr_results(ASTNode* node, CompilerContext* ctx);
+static bool node_is_explicit_units_convert_call(const ASTNode* node);
 
 static bool is_dimensionless_literal(const ASTNode* node) {
     return node && (node->type == AST_NUMBER_LITERAL || node->type == AST_CHAR_LITERAL);
@@ -23,19 +25,32 @@ static void record_dimensionless_literal(CompilerContext* ctx, ASTNode* node) {
     (void)fisics_extension_set_units_expr_result(ctx, node, fisics_dim_zero(), true);
 }
 
-static bool lookup_resolved_expr_dim(CompilerContext* ctx, ASTNode* node, FisicsDim8* outDim) {
+static bool lookup_resolved_expr_metadata(CompilerContext* ctx,
+                                          ASTNode* node,
+                                          FisicsDim8* outDim,
+                                          const FisicsUnitDef** outUnitDef,
+                                          bool* outUnitResolved) {
     if (!ctx || !node || !outDim) return false;
+    if (outUnitDef) *outUnitDef = NULL;
+    if (outUnitResolved) *outUnitResolved = false;
     const FisicsUnitsExprResult* result = fisics_extension_lookup_units_expr_result(ctx, node);
     if (!result || !result->resolved) return false;
     *outDim = result->dim;
+    if (outUnitDef) *outUnitDef = result->unitDef;
+    if (outUnitResolved) *outUnitResolved = result->unitResolved;
     return true;
 }
 
 static bool record_identifier_result(CompilerContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_IDENTIFIER) return false;
     const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation_binding(ctx, node);
-    if (!ann || !ann->resolved || ann->duplicateCount > 1) return false;
-    return fisics_extension_set_units_expr_result(ctx, node, ann->dim, true);
+    if (!ann || !ann->resolved || ann->dimDuplicateCount > 1) return false;
+    return fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                            node,
+                                                            ann->dim,
+                                                            true,
+                                                            ann->unitResolved ? ann->unitDef : NULL,
+                                                            ann->unitResolved);
 }
 
 static bool is_units_preserving_unary_op(const char* op) {
@@ -50,15 +65,24 @@ static void maybe_record_unary_result(CompilerContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_UNARY_EXPRESSION) return;
     if (!is_units_preserving_unary_op(node->expr.op)) return;
     FisicsDim8 operandDim = fisics_dim_zero();
-    if (!lookup_resolved_expr_dim(ctx, node->expr.left, &operandDim)) return;
-    (void)fisics_extension_set_units_expr_result(ctx, node, operandDim, true);
+    const FisicsUnitDef* operandUnit = NULL;
+    bool unitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, node->expr.left, &operandDim, &operandUnit, &unitResolved)) return;
+    (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                           node,
+                                                           operandDim,
+                                                           true,
+                                                           operandUnit,
+                                                           unitResolved);
 }
 
 static void maybe_record_cast_result(CompilerContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_CAST_EXPRESSION) return;
     FisicsDim8 dim = fisics_dim_zero();
-    if (!lookup_resolved_expr_dim(ctx, node->castExpr.expression, &dim)) return;
-    (void)fisics_extension_set_units_expr_result(ctx, node, dim, true);
+    const FisicsUnitDef* unit = NULL;
+    bool unitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, node->castExpr.expression, &dim, &unit, &unitResolved)) return;
+    (void)fisics_extension_set_units_expr_result_with_unit(ctx, node, dim, true, unit, unitResolved);
 }
 
 static void maybe_record_comma_result(CompilerContext* ctx, ASTNode* node) {
@@ -67,8 +91,10 @@ static void maybe_record_comma_result(CompilerContext* ctx, ASTNode* node) {
                         ? node->commaExpr.expressions[node->commaExpr.exprCount - 1]
                         : NULL;
     FisicsDim8 dim = fisics_dim_zero();
-    if (!lookup_resolved_expr_dim(ctx, tail, &dim)) return;
-    (void)fisics_extension_set_units_expr_result(ctx, node, dim, true);
+    const FisicsUnitDef* unit = NULL;
+    bool unitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, tail, &dim, &unit, &unitResolved)) return;
+    (void)fisics_extension_set_units_expr_result_with_unit(ctx, node, dim, true, unit, unitResolved);
 }
 
 static bool is_units_add_sub_op(const char* op) {
@@ -87,6 +113,25 @@ static bool is_units_comparison_op(const char* op) {
            strcmp(op, "<=") == 0 ||
            strcmp(op, ">") == 0 ||
            strcmp(op, ">=") == 0;
+}
+
+static bool units_resolved_and_different(const FisicsUnitDef* leftUnit,
+                                         bool leftUnitResolved,
+                                         const FisicsUnitDef* rightUnit,
+                                         bool rightUnitResolved) {
+    return leftUnitResolved && rightUnitResolved && leftUnit && rightUnit && leftUnit != rightUnit;
+}
+
+static const char* explicit_conversion_context_for_binary(const char* op) {
+    if (!op) return "expression";
+    if (strcmp(op, "+") == 0) return "addition";
+    if (strcmp(op, "-") == 0) return "subtraction";
+    if (strcmp(op, "==") == 0 || strcmp(op, "!=") == 0 ||
+        strcmp(op, "<") == 0 || strcmp(op, "<=") == 0 ||
+        strcmp(op, ">") == 0 || strcmp(op, ">=") == 0) {
+        return "comparison";
+    }
+    return "expression";
 }
 
 static void maybe_report_binary_mismatch(CompilerContext* ctx,
@@ -109,8 +154,12 @@ static void maybe_record_binary_result(CompilerContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_BINARY_EXPRESSION) return;
     FisicsDim8 leftDim = fisics_dim_zero();
     FisicsDim8 rightDim = fisics_dim_zero();
-    if (!lookup_resolved_expr_dim(ctx, node->expr.left, &leftDim) ||
-        !lookup_resolved_expr_dim(ctx, node->expr.right, &rightDim)) {
+    const FisicsUnitDef* leftUnit = NULL;
+    const FisicsUnitDef* rightUnit = NULL;
+    bool leftUnitResolved = false;
+    bool rightUnitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, node->expr.left, &leftDim, &leftUnit, &leftUnitResolved) ||
+        !lookup_resolved_expr_metadata(ctx, node->expr.right, &rightDim, &rightUnit, &rightUnitResolved)) {
         return;
     }
 
@@ -120,7 +169,20 @@ static void maybe_record_binary_result(CompilerContext* ctx, ASTNode* node) {
             maybe_report_binary_mismatch(ctx, node, leftDim, rightDim);
             return;
         }
-        (void)fisics_extension_set_units_expr_result(ctx, node, leftDim, true);
+        if (units_resolved_and_different(leftUnit, leftUnitResolved, rightUnit, rightUnitResolved)) {
+            fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                                 node,
+                                                                 explicit_conversion_context_for_binary(op),
+                                                                 rightUnit,
+                                                                 leftUnit);
+            return;
+        }
+        (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                               node,
+                                                               leftDim,
+                                                               true,
+                                                               leftUnitResolved ? leftUnit : NULL,
+                                                               leftUnitResolved && leftUnit == rightUnit);
         return;
     }
 
@@ -133,13 +195,39 @@ static void maybe_record_binary_result(CompilerContext* ctx, ASTNode* node) {
             fisics_extension_diag_units_exponent_overflow(ctx, node, op, leftDim, rightDim);
             return;
         }
-        (void)fisics_extension_set_units_expr_result(ctx, node, outDim, true);
+        const FisicsUnitDef* outUnit = NULL;
+        bool outUnitResolved = false;
+        bool leftDimensionless = fisics_dim_is_dimensionless(leftDim);
+        bool rightDimensionless = fisics_dim_is_dimensionless(rightDim);
+        if (strcmp(op, "*") == 0) {
+            if (leftDimensionless && rightUnitResolved) {
+                outUnit = rightUnit;
+                outUnitResolved = true;
+            } else if (rightDimensionless && leftUnitResolved) {
+                outUnit = leftUnit;
+                outUnitResolved = true;
+            }
+        } else {
+            if (rightDimensionless && leftUnitResolved) {
+                outUnit = leftUnit;
+                outUnitResolved = true;
+            }
+        }
+        (void)fisics_extension_set_units_expr_result_with_unit(ctx, node, outDim, true, outUnit, outUnitResolved);
         return;
     }
 
     if (is_units_comparison_op(op)) {
         if (!fisics_dim_equal(leftDim, rightDim)) {
             fisics_extension_diag_units_compare_dim_mismatch(ctx, node, leftDim, rightDim);
+            return;
+        }
+        if (units_resolved_and_different(leftUnit, leftUnitResolved, rightUnit, rightUnitResolved)) {
+            fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                                 node,
+                                                                 explicit_conversion_context_for_binary(op),
+                                                                 rightUnit,
+                                                                 leftUnit);
             return;
         }
         (void)fisics_extension_set_units_expr_result(ctx, node, fisics_dim_zero(), true);
@@ -151,30 +239,64 @@ static void maybe_record_assignment_result(CompilerContext* ctx, ASTNode* node) 
     if (!node->assignment.op || strcmp(node->assignment.op, "=") != 0) return;
     FisicsDim8 targetDim = fisics_dim_zero();
     FisicsDim8 valueDim = fisics_dim_zero();
-    if (!lookup_resolved_expr_dim(ctx, node->assignment.target, &targetDim) ||
-        !lookup_resolved_expr_dim(ctx, node->assignment.value, &valueDim)) {
+    const FisicsUnitDef* targetUnit = NULL;
+    const FisicsUnitDef* valueUnit = NULL;
+    bool targetUnitResolved = false;
+    bool valueUnitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, node->assignment.target, &targetDim, &targetUnit, &targetUnitResolved) ||
+        !lookup_resolved_expr_metadata(ctx, node->assignment.value, &valueDim, &valueUnit, &valueUnitResolved)) {
         return;
     }
     if (!fisics_dim_equal(targetDim, valueDim)) {
         fisics_extension_diag_units_assign_dim_mismatch(ctx, node, targetDim, valueDim);
         return;
     }
-    (void)fisics_extension_set_units_expr_result(ctx, node, targetDim, true);
+    if (units_resolved_and_different(targetUnit, targetUnitResolved, valueUnit, valueUnitResolved)) {
+        fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                             node,
+                                                             "assignment",
+                                                             valueUnit,
+                                                             targetUnit);
+        return;
+    }
+    (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                           node,
+                                                           targetDim,
+                                                           true,
+                                                           targetUnitResolved ? targetUnit : NULL,
+                                                           targetUnitResolved);
 }
 
 static void maybe_record_ternary_result(CompilerContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_TERNARY_EXPRESSION) return;
     FisicsDim8 trueDim = fisics_dim_zero();
     FisicsDim8 falseDim = fisics_dim_zero();
-    if (!lookup_resolved_expr_dim(ctx, node->ternaryExpr.trueExpr, &trueDim) ||
-        !lookup_resolved_expr_dim(ctx, node->ternaryExpr.falseExpr, &falseDim)) {
+    const FisicsUnitDef* trueUnit = NULL;
+    const FisicsUnitDef* falseUnit = NULL;
+    bool trueUnitResolved = false;
+    bool falseUnitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, node->ternaryExpr.trueExpr, &trueDim, &trueUnit, &trueUnitResolved) ||
+        !lookup_resolved_expr_metadata(ctx, node->ternaryExpr.falseExpr, &falseDim, &falseUnit, &falseUnitResolved)) {
         return;
     }
     if (!fisics_dim_equal(trueDim, falseDim)) {
         fisics_extension_diag_units_ternary_dim_mismatch(ctx, node, trueDim, falseDim);
         return;
     }
-    (void)fisics_extension_set_units_expr_result(ctx, node, trueDim, true);
+    if (units_resolved_and_different(trueUnit, trueUnitResolved, falseUnit, falseUnitResolved)) {
+        fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                             node,
+                                                             "ternary result",
+                                                             falseUnit,
+                                                             trueUnit);
+        return;
+    }
+    (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                           node,
+                                                           trueDim,
+                                                           true,
+                                                           trueUnitResolved ? trueUnit : NULL,
+                                                           trueUnitResolved && trueUnit == falseUnit);
 }
 
 static void maybe_record_decl_owned_literal(CompilerContext* ctx,
@@ -184,9 +306,100 @@ static void maybe_record_decl_owned_literal(CompilerContext* ctx,
     if (!is_dimensionless_literal(init->expression)) return;
 
     const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, declNode);
-    if (!ann || !ann->resolved || ann->duplicateCount > 1) return;
+    if (!ann || !ann->resolved || ann->dimDuplicateCount > 1) return;
 
-    (void)fisics_extension_set_units_expr_result(ctx, init->expression, ann->dim, true);
+    (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                           init->expression,
+                                                           ann->dim,
+                                                           true,
+                                                           ann->unitResolved ? ann->unitDef : NULL,
+                                                           ann->unitResolved);
+}
+
+static const char* string_literal_payload(const ASTNode* node) {
+    if (!node || node->type != AST_STRING_LITERAL) return NULL;
+    const char* payload = NULL;
+    (void)ast_literal_encoding(node->valueNode.value, &payload);
+    return payload;
+}
+
+static bool lookup_conversion_target_unit(ASTNode* targetNode,
+                                          const FisicsUnitDef** outUnit,
+                                          const char** outText) {
+    if (outUnit) *outUnit = NULL;
+    if (outText) *outText = NULL;
+    const char* payload = string_literal_payload(targetNode);
+    if (!payload || payload[0] == '\0') return false;
+    if (outText) *outText = payload;
+    return outUnit ? fisics_unit_lookup(payload, outUnit) : true;
+}
+
+static bool node_is_explicit_units_convert_call(const ASTNode* node) {
+    if (!node || node->type != AST_FUNCTION_CALL || !node->functionCall.callee) return false;
+    if (node->functionCall.callee->type != AST_IDENTIFIER) return false;
+    const char* name = node->functionCall.callee->valueNode.value;
+    return name &&
+           (strcmp(name, "fisics_convert_unit") == 0 ||
+            strcmp(name, "__builtin_fisics_convert_unit") == 0);
+}
+
+static void maybe_record_units_conversion_call(CompilerContext* ctx, ASTNode* node) {
+    if (!ctx || !node_is_explicit_units_convert_call(node) || node->functionCall.argumentCount != 2) return;
+    ASTNode* sourceNode = node->functionCall.arguments ? node->functionCall.arguments[0] : NULL;
+    ASTNode* targetNode = node->functionCall.arguments ? node->functionCall.arguments[1] : NULL;
+    FisicsDim8 sourceDim = fisics_dim_zero();
+    const FisicsUnitDef* sourceUnit = NULL;
+    bool sourceUnitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, sourceNode, &sourceDim, &sourceUnit, &sourceUnitResolved)) {
+        return;
+    }
+
+    const FisicsUnitDef* targetUnit = NULL;
+    const char* targetText = NULL;
+    if (!lookup_conversion_target_unit(targetNode, &targetUnit, &targetText) || !targetUnit) {
+        fisics_extension_diag_units_conversion_invalid_target(ctx,
+                                                              node,
+                                                              targetText ? targetText : "",
+                                                              "explicit conversion target must name a seeded concrete unit string");
+        return;
+    }
+    if (!sourceUnitResolved || !sourceUnit) {
+        fisics_extension_diag_units_conversion_requires_source_unit(ctx, node, targetText ? targetText : targetUnit->name);
+        return;
+    }
+
+    const char* detail = NULL;
+    if (!fisics_unit_can_convert(sourceUnit, targetUnit, &detail)) {
+        fisics_extension_diag_units_conversion_incompatible(ctx, node, sourceUnit, targetUnit, detail);
+        return;
+    }
+    (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                           node,
+                                                           targetUnit->dim,
+                                                           true,
+                                                           targetUnit,
+                                                           true);
+}
+
+static void maybe_validate_decl_owned_initializer_units(CompilerContext* ctx,
+                                                        ASTNode* declNode,
+                                                        DesignatedInit* init) {
+    if (!ctx || !declNode || !init || !init->expression) return;
+    const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, declNode);
+    if (!ann || !ann->resolved || ann->dimDuplicateCount > 1 || !ann->unitResolved || !ann->unitDef) return;
+
+    FisicsDim8 initDim = fisics_dim_zero();
+    const FisicsUnitDef* initUnit = NULL;
+    bool initUnitResolved = false;
+    if (!lookup_resolved_expr_metadata(ctx, init->expression, &initDim, &initUnit, &initUnitResolved)) return;
+    if (!fisics_dim_equal(initDim, ann->dim)) return;
+    if (units_resolved_and_different(ann->unitDef, true, initUnit, initUnitResolved)) {
+        fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                             init->expression,
+                                                             "initializer",
+                                                             initUnit,
+                                                             ann->unitDef);
+    }
 }
 
 static void walk_designated_init(ASTNode* declNode, DesignatedInit* init, CompilerContext* ctx) {
@@ -194,6 +407,7 @@ static void walk_designated_init(ASTNode* declNode, DesignatedInit* init, Compil
     walk_expr_results(init->indexExpr, ctx);
     walk_expr_results(init->expression, ctx);
     maybe_record_decl_owned_literal(ctx, declNode, init);
+    maybe_validate_decl_owned_initializer_units(ctx, declNode, init);
 }
 
 static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
@@ -357,6 +571,7 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
             for (size_t i = 0; i < node->functionCall.argumentCount; ++i) {
                 walk_expr_results(node->functionCall.arguments ? node->functionCall.arguments[i] : NULL, ctx);
             }
+            maybe_record_units_conversion_call(ctx, node);
             break;
 
         case AST_COMPOUND_LITERAL:

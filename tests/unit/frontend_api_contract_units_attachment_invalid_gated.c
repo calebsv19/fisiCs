@@ -39,6 +39,11 @@ int main(void) {
         fisics_free_analysis_result(&res);
         return 1;
     }
+    if ((res.contract.capabilities & FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE) != 0) {
+        fprintf(stderr, "concrete-units capability unexpectedly advertised for invalid units annotation\n");
+        fisics_free_analysis_result(&res);
+        return 1;
+    }
     if (res.units_attachments != NULL || res.units_attachment_count != 0) {
         fprintf(stderr, "expected invalid units annotation to export no units payload, got ptr=%p count=%zu\n",
                 (void*)res.units_attachments,

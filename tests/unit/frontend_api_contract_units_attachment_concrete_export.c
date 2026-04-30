@@ -15,23 +15,23 @@ static const FisicsSymbol* find_symbol(const FisicsAnalysisResult* res, const ch
 
 int main(void) {
     const char* src =
-        "double distance [[fisics::dim(length)]] = 1.0;\n";
+        "double speed [[fisics::dim(speed)]] [[fisics::unit(feet_per_second)]] = 1.0;\n";
     FisicsFrontendOptions opts = {0};
     opts.overlay_features = FISICS_OVERLAY_PHYSICS_UNITS;
 
     FisicsAnalysisResult res = (FisicsAnalysisResult){0};
-    if (!fisics_analyze_buffer("contract_units_export.c", src, strlen(src), &opts, &res)) {
+    if (!fisics_analyze_buffer("contract_units_concrete_export.c", src, strlen(src), &opts, &res)) {
         fprintf(stderr, "fisics_analyze_buffer failed\n");
         return 1;
     }
 
     if ((res.contract.capabilities & FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS) == 0) {
-        fprintf(stderr, "units attachment capability not advertised for resolved overlay export\n");
+        fprintf(stderr, "units attachment capability not advertised for concrete-unit export\n");
         fisics_free_analysis_result(&res);
         return 1;
     }
-    if ((res.contract.capabilities & FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE) != 0) {
-        fprintf(stderr, "concrete-units capability unexpectedly advertised for dim-only export\n");
+    if ((res.contract.capabilities & FISICS_CONTRACT_CAP_EXTENSION_UNITS_CONCRETE) == 0) {
+        fprintf(stderr, "concrete-units capability not advertised for concrete-unit export\n");
         fisics_free_analysis_result(&res);
         return 1;
     }
@@ -44,16 +44,16 @@ int main(void) {
         return 1;
     }
 
-    const FisicsSymbol* sym = find_symbol(&res, "distance");
+    const FisicsSymbol* sym = find_symbol(&res, "speed");
     if (!sym || sym->stable_id == 0) {
-        fprintf(stderr, "failed to find exported symbol stable id for distance\n");
+        fprintf(stderr, "failed to find exported symbol stable id for speed\n");
         fisics_free_analysis_result(&res);
         return 1;
     }
 
     const FisicsUnitsAttachment* att = &res.units_attachments[0];
-    if (!att->resolved) {
-        fprintf(stderr, "units attachment unexpectedly unresolved\n");
+    if (!att->resolved || !att->unit_resolved) {
+        fprintf(stderr, "expected resolved dim+unit export\n");
         fisics_free_analysis_result(&res);
         return 1;
     }
@@ -64,32 +64,33 @@ int main(void) {
         fisics_free_analysis_result(&res);
         return 1;
     }
-    if (!att->symbol_name || strcmp(att->symbol_name, "distance") != 0) {
-        fprintf(stderr, "unexpected attachment symbol name: %s\n",
-                att->symbol_name ? att->symbol_name : "<null>");
-        fisics_free_analysis_result(&res);
-        return 1;
-    }
-    if (!att->dim_text || strcmp(att->dim_text, "m") != 0) {
+    if (!att->dim_text || strcmp(att->dim_text, "m/s") != 0) {
         fprintf(stderr, "unexpected attachment dim text: %s\n",
                 att->dim_text ? att->dim_text : "<null>");
         fisics_free_analysis_result(&res);
         return 1;
     }
-    if (att->dim[0] != 1) {
-        fprintf(stderr, "expected length exponent 1, got %d\n", (int)att->dim[0]);
+    if (!att->unit_name || strcmp(att->unit_name, "foot_per_second") != 0) {
+        fprintf(stderr, "unexpected unit name: %s\n",
+                att->unit_name ? att->unit_name : "<null>");
         fisics_free_analysis_result(&res);
         return 1;
     }
-    for (size_t i = 1; i < FISICS_UNITS_DIM_SLOTS; ++i) {
-        if (att->dim[i] != 0) {
-            fprintf(stderr, "expected zero exponent at slot %zu, got %d\n", i, (int)att->dim[i]);
-            fisics_free_analysis_result(&res);
-            return 1;
-        }
+    if (!att->unit_source_text || strcmp(att->unit_source_text, "feet_per_second") != 0) {
+        fprintf(stderr, "unexpected unit source text: %s\n",
+                att->unit_source_text ? att->unit_source_text : "<null>");
+        fisics_free_analysis_result(&res);
+        return 1;
     }
-    if (att->unit_source_text || att->unit_resolved || att->unit_name || att->unit_symbol || att->unit_family) {
-        fprintf(stderr, "dim-only export unexpectedly populated concrete-unit fields\n");
+    if (!att->unit_symbol || strcmp(att->unit_symbol, "ft/s") != 0) {
+        fprintf(stderr, "unexpected unit symbol: %s\n",
+                att->unit_symbol ? att->unit_symbol : "<null>");
+        fisics_free_analysis_result(&res);
+        return 1;
+    }
+    if (!att->unit_family || strcmp(att->unit_family, "velocity") != 0) {
+        fprintf(stderr, "unexpected unit family: %s\n",
+                att->unit_family ? att->unit_family : "<null>");
         fisics_free_analysis_result(&res);
         return 1;
     }
