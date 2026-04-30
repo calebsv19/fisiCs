@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "analyze_decls_internal.h"
+#include "Extensions/extension_units_view.h"
 #include "Utils/profiler.h"
 
 static const char* staticAssertHint(ASTNode* node) {
@@ -127,6 +128,8 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     continue;
                 }
 
+                const FisicsUnitsAnnotation* unitsAnn =
+                    fisics_extension_lookup_units_annotation(scope ? scope->ctx : NULL, node);
                 Symbol* existing = lookupSymbol(&scope->table, ident->valueNode.value);
                 if (existing) {
                     if (existing->kind != SYMBOL_VARIABLE) {
@@ -175,6 +178,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         existing->isTentative = false;
                         existing->definition = node;
                     }
+                    symbolAttachUnitsAnnotation(existing, unitsAnn, i);
                     primeSymbolTypeInfoCache(existing, scope);
                     boundSym = existing;
                 } else {
@@ -203,6 +207,7 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     sym->hasDefinition = newDefinition;
                     sym->isTentative = tentative;
                     sym->next = NULL;
+                    symbolAttachUnitsAnnotation(sym, unitsAnn, i);
                     resetFunctionSignature(sym);
                     primeSymbolTypeInfoCache(sym, scope);
                     applyInteropAttributes(sym, node, scope, true);

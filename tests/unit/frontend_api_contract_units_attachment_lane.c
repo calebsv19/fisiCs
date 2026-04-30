@@ -7,7 +7,7 @@ int main(void) {
     const char* src = "int main(void){ return 0; }\n";
     FisicsAnalysisResult res = (FisicsAnalysisResult){0};
 
-    if (!fisics_analyze_buffer("contract_capabilities.c", src, strlen(src), NULL, &res)) {
+    if (!fisics_analyze_buffer("contract_units_lane.c", src, strlen(src), NULL, &res)) {
         fprintf(stderr, "fisics_analyze_buffer failed\n");
         return 1;
     }
@@ -21,18 +21,16 @@ int main(void) {
         return 1;
     }
 
-    const uint64_t required =
-        FISICS_CONTRACT_CAP_DIAGNOSTICS |
-        FISICS_CONTRACT_CAP_INCLUDES |
-        FISICS_CONTRACT_CAP_SYMBOLS |
-        FISICS_CONTRACT_CAP_TOKENS |
-        FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID |
-        FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY;
+    if ((res.contract.capabilities & FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS) != 0) {
+        fprintf(stderr, "units attachment capability unexpectedly advertised before export implementation\n");
+        fisics_free_analysis_result(&res);
+        return 1;
+    }
 
-    if ((res.contract.capabilities & required) != required) {
-        fprintf(stderr, "missing required capabilities mask=0x%llx required=0x%llx\n",
-                (unsigned long long)res.contract.capabilities,
-                (unsigned long long)required);
+    if (res.units_attachments != NULL || res.units_attachment_count != 0) {
+        fprintf(stderr, "units attachment lane expected null/empty default, got ptr=%p count=%zu\n",
+                (void*)res.units_attachments,
+                res.units_attachment_count);
         fisics_free_analysis_result(&res);
         return 1;
     }

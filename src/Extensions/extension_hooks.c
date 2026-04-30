@@ -24,6 +24,8 @@ void fisics_extension_state_destroy(FisicsExtensionState* state) {
         free(state->unitsAnnotations[i].canonicalText);
     }
     free(state->unitsAnnotations);
+    free(state->unitsExprResults);
+    free(state->unitsExprBindings);
     free(state);
 }
 
@@ -49,6 +51,16 @@ static bool units_annotation_reserve(FisicsExtensionState* state, size_t extra) 
     return true;
 }
 
+static FisicsUnitsAnnotation* find_units_annotation(FisicsExtensionState* state, ASTNode* node) {
+    if (!state || !node) return NULL;
+    for (size_t i = 0; i < state->unitsAnnotationCount; ++i) {
+        if (state->unitsAnnotations[i].node == node) {
+            return &state->unitsAnnotations[i];
+        }
+    }
+    return NULL;
+}
+
 static bool note_units_attr(CompilerContext* ctx, ASTNode* node, char* exprText) {
     if (!ctx || !node || !exprText) {
         free(exprText);
@@ -59,6 +71,12 @@ static bool note_units_attr(CompilerContext* ctx, ASTNode* node, char* exprText)
         return false;
     }
     FisicsExtensionState* state = ctx->extensionState;
+    FisicsUnitsAnnotation* existing = find_units_annotation(state, node);
+    if (existing) {
+        existing->duplicateCount++;
+        free(exprText);
+        return true;
+    }
     if (!units_annotation_reserve(state, 1)) {
         free(exprText);
         return false;
@@ -67,6 +85,7 @@ static bool note_units_attr(CompilerContext* ctx, ASTNode* node, char* exprText)
     memset(ann, 0, sizeof(*ann));
     ann->node = node;
     ann->exprText = exprText;
+    ann->duplicateCount = 1;
     return true;
 }
 
@@ -109,13 +128,7 @@ static void run_units_decl_scaffold(CompilerContext* ctx) {
         FisicsUnitsAnnotation* ann = &state->unitsAnnotations[i];
         if (!ann->node || !ann->exprText) continue;
 
-        size_t duplicates = 0;
-        for (size_t j = 0; j < state->unitsAnnotationCount; ++j) {
-            if (state->unitsAnnotations[j].node == ann->node) {
-                duplicates++;
-            }
-        }
-        if (duplicates > 1) {
+        if (ann->duplicateCount > 1) {
             fisics_extension_diag_duplicate_units_attr(ctx, ann->node);
             continue;
         }

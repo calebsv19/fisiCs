@@ -14,10 +14,11 @@
 #include "Compiler/compiler_context.h"
 #include "Compiler/diagnostics.h"
 #include "Compiler/pipeline.h"
+#include "Compiler/pipeline_artifacts_units.h"
 
 #define FISICS_CONTRACT_ID "fisiCs.analysis.contract"
 #define FISICS_CONTRACT_MAJOR 1
-#define FISICS_CONTRACT_MINOR 4
+#define FISICS_CONTRACT_MINOR 5
 #define FISICS_CONTRACT_PATCH 0
 #define FISICS_CONTRACT_PRODUCER "fisiCs"
 #define FISICS_CONTRACT_PRODUCER_VERSION "0.1.0"
@@ -677,6 +678,20 @@ static bool copy_includes(const CompilerContext* ctx, FisicsAnalysisResult* out)
     return true;
 }
 
+static bool copy_units_attachments(const SemanticModel* model, FisicsAnalysisResult* out) {
+    if (!out) return false;
+    out->units_attachments = NULL;
+    out->units_attachment_count = 0;
+    if (!model || !out->symbols || out->symbol_count == 0) {
+        return true;
+    }
+    return pipeline_collect_units_attachments(model,
+                                              out->symbols,
+                                              out->symbol_count,
+                                              &out->units_attachments,
+                                              &out->units_attachment_count);
+}
+
 bool fisics_analyze_buffer(const char* file_path,
                            const char* source,
                            size_t length,
@@ -702,6 +717,7 @@ bool fisics_analyze_buffer(const char* file_path,
         else if (opts->lenient_mode > 0) lenient = true;
     }
     bool includeSystemSymbols = opts && opts->include_system_symbols;
+    FisicsOverlayFeatures overlayFeatures = opts ? opts->overlay_features : FISICS_OVERLAY_NONE;
     const char* const* include_paths = opts ? opts->include_paths : NULL;
     size_t include_path_count = opts ? opts->include_path_count : 0;
     char* inferred_dir = dup_dirname(contract_file_path);
@@ -740,6 +756,7 @@ bool fisics_analyze_buffer(const char* file_path,
                                     opts ? opts->macro_define_count : 0,
                                     lenient,
                                     includeSystemSymbols,
+                                    overlayFeatures,
                                     false,
                                     false,
                                     false,
@@ -753,16 +770,21 @@ bool fisics_analyze_buffer(const char* file_path,
         copied = copy_diagnostics(ctx, contract_file_path, lenient, out) &&
                  copy_tokens(ctx, out) &&
                  copy_symbols(ctx, out) &&
-                 copy_includes(ctx, out);
+                 copy_includes(ctx, out) &&
+                 copy_units_attachments(model, out);
     } else {
         // IDE lenient path: even if the pipeline failed (e.g., missing headers or parse
         // errors), return whatever diagnostics/includes we captured so the IDE can show them.
         copied = copy_diagnostics(ctx, contract_file_path, lenient, out) &&
                  copy_tokens(ctx, out) &&
                  copy_symbols(ctx, out) &&
-                 copy_includes(ctx, out);
+                 copy_includes(ctx, out) &&
+                 copy_units_attachments(model, out);
     }
     init_contract(out, source, length, lenient, ok);
+    if (out->units_attachment_count > 0) {
+        out->contract.capabilities |= FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS;
+    }
 
     cc_destroy(ctx);
     free(merged_include_paths);
@@ -813,6 +835,13 @@ void fisics_free_analysis_result(FisicsAnalysisResult* result) {
         }
         safe_free_ptr(result->includes);
     }
+    if (result->units_attachments) {
+        for (size_t i = 0; i < result->units_attachment_count; ++i) {
+            safe_free_ptr((void*)result->units_attachments[i].symbol_name);
+            safe_free_ptr((void*)result->units_attachments[i].dim_text);
+        }
+        safe_free_ptr(result->units_attachments);
+    }
     result->diagnostics = NULL;
     result->diag_count = 0;
     result->tokens = NULL;
@@ -821,4 +850,6 @@ void fisics_free_analysis_result(FisicsAnalysisResult* result) {
     result->symbol_count = 0;
     result->includes = NULL;
     result->include_count = 0;
+    result->units_attachments = NULL;
+    result->units_attachment_count = 0;
 }

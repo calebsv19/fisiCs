@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-04-25.
+Last audited: 2026-04-29.
 
 ## Repository Entry
 
@@ -23,7 +23,8 @@ Last audited: 2026-04-25.
 - `compiler_test_workflow_guide.md`: operator guide for bucket-by-bucket validation/fix workflows
 - `validation_workflow.md`: full-project validation workflow for external program compile checks
 - `frontend_api.md`: reusable frontend library API notes
-- `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.4.0`)
+- `extension_overlays.md`: public reference for opt-in overlay lanes and the current physics-units surface
+- `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.5.0`)
 - `cli_release_workflow.md`: CLI release packaging/sign/notarize flow for macOS artifacts
 - `make_final_timing_log.md`: public timing-baseline lane and capture policy for `make final`
 

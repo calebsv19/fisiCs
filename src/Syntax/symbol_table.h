@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 struct TypeInfo;
+typedef struct FisicsUnitsAnnotation FisicsUnitsAnnotation;
 
 typedef enum {
     SYMBOL_VARIABLE,
@@ -68,6 +69,8 @@ typedef struct Symbol {
     bool hasConstValue;
     long long constValue;
     struct TypeInfo* cachedTypeInfo;
+    const FisicsUnitsAnnotation* unitsAnnotation;
+    size_t unitsDeclaratorIndex;
     struct Symbol* next; // For linked list in hash buckets
 } Symbol;
 
@@ -82,5 +85,10 @@ void initSymbolTable(SymbolTable* table);
 bool insertSymbol(SymbolTable* table, Symbol* sym);
 Symbol* lookupSymbol(SymbolTable* table, const char* name);
 void freeSymbolTable(SymbolTable* table);
+void symbolAttachUnitsAnnotation(Symbol* sym,
+                                 const FisicsUnitsAnnotation* annotation,
+                                 size_t declaratorIndex);
+const FisicsUnitsAnnotation* symbolGetUnitsAnnotation(const Symbol* sym);
+size_t symbolGetUnitsDeclaratorIndex(const Symbol* sym);
 
 #endif // SYMBOL_TABLE_H

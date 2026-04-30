@@ -610,6 +610,7 @@ bool compiler_run_frontend(CompilerContext* ctx,
                            size_t macroDefineCount,
                            bool lenientIncludes,
                            bool includeSystemSymbols,
+                           FisicsOverlayFeatures overlayFeatures,
                            bool dumpAst,
                            bool dumpSemantic,
                            bool dumpTokens,
@@ -619,6 +620,7 @@ bool compiler_run_frontend(CompilerContext* ctx,
     if (!ctx || !file_path) {
         return false;
     }
+    cc_set_overlay_features(ctx, overlayFeatures);
     cc_seed_builtins(ctx);
 
     const char* const* effectiveIncludePaths = includePaths;

@@ -12,17 +12,58 @@ struct CompilerContext;
 struct Scope;
 
 typedef struct FisicsUnitsAnnotation {
+    /* Pipeline-lifetime owner key for the current declaration-side scaffold. */
     struct ASTNode* node;
+    /* Compiler-owned copies of the source expression and canonical spelling. */
     char* exprText;
     char* canonicalText;
     FisicsDim8 dim;
     bool resolved;
+    size_t duplicateCount;
 } FisicsUnitsAnnotation;
 
+typedef struct FisicsUnitsExprResult {
+    /*
+     * Reserved Phase 3 shape for inferred expression dimensions.
+     * Keys are AST nodes and remain valid only for one compile pipeline run.
+     */
+    struct ASTNode* node;
+    FisicsDim8 dim;
+    bool resolved;
+} FisicsUnitsExprResult;
+
+typedef struct FisicsUnitsExprBinding {
+    struct ASTNode* node;
+    const FisicsUnitsAnnotation* annotation;
+} FisicsUnitsExprBinding;
+
 typedef struct FisicsExtensionState {
+    /*
+     * Current Phase 2/2.5 declaration-side storage.
+     * One canonical slot per owner node, with duplicateCount recording repeated
+     * [[fisics::dim(...)]] use against that same owner in the current scaffold.
+     */
     FisicsUnitsAnnotation* unitsAnnotations;
     size_t unitsAnnotationCount;
     size_t unitsAnnotationCapacity;
+
+    /*
+     * Reserved expression-result side table for future units algebra.
+     * This remains empty in Phase 2.5 and becomes populated in Phase 3+.
+     */
+    FisicsUnitsExprResult* unitsExprResults;
+    size_t unitsExprResultCount;
+    size_t unitsExprResultCapacity;
+
+    /*
+     * Identifier binding seam for Phase 5 expression inference.
+     * Core semantic analysis records the resolved symbol for identifier nodes
+     * while lexical scopes are still live so the extension expr pass can infer
+     * declaration-owned dimensions without needing its own scope graph.
+     */
+    FisicsUnitsExprBinding* unitsExprBindings;
+    size_t unitsExprBindingCount;
+    size_t unitsExprBindingCapacity;
 } FisicsExtensionState;
 
 FisicsExtensionState* fisics_extension_state_create(void);

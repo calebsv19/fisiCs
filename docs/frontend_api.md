@@ -18,6 +18,7 @@ FisicsFrontendOptions opts = {
     .include_path_count = 0,
     .macro_defines = NULL, // e.g., (const char*[]){"DEBUG=1","PLATFORM_MAC"}
     .macro_define_count = 0,
+    .overlay_features = FISICS_OVERLAY_NONE, // or FISICS_OVERLAY_PHYSICS_UNITS
 };
 if (fisics_analyze_buffer("inline.c", src, strlen(src), &opts, &res)) {
     // inspect res.diagnostics / res.tokens / res.symbols
@@ -34,6 +35,20 @@ fisics_free_analysis_result(&res);
 - `symbols`: top-level and nested symbol metadata with start/end ranges, ownership, deterministic `stable_id` values, and optional ownership link identity via `parent_stable_id` when available.
 - `includes`: include usage edges with resolved/unresolved origin info.
 - `contract`: metadata describing contract id/version, producer, mode (`strict`/`lenient`), partial/fatal flags, trust fields, and additive capability flags (`capabilities`) for optional consumer lanes.
+- `units_attachments`: optional declaration/symbol units metadata exported only when the producer advertises `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS`.
+
+## Overlay Options
+
+- `overlay_features` uses the same feature family as the CLI `--overlay=` flag.
+- Current public flags include:
+  - `FISICS_OVERLAY_NONE`
+  - `FISICS_OVERLAY_IDE_METADATA`
+  - `FISICS_OVERLAY_PHYSICS_UNITS`
+- Overlay behavior is opt-in; callers that leave this field at `FISICS_OVERLAY_NONE` stay on the core-C analysis path.
+
+For the current overlay model and `[[fisics::dim(...)]]` syntax, see:
+
+- `docs/extension_overlays.md`
 
 ## Ownership and lifetime
 - All pointers inside `FisicsAnalysisResult` are owned by the caller after a successful call; free them via `fisics_free_analysis_result`.

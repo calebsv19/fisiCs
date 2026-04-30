@@ -65,3 +65,19 @@ void freeSymbolTable(SymbolTable* table) {
         table->buckets[i] = NULL;
     }
 }
+
+void symbolAttachUnitsAnnotation(Symbol* sym,
+                                 const FisicsUnitsAnnotation* annotation,
+                                 size_t declaratorIndex) {
+    if (!sym) return;
+    sym->unitsAnnotation = annotation;
+    sym->unitsDeclaratorIndex = annotation ? declaratorIndex : 0;
+}
+
+const FisicsUnitsAnnotation* symbolGetUnitsAnnotation(const Symbol* sym) {
+    return sym ? sym->unitsAnnotation : NULL;
+}
+
+size_t symbolGetUnitsDeclaratorIndex(const Symbol* sym) {
+    return sym ? sym->unitsDeclaratorIndex : 0;
+}

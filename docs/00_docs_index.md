@@ -1,7 +1,7 @@
 # Docs Index
 
 This is the table of contents for the public `docs/` tree in `fisiCs`.
-Last audited: 2026-04-25.
+Last audited: 2026-04-29.
 
 ## Start Here
 
@@ -63,6 +63,11 @@ Full-project validation workflow for compile-each-TU campaigns.
 ### `docs/frontend_api.md`
 
 Reference notes for the reusable frontend API/library flow.
+
+### `docs/extension_overlays.md`
+
+Public reference for the opt-in extension framework and the current
+physics-units overlay surface.
 
 ### `docs/compiler_ide_data_contract.md`
 

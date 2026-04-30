@@ -23,7 +23,7 @@ int main(void) {
         fisics_free_analysis_result(&res);
         return 1;
     }
-    if (res.contract.contract_minor < 4) {
+    if (res.contract.contract_minor < 5) {
         fprintf(stderr, "contract_minor below expected floor: %u\n", (unsigned)res.contract.contract_minor);
         fisics_free_analysis_result(&res);
         return 1;

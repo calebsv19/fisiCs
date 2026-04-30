@@ -5,6 +5,7 @@
 #include "analyze_decls.h"
 #include "analyze_expr.h"
 #include "analyze_stmt.h"
+#include "Extensions/extension_units_view.h"
 #include "scope.h"
 #include "symbol_table.h"
 #include "type_checker.h"
@@ -119,14 +120,18 @@ void analyze(ASTNode* node, Scope* scope) {
             if (!s) { fprintf(stderr, "OOM: Symbol param\n"); continue; }
             s->kind = SYMBOL_VARIABLE;
             const char* paramName = nameNode->valueNode.value;
-            s->name = strdup(paramName);
+                    s->name = strdup(paramName);
             if (!s->name) {
                 fprintf(stderr, "OOM: Symbol param name\n");
                 free(s);
                 continue;
             }
-            s->type = *typeForParam;              // copy-by-value of ParsedType
-            s->definition = p;
+                    s->type = *typeForParam;              // copy-by-value of ParsedType
+                    s->definition = p;
+                    symbolAttachUnitsAnnotation(
+                        s,
+                        fisics_extension_lookup_units_annotation(fscope ? fscope->ctx : NULL, p),
+                        k);
 
                     addToScope(fscope, s);
                 }

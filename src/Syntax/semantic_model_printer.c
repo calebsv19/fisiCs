@@ -2,6 +2,8 @@
 
 #include "semantic_model_printer.h"
 
+#include "Extensions/extension_units_expr_table.h"
+#include "Extensions/extension_units_view.h"
 #include "semantic_model.h"
 #include "scope.h"
 #include "symbol_table.h"
@@ -17,6 +19,19 @@ static void printSymbol(const Symbol* sym) {
         case SYMBOL_STRUCT:   kindStr = "struct";   break;
         case SYMBOL_ENUM:     kindStr = "enum";     break;
         default: break;
+    }
+
+    const FisicsUnitsAnnotation* unitsAnn = symbolGetUnitsAnnotation(sym);
+    if (unitsAnn) {
+        const char* text = unitsAnn->canonicalText ? unitsAnn->canonicalText
+                                                   : (unitsAnn->exprText ? unitsAnn->exprText : "<missing>");
+        printf("  - %s: %s [units=%s", kindStr, sym->name, text);
+        printf(", %s", unitsAnn->resolved ? "resolved" : "pending");
+        if (unitsAnn->duplicateCount > 1) {
+            printf(", duplicates=%zu", unitsAnn->duplicateCount);
+        }
+        printf(", decl-index=%zu]\n", symbolGetUnitsDeclaratorIndex(sym));
+        return;
     }
 
     printf("  - %s: %s\n", kindStr, sym->name);
@@ -46,4 +61,7 @@ void semanticModelDump(const SemanticModel* model) {
 
     const Scope* scope = semanticModelGetGlobalScope(model);
     dumpScope(scope);
+    fisics_extension_dump_units_annotations(semanticModelGetContext(model), stdout);
+    fisics_extension_dump_units_expr_results(semanticModelGetContext(model), stdout);
+    fflush(stdout);
 }

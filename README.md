@@ -17,6 +17,7 @@ The current priority is compiler correctness, stability, and reproducible behavi
 - `Checkpoint Validated Program Lanes` (`2026-04-15`) expanded regression fixtures and added mem_console diagnostic capture/rebuild helpers under `scripts/`
 - Shared subtree adoption is active via `third_party/codework_shared/` with corresponding build/CI lane alignment.
 - `clang` remains a baseline reference compiler while `fisiCs` continues hardening.
+- The extension-overlay framework is live behind explicit opt-in flags; the first public lane is physics-units metadata/checking via `[[fisics::dim(...)]]`.
 
 ## Build
 
@@ -64,6 +65,14 @@ Useful flags:
 - `--dump-layout`
 - `--target=<triple>`
 - `--data-layout=<layout>`
+
+Overlay-specific flags:
+
+- `--overlay=physics-units`
+- `--overlay=ide-metadata`
+- `--overlay=all`
+
+The current overlay model is documented in [`docs/extension_overlays.md`](docs/extension_overlays.md).
 
 ## CLI Release Packaging (macOS)
 
@@ -131,6 +140,7 @@ The harness is auto-discovery based, non-destructive by default, and designed to
 - Test workflow guide: [`docs/compiler_test_workflow_guide.md`](docs/compiler_test_workflow_guide.md)
 - Full validation workflow: [`docs/validation_workflow.md`](docs/validation_workflow.md)
 - Compiler/IDE data contract: [`docs/compiler_ide_data_contract.md`](docs/compiler_ide_data_contract.md)
+- Extension overlays and physics-units lane: [`docs/extension_overlays.md`](docs/extension_overlays.md)
 - CLI release workflow: [`docs/cli_release_workflow.md`](docs/cli_release_workflow.md)
 - Real-project validation scaffold: [`tests/real_projects/README.md`](tests/real_projects/README.md)
 

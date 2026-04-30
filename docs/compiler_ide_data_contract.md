@@ -3,7 +3,7 @@
 This document defines the public contract between `fisiCs` compiler analysis output and IDE consumers.
 
 Contract ID: `fisiCs.analysis.contract`
-Current Contract Version: `1.4.0`
+Current Contract Version: `1.5.0`
 Status: active
 
 ## Goals
@@ -33,6 +33,7 @@ Primary consumer lanes:
 - Symbols (`symbols`)
 - Includes (`includes`)
 - Tokens (`tokens`, optional lane)
+- Units attachments (`units_attachments`, optional extension lane)
 
 ## Stability Lanes
 
@@ -85,7 +86,7 @@ Interpretation:
 - `fatal=true` means analysis is incomplete and UX should be non-authoritative.
 - `partial=false` and `fatal=false` indicates full successful analysis for this input.
 
-### Contract Capabilities (v1.4)
+### Contract Capabilities (v1.5)
 
 This lane adds explicit producer-advertised capability flags so consumers can gate optional behavior without relying only on minor-version inference.
 
@@ -97,6 +98,7 @@ Current capability bits:
 - `FISICS_CONTRACT_CAP_TOKENS`
 - `FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID`
 - `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY`
+- `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS`
 
 Capability table:
 
@@ -108,6 +110,7 @@ Capability table:
 | `FISICS_CONTRACT_CAP_TOKENS` | Token lane present | Enable token consumers (lexical overlays/highlighting support). |
 | `FISICS_CONTRACT_CAP_SYMBOL_PARENT_STABLE_ID` | Parent symbol identity link lane present | Prefer `parent_stable_id` ownership linkage over name-only fallback. |
 | `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` | Normalized diagnostics taxonomy lane present | Prefer `severity_id`/`category_id`/`code_id` when available. |
+| `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS` | Extension units attachment lane present | Ingest declaration/symbol units metadata only when explicitly advertised. |
 
 Consumer behavior:
 
@@ -115,13 +118,20 @@ Consumer behavior:
 - For pre-`1.4` payloads, consumers may infer capability support by minor-version policy.
 - Missing optional capabilities must not force full degraded mode under major `1`; only unsupported contract major/id should trigger degraded ingestion.
 
+Units-lane rule:
+
+- Contract `1.5` provides the public `units_attachments` result shape as an additive optional lane.
+- Producers must advertise `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS` only when the lane is populated with valid units attachment payloads.
+- Consumers must treat a missing capability bit as authoritative absence even if the result struct contains the reserved fields in the ABI.
+
 Compatibility matrix (major `1` consumers):
 
 | Producer contract | Capability source | Symbols/Tokens behavior | Diagnostics taxonomy behavior |
 |---|---|---|---|
 | `1.2.x` | inferred by minor policy | enabled by inferred support | taxonomy optional/legacy-safe |
 | `1.3.x` | inferred by minor policy | enabled by inferred support | `severity_id`/`category_id`/`code_id` expected additive lane |
-| `1.4.x+` | explicit `contract.capabilities` | gated by advertised `FISICS_CONTRACT_CAP_SYMBOLS` / `FISICS_CONTRACT_CAP_TOKENS` | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
+| `1.4.x` | explicit `contract.capabilities` | gated by advertised `FISICS_CONTRACT_CAP_SYMBOLS` / `FISICS_CONTRACT_CAP_TOKENS` | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
+| `1.5.x+` | explicit `contract.capabilities` | same as `1.4.x`, plus optional `units_attachments` gated by `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS` | gated by `FISICS_CONTRACT_CAP_DIAGNOSTIC_TAXONOMY` |
 
 ## Path Rules
 
@@ -166,6 +176,32 @@ Consumer behavior:
 `fisiCs` uses a stable diagnostic code namespace for v1-facing consumers.
 Internal diagnostic generation may evolve, but published stable code values must remain compatible within major version.
 
+Reserved code ranges:
+
+- `1000-1999`: parser
+- `2000-2999`: semantic/core analysis
+- `3000-3999`: preprocessor
+- `4000-4099`: extension framework/bootstrap
+- `4100-4199`: physics-units semantic diagnostics
+
+Extension namespace policy:
+
+- `4000` is the generic extension umbrella.
+- `4001-4003` are stable early scaffold/bootstrap units codes already emitted by the Phase 2-4 overlay lane:
+  - overlay disabled
+  - invalid `fisics::dim(...)`
+  - duplicate declaration annotation
+- `4100-4199` is reserved in advance for Phase 5 units-semantics diagnostics so future algebra checks can ship without renumbering public ids.
+
+Reserved physics-units semantic ids:
+
+- `4101`: add-dimension mismatch
+- `4102`: subtract-dimension mismatch
+- `4103`: assignment-dimension mismatch
+- `4104`: comparison-dimension mismatch
+- `4105`: exponent overflow during dimension math
+- `4106`: unsupported units operation
+
 ## Symbol Contract (v1)
 
 Stable:
@@ -176,6 +212,31 @@ Stable:
 - `start/end` location
 - ownership (`parent_name`, `parent_kind`) when present
 - `stable_id` (deterministic symbol identity for cache/index matching; hex string when emitted through JSON IPC lanes)
+
+## Units Attachment Contract (v1.5 Experimental)
+
+This lane reserves the public shape for extension-owned declaration/symbol units metadata without requiring all producers to emit it yet.
+
+Stable additive fields when the capability is advertised:
+
+- `symbol_stable_id`
+- `symbol_name`
+- `dim_text`
+- `dim[8]`
+- `resolved`
+
+Producer behavior:
+
+- The lane is optional and must be gated by `FISICS_CONTRACT_CAP_EXTENSION_UNITS_ATTACHMENTS`.
+- Current Phase 4 export only emits resolved declaration/symbol units attachments.
+- Producers may leave the lane empty and the capability bit unset when overlay features are disabled or no valid resolved units attachments exist.
+- Consumers must not infer lane support from contract minor version alone once capability flags are present.
+
+Semantic expectations:
+
+- This lane is declaration/symbol oriented first; expression-side units metadata is not part of the public contract yet.
+- Exported `dim_text` is the compiler-canonical spelling of the resolved `Dim8` (for example `m`, `m/s`, `kg*m/s^2`).
+- Unresolved annotation attempts remain a diagnostics/debug concern and are not exported in this first public lane.
 
 ## Symbol Graph Identity Contract (v1.2)
 

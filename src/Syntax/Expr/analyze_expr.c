@@ -9,6 +9,8 @@
 #include "const_eval.h"
 #include "literal_utils.h"
 #include "Compiler/compiler_context.h"
+#include "Extensions/extension_units_expr_bindings.h"
+#include "Extensions/extension_units_view.h"
 #include "Syntax/target_layout.h"
 #include "Utils/profiler.h"
 #include <ctype.h>
@@ -290,6 +292,12 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
                                    "Undeclared identifier",
                                    node->valueNode.value);
                 return makeInvalidType();
+            }
+
+            if (scope && scope->ctx) {
+                (void)fisics_extension_note_units_annotation_binding(scope->ctx,
+                                                                    node,
+                                                                    symbolGetUnitsAnnotation(sym));
             }
 
             if (sym->kind == SYMBOL_FUNCTION) {
