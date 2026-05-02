@@ -1,7 +1,7 @@
 # Docs Index
 
 This is the table of contents for the public `docs/` tree in `fisiCs`.
-Last audited: 2026-04-29.
+Last audited: 2026-05-01.
 
 ## Start Here
 
@@ -9,6 +9,7 @@ Last audited: 2026-04-29.
 2. `docs/contributor_agent_quickstart.md`
 3. `docs/public_roadmap.md`
 4. `examples/README.md`
+5. `examples/physics_units/README.md`
 
 ## Public Docs In `docs/`
 
@@ -67,7 +68,8 @@ Reference notes for the reusable frontend API/library flow.
 ### `docs/extension_overlays.md`
 
 Public reference for the opt-in extension framework and the current
-physics-units overlay surface.
+physics-units overlay surface, including canonical unit naming, explicit
+conversion boundaries, and the widened family coverage.
 
 ### `docs/compiler_ide_data_contract.md`
 

@@ -6,6 +6,7 @@ This directory contains minimal runnable examples for `fisiCs`.
 
 - `hello_world.c`: basic stdout example
 - `sdl_window_loop.c`: SDL window with event loop and animated clear color
+- `physics_units/`: public pilot lane for the physics-units overlay
 
 ## Build Both Examples
 
@@ -13,6 +14,25 @@ This directory contains minimal runnable examples for `fisiCs`.
 cd /Users/calebsv/Desktop/CodeWork/fisiCs
 make examples
 ```
+
+## Build And Run: Physics Units Pilot
+
+```bash
+cd /Users/calebsv/Desktop/CodeWork/fisiCs
+make examples-physics-units
+./build/examples/ballistics_valid
+```
+
+For overlay-specific usage and semantic dump flows, see:
+
+- [physics_units/README.md](./physics_units/README.md)
+- [physics_units/helper_patterns.md](./physics_units/helper_patterns.md)
+
+Those physics-units references are also the current public source of truth for:
+
+- canonical `dim(...)` and `unit(...)` authoring style
+- explicit conversion-only boundaries
+- widened practical unit-family examples
 
 ## Build and Run: Hello World
 

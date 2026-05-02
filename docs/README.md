@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-04-29.
+Last audited: 2026-05-01.
 
 ## Repository Entry
 
@@ -23,10 +23,17 @@ Last audited: 2026-04-29.
 - `compiler_test_workflow_guide.md`: operator guide for bucket-by-bucket validation/fix workflows
 - `validation_workflow.md`: full-project validation workflow for external program compile checks
 - `frontend_api.md`: reusable frontend library API notes
-- `extension_overlays.md`: public reference for opt-in overlay lanes and the current physics-units surface
+- `extension_overlays.md`: public reference for opt-in overlay lanes and the
+  current physics-units surface, including canonical unit naming, bounded
+  practical family coverage, explicit conversion-only policy, and the public
+  pilot/helper references for agents and users
 - `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.7.0`)
 - `cli_release_workflow.md`: CLI release packaging/sign/notarize flow for macOS artifacts
 - `make_final_timing_log.md`: public timing-baseline lane and capture policy for `make final`
+
+Public example references live under `examples/`:
+- `examples/README.md`: top-level examples lane
+- `examples/physics_units/README.md`: first public pilot for the physics-units overlay
 
 Additional public testing references live outside `docs/` under `tests/final/`:
 - bucket scope references (for example `tests/final/11-functions-calls.md`, `tests/final/12-diagnostics-recovery.md`)

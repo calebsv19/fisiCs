@@ -81,6 +81,22 @@ int main(void) {
 }
 SRC
 
+cat > "$TMP_DIR/overlay_unit_convert_expanded_ok.c" <<'SRC'
+double route_km [[fisics::dim(length)]] [[fisics::unit(kilometer)]] = 1.609344;
+double route_mi [[fisics::dim(length)]] [[fisics::unit(mile)]] = 0.0;
+double delay_ms [[fisics::dim(time)]] [[fisics::unit(millisecond)]] = 500.0;
+double delay_hr [[fisics::dim(time)]] [[fisics::unit(hour)]] = 0.0;
+double payload_lb [[fisics::dim(mass)]] [[fisics::unit(pound)]] = 2.2046226218487757;
+double payload_kg [[fisics::dim(mass)]] [[fisics::unit(kilogram)]] = 0.0;
+
+int main(void) {
+    route_mi = fisics_convert_unit(route_km, "mile");
+    delay_hr = fisics_convert_unit(delay_ms, "hour");
+    payload_kg = fisics_convert_unit(payload_lb, "kilogram");
+    return 0;
+}
+SRC
+
 cat > "$TMP_DIR/overlay_builtin_unit_convert_ok.c" <<'SRC'
 double distance_m [[fisics::dim(length)]] [[fisics::unit(meter)]] = 3.048;
 
@@ -88,6 +104,34 @@ int main(void) {
     double converted [[fisics::dim(length)]] [[fisics::unit(foot)]] =
         __builtin_fisics_convert_unit(distance_m, "foot");
     return (int)converted;
+}
+SRC
+
+cat > "$TMP_DIR/overlay_unit_convert_engineering_ok.c" <<'SRC'
+double thrust_kn [[fisics::dim(force)]] [[fisics::unit(kilonewton)]] = 4.4482216152605;
+double thrust_lbf [[fisics::dim(force)]] [[fisics::unit(pound_force)]] = 0.0;
+double energy_kj [[fisics::dim(energy)]] [[fisics::unit(kilojoule)]] = 3.6;
+double energy_wh [[fisics::dim(energy)]] [[fisics::unit(watt_hour)]] = 0.0;
+double power_mw [[fisics::dim(power)]] [[fisics::unit(megawatt)]] = 0.001;
+double power_kw [[fisics::dim(power)]] [[fisics::unit(kilowatt)]] = 0.0;
+double pressure_bar [[fisics::dim(pressure)]] [[fisics::unit(bar)]] = 1.0;
+double pressure_psi [[fisics::dim(pressure)]] [[fisics::unit(psi)]] = 0.0;
+double charge_ah [[fisics::dim(charge)]] [[fisics::unit(ampere_hour)]] = 1.0;
+double charge_mah [[fisics::dim(charge)]] [[fisics::unit(milliampere_hour)]] = 0.0;
+double voltage_mv [[fisics::dim(voltage)]] [[fisics::unit(millivolt)]] = 1000.0;
+double voltage_kv [[fisics::dim(voltage)]] [[fisics::unit(kilovolt)]] = 0.0;
+double resistance_kohm [[fisics::dim(resistance)]] [[fisics::unit(kiloohm)]] = 1.0;
+double resistance_mohm [[fisics::dim(resistance)]] [[fisics::unit(milliohm)]] = 0.0;
+
+int main(void) {
+    thrust_lbf = fisics_convert_unit(thrust_kn, "pound_force");
+    energy_wh = fisics_convert_unit(energy_kj, "watt_hour");
+    power_kw = fisics_convert_unit(power_mw, "kilowatt");
+    pressure_psi = fisics_convert_unit(pressure_bar, "psi");
+    charge_mah = fisics_convert_unit(charge_ah, "milliampere_hour");
+    voltage_kv = fisics_convert_unit(voltage_mv, "kilovolt");
+    resistance_mohm = fisics_convert_unit(resistance_kohm, "milliohm");
+    return 0;
 }
 SRC
 
@@ -414,6 +458,36 @@ if ! grep -Fq "assignment(=) [dim=m, resolved, unit=foot]" "$TMP_OUTPUT"; then
   exit 1
 fi
 
+if ! FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --dump-sema -c "$TMP_DIR/overlay_unit_convert_expanded_ok.c" -o "$TMP_DIR/overlay_unit_convert_expanded_ok.o" >"$TMP_OUTPUT" 2>&1; then
+  echo "overlay expanded unit conversion compile failed" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "variable: route_km [units=m, resolved, unit=kilometer, unit-resolved, decl-index=0]" "$TMP_OUTPUT"; then
+  echo "Missing kilometer unit attachment dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=m, resolved, unit=mile]" "$TMP_OUTPUT"; then
+  echo "Missing mile conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=s, resolved, unit=hour]" "$TMP_OUTPUT"; then
+  echo "Missing hour conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=kg, resolved, unit=kilogram]" "$TMP_OUTPUT"; then
+  echo "Missing kilogram conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
 if ! FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --dump-sema -c "$TMP_DIR/overlay_builtin_unit_convert_ok.c" -o "$TMP_DIR/overlay_builtin_unit_convert_ok.o" >"$TMP_OUTPUT" 2>&1; then
   echo "overlay builtin explicit unit conversion compile failed" >&2
   cat "$TMP_OUTPUT" >&2
@@ -422,6 +496,54 @@ fi
 
 if ! grep -Fq "function-call(__builtin_fisics_convert_unit) [dim=m, resolved, unit=foot]" "$TMP_OUTPUT"; then
   echo "Missing builtin explicit conversion function-call units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! FISICS_MAX_PROCS=0 "$BIN" --overlay=physics-units --dump-sema -c "$TMP_DIR/overlay_unit_convert_engineering_ok.c" -o "$TMP_DIR/overlay_unit_convert_engineering_ok.o" >"$TMP_OUTPUT" 2>&1; then
+  echo "overlay engineering unit conversion compile failed" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=m*kg/s^2, resolved, unit=pound_force]" "$TMP_OUTPUT"; then
+  echo "Missing pound_force conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=m^2*kg/s^2, resolved, unit=watt_hour]" "$TMP_OUTPUT"; then
+  echo "Missing watt_hour conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=m^2*kg/s^3, resolved, unit=kilowatt]" "$TMP_OUTPUT"; then
+  echo "Missing kilowatt conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=kg/m*s^2, resolved, unit=psi]" "$TMP_OUTPUT"; then
+  echo "Missing psi conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=s*A, resolved, unit=milliampere_hour]" "$TMP_OUTPUT"; then
+  echo "Missing milliampere_hour conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]" "$TMP_OUTPUT"; then
+  echo "Missing kilovolt conversion assignment units dump" >&2
+  cat "$TMP_OUTPUT" >&2
+  exit 1
+fi
+
+if ! grep -Fq "assignment(=) [dim=m^2*kg/s^3*A^2, resolved, unit=milliohm]" "$TMP_OUTPUT"; then
+  echo "Missing milliohm conversion assignment units dump" >&2
   cat "$TMP_OUTPUT" >&2
   exit 1
 fi

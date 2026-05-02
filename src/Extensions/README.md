@@ -48,6 +48,16 @@ Current debug visibility contract:
 - Phase 7 Slice 1 seeds that future lane as internal registry data only:
   - concrete units now have a family-grouped contract with canonical name, symbol, `Dim8`, canonical-scale metadata, offset slot, and alias table
   - the current `dim(...)` deferred-word rejection path is backed by that registry, so later `unit(...)` syntax work can attach to one source of truth
+- Step 1 of the post-Phase-9 future-proofing lane now locks registry integrity rules without widening behavior:
+  - canonical exported names are singular lowercase `snake_case`
+  - symbols are canonical short spellings and are expected to stay globally unique
+  - aliases are source-acceptance spellings only and must not collide with any canonical name, symbol, or other alias
+  - every unit in a family must carry that family's exact canonical `Dim8`
+  - canonical-family units use `scale_to_canonical = 1.0`
+  - the offset slot is reserved for a future dedicated lane and should remain `0.0` in the current registry
+- Step 4 adds a maintainer-facing audit seam for that policy:
+  - `fisics_unit_registry_validate(...)` audits the built-in registry and reports aggregate family/unit/alias counts plus total issue count
+  - `fisics_unit_registry_validate_table(...)` exists so narrow tests can inject bad tables and prove duplicate-name, duplicate-symbol, alias-collision, family/dimension mismatch, scale, and offset failures mechanically
 - Phase 7 Slice 2 makes `[[fisics::unit(...)]]` live as a validation-only declaration attachment:
   - `unit(...)` currently requires `dim(...)`
   - the unit must exist in the seeded registry and match the declaration `Dim8` exactly

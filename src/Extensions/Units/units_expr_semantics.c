@@ -115,6 +115,15 @@ static bool is_units_comparison_op(const char* op) {
            strcmp(op, ">=") == 0;
 }
 
+static const char* compound_assignment_base_op(const char* op) {
+    if (!op) return NULL;
+    if (strcmp(op, "+=") == 0) return "+";
+    if (strcmp(op, "-=") == 0) return "-";
+    if (strcmp(op, "*=") == 0) return "*";
+    if (strcmp(op, "/=") == 0) return "/";
+    return NULL;
+}
+
 static bool units_resolved_and_different(const FisicsUnitDef* leftUnit,
                                          bool leftUnitResolved,
                                          const FisicsUnitDef* rightUnit,
@@ -236,7 +245,7 @@ static void maybe_record_binary_result(CompilerContext* ctx, ASTNode* node) {
 
 static void maybe_record_assignment_result(CompilerContext* ctx, ASTNode* node) {
     if (!ctx || !node || node->type != AST_ASSIGNMENT) return;
-    if (!node->assignment.op || strcmp(node->assignment.op, "=") != 0) return;
+    if (!node->assignment.op) return;
     FisicsDim8 targetDim = fisics_dim_zero();
     FisicsDim8 valueDim = fisics_dim_zero();
     const FisicsUnitDef* targetUnit = NULL;
@@ -247,16 +256,68 @@ static void maybe_record_assignment_result(CompilerContext* ctx, ASTNode* node) 
         !lookup_resolved_expr_metadata(ctx, node->assignment.value, &valueDim, &valueUnit, &valueUnitResolved)) {
         return;
     }
-    if (!fisics_dim_equal(targetDim, valueDim)) {
-        fisics_extension_diag_units_assign_dim_mismatch(ctx, node, targetDim, valueDim);
+
+    if (strcmp(node->assignment.op, "=") == 0) {
+        if (!fisics_dim_equal(targetDim, valueDim)) {
+            fisics_extension_diag_units_assign_dim_mismatch(ctx, node, targetDim, valueDim);
+            return;
+        }
+        if (units_resolved_and_different(targetUnit, targetUnitResolved, valueUnit, valueUnitResolved)) {
+            fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                                 node,
+                                                                 "assignment",
+                                                                 valueUnit,
+                                                                 targetUnit);
+            return;
+        }
+        (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                               node,
+                                                               targetDim,
+                                                               true,
+                                                               targetUnitResolved ? targetUnit : NULL,
+                                                               targetUnitResolved);
         return;
     }
-    if (units_resolved_and_different(targetUnit, targetUnitResolved, valueUnit, valueUnitResolved)) {
-        fisics_extension_diag_units_implicit_unit_conversion(ctx,
-                                                             node,
-                                                             "assignment",
-                                                             valueUnit,
-                                                             targetUnit);
+
+    const char* baseOp = compound_assignment_base_op(node->assignment.op);
+    if (!baseOp) return;
+
+    if (strcmp(baseOp, "+") == 0 || strcmp(baseOp, "-") == 0) {
+        if (!fisics_dim_equal(targetDim, valueDim)) {
+            if (strcmp(baseOp, "+") == 0) {
+                fisics_extension_diag_units_add_dim_mismatch(ctx, node, targetDim, valueDim);
+            } else {
+                fisics_extension_diag_units_sub_dim_mismatch(ctx, node, targetDim, valueDim);
+            }
+            return;
+        }
+        if (units_resolved_and_different(targetUnit, targetUnitResolved, valueUnit, valueUnitResolved)) {
+            fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                                 node,
+                                                                 "compound assignment",
+                                                                 valueUnit,
+                                                                 targetUnit);
+            return;
+        }
+        (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                               node,
+                                                               targetDim,
+                                                               true,
+                                                               targetUnitResolved ? targetUnit : NULL,
+                                                               targetUnitResolved);
+        return;
+    }
+
+    FisicsDim8 combinedDim = fisics_dim_zero();
+    bool ok = (strcmp(baseOp, "*") == 0)
+                  ? fisics_dim_add(targetDim, valueDim, &combinedDim)
+                  : fisics_dim_sub(targetDim, valueDim, &combinedDim);
+    if (!ok) {
+        fisics_extension_diag_units_exponent_overflow(ctx, node, baseOp, targetDim, valueDim);
+        return;
+    }
+    if (!fisics_dim_equal(targetDim, combinedDim)) {
+        fisics_extension_diag_units_assign_dim_mismatch(ctx, node, targetDim, combinedDim);
         return;
     }
     (void)fisics_extension_set_units_expr_result_with_unit(ctx,

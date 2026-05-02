@@ -18,6 +18,7 @@ The current priority is compiler correctness, stability, and reproducible behavi
 - Shared subtree adoption is active via `third_party/codework_shared/` with corresponding build/CI lane alignment.
 - `clang` remains a baseline reference compiler while `fisiCs` continues hardening.
 - The extension-overlay framework is live behind explicit opt-in flags; the first public lane is physics-units metadata/checking via `[[fisics::dim(...)]]`.
+- A public physics-units pilot example now lives under `examples/physics_units/`.
 
 ## Build
 
@@ -124,7 +125,7 @@ The harness is auto-discovery based, non-destructive by default, and designed to
 - `src/`: compiler implementation (lexer, parser, semantics, codegen, frontend)
 - `include/`: local include fixtures and test-support headers
 - `tests/`: harnesses, suites, final/binary manifests, expectations
-- `examples/`: minimal runnable examples (`hello_world`, SDL loop)
+- `examples/`: minimal runnable examples (`hello_world`, SDL loop, physics-units pilot)
 - `docs/`: public project docs and validation references
 - `compilation/`: quick compile/link examples and scripts
 - `makefile`: build and test entrypoints
@@ -136,6 +137,7 @@ The harness is auto-discovery based, non-destructive by default, and designed to
 - Contributor/agent quickstart: [`docs/contributor_agent_quickstart.md`](docs/contributor_agent_quickstart.md)
 - Public roadmap: [`docs/public_roadmap.md`](docs/public_roadmap.md)
 - Examples quickstart: [`examples/README.md`](examples/README.md)
+- Physics-units pilot example: [`examples/physics_units/README.md`](examples/physics_units/README.md)
 - Test-system re-architecture context: [`docs/compiler_test_system_rearchitecture_context.md`](docs/compiler_test_system_rearchitecture_context.md)
 - Test workflow guide: [`docs/compiler_test_workflow_guide.md`](docs/compiler_test_workflow_guide.md)
 - Full validation workflow: [`docs/validation_workflow.md`](docs/validation_workflow.md)

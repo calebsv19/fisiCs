@@ -1,6 +1,6 @@
 # fisiCs Public Roadmap
 
-Last updated: 2026-04-29.
+Last updated: 2026-05-01.
 
 ## Current Focus
 
@@ -16,12 +16,18 @@ Last updated: 2026-04-29.
 - Keep binary validation lanes healthy (`SDL`, `ABI`, `linkage`, `stdio`, `math`, differential).
 - Promote newly validated stress scenarios into stable final-manifest coverage.
 - Harden the new opt-in extension overlay surface without weakening core C compiler behavior.
+- Add and maintain a small public physics-units pilot example so users and
+  coding agents have one canonical overlay usage reference.
+- Keep widening the concrete-unit registry in bounded family slices while
+  preserving explicit conversion-only policy and mechanical registry validation.
 
 ## Medium-Term Direction
 
 - Increase confidence for daily internal use of `fisiCs` as a serious compiler toolchain.
 - Continue quality/performance hardening before broad language-surface expansion.
-- Extend the new overlay framework through physics-units semantics and IDE-consumable metadata while keeping those features explicitly opt-in.
+- Extend the new overlay framework through physics-units semantics, broader
+  practical unit coverage, and IDE-consumable metadata while keeping those
+  features explicitly opt-in.
 
 ## Long-Term Direction
 

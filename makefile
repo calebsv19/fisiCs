@@ -67,7 +67,11 @@ endif
 DEFAULT_INCLUDE_PATHS := $(if $(INCLUDE_PATHS),$(INCLUDE_PATHS),include)
 EXAMPLES_DIR := examples
 EXAMPLES_BUILD_DIR := build/examples
-RELEASE_VERSION ?= 0.1.0
+RELEASE_VERSION_FILE ?= VERSION
+RELEASE_VERSION ?= $(strip $(shell cat "$(RELEASE_VERSION_FILE)" 2>/dev/null))
+ifeq ($(RELEASE_VERSION),)
+RELEASE_VERSION := 0.1.0
+endif
 RELEASE_CHANNEL ?= stable
 RELEASE_PLATFORM ?= macOS
 RELEASE_ARCH ?= arm64
@@ -365,7 +369,10 @@ integration-compat-routing: $(BIN)
 integration-overlay-units-scaffold: $(BIN)
 	@bash ./tests/integration/run_overlay_units_scaffold.sh ./$(BIN)
 
-integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold
+integration-examples-physics-units: $(BIN)
+	@bash ./tests/integration/run_examples_physics_units.sh ./$(BIN)
+
+integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units
 
 ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
@@ -457,7 +464,7 @@ final-timing-sync: final-timing final-timing-sync-db final-timing-rollup
 run: src/Lexer/keyword_lookup.c $(BIN)
 	@MallocNanoZone=0 ./$(BIN)
 
-examples: $(BIN) examples-hello examples-sdl
+examples: $(BIN) examples-hello examples-sdl examples-physics-units
 
 examples-hello: $(BIN)
 	@mkdir -p $(EXAMPLES_BUILD_DIR)
@@ -473,6 +480,11 @@ examples-sdl: $(BIN)
 	else \
 		echo "Skipping SDL example build: sdl2-config not found on PATH."; \
 	fi
+
+examples-physics-units: $(BIN)
+	@mkdir -p $(EXAMPLES_BUILD_DIR)
+	@./$(BIN) --overlay=physics-units $(EXAMPLES_DIR)/physics_units/ballistics_valid.c -o $(EXAMPLES_BUILD_DIR)/ballistics_valid
+	@echo "Built $(EXAMPLES_BUILD_DIR)/ballistics_valid"
 
 union-decl: $(BIN)
 	@./tests/parser/run_union_decl.sh ./$(BIN)
@@ -915,7 +927,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1085,7 +1097,7 @@ realproj-stage-f:
 tests: test frontend-api-test
 
 # === Phony Targets ===
-.PHONY: all clean run examples examples-hello examples-sdl \
+.PHONY: all clean run examples examples-hello examples-sdl examples-physics-units \
         release-clean release-contract release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
         release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
         release-sign release-notarize release-verify release-pkg release-all \
@@ -1107,6 +1119,6 @@ tests: test frontend-api-test
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff test-binary-wave test-binary-id binary-regen \
-        integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold ci-guardrails \
+        integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units ci-guardrails \
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

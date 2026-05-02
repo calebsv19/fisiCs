@@ -57,6 +57,11 @@ This is an overlay annotation, not a replacement for the underlying C type.
 core compiler entities; the units overlay attaches extra semantic meaning beside
 them.
 
+Canonical unit names in this overlay use singular lowercase `snake_case`
+spellings such as `meter`, `kilowatt_hour`, and `pound_force`. Source aliases
+such as `meters`, `metres`, or `kilowatts` are accepted where the registry
+allows them, but canonical names are the preferred emitted and documented form.
+
 ### Dimension Model
 
 The units lane uses a fixed 8-slot signed exponent vector:
@@ -170,18 +175,25 @@ double distance_ft [[fisics::dim(length)]] [[fisics::unit(foot)]] =
 
 Seeded unit families currently include examples such as:
 
-- length: `meter`, `foot`, `inch`
-- mass: `kilogram`, `gram`
-- time: `second`, `minute`, `hour`
+- length: `meter`, `millimeter`, `centimeter`, `kilometer`, `foot`, `inch`, `yard`, `mile`
+- mass: `kilogram`, `gram`, `milligram`, `metric_ton`, `pound`
+- time: `second`, `millisecond`, `minute`, `hour`
 - velocity: `meter_per_second`, `foot_per_second`
 - acceleration: `meter_per_second_squared`
-- force: `newton`
-- energy: `joule`
-- power: `watt`
-- pressure: `pascal`
-- charge: `coulomb`
-- voltage: `volt`
-- resistance: `ohm`
+- force: `newton`, `kilonewton`, `pound_force`
+- energy: `joule`, `kilojoule`, `watt_hour`, `kilowatt_hour`
+- power: `watt`, `milliwatt`, `kilowatt`, `megawatt`
+- pressure: `pascal`, `kilopascal`, `bar`, `psi`
+- charge: `coulomb`, `ampere_hour`, `milliampere_hour`
+- voltage: `volt`, `millivolt`, `kilovolt`
+- resistance: `ohm`, `milliohm`, `kiloohm`, `megaohm`
+
+The current registry is deliberately family-grouped and canonical-base driven:
+
+- each family has one canonical base unit
+- explicit conversions are computed through that canonical base
+- source aliases are accepted for authoring, but canonical names remain the
+  stable reference form for docs, dumps, and exported metadata
 
 ## Current Semantic Guarantees
 
@@ -232,6 +244,19 @@ The contract details and compatibility policy live in:
 - [compiler_ide_data_contract.md](./compiler_ide_data_contract.md)
 - [frontend_api.md](./frontend_api.md)
 
+## Public Pilot Example
+
+The first public end-to-end overlay example lives here:
+
+- [../examples/physics_units/README.md](../examples/physics_units/README.md)
+- [../examples/physics_units/helper_patterns.md](../examples/physics_units/helper_patterns.md)
+
+That example lane is the recommended starting point for:
+
+- human users learning the overlay surface
+- coding agents generating overlay-aware C code
+- maintainers verifying the intended compile / `--dump-sema` / diagnostic flows
+
 ## Current Limits
 
 The current overlay is intentionally narrow:
@@ -241,6 +266,8 @@ The current overlay is intentionally narrow:
   `[[fisics::unit(...)]]` instead
 - no unit literal syntax such as `10 m`
 - no public conversion scale/offset metadata
+- no offset-bearing public unit semantics yet; the current registry keeps
+  offsets dormant at `0.0`
 - no general result-unit propagation policy for mixed-unit arithmetic yet
 - no code generation changes based on units metadata
 - no public expression-side concrete-unit export lane yet
