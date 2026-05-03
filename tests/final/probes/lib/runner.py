@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -17,6 +18,28 @@ COMPILE_TIMEOUT_SEC = 20
 RUN_TIMEOUT_SEC = 8
 
 
+def compile_env(overrides):
+    env = os.environ.copy()
+    env.setdefault("FISICS_MAX_PROCS", "0")
+    if overrides:
+        for key, value in overrides.items():
+            env[str(key)] = str(value)
+    return env
+
+
+def compile_output_substrings(out, required_substrings=None, forbidden_substrings=None):
+    lowered = out.lower()
+    if required_substrings:
+        for needle in required_substrings:
+            if needle.lower() not in lowered:
+                return False, f"expected output substring missing ({needle})"
+    if forbidden_substrings:
+        for needle in forbidden_substrings:
+            if needle.lower() in lowered:
+                return False, f"unexpected output substring present ({needle})"
+    return True, ""
+
+
 def run_runtime_probe(probe, clang_path):
     with tempfile.TemporaryDirectory(prefix=f"probe-{probe.probe_id}-") as tmp:
         tmp_dir = Path(tmp)
@@ -24,13 +47,18 @@ def run_runtime_probe(probe, clang_path):
         clang_exe = tmp_dir / "clang.out"
         sources = list(probe.inputs) if probe.inputs else [probe.source]
         mixed_clang_inputs = list(probe.mixed_clang_inputs) if probe.mixed_clang_inputs else []
+        fisics_cmd = [str(FISICS)] + [str(arg) for arg in (probe.fisics_args or [])]
+        fisics_env = compile_env(probe.fisics_env)
+        clang_cmd = [clang_path or "clang", "-std=c99", "-O0"] + [str(arg) for arg in (probe.clang_args or [])]
+        clang_env = compile_env(probe.clang_env)
 
         mixed_clang_objects = []
         for src in mixed_clang_inputs:
             obj_path = tmp_dir / f"{src.stem}.clang.o"
             clang_obj_exit, clang_obj_out, clang_obj_timeout = run_cmd(
-                [clang_path or "clang", "-std=c99", "-O0", "-c", str(src), "-o", str(obj_path)],
+                clang_cmd + ["-c", str(src), "-o", str(obj_path)],
                 COMPILE_TIMEOUT_SEC,
+                env=clang_env,
             )
             if clang_obj_timeout:
                 return (
@@ -47,8 +75,9 @@ def run_runtime_probe(probe, clang_path):
             mixed_clang_objects.append(obj_path)
 
         fisics_compile_exit, fisics_compile_out, fisics_compile_timeout = run_cmd(
-            [str(FISICS)] + [str(src) for src in sources] + [str(obj) for obj in mixed_clang_objects] + ["-o", str(fisics_exe)],
+            fisics_cmd + [str(src) for src in sources] + [str(obj) for obj in mixed_clang_objects] + ["-o", str(fisics_exe)],
             COMPILE_TIMEOUT_SEC,
+            env=fisics_env,
         )
         if fisics_compile_timeout:
             return (
@@ -81,8 +110,9 @@ def run_runtime_probe(probe, clang_path):
             )
 
         clang_compile_exit, clang_compile_out, clang_compile_timeout = run_cmd(
-            [clang_path, "-std=c99", "-O0"] + [str(src) for src in sources + mixed_clang_inputs] + ["-o", str(clang_exe)],
+            [clang_path, "-std=c99", "-O0"] + [str(arg) for arg in (probe.clang_args or [])] + [str(src) for src in sources + mixed_clang_inputs] + ["-o", str(clang_exe)],
             COMPILE_TIMEOUT_SEC,
+            env=clang_env,
         )
         if clang_compile_timeout:
             return (
@@ -192,25 +222,38 @@ def run_runtime_probe(probe, clang_path):
 def run_diag_probe(probe):
     sources = list(probe.inputs) if probe.inputs else [probe.source]
     with tempfile.TemporaryDirectory(prefix=f"probe-diag-{probe.probe_id}-") as tmp:
-        cmd = [str(FISICS)] + [str(src) for src in sources]
+        cmd = [str(FISICS)] + [str(arg) for arg in (probe.fisics_args or [])] + [str(src) for src in sources]
+        env = compile_env(probe.fisics_env)
         if len(sources) > 1:
             # Force full multi-input compilation/linking path for cross-TU diagnostics.
             cmd += ["-o", str(Path(tmp) / "diag.out")]
-        _, out, _ = run_cmd(cmd, COMPILE_TIMEOUT_SEC)
-    if probe.required_substrings:
-        lowered = out.lower()
-        for needle in probe.required_substrings:
-            if needle.lower() in lowered:
-                return ("RESOLVED", f"diagnostic now emitted ({needle})", "")
-        return ("BLOCKED", "expected diagnostic substring missing", "")
+        _, out, _ = run_cmd(cmd, COMPILE_TIMEOUT_SEC, env=env)
+    substring_ok, substring_detail = compile_output_substrings(
+        out,
+        required_substrings=probe.required_substrings,
+        forbidden_substrings=probe.forbidden_substrings,
+    )
+    if not substring_ok:
+        return ("BLOCKED", substring_detail, "")
 
-    has_diag = "Error at (" in out or "Error:" in out or ": error:" in out
+    has_diag = (
+        "Error at (" in out or
+        "Warning at (" in out or
+        "Error:" in out or
+        "Warning:" in out or
+        ": error:" in out or
+        ": warning:" in out
+    )
     if probe.expect_any_diagnostic:
         if has_diag:
+            if probe.required_substrings:
+                return ("RESOLVED", "diagnostic now emitted with required output markers", "")
             return ("RESOLVED", "diagnostic now emitted", "")
         return ("BLOCKED", "diagnostic missing", "")
     if has_diag:
         return ("BLOCKED", "unexpected diagnostic emitted", "")
+    if probe.required_substrings:
+        return ("RESOLVED", "required output markers present without diagnostics", "")
     return ("RESOLVED", "no diagnostic emitted (expected for this lane)", "")
 
 
@@ -218,13 +261,15 @@ def run_diag_json_probe(probe):
     with tempfile.TemporaryDirectory(prefix=f"probe-diagjson-{probe.probe_id}-") as tmp:
         json_path = Path(tmp) / "diags.json"
         sources = list(probe.inputs) if probe.inputs else [probe.source]
-        cmd = [str(FISICS), "--emit-diags-json", str(json_path)] + [str(src) for src in sources]
+        cmd = [str(FISICS)] + [str(arg) for arg in (probe.fisics_args or [])] + ["--emit-diags-json", str(json_path)] + [str(src) for src in sources]
+        env = compile_env(probe.fisics_env)
         if len(sources) > 1:
             # Force full multi-input compilation/linking path for cross-TU diagnostics.
             cmd += ["-o", str(Path(tmp) / "diagjson.out")]
         exit_code, out, timed_out = run_cmd(
             cmd,
             COMPILE_TIMEOUT_SEC,
+            env=env,
         )
         if timed_out:
             return ("BLOCKED", f"compile timeout ({COMPILE_TIMEOUT_SEC}s)", "")

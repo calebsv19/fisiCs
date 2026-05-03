@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6:17): explicit units conversion from 'meter' to 'second' is not allowed
+   Hint: explicit conversion requires source and target units from the same family
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_units_convert_incompatible.c:6:17

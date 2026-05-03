@@ -5,6 +5,7 @@
 #include "AST/ast_node.h"
 #include "Compiler/compiler_context.h"
 #include "Extensions/extension_diagnostics.h"
+#include "Extensions/extension_units_call_contracts.h"
 #include "Extensions/extension_units_expr_bindings.h"
 #include "Extensions/extension_units_expr_table.h"
 #include "Extensions/extension_units_view.h"
@@ -15,6 +16,7 @@
 
 static void walk_expr_results(ASTNode* node, CompilerContext* ctx);
 static bool node_is_explicit_units_convert_call(const ASTNode* node);
+static Scope* s_units_root_scope = NULL;
 
 static bool is_dimensionless_literal(const ASTNode* node) {
     return node && (node->type == AST_NUMBER_LITERAL || node->type == AST_CHAR_LITERAL);
@@ -129,6 +131,212 @@ static bool units_resolved_and_different(const FisicsUnitDef* leftUnit,
                                          const FisicsUnitDef* rightUnit,
                                          bool rightUnitResolved) {
     return leftUnitResolved && rightUnitResolved && leftUnit && rightUnit && leftUnit != rightUnit;
+}
+
+static Symbol* resolve_named_callee_symbol(const ASTNode* callee) {
+    if (!s_units_root_scope || !callee || callee->type != AST_IDENTIFIER || !callee->valueNode.value) {
+        return NULL;
+    }
+    return resolveInScopeChain(s_units_root_scope, callee->valueNode.value);
+}
+
+static ASTNode* function_param_decl_at(const Symbol* sym, size_t index) {
+    if (!sym || !sym->definition) return NULL;
+    ASTNode* def = sym->definition;
+    ASTNode** params = NULL;
+    size_t paramCount = 0;
+    if (def->type == AST_FUNCTION_DEFINITION) {
+        params = def->functionDef.parameters;
+        paramCount = def->functionDef.paramCount;
+    } else if (def->type == AST_FUNCTION_DECLARATION) {
+        params = def->functionDecl.parameters;
+        paramCount = def->functionDecl.paramCount;
+    }
+    if (!params || index >= paramCount) return NULL;
+    return params[index];
+}
+
+static void collect_function_return_units(ASTNode* node,
+                                          CompilerContext* ctx,
+                                          bool* found,
+                                          bool* conflict,
+                                          FisicsDim8* dim,
+                                          const FisicsUnitDef** unit,
+                                          bool* unitResolved) {
+    if (!node || !ctx || !found || !conflict || !dim || !unit || !unitResolved || *conflict) return;
+
+    switch (node->type) {
+        case AST_BLOCK:
+        case AST_PROGRAM:
+            for (size_t i = 0; i < node->block.statementCount; ++i) {
+                collect_function_return_units(node->block.statements ? node->block.statements[i] : NULL,
+                                              ctx,
+                                              found,
+                                              conflict,
+                                              dim,
+                                              unit,
+                                              unitResolved);
+            }
+            break;
+
+        case AST_RETURN: {
+            FisicsDim8 returnDim = fisics_dim_zero();
+            const FisicsUnitDef* returnUnit = NULL;
+            bool returnUnitResolved = false;
+            if (!lookup_resolved_expr_metadata(ctx,
+                                               node->returnStmt.returnValue,
+                                               &returnDim,
+                                               &returnUnit,
+                                               &returnUnitResolved)) {
+                break;
+            }
+            if (!*found) {
+                *found = true;
+                *dim = returnDim;
+                *unit = returnUnit;
+                *unitResolved = returnUnitResolved;
+                break;
+            }
+            if (!fisics_dim_equal(*dim, returnDim) ||
+                *unitResolved != returnUnitResolved ||
+                (*unitResolved && returnUnitResolved && *unit != returnUnit)) {
+                *conflict = true;
+            }
+            break;
+        }
+
+        case AST_IF_STATEMENT:
+            collect_function_return_units(node->ifStmt.thenBranch, ctx, found, conflict, dim, unit, unitResolved);
+            collect_function_return_units(node->ifStmt.elseBranch, ctx, found, conflict, dim, unit, unitResolved);
+            break;
+
+        case AST_FOR_LOOP:
+            collect_function_return_units(node->forLoop.body, ctx, found, conflict, dim, unit, unitResolved);
+            break;
+
+        case AST_WHILE_LOOP:
+            collect_function_return_units(node->whileLoop.body, ctx, found, conflict, dim, unit, unitResolved);
+            break;
+
+        case AST_SWITCH:
+            for (size_t i = 0; i < node->switchStmt.caseListSize; ++i) {
+                collect_function_return_units(node->switchStmt.caseList ? node->switchStmt.caseList[i] : NULL,
+                                              ctx,
+                                              found,
+                                              conflict,
+                                              dim,
+                                              unit,
+                                              unitResolved);
+            }
+            break;
+
+        case AST_CASE:
+            for (size_t i = 0; i < node->caseStmt.caseBodySize; ++i) {
+                collect_function_return_units(node->caseStmt.caseBody ? node->caseStmt.caseBody[i] : NULL,
+                                              ctx,
+                                              found,
+                                              conflict,
+                                              dim,
+                                              unit,
+                                              unitResolved);
+            }
+            break;
+
+        case AST_LABEL_DECLARATION:
+            collect_function_return_units(node->label.statement, ctx, found, conflict, dim, unit, unitResolved);
+            break;
+
+        case AST_STATEMENT_EXPRESSION:
+            collect_function_return_units(node->statementExpr.block, ctx, found, conflict, dim, unit, unitResolved);
+            break;
+
+        case AST_CONDITIONAL_DIRECTIVE:
+            collect_function_return_units(node->conditionalDirective.body, ctx, found, conflict, dim, unit, unitResolved);
+            break;
+
+        default:
+            break;
+    }
+}
+
+static void maybe_record_function_call_result(CompilerContext* ctx, ASTNode* node) {
+    if (!ctx || !node || node->type != AST_FUNCTION_CALL || node_is_explicit_units_convert_call(node)) return;
+    Symbol* sym = resolve_named_callee_symbol(node->functionCall.callee);
+    if (!sym || !sym->definition || sym->definition->type != AST_FUNCTION_DEFINITION) return;
+
+    bool found = false;
+    bool conflict = false;
+    FisicsDim8 returnDim = fisics_dim_zero();
+    const FisicsUnitDef* returnUnit = NULL;
+    bool returnUnitResolved = false;
+    collect_function_return_units(sym->definition->functionDef.body,
+                                  ctx,
+                                  &found,
+                                  &conflict,
+                                  &returnDim,
+                                  &returnUnit,
+                                  &returnUnitResolved);
+    if (!found || conflict) return;
+
+    (void)fisics_extension_set_units_expr_result_with_unit(ctx,
+                                                           node,
+                                                           returnDim,
+                                                           true,
+                                                           returnUnitResolved ? returnUnit : NULL,
+                                                           returnUnitResolved);
+}
+
+static void maybe_validate_function_call_argument_units(CompilerContext* ctx, ASTNode* node) {
+    if (!ctx || !node || node->type != AST_FUNCTION_CALL) return;
+    bool sawContract = false;
+    for (size_t i = 0; i < node->functionCall.argumentCount; ++i) {
+        const FisicsUnitsCallArgContract* contract =
+            fisics_extension_lookup_units_call_arg_contract(ctx, node, i);
+        if (!contract) continue;
+        sawContract = true;
+        if (!contract->resolved || !contract->unitResolved || !contract->unitDef) continue;
+
+        ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : NULL;
+        FisicsDim8 argDim = fisics_dim_zero();
+        const FisicsUnitDef* argUnit = NULL;
+        bool argUnitResolved = false;
+        if (!lookup_resolved_expr_metadata(ctx, argNode, &argDim, &argUnit, &argUnitResolved)) continue;
+        if (!fisics_dim_equal(argDim, contract->dim)) continue;
+        if (units_resolved_and_different(contract->unitDef, true, argUnit, argUnitResolved)) {
+            fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                                 argNode ? argNode : node,
+                                                                 "argument",
+                                                                 argUnit,
+                                                                 contract->unitDef);
+        }
+    }
+    if (sawContract) return;
+
+    Symbol* sym = resolve_named_callee_symbol(node->functionCall.callee);
+    if (!sym || sym->kind != SYMBOL_FUNCTION) return;
+
+    size_t pairCount = node->functionCall.argumentCount < sym->signature.paramCount
+                           ? node->functionCall.argumentCount
+                           : sym->signature.paramCount;
+    for (size_t i = 0; i < pairCount; ++i) {
+        ASTNode* paramDecl = function_param_decl_at(sym, i);
+        const FisicsUnitsAnnotation* ann = fisics_extension_lookup_units_annotation(ctx, paramDecl);
+        if (!ann || !ann->resolved || !ann->unitResolved || !ann->unitDef || ann->dimDuplicateCount > 1) continue;
+
+        ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : NULL;
+        FisicsDim8 argDim = fisics_dim_zero();
+        const FisicsUnitDef* argUnit = NULL;
+        bool argUnitResolved = false;
+        if (!lookup_resolved_expr_metadata(ctx, argNode, &argDim, &argUnit, &argUnitResolved)) continue;
+        if (!fisics_dim_equal(argDim, ann->dim)) continue;
+        if (units_resolved_and_different(ann->unitDef, true, argUnit, argUnitResolved)) {
+            fisics_extension_diag_units_implicit_unit_conversion(ctx,
+                                                                 argNode ? argNode : node,
+                                                                 "argument",
+                                                                 argUnit,
+                                                                 ann->unitDef);
+        }
+    }
 }
 
 static const char* explicit_conversion_context_for_binary(const char* op) {
@@ -633,6 +841,8 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
                 walk_expr_results(node->functionCall.arguments ? node->functionCall.arguments[i] : NULL, ctx);
             }
             maybe_record_units_conversion_call(ctx, node);
+            maybe_record_function_call_result(ctx, node);
+            maybe_validate_function_call_argument_units(ctx, node);
             break;
 
         case AST_COMPOUND_LITERAL:
@@ -660,6 +870,8 @@ static void walk_expr_results(ASTNode* node, CompilerContext* ctx) {
 void fisics_units_run_expr_semantics(ASTNode* root, Scope* globalScope) {
     if (!root || !globalScope || !globalScope->ctx) return;
     CompilerContext* ctx = globalScope->ctx;
+    s_units_root_scope = globalScope;
     fisics_extension_clear_units_expr_results(ctx);
     walk_expr_results(root, ctx);
+    s_units_root_scope = NULL;
 }

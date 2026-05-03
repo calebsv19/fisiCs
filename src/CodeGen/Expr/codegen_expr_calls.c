@@ -497,7 +497,7 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         }
     }
 
-    if (!noPrototype && sym && sym->signature.hasPrototype) {
+    if (!noPrototype && sym && sym->signature.hasPrototype && !externalAbiCallAdjusted) {
         LLVMTypeRef signatureCalleeType = cg_function_type_from_symbol(ctx, sym);
         if (signatureCalleeType && LLVMGetTypeKind(signatureCalleeType) == LLVMFunctionTypeKind) {
             calleeType = signatureCalleeType;

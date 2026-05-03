@@ -1,4 +1,5 @@
 Diagnostics:
-Error at (546105:12): Undeclared identifier
-   Hint: AX4_W11_ORDER_A_TARGET
-   Spelling: axis4_wave11_order_a_layer_a.h:546105:12
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave11_dual_convergence_order_a_winner_arity_fail_no_crash_a.h:9:12: error: macro 'AX4_W11_ORDER_A_TARGET' requires 3 argument(s), got 2
+Error: preprocessing failed
+axis4_wave11_order_a_layer_a.h:546105:12: error: macro 'AX4_W11_ORDER_A_TARGET' requires 3 argument(s), got 2
+axis4_wave11_order_a_layer_a.h:546105:12: error: macro 'AX4_W11_ORDER_A_TARGET' requires 3 argument(s), got 2

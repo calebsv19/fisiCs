@@ -21,6 +21,15 @@ Blocked-result reporting:
   - `raw_status=BLOCKED`
 - `RESOLVED` and `SKIP` output stay unchanged.
 
+Overlay-aware probe support:
+- probes may now pass per-probe compiler args/env to `fisics`
+- runtime probes may also pass per-probe `clang` args/env
+- diagnostic probes can now require that all listed output substrings appear and
+  optionally assert forbidden substrings are absent
+- this is the intended path for physics-units `--overlay=physics-units` and
+  `--dump-sema` stress probes; do not add new one-off shell wrappers when a
+  probe inventory entry can express the check directly
+
 ## Layout
 - `runtime/`: runtime differential repros (`fisics` vs `clang`).
 - `diagnostics/`: diagnostics/constraint repros.

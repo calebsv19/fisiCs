@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (7:35): implicit concrete unit conversion in initializer requires explicit conversion from 'foot' to 'meter'
+   Hint: same-dimension concrete unit changes currently require an explicit fisics_convert_unit(...) call
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_units_initializer_requires_convert.c:7:35

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6:17): invalid explicit units conversion target 'bogus_unit_name'
+   Hint: explicit conversion target must name a seeded concrete unit string
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_units_convert_invalid_target.c:6:17

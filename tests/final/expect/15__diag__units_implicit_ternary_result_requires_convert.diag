@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (13:13): implicit concrete unit conversion in ternary result requires explicit conversion from 'foot_per_second' to 'meter_per_second'
+   Hint: same-dimension concrete unit changes currently require an explicit fisics_convert_unit(...) call
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_units_implicit_ternary_result_requires_convert.c:13:13

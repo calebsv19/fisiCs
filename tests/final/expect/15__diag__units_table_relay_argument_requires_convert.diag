@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (13:24): implicit concrete unit conversion in argument requires explicit conversion from 'foot' to 'meter'
+   Hint: same-dimension concrete unit changes currently require an explicit fisics_convert_unit(...) call
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_units_table_relay_argument_requires_convert.c:13:24

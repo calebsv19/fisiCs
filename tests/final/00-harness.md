@@ -20,6 +20,7 @@ Each test case uses a stable id that starts with the bucket number:
 - Tokens: for lexer/preprocessor tests that validate token streams.
 - AST/Type: for parser and semantic tests (canonical type printing).
 - Diagnostics: for error cases and recovery behavior.
+- Semantic dump: for strict semantic-model output contracts (`.sema`).
 - IR: for codegen validation (pattern checks or full IR match).
 - Runtime: for compile-and-run tests with expected stdout/stderr/exit code.
 
@@ -78,7 +79,7 @@ Each shard file uses the per-test schema below:
 ## Running
 - `make final` runs the suite against `tests/final/meta/index.json`, which now
   acts as a registry for one or more manifest shard files.
-- `make final-update` regenerates `.ast` and `.diag` expectations from current output.
+- `make final-update` regenerates `.ast`, `.diag`, and `.sema` expectations from current output.
 - `make final-id ID=01__line_directive_diag_location` runs one exact id.
 - `make final-prefix PREFIX=14__` runs an id-prefix slice (for example, all runtime ids).
 - `make final-glob GLOB='14__runtime_multitu_*'` runs a fnmatch-glob slice.
@@ -106,6 +107,7 @@ Each shard file uses the per-test schema below:
   - `trust_layer=<...>`
   - `owner_lane=<bucket-or-final-harness>`
 - Token expectations use `--dump-tokens` on the compiler when needed.
+- Semantic dump expectations use `--dump-sema` on the compiler when needed.
 - IR expectations use `--dump-ir` on the compiler when needed.
 - `capture_frontend_diag: true` records early `Error:` / `Warning:` lines that
   appear before the semantic section, including `path:line:col: error:` style

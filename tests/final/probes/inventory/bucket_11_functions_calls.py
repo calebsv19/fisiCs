@@ -16,6 +16,7 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/11__probe_external_small_struct_byval_pointer_bridge_main.c',
         note='small struct by-value call into clang-built external callee should preserve trailing pointer argument on arm64',
         mixed_clang_inputs=[PROBE_DIR / 'runtime/11__probe_external_small_struct_byval_pointer_bridge_lib.c'],
+        fisics_env={'FISICS_EXTERNAL_ABI_FUNCTIONS': 'probe_external_small_struct_bridge'},
     ),
     RuntimeProbe(
         probe_id='11__probe_external_large_struct_sret_bridge',

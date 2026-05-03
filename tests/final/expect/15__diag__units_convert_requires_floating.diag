@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6:12): explicit units conversion helper 'fisics_convert_unit' currently requires a floating scalar source expression
+   Hint: the first explicit conversion lane currently supports only floating scalar source expressions
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_units_convert_requires_floating.c:6:12

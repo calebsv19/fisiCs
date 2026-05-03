@@ -374,6 +374,15 @@
     "14-runtime-surface-wave115-anon-member-charptr-array-access.json",
     "14-runtime-surface-wave116-labelled-switch-break.json",
     "15-torture-differential-wave71-axis3-wave3-wave17-runtime-promotions.json",
-    "15-torture-differential-wave72-axis4-wave2-wave11-diag-promotions.json"
+    "15-torture-differential-wave72-axis4-wave2-wave11-diag-promotions.json",
+    "14-runtime-surface-wave117-physics-units-runtime-promotion.json",
+    "15-torture-differential-wave73-physics-units-semantics-promotions.json",
+    "15-torture-differential-wave74-physics-units-diagnostics-promotions.json",
+    "14-runtime-surface-wave118-physics-units-runtime-expansion.json",
+    "15-torture-differential-wave75-physics-units-sema-expansion.json",
+    "15-torture-differential-wave76-physics-units-indirect-callee-promotions.json",
+    "15-torture-differential-wave77-physics-units-boundary-expansion.json",
+    "14-runtime-surface-wave119-physics-units-loop-branch-runtime.json",
+    "15-torture-differential-wave78-physics-units-loop-branch-sema.json"
   ]
 }

@@ -533,6 +533,32 @@ bool cg_is_external_decl_function(LLVMValueRef function) {
 
 bool cg_is_known_external_abi_function_name(const char* name) {
     if (!name || !*name) return false;
+    const char* extra = getenv("FISICS_EXTERNAL_ABI_FUNCTIONS");
+    if (extra && *extra) {
+        const char* cursor = extra;
+        while (*cursor) {
+            while (*cursor == ' ' || *cursor == '\t' || *cursor == ',') {
+                ++cursor;
+            }
+            const char* start = cursor;
+            while (*cursor && *cursor != ',') {
+                ++cursor;
+            }
+            const char* end = cursor;
+            while (end > start && (end[-1] == ' ' || end[-1] == '\t')) {
+                --end;
+            }
+            size_t tokenLen = (size_t)(end - start);
+            if (tokenLen > 0 &&
+                strlen(name) == tokenLen &&
+                strncmp(name, start, tokenLen) == 0) {
+                return true;
+            }
+            if (*cursor == ',') {
+                ++cursor;
+            }
+        }
+    }
     return strncmp(name, "SDL_", 4) == 0 ||
            strncmp(name, "TTF_", 4) == 0;
 }

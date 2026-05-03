@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (5:17): explicit units conversion to 'foot' requires a resolved source concrete unit
+   Hint: explicit conversion currently requires the source expression to carry a resolved concrete unit
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_units_convert_missing_source.c:5:17

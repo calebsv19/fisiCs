@@ -108,12 +108,14 @@ DIAG_PROBES = [
         probe_id='04__probe_deep_declarator_factory_initializer_current_reject',
         source=PROBE_DIR / 'runtime/04__probe_deep_declarator_call_only.c',
         note='fixed baseline: factory() initializer path now compiles cleanly',
+        expect_any_diagnostic=False,
         required_substrings=['Semantic analysis: no issues found.'],
     ),
     DiagnosticProbe(
         probe_id='04__probe_deep_declarator_factory_assignment_current_reject',
         source=PROBE_DIR / 'diagnostics/04__probe_deep_declarator_factory_assignment_current_reject.c',
         note='fixed baseline: factory() assignment path now compiles cleanly',
+        expect_any_diagnostic=False,
         required_substrings=['Semantic analysis: no issues found.'],
     ),
     DiagnosticProbe(

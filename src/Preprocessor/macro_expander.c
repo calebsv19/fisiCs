@@ -513,6 +513,71 @@ static bool append_buffer(PPTokenBuffer* dest, const PPTokenBuffer* src) {
     return true;
 }
 
+static bool try_expand_function_like_alias_boundary(MacroExpander* expander,
+                                                    const Token* input,
+                                                    size_t count,
+                                                    size_t currentIndex,
+                                                    const PPTokenBuffer* expandedObjectLike,
+                                                    PPTokenBuffer* outTokens,
+                                                    bool* handled,
+                                                    size_t* consumedIndex) {
+    if (handled) *handled = false;
+    if (consumedIndex) *consumedIndex = currentIndex;
+    if (!expander || !expander->table || !expandedObjectLike || !outTokens) return true;
+    if (expandedObjectLike->count != 1) return true;
+    if (currentIndex + 1 >= count || input[currentIndex + 1].type != TOKEN_LPAREN) return true;
+
+    const Token* callee = &expandedObjectLike->tokens[0];
+    if (callee->type != TOKEN_IDENTIFIER || !callee->value) return true;
+
+    const MacroDefinition* def = macro_table_lookup(expander->table, callee->value);
+    if (!def || def->kind != MACRO_FUNCTION) return true;
+    if (macro_table_is_expanding(expander->table, def->name)) return true;
+
+    SourceRange callRange = range_is_initialized(&callee->macroCallSite)
+        ? callee->macroCallSite
+        : callee->location;
+    size_t cursor = currentIndex + 2;
+    PPArgumentList rawArgs;
+    pp_argument_list_init(&rawArgs);
+    bool parsed = parse_macro_argument_tokens(input, count, &cursor, &rawArgs, def);
+    if (!parsed) {
+        pp_argument_list_destroy(&rawArgs);
+        return expander->lastError.kind == ME_ERR_NONE;
+    }
+
+    MacroArgPack pack;
+    bool built = build_macro_arg_pack(expander, def, &rawArgs, &pack, callRange);
+    if (!built) {
+        pp_argument_list_destroy(&rawArgs);
+        return expander->lastError.kind == ME_ERR_NONE;
+    }
+
+    bool ok = false;
+    if (expand_macro_arguments(expander, &pack) &&
+        macro_table_push_expansion(expander->table, def, callRange, def->definitionRange)) {
+        PPTokenBuffer replaced = {0};
+        ok = substitute_macro(expander, def, &pack, callRange, &replaced);
+        if (ok) {
+            PPTokenBuffer nested = {0};
+            ok = macro_expander_expand(expander, replaced.tokens, replaced.count, &nested);
+            if (ok) {
+                ok = append_buffer(outTokens, &nested);
+            }
+            pp_token_buffer_release(&nested);
+        }
+        macro_table_pop_expansion(expander->table, def);
+        pp_token_buffer_release(&replaced);
+    }
+
+    macro_arg_pack_destroy(&pack);
+    pp_argument_list_destroy(&rawArgs);
+    if (!ok) return false;
+    if (handled) *handled = true;
+    if (consumedIndex) *consumedIndex = cursor - 1;
+    return true;
+}
+
 void macro_expander_init(MacroExpander* expander, MacroTable* table) {
     if (!expander) return;
     expander->table = table;
@@ -588,16 +653,36 @@ bool macro_expander_expand(MacroExpander* expander,
                         return false;
                     }
                     bool ok = substitute_macro(expander, def, NULL, callRange, &replaced);
+                    PPTokenBuffer nested = {0};
                     if (ok) {
-                        PPTokenBuffer nested = {0};
                         ok = macro_expander_expand(expander, replaced.tokens, replaced.count, &nested);
-                        if (ok) {
-                            ok = append_buffer(outTokens, &nested);
-                        }
-                        pp_token_buffer_release(&nested);
                     }
                     macro_table_pop_expansion(expander->table, def);
                     pp_token_buffer_release(&replaced);
+                    if (!ok) {
+                        pp_token_buffer_release(&nested);
+                        return false;
+                    }
+                    bool handledCallBoundary = false;
+                    size_t consumedIndex = i;
+                    if (!try_expand_function_like_alias_boundary(expander,
+                                                                 input,
+                                                                 count,
+                                                                 i,
+                                                                 &nested,
+                                                                 outTokens,
+                                                                 &handledCallBoundary,
+                                                                 &consumedIndex)) {
+                        pp_token_buffer_release(&nested);
+                        return false;
+                    }
+                    if (handledCallBoundary) {
+                        i = consumedIndex;
+                        pp_token_buffer_release(&nested);
+                        continue;
+                    }
+                    ok = append_buffer(outTokens, &nested);
+                    pp_token_buffer_release(&nested);
                     if (!ok) {
                         return false;
                     }

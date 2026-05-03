@@ -1,0 +1,125 @@
+Sema:
+SemanticModel: 0 error(s)
+Scope depth 0
+  - function: atomic_load_explicit
+  - function: __builtin___memmove_chk
+  - function: __builtin_huge_val
+  - function: fisics_convert_unit
+  - function: __c11_atomic_exchange
+  - typedef: ptrdiff_t
+  - function: __builtin_object_size
+  - function: select_distance_meter
+  - function: vsnprintf
+  - typedef: size_t
+  - function: __builtin_nan
+  - function: __builtin_inff
+  - function: __builtin_va_start
+  - function: __builtin___strncpy_chk
+  - function: __builtin___snprintf_chk
+  - variable: __LDBL_MIN__
+  - function: __builtin_infl
+  - function: atomic_exchange_explicit
+  - typedef: max_align_t
+  - function: __builtin_va_copy
+  - function: __builtin___strncat_chk
+  - typedef: wchar_t
+  - function: __builtin_fabs
+  - function: atomic_init
+  - function: __builtin___memcpy_chk
+  - function: printf
+  - typedef: intptr_t
+  - function: __builtin_fabsf
+  - function: __builtin_nanf
+  - function: fprintf
+  - function: exit
+  - variable: NULL
+  - function: __builtin_bswap64
+  - function: __builtin_fabsl
+  - function: __builtin_nanl
+  - function: __c11_atomic_load
+  - function: strncat
+  - function: __builtin_alloca
+  - variable: __FLT_MIN__
+  - typedef: uintptr_t
+  - function: __c11_atomic_store
+  - function: __builtin_constant_p
+  - function: strcat
+  - function: __builtin___memset_chk
+  - function: __builtin_fisics_convert_unit
+  - typedef: wint_t
+  - function: __builtin_bzero
+  - function: __builtin_bswap32
+  - function: __builtin_expect
+  - variable: true
+  - typedef: ssize_t
+  - function: __builtin_va_end
+  - function: __builtin_va_arg
+  - function: main
+  - function: __builtin_huge_valf
+  - function: select_force_newton
+  - function: atomic_store_explicit
+  - function: __builtin_huge_vall
+  - variable: false
+  - function: __builtin___strcpy_chk
+  - function: __builtin___sprintf_chk
+  - variable: __DBL_MIN__
+  - function: __builtin_inf
+  - function: __builtin___vsnprintf_chk
+  - typedef: sig_atomic_t
+  - function: __c11_atomic_init
+  - function: __builtin_mul_overflow
+  - function: __builtin___strcat_chk
+Extension Units Annotations: 8
+  - line 3: m*kg/s^2 [resolved, unit=newton, unit-resolved]
+  - line 4: m*kg/s^2 [resolved, unit=pound_force, unit-resolved]
+  - line 7: m*kg/s^2 [resolved, unit=newton, unit-resolved]
+  - line 15: m [resolved, unit=meter, unit-resolved]
+  - line 16: m [resolved, unit=foot, unit-resolved]
+  - line 19: m [resolved, unit=meter, unit-resolved]
+  - line 26: m*kg/s^2 [resolved, unit=newton, unit-resolved]
+  - line 29: m [resolved, unit=meter, unit-resolved]
+Extension Units Expr Results: 44
+  - line 5: identifier(thrust_n) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 9: identifier(thrust_lbf) [dim=m*kg/s^2, resolved, unit=pound_force]
+  - line 9: function-call(fisics_convert_unit) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 10: identifier(converted) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 17: identifier(distance_m) [dim=m, resolved, unit=meter]
+  - line 21: identifier(distance_ft) [dim=m, resolved, unit=foot]
+  - line 21: function-call(fisics_convert_unit) [dim=m, resolved, unit=meter]
+  - line 22: identifier(converted) [dim=m, resolved, unit=meter]
+  - line 28: number-literal [dim=m*kg/s^2, resolved, unit=newton]
+  - line 31: number-literal [dim=m, resolved, unit=meter]
+  - line 33: identifier(total_force) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 33: identifier(total_force) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 33: number-literal [dim=1, resolved]
+  - line 33: number-literal [dim=1, resolved]
+  - line 33: number-literal [dim=1, resolved]
+  - line 33: function-call(select_force_newton) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 33: binary-expression(+) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 33: assignment(=) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 34: identifier(total_force) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 34: identifier(total_force) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 34: number-literal [dim=1, resolved]
+  - line 34: number-literal [dim=1, resolved]
+  - line 34: number-literal [dim=1, resolved]
+  - line 34: function-call(select_force_newton) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 34: binary-expression(+) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 34: assignment(=) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 35: identifier(total_distance) [dim=m, resolved, unit=meter]
+  - line 35: identifier(total_distance) [dim=m, resolved, unit=meter]
+  - line 35: number-literal [dim=1, resolved]
+  - line 35: number-literal [dim=1, resolved]
+  - line 35: number-literal [dim=1, resolved]
+  - line 35: function-call(select_distance_meter) [dim=m, resolved, unit=meter]
+  - line 35: binary-expression(+) [dim=m, resolved, unit=meter]
+  - line 35: assignment(=) [dim=m, resolved, unit=meter]
+  - line 36: identifier(total_distance) [dim=m, resolved, unit=meter]
+  - line 36: identifier(total_distance) [dim=m, resolved, unit=meter]
+  - line 36: number-literal [dim=1, resolved]
+  - line 36: number-literal [dim=1, resolved]
+  - line 36: number-literal [dim=1, resolved]
+  - line 36: function-call(select_distance_meter) [dim=m, resolved, unit=meter]
+  - line 36: binary-expression(+) [dim=m, resolved, unit=meter]
+  - line 36: assignment(=) [dim=m, resolved, unit=meter]
+  - line 38: identifier(total_force) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 38: cast-expression [dim=m*kg/s^2, resolved, unit=newton]

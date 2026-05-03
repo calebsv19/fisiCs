@@ -1,0 +1,132 @@
+Sema:
+SemanticModel: 0 error(s)
+Scope depth 0
+  - function: atomic_load_explicit
+  - function: __builtin___memmove_chk
+  - function: __builtin_huge_val
+  - function: fisics_convert_unit
+  - function: __c11_atomic_exchange
+  - typedef: ptrdiff_t
+  - function: __builtin_object_size
+  - function: vsnprintf
+  - function: normalize_stage_energy
+  - typedef: size_t
+  - function: __builtin_nan
+  - function: __builtin_inff
+  - function: __builtin_va_start
+  - function: __builtin___strncpy_chk
+  - function: __builtin___snprintf_chk
+  - variable: __LDBL_MIN__
+  - function: __builtin_infl
+  - function: atomic_exchange_explicit
+  - typedef: max_align_t
+  - function: __builtin_va_copy
+  - function: __builtin___strncat_chk
+  - typedef: wchar_t
+  - function: __builtin_fabs
+  - function: atomic_init
+  - function: normalize_leg_distance
+  - function: __builtin___memcpy_chk
+  - function: printf
+  - typedef: intptr_t
+  - function: __builtin_fabsf
+  - function: __builtin_nanf
+  - function: fprintf
+  - function: exit
+  - variable: NULL
+  - function: __builtin_bswap64
+  - function: __builtin_fabsl
+  - function: __builtin_nanl
+  - function: __c11_atomic_load
+  - function: strncat
+  - function: __builtin_alloca
+  - variable: __FLT_MIN__
+  - typedef: uintptr_t
+  - function: __c11_atomic_store
+  - function: __builtin_constant_p
+  - function: strcat
+  - function: __builtin___memset_chk
+  - function: __builtin_fisics_convert_unit
+  - typedef: wint_t
+  - function: __builtin_bzero
+  - function: __builtin_bswap32
+  - function: __builtin_expect
+  - variable: true
+  - typedef: ssize_t
+  - function: __builtin_va_end
+  - function: normalize_cell_drop
+  - function: __builtin_va_arg
+  - function: main
+  - function: __builtin_huge_valf
+  - function: atomic_store_explicit
+  - function: __builtin_huge_vall
+  - variable: false
+  - function: __builtin___strcpy_chk
+  - function: __builtin___sprintf_chk
+  - variable: __DBL_MIN__
+  - function: __builtin_inf
+  - function: __builtin___vsnprintf_chk
+  - typedef: sig_atomic_t
+  - function: __c11_atomic_init
+  - function: __builtin_mul_overflow
+  - function: __builtin___strcat_chk
+Extension Units Annotations: 21
+  - line 2: m [resolved, unit=mile, unit-resolved]
+  - line 3: m [resolved, unit=meter, unit-resolved]
+  - line 10: m^2*kg/s^2 [resolved, unit=watt_hour, unit-resolved]
+  - line 11: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+  - line 18: m^2*kg/s^3*A [resolved, unit=millivolt, unit-resolved]
+  - line 19: m^2*kg/s^3*A [resolved, unit=kilovolt, unit-resolved]
+  - line 26: m [resolved, unit=mile, unit-resolved]
+  - line 29: m [resolved, unit=mile, unit-resolved]
+  - line 32: m [resolved, unit=meter, unit-resolved]
+  - line 35: m [resolved, unit=meter, unit-resolved]
+  - line 38: m [resolved, unit=meter, unit-resolved]
+  - line 42: m^2*kg/s^2 [resolved, unit=watt_hour, unit-resolved]
+  - line 45: m^2*kg/s^2 [resolved, unit=watt_hour, unit-resolved]
+  - line 48: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+  - line 51: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+  - line 54: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+  - line 58: m^2*kg/s^3*A [resolved, unit=millivolt, unit-resolved]
+  - line 61: m^2*kg/s^3*A [resolved, unit=millivolt, unit-resolved]
+  - line 64: m^2*kg/s^3*A [resolved, unit=kilovolt, unit-resolved]
+  - line 67: m^2*kg/s^3*A [resolved, unit=kilovolt, unit-resolved]
+  - line 70: m^2*kg/s^3*A [resolved, unit=kilovolt, unit-resolved]
+Extension Units Expr Results: 37
+  - line 5: identifier(leg_miles) [dim=m, resolved, unit=mile]
+  - line 5: function-call(fisics_convert_unit) [dim=m, resolved, unit=meter]
+  - line 6: identifier(leg_meters) [dim=m, resolved, unit=meter]
+  - line 13: identifier(stage_wh) [dim=m^2*kg/s^2, resolved, unit=watt_hour]
+  - line 13: function-call(fisics_convert_unit) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 14: identifier(stage_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 21: identifier(cell_mv) [dim=m^2*kg/s^3*A, resolved, unit=millivolt]
+  - line 21: function-call(fisics_convert_unit) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 22: identifier(cell_kv) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 28: number-literal [dim=m, resolved, unit=mile]
+  - line 31: number-literal [dim=m, resolved, unit=mile]
+  - line 34: identifier(leg_a_miles) [dim=m, resolved, unit=mile]
+  - line 34: function-call(normalize_leg_distance) [dim=m, resolved, unit=meter]
+  - line 37: identifier(leg_b_miles) [dim=m, resolved, unit=mile]
+  - line 37: function-call(normalize_leg_distance) [dim=m, resolved, unit=meter]
+  - line 40: identifier(leg_a_meters) [dim=m, resolved, unit=meter]
+  - line 40: identifier(leg_b_meters) [dim=m, resolved, unit=meter]
+  - line 40: binary-expression(+) [dim=m, resolved, unit=meter]
+  - line 44: number-literal [dim=m^2*kg/s^2, resolved, unit=watt_hour]
+  - line 47: number-literal [dim=m^2*kg/s^2, resolved, unit=watt_hour]
+  - line 50: identifier(stage_a_wh) [dim=m^2*kg/s^2, resolved, unit=watt_hour]
+  - line 50: function-call(normalize_stage_energy) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 53: identifier(stage_b_wh) [dim=m^2*kg/s^2, resolved, unit=watt_hour]
+  - line 53: function-call(normalize_stage_energy) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 56: identifier(stage_a_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 56: identifier(stage_b_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 56: binary-expression(+) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 60: number-literal [dim=m^2*kg/s^3*A, resolved, unit=millivolt]
+  - line 63: number-literal [dim=m^2*kg/s^3*A, resolved, unit=millivolt]
+  - line 66: identifier(cell_a_mv) [dim=m^2*kg/s^3*A, resolved, unit=millivolt]
+  - line 66: function-call(normalize_cell_drop) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 69: identifier(cell_b_mv) [dim=m^2*kg/s^3*A, resolved, unit=millivolt]
+  - line 69: function-call(normalize_cell_drop) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 72: identifier(cell_a_kv) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 72: identifier(cell_b_kv) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 72: binary-expression(+) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 74: number-literal [dim=1, resolved]

@@ -2,10 +2,10 @@
   "diag_count": 1,
   "diagnostics": [
     {
-      "code": 2000,
+      "code": 3000,
       "column": 12,
       "has_file": true,
-      "has_hint": true,
+      "has_hint": false,
       "has_message": true,
       "kind": 0,
       "length": 20,

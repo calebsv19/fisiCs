@@ -27,6 +27,7 @@ void fisics_extension_state_destroy(FisicsExtensionState* state) {
     free(state->unitsAnnotations);
     free(state->unitsExprResults);
     free(state->unitsExprBindings);
+    free(state->unitsCallArgContracts);
     free(state);
 }
 

@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__units_formula_graph_call_boundary_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_units_formula_graph_call_boundary_dump_contract.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_units_formula_graph_call_boundary_dump_contract.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_formula_graph_call_boundary_overlay_clean.diag",
+        "expect/15__diag__units_formula_graph_call_boundary_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "formula-graph",
+        "call-boundary"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_conversion_ladder_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_units_conversion_ladder_dump_contract.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_units_conversion_ladder_dump_contract.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_conversion_ladder_overlay_clean.diag",
+        "expect/15__diag__units_conversion_ladder_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "conversion-ladder",
+        "reduction"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_return_bridge_pipeline_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_units_return_bridge_pipeline_dump_contract.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_units_return_bridge_pipeline_dump_contract.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_return_bridge_pipeline_overlay_clean.diag",
+        "expect/15__diag__units_return_bridge_pipeline_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "return-bridge",
+        "pipeline"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

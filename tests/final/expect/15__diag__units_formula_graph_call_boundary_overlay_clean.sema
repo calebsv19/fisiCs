@@ -1,0 +1,109 @@
+Sema:
+SemanticModel: 0 error(s)
+Scope depth 0
+  - function: atomic_load_explicit
+  - function: __builtin___memmove_chk
+  - function: __builtin_huge_val
+  - function: fisics_convert_unit
+  - function: __c11_atomic_exchange
+  - typedef: ptrdiff_t
+  - function: __builtin_object_size
+  - function: vsnprintf
+  - typedef: size_t
+  - function: __builtin_nan
+  - function: __builtin_inff
+  - function: __builtin_va_start
+  - function: __builtin___strncpy_chk
+  - function: __builtin___snprintf_chk
+  - variable: __LDBL_MIN__
+  - function: __builtin_infl
+  - function: atomic_exchange_explicit
+  - typedef: max_align_t
+  - function: __builtin_va_copy
+  - function: __builtin___strncat_chk
+  - typedef: wchar_t
+  - function: __builtin_fabs
+  - function: atomic_init
+  - function: __builtin___memcpy_chk
+  - function: printf
+  - typedef: intptr_t
+  - function: __builtin_fabsf
+  - function: __builtin_nanf
+  - function: fprintf
+  - function: exit
+  - variable: NULL
+  - function: __builtin_bswap64
+  - function: __builtin_fabsl
+  - function: stage_energy
+  - function: __builtin_nanl
+  - function: __c11_atomic_load
+  - function: strncat
+  - function: __builtin_alloca
+  - variable: __FLT_MIN__
+  - typedef: uintptr_t
+  - function: __c11_atomic_store
+  - function: __builtin_constant_p
+  - function: strcat
+  - function: __builtin___memset_chk
+  - function: __builtin_fisics_convert_unit
+  - typedef: wint_t
+  - function: __builtin_bzero
+  - function: __builtin_bswap32
+  - function: __builtin_expect
+  - variable: true
+  - function: normalize_speed
+  - typedef: ssize_t
+  - function: __builtin_va_end
+  - function: __builtin_va_arg
+  - function: main
+  - function: __builtin_huge_valf
+  - function: atomic_store_explicit
+  - function: __builtin_huge_vall
+  - variable: false
+  - function: __builtin___strcpy_chk
+  - function: __builtin___sprintf_chk
+  - variable: __DBL_MIN__
+  - function: __builtin_inf
+  - function: __builtin___vsnprintf_chk
+  - typedef: sig_atomic_t
+  - function: __c11_atomic_init
+  - function: __builtin_mul_overflow
+  - function: __builtin___strcat_chk
+Extension Units Annotations: 13
+  - line 2: m/s [resolved, unit=foot_per_second, unit-resolved]
+  - line 3: m/s [resolved, unit=meter_per_second, unit-resolved]
+  - line 11: m*kg/s^2 [resolved, unit=pound_force, unit-resolved]
+  - line 12: s [resolved, unit=second, unit-resolved]
+  - line 13: m/s [resolved, unit=foot_per_second, unit-resolved]
+  - line 14: m*kg/s^2 [resolved, unit=newton, unit-resolved]
+  - line 17: m/s [resolved, unit=meter_per_second, unit-resolved]
+  - line 20: m [resolved, unit=meter, unit-resolved]
+  - line 23: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+  - line 30: m/s [resolved, unit=foot_per_second, unit-resolved]
+  - line 33: s [resolved, unit=second, unit-resolved]
+  - line 36: m*kg/s^2 [resolved, unit=pound_force, unit-resolved]
+  - line 39: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+Extension Units Expr Results: 23
+  - line 6: identifier(launch_speed_fps) [dim=m/s, resolved, unit=foot_per_second]
+  - line 6: function-call(fisics_convert_unit) [dim=m/s, resolved, unit=meter_per_second]
+  - line 7: identifier(launch_speed_mps) [dim=m/s, resolved, unit=meter_per_second]
+  - line 16: identifier(thrust_lbf) [dim=m*kg/s^2, resolved, unit=pound_force]
+  - line 16: function-call(fisics_convert_unit) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 19: identifier(launch_speed_fps) [dim=m/s, resolved, unit=foot_per_second]
+  - line 19: function-call(normalize_speed) [dim=m/s, resolved, unit=meter_per_second]
+  - line 22: identifier(speed_mps) [dim=m/s, resolved, unit=meter_per_second]
+  - line 22: identifier(burn_time) [dim=s, resolved, unit=second]
+  - line 22: binary-expression(*) [dim=m, resolved]
+  - line 25: identifier(thrust_n) [dim=m*kg/s^2, resolved, unit=newton]
+  - line 25: identifier(travel_distance) [dim=m, resolved, unit=meter]
+  - line 25: binary-expression(*) [dim=m^2*kg/s^2, resolved]
+  - line 26: identifier(work_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 32: number-literal [dim=m/s, resolved, unit=foot_per_second]
+  - line 35: number-literal [dim=s, resolved, unit=second]
+  - line 38: number-literal [dim=m*kg/s^2, resolved, unit=pound_force]
+  - line 42: identifier(thrust_lbf) [dim=m*kg/s^2, resolved, unit=pound_force]
+  - line 42: identifier(burn_time) [dim=s, resolved, unit=second]
+  - line 42: identifier(launch_speed_fps) [dim=m/s, resolved, unit=foot_per_second]
+  - line 42: function-call(stage_energy) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 43: identifier(work_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 43: cast-expression [dim=m^2*kg/s^2, resolved, unit=joule]

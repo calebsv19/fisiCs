@@ -7,7 +7,7 @@ def _merge_timeout_output(exc):
     return stdout + stderr
 
 
-def run_cmd(cmd, timeout_sec):
+def run_cmd(cmd, timeout_sec, env=None):
     try:
         proc = subprocess.run(
             cmd,
@@ -17,6 +17,7 @@ def run_cmd(cmd, timeout_sec):
             encoding="utf-8",
             errors="replace",
             timeout=timeout_sec,
+            env=env,
         )
     except subprocess.TimeoutExpired as exc:
         out = _merge_timeout_output(exc)
@@ -24,7 +25,7 @@ def run_cmd(cmd, timeout_sec):
     return proc.returncode, proc.stdout, False
 
 
-def run_binary(path, timeout_sec):
+def run_binary(path, timeout_sec, env=None):
     try:
         proc = subprocess.run(
             [str(path)],
@@ -34,6 +35,7 @@ def run_binary(path, timeout_sec):
             encoding="utf-8",
             errors="replace",
             timeout=timeout_sec,
+            env=env,
         )
     except subprocess.TimeoutExpired as exc:
         out = exc.stdout or ""

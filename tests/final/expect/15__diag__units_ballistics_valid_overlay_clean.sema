@@ -1,0 +1,283 @@
+Sema:
+SemanticModel: 0 error(s)
+Scope depth 0
+  - typedef: __darwin_ino_t
+  - function: putc
+  - function: vasprintf
+  - function: fseeko
+  - function: fileno
+  - function: atomic_load_explicit
+  - function: __builtin___memmove_chk
+  - typedef: user_ssize_t
+  - function: __builtin_huge_val
+  - function: feof
+  - typedef: __darwin_pthread_cond_t
+  - function: fisics_convert_unit
+  - typedef: user_long_t
+  - typedef: __int32_t
+  - function: __c11_atomic_exchange
+  - function: popen
+  - function: fputc
+  - function: renameatx_np
+  - typedef: __darwin_id_t
+  - typedef: ptrdiff_t
+  - function: __srget
+  - function: getc
+  - typedef: __darwin_sigset_t
+  - function: __builtin_object_size
+  - function: sprintf
+  - typedef: int64_t
+  - function: fgetc
+  - typedef: __darwin_pthread_rwlockattr_t
+  - typedef: __uint8_t
+  - typedef: __darwin_wchar_t
+  - function: vsnprintf
+  - function: puts
+  - typedef: user_addr_t
+  - typedef: __darwin_fsblkcnt_t
+  - typedef: __darwin_natural_t
+  - function: vdprintf
+  - typedef: size_t
+  - function: vfprintf
+  - typedef: __darwin_rune_t
+  - function: putw
+  - variable: __stdinp
+  - function: fwrite
+  - function: fscanf
+  - typedef: __darwin_wctype_t
+  - function: __builtin_nan
+  - function: tempnam
+  - function: fputs
+  - typedef: va_list
+  - typedef: __darwin_mach_port_t
+  - function: gets
+  - typedef: user_ulong_t
+  - typedef: int8_t
+  - function: getw
+  - function: getc_unlocked
+  - typedef: u_int32_t
+  - typedef: __darwin_wctrans_t
+  - typedef: __darwin_pthread_attr_t
+  - function: __builtin_inff
+  - function: rename
+  - function: fgetpos
+  - function: __builtin_va_start
+  - function: __sprintf_chk
+  - function: ctermid_r
+  - function: fgets
+  - typedef: __darwin_mode_t
+  - function: __builtin___strncpy_chk
+  - function: __builtin___snprintf_chk
+  - function: fclose
+  - function: __vsnprintf_chk
+  - variable: __LDBL_MIN__
+  - function: __builtin_infl
+  - function: setvbuf
+  - typedef: FILE
+  - typedef: user_time_t
+  - function: atomic_exchange_explicit
+  - function: vscanf
+  - typedef: __darwin_pthread_once_t
+  - typedef: __darwin_clock_t
+  - typedef: __mbstate_t
+  - typedef: max_align_t
+  - function: fsetpos
+  - function: __swbuf
+  - typedef: int16_t
+  - typedef: __darwin_ct_rune_t
+  - function: __builtin_va_copy
+  - typedef: __int64_t
+  - function: __builtin___strncat_chk
+  - function: vfscanf
+  - function: getline
+  - function: ctermid
+  - function: fflush
+  - typedef: wchar_t
+  - function: rewind
+  - typedef: __darwin_nl_item
+  - function: getdelim
+  - function: ftrylockfile
+  - function: fseek
+  - typedef: __darwin_pthread_rwlock_t
+  - function: __vsprintf_chk
+  - function: putc_unlocked
+  - function: ferror
+  - typedef: __darwin_off_t
+  - typedef: __darwin_size_t
+  - function: __builtin_fabs
+  - function: atomic_init
+  - variable: __stdoutp
+  - function: funlockfile
+  - typedef: __darwin_mach_port_name_t
+  - function: __builtin___memcpy_chk
+  - typedef: __darwin_blkcnt_t
+  - function: printf
+  - typedef: intptr_t
+  - typedef: __uint32_t
+  - function: __builtin_fabsf
+  - function: fmemopen
+  - function: dprintf
+  - function: putchar
+  - function: __builtin_nanf
+  - function: __svfscanf
+  - typedef: register_t
+  - function: fprintf
+  - function: exit
+  - function: funopen
+  - variable: NULL
+  - function: __builtin_bswap64
+  - function: fdopen
+  - typedef: u_int64_t
+  - function: __builtin_fabsl
+  - typedef: __darwin_pthread_t
+  - function: __builtin_nanl
+  - function: sscanf
+  - function: __c11_atomic_load
+  - function: strncat
+  - function: __builtin_alloca
+  - function: fread
+  - variable: sys_errlist
+  - typedef: __darwin_ssize_t
+  - typedef: __int16_t
+  - typedef: __darwin_socklen_t
+  - variable: __FLT_MIN__
+  - function: ungetc
+  - function: __snprintf_chk
+  - typedef: syscall_arg_t
+  - function: fpurge
+  - function: vprintf
+  - function: setbuf
+  - typedef: __darwin_gid_t
+  - typedef: __darwin_blksize_t
+  - typedef: uintptr_t
+  - typedef: u_int8_t
+  - typedef: __darwin_pthread_mutexattr_t
+  - function: putchar_unlocked
+  - function: scanf
+  - typedef: fpos_t
+  - function: __c11_atomic_store
+  - typedef: __darwin_uuid_t
+  - function: renamex_np
+  - function: renameat
+  - function: __builtin_constant_p
+  - typedef: off_t
+  - function: freopen
+  - function: clearerr
+  - function: strcat
+  - function: getchar_unlocked
+  - typedef: __darwin_pid_t
+  - function: __builtin___memset_chk
+  - function: vsscanf
+  - typedef: __darwin_dev_t
+  - function: __builtin_fisics_convert_unit
+  - typedef: wint_t
+  - typedef: __darwin_intptr_t
+  - function: __builtin_bzero
+  - function: __builtin_bswap32
+  - typedef: __darwin_uid_t
+  - typedef: u_int16_t
+  - typedef: __darwin_useconds_t
+  - typedef: __darwin_pthread_condattr_t
+  - typedef: __uint64_t
+  - function: open_memstream
+  - function: vsprintf
+  - function: __builtin_expect
+  - function: getchar
+  - function: fgetln
+  - variable: true
+  - typedef: ssize_t
+  - function: __builtin_va_end
+  - variable: __stderrp
+  - typedef: __darwin_uuid_string_t
+  - typedef: int32_t
+  - typedef: __darwin_time_t
+  - typedef: __darwin_ptrdiff_t
+  - function: __builtin_va_arg
+  - function: main
+  - function: fmtcheck
+  - typedef: __darwin_pthread_key_t
+  - typedef: __darwin_ino64_t
+  - typedef: __darwin_mbstate_t
+  - function: __builtin_huge_valf
+  - function: setbuffer
+  - function: ftello
+  - function: pclose
+  - function: asprintf
+  - function: atomic_store_explicit
+  - function: __builtin_huge_vall
+  - variable: false
+  - typedef: user_off_t
+  - typedef: user_size_t
+  - typedef: __darwin_suseconds_t
+  - function: __builtin___strcpy_chk
+  - function: tmpnam
+  - function: __builtin___sprintf_chk
+  - function: remove
+  - typedef: __darwin_fsfilcnt_t
+  - function: flockfile
+  - typedef: __darwin_pthread_mutex_t
+  - function: setlinebuf
+  - function: tmpfile
+  - variable: __DBL_MIN__
+  - function: __builtin_inf
+  - function: __builtin___vsnprintf_chk
+  - typedef: sig_atomic_t
+  - function: __c11_atomic_init
+  - function: snprintf
+  - typedef: __darwin_va_list
+  - typedef: __int8_t
+  - variable: sys_nerr
+  - function: __builtin_mul_overflow
+  - function: ftell
+  - typedef: __darwin_wint_t
+  - function: fopen
+  - typedef: __uint16_t
+  - function: __builtin___strcat_chk
+  - function: perror
+Extension Units Annotations: 7
+  - line 4: m [resolved, unit=meter, unit-resolved]
+  - line 5: m/s [resolved, unit=meter_per_second, unit-resolved]
+  - line 6: m/s^2 [resolved, unit=meter_per_second_squared, unit-resolved]
+  - line 7: s [resolved, unit=second, unit-resolved]
+  - line 8: m/s^2 [resolved, unit=meter_per_second_squared, unit-resolved]
+  - line 9: kg [resolved, unit=kilogram, unit-resolved]
+  - line 10: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+Extension Units Expr Results: 38
+  - line 4: number-literal [dim=m, resolved, unit=meter]
+  - line 5: number-literal [dim=m/s, resolved, unit=meter_per_second]
+  - line 6: number-literal [dim=m/s^2, resolved, unit=meter_per_second_squared]
+  - line 7: number-literal [dim=s, resolved, unit=second]
+  - line 8: number-literal [dim=1, resolved]
+  - line 8: unary-expression(-) [dim=1, resolved]
+  - line 9: number-literal [dim=kg, resolved, unit=kilogram]
+  - line 10: number-literal [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 12: identifier(acceleration) [dim=m/s^2, resolved, unit=meter_per_second_squared]
+  - line 12: identifier(gravity) [dim=m/s^2, resolved, unit=meter_per_second_squared]
+  - line 12: assignment(=) [dim=m/s^2, resolved, unit=meter_per_second_squared]
+  - line 13: identifier(velocity) [dim=m/s, resolved, unit=meter_per_second]
+  - line 13: identifier(velocity) [dim=m/s, resolved, unit=meter_per_second]
+  - line 13: identifier(acceleration) [dim=m/s^2, resolved, unit=meter_per_second_squared]
+  - line 13: identifier(dt) [dim=s, resolved, unit=second]
+  - line 13: binary-expression(*) [dim=m/s, resolved]
+  - line 13: binary-expression(+) [dim=m/s, resolved]
+  - line 13: assignment(=) [dim=m/s, resolved, unit=meter_per_second]
+  - line 14: identifier(position) [dim=m, resolved, unit=meter]
+  - line 14: identifier(position) [dim=m, resolved, unit=meter]
+  - line 14: identifier(velocity) [dim=m/s, resolved, unit=meter_per_second]
+  - line 14: identifier(dt) [dim=s, resolved, unit=second]
+  - line 14: binary-expression(*) [dim=m, resolved]
+  - line 14: binary-expression(+) [dim=m, resolved]
+  - line 14: assignment(=) [dim=m, resolved, unit=meter]
+  - line 15: identifier(kinetic_energy) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 15: number-literal [dim=1, resolved]
+  - line 15: identifier(mass) [dim=kg, resolved, unit=kilogram]
+  - line 15: binary-expression(*) [dim=kg, resolved, unit=kilogram]
+  - line 15: identifier(velocity) [dim=m/s, resolved, unit=meter_per_second]
+  - line 15: binary-expression(*) [dim=m*kg/s, resolved]
+  - line 15: identifier(velocity) [dim=m/s, resolved, unit=meter_per_second]
+  - line 15: binary-expression(*) [dim=m^2*kg/s^2, resolved]
+  - line 15: assignment(=) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 17: identifier(position) [dim=m, resolved, unit=meter]
+  - line 17: identifier(velocity) [dim=m/s, resolved, unit=meter_per_second]
+  - line 17: identifier(kinetic_energy) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 18: number-literal [dim=1, resolved]

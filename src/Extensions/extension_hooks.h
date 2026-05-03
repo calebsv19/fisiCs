@@ -39,6 +39,15 @@ typedef struct FisicsUnitsExprResult {
     bool unitResolved;
 } FisicsUnitsExprResult;
 
+typedef struct FisicsUnitsCallArgContract {
+    struct ASTNode* callNode;
+    size_t argIndex;
+    FisicsDim8 dim;
+    bool resolved;
+    const FisicsUnitDef* unitDef;
+    bool unitResolved;
+} FisicsUnitsCallArgContract;
+
 typedef struct FisicsUnitsExprBinding {
     struct ASTNode* node;
     const FisicsUnitsAnnotation* annotation;
@@ -72,6 +81,15 @@ typedef struct FisicsExtensionState {
     FisicsUnitsExprBinding* unitsExprBindings;
     size_t unitsExprBindingCount;
     size_t unitsExprBindingCapacity;
+
+    /*
+     * Call-edge parameter contracts captured during core semantic analysis so
+     * the units pass can validate indirect callee argument boundaries without
+     * reconstructing callable signatures from scratch.
+     */
+    FisicsUnitsCallArgContract* unitsCallArgContracts;
+    size_t unitsCallArgContractCount;
+    size_t unitsCallArgContractCapacity;
 } FisicsExtensionState;
 
 FisicsExtensionState* fisics_extension_state_create(void);

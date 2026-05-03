@@ -28,6 +28,7 @@ def extract_sections(text, capture_frontend_diag=False):
     ast_lines = []
     diag_lines = []
     token_lines = []
+    sema_lines = []
     ir_lines = []
 
     def append_diag(line):
@@ -63,7 +64,8 @@ def extract_sections(text, capture_frontend_diag=False):
                 diag_lines.append("Diagnostics:")
             continue
         if stripped.startswith("Semantic Model Dump:"):
-            section = None
+            section = "sema"
+            sema_lines.append("Sema:")
             continue
         if "LLVM Code Generation:" in line:
             section = "ir"
@@ -84,12 +86,15 @@ def extract_sections(text, capture_frontend_diag=False):
             ):
                 continue
             diag_lines.append(line)
+        elif section == "sema":
+            sema_lines.append(line)
         elif section == "ir":
             ir_lines.append(line)
 
     ast_text = "\n".join(ast_lines).rstrip()
     diag_text = "\n".join(diag_lines).rstrip()
     token_text = "\n".join(token_lines).rstrip()
+    sema_text = "\n".join(sema_lines).rstrip()
     ir_text = "\n".join(ir_lines).rstrip()
     if ast_text:
         ast_text += "\n"
@@ -97,9 +102,11 @@ def extract_sections(text, capture_frontend_diag=False):
         diag_text += "\n"
     if token_text:
         token_text += "\n"
+    if sema_text:
+        sema_text += "\n"
     if ir_text:
         ir_text += "\n"
-    return ast_text, diag_text, token_text, ir_text
+    return ast_text, diag_text, token_text, sema_text, ir_text
 
 
 def run_cmd(cmd, env=None):
@@ -324,7 +331,8 @@ def main():
         has_ast = any(p.suffix == ".ast" for p in expects)
         has_diag_json = any(p.suffix == ".diagjson" for p in expects)
         has_parser_diag = any(p.suffix == ".pdiag" for p in expects)
-        only_diag = all(p.suffix in (".diag", ".diagjson", ".pdiag") for p in expects)
+        has_sema = any(p.suffix == ".sema" for p in expects)
+        only_frontend = all(p.suffix in (".diag", ".diagjson", ".pdiag", ".sema") for p in expects)
         has_tokens = any(p.suffix == ".tokens" for p in expects)
         has_ir = any(p.suffix == ".ir" for p in expects)
         capture_frontend_diag = test.get("capture_frontend_diag", False)
@@ -366,9 +374,11 @@ def main():
                 skipped += 1
                 continue
             cmd.append("--dump-tokens")
+        if has_sema:
+            cmd.append("--dump-sema")
         if has_ir:
             cmd.append("--dump-ir")
-        frontend_only_diag = only_diag and input_count == 1 and not run_enabled and not has_ir
+        frontend_only_diag = only_frontend and input_count == 1 and not run_enabled and not has_ir
         cmd_env = os.environ.copy()
         # The final suite spawns the compiler many times from one parent process.
         # Default the process guard off here unless a caller explicitly overrides it.
@@ -438,7 +448,7 @@ def main():
                     print(output)
                     failures += 1
                     continue
-                if not has_ast and not only_diag and exit_code != 0 and not allow_nonzero_exit:
+                if not has_ast and not only_frontend and exit_code != 0 and not allow_nonzero_exit:
                     emit_final_failure(
                         f"compiler exited {exit_code}",
                         failure_kind="ir_or_codegen_fail",
@@ -453,7 +463,7 @@ def main():
                     failures += 1
                     continue
 
-            ast_text, diag_text, token_text, ir_text = extract_sections(
+            ast_text, diag_text, token_text, sema_text, ir_text = extract_sections(
                 output, capture_frontend_diag=capture_frontend_diag
             )
             if diag_json_path is not None and diag_json_path.exists():
@@ -468,6 +478,8 @@ def main():
                     actual = diag_text
                 elif ext == ".tokens":
                     actual = token_text
+                elif ext == ".sema":
+                    actual = sema_text
                 elif ext == ".ir":
                     actual = ir_text
                 elif ext == ".diagjson":

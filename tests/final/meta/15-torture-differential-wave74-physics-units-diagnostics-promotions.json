@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__units_implicit_add_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_implicit_add_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_implicit_add_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_implicit_add_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "implicit-conversion",
+        "addition"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_convert_invalid_target",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_convert_invalid_target.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_convert_invalid_target.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_convert_invalid_target.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "explicit-conversion",
+        "invalid-target"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_convert_incompatible",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_convert_incompatible.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_convert_incompatible.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_convert_incompatible.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "explicit-conversion",
+        "incompatible-target"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_convert_missing_source",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_convert_missing_source.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_convert_missing_source.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_convert_missing_source.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "explicit-conversion",
+        "missing-source-unit"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_convert_requires_floating",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_convert_requires_floating.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_convert_requires_floating.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_convert_requires_floating.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "explicit-conversion",
+        "requires-floating"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__units_implicit_add_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_implicit_add_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_implicit_add_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__units_implicit_add_requires_convert.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "implicit-conversion",
+        "code-4107"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__units_convert_invalid_target",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_convert_invalid_target.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_convert_invalid_target.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__units_convert_invalid_target.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "explicit-conversion",
+        "code-4108"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__units_convert_incompatible",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_convert_incompatible.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_convert_incompatible.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__units_convert_incompatible.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "explicit-conversion",
+        "code-4109"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__units_convert_missing_source",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_convert_missing_source.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_convert_missing_source.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__units_convert_missing_source.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "explicit-conversion",
+        "code-4110"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__units_convert_requires_floating",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_convert_requires_floating.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_convert_requires_floating.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__units_convert_requires_floating.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "explicit-conversion",
+        "code-4111"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -62,6 +62,8 @@ typedef struct {
     int column;
     bool virtualSpelling;
     bool hasDefinition;
+    bool isTentative;
+    StorageClass storage;
 } CrossTUVarDef;
 
 typedef struct {
@@ -81,6 +83,11 @@ typedef struct {
     int previousColumn;
 } CrossTUTypeConflict;
 
+typedef struct {
+    bool found;
+    char* symbolName;
+} CrossTUTentativeDuplicate;
+
 char* main_create_temp_object_path(const char* baseName);
 char* main_derive_diag_json_path(const char* basePath, size_t index, size_t total);
 char* main_derive_diag_pack_path(const char* basePath, size_t index, size_t total);
@@ -91,12 +98,16 @@ bool main_write_link_stage_diag_json(const char* outPath,
                                      size_t inputCount);
 void main_cross_tu_var_defs_free(CrossTUVarDefList* defs);
 void main_cross_tu_type_conflict_clear(CrossTUTypeConflict* conflict);
+void main_cross_tu_tentative_duplicate_clear(CrossTUTentativeDuplicate* duplicate);
 bool main_collect_cross_tu_virtual_type_conflict(const SemanticModel* model,
                                                  const CompilerContext* compilerCtx,
                                                  CrossTUVarDefList* defs,
                                                  CrossTUTypeConflict* conflict);
+bool main_find_cross_tu_duplicate_tentative(const CrossTUVarDefList* defs,
+                                            CrossTUTentativeDuplicate* duplicate);
 bool main_write_semantic_conflict_diag_json(const char* outPath,
                                             const CrossTUTypeConflict* conflict);
 void main_print_semantic_conflict_text(const CrossTUTypeConflict* conflict);
+void main_print_cross_tu_tentative_duplicate_text(const CrossTUTentativeDuplicate* duplicate);
 
 int main_run_driver_mode(const MainDriverConfig* config);

@@ -314,9 +314,11 @@ static void cleanup_temp_objects(StringList* tempObjects) {
 }
 
 static void cleanup_cross_tu_state(CrossTUVarDefList* defs,
-                                   CrossTUTypeConflict* conflict) {
+                                   CrossTUTypeConflict* conflict,
+                                   CrossTUTentativeDuplicate* tentativeDuplicate) {
     main_cross_tu_var_defs_free(defs);
     main_cross_tu_type_conflict_clear(conflict);
+    main_cross_tu_tentative_duplicate_clear(tentativeDuplicate);
 }
 
 static int run_compile_only_mode(const MainDriverConfig* config) {
@@ -487,6 +489,7 @@ static int run_link_mode(const MainDriverConfig* config) {
     bool allOk = true;
     CrossTUVarDefList crossTuDefs = {0};
     CrossTUTypeConflict crossTuConflict = {0};
+    CrossTUTentativeDuplicate crossTuTentativeDuplicate = {0};
     bool aggregateJsonWritten = false;
     bool aggregateJsonHasDiagnostics = false;
 
@@ -679,7 +682,32 @@ static int run_link_mode(const MainDriverConfig* config) {
 
     if (!allOk) {
         cleanup_temp_objects(&tempObjects);
-        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict, &crossTuTentativeDuplicate);
+        return 1;
+    }
+
+    if (!main_find_cross_tu_duplicate_tentative(&crossTuDefs, &crossTuTentativeDuplicate)) {
+        fprintf(stderr, "OOM: cross-tu tentative-duplicate tracking\n");
+        cleanup_temp_objects(&tempObjects);
+        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict, &crossTuTentativeDuplicate);
+        return 1;
+    }
+    if (crossTuTentativeDuplicate.found) {
+        main_print_cross_tu_tentative_duplicate_text(&crossTuTentativeDuplicate);
+        if (config->diagsJsonPath && config->diagsJsonPath[0] != '\0') {
+            if (!main_write_link_stage_diag_json(config->diagsJsonPath,
+                                                 1,
+                                                 "fisics-cross-tu",
+                                                 config->outputName ? config->outputName : "a.out",
+                                                 config->inputOFiles->count +
+                                                     config->inputCFiles->count)) {
+                fprintf(stderr,
+                        "Warning: failed to write link-stage diagnostics JSON to %s\n",
+                        config->diagsJsonPath);
+            }
+        }
+        cleanup_temp_objects(&tempObjects);
+        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict, &crossTuTentativeDuplicate);
         return 1;
     }
 
@@ -730,7 +758,7 @@ static int run_link_mode(const MainDriverConfig* config) {
         fprintf(stderr, "Error: failed to prepare linker invocation\n");
         cleanup_temp_objects(&tempObjects);
         string_list_free(&argvList);
-        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict, &crossTuTentativeDuplicate);
         return 1;
     }
 
@@ -739,7 +767,7 @@ static int run_link_mode(const MainDriverConfig* config) {
         fprintf(stderr, "OOM: linker argv\n");
         cleanup_temp_objects(&tempObjects);
         string_list_free(&argvList);
-        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict, &crossTuTentativeDuplicate);
         return 1;
     }
     for (size_t i = 0; i < argvList.count; ++i) {
@@ -757,7 +785,7 @@ static int run_link_mode(const MainDriverConfig* config) {
         free(execArgv);
         cleanup_temp_objects(&tempObjects);
         string_list_free(&argvList);
-        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+        cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict, &crossTuTentativeDuplicate);
         return 1;
     }
 
@@ -791,7 +819,7 @@ static int run_link_mode(const MainDriverConfig* config) {
     free(execArgv);
     cleanup_temp_objects(&tempObjects);
     string_list_free(&argvList);
-    cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict);
+    cleanup_cross_tu_state(&crossTuDefs, &crossTuConflict, &crossTuTentativeDuplicate);
     return statusCode;
 }
 

@@ -1,0 +1,102 @@
+Sema:
+SemanticModel: 0 error(s)
+Scope depth 0
+  - function: atomic_load_explicit
+  - function: __builtin___memmove_chk
+  - function: __builtin_huge_val
+  - function: fisics_convert_unit
+  - function: __c11_atomic_exchange
+  - typedef: ptrdiff_t
+  - function: __builtin_object_size
+  - function: vsnprintf
+  - typedef: size_t
+  - function: __builtin_nan
+  - variable: cell_drop [units=m^2*kg/s^3*A, resolved, unit=millivolt, unit-resolved, decl-index=0]
+  - function: __builtin_inff
+  - function: __builtin_va_start
+  - function: __builtin___strncpy_chk
+  - function: __builtin___snprintf_chk
+  - variable: __LDBL_MIN__
+  - function: __builtin_infl
+  - function: atomic_exchange_explicit
+  - typedef: max_align_t
+  - function: __builtin_va_copy
+  - function: __builtin___strncat_chk
+  - typedef: wchar_t
+  - variable: launch_speed [units=m/s, resolved, unit=foot_per_second, unit-resolved, decl-index=0]
+  - function: __builtin_fabs
+  - function: atomic_init
+  - function: __builtin___memcpy_chk
+  - variable: pack_drop [units=m^2*kg/s^3*A, resolved, unit=kilovolt, unit-resolved, decl-index=0]
+  - function: printf
+  - typedef: intptr_t
+  - function: __builtin_fabsf
+  - function: __builtin_nanf
+  - function: fprintf
+  - variable: launch_speed_mps [units=m/s, resolved, unit=meter_per_second, unit-resolved, decl-index=0]
+  - function: exit
+  - variable: NULL
+  - function: __builtin_bswap64
+  - function: __builtin_fabsl
+  - function: __builtin_nanl
+  - function: __c11_atomic_load
+  - function: strncat
+  - function: __builtin_alloca
+  - variable: load_kw [units=m^2*kg/s^3, resolved, unit=kilowatt, unit-resolved, decl-index=0]
+  - variable: __FLT_MIN__
+  - typedef: uintptr_t
+  - function: __c11_atomic_store
+  - function: __builtin_constant_p
+  - function: strcat
+  - function: __builtin___memset_chk
+  - function: __builtin_fisics_convert_unit
+  - typedef: wint_t
+  - function: __builtin_bzero
+  - function: __builtin_bswap32
+  - function: __builtin_expect
+  - variable: true
+  - typedef: ssize_t
+  - function: __builtin_va_end
+  - function: __builtin_va_arg
+  - function: main
+  - function: __builtin_huge_valf
+  - function: atomic_store_explicit
+  - function: __builtin_huge_vall
+  - variable: false
+  - function: __builtin___strcpy_chk
+  - function: __builtin___sprintf_chk
+  - variable: __DBL_MIN__
+  - function: __builtin_inf
+  - function: __builtin___vsnprintf_chk
+  - typedef: sig_atomic_t
+  - function: __c11_atomic_init
+  - function: __builtin_mul_overflow
+  - variable: load_w [units=m^2*kg/s^3, resolved, unit=watt, unit-resolved, decl-index=0]
+  - function: __builtin___strcat_chk
+Extension Units Annotations: 6
+  - line 1: m/s [resolved, unit=foot_per_second, unit-resolved]
+  - line 4: m/s [resolved, unit=meter_per_second, unit-resolved]
+  - line 8: m^2*kg/s^3 [resolved, unit=kilowatt, unit-resolved]
+  - line 11: m^2*kg/s^3 [resolved, unit=watt, unit-resolved]
+  - line 15: m^2*kg/s^3*A [resolved, unit=millivolt, unit-resolved]
+  - line 18: m^2*kg/s^3*A [resolved, unit=kilovolt, unit-resolved]
+Extension Units Expr Results: 19
+  - line 3: number-literal [dim=m/s, resolved, unit=foot_per_second]
+  - line 6: number-literal [dim=m/s, resolved, unit=meter_per_second]
+  - line 10: number-literal [dim=m^2*kg/s^3, resolved, unit=kilowatt]
+  - line 13: number-literal [dim=m^2*kg/s^3, resolved, unit=watt]
+  - line 17: number-literal [dim=m^2*kg/s^3*A, resolved, unit=millivolt]
+  - line 20: number-literal [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 23: identifier(launch_speed_mps) [dim=m/s, resolved, unit=meter_per_second]
+  - line 23: identifier(launch_speed) [dim=m/s, resolved, unit=foot_per_second]
+  - line 23: function-call(fisics_convert_unit) [dim=m/s, resolved, unit=meter_per_second]
+  - line 23: assignment(=) [dim=m/s, resolved, unit=meter_per_second]
+  - line 24: identifier(load_w) [dim=m^2*kg/s^3, resolved, unit=watt]
+  - line 24: identifier(load_kw) [dim=m^2*kg/s^3, resolved, unit=kilowatt]
+  - line 24: function-call(fisics_convert_unit) [dim=m^2*kg/s^3, resolved, unit=watt]
+  - line 24: assignment(=) [dim=m^2*kg/s^3, resolved, unit=watt]
+  - line 25: identifier(pack_drop) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 25: identifier(cell_drop) [dim=m^2*kg/s^3*A, resolved, unit=millivolt]
+  - line 25: function-call(fisics_convert_unit) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 25: assignment(=) [dim=m^2*kg/s^3*A, resolved, unit=kilovolt]
+  - line 26: number-literal [dim=1, resolved]

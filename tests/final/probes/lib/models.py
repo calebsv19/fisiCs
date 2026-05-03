@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
+from typing import Mapping, Sequence
 
 
 @dataclass
@@ -11,6 +11,10 @@ class RuntimeProbe:
     inputs: Sequence[Path] | None = None
     mixed_clang_inputs: Sequence[Path] | None = None
     extra_differential_compiler: str | None = None
+    fisics_args: Sequence[str] | None = None
+    fisics_env: Mapping[str, str] | None = None
+    clang_args: Sequence[str] | None = None
+    clang_env: Mapping[str, str] | None = None
 
 
 @dataclass
@@ -20,7 +24,10 @@ class DiagnosticProbe:
     note: str
     expect_any_diagnostic: bool = True
     required_substrings: Sequence[str] | None = None
+    forbidden_substrings: Sequence[str] | None = None
     inputs: Sequence[Path] | None = None
+    fisics_args: Sequence[str] | None = None
+    fisics_env: Mapping[str, str] | None = None
 
 
 @dataclass
@@ -34,3 +41,5 @@ class DiagnosticJsonProbe:
     expected_column: int | None = None
     expected_has_file: bool | None = None
     inputs: Sequence[Path] | None = None
+    fisics_args: Sequence[str] | None = None
+    fisics_env: Mapping[str, str] | None = None

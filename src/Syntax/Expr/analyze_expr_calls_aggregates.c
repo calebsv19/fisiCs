@@ -3,6 +3,7 @@
 #include "analyze_expr_internal.h"
 #include "analyze_core.h"
 #include "Extensions/extension_diagnostics.h"
+#include "Extensions/extension_units_call_contracts.h"
 #include "syntax_errors.h"
 #include "symbol_table.h"
 #include "const_eval.h"
@@ -14,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 static TypeInfo sizeTypeFromScope(Scope* scope) {
     Symbol* sym = resolveInScopeChain(scope, "size_t");
     if (sym && sym->kind == SYMBOL_TYPEDEF) {
@@ -28,6 +30,25 @@ static TypeInfo sizeTypeFromScope(Scope* scope) {
     info.isLValue = false;
     return info;
 }
+
+static void noteFunctionCallUnitsContracts(ASTNode* node,
+                                           Scope* scope,
+                                           const ParsedType* params,
+                                           size_t paramCount) {
+    if (!node || node->type != AST_FUNCTION_CALL || !scope || !scope->ctx || !params) {
+        return;
+    }
+    size_t pairCount = node->functionCall.argumentCount < paramCount
+                           ? node->functionCall.argumentCount
+                           : paramCount;
+    for (size_t i = 0; i < pairCount; ++i) {
+        (void)fisics_extension_note_units_call_arg_contract_from_param_type(scope->ctx,
+                                                                            node,
+                                                                            i,
+                                                                            &params[i]);
+    }
+}
+
 static bool typeInfoIsFunctionPointerLike(const TypeInfo* info) {
     if (!info || !info->originalType) return false;
     if (info->originalType->isFunctionPointer) return true;
@@ -195,6 +216,30 @@ static TypeInfo mergePointerConditionalType(TypeInfo a, TypeInfo b) {
     return result;
 }
 
+static bool resolveNamedParsedTypeInScope(ParsedType* type, Scope* scope) {
+    if (!type) return false;
+    int depthGuard = 0;
+    while (type->kind == TYPE_NAMED &&
+           type->userTypeName &&
+           type->derivationCount == 0 &&
+           type->pointerDepth == 0 &&
+           scope &&
+           depthGuard < 32) {
+        Symbol* sym = resolveInScopeChain(scope, type->userTypeName);
+        if (!sym || sym->kind != SYMBOL_TYPEDEF) {
+            break;
+        }
+        ParsedType next = parsedTypeClone(&sym->type);
+        if (next.kind == TYPE_INVALID) {
+            break;
+        }
+        parsedTypeFree(type);
+        *type = next;
+        depthGuard++;
+    }
+    return type->kind != TYPE_INVALID;
+}
+
 static bool callableTargetFromTypeInfo(const TypeInfo* calleeInfo, Scope* scope, ParsedType* outTarget) {
     if (!calleeInfo || !calleeInfo->originalType || !outTarget) {
         return false;
@@ -209,31 +254,19 @@ static bool callableTargetFromTypeInfo(const TypeInfo* calleeInfo, Scope* scope,
         return false;
     }
 
-    int depthGuard = 0;
-    while (resolved.kind == TYPE_NAMED &&
-           resolved.userTypeName &&
-           resolved.derivationCount == 0 &&
-           resolved.pointerDepth == 0 &&
-           scope &&
-           depthGuard < 32) {
-        Symbol* sym = resolveInScopeChain(scope, resolved.userTypeName);
-        if (!sym || sym->kind != SYMBOL_TYPEDEF) {
-            break;
-        }
-        ParsedType next = parsedTypeClone(&sym->type);
-        if (next.kind == TYPE_INVALID) {
-            parsedTypeFree(&next);
-            break;
-        }
+    if (!resolveNamedParsedTypeInScope(&resolved, scope)) {
         parsedTypeFree(&resolved);
-        resolved = next;
-        depthGuard++;
+        return false;
     }
 
     if (calleeInfo->category == TYPEINFO_POINTER && calleeInfo->pointerDepth > 0) {
         ParsedType target = parsedTypePointerTargetType(&resolved);
         parsedTypeFree(&resolved);
         if (target.kind == TYPE_INVALID) {
+            parsedTypeFree(&target);
+            return false;
+        }
+        if (!resolveNamedParsedTypeInScope(&target, scope)) {
             parsedTypeFree(&target);
             return false;
         }
@@ -573,6 +606,7 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
             reportArgumentCountError(node, calleeName, expected, argCount, false);
         }
         size_t pairCount = expected < argCount ? expected : argCount;
+        noteFunctionCallUnitsContracts(node, scope, sig->params, sig->paramCount);
         bool* paramRestrict = pairCount ? calloc(pairCount, sizeof(bool)) : NULL;
         char** argPaths = pairCount ? calloc(pairCount, sizeof(char*)) : NULL;
         for (size_t i = 0; i < pairCount; ++i) {
@@ -726,6 +760,7 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
                 if (tooMany) {
                     reportArgumentCountError(node, calleeName, expected, argCount, false);
                 }
+                noteFunctionCallUnitsContracts(node, scope, callSig->params, callSig->paramCount);
             }
 
             parsedTypeFree(&fnTarget);
