@@ -1,0 +1,12 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_probe_ir_include_parser_nested_if_while_missing_body_diagjson.h:134454 (got '}')
+Error: Unexpected token at start of expression at virtual_probe_ir_include_parser_nested_if_while_missing_body_diagjson.h:134454 (got '}')
+Error: Unexpected token at start of expression at virtual_probe_ir_include_parser_nested_if_while_missing_body_diagjson.h:134454 (got '}')
+Error: Failed to parse expression at line 134454
+Error: Invalid body in 'while' loop at line 134454
+Error: Failed to parse expression at line 134454
+Error: Invalid body in 'if' statement at line 134454
+Error: Failed to parse expression at line 134454
+Error: invalid statement inside block at line 134454
+Error at (134451:5): Control reaches end of non-void function 'main'
+   Spelling: virtual_probe_ir_include_parser_nested_if_while_missing_body_diagjson.h:134451:5

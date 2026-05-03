@@ -232,6 +232,18 @@ RUNTIME_PROBES = [
         inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_init_order_depth_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_init_order_depth_bridge_lib.c'],
     ),
     RuntimeProbe(
+        probe_id='14__probe_multitu_static_init_replay_mesh',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_init_replay_mesh_main.c',
+        note='multi-TU static-init replay mesh should remain deterministic and match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_init_replay_mesh_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_init_replay_mesh_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_link_order_checkpoint_feedback',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_link_order_checkpoint_feedback_main.c',
+        note='multi-TU link-order checkpoint feedback should remain deterministic and match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_link_order_checkpoint_feedback_main.c', PROBE_DIR / 'runtime/14__probe_multitu_link_order_checkpoint_feedback_lib_a.c', PROBE_DIR / 'runtime/14__probe_multitu_link_order_checkpoint_feedback_lib_b.c'],
+    ),
+    RuntimeProbe(
         probe_id='14__probe_queue_push_fail_preserves_committed_slot',
         source=PROBE_DIR / 'runtime/14__probe_queue_push_fail_preserves_committed_slot.c',
         note='queue push-fail path should preserve committed slot state and match clang runtime behavior',

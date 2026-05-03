@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_multitu_nonvoid_missing_return_diag_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_nonvoid_missing_return_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_nonvoid_missing_return_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_nonvoid_missing_return_file_presence_lib.c"
+      ],
+      "expects": [
+        "expect/11__line_directive_multitu_nonvoid_missing_return_diag_text_threshold.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "return-family",
+        "nonvoid-missing-return",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_nonvoid_missing_return_diag_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_nonvoid_missing_return_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_nonvoid_missing_return_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_nonvoid_missing_return_file_presence_lib.c"
+      ],
+      "expects": [
+        "expect/11__line_directive_multitu_include_nonvoid_missing_return_diag_text_threshold.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "include",
+        "return-family",
+        "nonvoid-missing-return",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_void_return_value_diag_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_void_return_value_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_void_return_value_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_void_return_value_file_presence_lib.c"
+      ],
+      "expects": [
+        "expect/11__line_directive_multitu_void_return_value_diag_text_threshold.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "return-family",
+        "void-return-value",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_void_return_value_diag_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_void_return_value_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_void_return_value_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_void_return_value_file_presence_lib.c"
+      ],
+      "expects": [
+        "expect/11__line_directive_multitu_include_void_return_value_diag_text_threshold.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "line-directive",
+        "diag",
+        "multitu",
+        "include",
+        "return-family",
+        "void-return-value",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_nonvoid_missing_return_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_nonvoid_missing_return_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_nonvoid_missing_return_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_nonvoid_missing_return_file_presence_lib.c"
+      ],
+      "expects": [
+        "expect/11__line_directive_multitu_nonvoid_missing_return_diagjson_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "multitu",
+        "return-family",
+        "nonvoid-missing-return",
+        "strict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_nonvoid_missing_return_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_nonvoid_missing_return_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_nonvoid_missing_return_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_nonvoid_missing_return_file_presence_lib.c"
+      ],
+      "expects": [
+        "expect/11__line_directive_multitu_include_nonvoid_missing_return_diagjson_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "multitu",
+        "include",
+        "return-family",
+        "nonvoid-missing-return",
+        "strict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_void_return_value_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_void_return_value_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_void_return_value_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_void_return_value_file_presence_lib.c"
+      ],
+      "expects": [
+        "expect/11__line_directive_multitu_void_return_value_diagjson_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "multitu",
+        "return-family",
+        "void-return-value",
+        "strict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_void_return_value_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_void_return_value_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_void_return_value_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_void_return_value_file_presence_lib.c"
+      ],
+      "expects": [
+        "expect/11__line_directive_multitu_include_void_return_value_diagjson_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "line-directive",
+        "diagjson",
+        "multitu",
+        "include",
+        "return-family",
+        "void-return-value",
+        "strict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

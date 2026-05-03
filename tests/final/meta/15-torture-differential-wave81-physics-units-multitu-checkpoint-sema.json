@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__units_multitu_checkpoint_charge_bridge_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_multitu_checkpoint_charge_bridge_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_multitu_checkpoint_charge_bridge_main.c",
+        "probes/runtime/15__probe_units_runtime_multitu_checkpoint_charge_bridge_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_multitu_checkpoint_charge_bridge_overlay_clean.diag",
+        "expect/15__diag__units_multitu_checkpoint_charge_bridge_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "multitu",
+        "checkpoint-charge"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_multitu_dispatch_window_fold_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_multitu_dispatch_window_fold_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_multitu_dispatch_window_fold_main.c",
+        "probes/runtime/15__probe_units_runtime_multitu_dispatch_window_fold_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_multitu_dispatch_window_fold_overlay_clean.diag",
+        "expect/15__diag__units_multitu_dispatch_window_fold_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "multitu",
+        "dispatch-window"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

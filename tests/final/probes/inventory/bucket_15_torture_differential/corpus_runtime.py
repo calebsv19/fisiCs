@@ -126,6 +126,18 @@ RUNTIME_PROBES = [
         note='fifth multi-TU corpus reduction/replay hash lane should compile/run deterministically and match clang',
         inputs=[PROBE_DIR / 'runtime/15__probe_multitu_corpus_reduction_replay_hash_v_main.c', PROBE_DIR / 'runtime/15__probe_multitu_corpus_reduction_replay_hash_v_lib.c'],
     ),
+    RuntimeProbe(
+        probe_id='15__probe_multitu_corpus_reduction_replay_hash_vi',
+        source=PROBE_DIR / 'runtime/15__probe_multitu_corpus_reduction_replay_hash_vi_main.c',
+        note='sixth multi-TU corpus reduction/replay hash lane should compile/run deterministically and match clang',
+        inputs=[PROBE_DIR / 'runtime/15__probe_multitu_corpus_reduction_replay_hash_vi_main.c', PROBE_DIR / 'runtime/15__probe_multitu_corpus_reduction_replay_hash_vi_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_multitu_corpus_reduction_replay_hash_vii',
+        source=PROBE_DIR / 'runtime/15__probe_multitu_corpus_reduction_replay_hash_vii_main.c',
+        note='seventh multi-TU corpus reduction/replay hash lane should compile/run deterministically and match clang',
+        inputs=[PROBE_DIR / 'runtime/15__probe_multitu_corpus_reduction_replay_hash_vii_main.c', PROBE_DIR / 'runtime/15__probe_multitu_corpus_reduction_replay_hash_vii_lib.c'],
+    ),
 ]
 
 DIAG_PROBES = []

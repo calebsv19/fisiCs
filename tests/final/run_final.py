@@ -10,6 +10,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+REPO_ROOT = ROOT.parent.parent
 META_DIR = ROOT / "meta"
 META_INDEX_PATH = META_DIR / "index.json"
 
@@ -223,6 +224,35 @@ def parse_csv_env(name):
     return [value.strip() for value in raw.split(",") if value.strip()]
 
 
+def resolve_bin_path(raw_path):
+    path = Path(raw_path)
+    if path.is_absolute():
+        return str(path)
+    resolved = (REPO_ROOT / path).resolve()
+    if resolved.exists():
+        return str(resolved)
+
+    # Some local safe-state snapshots keep a numbered sibling binary
+    # (for example `fisics 2`) instead of the plain repo-root name.
+    # Prefer that exact family before failing the final harness on lookup.
+    fallback_prefix = f"{path.name} "
+    fallback_candidates = sorted(
+        [
+            candidate
+            for candidate in REPO_ROOT.iterdir()
+            if candidate.is_file()
+            and candidate.name.startswith(fallback_prefix)
+            and os.access(candidate, os.X_OK)
+        ],
+        key=lambda candidate: (candidate.stat().st_mtime, len(candidate.name)),
+        reverse=True,
+    )
+    if fallback_candidates:
+        return str(fallback_candidates[0].resolve())
+
+    return str(resolved)
+
+
 def classify_final_trust_layer(test_bucket, input_count, run_enabled, differential):
     if run_enabled or differential or test_bucket == "runtime-surface":
         return "Layer E"
@@ -258,7 +288,7 @@ def emit_final_failure(
 
 def main():
     configure_stdio()
-    bin_path = sys.argv[1] if len(sys.argv) > 1 else "./fisics"
+    bin_path = resolve_bin_path(sys.argv[1] if len(sys.argv) > 1 else "./fisics")
     update = os.environ.get("UPDATE_FINAL", "0") == "1" or "--update" in sys.argv
     filt = os.environ.get("FINAL_FILTER", "").strip()
     prefix_filters = parse_csv_env("FINAL_PREFIX")

@@ -1,0 +1,523 @@
+Sema:
+SemanticModel: 0 error(s)
+Scope depth 0
+  - typedef: __darwin_ino_t
+  - function: memchr
+  - function: putc
+  - function: flsll
+  - function: strlcat
+  - function: vasprintf
+  - function: fseeko
+  - function: fileno
+  - function: atomic_load_explicit
+  - function: __builtin___memmove_chk
+  - function: probe_gpu_partition_blend_push
+  - typedef: user_ssize_t
+  - function: __builtin_huge_val
+  - function: feof
+  - typedef: __darwin_pthread_cond_t
+  - function: fisics_convert_unit
+  - typedef: user_long_t
+  - typedef: __int32_t
+  - function: __c11_atomic_exchange
+  - function: bzero
+  - function: popen
+  - function: fputc
+  - function: renameatx_np
+  - typedef: __darwin_id_t
+  - typedef: ptrdiff_t
+  - function: stpcpy
+  - function: strerror
+  - function: strcoll
+  - function: __srget
+  - function: getc
+  - typedef: ProbeGpuPartitionBlendState
+  - typedef: __darwin_sigset_t
+  - function: __builtin_object_size
+  - function: strnlen
+  - function: sprintf
+  - function: timingsafe_bcmp
+  - typedef: int64_t
+  - function: fgetc
+  - typedef: __darwin_pthread_rwlockattr_t
+  - typedef: __uint8_t
+  - typedef: __darwin_wchar_t
+  - function: vsnprintf
+  - function: memcpy
+  - function: puts
+  - typedef: user_addr_t
+  - typedef: __darwin_fsblkcnt_t
+  - typedef: __darwin_natural_t
+  - function: strcspn
+  - function: vdprintf
+  - function: memccpy
+  - typedef: size_t
+  - function: memset_pattern16
+  - function: vfprintf
+  - typedef: __darwin_rune_t
+  - function: strndup
+  - function: putw
+  - variable: __stdinp
+  - function: fwrite
+  - function: fscanf
+  - typedef: __darwin_wctype_t
+  - function: __builtin_nan
+  - function: tempnam
+  - function: fputs
+  - typedef: va_list
+  - typedef: __darwin_mach_port_t
+  - function: gets
+  - function: memmove
+  - typedef: user_ulong_t
+  - typedef: int8_t
+  - function: strsignal
+  - function: getw
+  - function: getc_unlocked
+  - typedef: u_int32_t
+  - typedef: __darwin_wctrans_t
+  - typedef: __darwin_pthread_attr_t
+  - function: __builtin_inff
+  - function: index
+  - function: strtok_r
+  - function: strlen
+  - function: rename
+  - function: fgetpos
+  - function: __builtin_va_start
+  - function: __sprintf_chk
+  - function: ctermid_r
+  - function: fgets
+  - typedef: __darwin_mode_t
+  - function: __builtin___strncpy_chk
+  - function: __builtin___snprintf_chk
+  - function: memset_pattern4
+  - function: fclose
+  - function: bcopy
+  - function: __vsnprintf_chk
+  - variable: __LDBL_MIN__
+  - function: __builtin_infl
+  - function: memmem
+  - function: memcmp
+  - function: setvbuf
+  - function: memset_pattern8
+  - typedef: rsize_t
+  - typedef: FILE
+  - typedef: user_time_t
+  - function: atomic_exchange_explicit
+  - function: vscanf
+  - typedef: __darwin_pthread_once_t
+  - typedef: __darwin_clock_t
+  - typedef: __mbstate_t
+  - function: strdup
+  - function: strncasecmp
+  - typedef: max_align_t
+  - function: fsetpos
+  - function: fls
+  - function: __swbuf
+  - typedef: int16_t
+  - typedef: __darwin_ct_rune_t
+  - function: __builtin_va_copy
+  - typedef: __int64_t
+  - function: __builtin___strncat_chk
+  - function: vfscanf
+  - function: strrchr
+  - function: getline
+  - function: ctermid
+  - function: fflush
+  - typedef: wchar_t
+  - function: rewind
+  - typedef: __darwin_nl_item
+  - function: memset
+  - function: getdelim
+  - function: swab
+  - function: strcasestr
+  - function: ftrylockfile
+  - function: fseek
+  - typedef: __darwin_pthread_rwlock_t
+  - function: __vsprintf_chk
+  - function: putc_unlocked
+  - function: ferror
+  - typedef: __darwin_off_t
+  - typedef: __darwin_size_t
+  - function: __builtin_fabs
+  - function: atomic_init
+  - function: stpncpy
+  - variable: __stdoutp
+  - function: funlockfile
+  - typedef: __darwin_mach_port_name_t
+  - function: __builtin___memcpy_chk
+  - function: strncpy
+  - typedef: __darwin_blkcnt_t
+  - function: printf
+  - function: strerror_r
+  - typedef: intptr_t
+  - function: strcasecmp
+  - function: strchr
+  - typedef: __uint32_t
+  - function: __builtin_fabsf
+  - function: ffsll
+  - function: fmemopen
+  - function: dprintf
+  - function: putchar
+  - function: __builtin_nanf
+  - function: __svfscanf
+  - typedef: register_t
+  - typedef: errno_t
+  - function: fprintf
+  - function: exit
+  - function: funopen
+  - variable: NULL
+  - function: __builtin_bswap64
+  - function: fdopen
+  - typedef: u_int64_t
+  - function: __builtin_fabsl
+  - typedef: __darwin_pthread_t
+  - function: __builtin_nanl
+  - function: strmode
+  - function: sscanf
+  - function: __c11_atomic_load
+  - function: strncat
+  - function: probe_gpu_partition_blend_seed
+  - function: strnstr
+  - function: __builtin_alloca
+  - function: bcmp
+  - function: fread
+  - variable: sys_errlist
+  - typedef: __darwin_ssize_t
+  - typedef: __int16_t
+  - typedef: __darwin_socklen_t
+  - function: strchrnul
+  - function: strcpy
+  - variable: __FLT_MIN__
+  - function: ungetc
+  - function: strncmp
+  - function: __snprintf_chk
+  - typedef: syscall_arg_t
+  - function: strsignal_r
+  - function: fpurge
+  - function: vprintf
+  - function: setbuf
+  - typedef: __darwin_gid_t
+  - typedef: __darwin_blksize_t
+  - typedef: uintptr_t
+  - function: strspn
+  - typedef: u_int8_t
+  - typedef: __darwin_pthread_mutexattr_t
+  - function: ffsl
+  - function: putchar_unlocked
+  - function: scanf
+  - typedef: fpos_t
+  - function: __c11_atomic_store
+  - typedef: __darwin_uuid_t
+  - function: renamex_np
+  - function: renameat
+  - function: __builtin_constant_p
+  - typedef: off_t
+  - function: freopen
+  - function: clearerr
+  - function: flsl
+  - function: strcat
+  - function: strstr
+  - function: getchar_unlocked
+  - typedef: __darwin_pid_t
+  - function: __builtin___memset_chk
+  - function: vsscanf
+  - typedef: __darwin_dev_t
+  - function: __builtin_fisics_convert_unit
+  - typedef: wint_t
+  - typedef: __darwin_intptr_t
+  - function: __builtin_bzero
+  - function: __builtin_bswap32
+  - typedef: __darwin_uid_t
+  - function: strcmp
+  - typedef: u_int16_t
+  - typedef: __darwin_useconds_t
+  - function: probe_gpu_partition_blend_score
+  - typedef: __darwin_pthread_condattr_t
+  - typedef: __uint64_t
+  - function: open_memstream
+  - function: vsprintf
+  - function: memset_s
+  - function: __builtin_expect
+  - function: getchar
+  - function: ffs
+  - function: fgetln
+  - variable: true
+  - function: strsep
+  - typedef: ssize_t
+  - function: __builtin_va_end
+  - variable: __stderrp
+  - typedef: __darwin_uuid_string_t
+  - typedef: int32_t
+  - typedef: __darwin_time_t
+  - typedef: __darwin_ptrdiff_t
+  - function: __builtin_va_arg
+  - function: main
+  - function: fmtcheck
+  - typedef: __darwin_pthread_key_t
+  - typedef: __darwin_ino64_t
+  - typedef: __darwin_mbstate_t
+  - function: __builtin_huge_valf
+  - function: setbuffer
+  - function: ftello
+  - function: pclose
+  - function: strtok
+  - function: asprintf
+  - function: strpbrk
+  - function: rindex
+  - function: atomic_store_explicit
+  - function: __builtin_huge_vall
+  - variable: false
+  - typedef: user_off_t
+  - typedef: user_size_t
+  - typedef: __darwin_suseconds_t
+  - function: __builtin___strcpy_chk
+  - function: tmpnam
+  - function: __builtin___sprintf_chk
+  - function: remove
+  - typedef: __darwin_fsfilcnt_t
+  - function: flockfile
+  - typedef: __darwin_pthread_mutex_t
+  - function: strlcpy
+  - function: setlinebuf
+  - function: tmpfile
+  - variable: __DBL_MIN__
+  - function: __builtin_inf
+  - function: __builtin___vsnprintf_chk
+  - typedef: sig_atomic_t
+  - function: __c11_atomic_init
+  - function: snprintf
+  - typedef: __darwin_va_list
+  - typedef: __int8_t
+  - variable: sys_nerr
+  - function: __builtin_mul_overflow
+  - function: strxfrm
+  - function: ftell
+  - typedef: __darwin_wint_t
+  - function: fopen
+  - typedef: __uint16_t
+  - function: __builtin___strcat_chk
+  - function: perror
+Extension Units Annotations: 10
+  - line 7: m [resolved, unit=meter, unit-resolved]
+  - line 8: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+  - line 9: s*A [resolved, unit=ampere_hour, unit-resolved]
+  - line 14: m/s [resolved, unit=foot_per_second, unit-resolved]
+  - line 15: s [resolved, unit=millisecond, unit-resolved]
+  - line 19: m*kg/s^2 [resolved, unit=pound_force, unit-resolved]
+  - line 20: m^2*kg/s^2 [resolved, unit=watt_hour, unit-resolved]
+  - line 21: s*A [resolved, unit=milliampere_hour, unit-resolved]
+  - line 24: m [resolved, unit=foot, unit-resolved]
+  - line 25: s [resolved, unit=millisecond, unit-resolved]
+Extension Units Expr Results: 28
+  - line 6: number-literal [dim=1, resolved]
+  - line 6: number-literal [dim=1, resolved]
+  - line 6: number-literal [dim=1, resolved]
+  - line 6: number-literal [dim=1, resolved]
+  - line 7: number-literal [dim=1, resolved]
+  - line 7: number-literal [dim=1, resolved]
+  - line 7: number-literal [dim=1, resolved]
+  - line 7: number-literal [dim=1, resolved]
+  - line 8: number-literal [dim=1, resolved]
+  - line 8: number-literal [dim=1, resolved]
+  - line 8: number-literal [dim=1, resolved]
+  - line 8: number-literal [dim=1, resolved]
+  - line 9: number-literal [dim=1, resolved]
+  - line 9: number-literal [dim=1, resolved]
+  - line 9: number-literal [dim=1, resolved]
+  - line 9: number-literal [dim=1, resolved]
+  - line 10: number-literal [dim=1, resolved]
+  - line 10: number-literal [dim=1, resolved]
+  - line 10: number-literal [dim=1, resolved]
+  - line 10: number-literal [dim=1, resolved]
+  - line 11: number-literal [dim=1, resolved]
+  - line 11: number-literal [dim=1, resolved]
+  - line 11: number-literal [dim=1, resolved]
+  - line 13: number-literal [dim=1, resolved]
+  - line 13: number-literal [dim=1, resolved]
+  - line 27: number-literal [dim=1, resolved]
+  - line 27: number-literal [dim=1, resolved]
+  - line 28: number-literal [dim=1, resolved]
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+%ProbeGpuPartitionBlendState = type { double, double, double }
+
+@__stdinp = external global ptr, align 8
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@__stdoutp = external global ptr, align 8
+@NULL = internal global ptr null, align 8
+@sys_errlist = external global ptr, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__stderrp = external global ptr, align 8
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+@sys_nerr = external global i32, align 4
+@.str.0 = private unnamed_addr constant [21 x i8] c"%.6f %.6f %.6f %.6f\0A\00"
+
+define i32 @main() {
+entry:
+  %call.arg.byval.tmp65 = alloca %ProbeGpuPartitionBlendState, align 16
+  %agg.tmp = alloca %ProbeGpuPartitionBlendState, align 16
+  %call.indirect.sret.slot44 = alloca %ProbeGpuPartitionBlendState, align 16
+  %call.arg.byval.tmp = alloca %ProbeGpuPartitionBlendState, align 16
+  %call.indirect.sret.slot = alloca %ProbeGpuPartitionBlendState, align 16
+  %tile = alloca %ProbeGpuPartitionBlendState, align 8
+  %i = alloca i32, align 4
+  %total = alloca %ProbeGpuPartitionBlendState, align 8
+  %reserve_mah = alloca [4 x double], align 8
+  %reserve_wh = alloca [4 x double], align 8
+  %thrust_lbf = alloca [4 x double], align 8
+  %dt_ms = alloca [4 x double], align 8
+  %speeds_fps = alloca [4 x double], align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %speeds_fps, i8 0, i64 32, i1 false)
+  %init.elem = getelementptr [4 x double], ptr %speeds_fps, i32 0, i32 0
+  store double 3.100000e+01, ptr %init.elem, align 8
+  %init.elem1 = getelementptr [4 x double], ptr %speeds_fps, i32 0, i32 1
+  store double 3.750000e+01, ptr %init.elem1, align 8
+  %init.elem2 = getelementptr [4 x double], ptr %speeds_fps, i32 0, i32 2
+  store double 4.300000e+01, ptr %init.elem2, align 8
+  %init.elem3 = getelementptr [4 x double], ptr %speeds_fps, i32 0, i32 3
+  store double 4.650000e+01, ptr %init.elem3, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %dt_ms, i8 0, i64 32, i1 false)
+  %init.elem4 = getelementptr [4 x double], ptr %dt_ms, i32 0, i32 0
+  store double 4.200000e+02, ptr %init.elem4, align 8
+  %init.elem5 = getelementptr [4 x double], ptr %dt_ms, i32 0, i32 1
+  store double 5.600000e+02, ptr %init.elem5, align 8
+  %init.elem6 = getelementptr [4 x double], ptr %dt_ms, i32 0, i32 2
+  store double 7.100000e+02, ptr %init.elem6, align 8
+  %init.elem7 = getelementptr [4 x double], ptr %dt_ms, i32 0, i32 3
+  store double 8.600000e+02, ptr %init.elem7, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %thrust_lbf, i8 0, i64 32, i1 false)
+  %init.elem8 = getelementptr [4 x double], ptr %thrust_lbf, i32 0, i32 0
+  store double 5.900000e+00, ptr %init.elem8, align 8
+  %init.elem9 = getelementptr [4 x double], ptr %thrust_lbf, i32 0, i32 1
+  store double 6.800000e+00, ptr %init.elem9, align 8
+  %init.elem10 = getelementptr [4 x double], ptr %thrust_lbf, i32 0, i32 2
+  store double 7.700000e+00, ptr %init.elem10, align 8
+  %init.elem11 = getelementptr [4 x double], ptr %thrust_lbf, i32 0, i32 3
+  store double 8.600000e+00, ptr %init.elem11, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %reserve_wh, i8 0, i64 32, i1 false)
+  %init.elem12 = getelementptr [4 x double], ptr %reserve_wh, i32 0, i32 0
+  store double 2.800000e+00, ptr %init.elem12, align 8
+  %init.elem13 = getelementptr [4 x double], ptr %reserve_wh, i32 0, i32 1
+  store double 3.400000e+00, ptr %init.elem13, align 8
+  %init.elem14 = getelementptr [4 x double], ptr %reserve_wh, i32 0, i32 2
+  store double 4.200000e+00, ptr %init.elem14, align 8
+  %init.elem15 = getelementptr [4 x double], ptr %reserve_wh, i32 0, i32 3
+  store double 5.100000e+00, ptr %init.elem15, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %reserve_mah, i8 0, i64 32, i1 false)
+  %init.elem16 = getelementptr [4 x double], ptr %reserve_mah, i32 0, i32 0
+  store double 4.600000e+02, ptr %init.elem16, align 8
+  %init.elem17 = getelementptr [4 x double], ptr %reserve_mah, i32 0, i32 1
+  store double 5.900000e+02, ptr %init.elem17, align 8
+  %init.elem18 = getelementptr [4 x double], ptr %reserve_mah, i32 0, i32 2
+  store double 7.200000e+02, ptr %init.elem18, align 8
+  %init.elem19 = getelementptr [4 x double], ptr %reserve_mah, i32 0, i32 3
+  store double 8.400000e+02, ptr %init.elem19, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %total, i8 0, i64 24, i1 false)
+  %fieldPtr = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 0
+  store double 0.000000e+00, ptr %fieldPtr, align 8
+  %fieldPtr20 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 1
+  store double 0.000000e+00, ptr %fieldPtr20, align 8
+  %fieldPtr21 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 2
+  store double 0.000000e+00, ptr %fieldPtr21, align 8
+  call void @llvm.memset.p0.i64(ptr align 4 %i, i8 0, i64 4, i1 false)
+  br label %forcond
+
+forcond:                                          ; preds = %forinc, %entry
+  %i22 = load i32, ptr %i, align 4
+  %cmptmp = icmp slt i32 %i22, 4
+  %cmp.int = zext i1 %cmptmp to i32
+  %forcond23 = icmp ne i32 %cmp.int, 0
+  br i1 %forcond23, label %forbody, label %forend
+
+forbody:                                          ; preds = %forcond
+  %i24 = load i32, ptr %i, align 4
+  %i25 = load i32, ptr %i, align 4
+  %array.idx64 = sext i32 %i25 to i64
+  %arrayElemPtr = getelementptr [4 x double], ptr %speeds_fps, i64 0, i64 %array.idx64
+  %arrayLoad = load double, ptr %arrayElemPtr, align 8
+  %i26 = load i32, ptr %i, align 4
+  %array.idx6427 = sext i32 %i26 to i64
+  %arrayElemPtr28 = getelementptr [4 x double], ptr %dt_ms, i64 0, i64 %array.idx6427
+  %arrayLoad29 = load double, ptr %arrayElemPtr28, align 8
+  store %ProbeGpuPartitionBlendState zeroinitializer, ptr %call.indirect.sret.slot, align 8
+  call void @probe_gpu_partition_blend_seed(ptr sret(%ProbeGpuPartitionBlendState) %call.indirect.sret.slot, i32 %i24, double %arrayLoad, double %arrayLoad29)
+  %call.indirect.sret.result = load %ProbeGpuPartitionBlendState, ptr %call.indirect.sret.slot, align 8
+  store %ProbeGpuPartitionBlendState %call.indirect.sret.result, ptr %tile, align 8
+  %tile30 = load %ProbeGpuPartitionBlendState, ptr %tile, align 8
+  %i31 = load i32, ptr %i, align 4
+  %i32 = load i32, ptr %i, align 4
+  %array.idx6433 = sext i32 %i32 to i64
+  %arrayElemPtr34 = getelementptr [4 x double], ptr %thrust_lbf, i64 0, i64 %array.idx6433
+  %arrayLoad35 = load double, ptr %arrayElemPtr34, align 8
+  %i36 = load i32, ptr %i, align 4
+  %array.idx6437 = sext i32 %i36 to i64
+  %arrayElemPtr38 = getelementptr [4 x double], ptr %reserve_wh, i64 0, i64 %array.idx6437
+  %arrayLoad39 = load double, ptr %arrayElemPtr38, align 8
+  %i40 = load i32, ptr %i, align 4
+  %array.idx6441 = sext i32 %i40 to i64
+  %arrayElemPtr42 = getelementptr [4 x double], ptr %reserve_mah, i64 0, i64 %array.idx6441
+  %arrayLoad43 = load double, ptr %arrayElemPtr42, align 8
+  store %ProbeGpuPartitionBlendState %tile30, ptr %call.arg.byval.tmp, align 8
+  store %ProbeGpuPartitionBlendState zeroinitializer, ptr %call.indirect.sret.slot44, align 8
+  call void @probe_gpu_partition_blend_push(ptr sret(%ProbeGpuPartitionBlendState) %call.indirect.sret.slot44, ptr %call.arg.byval.tmp, i32 %i31, double %arrayLoad35, double %arrayLoad39, double %arrayLoad43)
+  %call.indirect.sret.result45 = load %ProbeGpuPartitionBlendState, ptr %call.indirect.sret.slot44, align 8
+  store %ProbeGpuPartitionBlendState %call.indirect.sret.result45, ptr %agg.tmp, align 8
+  call void @llvm.memcpy.p0.p0.i64(ptr align 8 %tile, ptr align 8 %agg.tmp, i64 24, i1 false)
+  %fieldPtr46 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 0
+  %fieldPtr47 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %tile, i32 0, i32 0
+  %dot_field = load double, ptr %fieldPtr47, align 8
+  %compound.load = load double, ptr %fieldPtr46, align 8
+  %compound.fadd = fadd double %compound.load, %dot_field
+  store double %compound.fadd, ptr %fieldPtr46, align 8
+  %fieldPtr48 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 1
+  %fieldPtr49 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %tile, i32 0, i32 1
+  %dot_field50 = load double, ptr %fieldPtr49, align 8
+  %compound.load51 = load double, ptr %fieldPtr48, align 8
+  %compound.fadd52 = fadd double %compound.load51, %dot_field50
+  store double %compound.fadd52, ptr %fieldPtr48, align 8
+  %fieldPtr53 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 2
+  %fieldPtr54 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %tile, i32 0, i32 2
+  %dot_field55 = load double, ptr %fieldPtr54, align 8
+  %compound.load56 = load double, ptr %fieldPtr53, align 8
+  %compound.fadd57 = fadd double %compound.load56, %dot_field55
+  store double %compound.fadd57, ptr %fieldPtr53, align 8
+  br label %forinc
+
+forinc:                                           ; preds = %forbody
+  %unary.load = load i32, ptr %i, align 4
+  %unary.inc = add i32 %unary.load, 1
+  store i32 %unary.inc, ptr %i, align 4
+  br label %forcond
+
+forend:                                           ; preds = %forcond
+  %fieldPtr58 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 0
+  %dot_field59 = load double, ptr %fieldPtr58, align 8
+  %fieldPtr60 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 1
+  %dot_field61 = load double, ptr %fieldPtr60, align 8
+  %fieldPtr62 = getelementptr inbounds nuw %ProbeGpuPartitionBlendState, ptr %total, i32 0, i32 2
+  %dot_field63 = load double, ptr %fieldPtr62, align 8
+  %total64 = load %ProbeGpuPartitionBlendState, ptr %total, align 8
+  store %ProbeGpuPartitionBlendState %total64, ptr %call.arg.byval.tmp65, align 8
+  %calltmp = call double @probe_gpu_partition_blend_score(ptr %call.arg.byval.tmp65, double 2.100000e+02, double 1.480000e+03)
+  %calltmp66 = call i32 (ptr, ...) @printf(ptr @.str.0, double %dot_field59, double %dot_field61, double %dot_field63, double %calltmp)
+  ret i32 0
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+declare void @probe_gpu_partition_blend_seed(ptr sret(%ProbeGpuPartitionBlendState) %0, i32 %1, double %2, double %3)
+
+declare void @probe_gpu_partition_blend_push(ptr sret(%ProbeGpuPartitionBlendState) %0, ptr %1, i32 %2, double %3, double %4, double %5)
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: readwrite)
+declare void @llvm.memcpy.p0.p0.i64(ptr noalias nocapture writeonly %0, ptr noalias nocapture readonly %1, i64 %2, i1 immarg %3) #1
+
+declare i32 @printf(ptr %0, ...)
+
+declare double @probe_gpu_partition_blend_score(ptr %0, double %1, double %2)
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }
+attributes #1 = { nocallback nofree nounwind willreturn memory(argmem: readwrite) }

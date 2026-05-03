@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_multitu_corpus_reduction_replay_hash_vi",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_vi_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_vi_main.c",
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_vi_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_multitu_corpus_reduction_replay_hash_vi.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "corpus",
+        "multitu",
+        "reduction-replay",
+        "hash-vi",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_multitu_corpus_reduction_replay_hash_vii",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_vii_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_vii_main.c",
+        "probes/runtime/15__probe_multitu_corpus_reduction_replay_hash_vii_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_multitu_corpus_reduction_replay_hash_vii.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "corpus",
+        "multitu",
+        "reduction-replay",
+        "hash-vii",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__corpus_pinned_nested_macro_replay_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject.c",
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_a.h",
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_b.h"
+      ],
+      "expects": [
+        "expect/15__diag__corpus_pinned_nested_macro_replay_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "15",
+        "corpus",
+        "preprocessor",
+        "nested-macro-replay",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__corpus_pinned_nested_decl_tail_replay_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject.c",
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject_a.h",
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject_b.h"
+      ],
+      "expects": [
+        "expect/15__diag__corpus_pinned_nested_decl_tail_replay_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "15",
+        "corpus",
+        "parser",
+        "nested-decl-tail",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__corpus_pinned_nested_macro_replay_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject.c",
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_a.h",
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_b.h"
+      ],
+      "expects": [
+        "expect/15__diagjson__corpus_pinned_nested_macro_replay_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "15",
+        "corpus",
+        "preprocessor",
+        "nested-macro-replay",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__corpus_pinned_nested_decl_tail_replay_reject",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject.c",
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject_a.h",
+        "probes/diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject_b.h"
+      ],
+      "expects": [
+        "expect/15__diagjson__corpus_pinned_nested_decl_tail_replay_reject.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "15",
+        "corpus",
+        "parser",
+        "nested-decl-tail",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

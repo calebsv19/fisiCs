@@ -6,6 +6,171 @@
 #include "Parser/Expr/parser_expr_pratt.h"
 #include <string.h>
 
+typedef enum InitializerPathStepKind {
+    INIT_PATH_FIELD,
+    INIT_PATH_INDEX,
+} InitializerPathStepKind;
+
+typedef struct InitializerPathStep {
+    InitializerPathStepKind kind;
+    char* fieldName;
+    ASTNode* indexExpr;
+} InitializerPathStep;
+
+static void freeInitializerPathSteps(InitializerPathStep* steps, size_t count) {
+    if (!steps) return;
+    for (size_t i = 0; i < count; ++i) {
+        free(steps[i].fieldName);
+    }
+    free(steps);
+}
+
+static bool appendInitializerPathField(InitializerPathStep** steps,
+                                       size_t* count,
+                                       size_t* capacity,
+                                       const char* fieldName) {
+    if (!steps || !count || !capacity || !fieldName) {
+        return false;
+    }
+    if (*count >= *capacity) {
+        size_t newCapacity = *capacity ? (*capacity * 2) : 4;
+        InitializerPathStep* grown =
+            realloc(*steps, newCapacity * sizeof(InitializerPathStep));
+        if (!grown) {
+            return false;
+        }
+        *steps = grown;
+        *capacity = newCapacity;
+    }
+    (*steps)[*count].kind = INIT_PATH_FIELD;
+    (*steps)[*count].fieldName = strdup(fieldName);
+    (*steps)[*count].indexExpr = NULL;
+    if (!(*steps)[*count].fieldName) {
+        return false;
+    }
+    (*count)++;
+    return true;
+}
+
+static bool appendInitializerPathIndex(InitializerPathStep** steps,
+                                       size_t* count,
+                                       size_t* capacity,
+                                       ASTNode* indexExpr) {
+    if (!steps || !count || !capacity || !indexExpr) {
+        return false;
+    }
+    if (*count >= *capacity) {
+        size_t newCapacity = *capacity ? (*capacity * 2) : 4;
+        InitializerPathStep* grown =
+            realloc(*steps, newCapacity * sizeof(InitializerPathStep));
+        if (!grown) {
+            return false;
+        }
+        *steps = grown;
+        *capacity = newCapacity;
+    }
+    (*steps)[*count].kind = INIT_PATH_INDEX;
+    (*steps)[*count].fieldName = NULL;
+    (*steps)[*count].indexExpr = indexExpr;
+    (*count)++;
+    return true;
+}
+
+static bool parseInitializerDesignatorPath(Parser* parser,
+                                           InitializerPathStep** outSteps,
+                                           size_t* outCount) {
+    if (!parser || !outSteps || !outCount) {
+        return false;
+    }
+
+    InitializerPathStep* steps = NULL;
+    size_t count = 0;
+    size_t capacity = 0;
+
+    while (parser->currentToken.type == TOKEN_DOT ||
+           parser->currentToken.type == TOKEN_LBRACKET) {
+        if (parser->currentToken.type == TOKEN_DOT) {
+            advance(parser);
+            if (parser->currentToken.type != TOKEN_IDENTIFIER) {
+                printParseError("Expected field name after '.' in initializer", parser);
+                freeInitializerPathSteps(steps, count);
+                return false;
+            }
+            if (!appendInitializerPathField(&steps,
+                                            &count,
+                                            &capacity,
+                                            parser->currentToken.value)) {
+                freeInitializerPathSteps(steps, count);
+                return false;
+            }
+            advance(parser);
+            continue;
+        }
+
+        advance(parser);
+        ASTNode* indexExpr = parseAssignmentExpression(parser);
+        if (!indexExpr) {
+            printParseError("Invalid array index in initializer designator", parser);
+            freeInitializerPathSteps(steps, count);
+            return false;
+        }
+        if (parser->currentToken.type != TOKEN_RBRACKET) {
+            printParseError("Expected ']' after initializer designator index", parser);
+            freeInitializerPathSteps(steps, count);
+            return false;
+        }
+        advance(parser);
+        if (!appendInitializerPathIndex(&steps, &count, &capacity, indexExpr)) {
+            freeInitializerPathSteps(steps, count);
+            return false;
+        }
+    }
+
+    if (count == 0) {
+        free(steps);
+        return false;
+    }
+
+    *outSteps = steps;
+    *outCount = count;
+    return true;
+}
+
+static DesignatedInit* createNestedDesignatorPath(InitializerPathStep* steps,
+                                                  size_t stepCount,
+                                                  ASTNode* expr) {
+    if (!steps || stepCount == 0 || !expr) {
+        return NULL;
+    }
+
+    ASTNode* nestedExpr = expr;
+    for (size_t i = stepCount; i-- > 1;) {
+        DesignatedInit* nestedInit = NULL;
+        if (steps[i].kind == INIT_PATH_FIELD) {
+            nestedInit = createDesignatedInit(steps[i].fieldName, nestedExpr);
+        } else {
+            nestedInit = createIndexedInit(steps[i].indexExpr, nestedExpr);
+        }
+        if (!nestedInit) {
+            return NULL;
+        }
+        DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
+        if (!nestedEntries) {
+            return NULL;
+        }
+        nestedEntries[0] = nestedInit;
+        nestedExpr = createCompoundInit(nestedEntries, 1);
+        if (!nestedExpr) {
+            return NULL;
+        }
+    }
+
+    if (steps[0].kind == INIT_PATH_FIELD) {
+        return createDesignatedInit(steps[0].fieldName, nestedExpr);
+    }
+    return createIndexedInit(steps[0].indexExpr, nestedExpr);
+}
+
 
 DesignatedInit** parseInitializerList(Parser* parser, ParsedType type, size_t* outCount) {
     if (parser->currentToken.type == TOKEN_LBRACE) {
@@ -341,40 +506,15 @@ DesignatedInit** parseStructInitializer(Parser* parser, ParsedType parentType, s
         DesignatedInit* init = NULL;
         
         if (parser->currentToken.type == TOKEN_DOT) {
-            size_t fieldCount = 0;
-            size_t fieldCap = 4;
-            char** fieldNames = malloc(fieldCap * sizeof(char*));
-            if (!fieldNames) {
+            InitializerPathStep* steps = NULL;
+            size_t stepCount = 0;
+            if (!parseInitializerDesignatorPath(parser, &steps, &stepCount)) {
                 free(entries);
                 return NULL;
             }
-
-            while (parser->currentToken.type == TOKEN_DOT) {
-                advance(parser);  // Consume '.'
-                if (parser->currentToken.type != TOKEN_IDENTIFIER) {
-                    printParseError("Expected field name after '.' in struct initializer", parser);
-                    free(fieldNames);
-                    free(entries);
-                    return NULL;
-                }
-                if (fieldCount >= fieldCap) {
-                    fieldCap *= 2;
-                    char** grown = realloc(fieldNames, fieldCap * sizeof(char*));
-                    if (!grown) {
-                        free(fieldNames);
-                        free(entries);
-                        return NULL;
-                    }
-                    fieldNames = grown;
-                }
-                fieldNames[fieldCount++] = strdup(parser->currentToken.value);
-                advance(parser);  // Consume identifier
-            }
-
-            if (fieldCount == 0 || parser->currentToken.type != TOKEN_ASSIGN) {
+            if (parser->currentToken.type != TOKEN_ASSIGN) {
                 printParseError("Expected '=' after field name in struct initializer", parser);
-                for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
-                free(fieldNames);
+                freeInitializerPathSteps(steps, stepCount);
                 free(entries);
                 return NULL;
             }
@@ -388,8 +528,7 @@ DesignatedInit** parseStructInitializer(Parser* parser, ParsedType parentType, s
                 DesignatedInit** nested = parseInitializerList(parser, fieldType, &nestedCount);
                 if (!nested) {
                     printParseError("Failed to parse nested initializer list", parser);
-                    for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
-                    free(fieldNames);
+                    freeInitializerPathSteps(steps, stepCount);
                     free(entries);
                     return NULL;
                 }
@@ -400,33 +539,18 @@ DesignatedInit** parseStructInitializer(Parser* parser, ParsedType parentType, s
 
             if (!expr) {
                 printParseError("Expected expression after '=' in struct initializer", parser);
-                for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
-                free(fieldNames);
+                freeInitializerPathSteps(steps, stepCount);
                 free(entries);
                 return NULL;
             }
 
-            if (fieldCount == 1) {
-                init = createDesignatedInit(fieldNames[0], expr);
-            } else {
-                ASTNode* nestedExpr = expr;
-                for (size_t i = fieldCount; i-- > 1;) {
-                    DesignatedInit* fieldInit = createDesignatedInit(fieldNames[i], nestedExpr);
-                    DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
-                    if (!fieldInit || !nestedEntries) {
-                        for (size_t j = 0; j < fieldCount; ++j) free(fieldNames[j]);
-                        free(fieldNames);
-                        free(entries);
-                        return NULL;
-                    }
-                    nestedEntries[0] = fieldInit;
-                    nestedExpr = createCompoundInit(nestedEntries, 1);
-                }
-                init = createDesignatedInit(fieldNames[0], nestedExpr);
+            init = createNestedDesignatorPath(steps, stepCount, expr);
+            if (!init) {
+                freeInitializerPathSteps(steps, stepCount);
+                free(entries);
+                return NULL;
             }
-
-            for (size_t i = 0; i < fieldCount; ++i) free(fieldNames[i]);
-            free(fieldNames);
+            freeInitializerPathSteps(steps, stepCount);
         } else {
             ASTNode* expr = NULL;
             

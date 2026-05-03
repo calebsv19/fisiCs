@@ -1,0 +1,6 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_a.h
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_b.h
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_b.h:4:9: error: invalid parameter list in #define NESTED_MACRO_REPLAY_STEP
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_b.h:4:9: error: invalid parameter list in #define NESTED_MACRO_REPLAY_STEP

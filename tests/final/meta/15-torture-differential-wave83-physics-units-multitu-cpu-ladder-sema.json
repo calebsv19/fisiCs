@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__units_multitu_cpu_partition_checkpoint_mesh_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_multitu_cpu_partition_checkpoint_mesh_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_multitu_cpu_partition_checkpoint_mesh_main.c",
+        "probes/runtime/15__probe_units_runtime_multitu_cpu_partition_checkpoint_mesh_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_multitu_cpu_partition_checkpoint_mesh_overlay_clean.diag",
+        "expect/15__diag__units_multitu_cpu_partition_checkpoint_mesh_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "multitu",
+        "multi-cpu",
+        "partition-checkpoint-mesh"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_multitu_cpu_reconcile_partition_ladder_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_multitu_cpu_reconcile_partition_ladder_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_multitu_cpu_reconcile_partition_ladder_main.c",
+        "probes/runtime/15__probe_units_runtime_multitu_cpu_reconcile_partition_ladder_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_multitu_cpu_reconcile_partition_ladder_overlay_clean.diag",
+        "expect/15__diag__units_multitu_cpu_reconcile_partition_ladder_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "multitu",
+        "multi-cpu",
+        "reconcile-partition-ladder"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

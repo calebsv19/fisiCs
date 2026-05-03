@@ -1,0 +1,473 @@
+Sema:
+SemanticModel: 0 error(s)
+Scope depth 0
+  - typedef: __darwin_ino_t
+  - function: memchr
+  - function: putc
+  - function: flsll
+  - function: strlcat
+  - function: vasprintf
+  - function: fseeko
+  - function: fileno
+  - function: atomic_load_explicit
+  - function: __builtin___memmove_chk
+  - typedef: user_ssize_t
+  - function: __builtin_huge_val
+  - function: feof
+  - typedef: __darwin_pthread_cond_t
+  - function: fisics_convert_unit
+  - typedef: user_long_t
+  - typedef: __int32_t
+  - function: __c11_atomic_exchange
+  - function: bzero
+  - function: popen
+  - function: fputc
+  - function: renameatx_np
+  - typedef: __darwin_id_t
+  - typedef: ptrdiff_t
+  - function: stpcpy
+  - function: strerror
+  - function: strcoll
+  - function: __srget
+  - function: getc
+  - typedef: __darwin_sigset_t
+  - function: __builtin_object_size
+  - function: strnlen
+  - function: sprintf
+  - function: timingsafe_bcmp
+  - typedef: int64_t
+  - function: fgetc
+  - typedef: __darwin_pthread_rwlockattr_t
+  - typedef: __uint8_t
+  - typedef: __darwin_wchar_t
+  - function: vsnprintf
+  - function: memcpy
+  - function: puts
+  - typedef: user_addr_t
+  - typedef: __darwin_fsblkcnt_t
+  - typedef: __darwin_natural_t
+  - function: strcspn
+  - function: vdprintf
+  - function: memccpy
+  - typedef: size_t
+  - function: memset_pattern16
+  - function: vfprintf
+  - typedef: __darwin_rune_t
+  - function: strndup
+  - function: putw
+  - variable: __stdinp
+  - function: fwrite
+  - function: fscanf
+  - typedef: __darwin_wctype_t
+  - function: __builtin_nan
+  - function: tempnam
+  - function: fputs
+  - typedef: va_list
+  - typedef: __darwin_mach_port_t
+  - function: gets
+  - function: memmove
+  - typedef: user_ulong_t
+  - typedef: int8_t
+  - function: strsignal
+  - function: getw
+  - function: getc_unlocked
+  - typedef: u_int32_t
+  - typedef: __darwin_wctrans_t
+  - typedef: __darwin_pthread_attr_t
+  - function: __builtin_inff
+  - function: index
+  - function: strtok_r
+  - function: strlen
+  - function: rename
+  - function: fgetpos
+  - function: __builtin_va_start
+  - function: probe_dispatch_window_score
+  - function: __sprintf_chk
+  - function: ctermid_r
+  - function: fgets
+  - typedef: __darwin_mode_t
+  - function: __builtin___strncpy_chk
+  - function: __builtin___snprintf_chk
+  - function: memset_pattern4
+  - function: fclose
+  - function: bcopy
+  - function: __vsnprintf_chk
+  - variable: __LDBL_MIN__
+  - function: __builtin_infl
+  - function: memmem
+  - function: memcmp
+  - function: setvbuf
+  - typedef: ProbeDispatchWindowLane
+  - function: memset_pattern8
+  - typedef: rsize_t
+  - typedef: FILE
+  - typedef: user_time_t
+  - function: atomic_exchange_explicit
+  - function: vscanf
+  - typedef: __darwin_pthread_once_t
+  - typedef: __darwin_clock_t
+  - typedef: __mbstate_t
+  - function: strdup
+  - function: strncasecmp
+  - typedef: max_align_t
+  - function: fsetpos
+  - function: fls
+  - function: __swbuf
+  - typedef: int16_t
+  - typedef: __darwin_ct_rune_t
+  - function: __builtin_va_copy
+  - typedef: __int64_t
+  - function: __builtin___strncat_chk
+  - function: vfscanf
+  - function: strrchr
+  - function: getline
+  - function: ctermid
+  - function: fflush
+  - typedef: wchar_t
+  - function: rewind
+  - typedef: __darwin_nl_item
+  - function: memset
+  - function: getdelim
+  - function: swab
+  - function: strcasestr
+  - function: ftrylockfile
+  - function: fseek
+  - typedef: __darwin_pthread_rwlock_t
+  - function: __vsprintf_chk
+  - function: putc_unlocked
+  - function: ferror
+  - typedef: __darwin_off_t
+  - typedef: __darwin_size_t
+  - function: __builtin_fabs
+  - function: atomic_init
+  - function: stpncpy
+  - variable: __stdoutp
+  - function: funlockfile
+  - typedef: __darwin_mach_port_name_t
+  - function: __builtin___memcpy_chk
+  - function: strncpy
+  - typedef: __darwin_blkcnt_t
+  - function: printf
+  - function: strerror_r
+  - typedef: intptr_t
+  - function: strcasecmp
+  - function: strchr
+  - typedef: __uint32_t
+  - function: __builtin_fabsf
+  - function: ffsll
+  - function: fmemopen
+  - function: dprintf
+  - function: putchar
+  - function: __builtin_nanf
+  - function: __svfscanf
+  - typedef: register_t
+  - typedef: errno_t
+  - function: fprintf
+  - function: exit
+  - function: funopen
+  - variable: NULL
+  - function: __builtin_bswap64
+  - function: fdopen
+  - typedef: u_int64_t
+  - function: __builtin_fabsl
+  - typedef: __darwin_pthread_t
+  - function: __builtin_nanl
+  - function: strmode
+  - function: sscanf
+  - function: __c11_atomic_load
+  - function: strncat
+  - function: strnstr
+  - function: __builtin_alloca
+  - function: bcmp
+  - function: fread
+  - variable: sys_errlist
+  - typedef: __darwin_ssize_t
+  - typedef: __int16_t
+  - typedef: __darwin_socklen_t
+  - function: strchrnul
+  - function: strcpy
+  - variable: __FLT_MIN__
+  - function: ungetc
+  - function: strncmp
+  - function: __snprintf_chk
+  - typedef: syscall_arg_t
+  - function: strsignal_r
+  - function: fpurge
+  - function: vprintf
+  - function: setbuf
+  - typedef: __darwin_gid_t
+  - typedef: __darwin_blksize_t
+  - typedef: uintptr_t
+  - function: strspn
+  - typedef: u_int8_t
+  - typedef: __darwin_pthread_mutexattr_t
+  - function: ffsl
+  - function: putchar_unlocked
+  - function: scanf
+  - typedef: fpos_t
+  - function: __c11_atomic_store
+  - typedef: __darwin_uuid_t
+  - function: renamex_np
+  - function: renameat
+  - function: __builtin_constant_p
+  - typedef: off_t
+  - function: freopen
+  - function: clearerr
+  - function: flsl
+  - function: strcat
+  - function: strstr
+  - function: getchar_unlocked
+  - typedef: __darwin_pid_t
+  - function: __builtin___memset_chk
+  - function: vsscanf
+  - typedef: __darwin_dev_t
+  - function: __builtin_fisics_convert_unit
+  - typedef: wint_t
+  - typedef: __darwin_intptr_t
+  - function: __builtin_bzero
+  - function: __builtin_bswap32
+  - typedef: __darwin_uid_t
+  - function: strcmp
+  - typedef: u_int16_t
+  - typedef: __darwin_useconds_t
+  - typedef: __darwin_pthread_condattr_t
+  - typedef: __uint64_t
+  - function: open_memstream
+  - function: vsprintf
+  - function: memset_s
+  - function: __builtin_expect
+  - function: getchar
+  - function: ffs
+  - function: fgetln
+  - variable: true
+  - function: strsep
+  - typedef: ssize_t
+  - function: __builtin_va_end
+  - variable: __stderrp
+  - typedef: __darwin_uuid_string_t
+  - typedef: int32_t
+  - function: probe_dispatch_window_pick
+  - typedef: __darwin_time_t
+  - typedef: __darwin_ptrdiff_t
+  - function: __builtin_va_arg
+  - function: main
+  - function: fmtcheck
+  - typedef: __darwin_pthread_key_t
+  - typedef: __darwin_ino64_t
+  - typedef: __darwin_mbstate_t
+  - function: __builtin_huge_valf
+  - function: setbuffer
+  - function: ftello
+  - function: pclose
+  - function: strtok
+  - function: asprintf
+  - function: strpbrk
+  - function: rindex
+  - function: atomic_store_explicit
+  - function: probe_dispatch_window_fold_energy
+  - function: __builtin_huge_vall
+  - variable: false
+  - typedef: user_off_t
+  - typedef: user_size_t
+  - typedef: __darwin_suseconds_t
+  - function: __builtin___strcpy_chk
+  - function: tmpnam
+  - function: __builtin___sprintf_chk
+  - function: remove
+  - typedef: __darwin_fsfilcnt_t
+  - function: flockfile
+  - typedef: __darwin_pthread_mutex_t
+  - function: strlcpy
+  - function: setlinebuf
+  - function: tmpfile
+  - variable: __DBL_MIN__
+  - function: __builtin_inf
+  - function: __builtin___vsnprintf_chk
+  - typedef: sig_atomic_t
+  - function: __c11_atomic_init
+  - function: snprintf
+  - typedef: __darwin_va_list
+  - typedef: __int8_t
+  - variable: sys_nerr
+  - function: __builtin_mul_overflow
+  - function: strxfrm
+  - function: ftell
+  - typedef: __darwin_wint_t
+  - function: fopen
+  - typedef: __uint16_t
+  - function: __builtin___strcat_chk
+  - function: perror
+Extension Units Annotations: 10
+  - line 12: m [resolved, unit=meter, unit-resolved]
+  - line 13: m*kg/s^2 [resolved, unit=pound_force, unit-resolved]
+  - line 14: m^2*kg/s^2 [resolved, unit=watt_hour, unit-resolved]
+  - line 16: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+  - line 17: m [resolved, unit=meter, unit-resolved]
+  - line 18: s [resolved, unit=millisecond, unit-resolved]
+  - line 10: m [resolved, unit=meter, unit-resolved]
+  - line 13: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+  - line 19: m [resolved, unit=meter, unit-resolved]
+  - line 22: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
+Extension Units Expr Results: 30
+  - line 6: number-literal [dim=1, resolved]
+  - line 6: number-literal [dim=1, resolved]
+  - line 6: number-literal [dim=1, resolved]
+  - line 7: number-literal [dim=1, resolved]
+  - line 7: number-literal [dim=1, resolved]
+  - line 7: number-literal [dim=1, resolved]
+  - line 8: number-literal [dim=1, resolved]
+  - line 8: number-literal [dim=1, resolved]
+  - line 8: number-literal [dim=1, resolved]
+  - line 9: number-literal [dim=1, resolved]
+  - line 9: number-literal [dim=1, resolved]
+  - line 9: number-literal [dim=1, resolved]
+  - line 12: number-literal [dim=m, resolved, unit=meter]
+  - line 15: number-literal [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 17: number-literal [dim=1, resolved]
+  - line 17: number-literal [dim=1, resolved]
+  - line 18: number-literal [dim=1, resolved]
+  - line 25: identifier(distance_m) [dim=m, resolved, unit=meter]
+  - line 26: identifier(total_distance_m) [dim=m, resolved, unit=meter]
+  - line 26: identifier(distance_m) [dim=m, resolved, unit=meter]
+  - line 26: assignment(+=) [dim=m, resolved, unit=meter]
+  - line 27: identifier(total_energy_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 27: identifier(energy_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 27: assignment(+=) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 31: identifier(total_distance_m) [dim=m, resolved, unit=meter]
+  - line 32: identifier(total_energy_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 33: identifier(total_energy_j) [dim=m^2*kg/s^2, resolved, unit=joule]
+  - line 33: identifier(total_distance_m) [dim=m, resolved, unit=meter]
+  - line 33: number-literal [dim=1, resolved]
+  - line 34: number-literal [dim=1, resolved]
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__stdinp = external global ptr, align 8
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@__stdoutp = external global ptr, align 8
+@NULL = internal global ptr null, align 8
+@sys_errlist = external global ptr, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__stderrp = external global ptr, align 8
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+@sys_nerr = external global i32, align 4
+@.str.0 = private unnamed_addr constant [16 x i8] c"%.6f %.6f %.6f\0A\00"
+
+define i32 @main() {
+entry:
+  %energy_j = alloca double, align 8
+  %distance_m = alloca double, align 8
+  %lane = alloca ptr, align 8
+  %i = alloca i32, align 4
+  %total_energy_j = alloca double, align 8
+  %total_distance_m = alloca double, align 8
+  %reserve_wh = alloca [3 x double], align 8
+  %thrust_lbf = alloca [3 x double], align 8
+  %dt_ms = alloca [3 x double], align 8
+  %speeds_fps = alloca [3 x double], align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %speeds_fps, i8 0, i64 24, i1 false)
+  %init.elem = getelementptr [3 x double], ptr %speeds_fps, i32 0, i32 0
+  store double 2.900000e+01, ptr %init.elem, align 8
+  %init.elem1 = getelementptr [3 x double], ptr %speeds_fps, i32 0, i32 1
+  store double 3.500000e+01, ptr %init.elem1, align 8
+  %init.elem2 = getelementptr [3 x double], ptr %speeds_fps, i32 0, i32 2
+  store double 4.300000e+01, ptr %init.elem2, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %dt_ms, i8 0, i64 24, i1 false)
+  %init.elem3 = getelementptr [3 x double], ptr %dt_ms, i32 0, i32 0
+  store double 5.000000e+02, ptr %init.elem3, align 8
+  %init.elem4 = getelementptr [3 x double], ptr %dt_ms, i32 0, i32 1
+  store double 7.800000e+02, ptr %init.elem4, align 8
+  %init.elem5 = getelementptr [3 x double], ptr %dt_ms, i32 0, i32 2
+  store double 1.025000e+03, ptr %init.elem5, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %thrust_lbf, i8 0, i64 24, i1 false)
+  %init.elem6 = getelementptr [3 x double], ptr %thrust_lbf, i32 0, i32 0
+  store double 7.750000e+00, ptr %init.elem6, align 8
+  %init.elem7 = getelementptr [3 x double], ptr %thrust_lbf, i32 0, i32 1
+  store double 9.000000e+00, ptr %init.elem7, align 8
+  %init.elem8 = getelementptr [3 x double], ptr %thrust_lbf, i32 0, i32 2
+  store double 1.050000e+01, ptr %init.elem8, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %reserve_wh, i8 0, i64 24, i1 false)
+  %init.elem9 = getelementptr [3 x double], ptr %reserve_wh, i32 0, i32 0
+  store double 4.500000e+00, ptr %init.elem9, align 8
+  %init.elem10 = getelementptr [3 x double], ptr %reserve_wh, i32 0, i32 1
+  store double 6.000000e+00, ptr %init.elem10, align 8
+  %init.elem11 = getelementptr [3 x double], ptr %reserve_wh, i32 0, i32 2
+  store double 7.750000e+00, ptr %init.elem11, align 8
+  store double 0.000000e+00, ptr %total_distance_m, align 8
+  store double 0.000000e+00, ptr %total_energy_j, align 8
+  call void @llvm.memset.p0.i64(ptr align 4 %i, i8 0, i64 4, i1 false)
+  br label %forcond
+
+forcond:                                          ; preds = %forinc, %entry
+  %i12 = load i32, ptr %i, align 4
+  %cmptmp = icmp slt i32 %i12, 3
+  %cmp.int = zext i1 %cmptmp to i32
+  %forcond13 = icmp ne i32 %cmp.int, 0
+  br i1 %forcond13, label %forbody, label %forend
+
+forbody:                                          ; preds = %forcond
+  %i14 = load i32, ptr %i, align 4
+  %andtmp = and i32 %i14, 1
+  %calltmp = call ptr @probe_dispatch_window_pick(i32 %andtmp)
+  store ptr %calltmp, ptr %lane, align 8
+  %lane15 = load ptr, ptr %lane, align 8
+  %i16 = load i32, ptr %i, align 4
+  %array.idx64 = sext i32 %i16 to i64
+  %arrayElemPtr = getelementptr [3 x double], ptr %speeds_fps, i64 0, i64 %array.idx64
+  %arrayLoad = load double, ptr %arrayElemPtr, align 8
+  %i17 = load i32, ptr %i, align 4
+  %array.idx6418 = sext i32 %i17 to i64
+  %arrayElemPtr19 = getelementptr [3 x double], ptr %dt_ms, i64 0, i64 %array.idx6418
+  %arrayLoad20 = load double, ptr %arrayElemPtr19, align 8
+  %calltmp21 = call double %lane15(double %arrayLoad, double %arrayLoad20)
+  store double %calltmp21, ptr %distance_m, align 8
+  %distance_m22 = load double, ptr %distance_m, align 8
+  %i23 = load i32, ptr %i, align 4
+  %array.idx6424 = sext i32 %i23 to i64
+  %arrayElemPtr25 = getelementptr [3 x double], ptr %thrust_lbf, i64 0, i64 %array.idx6424
+  %arrayLoad26 = load double, ptr %arrayElemPtr25, align 8
+  %i27 = load i32, ptr %i, align 4
+  %array.idx6428 = sext i32 %i27 to i64
+  %arrayElemPtr29 = getelementptr [3 x double], ptr %reserve_wh, i64 0, i64 %array.idx6428
+  %arrayLoad30 = load double, ptr %arrayElemPtr29, align 8
+  %calltmp31 = call double @probe_dispatch_window_fold_energy(double %distance_m22, double %arrayLoad26, double %arrayLoad30)
+  store double %calltmp31, ptr %energy_j, align 8
+  %distance_m32 = load double, ptr %distance_m, align 8
+  %compound.load = load double, ptr %total_distance_m, align 8
+  %compound.fadd = fadd double %compound.load, %distance_m32
+  store double %compound.fadd, ptr %total_distance_m, align 8
+  %energy_j33 = load double, ptr %energy_j, align 8
+  %compound.load34 = load double, ptr %total_energy_j, align 8
+  %compound.fadd35 = fadd double %compound.load34, %energy_j33
+  store double %compound.fadd35, ptr %total_energy_j, align 8
+  br label %forinc
+
+forinc:                                           ; preds = %forbody
+  %unary.load = load i32, ptr %i, align 4
+  %unary.inc = add i32 %unary.load, 1
+  store i32 %unary.inc, ptr %i, align 4
+  br label %forcond
+
+forend:                                           ; preds = %forcond
+  %total_distance_m36 = load double, ptr %total_distance_m, align 8
+  %total_energy_j37 = load double, ptr %total_energy_j, align 8
+  %total_energy_j38 = load double, ptr %total_energy_j, align 8
+  %total_distance_m39 = load double, ptr %total_distance_m, align 8
+  %calltmp40 = call double @probe_dispatch_window_score(double %total_energy_j38, double %total_distance_m39, double 1.600000e+03)
+  %calltmp41 = call i32 (ptr, ...) @printf(ptr @.str.0, double %total_distance_m36, double %total_energy_j37, double %calltmp40)
+  ret i32 0
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+declare ptr @probe_dispatch_window_pick(i32 %0)
+
+declare double @probe_dispatch_window_fold_energy(double %0, double %1, double %2)
+
+declare i32 @printf(ptr %0, ...)
+
+declare double @probe_dispatch_window_score(double %0, double %1, double %2)
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

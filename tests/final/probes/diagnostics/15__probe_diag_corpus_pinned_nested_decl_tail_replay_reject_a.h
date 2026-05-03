@@ -1,0 +1,6 @@
+#ifndef PROBE_CORPUS_PINNED_NESTED_DECL_TAIL_REPLAY_REJECT_A_H
+#define PROBE_CORPUS_PINNED_NESTED_DECL_TAIL_REPLAY_REJECT_A_H
+
+#include "15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject_b.h"
+
+#endif

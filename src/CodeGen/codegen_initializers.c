@@ -211,6 +211,54 @@ static unsigned long long cg_eval_initializer_index(ASTNode* expr, bool* outSucc
     return 0;
 }
 
+static bool cg_entries_flat_scalars(DesignatedInit** entries, size_t entryCount) {
+    if (!entries || entryCount == 0) return false;
+    for (size_t i = 0; i < entryCount; ++i) {
+        DesignatedInit* entry = entries[i];
+        if (!entry || !entry->expression) continue;
+        if (entry->fieldName || entry->indexExpr) {
+            return false;
+        }
+        if (entry->expression->type == AST_COMPOUND_LITERAL) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool cg_expr_initializes_whole_aggregate(CodegenContext* ctx,
+                                                ASTNode* expr,
+                                                LLVMTypeRef destType) {
+    if (!ctx || !expr || !destType) return false;
+    LLVMTypeKind destKind = LLVMGetTypeKind(destType);
+    if (destKind != LLVMStructTypeKind && destKind != LLVMArrayTypeKind) {
+        return false;
+    }
+    if (expr->type == AST_COMPOUND_LITERAL) {
+        return true;
+    }
+
+    const ParsedType* exprParsed = cg_resolve_expression_type(ctx, expr);
+    if (!exprParsed || exprParsed->kind == TYPE_INVALID) {
+        return false;
+    }
+
+    LLVMTypeRef exprType = cg_type_from_parsed(ctx, exprParsed);
+    return exprType && exprType == destType;
+}
+
+static bool cg_entries_have_designators(DesignatedInit** entries, size_t entryCount) {
+    if (!entries || entryCount == 0) return false;
+    for (size_t i = 0; i < entryCount; ++i) {
+        DesignatedInit* entry = entries[i];
+        if (!entry) continue;
+        if (entry->fieldName || entry->indexExpr) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static bool cg_zero_initialize_storage(CodegenContext* ctx,
                                        LLVMValueRef destPtr,
                                        LLVMTypeRef destType,
@@ -329,12 +377,39 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
                                     const ParsedType* destParsed,
                                     DesignatedInit** entries,
                                     size_t entryCount);
+static bool cg_store_struct_flat_entries(CodegenContext* ctx,
+                                         LLVMValueRef destPtr,
+                                         LLVMTypeRef destType,
+                                         const ParsedType* destParsed,
+                                         DesignatedInit** entries,
+                                         size_t entryCount,
+                                         size_t* cursor);
 static bool cg_store_array_entries(CodegenContext* ctx,
                                    LLVMValueRef destPtr,
                                    LLVMTypeRef destType,
                                    const ParsedType* destParsed,
                                    DesignatedInit** entries,
-                                   size_t entryCount);
+                                    size_t entryCount);
+static bool cg_store_array_flat_entries(CodegenContext* ctx,
+                                        LLVMValueRef destPtr,
+                                        LLVMTypeRef destType,
+                                        const ParsedType* destParsed,
+                                        DesignatedInit** entries,
+                                        size_t entryCount,
+                                        size_t* cursor);
+static bool cg_store_designated_entries_impl(CodegenContext* ctx,
+                                             LLVMValueRef destPtr,
+                                             LLVMTypeRef destType,
+                                             const ParsedType* destParsed,
+                                             DesignatedInit** entries,
+                                             size_t entryCount,
+                                             bool zeroInitialize);
+static bool cg_store_compound_literal_into_ptr_impl(CodegenContext* ctx,
+                                                    LLVMValueRef destPtr,
+                                                    LLVMTypeRef destType,
+                                                    const ParsedType* destParsed,
+                                                    ASTNode* literalNode,
+                                                    bool zeroInitialize);
 
 bool cg_store_designated_entries(CodegenContext* ctx,
                                  LLVMValueRef destPtr,
@@ -342,6 +417,22 @@ bool cg_store_designated_entries(CodegenContext* ctx,
                                  const ParsedType* destParsed,
                                  DesignatedInit** entries,
                                  size_t entryCount) {
+    return cg_store_designated_entries_impl(ctx,
+                                            destPtr,
+                                            destType,
+                                            destParsed,
+                                            entries,
+                                            entryCount,
+                                            true);
+}
+
+static bool cg_store_designated_entries_impl(CodegenContext* ctx,
+                                             LLVMValueRef destPtr,
+                                             LLVMTypeRef destType,
+                                             const ParsedType* destParsed,
+                                             DesignatedInit** entries,
+                                             size_t entryCount,
+                                             bool zeroInitialize) {
     if (!ctx || !destPtr || !destType || LLVMGetTypeKind(destType) == LLVMVoidTypeKind) {
         return false;
     }
@@ -353,7 +444,8 @@ bool cg_store_designated_entries(CodegenContext* ctx,
          * initialized must become zero-initialized. Seed with a full byte-wise zero
          * before applying explicit designators/entries.
          */
-        if (!cg_zero_initialize_storage(ctx, destPtr, destType, destParsed)) {
+        if (zeroInitialize &&
+            !cg_zero_initialize_storage(ctx, destPtr, destType, destParsed)) {
             return false;
         }
 
@@ -375,6 +467,20 @@ bool cg_store_compound_literal_into_ptr(CodegenContext* ctx,
                                         LLVMTypeRef destType,
                                         const ParsedType* destParsed,
                                         ASTNode* literalNode) {
+    return cg_store_compound_literal_into_ptr_impl(ctx,
+                                                   destPtr,
+                                                   destType,
+                                                   destParsed,
+                                                   literalNode,
+                                                   true);
+}
+
+static bool cg_store_compound_literal_into_ptr_impl(CodegenContext* ctx,
+                                                    LLVMValueRef destPtr,
+                                                    LLVMTypeRef destType,
+                                                    const ParsedType* destParsed,
+                                                    ASTNode* literalNode,
+                                                    bool zeroInitialize) {
     if (!ctx || !destPtr || !literalNode || literalNode->type != AST_COMPOUND_LITERAL) {
         return false;
     }
@@ -393,12 +499,13 @@ bool cg_store_compound_literal_into_ptr(CodegenContext* ctx,
         return false;
     }
 
-    return cg_store_designated_entries(ctx,
-                                       destPtr,
-                                       destType,
-                                       destParsed,
-                                       literalNode->compoundLiteral.entries,
-                                       literalNode->compoundLiteral.entryCount);
+    return cg_store_designated_entries_impl(ctx,
+                                            destPtr,
+                                            destType,
+                                            destParsed,
+                                            literalNode->compoundLiteral.entries,
+                                            literalNode->compoundLiteral.entryCount,
+                                            zeroInitialize);
 }
 
 static bool cg_store_struct_entries(CodegenContext* ctx,
@@ -494,7 +601,15 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
         }
 
         if (valueExpr->type == AST_COMPOUND_LITERAL) {
-            if (!cg_store_compound_literal_into_ptr(ctx, fieldPtr, fieldType, fieldParsed, valueExpr)) {
+            bool mergeIntoExisting =
+                cg_entries_have_designators(valueExpr->compoundLiteral.entries,
+                                            valueExpr->compoundLiteral.entryCount);
+            if (!cg_store_compound_literal_into_ptr_impl(ctx,
+                                                         fieldPtr,
+                                                         fieldType,
+                                                         fieldParsed,
+                                                         valueExpr,
+                                                         !mergeIntoExisting)) {
                 return false;
             }
         } else {
@@ -502,6 +617,203 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
                 return false;
             }
         }
+    }
+    return true;
+}
+
+static bool cg_store_struct_flat_entries(CodegenContext* ctx,
+                                         LLVMValueRef destPtr,
+                                         LLVMTypeRef destType,
+                                         const ParsedType* destParsed,
+                                         DesignatedInit** entries,
+                                         size_t entryCount,
+                                         size_t* cursor) {
+    if (!ctx || !destPtr || !cursor || LLVMGetTypeKind(destType) != LLVMStructTypeKind) {
+        return false;
+    }
+
+    unsigned fieldCount = LLVMCountStructElementTypes(destType);
+    for (unsigned fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
+        if (*cursor >= entryCount) {
+            break;
+        }
+
+        const char* fieldName = NULL;
+        const ParsedType* fieldParsed = NULL;
+        (void)cg_init_field_by_index(ctx, destParsed, fieldIndex, &fieldName, &fieldParsed);
+
+        LLVMTypeRef fieldType = LLVMStructGetTypeAtIndex(destType, fieldIndex);
+        LLVMValueRef fieldPtr =
+            LLVMBuildStructGEP2(ctx->builder, destType, destPtr, fieldIndex, "init.flat.field");
+        if (!fieldPtr || !fieldType) {
+            return false;
+        }
+
+        DesignatedInit* entry = entries[*cursor];
+        if (!entry || !entry->expression) {
+            (*cursor)++;
+            continue;
+        }
+
+        if (entry->expression->type == AST_COMPOUND_LITERAL) {
+            if (!cg_store_compound_literal_into_ptr(ctx,
+                                                    fieldPtr,
+                                                    fieldType,
+                                                    fieldParsed,
+                                                    entry->expression)) {
+                return false;
+            }
+            (*cursor)++;
+            continue;
+        }
+
+        if (cg_expr_initializes_whole_aggregate(ctx, entry->expression, fieldType)) {
+            if (!cg_store_initializer_expression(ctx, fieldPtr, fieldType, fieldParsed, entry->expression)) {
+                return false;
+            }
+            (*cursor)++;
+            continue;
+        }
+
+        if (LLVMGetTypeKind(fieldType) == LLVMArrayTypeKind) {
+            if (!cg_store_array_flat_entries(ctx,
+                                             fieldPtr,
+                                             fieldType,
+                                             fieldParsed,
+                                             entries,
+                                             entryCount,
+                                             cursor)) {
+                return false;
+            }
+            continue;
+        }
+
+        if (LLVMGetTypeKind(fieldType) == LLVMStructTypeKind) {
+            if (!cg_store_struct_flat_entries(ctx,
+                                              fieldPtr,
+                                              fieldType,
+                                              fieldParsed,
+                                              entries,
+                                              entryCount,
+                                              cursor)) {
+                return false;
+            }
+            continue;
+        }
+
+        if (!cg_store_initializer_expression(ctx, fieldPtr, fieldType, fieldParsed, entry->expression)) {
+            return false;
+        }
+        (*cursor)++;
+    }
+
+    return true;
+}
+
+static bool cg_store_array_flat_entries(CodegenContext* ctx,
+                                        LLVMValueRef destPtr,
+                                        LLVMTypeRef destType,
+                                        const ParsedType* destParsed,
+                                        DesignatedInit** entries,
+                                        size_t entryCount,
+                                        size_t* cursor) {
+    if (!ctx || !destPtr || !cursor || LLVMGetTypeKind(destType) != LLVMArrayTypeKind) {
+        return false;
+    }
+
+    LLVMTypeRef elementType = LLVMGetElementType(destType);
+    ParsedType elementParsedStorage = {0};
+    const ParsedType* elementParsed = NULL;
+    bool hasElementParsed = false;
+    if (destParsed && parsedTypeIsDirectArray(destParsed)) {
+        elementParsedStorage = parsedTypeArrayElementType(destParsed);
+        elementParsed = &elementParsedStorage;
+        hasElementParsed = true;
+    }
+
+    unsigned length = LLVMGetArrayLength(destType);
+    LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+    for (unsigned i = 0; i < length; ++i) {
+        if (*cursor >= entryCount) {
+            break;
+        }
+
+        DesignatedInit* entry = entries[*cursor];
+        if (!entry || !entry->expression) {
+            (*cursor)++;
+            continue;
+        }
+
+        LLVMValueRef idxVals[2] = {
+            zero,
+            LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), i, 0)
+        };
+        LLVMValueRef elementPtr =
+            LLVMBuildGEP2(ctx->builder, destType, destPtr, idxVals, 2, "init.flat.elem");
+
+        if (entry->expression->type == AST_COMPOUND_LITERAL) {
+            bool mergeIntoExisting =
+                cg_entries_have_designators(entry->expression->compoundLiteral.entries,
+                                            entry->expression->compoundLiteral.entryCount);
+            if (!cg_store_compound_literal_into_ptr_impl(ctx,
+                                                         elementPtr,
+                                                         elementType,
+                                                         elementParsed,
+                                                         entry->expression,
+                                                         !mergeIntoExisting)) {
+                if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
+                return false;
+            }
+            (*cursor)++;
+            continue;
+        }
+
+        if (cg_expr_initializes_whole_aggregate(ctx, entry->expression, elementType)) {
+            if (!cg_store_initializer_expression(ctx, elementPtr, elementType, elementParsed, entry->expression)) {
+                if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
+                return false;
+            }
+            (*cursor)++;
+            continue;
+        }
+
+        if (LLVMGetTypeKind(elementType) == LLVMArrayTypeKind) {
+            if (!cg_store_array_flat_entries(ctx,
+                                             elementPtr,
+                                             elementType,
+                                             elementParsed,
+                                             entries,
+                                             entryCount,
+                                             cursor)) {
+                if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
+                return false;
+            }
+            continue;
+        }
+
+        if (LLVMGetTypeKind(elementType) == LLVMStructTypeKind) {
+            if (!cg_store_struct_flat_entries(ctx,
+                                              elementPtr,
+                                              elementType,
+                                              elementParsed,
+                                              entries,
+                                              entryCount,
+                                              cursor)) {
+                if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
+                return false;
+            }
+            continue;
+        }
+
+        if (!cg_store_initializer_expression(ctx, elementPtr, elementType, elementParsed, entry->expression)) {
+            if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
+            return false;
+        }
+        (*cursor)++;
+    }
+
+    if (hasElementParsed) {
+        parsedTypeFree(&elementParsedStorage);
     }
     return true;
 }
@@ -515,9 +827,32 @@ static bool cg_store_array_entries(CodegenContext* ctx,
     if (!ctx || !destPtr || LLVMGetTypeKind(destType) != LLVMArrayTypeKind) {
         return false;
     }
-    (void)destParsed;
 
     LLVMTypeRef elementType = LLVMGetElementType(destType);
+    if ((LLVMGetTypeKind(elementType) == LLVMArrayTypeKind ||
+         LLVMGetTypeKind(elementType) == LLVMStructTypeKind) &&
+        cg_entries_flat_scalars(entries, entryCount)) {
+        bool hasWholeAggregateEntries = false;
+        for (size_t i = 0; i < entryCount; ++i) {
+            DesignatedInit* entry = entries[i];
+            if (!entry || !entry->expression) continue;
+            if (cg_expr_initializes_whole_aggregate(ctx, entry->expression, elementType)) {
+                hasWholeAggregateEntries = true;
+                break;
+            }
+        }
+        if (!hasWholeAggregateEntries) {
+        size_t cursor = 0;
+        return cg_store_array_flat_entries(ctx,
+                                           destPtr,
+                                           destType,
+                                           destParsed,
+                                           entries,
+                                           entryCount,
+                                           &cursor);
+        }
+    }
+
     unsigned long long implicitIndex = 0;
     for (size_t i = 0; i < entryCount; ++i) {
         DesignatedInit* entry = entries[i];
@@ -537,15 +872,35 @@ static bool cg_store_array_entries(CodegenContext* ctx,
             LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), (unsigned)targetIndex, 0)
         };
         LLVMValueRef elementPtr = LLVMBuildGEP2(ctx->builder, destType, destPtr, idxVals, 2, "init.elem");
+        ParsedType elementParsedStorage = {0};
         const ParsedType* elementParsed = NULL;
+        bool hasElementParsed = false;
+        if (destParsed && parsedTypeIsDirectArray(destParsed)) {
+            elementParsedStorage = parsedTypeArrayElementType(destParsed);
+            elementParsed = &elementParsedStorage;
+            hasElementParsed = true;
+        }
         if (entry->expression->type == AST_COMPOUND_LITERAL) {
-            if (!cg_store_compound_literal_into_ptr(ctx, elementPtr, elementType, elementParsed, entry->expression)) {
+            bool mergeIntoExisting =
+                cg_entries_have_designators(entry->expression->compoundLiteral.entries,
+                                            entry->expression->compoundLiteral.entryCount);
+            if (!cg_store_compound_literal_into_ptr_impl(ctx,
+                                                         elementPtr,
+                                                         elementType,
+                                                         elementParsed,
+                                                         entry->expression,
+                                                         !mergeIntoExisting)) {
+                if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
                 return false;
             }
         } else {
             if (!cg_store_initializer_expression(ctx, elementPtr, elementType, elementParsed, entry->expression)) {
+                if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
                 return false;
             }
+        }
+        if (hasElementParsed) {
+            parsedTypeFree(&elementParsedStorage);
         }
     }
     return true;

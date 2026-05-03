@@ -1,0 +1,10 @@
+Diagnostics:
+Error: '{' at virtual_probe_ir_parser_nested_switch_for_missing_body_diagjson.c:134503 (got 'for')
+Error: Unexpected token at start of expression at virtual_probe_ir_parser_nested_switch_for_missing_body_diagjson.c:134503 (got 'for')
+Error: Unexpected token at start of expression at virtual_probe_ir_parser_nested_switch_for_missing_body_diagjson.c:134503 (got ')')
+Error: Failed to parse expression at line 134503
+Error: invalid statement inside block at line 134503
+Error: Failed to parse expression at line 134503
+Error: invalid statement inside block at line 134503
+Error at (134501:5): Control reaches end of non-void function 'main'
+   Spelling: virtual_probe_ir_parser_nested_switch_for_missing_body_diagjson.c:134501:5

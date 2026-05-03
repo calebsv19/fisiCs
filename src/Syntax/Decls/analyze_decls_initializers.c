@@ -22,6 +22,8 @@ static bool parsedTypeIsFunctionPointerLike(const ParsedType* type);
 static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destType,
                                                          const ParsedType* srcType);
 static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope);
+static bool isStaticStorageObjectAddressConstant(ASTNode* expr, Scope* scope);
+static bool aggregateStaticInitializerIsConstant(ASTNode* expr, Scope* scope);
 static bool isStringLiteralInitializer(DesignatedInit* init);
 static bool array_inner_block_size(const ParsedType* type, size_t* outSize);
 static void validateArrayInitializerEntries(ParsedType* type,
@@ -166,6 +168,49 @@ static bool typeInfoIsStructLike(const TypeInfo* info) {
     return info && (info->category == TYPEINFO_STRUCT || info->category == TYPEINFO_UNION);
 }
 
+static bool staticInitializerLeafIsConstant(ASTNode* expr, Scope* scope) {
+    if (!expr) return true;
+    if (expr->type == AST_STRING_LITERAL) {
+        return true;
+    }
+    if (isFunctionAddressConstant(expr, scope)) {
+        return true;
+    }
+    if (isStaticStorageObjectAddressConstant(expr, scope)) {
+        return true;
+    }
+    if (isSimpleFloatingConstExpr(expr, scope, 0)) {
+        return true;
+    }
+    long long ignored = 0;
+    return constEvalInteger(expr, scope, &ignored, true);
+}
+
+static bool aggregateStaticInitializerIsConstant(ASTNode* expr, Scope* scope) {
+    if (!expr) return true;
+    if (expr->type != AST_COMPOUND_LITERAL) {
+        return staticInitializerLeafIsConstant(expr, scope);
+    }
+
+    for (size_t i = 0; i < expr->compoundLiteral.entryCount; ++i) {
+        DesignatedInit* entry =
+            expr->compoundLiteral.entries ? expr->compoundLiteral.entries[i] : NULL;
+        if (!entry) {
+            continue;
+        }
+        if (entry->indexExpr) {
+            long long indexValue = 0;
+            if (!constEvalInteger(entry->indexExpr, scope, &indexValue, true)) {
+                return false;
+            }
+        }
+        if (!aggregateStaticInitializerIsConstant(entry->expression, scope)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void validateVariableInitializer(ParsedType* type,
                                  DesignatedInit* init,
                                  ASTNode* nameNode,
@@ -181,6 +226,17 @@ void validateVariableInitializer(ParsedType* type,
     if (!init) return;
     const char* name = safeIdentifierName(nameNode);
     profiler_record_value("semantic_count_type_info_decl_var_init_target", 1);
+    if (staticStorage &&
+        init->expression &&
+        init->expression->type == AST_COMPOUND_LITERAL &&
+        !aggregateStaticInitializerIsConstant(init->expression, scope)) {
+        char buffer[256];
+        snprintf(buffer,
+                 sizeof(buffer),
+                 "Initializer for static variable '%s' is not a constant expression",
+                 name ? name : "<unnamed>");
+        addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+    }
     TypeInfo info = typeInfoFromParsedType(type, scope);
     if (init->expression &&
         typeInfoIsPointerLike(&info) &&
@@ -467,6 +523,52 @@ static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope) {
                    isFunctionAddressConstant(expr->expr.left, scope);
         case AST_CAST_EXPRESSION:
             return isFunctionAddressConstant(expr->castExpr.expression, scope);
+        default:
+            return false;
+    }
+}
+
+static bool isStaticStorageObjectAddressConstant(ASTNode* expr, Scope* scope) {
+    if (!expr || !scope) return false;
+    switch (expr->type) {
+        case AST_UNARY_EXPRESSION:
+            if (!expr->expr.op ||
+                strcmp(expr->expr.op, "&") != 0 ||
+                !expr->expr.left ||
+                expr->expr.left->type != AST_IDENTIFIER ||
+                !expr->expr.left->valueNode.value) {
+                return false;
+            }
+            {
+                Symbol* sym = resolveInScopeChain(scope, expr->expr.left->valueNode.value);
+                if (!sym || sym->kind != SYMBOL_VARIABLE) {
+                    return false;
+                }
+                if (sym->storage == STORAGE_STATIC) {
+                    return true;
+                }
+                if (!sym->definition || sym->definition->type != AST_VARIABLE_DECLARATION) {
+                    return false;
+                }
+                ASTNode* decl = sym->definition;
+                for (size_t i = 0; i < decl->varDecl.varCount; ++i) {
+                    ASTNode* ident = decl->varDecl.varNames ? decl->varDecl.varNames[i] : NULL;
+                    if (!ident || ident->type != AST_IDENTIFIER || !ident->valueNode.value) {
+                        continue;
+                    }
+                    if (strcmp(ident->valueNode.value, sym->name) != 0) {
+                        continue;
+                    }
+                    const ParsedType* parsed = astVarDeclTypeAt(decl, i);
+                    if (parsed && parsed->isStatic) {
+                        return true;
+                    }
+                    break;
+                }
+                return decl->varDecl.declaredType.isStatic;
+            }
+        case AST_CAST_EXPRESSION:
+            return isStaticStorageObjectAddressConstant(expr->castExpr.expression, scope);
         default:
             return false;
     }

@@ -429,6 +429,18 @@ DIAG_PROBES = [
         required_substrings=['Expected identifier in declarator'],
     ),
     DiagnosticProbe(
+        probe_id='15__probe_diag_corpus_pinned_nested_macro_replay_reject',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject.c',
+        note='pinned corpus nested macro-replay fragment should fail closed in preprocessing',
+        required_substrings=['invalid parameter list in #define'],
+    ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject.c',
+        note='pinned corpus nested declaration-tail replay fragment should fail closed with parser diagnostic',
+        required_substrings=['Expected identifier in declarator'],
+    ),
+    DiagnosticProbe(
         probe_id='15__probe_diag_pathological_initializer_shape_reject',
         source=PROBE_DIR / 'diagnostics/15__probe_diag_pathological_initializer_shape_reject.c',
         note='pathological designated-initializer shape should fail closed with deterministic diagnostics',

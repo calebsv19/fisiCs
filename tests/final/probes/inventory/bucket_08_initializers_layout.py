@@ -5,7 +5,33 @@ from lib.models import DiagnosticJsonProbe, DiagnosticProbe, RuntimeProbe
 
 PROBE_DIR = Path(__file__).resolve().parent.parent
 
-RUNTIME_PROBES = []
+RUNTIME_PROBES = [
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designated_override_zero_fill',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designated_override_zero_fill.c',
+        note='designated initializer override order and implicit zero-fill should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_brace_elision_matrix',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_brace_elision_matrix.c',
+        note='nested aggregate brace elision should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_union_designator_selection',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_union_designator_selection.c',
+        note='union designated-member selection inside aggregate initializers should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_sparse_designator_checksum_grid',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_sparse_designator_checksum_grid.c',
+        note='sparse array designated initializers and implicit zero-fill should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_designator_override_chain',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_designator_override_chain.c',
+        note='nested designated initializer override chains should match clang runtime behavior',
+    ),
+]
 
 DIAG_PROBES = [
     DiagnosticProbe(
@@ -168,6 +194,108 @@ DIAG_PROBES = [
         note='reduced threshold: include-header union flexible-member text diagnostics should emit semantic rejection message',
         required_substrings=['Flexible array members are not allowed in unions'],
         inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_union_flex_member_spelling_strict.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_union_flex_member_spelling_strict.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_designator_unknown_field_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_designator_unknown_field_rich_presence.c',
+        note='strict frontier: designator unknown-field text diagnostics under #line remap should preserve error line and spelling file/line',
+        required_substrings=[
+            "Error at (3006:39): Unknown field 'missing' in designated initializer for 'value'",
+            'Spelling: virtual_init_designator_unknown_field_probe.c:3006:39',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_designator_array_index_oob_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_designator_array_index_oob_rich_presence.c',
+        note='strict frontier: designator array-index-oob text diagnostics under #line remap should preserve error line and spelling file/line',
+        required_substrings=[
+            "Error at (3101:16): Array 'arr' designator index 3 is out of bounds (size 2)",
+            'Spelling: virtual_init_designator_array_oob_probe.c:3101:16',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_include_designator_unknown_field_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_unknown_field_rich_presence.c',
+        note='strict frontier: include-header designator unknown-field text diagnostics under #line remap should preserve error line and spelling file/line',
+        required_substrings=[
+            "Error at (3406:39): Unknown field 'missing' in designated initializer for 'value'",
+            'Spelling: virtual_init_include_designator_unknown_field_probe.h:3406:39',
+        ],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_unknown_field_rich_presence.c', PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_unknown_field_rich_presence.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_include_designator_array_index_oob_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c',
+        note='strict frontier: include-header designator array-index-oob text diagnostics under #line remap should preserve error line and spelling file/line',
+        required_substrings=[
+            "Error at (3501:16): Array 'arr' designator index 3 is out of bounds (size 2)",
+            'Spelling: virtual_init_include_designator_array_oob_probe.h:3501:16',
+        ],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c', PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_nested_designator_unknown_field_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_nested_designator_unknown_field_rich_presence.c',
+        note='strict frontier: nested designator unknown-field text diagnostics under #line remap should preserve error line and spelling file/line',
+        required_substrings=[
+            "Error at (4006:20): Unknown field 'missing' in designated initializer for 'g'",
+            'Spelling: virtual_init_nested_designator_unknown_field_probe.c:4006:20',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_nested_designator_array_index_oob_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_nested_designator_array_oob_rich_presence.c',
+        note='strict frontier: nested designator array-index-oob text diagnostics under #line remap should preserve error line and spelling file/line',
+        required_substrings=[
+            "Error at (4103:10): Array 'grid' designator index 3 is out of bounds (size 2)",
+            'Spelling: virtual_init_nested_designator_array_oob_probe.c:4103:10',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_include_nested_designator_unknown_field_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_nested_designator_unknown_field_rich_presence.c',
+        note='strict frontier: include-header nested designator unknown-field text diagnostics under #line remap should preserve error line and spelling file/line',
+        required_substrings=[
+            "Error at (4206:20): Unknown field 'missing' in designated initializer for 'g'",
+            'Spelling: virtual_init_include_nested_designator_unknown_field_probe.h:4206:20',
+        ],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_nested_designator_unknown_field_rich_presence.c', PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_nested_designator_unknown_field_rich_presence.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_include_nested_designator_array_index_oob_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_oob_rich_presence.c',
+        note='strict frontier: include-header nested designator array-index-oob text diagnostics under #line remap should preserve error line and spelling file/line',
+        required_substrings=[
+            "Error at (4303:10): Array 'grid' designator index 3 is out of bounds (size 2)",
+            'Spelling: virtual_init_include_nested_designator_array_oob_probe.h:4303:10',
+        ],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_oob_rich_presence.c', PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_nested_designator_array_oob_rich_presence.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_file_scope_designated_nonconst_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_designated_nonconst_reject.c',
+        note='file-scope designated initializer should reject non-constant field expressions',
+        required_substrings=["Initializer for static variable 'g' is not a constant expression"],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_file_scope_include_designated_nonconst_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.c',
+        note='include-header file-scope designated initializer should reject non-constant field expressions',
+        required_substrings=["Initializer for static variable 'g' is not a constant expression"],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_file_scope_nested_designated_nonconst_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_nested_designated_nonconst_reject.c',
+        note='file-scope nested designated initializer should reject non-constant aggregate field expressions',
+        required_substrings=["Initializer for static variable 'state' is not a constant expression"],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_file_scope_include_nested_designated_nonconst_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c',
+        note='include-header file-scope nested designated initializer should reject non-constant aggregate field expressions',
+        required_substrings=["Initializer for static variable 'state' is not a constant expression"],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.h'],
     ),
 ]
 
@@ -463,5 +591,31 @@ DIAG_JSON_PROBES = [
         note='reduced threshold: include-header union flexible-member diagnostics JSON currently emits sparse semantic payload',
         expected_codes=[2000],
         inputs=[PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_union_flex_member_rich_presence.c', PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_union_flex_member_rich_presence.h'],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_file_scope_designated_nonconst_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_designated_nonconst_reject.c',
+        note='diagnostics JSON should include file-scope designated non-constant initializer rejection',
+        expected_codes=[2000],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_file_scope_include_designated_nonconst_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.c',
+        note='diagnostics JSON should include include-header file-scope designated non-constant initializer rejection',
+        expected_codes=[2000],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.h'],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_file_scope_nested_designated_nonconst_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_nested_designated_nonconst_reject.c',
+        note='diagnostics JSON should include file-scope nested designated non-constant initializer rejection',
+        expected_codes=[2000],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_file_scope_include_nested_designated_nonconst_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c',
+        note='diagnostics JSON should include include-header file-scope nested designated non-constant initializer rejection',
+        expected_codes=[2000],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.h'],
     ),
 ]

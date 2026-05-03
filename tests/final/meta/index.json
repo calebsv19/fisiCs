@@ -383,6 +383,22 @@
     "15-torture-differential-wave76-physics-units-indirect-callee-promotions.json",
     "15-torture-differential-wave77-physics-units-boundary-expansion.json",
     "14-runtime-surface-wave119-physics-units-loop-branch-runtime.json",
-    "15-torture-differential-wave78-physics-units-loop-branch-sema.json"
+    "15-torture-differential-wave78-physics-units-loop-branch-sema.json",
+    "14-runtime-surface-wave120-physics-units-multitu-runtime.json",
+    "15-torture-differential-wave79-physics-units-multitu-sema.json",
+    "14-runtime-surface-wave121-physics-units-multitu-callback-runtime.json",
+    "15-torture-differential-wave80-physics-units-multitu-callback-sema.json",
+    "14-runtime-surface-wave122-physics-units-multitu-checkpoint-runtime.json",
+    "15-torture-differential-wave81-physics-units-multitu-checkpoint-sema.json",
+    "14-runtime-surface-wave123-physics-units-multitu-cpu-runtime.json",
+    "15-torture-differential-wave82-physics-units-multitu-cpu-sema.json",
+    "14-runtime-surface-wave124-physics-units-multitu-cpu-ladder-runtime.json",
+    "15-torture-differential-wave83-physics-units-multitu-cpu-ladder-sema.json",
+    "14-runtime-surface-wave125-physics-units-multitu-gpu-runtime.json",
+    "15-torture-differential-wave84-physics-units-multitu-gpu-sema.json",
+    "14-runtime-surface-wave126-determinism-linkorder-promotions.json",
+    "15-torture-differential-wave85-corpus-reduction-replay-promotions.json",
+    "11-functions-calls-wave24-line-directive-multitu-return-family-remap-depth.json",
+    "13-codegen-ir-wave34-parser-recovery-line-directive-nested-malformed-body-stress.json"
   ]
 }

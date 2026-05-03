@@ -267,6 +267,16 @@ DIAG_JSON_PROBES = [
         note='diagnostics JSON should be exported for pinned-corpus typedef-decl-cycle rejection',
     ),
     DiagnosticJsonProbe(
+        probe_id='15__probe_diagjson_corpus_pinned_nested_macro_replay_reject',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject.c',
+        note='diagnostics JSON should be exported for pinned-corpus nested macro-replay rejection',
+    ),
+    DiagnosticJsonProbe(
+        probe_id='15__probe_diagjson_corpus_pinned_nested_decl_tail_replay_reject',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_corpus_pinned_nested_decl_tail_replay_reject.c',
+        note='diagnostics JSON should be exported for pinned-corpus nested declaration-tail replay rejection',
+    ),
+    DiagnosticJsonProbe(
         probe_id='15__probe_diagjson_pathological_initializer_rewrite_surface_reject',
         source=PROBE_DIR / 'diagnostics/15__probe_diag_pathological_initializer_rewrite_surface_reject.c',
         note='diagnostics JSON should be exported for pathological initializer-rewrite surface rejection',
