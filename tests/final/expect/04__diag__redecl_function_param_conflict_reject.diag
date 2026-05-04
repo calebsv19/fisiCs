@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:5): Conflicting types for function
+   Hint: shape_conflict
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_redecl_function_param_conflict_reject.c:2:5

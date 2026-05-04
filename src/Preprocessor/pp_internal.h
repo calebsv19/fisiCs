@@ -41,12 +41,35 @@ void skip_to_line_end(const Token* tokens, size_t count, size_t* cursor);
 bool pp_debug_fail_enabled(void);
 void pp_debug_fail(const char* label, const Token* tok);
 const char* token_file(const Token* tok);
+bool pp_append_directive_line(const Token* tokens,
+                              size_t count,
+                              size_t cursor,
+                              PPTokenBuffer* output,
+                              Preprocessor* pp);
+bool pp_directive_has_trailing_tokens(const Token* tokens,
+                                      size_t count,
+                                      size_t cursor);
+bool pp_skip_pragma_operator(const Token* tokens,
+                             size_t count,
+                             size_t* cursor);
+bool pp_flush_chunk_profiled(Preprocessor* pp,
+                             PPTokenBuffer* chunk,
+                             PPTokenBuffer* output,
+                             bool nestedIncludeBody,
+                             bool includePathBody);
+size_t pp_count_line_tokens_from_cursor(const Token* tokens,
+                                        size_t count,
+                                        size_t cursor);
+bool pp_debug_layout_enabled(void);
 bool pp_set_base_file(Preprocessor* pp, const char* path);
 bool pp_set_logical_file(Preprocessor* pp, const char* path);
 bool pp_append_number_literal(Preprocessor* pp,
                               PPTokenBuffer* buffer,
                               const Token* base,
                               const char* text);
+void pp_define_predefined_macros(Preprocessor* pp,
+                                 const char* const* macroDefines,
+                                 size_t macroDefineCount);
 bool pp_summary_raw_range_can_clone_direct(Preprocessor* pp,
                                            const Token* tokens,
                                            size_t count,

@@ -352,9 +352,13 @@ ASTNode* parseStructDefinition(Parser* parser) {
 
     char* structName = NULL;
     int structLine = 0;
+    Token structTagTok = {0};
+    bool haveStructTagTok = false;
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         const char* tagName = parser->currentToken.value;
         structLine = parser->currentToken.line;
+        structTagTok = parser->currentToken;
+        haveStructTagTok = true;
         structName = strdup(tagName);
         // Phase 2 hook: record the tag name in the struct tag namespace
         if (parser->ctx && tagName && tagName[0]) {
@@ -407,7 +411,12 @@ ASTNode* parseStructDefinition(Parser* parser) {
     );
     if (def) {
         def->line = structLine;
-        if (def->structDef.structName) def->structDef.structName->line = structLine;
+        if (def->structDef.structName) {
+            def->structDef.structName->line = structLine;
+            if (haveStructTagTok) {
+                astNodeSetProvenance(def->structDef.structName, &structTagTok);
+            }
+        }
         def->structDef.hasFlexibleArray = hasFlexible;
         astNodeAppendAttributes(def, structAttrs, structAttrCount);
         astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
@@ -463,9 +472,13 @@ ASTNode* parseUnionDefinition(Parser* parser) {
 
     char* unionName = NULL;
     int unionLine = 0;
+    Token unionTagTok = {0};
+    bool haveUnionTagTok = false;
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         const char* tagName = parser->currentToken.value;
         unionLine = parser->currentToken.line;
+        unionTagTok = parser->currentToken;
+        haveUnionTagTok = true;
         unionName = strdup(tagName);
         // Phase 2 hook: record union tag
         if (parser->ctx && tagName && tagName[0]) {
@@ -504,7 +517,12 @@ ASTNode* parseUnionDefinition(Parser* parser) {
     );
     if (def) {
         def->line = unionLine;
-        if (def->structDef.structName) def->structDef.structName->line = unionLine;
+        if (def->structDef.structName) {
+            def->structDef.structName->line = unionLine;
+            if (haveUnionTagTok) {
+                astNodeSetProvenance(def->structDef.structName, &unionTagTok);
+            }
+        }
         def->structDef.hasFlexibleArray = hasFlexible;
         astNodeAppendAttributes(def, unionAttrs, unionAttrCount);
         astNodeAppendAttributes(def, trailingAttrs, trailingAttrCount);
@@ -669,9 +687,13 @@ ASTNode* parseEnumDefinition(Parser* parser) {
     ASTAttribute** enumAttrs = parserParseAttributeSpecifiers(parser, &enumAttrCount);
 
     const char* enumName = NULL;
+    Token enumTagTok = {0};
+    bool haveEnumTagTok = false;
     if (parser->currentToken.type == TOKEN_IDENTIFIER) {
         enumName = parser->currentToken.value;
         enumLine = parser->currentToken.line;
+        enumTagTok = parser->currentToken;
+        haveEnumTagTok = true;
         // Phase 2 hook: record enum tag
         if (parser->ctx && enumName && enumName[0]) {
             cc_add_tag(parser->ctx, CC_TAG_ENUM, enumName);
@@ -783,7 +805,12 @@ ASTNode* parseEnumDefinition(Parser* parser) {
     ASTNode* node = createEnumDefinitionNode(enumName, members, values, count);
     if (node) {
         node->line = enumLine;
-        if (node->enumDef.enumName) node->enumDef.enumName->line = enumLine;
+        if (node->enumDef.enumName) {
+            node->enumDef.enumName->line = enumLine;
+            if (haveEnumTagTok) {
+                astNodeSetProvenance(node->enumDef.enumName, &enumTagTok);
+            }
+        }
         astNodeAppendAttributes(node, enumAttrs, enumAttrCount);
         enumAttrs = NULL;
         enumAttrCount = 0;
@@ -793,131 +820,6 @@ ASTNode* parseEnumDefinition(Parser* parser) {
     }
     return node;
 }
-
-
-
-ASTNode* parseTypedef(Parser* parser) {
-    if (parser->currentToken.type != TOKEN_TYPEDEF) {
-        printParseError("Expected 'typedef'", parser);
-        return NULL;
-    }
-
-    advance(parser); // consume 'typedef'
-
-    // Parse the base type (handles 'struct/union/enum' as needed)
-    ParsedType baseType = parseType(parser);
-    ASTNode** typedefNodes = NULL;
-    size_t typedefCount = 0;
-    size_t typedefCapacity = 0;
-
-    while (true) {
-        ParsedType declaratorBase = parsedTypeClone(&baseType);
-        ParsedDeclarator decl;
-        if (!parserParseDeclarator(parser, &declaratorBase, false, true, false, &decl)) {
-            parsedTypeFree(&declaratorBase);
-            const char* dbgFail = getenv("DEBUG_TYPEDEF_FAIL");
-            if (dbgFail) {
-                fprintf(stderr,
-                        "[typedef] declarator parse failed at line %d token=%s\n",
-                        parser->currentToken.line,
-                        parser->currentToken.value ? parser->currentToken.value : "<null>");
-            }
-            if (typedefCount == 0 &&
-                parser->currentToken.type == TOKEN_SEMICOLON &&
-                parser->tokenBuffer && parser->cursor > 0) {
-                const Token* prev = token_buffer_peek(parser->tokenBuffer, parser->cursor - 1);
-                if (prev && prev->type == TOKEN_IDENTIFIER) {
-                    ASTNode* alias = createIdentifierNode(prev->value);
-                    if (alias) {
-                        alias->line = prev->line;
-                        astNodeSetProvenance(alias, prev);
-                    }
-                    advance(parser); // consume ';'
-                    if (parser->ctx && prev->value && prev->value[0]) {
-                        cc_add_typedef(parser->ctx, prev->value);
-                    }
-                    ASTNode* node = createTypedefNode(baseType, alias);
-                    return node;
-                }
-            }
-            printParseError("Invalid typedef declarator", parser);
-            parsedTypeFree(&baseType);
-            free(typedefNodes);
-            return NULL;
-        }
-
-        if (typedefCount >= typedefCapacity) {
-            size_t newCapacity = typedefCapacity ? (typedefCapacity * 2) : 2;
-            ASTNode** resized = (ASTNode**)realloc(typedefNodes, newCapacity * sizeof(*resized));
-            if (!resized) {
-                parsedTypeFree(&baseType);
-                parsedTypeFree(&decl.type);
-                free(typedefNodes);
-                fprintf(stderr, "OOM: typedef declarator list\n");
-                return NULL;
-            }
-            typedefNodes = resized;
-            typedefCapacity = newCapacity;
-        }
-
-        ASTNode* node = createTypedefNode(decl.type, decl.identifier);
-        if (!node) {
-            parsedTypeFree(&baseType);
-            parsedTypeFree(&decl.type);
-            free(typedefNodes);
-            fprintf(stderr, "OOM: typedef node\n");
-            return NULL;
-        }
-        typedefNodes[typedefCount++] = node;
-
-        if (parser->currentToken.type != TOKEN_COMMA) {
-            break;
-        }
-        advance(parser); // consume ','
-    }
-    parsedTypeFree(&baseType);
-
-    size_t typedefAttrCount = 0;
-    ASTAttribute** typedefAttrs = parserParseAttributeSpecifiers(parser, &typedefAttrCount);
-
-    if (parser->currentToken.type != TOKEN_SEMICOLON) {
-        printParseError("Expected ';' after typedef", parser);
-        astAttributeListDestroy(typedefAttrs, typedefAttrCount);
-        free(typedefAttrs);
-        free(typedefNodes);
-        return NULL;
-    }
-    advance(parser); // consume ';'
-
-    for (size_t i = 0; i < typedefCount; ++i) {
-        ASTNode* node = typedefNodes[i];
-        ASTNode* alias = node ? node->typedefStmt.alias : NULL;
-        const char* aliasName = (alias && alias->valueNode.value) ? alias->valueNode.value : NULL;
-        if (parser->ctx && aliasName && aliasName[0]) {
-            cc_add_typedef(parser->ctx, aliasName);
-        }
-        if (!node) {
-            continue;
-        }
-        astNodeCloneTypeAttributes(node, &node->typedefStmt.baseType);
-        if (typedefAttrCount == 0) {
-            continue;
-        }
-        ASTAttribute** attrCopy = astAttributeListClone(typedefAttrs, typedefAttrCount);
-        astNodeAppendAttributes(node, attrCopy, typedefAttrCount);
-    }
-    astAttributeListDestroy(typedefAttrs, typedefAttrCount);
-    free(typedefAttrs);
-
-    if (typedefCount == 1) {
-        ASTNode* single = typedefNodes[0];
-        free(typedefNodes);
-        return single;
-    }
-
-    return createProgramNode(typedefNodes, typedefCount);
-}
-
 
 
 

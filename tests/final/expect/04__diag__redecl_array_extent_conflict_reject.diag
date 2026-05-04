@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (2:5): Conflicting types for variable
+   Hint: shared_extent
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_redecl_array_extent_conflict_reject.c:2:5

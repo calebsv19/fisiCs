@@ -8,10 +8,10 @@
       "has_file": true,
       "has_hint": true,
       "has_message": true,
-      "hint": "Previous definition at virtual_scope_multitu_include_extern_type_conflict_main_diagjson_strict.c:9302:5",
+      "hint": "Previous definition at virtual_scope_multitu_include_extern_type_conflict_main_diagjson_strict.c:9301:5",
       "kind": 0,
       "length": 1,
-      "line": 9202,
+      "line": 9201,
       "message": "Conflicting types for variable 'wave9_mt_inc_shared' across translation units"
     }
   ],

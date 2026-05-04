@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__multitu_typedef_fnptr_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_typedef_fnptr_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_typedef_fnptr_bridge_main.c",
+        "probes/runtime/04__probe_multitu_typedef_fnptr_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_typedef_fnptr_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "typedef", "fnptr", "clean-path", "wave14", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_pointer_array_compat_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_pointer_array_compat_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_pointer_array_compat_bridge_main.c",
+        "probes/runtime/04__probe_multitu_pointer_array_compat_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_pointer_array_compat_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "pointer-array", "compatibility", "clean-path", "wave14", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_tag_function_parallel_namespace",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_tag_function_parallel_namespace_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_tag_function_parallel_namespace_main.c",
+        "probes/runtime/04__probe_multitu_tag_function_parallel_namespace_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_tag_function_parallel_namespace.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "tag", "function", "parallel-namespace", "clean-path", "wave14", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_include_tag_typedef_parallel_guard",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_include_tag_typedef_parallel_guard_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_include_tag_typedef_parallel_guard_main.c",
+        "probes/runtime/04__probe_multitu_include_tag_typedef_parallel_guard_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_include_tag_typedef_parallel_guard.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "include", "tag", "typedef", "parallel-namespace", "clean-path", "wave14", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

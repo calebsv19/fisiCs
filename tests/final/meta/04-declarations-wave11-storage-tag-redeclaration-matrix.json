@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__tag_typedef_parallel_namespace_ok",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_tag_typedef_parallel_namespace_ok.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__tag_typedef_parallel_namespace_ok.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "probe-promotion", "tag", "typedef", "namespace", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__tag_object_parallel_namespace_ok",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_tag_object_parallel_namespace_ok.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__tag_object_parallel_namespace_ok.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "probe-promotion", "tag", "object", "namespace", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__storage_typedef_static_conflict_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_storage_typedef_static_conflict_reject.c",
+      "expects": ["expect/04__diag__storage_typedef_static_conflict_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "storage", "typedef", "static", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__storage_typedef_extern_conflict_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_storage_typedef_extern_conflict_reject.c",
+      "expects": ["expect/04__diag__storage_typedef_extern_conflict_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "storage", "typedef", "extern", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__tag_struct_union_conflict_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_tag_struct_union_conflict_reject.c",
+      "expects": ["expect/04__diag__tag_struct_union_conflict_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "tag", "struct", "union", "conflict", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__tag_union_enum_conflict_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_tag_union_enum_conflict_reject.c",
+      "expects": ["expect/04__diag__tag_union_enum_conflict_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "tag", "union", "enum", "conflict", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__redecl_array_extent_conflict_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_redecl_array_extent_conflict_reject.c",
+      "expects": ["expect/04__diag__redecl_array_extent_conflict_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "redecl", "array", "extent", "conflict", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__redecl_function_param_conflict_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_redecl_function_param_conflict_reject.c",
+      "expects": ["expect/04__diag__redecl_function_param_conflict_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "redecl", "function", "params", "conflict", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__redecl_object_function_conflict_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_redecl_object_function_conflict_reject.c",
+      "expects": ["expect/04__diag__redecl_object_function_conflict_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "redecl", "object", "function", "conflict", "wave11"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (11301:8): Conflicting tag name for struct 'IncludeTagConflict'
+   Spelling: virtual_decl_include_tag_cross_kind_probe_diag_text.h:11301:8
+Error at (11302:6): Conflicting tag name for enum 'IncludeTagConflict'
+   Spelling: virtual_decl_include_tag_cross_kind_probe_diag_text.h:11302:6

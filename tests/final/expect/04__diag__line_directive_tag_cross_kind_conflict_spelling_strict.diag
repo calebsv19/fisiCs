@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (11201:8): Conflicting tag name for struct 'LineTagConflict'
+   Spelling: virtual_decl_tag_cross_kind_probe_diag_text.c:11201:8
+Error at (11202:7): Conflicting tag name for union 'LineTagConflict'
+   Spelling: virtual_decl_tag_cross_kind_probe_diag_text.c:11202:7

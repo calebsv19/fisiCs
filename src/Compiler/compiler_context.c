@@ -175,6 +175,7 @@ void cc_destroy(CompilerContext* ctx) {
     free(ctx->targetTriple);
     free(ctx->targetLayout);
     free(ctx->dataLayout);
+    free(ctx->inputPath);
     // builtins are static literals; nothing to free.
     free(ctx);
 }
@@ -678,6 +679,16 @@ const FisicsSymbol* cc_get_symbols(const CompilerContext* ctx, size_t* countOut)
         *countOut = ctx ? ctx->symbols.count : 0;
     }
     return ctx ? ctx->symbols.items : NULL;
+}
+
+void cc_set_input_path(CompilerContext* ctx, const char* path) {
+    if (!ctx) return;
+    free(ctx->inputPath);
+    ctx->inputPath = path ? cc_strdup(path) : NULL;
+}
+
+const char* cc_get_input_path(const CompilerContext* ctx) {
+    return ctx ? ctx->inputPath : NULL;
 }
 
 void cc_clear_symbols(CompilerContext* ctx) {

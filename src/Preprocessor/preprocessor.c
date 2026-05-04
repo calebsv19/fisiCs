@@ -2,1011 +2,16 @@
 
 #include "Preprocessor/preprocessor.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 #include "Preprocessor/pp_internal.h"
 
-#include "Lexer/lexer.h"
-#include "Lexer/token_buffer.h"
 #include "Lexer/tokens.h"
-#include "Compiler/diagnostics.h"
+#include "Compiler/compiler_context.h"
 #include "Utils/logging.h"
 #include "Utils/profiler.h"
-
-static bool append_directive_line(const Token* tokens,
-                                  size_t count,
-                                  size_t cursor,
-                                  PPTokenBuffer* output,
-                                  Preprocessor* pp) {
-    if (!tokens || !output) return false;
-    int line = tokens[cursor].line;
-    size_t i = cursor;
-    while (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == line) {
-        if (!pp_token_buffer_append_clone_remap(output, pp, &tokens[i])) {
-            return false;
-        }
-        i++;
-    }
-    return true;
-}
-
-static bool directive_has_trailing_tokens(const Token* tokens,
-                                          size_t count,
-                                          size_t cursor) {
-    if (!tokens || cursor >= count) return false;
-    int line = tokens[cursor].line;
-    size_t i = cursor + 1;
-    return (i < count && tokens[i].type != TOKEN_EOF && tokens[i].line == line);
-}
-
-// Consume a _Pragma("...") operator; returns true if handled (skipped).
-static bool skip_pragma_operator(const Token* tokens,
-                                 size_t count,
-                                 size_t* cursor) {
-    if (!tokens || !cursor) return false;
-    size_t i = *cursor;
-    const Token* tok = &tokens[i];
-    if (tok->type != TOKEN_IDENTIFIER || !tok->value) {
-        return false;
-    }
-    if (strcmp(tok->value, "_Pragma") != 0) {
-        return false;
-    }
-    size_t j = i + 1;
-    if (j < count && tokens[j].type == TOKEN_LPAREN) {
-        j++;
-        if (j < count && tokens[j].type == TOKEN_STRING) {
-            j++;
-        }
-        if (j < count && tokens[j].type == TOKEN_RPAREN) {
-            j++;
-        }
-    }
-    // Advance caller to last token we looked at so the for-loop increments past it.
-    if (j > i) {
-        *cursor = j - 1;
-    }
-    return true;
-}
-
-static bool tokenize_macro_replacement(const char* value, PPTokenBuffer* out) {
-    if (!out) return false;
-    pp_token_buffer_init_local(out);
-    if (!value || value[0] == '\0') {
-        return true;
-    }
-
-    Lexer lexer;
-    initLexer(&lexer, value, "<command-line-macro>", false);
-
-    TokenBuffer raw = {0};
-    token_buffer_init(&raw);
-    bool ok = token_buffer_fill_from_lexer(&raw, &lexer);
-    destroyLexer(&lexer);
-    if (!ok) {
-        token_buffer_destroy(&raw);
-        return false;
-    }
-
-    for (size_t i = 0; i < raw.count; ++i) {
-        if (raw.tokens[i].type == TOKEN_EOF) break;
-        if (!pp_token_buffer_append_clone(out, &raw.tokens[i])) {
-            ok = false;
-            break;
-        }
-    }
-    token_buffer_destroy(&raw);
-    if (!ok) {
-        pp_token_buffer_reset(out);
-    }
-    return ok;
-}
-
-static char* normalize_cli_macro_value(const char* value) {
-    if (!value) return NULL;
-    size_t len = strlen(value);
-    char* normalized = (char*)malloc(len + 1);
-    if (!normalized) return NULL;
-
-    size_t w = 0;
-    for (size_t i = 0; i < len; ++i) {
-        if (value[i] == '\\') {
-            size_t j = i;
-            while (j < len && value[j] == '\\') {
-                ++j;
-            }
-            if (j < len && value[j] == '"') {
-                normalized[w++] = '"';
-                i = j;
-                continue;
-            }
-        }
-        normalized[w++] = value[i];
-    }
-    normalized[w] = '\0';
-    return normalized;
-}
-
-static bool try_tokenize_cli_quoted_string(const char* value, PPTokenBuffer* out) {
-    if (!value || !out) return false;
-    size_t len = strlen(value);
-    if (len < 2) return false;
-    if (value[0] != '"' || value[len - 1] != '"') return false;
-
-    Token tok = {0};
-    tok.type = TOKEN_STRING;
-    tok.value = (char*)malloc(len - 1);
-    if (!tok.value) return false;
-    memcpy(tok.value, value + 1, len - 2);
-    tok.value[len - 2] = '\0';
-    if (!pp_token_buffer_append_token(out, tok)) {
-        pp_token_free(&tok);
-        return false;
-    }
-    return true;
-}
-
-static void define_builtin_object(Preprocessor* pp, const char* name, const char* value) {
-    if (!pp || !name) return;
-    PPTokenBuffer body = {0};
-    if (!tokenize_macro_replacement(value, &body)) {
-        return;
-    }
-    macro_table_define_object(pp->table, name, body.tokens, body.count, (SourceRange){0});
-    pp_token_buffer_reset(&body);
-}
-
-static void define_builtin_function(Preprocessor* pp,
-                                    const char* name,
-                                    const char* const* params,
-                                    size_t paramCount,
-                                    bool variadic,
-                                    const char* value) {
-    if (!pp || !name) return;
-    PPTokenBuffer body = {0};
-    if (!tokenize_macro_replacement(value, &body)) {
-        return;
-    }
-    macro_table_define_function(pp->table,
-                                name,
-                                params,
-                                paramCount,
-                                variadic,
-                                false,
-                                body.tokens,
-                                body.count,
-                                (SourceRange){0});
-    pp_token_buffer_reset(&body);
-}
-
-// Define a macro that expands to nothing for both object-like and variadic function-like
-// forms (to swallow attribute-style uses with parentheses/arguments).
-static void define_builtin_empty_macro(Preprocessor* pp, const char* name) {
-    define_builtin_object(pp, name, "");
-    macro_table_define_function(pp->table,
-                                name,
-                                NULL,
-                                0,
-                                true,   // variadic to accept any arg list
-                                false,
-                                NULL,
-                                0,
-                                (SourceRange){0});
-}
-
-static bool flush_chunk(Preprocessor* pp,
-                        PPTokenBuffer* chunk,
-                        PPTokenBuffer* output) {
-    if (!chunk || chunk->count == 0) {
-        return true;
-    }
-    PPTokenBuffer expanded = {0};
-    ProfilerScope scope = profiler_begin("pp_expand");
-    profiler_record_value("pp_count_macro_expand_calls", 1);
-    profiler_record_value("pp_count_macro_expand_input_tokens", chunk->count);
-    if (!macro_expander_expand(&pp->expander, chunk->tokens, chunk->count, &expanded)) {
-        profiler_end(scope);
-        MacroExpandErrorInfo expandErr = macro_expander_last_error(&pp->expander);
-        if (expandErr.kind == ME_ERR_MACRO_ARG_COUNT) {
-            const char* macroName = (expandErr.macro && expandErr.macro->name)
-                ? expandErr.macro->name
-                : "<macro>";
-            Token tmp = {0};
-            tmp.location = expandErr.callSite;
-            if (expandErr.variadic) {
-                pp_report_diag(pp,
-                               &tmp,
-                               DIAG_ERROR,
-                               CDIAG_PREPROCESSOR_GENERIC,
-                               "macro '%s' requires at least %zu argument(s), got %zu",
-                               macroName,
-                               expandErr.expectedArgs,
-                               expandErr.providedArgs);
-                fprintf(stderr, "%s:%d:%d: error: macro '%s' requires at least %zu argument(s), got %zu\n",
-                        expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
-                        expandErr.callSite.start.line,
-                        expandErr.callSite.start.column,
-                        macroName,
-                        expandErr.expectedArgs,
-                        expandErr.providedArgs);
-            } else {
-                pp_report_diag(pp,
-                               &tmp,
-                               DIAG_ERROR,
-                               CDIAG_PREPROCESSOR_GENERIC,
-                               "macro '%s' requires %zu argument(s), got %zu",
-                               macroName,
-                               expandErr.expectedArgs,
-                               expandErr.providedArgs);
-                fprintf(stderr, "%s:%d:%d: error: macro '%s' requires %zu argument(s), got %zu\n",
-                        expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
-                        expandErr.callSite.start.line,
-                        expandErr.callSite.start.column,
-                        macroName,
-                        expandErr.expectedArgs,
-                        expandErr.providedArgs);
-            }
-            pp_token_buffer_destroy(&expanded);
-            return false;
-        }
-        if (expandErr.kind == ME_ERR_UNSUPPORTED_GNU_COMMA_VA_ARGS) {
-            Token tmp = {0};
-            tmp.location = expandErr.callSite;
-            pp_report_diag(pp,
-                           &tmp,
-                           DIAG_ERROR,
-                           CDIAG_PREPROCESSOR_GENERIC,
-                           "GNU ', ##__VA_ARGS__' extension is not supported");
-            fprintf(stderr, "%s:%d:%d: error: GNU ', ##__VA_ARGS__' extension is not supported\n",
-                    expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
-                    expandErr.callSite.start.line,
-                    expandErr.callSite.start.column);
-            pp_token_buffer_destroy(&expanded);
-            return false;
-        }
-        const MacroExpansionFrame* top = NULL;
-        MacroExpansionError err = macro_table_last_error(pp->table, &top);
-        if (err == MT_ERR_RECURSION || err == MT_ERR_DEPTH || err == MT_ERR_NONE) {
-            const char* macroName = (top && top->macro && top->macro->name) ? top->macro->name : "<macro>";
-            SourceRange loc = top ? top->callSiteRange : (SourceRange){0};
-            Token tmp = {0};
-            tmp.location = loc;
-            const char* msg = "macro recursion detected while expanding '%s'";
-            if (err == MT_ERR_DEPTH) {
-                msg = "macro expansion depth exceeded (possible recursion) for '%s'";
-            } else if (err == MT_ERR_NONE) {
-                msg = "macro expansion failed (possible recursion) for '%s'";
-            }
-            char buf[256];
-            snprintf(buf, sizeof(buf), msg, macroName);
-            pp_report_diag(pp,
-                           top ? &tmp : NULL,
-                           DIAG_ERROR,
-                           CDIAG_PREPROCESSOR_GENERIC,
-                           "%s",
-                           buf);
-            const char* path = loc.start.file ? loc.start.file : "<unknown>";
-            fprintf(stderr, "%s:%d:%d: error: %s\n",
-                    path,
-                    loc.start.line,
-                    loc.start.column,
-                    buf);
-        }
-        pp_token_buffer_destroy(&expanded);
-        return false;
-    }
-    profiler_end(scope);
-    bool ok = true;
-    for (size_t j = 0; j < expanded.count; ++j) {
-        size_t cursor = j;
-        if (skip_pragma_operator(expanded.tokens, expanded.count, &cursor)) {
-            j = cursor;
-            continue;
-        }
-        if (expanded.tokens[j].type == TOKEN_UNKNOWN) {
-            continue; // drop poison tokens such as stray backslashes that survive lexing
-        }
-        if (!pp_token_buffer_append_clone_remap(output, pp, &expanded.tokens[j])) {
-            ok = false;
-            break;
-        }
-    }
-    pp_token_buffer_destroy(&expanded);
-    pp_token_buffer_destroy(chunk);
-    pp_token_buffer_init_local(chunk);
-    return ok;
-}
-
-static bool flush_chunk_profiled(Preprocessor* pp,
-                                 PPTokenBuffer* chunk,
-                                 PPTokenBuffer* output,
-                                 bool nestedIncludeBody,
-                                 bool includePathBody) {
-    ProfilerScope nestedScope = {0};
-    ProfilerScope includePathScope = {0};
-    if (nestedIncludeBody) {
-        nestedScope = profiler_begin("pp_recurse_flush");
-    }
-    if (includePathBody) {
-        includePathScope = profiler_begin("pp_recurse_include_path_flush");
-    }
-    bool ok = flush_chunk(pp, chunk, output);
-    if (includePathBody) {
-        profiler_end(includePathScope);
-    }
-    if (nestedIncludeBody) {
-        profiler_end(nestedScope);
-    }
-    return ok;
-}
-
-static bool debug_layout_enabled(void);
-
-static size_t count_line_tokens_from_cursor(const Token* tokens,
-                                            size_t count,
-                                            size_t cursor) {
-    if (!tokens || cursor >= count) return 0;
-    int line = tokens[cursor].line;
-    size_t total = 0;
-    while (cursor < count && tokens[cursor].type != TOKEN_EOF && tokens[cursor].line == line) {
-        total++;
-        cursor++;
-    }
-    return total;
-}
-
-static bool pp_summary_append_raw_range(Preprocessor* pp,
-                                        const Token* tokens,
-                                        size_t count,
-                                        size_t start,
-                                        size_t end,
-                                        PPTokenBuffer* chunk) {
-    (void)pp;
-    if (!tokens || !chunk) return false;
-    size_t i = start;
-    while (i < end && i < count) {
-        const Token* tok = &tokens[i];
-        if (tok->type == TOKEN_EOF) break;
-        size_t cursor = i;
-        if (skip_pragma_operator(tokens, count, &cursor)) {
-            i = cursor + 1;
-            continue;
-        }
-        if (tok->type != TOKEN_UNKNOWN) {
-            if (!pp_token_buffer_append_clone(chunk, tok)) {
-                return false;
-            }
-        }
-        i++;
-    }
-    return true;
-}
-
-static bool router_mark_pragma_once(Preprocessor* pp,
-                                    const TokenBuffer* input,
-                                    const IncludeSummaryAction* action) {
-    if (!pp || !pp->resolver || !input || !input->tokens || !action) {
-        return false;
-    }
-    if (action->start >= input->count) {
-        return false;
-    }
-    const char* path = token_file(&input->tokens[action->start]);
-    if (!path) {
-        return false;
-    }
-    include_resolver_mark_pragma_once(pp->resolver, path);
-    return true;
-}
-
-static bool pp_summary_identifier_requires_expansion(const char* name) {
-    if (!name || !name[0]) return false;
-    return strcmp(name, "_Pragma") == 0 ||
-           strcmp(name, "__LINE__") == 0 ||
-           strcmp(name, "__COUNTER__") == 0 ||
-           strcmp(name, "__FILE__") == 0 ||
-           strcmp(name, "__BASE_FILE__") == 0 ||
-           strcmp(name, "__DATE__") == 0 ||
-           strcmp(name, "__TIME__") == 0 ||
-           strcmp(name, "__has_builtin") == 0 ||
-           strcmp(name, "__has_extension") == 0 ||
-           strcmp(name, "__has_feature") == 0 ||
-           strcmp(name, "__has_attribute") == 0 ||
-           strcmp(name, "__has_c_attribute") == 0 ||
-           strcmp(name, "__has_declspec_attribute") == 0 ||
-           strcmp(name, "__has_warning") == 0 ||
-           strcmp(name, "__is_identifier") == 0;
-}
-
-bool pp_summary_raw_range_can_clone_direct(Preprocessor* pp,
-                                           const Token* tokens,
-                                           size_t count,
-                                           size_t start,
-                                           size_t end) {
-    if (!pp || !tokens) return false;
-    bool sawTypedef = false;
-    for (size_t i = start; i < end && i < count; ++i) {
-        const Token* tok = &tokens[i];
-        if (tok->type == TOKEN_EOF) break;
-        switch (tok->type) {
-            case TOKEN_UNKNOWN:
-                return false;
-            case TOKEN_TYPEDEF:
-                sawTypedef = true;
-                break;
-            case TOKEN_INCLUDE:
-            case TOKEN_INCLUDE_NEXT:
-            case TOKEN_DEFINE:
-            case TOKEN_UNDEF:
-            case TOKEN_IFDEF:
-            case TOKEN_IFNDEF:
-            case TOKEN_ENDIF:
-            case TOKEN_PRAGMA:
-            case TOKEN_PREPROCESSOR_OTHER:
-            case TOKEN_PP_IF:
-            case TOKEN_PP_ELIF:
-            case TOKEN_PP_ELSE:
-            case TOKEN_HASH:
-            case TOKEN_DOUBLE_HASH:
-                return false;
-            case TOKEN_IDENTIFIER:
-                if (!tok->value ||
-                    pp_summary_identifier_requires_expansion(tok->value) ||
-                    macro_table_lookup(pp->table, tok->value) != NULL) {
-                    return false;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-    return sawTypedef;
-}
-
-static bool pp_summary_append_raw_range_direct(Preprocessor* pp,
-                                               const Token* tokens,
-                                               size_t count,
-                                               size_t start,
-                                               size_t end,
-                                               PPTokenBuffer* output) {
-    if (!pp || !tokens || !output) return false;
-    if (!pp_summary_raw_range_can_clone_direct(pp, tokens, count, start, end)) {
-        return false;
-    }
-    for (size_t i = start; i < end && i < count; ++i) {
-        const Token* tok = &tokens[i];
-        if (tok->type == TOKEN_EOF) break;
-        if (!pp_token_buffer_append_clone_remap(output, pp, tok)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-PPSummaryReplayResult preprocess_tokens_router_replay(Preprocessor* pp,
-                                                      const TokenBuffer* input,
-                                                      const IncludeSummaryProbe* probe,
-                                                      const IncludeSummaryAction* actions,
-                                                      size_t actionCount,
-                                                      PPTokenBuffer* output,
-                                                      bool appendEOF) {
-    if (!pp || !input || !probe || !output) return PP_SUMMARY_REPLAY_ERROR;
-    if ((!probe->routerOnly && !probe->routerRawTail) ||
-        !actions ||
-        actionCount == 0 ||
-        pp->preserveDirectives) {
-        return PP_SUMMARY_REPLAY_UNSUPPORTED;
-    }
-
-    if (input->count > 0 && input->tokens) {
-        const char* filePath = input->tokens[0].location.start.file;
-        if (filePath) {
-            pp_set_base_file(pp, filePath);
-            if (!pp->logicalFile) {
-                pp_set_logical_file(pp, filePath);
-            }
-        }
-    }
-
-    ProfilerScope replayScope = profiler_begin("pp_include_router_replay");
-    bool nestedIncludeBody = pp && pp->includeStack.depth > 1;
-    const PPIncludeFrame* includeFrame = pp_include_stack_top(pp);
-    bool includePathBody = nestedIncludeBody &&
-                           includeFrame &&
-                           includeFrame->origin == INCLUDE_SEARCH_INCLUDE_PATH;
-    PPSummaryReplayResult result = PP_SUMMARY_REPLAY_USED;
-
-    for (size_t actionIndex = 0; actionIndex < actionCount; ++actionIndex) {
-        const IncludeSummaryAction* action = &actions[actionIndex];
-        size_t cursor = action->start;
-        switch (action->kind) {
-            case INCLUDE_SUMMARY_ACTION_PRAGMA:
-                if (!router_mark_pragma_once(pp, input, action)) {
-                    result = PP_SUMMARY_REPLAY_UNSUPPORTED;
-                    goto cleanup;
-                }
-                break;
-            case INCLUDE_SUMMARY_ACTION_IFNDEF:
-            case INCLUDE_SUMMARY_ACTION_ENDIF:
-                break;
-            case INCLUDE_SUMMARY_ACTION_RAW_RANGE:
-                if (!probe->routerRawTail ||
-                    !pp_summary_append_raw_range_direct(pp,
-                                                        input->tokens,
-                                                        input->count,
-                                                        action->start,
-                                                        action->end,
-                                                        output)) {
-                    result = PP_SUMMARY_REPLAY_UNSUPPORTED;
-                    goto cleanup;
-                }
-                break;
-            case INCLUDE_SUMMARY_ACTION_DEFINE: {
-                ProfilerScope recurseDefineScope = {0};
-                ProfilerScope includePathDefineScope = {0};
-                if (nestedIncludeBody) recurseDefineScope = profiler_begin("pp_recurse_define");
-                if (includePathBody) includePathDefineScope = profiler_begin("pp_recurse_include_path_define");
-                ProfilerScope defineScope = profiler_begin("pp_define");
-                bool ok = process_define(pp, input->tokens, input->count, &cursor);
-                profiler_end(defineScope);
-                if (includePathBody) profiler_end(includePathDefineScope);
-                if (nestedIncludeBody) profiler_end(recurseDefineScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            case INCLUDE_SUMMARY_ACTION_INCLUDE:
-            case INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT: {
-                bool isIncludeNext = action->kind == INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT;
-                ProfilerScope recurseIncludeScope = {0};
-                ProfilerScope includePathNestedIncludeScope = {0};
-                if (nestedIncludeBody) recurseIncludeScope = profiler_begin("pp_recurse_nested_include");
-                if (includePathBody) includePathNestedIncludeScope = profiler_begin("pp_recurse_include_path_nested_include");
-                ProfilerScope includeScope = profiler_begin("pp_include");
-                bool ok = process_include(pp, input->tokens, input->count, &cursor, output, isIncludeNext);
-                profiler_end(includeScope);
-                if (includePathBody) profiler_end(includePathNestedIncludeScope);
-                if (nestedIncludeBody) profiler_end(recurseIncludeScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            default:
-                result = PP_SUMMARY_REPLAY_UNSUPPORTED;
-                goto cleanup;
-        }
-    }
-
-    if (appendEOF) {
-        Token eof = {0};
-        eof.type = TOKEN_EOF;
-        if (!pp_token_buffer_append_token(output, eof)) {
-            result = PP_SUMMARY_REPLAY_ERROR;
-            goto cleanup;
-        }
-    }
-
-cleanup:
-    profiler_end(replayScope);
-    return result;
-}
-
-PPSummaryReplayResult preprocess_tokens_scaffold_replay(Preprocessor* pp,
-                                                        const TokenBuffer* input,
-                                                        const IncludeSummaryProbe* probe,
-                                                        const IncludeSummaryAction* actions,
-                                                        size_t actionCount,
-                                                        PPTokenBuffer* output,
-                                                        bool appendEOF) {
-    if (!pp || !input || !probe || !output) return PP_SUMMARY_REPLAY_ERROR;
-    if (probe->behaviorClass != INCLUDE_HEADER_BEHAVIOR_INCLUDE_DEFINE_SCAFFOLD ||
-        !actions ||
-        actionCount == 0 ||
-        pp->preserveDirectives) {
-        return PP_SUMMARY_REPLAY_UNSUPPORTED;
-    }
-
-    if (input->count > 0 && input->tokens) {
-        const char* filePath = input->tokens[0].location.start.file;
-        if (filePath) {
-            pp_set_base_file(pp, filePath);
-            if (!pp->logicalFile) {
-                pp_set_logical_file(pp, filePath);
-            }
-        }
-    }
-
-    ProfilerScope replayScope = profiler_begin("pp_include_scaffold_replay");
-    bool nestedIncludeBody = pp && pp->includeStack.depth > 1;
-    const PPIncludeFrame* includeFrame = pp_include_stack_top(pp);
-    bool includePathBody = nestedIncludeBody &&
-                           includeFrame &&
-                           includeFrame->origin == INCLUDE_SEARCH_INCLUDE_PATH;
-    PPSummaryReplayResult result = PP_SUMMARY_REPLAY_USED;
-
-    for (size_t actionIndex = 0; actionIndex < actionCount; ++actionIndex) {
-        const IncludeSummaryAction* action = &actions[actionIndex];
-        size_t cursor = action->start;
-        switch (action->kind) {
-            case INCLUDE_SUMMARY_ACTION_PRAGMA:
-                if (!router_mark_pragma_once(pp, input, action)) {
-                    result = PP_SUMMARY_REPLAY_UNSUPPORTED;
-                    goto cleanup;
-                }
-                break;
-            case INCLUDE_SUMMARY_ACTION_IFNDEF:
-            case INCLUDE_SUMMARY_ACTION_ENDIF:
-                break;
-            case INCLUDE_SUMMARY_ACTION_RAW_RANGE:
-                if (!pp_summary_append_raw_range_direct(pp,
-                                                        input->tokens,
-                                                        input->count,
-                                                        action->start,
-                                                        action->end,
-                                                        output)) {
-                    result = PP_SUMMARY_REPLAY_UNSUPPORTED;
-                    goto cleanup;
-                }
-                break;
-            case INCLUDE_SUMMARY_ACTION_DEFINE: {
-                ProfilerScope recurseDefineScope = {0};
-                ProfilerScope includePathDefineScope = {0};
-                if (nestedIncludeBody) recurseDefineScope = profiler_begin("pp_recurse_define");
-                if (includePathBody) includePathDefineScope = profiler_begin("pp_recurse_include_path_define");
-                ProfilerScope defineScope = profiler_begin("pp_define");
-                bool ok = process_define(pp, input->tokens, input->count, &cursor);
-                profiler_end(defineScope);
-                if (includePathBody) profiler_end(includePathDefineScope);
-                if (nestedIncludeBody) profiler_end(recurseDefineScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            case INCLUDE_SUMMARY_ACTION_INCLUDE:
-            case INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT: {
-                bool isIncludeNext = action->kind == INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT;
-                ProfilerScope recurseIncludeScope = {0};
-                ProfilerScope includePathNestedIncludeScope = {0};
-                if (nestedIncludeBody) recurseIncludeScope = profiler_begin("pp_recurse_nested_include");
-                if (includePathBody) includePathNestedIncludeScope = profiler_begin("pp_recurse_include_path_nested_include");
-                ProfilerScope includeScope = profiler_begin("pp_include");
-                bool ok = process_include(pp, input->tokens, input->count, &cursor, output, isIncludeNext);
-                profiler_end(includeScope);
-                if (includePathBody) profiler_end(includePathNestedIncludeScope);
-                if (nestedIncludeBody) profiler_end(recurseIncludeScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            default:
-                result = PP_SUMMARY_REPLAY_UNSUPPORTED;
-                goto cleanup;
-        }
-    }
-
-    if (appendEOF) {
-        Token eof = {0};
-        eof.type = TOKEN_EOF;
-        if (!pp_token_buffer_append_token(output, eof)) {
-            result = PP_SUMMARY_REPLAY_ERROR;
-            goto cleanup;
-        }
-    }
-
-cleanup:
-    profiler_end(replayScope);
-    return result;
-}
-
-PPSummaryReplayResult preprocess_tokens_summary_replay(Preprocessor* pp,
-                                                       const TokenBuffer* input,
-                                                       const IncludeSummaryAction* actions,
-                                                       size_t actionCount,
-                                                       PPTokenBuffer* output,
-                                                       bool appendEOF) {
-    if (!pp || !input || !output) return PP_SUMMARY_REPLAY_ERROR;
-
-    CompilerContext* ctx = pp->ctx;
-    const char* baselineLayout = ctx ? cc_get_data_layout(ctx) : NULL;
-    if (input->count > 0 && input->tokens) {
-        const char* filePath = input->tokens[0].location.start.file;
-        if (filePath) {
-            pp_set_base_file(pp, filePath);
-            if (!pp->logicalFile) {
-                pp_set_logical_file(pp, filePath);
-            }
-        }
-    }
-
-    PPBuiltinState builtins = {0};
-    builtins.baseFile = pp->baseFile;
-    builtins.dateString = pp->dateString[0] ? pp->dateString : NULL;
-    builtins.timeString = pp->timeString[0] ? pp->timeString : NULL;
-    builtins.counter = &pp->counter;
-    builtins.logicalFile = (const char**)&pp->logicalFile;
-    builtins.lineOffset = &pp->lineOffset;
-    builtins.lineRemapActive = &pp->lineRemapActive;
-    macro_expander_set_builtins(&pp->expander, builtins);
-
-    if (!actions || actionCount == 0) {
-        return PP_SUMMARY_REPLAY_UNSUPPORTED;
-    }
-
-    ProfilerScope replayScope = profiler_begin("pp_include_summary_replay");
-    PPTokenBuffer chunk = {0};
-    PPConditionalFrame* condStack = NULL;
-    size_t condDepth = 0;
-    size_t condCap = 0;
-    bool nestedIncludeBody = pp && pp->includeStack.depth > 1;
-    const PPIncludeFrame* includeFrame = pp_include_stack_top(pp);
-    bool includePathBody = nestedIncludeBody &&
-                           includeFrame &&
-                           includeFrame->origin == INCLUDE_SEARCH_INCLUDE_PATH;
-
-    PPSummaryReplayResult result = PP_SUMMARY_REPLAY_USED;
-
-    for (size_t actionIndex = 0; actionIndex < actionCount; ++actionIndex) {
-        const IncludeSummaryAction* action = &actions[actionIndex];
-        bool active = conditional_stack_is_active(condStack, condDepth);
-        size_t cursor = action->start;
-
-        if (ctx && debug_layout_enabled()) {
-            const char* curLayout = cc_get_data_layout(ctx);
-            if (curLayout != baselineLayout) {
-                const Token* t = (action->start < input->count) ? &input->tokens[action->start] : NULL;
-                LOG_WARN("codegen", "[preprocess_tokens_summary_replay] dataLayout changed to %p at action %zu type=%d line=%d val=%s",
-                         (void*)curLayout,
-                         actionIndex,
-                         t ? t->type : -1,
-                         t ? t->line : -1,
-                         (t && t->value) ? t->value : "<null>");
-                baselineLayout = curLayout;
-            }
-        }
-
-        switch (action->kind) {
-            case INCLUDE_SUMMARY_ACTION_RAW_RANGE:
-                if (active &&
-                    !pp_summary_append_raw_range(pp,
-                                                 input->tokens,
-                                                 input->count,
-                                                 action->start,
-                                                 action->end,
-                                                 &chunk)) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            case INCLUDE_SUMMARY_ACTION_DEFINE:
-                if (active) {
-                    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                    if (pp->preserveDirectives &&
-                        !append_directive_line(input->tokens, input->count, cursor, output, pp)) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                    ProfilerScope recurseDefineScope = {0};
-                    ProfilerScope includePathDefineScope = {0};
-                    if (nestedIncludeBody) recurseDefineScope = profiler_begin("pp_recurse_define");
-                    if (includePathBody) includePathDefineScope = profiler_begin("pp_recurse_include_path_define");
-                    ProfilerScope defineScope = profiler_begin("pp_define");
-                    bool ok = process_define(pp, input->tokens, input->count, &cursor);
-                    profiler_end(defineScope);
-                    if (includePathBody) profiler_end(includePathDefineScope);
-                    if (nestedIncludeBody) profiler_end(recurseDefineScope);
-                    if (!ok) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                }
-                break;
-            case INCLUDE_SUMMARY_ACTION_INCLUDE:
-            case INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT:
-                if (active) {
-                    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                    if (pp->preserveDirectives &&
-                        !append_directive_line(input->tokens, input->count, cursor, output, pp)) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                    bool isIncludeNext = action->kind == INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT;
-                    ProfilerScope recurseIncludeScope = {0};
-                    ProfilerScope includePathNestedIncludeScope = {0};
-                    if (nestedIncludeBody) recurseIncludeScope = profiler_begin("pp_recurse_nested_include");
-                    if (includePathBody) includePathNestedIncludeScope = profiler_begin("pp_recurse_include_path_nested_include");
-                    ProfilerScope includeScope = profiler_begin("pp_include");
-                    bool ok = process_include(pp, input->tokens, input->count, &cursor, output, isIncludeNext);
-                    profiler_end(includeScope);
-                    if (includePathBody) profiler_end(includePathNestedIncludeScope);
-                    if (nestedIncludeBody) profiler_end(recurseIncludeScope);
-                    if (!ok) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                }
-                break;
-            case INCLUDE_SUMMARY_ACTION_IF: {
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                ProfilerScope recurseIfScope = {0};
-                ProfilerScope includePathConditionalScope = {0};
-                if (nestedIncludeBody) recurseIfScope = profiler_begin("pp_recurse_conditional");
-                if (includePathBody) includePathConditionalScope = profiler_begin("pp_recurse_include_path_conditional");
-                ProfilerScope ifScope = profiler_begin("pp_if");
-                bool ok = process_if(pp, input->tokens, input->count, &cursor,
-                                     &condStack, &condDepth, &condCap);
-                profiler_end(ifScope);
-                if (includePathBody) profiler_end(includePathConditionalScope);
-                if (nestedIncludeBody) profiler_end(recurseIfScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            case INCLUDE_SUMMARY_ACTION_IFDEF:
-            case INCLUDE_SUMMARY_ACTION_IFNDEF: {
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                bool negate = action->kind == INCLUDE_SUMMARY_ACTION_IFNDEF;
-                ProfilerScope recurseIfdefScope = {0};
-                ProfilerScope includePathIfdefScope = {0};
-                if (nestedIncludeBody) recurseIfdefScope = profiler_begin("pp_recurse_conditional");
-                if (includePathBody) includePathIfdefScope = profiler_begin("pp_recurse_include_path_conditional");
-                ProfilerScope ifdefScope = profiler_begin("pp_ifdef");
-                bool ok = process_ifdeflike(pp, input->tokens, input->count, &cursor,
-                                            &condStack, &condDepth, &condCap, negate);
-                profiler_end(ifdefScope);
-                if (includePathBody) profiler_end(includePathIfdefScope);
-                if (nestedIncludeBody) profiler_end(recurseIfdefScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            case INCLUDE_SUMMARY_ACTION_ELIF: {
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                ProfilerScope recurseElifScope = {0};
-                ProfilerScope includePathElifScope = {0};
-                if (nestedIncludeBody) recurseElifScope = profiler_begin("pp_recurse_conditional");
-                if (includePathBody) includePathElifScope = profiler_begin("pp_recurse_include_path_conditional");
-                ProfilerScope elifScope = profiler_begin("pp_elif");
-                bool ok = process_elif(pp, input->tokens, input->count, &cursor, condStack, condDepth);
-                profiler_end(elifScope);
-                if (includePathBody) profiler_end(includePathElifScope);
-                if (nestedIncludeBody) profiler_end(recurseElifScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            case INCLUDE_SUMMARY_ACTION_ELSE: {
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                ProfilerScope recurseElseScope = {0};
-                ProfilerScope includePathElseScope = {0};
-                if (nestedIncludeBody) recurseElseScope = profiler_begin("pp_recurse_conditional");
-                if (includePathBody) includePathElseScope = profiler_begin("pp_recurse_include_path_conditional");
-                bool ok = !directive_has_trailing_tokens(input->tokens, input->count, cursor) &&
-                          process_else(pp, condStack, condDepth, &input->tokens[cursor]);
-                if (includePathBody) profiler_end(includePathElseScope);
-                if (nestedIncludeBody) profiler_end(recurseElseScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            case INCLUDE_SUMMARY_ACTION_ENDIF: {
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                ProfilerScope recurseEndifScope = {0};
-                ProfilerScope includePathEndifScope = {0};
-                if (nestedIncludeBody) recurseEndifScope = profiler_begin("pp_recurse_conditional");
-                if (includePathBody) includePathEndifScope = profiler_begin("pp_recurse_include_path_conditional");
-                bool ok = !directive_has_trailing_tokens(input->tokens, input->count, cursor);
-                if (ok && pp->preserveDirectives && active) {
-                    ok = append_directive_line(input->tokens, input->count, cursor, output, pp);
-                }
-                if (ok) {
-                    ok = process_endif(pp, condStack, &condDepth, &input->tokens[cursor]);
-                }
-                if (includePathBody) profiler_end(includePathEndifScope);
-                if (nestedIncludeBody) profiler_end(recurseEndifScope);
-                if (!ok) {
-                    result = PP_SUMMARY_REPLAY_ERROR;
-                    goto cleanup;
-                }
-                break;
-            }
-            case INCLUDE_SUMMARY_ACTION_PRAGMA:
-                if (active) {
-                    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                    if (pp->preserveDirectives &&
-                        !append_directive_line(input->tokens, input->count, cursor, output, pp)) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                    if (!process_pragma(pp, input->tokens, input->count, &cursor)) {
-                        result = PP_SUMMARY_REPLAY_ERROR;
-                        goto cleanup;
-                    }
-                }
-                break;
-        }
-    }
-
-    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
-        result = PP_SUMMARY_REPLAY_ERROR;
-        goto cleanup;
-    }
-
-    if (appendEOF) {
-        Token eof = {0};
-        eof.type = TOKEN_EOF;
-        if (!pp_token_buffer_append_token(output, eof)) {
-            result = PP_SUMMARY_REPLAY_ERROR;
-            goto cleanup;
-        }
-    }
-
-    if (condDepth != 0) {
-        pp_report_diag(pp, NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "unclosed #if/#ifdef/#ifndef");
-        result = PP_SUMMARY_REPLAY_ERROR;
-    }
-
-cleanup:
-    profiler_end(replayScope);
-    pp_token_buffer_reset(&chunk);
-    free(condStack);
-    return result;
-}
-
-static bool debug_layout_enabled(void) {
-    static int initialized = 0;
-    static bool enabled = false;
-    if (!initialized) {
-        const char* env = getenv("FISICS_DEBUG_LAYOUT");
-        enabled = (env && env[0] && env[0] != '0');
-        initialized = 1;
-    }
-    return enabled;
-}
 
 bool preprocess_tokens(Preprocessor* pp,
                        const TokenBuffer* input,
@@ -1046,7 +51,7 @@ bool preprocess_tokens(Preprocessor* pp,
                            includeFrame->origin == INCLUDE_SEARCH_INCLUDE_PATH;
 
     for (size_t i = 0; i < input->count; ++i) {
-        if (ctx && debug_layout_enabled()) {
+        if (ctx && pp_debug_layout_enabled()) {
             const char* curLayout = cc_get_data_layout(ctx);
             if (curLayout != baselineLayout) {
                 const Token* t = &input->tokens[i];
@@ -1077,7 +82,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 case TOKEN_IFNDEF:
                 case TOKEN_PRAGMA:
                 case TOKEN_PREPROCESSOR_OTHER:
-                    tokenCost = count_line_tokens_from_cursor(input->tokens, input->count, i);
+                    tokenCost = pp_count_line_tokens_from_cursor(input->tokens, input->count, i);
                     directiveLike = true;
                     break;
                 default:
@@ -1106,13 +111,13 @@ bool preprocess_tokens(Preprocessor* pp,
         switch (tok->type) {
             case TOKEN_DEFINE:
                 if (active) {
-                    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
                     }
                     if (pp->preserveDirectives) {
-                        if (!append_directive_line(input->tokens, input->count, i, output, pp)) {
+                        if (!pp_append_directive_line(input->tokens, input->count, i, output, pp)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
                             pp_debug_fail("append_directive_line", &input->tokens[i]);
@@ -1153,13 +158,13 @@ bool preprocess_tokens(Preprocessor* pp,
             case TOKEN_INCLUDE:
             case TOKEN_INCLUDE_NEXT:
                 if (active) {
-                    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
                     }
                     if (pp->preserveDirectives) {
-                        if (!append_directive_line(input->tokens, input->count, i, output, pp)) {
+                        if (!pp_append_directive_line(input->tokens, input->count, i, output, pp)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
                             pp_debug_fail("append_directive_line", &input->tokens[i]);
@@ -1200,7 +205,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 break;
             case TOKEN_UNDEF:
                 if (active) {
-                    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
@@ -1222,7 +227,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 }
                 break;
             case TOKEN_PP_IF:
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -1252,7 +257,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 if (nestedIncludeBody) profiler_end(recurseIfScope);
                 break;
             case TOKEN_PP_ELIF:
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -1282,7 +287,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 if (nestedIncludeBody) profiler_end(recurseElifScope);
                 break;
             case TOKEN_PP_ELSE:
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -1296,7 +301,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 if (includePathBody) {
                     includePathElseScope = profiler_begin("pp_recurse_include_path_conditional");
                 }
-                if (directive_has_trailing_tokens(input->tokens, input->count, i)) {
+                if (pp_directive_has_trailing_tokens(input->tokens, input->count, i)) {
                     pp_report_diag(pp,
                                    &input->tokens[i + 1],
                                    DIAG_ERROR,
@@ -1321,7 +326,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 skip_to_line_end(input->tokens, input->count, &i);
                 break;
             case TOKEN_ENDIF:
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -1335,7 +340,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 if (includePathBody) {
                     includePathEndifScope = profiler_begin("pp_recurse_include_path_conditional");
                 }
-                if (directive_has_trailing_tokens(input->tokens, input->count, i)) {
+                if (pp_directive_has_trailing_tokens(input->tokens, input->count, i)) {
                     pp_report_diag(pp,
                                    &input->tokens[i + 1],
                                    DIAG_ERROR,
@@ -1348,7 +353,7 @@ bool preprocess_tokens(Preprocessor* pp,
                     return false;
                 }
                 if (pp->preserveDirectives && active) {
-                    if (!append_directive_line(input->tokens, input->count, i, output, pp)) {
+                    if (!pp_append_directive_line(input->tokens, input->count, i, output, pp)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         pp_debug_fail("append_directive_line", &input->tokens[i]);
@@ -1369,7 +374,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 break;
             case TOKEN_IFDEF:
             case TOKEN_IFNDEF: {
-                if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -1402,13 +407,13 @@ bool preprocess_tokens(Preprocessor* pp,
             }
             case TOKEN_PRAGMA:
                 if (active) {
-                    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
                     }
                     if (pp->preserveDirectives) {
-                        if (!append_directive_line(input->tokens, input->count, i, output, pp)) {
+                        if (!pp_append_directive_line(input->tokens, input->count, i, output, pp)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
                             pp_debug_fail("append_directive_line", &input->tokens[i]);
@@ -1434,7 +439,7 @@ bool preprocess_tokens(Preprocessor* pp,
             case TOKEN_PREPROCESSOR_OTHER:
                 if (tok->value && strcmp(tok->value, "line") == 0) {
                     if (active) {
-                        if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                        if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
                             return false;
@@ -1513,7 +518,7 @@ bool preprocess_tokens(Preprocessor* pp,
                 break;
             default:
                 if (active) {
-                    if (skip_pragma_operator(input->tokens, input->count, &i)) {
+                    if (pp_skip_pragma_operator(input->tokens, input->count, &i)) {
                         break;
                     }
                     if (!pp_token_buffer_append_clone(&chunk, tok)) {
@@ -1526,7 +531,7 @@ bool preprocess_tokens(Preprocessor* pp,
         }
     }
 
-    if (!flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
         pp_token_buffer_reset(&chunk);
         free(condStack);
         return false;
@@ -1619,164 +624,7 @@ bool preprocessor_init(Preprocessor* pp,
     pp->includePathCount = includePathCount;
     pp->ctx = ctx;
 
-    // Minimal builtin macros so system headers don't trigger #error on unknown/unsupported targets.
-    define_builtin_object(pp, "__APPLE__", "1");
-    define_builtin_object(pp, "__MACH__", "1");
-    define_builtin_object(pp, "__APPLE_CC__", "1");
-    define_builtin_object(pp, "__APPLE_CPP__", "1");
-    define_builtin_object(pp, "__arm64__", "1");
-    define_builtin_object(pp, "__LP64__", "1");
-    define_builtin_object(pp, "__clang__", "1");
-    define_builtin_object(pp, "__GNUC__", "4");
-    define_builtin_object(pp, "__GNUC_MINOR__", "2");
-    define_builtin_object(pp, "__GNUC_PATCHLEVEL__", "1");
-    define_builtin_object(pp, "__STDC_HOSTED__", "1");
-    {
-        long stdc = 199901L;
-        if (pp->ctx) {
-            stdc = cc_dialect_stdc_version(cc_get_language_dialect(pp->ctx));
-        }
-        char buf[32];
-        snprintf(buf, sizeof(buf), "%ldL", stdc);
-        define_builtin_object(pp, "__STDC_VERSION__", buf);
-        define_builtin_object(pp, "__FISICS__", "1");
-        snprintf(buf, sizeof(buf), "%ldL", stdc);
-        define_builtin_object(pp, "__FISICS_DIALECT__", buf);
-        if (pp->ctx && cc_has_any_compat_features(pp->ctx)) {
-            define_builtin_object(pp, "__FISICS_EXTENSIONS__", "1");
-        }
-    }
-    define_builtin_object(pp, "MAC_OS_X_VERSION_MIN_REQUIRED", "130000");
-    define_builtin_object(pp, "__FLT_MAX__", "3.402823466e+38F");
-    define_builtin_object(pp, "__DBL_MAX__", "1.7976931348623157e+308");
-    define_builtin_object(pp, "__LDBL_MAX__", "1.189731495357231765e+4932L");
-    define_builtin_object(pp, "__FLT_MIN__", "1.175494351e-38F");
-    define_builtin_object(pp, "__DBL_MIN__", "2.2250738585072014e-308");
-    define_builtin_object(pp, "__LDBL_MIN__", "3.3621031431120935063e-4932L");
-    define_builtin_object(pp, "__FLT_EPSILON__", "1.19209290e-7F");
-    define_builtin_object(pp, "__DBL_EPSILON__", "2.2204460492503131e-16");
-    define_builtin_object(pp, "__LDBL_EPSILON__", "1.0842021724855044e-19L");
-    define_builtin_object(pp, "__ATOMIC_RELAXED", "0");
-    define_builtin_object(pp, "__ATOMIC_CONSUME", "1");
-    define_builtin_object(pp, "__ATOMIC_ACQUIRE", "2");
-    define_builtin_object(pp, "__ATOMIC_RELEASE", "3");
-    define_builtin_object(pp, "__ATOMIC_ACQ_REL", "4");
-    define_builtin_object(pp, "__ATOMIC_SEQ_CST", "5");
-    define_builtin_object(pp, "__ORDER_LITTLE_ENDIAN__", "1234");
-    define_builtin_object(pp, "__ORDER_BIG_ENDIAN__", "4321");
-    define_builtin_object(pp, "__ORDER_PDP_ENDIAN__", "3412");
-    define_builtin_object(pp, "__BYTE_ORDER__", "__ORDER_LITTLE_ENDIAN__");
-    define_builtin_object(pp, "__LITTLE_ENDIAN__", "1");
-    define_builtin_object(pp, "_LITTLE_ENDIAN", "1");
-    define_builtin_object(pp, "LITTLE_ENDIAN", "1234");
-    define_builtin_object(pp, "BIG_ENDIAN", "4321");
-    define_builtin_object(pp, "BYTE_ORDER", "LITTLE_ENDIAN");
-
-    {
-        const char* params[] = {"x"};
-        define_builtin_function(pp, "__has_builtin", params, 1, false, "0");
-        define_builtin_function(pp, "__has_extension", params, 1, false, "0");
-        define_builtin_function(pp, "__has_feature", params, 1, false, "0");
-        define_builtin_function(pp, "__has_attribute", params, 1, false, "0");
-        define_builtin_function(pp, "__has_c_attribute", params, 1, false, "0");
-        define_builtin_function(pp, "__has_declspec_attribute", params, 1, false, "0");
-        define_builtin_function(pp, "__has_warning", params, 1, false, "0");
-        define_builtin_function(pp, "__is_identifier", params, 1, false, "1");
-    }
-
-    // Apple bounds-safety annotation shims: treat as no-ops so newer SDK headers parse.
-    // Many appear as attributes or markers; empty object-like macros are enough to erase them.
-    const char* libc_bounds_macros[] = {
-        "_LIBC_SINGLE_BY_DEFAULT",
-        "_LIBC_PTRCHECK_REPLACED",
-        "_LIBC_COUNT",
-        "_LIBC_COUNT_OR_NULL",
-        "_LIBC_SIZE",
-        "_LIBC_SIZE_OR_NULL",
-        "_LIBC_ENDED_BY",
-        "_LIBC_SINGLE",
-        "_LIBC_UNSAFE_INDEXABLE",
-        "_LIBC_CSTR",
-        "_LIBC_NULL_TERMINATED",
-        "_LIBC_FLEX_COUNT",
-        NULL};
-    for (size_t i = 0; libc_bounds_macros[i]; ++i) {
-        define_builtin_empty_macro(pp, libc_bounds_macros[i]);
-    }
-
-    // Availability/visibility stubs (Apple/Clang) — treat as no-ops.
-    const char* availability_macros[] = {
-        "__API_AVAILABLE",
-        "__API_DEPRECATED",
-        "__API_DEPRECATED_WITH_REPLACEMENT",
-        "__API_UNAVAILABLE",
-        "__API_AVAILABLE_BEGIN",
-        "__API_AVAILABLE_END",
-        "__OSX_AVAILABLE_STARTING",
-        "__OSX_AVAILABLE_BUT_DEPRECATED",
-        "__OSX_DEPRECATED",
-        "__IOS_AVAILABLE",
-        "__IOS_DEPRECATED",
-        "__IOS_UNAVAILABLE",
-        "__TVOS_AVAILABLE",
-        "__TVOS_DEPRECATED",
-        "__TVOS_UNAVAILABLE",
-        "__WATCHOS_AVAILABLE",
-        "__WATCHOS_DEPRECATED",
-        "__WATCHOS_UNAVAILABLE",
-        "__WATCHOS_PROHIBITED",
-        "__TVOS_PROHIBITED",
-        "__IOS_PROHIBITED",
-        "__MAC_OS_X_VERSION_MIN_REQUIRED",
-        "__MAC_OS_X_VERSION_MAX_ALLOWED",
-        NULL};
-    for (size_t i = 0; availability_macros[i]; ++i) {
-        define_builtin_empty_macro(pp, availability_macros[i]);
-    }
-
-    for (size_t i = 0; i < macroDefineCount; ++i) {
-        const char* def = macroDefines ? macroDefines[i] : NULL;
-        if (!def || def[0] == '\0') continue;
-        if (def[0] == '-' && def[1] == 'D') {
-            def += 2;
-            if (def[0] == '\0') continue;
-        }
-        const char* eq = strchr(def, '=');
-        char* name = NULL;
-        const char* value = NULL;
-        if (eq) {
-            size_t nameLen = (size_t)(eq - def);
-            name = (char*)malloc(nameLen + 1);
-            if (!name) continue;
-            memcpy(name, def, nameLen);
-            name[nameLen] = '\0';
-            value = eq + 1;
-        } else {
-            name = strdup(def);
-            if (!name) continue;
-        }
-
-        char* normalizedValue = normalize_cli_macro_value(value);
-        const char* valueForLex = normalizedValue ? normalizedValue : value;
-        PPTokenBuffer body = {0};
-        if (valueForLex && valueForLex[0] != '\0' && try_tokenize_cli_quoted_string(valueForLex, &body)) {
-            /* already tokenized as a quoted string replacement */
-        } else if (!tokenize_macro_replacement(valueForLex, &body)) {
-            free(normalizedValue);
-            free(name);
-            continue;
-        }
-
-        macro_table_define_object(pp->table,
-                                  name,
-                                  body.tokens,
-                                  body.count,
-                                  (SourceRange){0});
-        pp_token_buffer_reset(&body);
-        free(normalizedValue);
-
-        free(name);
-    }
+    pp_define_predefined_macros(pp, macroDefines, macroDefineCount);
     return true;
 }
 

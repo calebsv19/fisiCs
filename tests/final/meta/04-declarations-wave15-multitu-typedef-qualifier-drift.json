@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__multitu_typedef_object_alias_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_typedef_object_alias_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_typedef_object_alias_bridge_main.c",
+        "probes/runtime/04__probe_multitu_typedef_object_alias_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_typedef_object_alias_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "typedef", "object", "clean-path", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_include_return_alias_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_include_return_alias_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_include_return_alias_bridge_main.c",
+        "probes/runtime/04__probe_multitu_include_return_alias_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_include_return_alias_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "include", "typedef", "return", "clean-path", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__line_directive_multitu_typedef_object_conflict_spelling_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_object_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_object_conflict_spelling_strict_main.c",
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_object_conflict_spelling_strict_lib.c"
+      ],
+      "expects": ["expect/04__diag__line_directive_multitu_typedef_object_conflict_spelling_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "multitu", "typedef", "object", "line-directive", "drift", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__line_directive_multitu_typedef_return_conflict_spelling_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_return_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_return_conflict_spelling_strict_main.c",
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_return_conflict_spelling_strict_lib.c"
+      ],
+      "expects": ["expect/04__diag__line_directive_multitu_typedef_return_conflict_spelling_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "multitu", "typedef", "return", "line-directive", "drift", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__line_directive_multitu_include_object_qualifier_conflict_spelling_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_multitu_include_object_qualifier_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_include_object_qualifier_conflict_spelling_strict_main.c",
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_include_object_qualifier_conflict_spelling_strict_lib.c"
+      ],
+      "expects": ["expect/04__diag__line_directive_multitu_include_object_qualifier_conflict_spelling_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "multitu", "include", "qualifier", "object", "line-directive", "drift", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__line_directive_multitu_include_return_ptr_conflict_spelling_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_multitu_include_return_ptr_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_include_return_ptr_conflict_spelling_strict_main.c",
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_include_return_ptr_conflict_spelling_strict_lib.c"
+      ],
+      "expects": ["expect/04__diag__line_directive_multitu_include_return_ptr_conflict_spelling_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "multitu", "include", "return-pointer", "line-directive", "drift", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diagjson__line_directive_multitu_typedef_object_conflict_rich_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_object_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_object_conflict_spelling_strict_main.c",
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_object_conflict_spelling_strict_lib.c"
+      ],
+      "expects": ["expect/04__diagjson__line_directive_multitu_typedef_object_conflict_rich_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["declarations", "diagjson", "multitu", "typedef", "object", "line-directive", "drift", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diagjson__line_directive_multitu_typedef_return_conflict_rich_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_return_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_return_conflict_spelling_strict_main.c",
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_return_conflict_spelling_strict_lib.c"
+      ],
+      "expects": ["expect/04__diagjson__line_directive_multitu_typedef_return_conflict_rich_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["declarations", "diagjson", "multitu", "typedef", "return", "line-directive", "drift", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diagjson__line_directive_multitu_include_object_qualifier_conflict_rich_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_multitu_include_object_qualifier_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_include_object_qualifier_conflict_spelling_strict_main.c",
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_include_object_qualifier_conflict_spelling_strict_lib.c"
+      ],
+      "expects": ["expect/04__diagjson__line_directive_multitu_include_object_qualifier_conflict_rich_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["declarations", "diagjson", "multitu", "include", "qualifier", "object", "line-directive", "drift", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diagjson__line_directive_multitu_include_return_ptr_conflict_rich_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_multitu_include_return_ptr_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_include_return_ptr_conflict_spelling_strict_main.c",
+        "probes/diagnostics/04__probe_diag_line_directive_multitu_include_return_ptr_conflict_spelling_strict_lib.c"
+      ],
+      "expects": ["expect/04__diagjson__line_directive_multitu_include_return_ptr_conflict_rich_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["declarations", "diagjson", "multitu", "include", "return-pointer", "line-directive", "drift", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

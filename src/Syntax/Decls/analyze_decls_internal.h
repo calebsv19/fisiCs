@@ -26,6 +26,7 @@ SourceRange varDeclBestMacroCallSite(ASTNode* node);
 SourceRange varDeclBestMacroDefinition(ASTNode* node);
 
 const ParsedType* resolveTypedefBase(Scope* scope, const ParsedType* type, int depth);
+void canonicalizeParsedTypeInScope(ParsedType* type, Scope* scope);
 bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,
                                              const ParsedType* b,
                                              Scope* scope);

@@ -1,0 +1,10 @@
+Diagnostics:
+Error at (1:7): Conflicting tag name for union 'DualTag'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_union_enum_conflict_reject.c:1:7
+Error at (5:6): Conflicting tag name for enum 'DualTag'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_union_enum_conflict_reject.c:5:6
+Error at (10:12): Undeclared identifier
+   Hint: DUAL_TAG_VALUE
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_union_enum_conflict_reject.c:10:12
+Error at (10:12): Operator '-' requires arithmetic operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_union_enum_conflict_reject.c:10:12

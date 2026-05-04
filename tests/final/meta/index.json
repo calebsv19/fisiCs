@@ -454,6 +454,11 @@
     "08-initializers-layout-wave64-bitfield-struct-relay-runtime-promotions.json",
     "08-initializers-layout-wave65-bitfield-struct-feedback-runtime-promotions.json",
     "08-initializers-layout-wave66-overlap-subobject-feedback-runtime-promotions.json",
-    "08-initializers-layout-wave67-overlap-union-plane-runtime-promotions.json"
+    "08-initializers-layout-wave67-overlap-union-plane-runtime-promotions.json",
+    "04-declarations-wave11-storage-tag-redeclaration-matrix.json",
+    "04-declarations-wave12-line-directive-conflict-parity.json",
+    "04-declarations-wave13-multitu-storage-redeclaration-drift.json",
+    "04-declarations-wave14-clean-path-shadowing-parallel-namespace.json"
+    ,"04-declarations-wave15-multitu-typedef-qualifier-drift.json"
   ]
 }

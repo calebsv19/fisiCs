@@ -1,0 +1,2 @@
+#line 17201 "virtual_decl_multitu_include_object_qualifier_conflict_probe_diag_text.h"
+extern const int wave15_mt_decl_object_const_conflict;

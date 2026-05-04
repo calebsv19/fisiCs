@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__diag__line_directive_array_extent_conflict_spelling_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_array_extent_conflict_spelling_strict.c",
+      "expects": ["expect/04__diag__line_directive_array_extent_conflict_spelling_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "line-directive", "array-extent", "parity", "wave12"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__line_directive_include_array_extent_conflict_spelling_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_include_array_extent_conflict_spelling_strict.c",
+      "expects": ["expect/04__diag__line_directive_include_array_extent_conflict_spelling_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "line-directive", "include", "array-extent", "parity", "wave12"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__line_directive_tag_cross_kind_conflict_spelling_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_tag_cross_kind_conflict_spelling_strict.c",
+      "expects": ["expect/04__diag__line_directive_tag_cross_kind_conflict_spelling_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "line-directive", "tag", "cross-kind", "parity", "wave12"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__line_directive_include_tag_cross_kind_conflict_spelling_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diag_line_directive_include_tag_cross_kind_conflict_spelling_strict.c",
+      "expects": ["expect/04__diag__line_directive_include_tag_cross_kind_conflict_spelling_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["declarations", "diag", "probe-promotion", "line-directive", "include", "tag", "cross-kind", "parity", "wave12"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diagjson__line_directive_array_extent_conflict_rich_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diagjson_line_directive_array_extent_conflict_rich_strict.c",
+      "expects": ["expect/04__diagjson__line_directive_array_extent_conflict_rich_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["declarations", "diagjson", "probe-promotion", "line-directive", "array-extent", "parity", "wave12"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diagjson__line_directive_include_array_extent_conflict_rich_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diagjson_line_directive_include_array_extent_conflict_rich_strict.c",
+      "expects": ["expect/04__diagjson__line_directive_include_array_extent_conflict_rich_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["declarations", "diagjson", "probe-promotion", "line-directive", "include", "array-extent", "parity", "wave12"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diagjson__line_directive_tag_cross_kind_conflict_rich_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diagjson_line_directive_tag_cross_kind_conflict_rich_strict.c",
+      "expects": ["expect/04__diagjson__line_directive_tag_cross_kind_conflict_rich_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["declarations", "diagjson", "probe-promotion", "line-directive", "tag", "cross-kind", "parity", "wave12"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diagjson__line_directive_include_tag_cross_kind_conflict_rich_strict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_diagjson_line_directive_include_tag_cross_kind_conflict_rich_strict.c",
+      "expects": ["expect/04__diagjson__line_directive_include_tag_cross_kind_conflict_rich_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["declarations", "diagjson", "probe-promotion", "line-directive", "include", "tag", "cross-kind", "parity", "wave12"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

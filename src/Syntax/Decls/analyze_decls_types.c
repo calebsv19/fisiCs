@@ -14,6 +14,10 @@ static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type);
 static void hashAstNode(uint64_t* hash, const ASTNode* node);
 static void hashFieldDeclaration(uint64_t* hash, ASTNode* field);
 
+static bool isSyntheticAnonymousAggregateName(const char* name) {
+    return name && strncmp(name, "__anon_", 7) == 0;
+}
+
 ASTNode* varDeclPrimaryNameNode(ASTNode* node) {
     if (!node || node->type != AST_VARIABLE_DECLARATION) return NULL;
     if (!node->varDecl.varNames || node->varDecl.varCount == 0) return NULL;
@@ -77,7 +81,12 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
     if (type->kind == TYPE_NAMED && type->userTypeName) {
         const ParsedType* resolved = resolveTypedefBase(scope, type, 0);
         if (resolved && resolved != type) {
-            char* oldName = type->userTypeName;
+            char* resolvedNameCopy = NULL;
+            bool preserveAggregateAliasName =
+                (resolved->kind == TYPE_STRUCT ||
+                 resolved->kind == TYPE_UNION ||
+                 resolved->kind == TYPE_ENUM) &&
+                isSyntheticAnonymousAggregateName(resolved->userTypeName);
             bool isConst = type->isConst;
             bool isVolatile = type->isVolatile;
             bool isRestrict = type->isRestrict;
@@ -85,16 +94,22 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
             bool isUnsigned = type->isUnsigned;
             bool isShort = type->isShort;
             bool isLong = type->isLong;
+            if (resolved->userTypeName && !preserveAggregateAliasName) {
+                resolvedNameCopy = strdup(resolved->userTypeName);
+                if (!resolvedNameCopy) {
+                    return;
+                }
+            }
 
             type->kind = resolved->kind;
             type->primitiveType = resolved->primitiveType;
             type->tag = resolved->tag;
-            if (resolved->userTypeName) {
-                type->userTypeName = resolved->userTypeName;
+            if (resolvedNameCopy) {
+                type->userTypeName = resolvedNameCopy;
             } else if (resolved->kind == TYPE_STRUCT ||
                        resolved->kind == TYPE_UNION ||
                        resolved->kind == TYPE_ENUM) {
-                type->userTypeName = oldName;
+                /* Preserve the existing owned tag spelling for aggregate-like aliases. */
             } else {
                 type->userTypeName = NULL;
             }
@@ -122,6 +137,10 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
             canonicalizeParsedTypeAliases(scope, &deriv->as.function.params[p], depth + 1);
         }
     }
+}
+
+void canonicalizeParsedTypeInScope(ParsedType* type, Scope* scope) {
+    canonicalizeParsedTypeAliases(scope, type, 0);
 }
 
 bool parsedTypesStructurallyCompatibleInScope(const ParsedType* a,

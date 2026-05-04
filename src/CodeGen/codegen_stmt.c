@@ -10,6 +10,24 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+static const ParsedType* cg_stmt_resolve_typedef_parsed(CodegenContext* ctx, const ParsedType* type) {
+    if (!ctx || !type || type->kind != TYPE_NAMED || !type->userTypeName) {
+        return type;
+    }
+    if (type->derivationCount > 0 || type->pointerDepth > 0 || type->isFunctionPointer) {
+        return type;
+    }
+    CGTypeCache* cache = cg_context_get_type_cache(ctx);
+    if (!cache) {
+        return type;
+    }
+    CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, type->userTypeName);
+    if (info) {
+        return &info->parsedType;
+    }
+    return type;
+}
+
 static bool cg_attr_payload_has_word(const char* payload, const char* word) {
     if (!payload || !word || !word[0]) {
         return false;
@@ -299,7 +317,9 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
     size_t functionParamIndexOffset = 0;
     {
         ProfilerScope returnTypeScope = profiler_begin("codegen_function_definition_return_type");
-        returnType = cg_type_from_parsed(ctx, &node->functionDef.returnType);
+        const ParsedType* resolvedReturnType =
+            cg_stmt_resolve_typedef_parsed(ctx, &node->functionDef.returnType);
+        returnType = cg_type_from_parsed(ctx, resolvedReturnType);
         if (returnType && LLVMGetTypeKind(returnType) == LLVMFunctionTypeKind) {
             returnType = LLVMPointerType(returnType, 0);
         } else if (returnType && LLVMGetTypeKind(returnType) == LLVMArrayTypeKind) {
@@ -477,7 +497,8 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
         ProfilerScope frameSetupScope = profiler_begin("codegen_function_definition_frame_setup");
         entry = LLVMAppendBasicBlock(function, "entry");
         LLVMPositionBuilderAtEnd(ctx->builder, entry);
-        ctx->currentFunctionReturnType = &node->functionDef.returnType;
+        ctx->currentFunctionReturnType =
+            cg_stmt_resolve_typedef_parsed(ctx, &node->functionDef.returnType);
         ctx->currentFunctionName = fnName;
         ctx->currentFunctionUsesVariadicSRet = useVariadicSRet;
         ctx->currentFunctionVariadicSRetType = returnType;

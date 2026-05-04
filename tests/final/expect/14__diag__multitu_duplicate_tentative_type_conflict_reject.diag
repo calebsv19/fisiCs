@@ -1,2 +1,2 @@
 Diagnostics:
-clang: error: linker command failed with exit code 1 (use -v to see invocation)
+Error at (1:8): Conflicting types for variable 'wave79_tent' across translation units

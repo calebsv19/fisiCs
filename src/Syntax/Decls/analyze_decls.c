@@ -609,7 +609,11 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                              "Conflicting tag name for %s '%s'",
                              kindLabel,
                              nameNode->valueNode.value);
-                    addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                    addErrorWithRanges(nameNode ? nameNode->location : node->location,
+                                       nameNode ? nameNode->macroCallSite : node->macroCallSite,
+                                       nameNode ? nameNode->macroDefinition : node->macroDefinition,
+                                       buffer,
+                                       NULL);
                     break;
                 }
             }
@@ -623,7 +627,11 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                                  "Conflicting tag name for %s '%s'",
                                  kindLabel,
                                  nameNode->valueNode.value);
-                        addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                        addErrorWithRanges(nameNode ? nameNode->location : node->location,
+                                           nameNode ? nameNode->macroCallSite : node->macroCallSite,
+                                           nameNode ? nameNode->macroDefinition : node->macroDefinition,
+                                           buffer,
+                                           NULL);
                     }
                 }
             } else {

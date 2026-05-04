@@ -1,0 +1,3 @@
+#line 17002 "virtual_decl_multitu_typedef_object_conflict_probe_diag_text_lib.c"
+typedef long wave15_mt_object_t;
+wave15_mt_object_t wave15_mt_decl_object_conflict = 3;

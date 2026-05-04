@@ -50,6 +50,7 @@ DIAG_JSON_PROBES = (
     bucket_01_translation_phases.DIAG_JSON_PROBES +
     bucket_02_lexer.DIAG_JSON_PROBES +
     bucket_03_preprocessor.DIAG_JSON_PROBES +
+    bucket_04_declarations.DIAG_JSON_PROBES +
     bucket_05_expressions.DIAG_JSON_PROBES +
     bucket_06_lvalues_rvalues.DIAG_JSON_PROBES +
     bucket_07_types_conversions.DIAG_JSON_PROBES +

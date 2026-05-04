@@ -2,16 +2,17 @@
   "diag_count": 1,
   "diagnostics": [
     {
-      "code": 4001,
-      "column": 0,
-      "has_file": false,
+      "code": 2000,
+      "column": 15,
+      "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/14__diag__multitu_duplicate_tentative_type_conflict_reject_lib.c",
+      "has_file": true,
       "has_hint": true,
       "has_message": true,
-      "hint": "Inspect linker stderr output and [link] argv for symbol/type conflicts.",
+      "hint": "Previous definition at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/14__diag__multitu_duplicate_tentative_type_conflict_reject_main.c:1:5",
       "kind": 0,
-      "length": 0,
-      "line": 0,
-      "message": "Link stage failed (linker=clang, exit=1, inputs=2)"
+      "length": 1,
+      "line": 1,
+      "message": "Conflicting types for variable 'wave79_tent' across translation units"
     }
   ],
   "error_count": 1,

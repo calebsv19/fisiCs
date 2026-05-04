@@ -13,12 +13,20 @@ Macro handling, conditional skipping, and include resolution live here. This is 
   - Private support seam for macro argument parsing/packing, token-buffer ownership helpers, and recursive argument expansion. Keeps the high-risk substitution/orchestration logic in `macro_expander.c` while isolating the lower-coupled storage and argument-prep machinery.
 - `preprocessor_external.h/.c`
   - Private helper for hybrid/system-include external preprocessing. Builds the subprocess command, appends include search paths, captures tool output, strips stray directives that should not reach the parser, and hands filtered text back for re-lexing.
+- `preprocessor_include_support.h/.c`
+  - Private include-handling support seam for literal operand parsing, suspicious include-name filtering, classic guard detection, include-summary action/probe classification, and replay/profiling helpers used by recursive include dispatch. Keeps `preprocessor_directives.c` focused on directive execution while isolating the high-churn include-summary analysis lane.
+- `preprocessor_driver_support.c`
+  - Private driver-support seam for directive-line cloning, `_Pragma` skipping, chunk flush/expansion diagnostics, token-cost counting, and layout-debug gating shared by the main driver and summary replay lanes.
+- `preprocessor_builtins.c`
+  - Private builtin/bootstrap seam for predefined macro registration and CLI `-D` normalization/tokenization. Keeps `preprocessor.c` focused on lifecycle setup while isolating the target-profile and command-line macro lane.
+- `preprocessor_summary_replay.c`
+  - Private replay seam for include-summary router/scaffold/full replay, raw-range direct-clone rules, and replay-time conditional orchestration. Keeps the summary fast path out of the main token-scanning host.
 - `pp_expr.h/.c`
   - Tiny expression evaluator for `#if` / `#elif`. Parses the limited preprocessor grammar (unary, multiplicative/additive, shifts, comparisons/equality, bitwise/logical ops, ternary), caps arithmetic to 32-bit results, folds `defined(name)` queries via the shared macro table, and treats all other identifiers as `0`.
 - `preprocessor.h/.c`
-  - High-level driver that scans the lexer’s token buffer, consumes `#define`/`#undef` directives into the macro table, evaluates `#if/#elif/#else/#endif` with a conditional stack, and flushes active chunks through the expander before handing them to the parser. A `--preserve-pp` flag or `PRESERVE_PP_NODES=1` keeps lightweight directive AST nodes when tooling needs them; otherwise the parser never sees `#` tokens.
+  - High-level driver host that scans the lexer’s token buffer, routes directives and conditionals, and flushes active chunks through the expander before handing them to the parser. Builtin/bootstrap setup, shared flush helpers, and include-summary replay now live in sibling private seams so the owner file stays on lifecycle and orchestration. A `--preserve-pp` flag or `PRESERVE_PP_NODES=1` keeps lightweight directive AST nodes when tooling needs them; otherwise the parser never sees `#` tokens.
 - `preprocessor_directives.c`
-  - Directive handlers for `#define`, `#undef`, `#include`, `#pragma`, and `#line`. Include handling expands operands, resolves recursive/include-next flows, and delegates hybrid external system-header preprocessing to `preprocessor_external`.
+  - Directive handlers for `#define`, `#undef`, `#include`, `#pragma`, and `#line`. Include handling expands operands, resolves recursive/include-next flows, delegates operand/summary analysis to `preprocessor_include_support`, and delegates hybrid external system-header preprocessing to `preprocessor_external`.
 - `include_resolver.h/.c`
   - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`) plus optional `SYSTEM_INCLUDE_PATHS`, caches file contents + mtimes, tracks `#pragma once` and classic guards, records dependency edges for JSON emission, and understands `#include_next` by skipping the directory that produced the current header.
   - Write the include graph to JSON via `include_graph_write_json`; surfaced to users with `--emit-deps-json <file>` or `EMIT_DEPS_JSON=path`.

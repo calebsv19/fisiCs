@@ -395,6 +395,7 @@ void declareFunctionPrototype(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (!name) return;
+    returnType = cg_resolve_typedef_parsed(ctx, returnType);
 
     size_t flattenedCount = 0;
     LLVMTypeRef* paramTypes = collectParamTypes(ctx, paramCount, params, &flattenedCount);
@@ -414,15 +415,20 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
         return;
     }
 
-    LLVMTypeRef varType = cg_type_from_parsed(ctx, &sym->type);
+    const ParsedType* storedParsed = cg_resolve_typedef_parsed(ctx, &sym->type);
+    if (!storedParsed) {
+        storedParsed = &sym->type;
+    }
+
+    LLVMTypeRef varType = cg_type_from_parsed(ctx, storedParsed);
     if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
         varType = LLVMInt32TypeInContext(ctx->llvmContext);
     }
 
-    bool isArray = parsedTypeIsDirectArray(&sym->type);
+    bool isArray = parsedTypeIsDirectArray(storedParsed);
     LLVMTypeRef elementLLVM = NULL;
     if (isArray) {
-        ParsedType element = parsedTypeArrayElementType(&sym->type);
+        ParsedType element = parsedTypeArrayElementType(storedParsed);
         elementLLVM = cg_type_from_parsed(ctx, &element);
         parsedTypeFree(&element);
         if (!elementLLVM || LLVMGetTypeKind(elementLLVM) == LLVMVoidTypeKind) {
@@ -461,16 +467,16 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     if (!externDeclOnly && !sym->isTentative) {
         DesignatedInit* init = cg_find_initializer_for_symbol(sym);
         const char* skipConst = getenv("FISICS_NO_CONST_GLOBALS");
-        if (!skipConst && init && init->expression && !parsedTypeHasVLA(&sym->type)) {
+        if (!skipConst && init && init->expression && !parsedTypeHasVLA(storedParsed)) {
             LLVMTypeRef elementType = LLVMGlobalGetValueType(existing);
             if (elementType) {
                 LLVMValueRef constInit = cg_build_const_initializer(ctx,
                                                                     init->expression,
                                                                     elementType,
-                                                                    &sym->type);
+                                                                    storedParsed);
                 if (constInit) {
                     LLVMSetInitializer(existing, constInit);
-                    if (cg_parsed_type_is_top_level_const_object(&sym->type) &&
+                    if (cg_parsed_type_is_top_level_const_object(storedParsed) &&
                         !sym->type.isVolatile) {
                         LLVMSetGlobalConstant(existing, 1);
                         LLVMSetUnnamedAddr(existing, LLVMGlobalUnnamedAddr);
@@ -488,7 +494,7 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     /* Global predeclare must stay resilient for incomplete/opaque declarations.
      * Only pass an LLVM hint when the lowered type is sized. */
     LLVMTypeRef alignHint = (varType && LLVMTypeIsSized(varType)) ? varType : NULL;
-    if (cg_size_align_for_type(ctx, &sym->type, alignHint, &szDummy, &alignVal) && alignVal > 0) {
+    if (cg_size_align_for_type(ctx, storedParsed, alignHint, &szDummy, &alignVal) && alignVal > 0) {
         LLVMSetAlignment(existing, alignVal);
     }
     if (sym->dllStorage == DLL_STORAGE_EXPORT) {
@@ -504,7 +510,7 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
                     true,
                     isArray,
                     elementLLVM,
-                    &sym->type);
+                    storedParsed);
 }
 
 void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
@@ -530,6 +536,10 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
 
     size_t flattenedCount = 0;
     LLVMTypeRef* paramTypes = NULL;
+    const ParsedType* returnParsed = cg_resolve_typedef_parsed(ctx, &sym->type);
+    if (!returnParsed) {
+        returnParsed = &sym->type;
+    }
     if (useSignature) {
         paramTypes = collectParamTypesFromSignature(ctx, sigParams, paramCount, &flattenedCount);
     } else {
@@ -537,7 +547,7 @@ void declareFunctionSymbol(CodegenContext* ctx, const Symbol* sym) {
     }
     LLVMValueRef fn = ensureFunction(ctx,
                                      sym->name,
-                                     &sym->type,
+                                     returnParsed,
                                      flattenedCount,
                                      paramTypes,
                                      sym->signature.isVariadic,

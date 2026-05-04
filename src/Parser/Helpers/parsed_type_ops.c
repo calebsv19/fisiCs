@@ -302,6 +302,7 @@ ParsedType parsedTypeArrayElementType(const ParsedType* t) {
         free(element.derivations);
         element.derivations = NULL;
     }
+    refreshFunctionFlags(&element);
     return element;
 }
 
@@ -584,7 +585,22 @@ bool parsedTypesStructurallyEqual(const ParsedType* a, const ParsedType* b) {
     if (a->primitiveType != b->primitiveType) return false;
     if (a->tag != b->tag) return false;
     if (!namesEqual(a->userTypeName, b->userTypeName)) return false;
+    if (a->isConst != b->isConst) return false;
+    if (a->isVolatile != b->isVolatile) return false;
+    if (a->isRestrict != b->isRestrict) return false;
+    if (a->isSigned != b->isSigned) return false;
+    if (a->isUnsigned != b->isUnsigned) return false;
+    if (a->isShort != b->isShort) return false;
+    if (a->isLong != b->isLong) return false;
+    if (a->isComplex != b->isComplex) return false;
+    if (a->isImaginary != b->isImaginary) return false;
     if (a->pointerDepth != b->pointerDepth) return false;
+    if (a->fpParamCount != b->fpParamCount) return false;
+    for (size_t i = 0; i < a->fpParamCount; ++i) {
+        if (!parsedTypesStructurallyEqual(&a->fpParams[i], &b->fpParams[i])) {
+            return false;
+        }
+    }
     if (a->derivationCount != b->derivationCount) return false;
 
     for (size_t i = 0; i < a->derivationCount; ++i) {

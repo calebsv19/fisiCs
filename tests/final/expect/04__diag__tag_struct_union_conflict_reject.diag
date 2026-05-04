@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (1:8): Conflicting tag name for struct 'CrossTag'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_struct_union_conflict_reject.c:1:8
+Error at (5:7): Conflicting tag name for union 'CrossTag'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_struct_union_conflict_reject.c:5:7

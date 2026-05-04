@@ -20,7 +20,11 @@ static void normalizeArrayDerivationCompat(ParsedType* type);
 static bool parsedTypesEqualForFunctionCompat(const ParsedType* lhs, const ParsedType* rhs);
 static bool parsedTypeIsFunctionPointerLike(const ParsedType* type);
 static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destType,
-                                                         const ParsedType* srcType);
+                                                         const ParsedType* srcType,
+                                                         Scope* scope);
+static bool functionDesignatorInitializerCompatible(const ParsedType* destType,
+                                                    ASTNode* expr,
+                                                    Scope* scope);
 static bool isFunctionAddressConstant(ASTNode* expr, Scope* scope);
 static bool isStaticStorageObjectAddressConstant(ASTNode* expr, Scope* scope);
 static bool aggregateStaticInitializerIsConstant(ASTNode* expr, Scope* scope);
@@ -454,7 +458,8 @@ static bool parsedTypeIsFunctionPointerLike(const ParsedType* type) {
 }
 
 static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destType,
-                                                         const ParsedType* srcType) {
+                                                         const ParsedType* srcType,
+                                                         Scope* scope) {
     if (!destType || !srcType) return false;
 
     ParsedType destTarget = parsedTypePointerTargetType(destType);
@@ -479,6 +484,11 @@ static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destT
     ParsedType destRet = parsedTypeFunctionReturnType(&destTarget);
     ParsedType srcRet = parsedTypeFunctionReturnType(&srcTarget);
     bool retCompat = parsedTypesEqualForFunctionCompat(&destRet, &srcRet);
+    if (!retCompat && scope) {
+        TypeInfo destRetInfo = typeInfoFromParsedType(&destRet, scope);
+        TypeInfo srcRetInfo = typeInfoFromParsedType(&srcRet, scope);
+        retCompat = typesAreEqual(&destRetInfo, &srcRetInfo);
+    }
     parsedTypeFree(&destRet);
     parsedTypeFree(&srcRet);
     if (!retCompat) {
@@ -502,8 +512,16 @@ static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destT
             return false;
         }
         for (size_t i = 0; i < destFn->as.function.paramCount; ++i) {
-            if (!parsedTypesEqualForFunctionCompat(&destFn->as.function.params[i],
-                                                   &srcFn->as.function.params[i])) {
+            bool paramCompat = parsedTypesEqualForFunctionCompat(&destFn->as.function.params[i],
+                                                                 &srcFn->as.function.params[i]);
+            if (!paramCompat && scope) {
+                TypeInfo destParamInfo =
+                    typeInfoFromParsedType(&destFn->as.function.params[i], scope);
+                TypeInfo srcParamInfo =
+                    typeInfoFromParsedType(&srcFn->as.function.params[i], scope);
+                paramCompat = typesAreEqual(&destParamInfo, &srcParamInfo);
+            }
+            if (!paramCompat) {
                 parsedTypeFree(&destTarget);
                 parsedTypeFree(&srcTarget);
                 return false;
@@ -532,6 +550,78 @@ static bool functionPointerTypesCompatibleForInitializer(const ParsedType* destT
 
     parsedTypeFree(&destTarget);
     parsedTypeFree(&srcTarget);
+    return true;
+}
+
+static Symbol* initializerFunctionSymbol(ASTNode* expr, Scope* scope) {
+    if (!expr || !scope) return NULL;
+    switch (expr->type) {
+        case AST_IDENTIFIER: {
+            if (!expr->valueNode.value) return NULL;
+            Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
+            return (sym && sym->kind == SYMBOL_FUNCTION) ? sym : NULL;
+        }
+        case AST_UNARY_EXPRESSION:
+            if (expr->expr.op && strcmp(expr->expr.op, "&") == 0) {
+                return initializerFunctionSymbol(expr->expr.left, scope);
+            }
+            return NULL;
+        case AST_CAST_EXPRESSION:
+            return initializerFunctionSymbol(expr->castExpr.expression, scope);
+        default:
+            return NULL;
+    }
+}
+
+static bool functionDesignatorInitializerCompatible(const ParsedType* destType,
+                                                    ASTNode* expr,
+                                                    Scope* scope) {
+    if (!destType || !expr || !scope) return false;
+    Symbol* sym = initializerFunctionSymbol(expr, scope);
+    if (!sym || sym->kind != SYMBOL_FUNCTION) return false;
+
+    ParsedType destTarget = parsedTypePointerTargetType(destType);
+    if (destTarget.kind == TYPE_INVALID) {
+        parsedTypeFree(&destTarget);
+        destTarget = parsedTypeClone(destType);
+    }
+    const TypeDerivation* destFn = findFunctionDerivationInType(&destTarget);
+    if (!destFn) {
+        parsedTypeFree(&destTarget);
+        return false;
+    }
+
+    ParsedType destRet = parsedTypeFunctionReturnType(&destTarget);
+    bool retCompat = parsedTypesStructurallyCompatibleInScope(&destRet, &sym->type, scope);
+    parsedTypeFree(&destRet);
+    if (!retCompat) {
+        parsedTypeFree(&destTarget);
+        return false;
+    }
+
+    bool destHasParams = functionDerivationHasPrototypeParams(destFn);
+    bool srcHasParams = sym->signature.paramCount > 0 || sym->signature.isVariadic;
+    if (destHasParams != srcHasParams) {
+        parsedTypeFree(&destTarget);
+        return false;
+    }
+    if (destHasParams) {
+        if (destFn->as.function.paramCount != sym->signature.paramCount ||
+            destFn->as.function.isVariadic != sym->signature.isVariadic) {
+            parsedTypeFree(&destTarget);
+            return false;
+        }
+        for (size_t i = 0; i < destFn->as.function.paramCount; ++i) {
+            if (!parsedTypesStructurallyCompatibleInScope(&destFn->as.function.params[i],
+                                                          &sym->signature.params[i],
+                                                          scope)) {
+                parsedTypeFree(&destTarget);
+                return false;
+            }
+        }
+    }
+
+    parsedTypeFree(&destTarget);
     return true;
 }
 
@@ -845,6 +935,24 @@ static void validateArrayInitializerEntries(ParsedType* type,
             if (rhs.category != TYPEINFO_INVALID) {
                 AssignmentCheckResult assign = canAssignTypesInScope(&elementInfo, &rhs, scope);
                 if (assign == ASSIGN_INCOMPATIBLE &&
+                    elementInfo.originalType &&
+                    rhs.originalType &&
+                    parsedTypeIsFunctionPointerLike(elementInfo.originalType) &&
+                    parsedTypeIsFunctionPointerLike(rhs.originalType) &&
+                    functionPointerTypesCompatibleForInitializer(elementInfo.originalType,
+                                                                 rhs.originalType,
+                                                                 scope)) {
+                    assign = ASSIGN_OK;
+                }
+                if (assign == ASSIGN_INCOMPATIBLE &&
+                    elementInfo.originalType &&
+                    parsedTypeIsFunctionPointerLike(elementInfo.originalType) &&
+                    functionDesignatorInitializerCompatible(elementInfo.originalType,
+                                                           init->expression,
+                                                           scope)) {
+                    assign = ASSIGN_OK;
+                }
+                if (assign == ASSIGN_INCOMPATIBLE &&
                     typeInfoIsPointerLike(&elementInfo) &&
                     typeInfoIsInteger(&rhs)) {
                     long long zero = 1;
@@ -868,7 +976,8 @@ static void validateArrayInitializerEntries(ParsedType* type,
                     parsedTypeIsFunctionPointerLike(elementInfo.originalType) &&
                     parsedTypeIsFunctionPointerLike(rhs.originalType) &&
                     !functionPointerTypesCompatibleForInitializer(elementInfo.originalType,
-                                                                  rhs.originalType)) {
+                                                                  rhs.originalType,
+                                                                  scope)) {
                     assign = ASSIGN_INCOMPATIBLE;
                 }
                 if (assign == ASSIGN_INCOMPATIBLE) {

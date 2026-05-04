@@ -740,6 +740,7 @@ int compile_translation_unit(const CompileOptions* options, CompileResult* outRe
                  (unsigned long long)ctx->dl_canary_back);
     }
     result.compilerCtx = ctx;
+    cc_set_input_path(ctx, options->inputPath);
     cc_seed_builtins(ctx);
 
     if (options->targetTriple) {

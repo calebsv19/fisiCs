@@ -6,8 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "Compiler/compiler_context.h"
+#include "Syntax/Decls/analyze_decls_internal.h"
 
 static char* dup_with_indexed_ext(const char* basePath,
                                   const char* extName,
@@ -213,6 +215,8 @@ static bool symbol_spelling_location(const Symbol* sym,
 
 static bool compiler_ctx_symbol_spelling_location(const CompilerContext* ctx,
                                                   const char* name,
+                                                  SymbolKind kind,
+                                                  bool preferDefinition,
                                                   const char** fileOut,
                                                   int* lineOut,
                                                   int* columnOut) {
@@ -228,12 +232,102 @@ static bool compiler_ctx_symbol_spelling_location(const CompilerContext* ctx,
     for (size_t i = 0; i < symbolCount; ++i) {
         const FisicsSymbol* symbol = &symbols[i];
         if (!symbol->name || strcmp(symbol->name, name) != 0) continue;
-        if (symbol->kind != FISICS_SYMBOL_VARIABLE) continue;
-        if (!symbol->is_definition) continue;
+        if ((kind == SYMBOL_VARIABLE && symbol->kind != FISICS_SYMBOL_VARIABLE) ||
+            (kind == SYMBOL_FUNCTION && symbol->kind != FISICS_SYMBOL_FUNCTION)) {
+            continue;
+        }
+        if (preferDefinition && !symbol->is_definition) continue;
         if (!symbol->file_path || !symbol->file_path[0]) continue;
         if (fileOut) *fileOut = symbol->file_path;
         if (lineOut) *lineOut = symbol->start_line;
         if (columnOut) *columnOut = symbol->start_col;
+        return true;
+    }
+    return false;
+}
+
+static bool file_path_is_printable(const char* path) {
+    if (!path || !path[0]) {
+        return false;
+    }
+    for (const unsigned char* p = (const unsigned char*)path; *p; ++p) {
+        if (*p < 0x20u || *p == 0x7fu) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool recover_line_directive_virtual_file(const char* inputPath,
+                                                char* out,
+                                                size_t outSize) {
+    if (!inputPath || !inputPath[0] || !out || outSize == 0) {
+        return false;
+    }
+
+    FILE* fp = fopen(inputPath, "rb");
+    if (!fp) {
+        return false;
+    }
+
+    bool found = false;
+    char lineBuf[1024];
+    for (int i = 0; i < 8 && fgets(lineBuf, sizeof(lineBuf), fp); ++i) {
+        const char* p = lineBuf;
+        while (*p && isspace((unsigned char)*p)) p++;
+        if (*p != '#') {
+            continue;
+        }
+        p++;
+        while (*p && isspace((unsigned char)*p)) p++;
+        if (strncmp(p, "line", 4) != 0) {
+            continue;
+        }
+        p += 4;
+        while (*p && isspace((unsigned char)*p)) p++;
+        while (*p && isdigit((unsigned char)*p)) p++;
+        while (*p && isspace((unsigned char)*p)) p++;
+        if (*p != '"') {
+            continue;
+        }
+        p++;
+        const char* fileStart = p;
+        while (*p && *p != '"') p++;
+        size_t fileLen = (size_t)(p - fileStart);
+        if (!fileStart || fileLen == 0) {
+            continue;
+        }
+        size_t n = fileLen < (outSize - 1u) ? fileLen : (outSize - 1u);
+        memcpy(out, fileStart, n);
+        out[n] = '\0';
+        found = true;
+        break;
+    }
+
+    fclose(fp);
+    return found;
+}
+
+static bool stable_spelling_path_for_ctx(const CompilerContext* ctx,
+                                         const char* rawPath,
+                                         char* out,
+                                         size_t outSize) {
+    if (!out || outSize == 0) {
+        return false;
+    }
+    out[0] = '\0';
+    if (file_path_is_printable(rawPath)) {
+        snprintf(out, outSize, "%s", rawPath);
+        return true;
+    }
+
+    const char* inputPath = cc_get_input_path(ctx);
+    if (recover_line_directive_virtual_file(inputPath, out, outSize)) {
+        return true;
+    }
+
+    if (file_path_is_printable(inputPath)) {
+        snprintf(out, outSize, "%s", inputPath);
         return true;
     }
     return false;
@@ -246,6 +340,14 @@ void main_cross_tu_var_defs_free(CrossTUVarDefList* defs) {
         free(item->name);
         item->name = NULL;
         parsedTypeFree(&item->type);
+        if (item->signature.params) {
+            for (size_t p = 0; p < item->signature.paramCount; ++p) {
+                parsedTypeFree(&item->signature.params[p]);
+            }
+            free(item->signature.params);
+            item->signature.params = NULL;
+        }
+        item->signature.paramCount = 0;
         free(item->filePath);
         item->filePath = NULL;
     }
@@ -269,8 +371,81 @@ void main_cross_tu_tentative_duplicate_clear(CrossTUTentativeDuplicate* duplicat
     memset(duplicate, 0, sizeof(*duplicate));
 }
 
+static void cross_tu_adjust_parameter_type(ParsedType* type) {
+    if (!type) return;
+    parsedTypeAdjustArrayParameter(type);
+    if (!(type->derivationCount > 0 &&
+          type->derivations &&
+          type->derivations[0].kind == TYPE_DERIVATION_FUNCTION)) {
+        return;
+    }
+    TypeDerivation* grown =
+        (TypeDerivation*)realloc(type->derivations,
+                                 (type->derivationCount + 1) * sizeof(TypeDerivation));
+    if (!grown) {
+        return;
+    }
+    type->derivations = grown;
+    memmove(type->derivations + 1,
+            type->derivations,
+            type->derivationCount * sizeof(TypeDerivation));
+    memset(&type->derivations[0], 0, sizeof(TypeDerivation));
+    type->derivations[0].kind = TYPE_DERIVATION_POINTER;
+    type->derivations[0].as.pointer.isConst = false;
+    type->derivations[0].as.pointer.isVolatile = false;
+    type->derivations[0].as.pointer.isRestrict = false;
+    type->derivationCount++;
+    type->pointerDepth += 1;
+    type->directlyDeclaresFunction = false;
+}
+
+static bool cross_tu_clone_function_signature_from_ast(const Symbol* sym,
+                                                       Scope* scope,
+                                                       FunctionSignature* out) {
+    if (!sym || !out) {
+        return false;
+    }
+    *out = (FunctionSignature){0};
+    out->paramCount = sym->signature.paramCount;
+    out->isVariadic = sym->signature.isVariadic;
+    out->hasPrototype = sym->signature.hasPrototype;
+    out->callConv = sym->signature.callConv;
+    if (out->paramCount == 0) {
+        return true;
+    }
+
+    out->params = (ParsedType*)calloc(out->paramCount, sizeof(ParsedType));
+    if (!out->params) {
+        out->paramCount = 0;
+        return false;
+    }
+
+    for (size_t i = 0; i < out->paramCount; ++i) {
+        out->params[i] = parsedTypeClone(&sym->signature.params[i]);
+        cross_tu_adjust_parameter_type(&out->params[i]);
+        canonicalizeParsedTypeInScope(&out->params[i], scope);
+    }
+
+    return true;
+}
+
+static bool cross_tu_function_signatures_match(const FunctionSignature* lhs,
+                                               const FunctionSignature* rhs,
+                                               Scope* scope) {
+    if (!lhs || !rhs) return true;
+    if (lhs->paramCount != rhs->paramCount) return false;
+    if (lhs->isVariadic != rhs->isVariadic) return false;
+    for (size_t i = 0; i < lhs->paramCount; ++i) {
+        if (!parsedTypesStructurallyCompatibleInScope(&lhs->params[i], &rhs->params[i], scope)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static bool cross_tu_var_defs_push(CrossTUVarDefList* defs,
                                    const Symbol* sym,
+                                   Scope* scope,
                                    const char* filePath,
                                    int line,
                                    int column,
@@ -290,13 +465,31 @@ static bool cross_tu_var_defs_push(CrossTUVarDefList* defs,
 
     out->name = strdup(sym->name);
     if (!out->name) return false;
+    out->kind = sym->kind;
     out->type = parsedTypeClone(&sym->type);
+    canonicalizeParsedTypeInScope(&out->type, scope);
+    if (sym->kind == SYMBOL_FUNCTION) {
+        if (!cross_tu_clone_function_signature_from_ast(sym, scope, &out->signature)) {
+            free(out->name);
+            out->name = NULL;
+            parsedTypeFree(&out->type);
+            return false;
+        }
+    }
     if (filePath && filePath[0] != '\0') {
         out->filePath = strdup(filePath);
         if (!out->filePath) {
             free(out->name);
             out->name = NULL;
             parsedTypeFree(&out->type);
+            if (out->signature.params) {
+                for (size_t i = 0; i < out->signature.paramCount; ++i) {
+                    parsedTypeFree(&out->signature.params[i]);
+                }
+                free(out->signature.params);
+                out->signature.params = NULL;
+            }
+            out->signature.paramCount = 0;
             return false;
         }
     }
@@ -313,16 +506,19 @@ static bool cross_tu_var_defs_push(CrossTUVarDefList* defs,
 
 static bool cross_tu_var_is_tentative_candidate(const CrossTUVarDef* def) {
     if (!def) return false;
+    if (def->kind != SYMBOL_VARIABLE) return false;
     if (def->storage == STORAGE_EXTERN) return false;
     return def->isTentative;
 }
 
 static bool cross_tu_var_is_strong_definition(const CrossTUVarDef* def) {
     if (!def) return false;
+    if (def->kind != SYMBOL_VARIABLE) return false;
     return def->hasDefinition && !def->isTentative;
 }
 
 static bool cross_tu_set_type_conflict(CrossTUTypeConflict* conflict,
+                                       SymbolKind kind,
                                        const char* symbolName,
                                        const char* filePath,
                                        int line,
@@ -334,6 +530,7 @@ static bool cross_tu_set_type_conflict(CrossTUTypeConflict* conflict,
     main_cross_tu_type_conflict_clear(conflict);
     conflict->symbolName = strdup(symbolName);
     if (!conflict->symbolName) return false;
+    conflict->kind = kind;
     if (filePath && filePath[0] != '\0') {
         conflict->filePath = strdup(filePath);
         if (!conflict->filePath) {
@@ -437,41 +634,109 @@ typedef struct {
     CrossTUVarDefList* defs;
     CrossTUTypeConflict* conflict;
     const CompilerContext* compilerCtx;
+    struct Scope* globalScope;
     bool oom;
 } CrossTUCollectCtx;
 
 static void cross_tu_collect_symbol_cb(const Symbol* sym, void* userData) {
     CrossTUCollectCtx* ctx = (CrossTUCollectCtx*)userData;
     if (!ctx || !ctx->defs || !ctx->conflict || ctx->oom || ctx->conflict->found) return;
-    if (!sym || sym->kind != SYMBOL_VARIABLE) return;
-    if (sym->linkage != LINKAGE_EXTERNAL) return;
-    if (!sym->hasDefinition && !sym->isTentative && sym->storage != STORAGE_EXTERN) return;
+    if (!sym || (sym->kind != SYMBOL_VARIABLE && sym->kind != SYMBOL_FUNCTION)) return;
+    if (sym->kind == SYMBOL_VARIABLE &&
+        sym->linkage != LINKAGE_EXTERNAL) {
+        return;
+    }
+    if (sym->kind == SYMBOL_FUNCTION &&
+        sym->storage == STORAGE_STATIC) {
+        return;
+    }
+    if (sym->kind == SYMBOL_FUNCTION &&
+        !sym->definition) {
+        return;
+    }
+    if (sym->kind == SYMBOL_VARIABLE &&
+        !sym->hasDefinition &&
+        !sym->isTentative &&
+        sym->storage != STORAGE_EXTERN) {
+        return;
+    }
 
     const char* filePath = NULL;
     int line = 0;
     int column = 0;
-    if (!compiler_ctx_symbol_spelling_location(ctx->compilerCtx, sym->name, &filePath, &line, &column)) {
-        if (!symbol_spelling_location(sym, &filePath, &line, &column)) {
-            filePath = NULL;
-            line = 0;
-            column = 0;
-        }
+    if (!compiler_ctx_symbol_spelling_location(ctx->compilerCtx,
+                                               sym->name,
+                                               sym->kind,
+                                               false,
+                                               &filePath,
+                                               &line,
+                                               &column) &&
+        !symbol_spelling_location(sym, &filePath, &line, &column)) {
+        filePath = NULL;
+        line = 0;
+        column = 0;
     }
-    if (line > 0) line += 1;
+    char stableFilePath[4096];
+    if (!stable_spelling_path_for_ctx(ctx->compilerCtx,
+                                      filePath,
+                                      stableFilePath,
+                                      sizeof(stableFilePath))) {
+        stableFilePath[0] = '\0';
+    }
     bool virtualSpelling = filePath && filePath[0] && (access(filePath, F_OK) != 0);
+    ParsedType currentType = parsedTypeClone(&sym->type);
+    canonicalizeParsedTypeInScope(&currentType, ctx->globalScope);
+    FunctionSignature currentSignature = {0};
+    if (sym->kind == SYMBOL_FUNCTION &&
+        !cross_tu_clone_function_signature_from_ast(sym, ctx->globalScope, &currentSignature)) {
+        parsedTypeFree(&currentType);
+        ctx->oom = true;
+        return;
+    }
 
     for (size_t i = 0; i < ctx->defs->count; ++i) {
         const CrossTUVarDef* prior = &ctx->defs->items[i];
         if (!prior->name || strcmp(prior->name, sym->name) != 0) continue;
-        bool structEqual = parsedTypesStructurallyEqual(&prior->type, &sym->type);
-        bool arrayBoundsCompatible = cross_tu_array_bounds_compatible(&prior->type, &sym->type);
+        if (prior->kind != sym->kind) continue;
+        if (sym->kind == SYMBOL_FUNCTION) {
+            bool returnCompat =
+                parsedTypesStructurallyCompatibleInScope(&prior->type,
+                                                         &currentType,
+                                                         ctx->globalScope);
+            bool sigCompat =
+                cross_tu_function_signatures_match(&prior->signature,
+                                                   &currentSignature,
+                                                   ctx->globalScope);
+            if (returnCompat && sigCompat) continue;
+            if (!cross_tu_set_type_conflict(ctx->conflict,
+                                            SYMBOL_FUNCTION,
+                                            sym->name,
+                                            filePath,
+                                            line,
+                                            column,
+                                            prior->filePath,
+                                            prior->line,
+                                            prior->column)) {
+                ctx->oom = true;
+            }
+            parsedTypeFree(&currentType);
+            if (currentSignature.params) {
+                for (size_t p = 0; p < currentSignature.paramCount; ++p) {
+                    parsedTypeFree(&currentSignature.params[p]);
+                }
+                free(currentSignature.params);
+            }
+            return;
+        }
+        bool structEqual =
+            parsedTypesStructurallyCompatibleInScope(&prior->type,
+                                                     &currentType,
+                                                     ctx->globalScope);
+        bool arrayBoundsCompatible = cross_tu_array_bounds_compatible(&prior->type, &currentType);
         if (structEqual && arrayBoundsCompatible) continue;
         if (!(prior->hasDefinition || sym->hasDefinition)) continue;
-        bool arrayBoundsConflict = structEqual && !arrayBoundsCompatible;
-        if (!arrayBoundsConflict && !prior->virtualSpelling && !virtualSpelling) {
-            continue;
-        }
         if (!cross_tu_set_type_conflict(ctx->conflict,
+                                        SYMBOL_VARIABLE,
                                         sym->name,
                                         filePath,
                                         line,
@@ -481,11 +746,31 @@ static void cross_tu_collect_symbol_cb(const Symbol* sym, void* userData) {
                                         prior->column)) {
             ctx->oom = true;
         }
+        parsedTypeFree(&currentType);
+        if (currentSignature.params) {
+            for (size_t p = 0; p < currentSignature.paramCount; ++p) {
+                parsedTypeFree(&currentSignature.params[p]);
+            }
+            free(currentSignature.params);
+        }
         return;
     }
 
-    if (!cross_tu_var_defs_push(ctx->defs, sym, filePath, line, column, virtualSpelling)) {
+    if (!cross_tu_var_defs_push(ctx->defs,
+                                sym,
+                                ctx->globalScope,
+                                stableFilePath[0] ? stableFilePath : filePath,
+                                line,
+                                column,
+                                virtualSpelling)) {
         ctx->oom = true;
+    }
+    parsedTypeFree(&currentType);
+    if (currentSignature.params) {
+        for (size_t i = 0; i < currentSignature.paramCount; ++i) {
+            parsedTypeFree(&currentSignature.params[i]);
+        }
+        free(currentSignature.params);
     }
 }
 
@@ -494,10 +779,12 @@ bool main_collect_cross_tu_virtual_type_conflict(const SemanticModel* model,
                                                  CrossTUVarDefList* defs,
                                                  CrossTUTypeConflict* conflict) {
     if (!model || !defs || !conflict) return true;
+    struct Scope* globalScope = semanticModelGetGlobalScope((SemanticModel*)model);
     CrossTUCollectCtx ctx = {
         .defs = defs,
         .conflict = conflict,
         .compilerCtx = compilerCtx,
+        .globalScope = globalScope,
         .oom = false
     };
     semanticModelForEachGlobal(model, cross_tu_collect_symbol_cb, &ctx);
@@ -521,7 +808,11 @@ bool main_find_cross_tu_duplicate_tentative(const CrossTUVarDefList* defs,
             if (i == j) continue;
             const CrossTUVarDef* candidate = &defs->items[j];
             if (!candidate->name || strcmp(candidate->name, first->name) != 0) continue;
-            if (!parsedTypesStructurallyEqual(&first->type, &candidate->type)) continue;
+            if (!parsedTypesStructurallyCompatibleInScope(&first->type,
+                                                          &candidate->type,
+                                                          NULL)) {
+                continue;
+            }
             if (!cross_tu_array_bounds_compatible(&first->type, &candidate->type)) continue;
             if (cross_tu_var_is_strong_definition(candidate)) {
                 hasStrongDefinition = true;
@@ -556,9 +847,12 @@ bool main_write_semantic_conflict_diag_json(const char* outPath,
 
     char message[512];
     char hint[512];
+    const char* symbolLabel =
+        (conflict->kind == SYMBOL_FUNCTION) ? "function" : "variable";
     snprintf(message,
              sizeof(message),
-             "Conflicting types for variable '%s' across translation units",
+             "Conflicting types for %s '%s' across translation units",
+             symbolLabel,
              conflict->symbolName ? conflict->symbolName : "<unknown>");
     if (conflict->previousFilePath && conflict->previousFilePath[0] != '\0') {
         snprintf(hint,
@@ -616,11 +910,14 @@ void main_print_semantic_conflict_text(const CrossTUTypeConflict* conflict) {
     if (!conflict || !conflict->found) return;
     const int line = (conflict->line > 0) ? conflict->line : 0;
     const int column = (conflict->column > 0) ? conflict->column : 0;
+    const char* symbolLabel =
+        (conflict->kind == SYMBOL_FUNCTION) ? "function" : "variable";
 
     fprintf(stderr,
-            "Error at (%d:%d): Conflicting types for variable '%s' across translation units\n",
+            "Error at (%d:%d): Conflicting types for %s '%s' across translation units\n",
             line,
             column,
+            symbolLabel,
             conflict->symbolName ? conflict->symbolName : "<unknown>");
     if (conflict->previousFilePath && conflict->previousFilePath[0] != '\0') {
         fprintf(stderr,

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (11002:5): Conflicting types for variable
+   Hint: line_extent_conflict
+   Spelling: virtual_decl_array_extent_conflict_probe_diag_text.c:11002:5

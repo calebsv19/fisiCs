@@ -184,6 +184,7 @@ typedef struct CompilerContext {
     CompilerSymbols symbols;
     CompilerIncludes includes;
     struct ASTNode* translationUnit;
+    char* inputPath;
     int languageDialect;        // CCDialect encoded as int to avoid circular include
     CCCompatFeatures compatFeatures;
     FisicsOverlayFeatures overlayFeatures;
@@ -288,6 +289,8 @@ bool cc_append_token_span(CompilerContext* ctx, const FisicsTokenSpan* span);
 // Symbol helpers
 bool cc_set_symbols(CompilerContext* ctx, const FisicsSymbol* symbols, size_t count);
 const FisicsSymbol* cc_get_symbols(const CompilerContext* ctx, size_t* countOut);
+void cc_set_input_path(CompilerContext* ctx, const char* path);
+const char* cc_get_input_path(const CompilerContext* ctx);
 void cc_clear_symbols(CompilerContext* ctx);
 
 // Include helpers

@@ -56,7 +56,9 @@ typedef struct {
 
 typedef struct {
     char* name;
+    SymbolKind kind;
     ParsedType type;
+    FunctionSignature signature;
     char* filePath;
     int line;
     int column;
@@ -75,6 +77,7 @@ typedef struct {
 typedef struct {
     bool found;
     char* symbolName;
+    SymbolKind kind;
     char* filePath;
     int line;
     int column;
