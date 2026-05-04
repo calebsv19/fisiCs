@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (3006:39): Unknown field 'missing' in designated initializer for 'value'
+   Spelling: virtual_init_designator_unknown_field_probe.c:3006:39

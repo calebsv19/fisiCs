@@ -84,6 +84,48 @@ static void debug_dump_module_on_verify_failure(LLVMModuleRef module) {
     }
 }
 
+static bool const_tree_references_internal_global_value(LLVMValueRef value, unsigned depth) {
+    if (!value || depth > 64) {
+        return false;
+    }
+
+    LLVMValueRef globalValue = LLVMIsAGlobalValue(value);
+    if (globalValue && LLVMGetLinkage(globalValue) == LLVMInternalLinkage) {
+        return true;
+    }
+
+    int operandCount = LLVMGetNumOperands(value);
+    for (int i = 0; i < operandCount; ++i) {
+        LLVMValueRef operand = LLVMGetOperand(value, i);
+        if (const_tree_references_internal_global_value(operand, depth + 1)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool module_has_internal_initializer_references(LLVMModuleRef module) {
+    if (!module) {
+        return false;
+    }
+
+    for (LLVMValueRef global = LLVMGetFirstGlobal(module);
+         global;
+         global = LLVMGetNextGlobal(global)) {
+        if (LLVMIsDeclaration(global)) {
+            continue;
+        }
+        LLVMValueRef init = LLVMGetInitializer(global);
+        if (!init) {
+            continue;
+        }
+        if (const_tree_references_internal_global_value(init, 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool compiler_init_llvm_native(void) {
     static bool initialized = false;
     static bool attempted = false;
@@ -290,6 +332,15 @@ bool compiler_emit_object_file(LLVMModuleRef module,
              * (for example static inline helpers from SDL headers) and prevents link
              * failures from dead, never-called helper bodies.
              */
+            if (!skipGlobalDce) {
+                bool skipForInitializerRefs = module_has_internal_initializer_references(module);
+                if (skipForInitializerRefs && debugProgress) {
+                    fprintf(stderr, "[emit] skip pass pipeline=globaldce (internal initializer refs)\n");
+                }
+                if (skipForInitializerRefs) {
+                    skipGlobalDce = true;
+                }
+            }
             if (!skipGlobalDce) {
                 if (debugProgress) {
                     fprintf(stderr, "[emit] run pass pipeline=globaldce\n");

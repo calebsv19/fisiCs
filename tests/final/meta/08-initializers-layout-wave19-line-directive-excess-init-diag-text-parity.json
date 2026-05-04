@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__diag__line_directive_array_excess_spelling_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_line_directive_array_excess_spelling_reject.c",
+      "expects": ["expect/08__diag__line_directive_array_excess_spelling_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "diag", "probe-promotion", "line-directive", "array-excess", "wave19"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__line_directive_include_array_excess_spelling_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c",
+      "inputs": [
+        "probes/diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c",
+        "probes/diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.h"
+      ],
+      "expects": ["expect/08__diag__line_directive_include_array_excess_spelling_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "diag", "probe-promotion", "line-directive", "include", "array-excess", "wave19"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__line_directive_string_too_long_spelling_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_line_directive_string_too_long_spelling_reject.c",
+      "expects": ["expect/08__diag__line_directive_string_too_long_spelling_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "diag", "probe-promotion", "line-directive", "string-init", "wave19"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__line_directive_include_string_too_long_spelling_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c",
+      "inputs": [
+        "probes/diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c",
+        "probes/diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.h"
+      ],
+      "expects": ["expect/08__diag__line_directive_include_string_too_long_spelling_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "diag", "probe-promotion", "line-directive", "include", "string-init", "wave19"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

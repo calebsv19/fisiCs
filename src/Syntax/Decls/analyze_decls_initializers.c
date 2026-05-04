@@ -52,6 +52,32 @@ void reportErrorAtAstNode(ASTNode* node,
     addError(fallbackLine, 0, message, hint);
 }
 
+static bool source_path_is_virtual_remap(const char* path) {
+    if (!path || !path[0]) return false;
+    const char* base = strrchr(path, '/');
+    base = base ? base + 1 : path;
+    return strncmp(base, "virtual_", 8) == 0;
+}
+
+static void reportErrorAtLineOnlyAstNode(ASTNode* primary,
+                                         ASTNode* fallback,
+                                         int fallbackLine,
+                                         const char* message,
+                                         const char* hint) {
+    ASTNode* node = primary ? primary : fallback;
+    if (node && source_path_is_virtual_remap(node->location.start.file)) {
+        SourceRange loc = node->location;
+        if (loc.start.line <= 0) {
+            loc.start.line = fallbackLine > 0 ? fallbackLine : node->line;
+        }
+        loc.start.column = 0;
+        loc.end = loc.start;
+        addErrorWithRanges(loc, node->macroCallSite, node->macroDefinition, message, hint);
+        return;
+    }
+    addError(fallbackLine, 0, message, hint);
+}
+
 static ASTNode* symbolConstInitializerExpr(const Symbol* sym) {
     if (!sym || sym->kind != SYMBOL_VARIABLE || !sym->name || !sym->definition) return NULL;
     ASTNode* def = sym->definition;
@@ -621,8 +647,15 @@ static void validateArrayInitializerEntries(ParsedType* type,
     profiler_record_value("semantic_count_type_info_site_decl", 1);
     TypeInfo elementInfo = typeInfoFromParsedType(&elementParsed, scope);
     bool elementIsArray = parsedTypeIsDirectArray(&elementParsed);
+    ASTNode* lastValueExpr = contextNode;
+    for (size_t i = 0; i < valueCount; ++i) {
+        if (values && values[i] && values[i]->expression) {
+            lastValueExpr = values[i]->expression;
+        }
+    }
 
     if (valueCount == 1 && isStringLiteralInitializer(values[0])) {
+        ASTNode* stringExpr = values[0] ? values[0]->expression : contextNode;
         const char* payload = NULL;
         LiteralEncoding enc = ast_literal_encoding(values[0]->expression->valueNode.value, &payload);
         bool narrowCompat = (enc == LIT_ENC_NARROW || enc == LIT_ENC_UTF8) && typeInfoIsCharLike(&elementInfo);
@@ -642,7 +675,11 @@ static void validateArrayInitializerEntries(ParsedType* type,
                      sizeof(buffer),
                      "Invalid escape sequence in string literal for array '%s'",
                      arrayName);
-            addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+            reportErrorAtLineOnlyAstNode(contextNode,
+                                         stringExpr,
+                                         contextNode ? contextNode->line : 0,
+                                         buffer,
+                                         NULL);
             parsedTypeFree(&elementParsed);
             return;
         } else if (res.overflow) {
@@ -651,7 +688,11 @@ static void validateArrayInitializerEntries(ParsedType* type,
                      sizeof(buffer),
                      "String literal for array '%s' contains code points not representable in element type",
                      arrayName);
-            addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+            reportErrorAtLineOnlyAstNode(contextNode,
+                                         stringExpr,
+                                         contextNode ? contextNode->line : 0,
+                                         buffer,
+                                         NULL);
             parsedTypeFree(&elementParsed);
             return;
         } else if (hasDeclaredLen && needed > declaredLen) {
@@ -662,7 +703,11 @@ static void validateArrayInitializerEntries(ParsedType* type,
                      arrayName,
                      needed,
                      declaredLen);
-            addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+            reportErrorAtLineOnlyAstNode(contextNode,
+                                         stringExpr,
+                                         contextNode ? contextNode->line : 0,
+                                         buffer,
+                                         NULL);
             parsedTypeFree(&elementParsed);
             return;
         } else if (!hasDeclaredLen && outInferredLength) {
@@ -702,7 +747,11 @@ static void validateArrayInitializerEntries(ParsedType* type,
                              "Too many initializers for array '%s' (size %zu)",
                              arrayName,
                              capacity);
-                    addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+                    reportErrorAtLineOnlyAstNode(contextNode,
+                                                 lastValueExpr,
+                                                 contextNode ? contextNode->line : 0,
+                                                 buffer,
+                                                 NULL);
                 }
                 parsedTypeFree(&elementParsed);
                 return;
@@ -765,7 +814,11 @@ static void validateArrayInitializerEntries(ParsedType* type,
                          "Too many initializers for array '%s' (size %zu)",
                          arrayName,
                          declaredLen);
-                addError(contextNode ? contextNode->line : 0, 0, buffer, NULL);
+                reportErrorAtLineOnlyAstNode(contextNode,
+                                             init->expression,
+                                             contextNode ? contextNode->line : 0,
+                                             buffer,
+                                             NULL);
             }
             sequentialCount++;
             if (sequentialCount > highestIndex) {

@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__diag__file_scope_designated_nonconst_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_file_scope_designated_nonconst_reject.c",
+      "expects": ["expect/08__diag__file_scope_designated_nonconst_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "diag", "probe-promotion", "file-scope", "designated", "nonconst", "wave16"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__file_scope_include_designated_nonconst_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.c",
+      "inputs": [
+        "probes/diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.c",
+        "probes/diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.h"
+      ],
+      "expects": ["expect/08__diag__file_scope_include_designated_nonconst_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "diag", "probe-promotion", "file-scope", "designated", "include", "nonconst", "wave16"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__file_scope_nested_designated_nonconst_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_file_scope_nested_designated_nonconst_reject.c",
+      "expects": ["expect/08__diag__file_scope_nested_designated_nonconst_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "diag", "probe-promotion", "file-scope", "nested", "designated", "nonconst", "wave16"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__file_scope_include_nested_designated_nonconst_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c",
+      "inputs": [
+        "probes/diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c",
+        "probes/diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.h"
+      ],
+      "expects": ["expect/08__diag__file_scope_include_nested_designated_nonconst_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "diag", "probe-promotion", "file-scope", "nested", "designated", "include", "nonconst", "wave16"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diagjson__file_scope_designated_nonconst_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_file_scope_designated_nonconst_reject.c",
+      "expects": ["expect/08__diagjson__file_scope_designated_nonconst_reject.diagjson"],
+      "standard": "c99",
+      "tags": ["initializer", "diagjson", "probe-promotion", "file-scope", "designated", "nonconst", "wave16"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diagjson__file_scope_include_designated_nonconst_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.c",
+      "inputs": [
+        "probes/diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.c",
+        "probes/diagnostics/08__probe_diag_file_scope_include_designated_nonconst_reject.h"
+      ],
+      "expects": ["expect/08__diagjson__file_scope_include_designated_nonconst_reject.diagjson"],
+      "standard": "c99",
+      "tags": ["initializer", "diagjson", "probe-promotion", "file-scope", "designated", "include", "nonconst", "wave16"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diagjson__file_scope_nested_designated_nonconst_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_file_scope_nested_designated_nonconst_reject.c",
+      "expects": ["expect/08__diagjson__file_scope_nested_designated_nonconst_reject.diagjson"],
+      "standard": "c99",
+      "tags": ["initializer", "diagjson", "probe-promotion", "file-scope", "nested", "designated", "nonconst", "wave16"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diagjson__file_scope_include_nested_designated_nonconst_reject",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c",
+      "inputs": [
+        "probes/diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c",
+        "probes/diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.h"
+      ],
+      "expects": ["expect/08__diagjson__file_scope_include_nested_designated_nonconst_reject.diagjson"],
+      "standard": "c99",
+      "tags": ["initializer", "diagjson", "probe-promotion", "file-scope", "nested", "designated", "include", "nonconst", "wave16"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

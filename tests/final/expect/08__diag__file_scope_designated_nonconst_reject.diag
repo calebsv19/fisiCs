@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (10:0): Initializer for static variable 'g' is not a constant expression

@@ -525,7 +525,15 @@ bool codegenLValue(CodegenContext* ctx,
 
             LLVMTypeRef fieldType = NULL;
             const ParsedType* fieldParsed = NULL;
-            const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, baseParsed, fieldName);
+            const ParsedType* layoutParsed = baseParsed;
+            const ParsedType* semanticBaseParsed = cg_resolve_expression_type(ctx, baseNode);
+            const CCTagFieldLayout* lay = cg_lookup_field_layout(ctx, layoutParsed, fieldName);
+            if (!lay && semanticBaseParsed && semanticBaseParsed != layoutParsed) {
+                lay = cg_lookup_field_layout(ctx, semanticBaseParsed, fieldName);
+                if (lay) {
+                    layoutParsed = semanticBaseParsed;
+                }
+            }
             if (lay && lay->isBitfield && lay->widthBits > 0 && outInfo) {
                 unsigned storageBits = (unsigned)(lay->storageUnitBytes ? lay->storageUnitBytes * 8 : 32);
                 LLVMTypeRef storageTy = LLVMIntTypeInContext(ctx->llvmContext, storageBits);

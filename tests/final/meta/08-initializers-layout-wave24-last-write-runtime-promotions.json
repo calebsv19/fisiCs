@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_designator_last_write_matrix",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_designator_last_write_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_designator_last_write_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "last-write-wins", "wave24"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

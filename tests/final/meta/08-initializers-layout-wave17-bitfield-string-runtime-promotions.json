@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_bitfield_designator_bridge",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_bitfield_designator_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_bitfield_designator_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "bitfield", "designator", "wave17"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_bitfield_sparse_zero_mesh",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_bitfield_sparse_zero_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_bitfield_sparse_zero_mesh.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "bitfield", "sparse-fill", "wave17"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_string_zero_tail_checksum",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_string_zero_tail_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_string_zero_tail_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "string-init", "zero-fill", "wave17"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_struct_string_designator_matrix",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_struct_string_designator_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_struct_string_designator_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "struct", "string-init", "designator", "wave17"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

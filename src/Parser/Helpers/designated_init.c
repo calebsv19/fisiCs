@@ -31,6 +31,7 @@ DesignatedInit* createDesignatedInit(const char* fieldName, struct ASTNode* expr
     init->fieldName = fieldName ? xstrdup(fieldName) : NULL;  // or strdup if you kept it
     init->indexExpr = NULL;                                   // IMPORTANT
     init->expression = expression;
+    init->resetSubobjectBeforeStore = false;
     return init;
 }
 
@@ -40,6 +41,7 @@ DesignatedInit* createSimpleInit(struct ASTNode* expr) {
     init->fieldName = NULL;
     init->indexExpr = NULL;                                   // IMPORTANT
     init->expression = expr;
+    init->resetSubobjectBeforeStore = false;
     return init;
 }
 
@@ -56,6 +58,7 @@ DesignatedInit* createIndexedInit(struct ASTNode* indexExpr, struct ASTNode* val
     init->fieldName = NULL;            // Not a struct field
     init->indexExpr = indexExpr;       // Index (e.g., 2)
     init->expression = valueExpr;      // Value (e.g., 99)
+    init->resetSubobjectBeforeStore = false;
 
     return init;
 }
@@ -75,5 +78,4 @@ void freeDesignatedInit(DesignatedInit* init) {
         free(init);
     }
 }
-
 

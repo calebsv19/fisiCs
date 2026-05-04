@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_nested_last_write_chain_grid",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_nested_last_write_chain_grid.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_last_write_chain_grid.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "nested-last-write", "overlap", "wave31"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

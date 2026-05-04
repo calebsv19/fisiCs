@@ -13,9 +13,10 @@
 #include <llvm-c/Target.h>
 
 static const CCTagFieldLayout* cg_init_lookup_field_layout(CodegenContext* ctx,
+                                                           LLVMTypeRef aggregateType,
                                                            const ParsedType* aggregateParsed,
                                                            const char* fieldName) {
-    if (!ctx || !aggregateParsed || !fieldName) return NULL;
+    if (!ctx || !fieldName) return NULL;
     const ParsedType* resolved = aggregateParsed;
     size_t guard = 0;
     while (resolved &&
@@ -43,19 +44,50 @@ static const CCTagFieldLayout* cg_init_lookup_field_layout(CodegenContext* ctx,
         if (!next || next == resolved) break;
         resolved = next;
     }
-    if (!resolved || (resolved->tag != TAG_STRUCT && resolved->tag != TAG_UNION) || !resolved->userTypeName) {
-        return NULL;
+    const char* tagName = NULL;
+    CCTagKind kind = CC_TAG_STRUCT;
+    const char* llvmStructName = NULL;
+    if (aggregateType && LLVMGetTypeKind(aggregateType) == LLVMStructTypeKind) {
+        llvmStructName = LLVMGetStructName(aggregateType);
     }
+
+    bool isStructLike =
+        resolved && (resolved->tag == TAG_STRUCT || resolved->kind == TYPE_STRUCT);
+    bool isUnionLike =
+        resolved && (resolved->tag == TAG_UNION || resolved->kind == TYPE_UNION);
+    if (resolved &&
+        (isStructLike || isUnionLike) &&
+        resolved->userTypeName) {
+        tagName = resolved->userTypeName;
+        kind = isUnionLike ? CC_TAG_UNION : CC_TAG_STRUCT;
+    } else if (ctx->typeCache && aggregateType) {
+        CGStructLLVMInfo* info = cg_type_cache_find_struct_by_llvm(ctx->typeCache, aggregateType);
+        if (info && info->name) {
+            tagName = info->name;
+            kind = info->isUnion ? CC_TAG_UNION : CC_TAG_STRUCT;
+        }
+    }
+    if (!tagName && ctx->typeCache && llvmStructName && llvmStructName[0]) {
+        CGStructLLVMInfo* info = cg_type_cache_get_struct_info(ctx->typeCache, llvmStructName);
+        if (info && info->name) {
+            tagName = info->name;
+            kind = info->isUnion ? CC_TAG_UNION : CC_TAG_STRUCT;
+        }
+    }
+    if (!tagName && llvmStructName && llvmStructName[0]) {
+        tagName = llvmStructName;
+        kind = CC_TAG_STRUCT;
+    }
+    if (!tagName) return NULL;
 
     CompilerContext* cctx = ctx->semanticModel ? semanticModelGetContext(ctx->semanticModel) : NULL;
     if (!cctx) return NULL;
     Scope* globalScope = semanticModelGetGlobalScope(ctx->semanticModel);
-    CCTagKind kind = (resolved->tag == TAG_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
     const CCTagFieldLayout* layouts = NULL;
     size_t count = 0;
-    if (!cc_get_tag_field_layouts(cctx, kind, resolved->userTypeName, &layouts, &count) || !layouts) {
-        (void)layout_struct_union(cctx, globalScope, kind, resolved->userTypeName, NULL, NULL);
-        cc_get_tag_field_layouts(cctx, kind, resolved->userTypeName, &layouts, &count);
+    if (!cc_get_tag_field_layouts(cctx, kind, tagName, &layouts, &count) || !layouts) {
+        (void)layout_struct_union(cctx, globalScope, kind, tagName, NULL, NULL);
+        cc_get_tag_field_layouts(cctx, kind, tagName, &layouts, &count);
     }
     if (!layouts) return NULL;
     for (size_t i = 0; i < count; ++i) {
@@ -102,13 +134,17 @@ static bool cg_init_field_by_index(CodegenContext* ctx,
         if (!next || next == resolved) break;
         resolved = next;
     }
-    if (!resolved || (resolved->tag != TAG_STRUCT && resolved->tag != TAG_UNION) || !resolved->userTypeName) {
+    bool isStructLike =
+        resolved && (resolved->tag == TAG_STRUCT || resolved->kind == TYPE_STRUCT);
+    bool isUnionLike =
+        resolved && (resolved->tag == TAG_UNION || resolved->kind == TYPE_UNION);
+    if (!resolved || (!isStructLike && !isUnionLike) || !resolved->userTypeName) {
         return false;
     }
 
     CompilerContext* cctx = ctx->semanticModel ? semanticModelGetContext(ctx->semanticModel) : NULL;
     if (!cctx) return false;
-    CCTagKind kind = (resolved->tag == TAG_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    CCTagKind kind = isUnionLike ? CC_TAG_UNION : CC_TAG_STRUCT;
     ASTNode* def = cc_tag_definition(cctx, kind, resolved->userTypeName);
     if (!def || (def->type != AST_STRUCT_DEFINITION && def->type != AST_UNION_DEFINITION)) {
         return false;
@@ -135,6 +171,90 @@ static bool cg_init_field_by_index(CodegenContext* ctx,
         }
     }
     return false;
+}
+
+static const StructInfo* cg_init_lookup_legacy_struct_info(CodegenContext* ctx,
+                                                           const char* structName,
+                                                           LLVMTypeRef aggregateType) {
+    if (!ctx) {
+        return NULL;
+    }
+    for (size_t i = 0; i < ctx->structInfoCount; ++i) {
+        if (aggregateType &&
+            ctx->structInfos[i].llvmType &&
+            ctx->structInfos[i].llvmType == aggregateType) {
+            return &ctx->structInfos[i];
+        }
+        if (structName &&
+            ctx->structInfos[i].name &&
+            strcmp(ctx->structInfos[i].name, structName) == 0) {
+            return &ctx->structInfos[i];
+        }
+    }
+    return NULL;
+}
+
+static CGStructLLVMInfo* cg_init_find_struct_info_for_aggregate(CodegenContext* ctx,
+                                                                LLVMTypeRef aggregateType,
+                                                                const ParsedType* parsedHint) {
+    if (!ctx || !ctx->typeCache) {
+        return NULL;
+    }
+
+    const ParsedType* resolvedHint = parsedHint;
+    size_t aliasGuard = 0;
+    while (resolvedHint &&
+           resolvedHint->kind == TYPE_NAMED &&
+           resolvedHint->userTypeName &&
+           aliasGuard++ < 16) {
+        const ParsedType* next = NULL;
+        CGNamedLLVMType* info =
+            cg_type_cache_get_typedef_info(ctx->typeCache, resolvedHint->userTypeName);
+        if (info && info->parsedType.kind != TYPE_INVALID) {
+            next = &info->parsedType;
+        }
+        if (!next && ctx->semanticModel) {
+            const Symbol* sym = semanticModelLookupGlobal(ctx->semanticModel,
+                                                          resolvedHint->userTypeName);
+            if (sym && sym->kind == SYMBOL_TYPEDEF) {
+                next = &sym->type;
+            }
+        }
+        if (!next || next == resolvedHint) {
+            break;
+        }
+        resolvedHint = next;
+    }
+
+    if (resolvedHint && resolvedHint->inlineStructOrUnionDef) {
+        CGStructLLVMInfo* info =
+            cg_type_cache_get_struct_by_definition(ctx->typeCache,
+                                                   resolvedHint->inlineStructOrUnionDef);
+        if (info) {
+            return info;
+        }
+    }
+
+    if (aggregateType) {
+        CGStructLLVMInfo* info = cg_type_cache_find_struct_by_llvm(ctx->typeCache, aggregateType);
+        if (info) {
+            return info;
+        }
+        if (LLVMGetTypeKind(aggregateType) == LLVMStructTypeKind) {
+            const char* llvmStructName = LLVMGetStructName(aggregateType);
+            if (llvmStructName && llvmStructName[0] != '\0') {
+                info = cg_type_cache_get_struct_info(ctx->typeCache, llvmStructName);
+                if (info) {
+                    return info;
+                }
+            }
+        }
+    }
+
+    if (resolvedHint && resolvedHint->userTypeName) {
+        return cg_type_cache_get_struct_info(ctx->typeCache, resolvedHint->userTypeName);
+    }
+    return NULL;
 }
 
 static LLVMValueRef cg_init_bitfield_mask(LLVMTypeRef storageTy, unsigned width) {
@@ -269,11 +389,20 @@ static bool cg_zero_initialize_storage(CodegenContext* ctx,
 
     uint64_t bytes = 0;
     uint32_t align = 0;
+    LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
     if (!cg_size_align_for_type(ctx, destParsed, destType, &bytes, &align) || bytes == 0) {
-        LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
         if (td) {
             bytes = LLVMABISizeOfType(td, destType);
             align = (uint32_t)LLVMABIAlignmentOfType(td, destType);
+        }
+    } else if (td) {
+        uint64_t abiBytes = LLVMABISizeOfType(td, destType);
+        uint32_t abiAlign = (uint32_t)LLVMABIAlignmentOfType(td, destType);
+        if (abiBytes > bytes) {
+            bytes = abiBytes;
+        }
+        if (abiAlign > align) {
+            align = abiAlign;
         }
     }
     if (bytes == 0) {
@@ -364,6 +493,14 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
         CG_STORE_INIT_RETURN(false);
     }
 
+    if (storeKind == LLVMArrayTypeKind && expr->type == AST_STRING_LITERAL) {
+        LLVMValueRef constArray = cg_build_const_initializer(ctx, expr, storeType, destParsed);
+        if (constArray && LLVMTypeOf(constArray) == storeType) {
+            LLVMBuildStore(ctx->builder, constArray, destPtr);
+            CG_STORE_INIT_RETURN(true);
+        }
+    }
+
     LLVMValueRef casted = cg_cast_value(ctx, value, storeType, cg_resolve_expression_type(ctx, expr), destParsed, "init.cast");
     LLVMBuildStore(ctx->builder, casted, destPtr);
     CG_STORE_INIT_RETURN(true);
@@ -376,7 +513,8 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
                                     LLVMTypeRef destType,
                                     const ParsedType* destParsed,
                                     DesignatedInit** entries,
-                                    size_t entryCount);
+                                    size_t entryCount,
+                                    bool zeroInitialized);
 static bool cg_store_struct_flat_entries(CodegenContext* ctx,
                                          LLVMValueRef destPtr,
                                          LLVMTypeRef destType,
@@ -450,7 +588,13 @@ static bool cg_store_designated_entries_impl(CodegenContext* ctx,
         }
 
         if (kind == LLVMStructTypeKind) {
-            return cg_store_struct_entries(ctx, destPtr, destType, destParsed, entries, entryCount);
+            return cg_store_struct_entries(ctx,
+                                           destPtr,
+                                           destType,
+                                           destParsed,
+                                           entries,
+                                           entryCount,
+                                           zeroInitialize);
         }
         return cg_store_array_entries(ctx, destPtr, destType, destParsed, entries, entryCount);
     }
@@ -513,17 +657,30 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
                                     LLVMTypeRef destType,
                                     const ParsedType* destParsed,
                                     DesignatedInit** entries,
-                                    size_t entryCount) {
+                                    size_t entryCount,
+                                    bool zeroInitialized) {
     if (!ctx || !destPtr || LLVMGetTypeKind(destType) != LLVMStructTypeKind) {
         return false;
     }
 
-    CGTypeCache* cache = cg_context_get_type_cache(ctx);
     const char* structName = destParsed ? destParsed->userTypeName : NULL;
-    CGStructLLVMInfo* structInfo = NULL;
-    if (cache && structName) {
-        structInfo = cg_type_cache_get_struct_info(cache, structName);
+    CGStructLLVMInfo* structInfo =
+        cg_init_find_struct_info_for_aggregate(ctx, destType, destParsed);
+    if (!structInfo &&
+        !structName &&
+        destType &&
+        LLVMGetTypeKind(destType) == LLVMStructTypeKind) {
+        structName = LLVMGetStructName(destType);
     }
+    const StructInfo* legacyInfo =
+        cg_init_lookup_legacy_struct_info(ctx, structName, destType);
+    bool isUnionAggregate =
+        (destParsed &&
+         (destParsed->tag == TAG_UNION || destParsed->kind == TYPE_UNION)) ||
+        (structInfo && structInfo->isUnion) ||
+        (legacyInfo && legacyInfo->isUnion);
+    const char* activeUnionField = NULL;
+    bool seenUnionField = false;
 
     unsigned implicitIndex = 0;
     for (size_t i = 0; i < entryCount; ++i) {
@@ -546,9 +703,27 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
                 }
             }
         }
+        if (entry->fieldName && !matchedField && legacyInfo) {
+            for (size_t f = 0; f < legacyInfo->fieldCount; ++f) {
+                if (legacyInfo->fields[f].name &&
+                    strcmp(legacyInfo->fields[f].name, entry->fieldName) == 0) {
+                    targetIndex = legacyInfo->fields[f].index;
+                    fieldParsed = &legacyInfo->fields[f].parsedType;
+                    matchedField = true;
+                    break;
+                }
+            }
+        }
         if (!entry->fieldName && structInfo && targetIndex < structInfo->fieldCount) {
             targetFieldName = structInfo->fields[targetIndex].name;
             fieldParsed = &structInfo->fields[targetIndex].parsedType;
+        }
+        if (!entry->fieldName &&
+            !targetFieldName &&
+            legacyInfo &&
+            targetIndex < legacyInfo->fieldCount) {
+            targetFieldName = legacyInfo->fields[targetIndex].name;
+            fieldParsed = &legacyInfo->fields[targetIndex].parsedType;
         }
         if (!targetFieldName) {
             (void)cg_init_field_by_index(ctx, destParsed, targetIndex, &targetFieldName, &fieldParsed);
@@ -556,12 +731,28 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
         (void)matchedField;
         implicitIndex = targetIndex + 1;
 
+        if (isUnionAggregate && targetFieldName) {
+            bool shouldResetUnion = false;
+            if (!seenUnionField) {
+                shouldResetUnion = !zeroInitialized;
+            } else if (strcmp(activeUnionField, targetFieldName) != 0) {
+                shouldResetUnion = true;
+            }
+            if (shouldResetUnion &&
+                !cg_zero_initialize_storage(ctx, destPtr, destType, destParsed)) {
+                return false;
+            }
+            activeUnionField = targetFieldName;
+            seenUnionField = true;
+            zeroInitialized = true;
+        }
+
         if (targetIndex >= LLVMCountStructElementTypes(destType) && !targetFieldName) {
             continue;
         }
 
         const CCTagFieldLayout* lay =
-            cg_init_lookup_field_layout(ctx, destParsed, targetFieldName);
+            cg_init_lookup_field_layout(ctx, destType, destParsed, targetFieldName);
         ASTNode* valueExpr = entry->expression;
         const ParsedType* valueParsed = cg_resolve_expression_type(ctx, valueExpr);
 
@@ -600,16 +791,74 @@ static bool cg_store_struct_entries(CodegenContext* ctx,
             fieldType = LLVMStructGetTypeAtIndex(destType, targetIndex);
         }
 
+        size_t mergedLast = i;
+        DesignatedInit** mergedEntries = NULL;
+        size_t mergedCount = 0;
+        if (targetFieldName &&
+            !entry->resetSubobjectBeforeStore &&
+            valueExpr->type == AST_COMPOUND_LITERAL &&
+            cg_entries_have_designators(valueExpr->compoundLiteral.entries,
+                                        valueExpr->compoundLiteral.entryCount) &&
+            (LLVMGetTypeKind(fieldType) == LLVMArrayTypeKind ||
+             LLVMGetTypeKind(fieldType) == LLVMStructTypeKind)) {
+            mergedCount = valueExpr->compoundLiteral.entryCount;
+            for (size_t j = i + 1; j < entryCount; ++j) {
+                DesignatedInit* next = entries[j];
+                if (!next || !next->expression || !next->fieldName) {
+                    break;
+                }
+                if (strcmp(next->fieldName, targetFieldName) != 0 ||
+                    next->resetSubobjectBeforeStore ||
+                    next->expression->type != AST_COMPOUND_LITERAL ||
+                    !cg_entries_have_designators(next->expression->compoundLiteral.entries,
+                                                 next->expression->compoundLiteral.entryCount)) {
+                    break;
+                }
+                mergedCount += next->expression->compoundLiteral.entryCount;
+                mergedLast = j;
+            }
+            if (mergedLast > i) {
+                mergedEntries = (DesignatedInit**)calloc(mergedCount, sizeof(DesignatedInit*));
+                if (!mergedEntries) {
+                    return false;
+                }
+                size_t cursor = 0;
+                for (size_t j = i; j <= mergedLast; ++j) {
+                    DesignatedInit* next = entries[j];
+                    for (size_t k = 0; k < next->expression->compoundLiteral.entryCount; ++k) {
+                        mergedEntries[cursor++] = next->expression->compoundLiteral.entries[k];
+                    }
+                }
+            }
+        }
+
+        if (mergedEntries) {
+            bool ok = cg_store_designated_entries_impl(ctx,
+                                                       fieldPtr,
+                                                       fieldType,
+                                                       fieldParsed,
+                                                       mergedEntries,
+                                                       mergedCount,
+                                                       false);
+            free(mergedEntries);
+            if (!ok) {
+                return false;
+            }
+            i = mergedLast;
+            continue;
+        }
+
         if (valueExpr->type == AST_COMPOUND_LITERAL) {
-            bool mergeIntoExisting =
-                cg_entries_have_designators(valueExpr->compoundLiteral.entries,
-                                            valueExpr->compoundLiteral.entryCount);
+            bool zeroInitialize =
+                entry->resetSubobjectBeforeStore ||
+                !cg_entries_have_designators(valueExpr->compoundLiteral.entries,
+                                             valueExpr->compoundLiteral.entryCount);
             if (!cg_store_compound_literal_into_ptr_impl(ctx,
                                                          fieldPtr,
                                                          fieldType,
                                                          fieldParsed,
                                                          valueExpr,
-                                                         !mergeIntoExisting)) {
+                                                         zeroInitialize)) {
                 return false;
             }
         } else {
@@ -752,15 +1001,16 @@ static bool cg_store_array_flat_entries(CodegenContext* ctx,
             LLVMBuildGEP2(ctx->builder, destType, destPtr, idxVals, 2, "init.flat.elem");
 
         if (entry->expression->type == AST_COMPOUND_LITERAL) {
-            bool mergeIntoExisting =
-                cg_entries_have_designators(entry->expression->compoundLiteral.entries,
-                                            entry->expression->compoundLiteral.entryCount);
+            bool zeroInitialize =
+                entry->resetSubobjectBeforeStore ||
+                !cg_entries_have_designators(entry->expression->compoundLiteral.entries,
+                                             entry->expression->compoundLiteral.entryCount);
             if (!cg_store_compound_literal_into_ptr_impl(ctx,
                                                          elementPtr,
                                                          elementType,
                                                          elementParsed,
                                                          entry->expression,
-                                                         !mergeIntoExisting)) {
+                                                         zeroInitialize)) {
                 if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
                 return false;
             }
@@ -880,16 +1130,94 @@ static bool cg_store_array_entries(CodegenContext* ctx,
             elementParsed = &elementParsedStorage;
             hasElementParsed = true;
         }
+
+        size_t mergedLast = i;
+        DesignatedInit** mergedEntries = NULL;
+        size_t mergedCount = 0;
+        if (!entry->resetSubobjectBeforeStore &&
+            entry->expression->type == AST_COMPOUND_LITERAL &&
+            cg_entries_have_designators(entry->expression->compoundLiteral.entries,
+                                        entry->expression->compoundLiteral.entryCount) &&
+            (LLVMGetTypeKind(elementType) == LLVMArrayTypeKind ||
+             LLVMGetTypeKind(elementType) == LLVMStructTypeKind)) {
+            mergedCount = entry->expression->compoundLiteral.entryCount;
+            unsigned long long scanImplicitIndex = implicitIndex;
+            for (size_t j = i + 1; j < entryCount; ++j) {
+                DesignatedInit* next = entries[j];
+                if (!next || !next->expression) {
+                    break;
+                }
+                unsigned long long nextIndex = scanImplicitIndex;
+                if (next->indexExpr) {
+                    bool ok = false;
+                    nextIndex = cg_eval_initializer_index(next->indexExpr, &ok);
+                    if (!ok) {
+                        if (hasElementParsed) {
+                            parsedTypeFree(&elementParsedStorage);
+                        }
+                        return false;
+                    }
+                }
+                scanImplicitIndex = nextIndex + 1;
+                if (nextIndex != targetIndex ||
+                    next->resetSubobjectBeforeStore ||
+                    next->expression->type != AST_COMPOUND_LITERAL ||
+                    !cg_entries_have_designators(next->expression->compoundLiteral.entries,
+                                                 next->expression->compoundLiteral.entryCount)) {
+                    break;
+                }
+                mergedCount += next->expression->compoundLiteral.entryCount;
+                mergedLast = j;
+            }
+            if (mergedLast > i) {
+                mergedEntries = (DesignatedInit**)calloc(mergedCount, sizeof(DesignatedInit*));
+                if (!mergedEntries) {
+                    if (hasElementParsed) {
+                        parsedTypeFree(&elementParsedStorage);
+                    }
+                    return false;
+                }
+                size_t cursor = 0;
+                for (size_t j = i; j <= mergedLast; ++j) {
+                    DesignatedInit* next = entries[j];
+                    for (size_t k = 0; k < next->expression->compoundLiteral.entryCount; ++k) {
+                        mergedEntries[cursor++] = next->expression->compoundLiteral.entries[k];
+                    }
+                }
+                implicitIndex = scanImplicitIndex;
+            }
+        }
+
+        if (mergedEntries) {
+            bool ok = cg_store_designated_entries_impl(ctx,
+                                                       elementPtr,
+                                                       elementType,
+                                                       elementParsed,
+                                                       mergedEntries,
+                                                       mergedCount,
+                                                       false);
+            free(mergedEntries);
+            if (hasElementParsed) {
+                parsedTypeFree(&elementParsedStorage);
+            }
+            if (!ok) {
+                return false;
+            }
+            i = mergedLast;
+            continue;
+        }
+
         if (entry->expression->type == AST_COMPOUND_LITERAL) {
-            bool mergeIntoExisting =
-                cg_entries_have_designators(entry->expression->compoundLiteral.entries,
-                                            entry->expression->compoundLiteral.entryCount);
+            bool zeroInitialize =
+                entry->resetSubobjectBeforeStore ||
+                !cg_entries_have_designators(entry->expression->compoundLiteral.entries,
+                                             entry->expression->compoundLiteral.entryCount);
             if (!cg_store_compound_literal_into_ptr_impl(ctx,
                                                          elementPtr,
                                                          elementType,
                                                          elementParsed,
                                                          entry->expression,
-                                                         !mergeIntoExisting)) {
+                                                         zeroInitialize)) {
                 if (hasElementParsed) parsedTypeFree(&elementParsedStorage);
                 return false;
             }

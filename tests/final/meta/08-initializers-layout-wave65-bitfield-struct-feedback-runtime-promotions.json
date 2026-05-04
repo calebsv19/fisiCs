@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_bitfield_struct_row_rewrite_ladder",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_bitfield_struct_row_rewrite_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_bitfield_struct_row_rewrite_ladder.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "bitfield", "struct", "row-rewrite", "ladder", "wave65"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

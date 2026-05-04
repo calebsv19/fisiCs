@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_nested_union_string_feedback_mesh",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_nested_union_string_feedback_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_union_string_feedback_mesh.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "nested-union", "string", "wave29"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -15,6 +15,7 @@ struct DesignatedInit{
     char* fieldName;        // e.g., .field = ...
     struct ASTNode* indexExpr;
     struct ASTNode* expression;    // The expression assigned
+    bool resetSubobjectBeforeStore;
 };
 
 // Create a designated initializer

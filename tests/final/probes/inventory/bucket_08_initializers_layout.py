@@ -31,6 +31,316 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/08__probe_runtime_nested_designator_override_chain.c',
         note='nested designated initializer override chains should match clang runtime behavior',
     ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_designator_bridge',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_designator_bridge.c',
+        note='bitfield-bearing aggregate designated initializers should preserve values and implicit zero-fill',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_sparse_zero_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_sparse_zero_mesh.c',
+        note='sparse designated bitfield array initializers should preserve zero-fill and runtime layout behavior',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_string_zero_tail_checksum',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_string_zero_tail_checksum.c',
+        note='char array string initializers should preserve trailing zero-fill and exact-length payload semantics',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_struct_string_designator_matrix',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_struct_string_designator_matrix.c',
+        note='struct-contained char-array designated initializers should preserve trailing zero bytes',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_sparse_inferred_bound_extent',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_sparse_inferred_bound_extent.c',
+        note='highest-index sparse array designators should infer correct array bounds and zero-fill gaps',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_struct_array_inferred_bound_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_struct_array_inferred_bound_mesh.c',
+        note='sparse designated arrays of aggregates should infer bounds and preserve nested zero-fill',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_padding_checksum_lattice',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_padding_checksum_lattice.c',
+        note='bitfield-bearing aggregates with padding-sensitive sparse stores should preserve zero-fill and checksum stability',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_union_string_member_switch',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_union_string_member_switch.c',
+        note='union char-array members inside aggregates should preserve designated string payloads and trailing zero-fill',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_sparse_row_checksum',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_sparse_row_checksum.c',
+        note='nested sparse aggregate rows should infer outer bounds correctly and preserve nested zero-fill',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_last_write_matrix',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_last_write_matrix.c',
+        note='repeated nested designators should obey last-write-wins semantics across aggregate subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_address_constant_bridge',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_address_constant_bridge.c',
+        note='file-scope aggregate initializers should accept address constants for objects, functions, and sparse zero-filled entries',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_overlay_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_overlay_mesh.c',
+        note='nested union string payloads inside aggregate arrays should preserve trailing zero-fill and designated payload ordering',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_nested_designator_fanout',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_nested_designator_fanout.c',
+        note='nested bitfield array designators inside aggregates should preserve sparse writes, padding, and zero-fill',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_last_write_overlap_lattice',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_last_write_overlap_lattice.c',
+        note='broader overlapping nested designators should preserve last-write-wins behavior across array-of-struct subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_nested_address_matrix',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_nested_address_matrix.c',
+        note='nested file-scope aggregate address-constant initializers should preserve function and object references across sparse subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_feedback_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_feedback_mesh.c',
+        note='deeper nested union string overlays should preserve trailing zero-fill and char-member rewrites inside aggregate arrays',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_mixed_designator_replay',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_mixed_designator_replay.c',
+        note='mixed whole-element and subfield bitfield designators should preserve replay order and zero-fill semantics',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_last_write_chain_grid',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_last_write_chain_grid.c',
+        note='broader nested array-of-struct overlap chains should preserve last-write-wins behavior under repeated designator rewrites',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_pointer_fanout_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_pointer_fanout_mesh.c',
+        note='file-scope nested pointer and function-pointer aggregates should preserve sparse address-constant fanout across subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_rewrite_lattice',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_rewrite_lattice.c',
+        note='deeper nested union string rewrites should preserve whole-string initialization followed by subfield character overrides',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_padding_relay_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_padding_relay_mesh.c',
+        note='padding-sensitive nested bitfield relays should preserve mixed element and subfield designator stores',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_cascade_matrix',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_cascade_matrix.c',
+        note='broader overlap cascades across nested array-of-struct rows should preserve last-write-wins behavior',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_pointer_label_fanout_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_pointer_label_fanout_mesh.c',
+        note='deeper file-scope pointer and string-label fanout should preserve sparse address constants and function-pointer payloads across nested subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_multiswitch_lattice',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_multiswitch_lattice.c',
+        note='nested union string payloads with repeated member switches should preserve whole-union override semantics across later char-field rewrites',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_padding_relay_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_padding_relay_cube.c',
+        note='denser nested bitfield padding relays across three-dimensional arrays should preserve sparse writes and zero-fill stability',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_cube.c',
+        note='broader three-dimensional overlap cascades should preserve last-write-wins behavior across nested array-of-struct chains',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_callback_alias_grid',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_callback_alias_grid.c',
+        note='deeper file-scope callback and alias grids should preserve sparse pointer and function-pointer fanout across nested aggregates',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_feedback_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_feedback_cube.c',
+        note='nested union string grids with feedback rewrites should preserve whole-union override semantics and trailing zero-fill stability',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_sparse_replay_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_sparse_replay_cube.c',
+        note='sparser three-dimensional bitfield replay grids should preserve zero-fill and repeated subfield override ordering',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_shadow_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_shadow_cube.c',
+        note='broader designator shadow cubes should preserve last-write-wins behavior across nested repeated rewrites',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_subaggregate_rewrite_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_subaggregate_rewrite_mesh.c',
+        note='file-scope subaggregate rewrites should preserve later whole-element replacement after earlier nested pointer and callback writes',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_union_whole_element_rewrite_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_union_whole_element_rewrite_mesh.c',
+        note='whole-union element rewrites should override earlier nested member writes and preserve final active-member bytes',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_whole_element_rewrite_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_whole_element_rewrite_mesh.c',
+        note='whole-element bitfield rewrites should override earlier subfield writes and preserve later sparse element payloads',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_plane_rewrite_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_plane_rewrite_mesh.c',
+        note='whole-plane designator rewrites should override earlier cell writes while preserving later writes in other planes',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_pointer_subaggregate_relay_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_pointer_subaggregate_relay_cube.c',
+        note='deeper file-scope pointer and address-constant subaggregate relays should preserve later whole-subaggregate rewrites across nested arrays',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_member_switch_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_member_switch_cube.c',
+        note='nested union string payloads with repeated member switches should preserve whole-union rewrites and later character overrides across deeper grids',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_padding_rewrite_lattice',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_padding_rewrite_lattice.c',
+        note='denser padding-sensitive bitfield rewrites should preserve sparse whole-element and subfield override ordering across nested arrays',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_hypercube.c',
+        note='larger overlap chains should preserve last-write-wins behavior across nested array-of-struct hypercube rewrites',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_pointer_callback_plane_rewrite_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_pointer_callback_plane_rewrite_hypercube.c',
+        note='deeper file-scope pointer and callback plane rewrites should preserve whole-plane replacement semantics across nested aggregates',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_address_alias_reseed_lattice',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_address_alias_reseed_lattice.c',
+        note='file-scope address-constant alias reseeds should preserve later whole-subaggregate rewrites across nested pointer tables',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_reswitch_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_reswitch_hypercube.c',
+        note='nested union string hypercubes should preserve repeated member switches and later char overrides in reused subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_row_reseed_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_row_reseed_cube.c',
+        note='nested union string row reseeds should preserve whole-row rewrites and later per-cell character overrides',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_padding_plane_rewrite_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_padding_plane_rewrite_hypercube.c',
+        note='bitfield padding plane rewrites should preserve whole-plane replacement semantics and later sparse subfield updates',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_padding_row_reseed_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_padding_row_reseed_hypercube.c',
+        note='bitfield padding row reseeds should preserve repeated row rewrites and later subfield replay ordering',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_union_struct_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_union_struct_hypercube.c',
+        note='overlap hypercubes across union-bearing structs should preserve last-write-wins behavior under nested row and cell rewrites',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_union_rowplane_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_union_rowplane_cube.c',
+        note='union-bearing row and plane rewrites should preserve later overlap dominance across nested aggregate cubes',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_pointer_subobject_ladder_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_pointer_subobject_ladder_hypercube.c',
+        note='file-scope pointer ladder hypercubes should preserve repeated whole-subobject rewrites and later callback reseeds across nested aggregates',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_address_plane_rewrite_ladder',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_address_plane_rewrite_ladder.c',
+        note='file-scope address-constant plane rewrite ladders should preserve whole-plane reseeds and later sparse pointer overrides across nested tables',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_member_reswitch_plane',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_member_reswitch_plane.c',
+        note='nested union string member reswitch planes should preserve repeated active-member switching in reused subobjects with later char overrides',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_member_feedback_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_member_feedback_hypercube.c',
+        note='nested union string feedback hypercubes should preserve whole-row and whole-cell rewrites across reused union-bearing subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_struct_relay_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_struct_relay_hypercube.c',
+        note='array-of-struct bitfield relay hypercubes should preserve dense whole-cell and subfield rewrite ordering across nested planes',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_struct_row_rewrite_ladder',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_struct_row_rewrite_ladder.c',
+        note='array-of-struct bitfield row rewrite ladders should preserve repeated whole-row resets and later sparse relay overrides',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_subobject_ladder',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_subobject_ladder.c',
+        note='subobject overlap ladders should preserve last-write-wins behavior across repeated whole-struct and nested-cell rewrites',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_union_feedback_plane',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_union_feedback_plane.c',
+        note='union-bearing overlap feedback planes should preserve dominance of later rewrites across mixed row, plane, and cell-level updates',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_callback_address_feedback_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_callback_address_feedback_hypercube.c',
+        note='file-scope callback/address feedback hypercubes should preserve repeated whole-subobject rewrites with later callback and alias overrides',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_pointer_plane_reset_ladder',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_pointer_plane_reset_ladder.c',
+        note='file-scope pointer plane reset ladders should preserve whole-plane resets and later sparse pointer reseeds across nested aggregates',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_member_multireset_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_member_multireset_cube.c',
+        note='nested union string multireset cubes should preserve repeated active-member switching and later char overrides in reused cells',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_string_member_plane_feedback_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_member_plane_feedback_hypercube.c',
+        note='nested union string plane feedback hypercubes should preserve whole-plane and whole-cell rewrites across reused union-bearing subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_struct_plane_reset_hypercube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_struct_plane_reset_hypercube.c',
+        note='array-of-struct bitfield plane reset hypercubes should preserve dense whole-plane resets with later sparse relay overrides',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_bitfield_struct_feedback_ladder',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_bitfield_struct_feedback_ladder.c',
+        note='array-of-struct bitfield feedback ladders should preserve repeated row and cell rewrites with later subfield relay updates',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_whole_subobject_feedback_cube',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_whole_subobject_feedback_cube.c',
+        note='whole-subobject overlap feedback cubes should preserve last-write-wins behavior across mixed whole-struct and nested-cell rewrites',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_designator_overlap_union_struct_plane_ladder',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_union_struct_plane_ladder.c',
+        note='union-bearing overlap plane ladders should preserve dominance of later rewrites across row, plane, and cell-level updates',
+    ),
 ]
 
 DIAG_PROBES = [
@@ -296,6 +606,70 @@ DIAG_PROBES = [
         note='include-header file-scope nested designated initializer should reject non-constant aggregate field expressions',
         required_substrings=["Initializer for static variable 'state' is not a constant expression"],
         inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_array_excess_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_array_excess_spelling_reject.c',
+        note='strict frontier: excess array initializer diagnostics under #line remap should preserve spelling file/line',
+        required_substrings=[
+            "Error at (7201:0): Too many initializers for array 'a' (size 2)",
+            'Spelling: virtual_init_array_excess_probe.c:7201:0',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_array_excess_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_array_excess_spelling_reject.c',
+        note='reduced threshold: excess array initializer diagnostics should emit semantic rejection message',
+        required_substrings=["Too many initializers for array 'a' (size 2)"],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_include_array_excess_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c',
+        note='strict frontier: include-header excess array initializer diagnostics under #line remap should preserve spelling file/line',
+        required_substrings=[
+            "Error at (7211:0): Too many initializers for array 'a' (size 2)",
+            'Spelling: virtual_init_include_array_excess_probe.h:7211:0',
+        ],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_include_array_excess_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c',
+        note='reduced threshold: include-header excess array initializer diagnostics should emit semantic rejection message',
+        required_substrings=["Too many initializers for array 'a' (size 2)"],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_string_too_long_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_string_too_long_spelling_reject.c',
+        note='strict frontier: string-too-long initializer diagnostics under #line remap should preserve spelling file/line',
+        required_substrings=[
+            "Error at (7301:0): String literal for array 'a' is too long (needs 4, size 2)",
+            'Spelling: virtual_init_string_too_long_probe.c:7301:0',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_string_too_long_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_string_too_long_spelling_reject.c',
+        note='reduced threshold: string-too-long initializer diagnostics should emit semantic rejection message',
+        required_substrings=["String literal for array 'a' is too long (needs 4, size 2)"],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_include_string_too_long_spelling_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c',
+        note='strict frontier: include-header string-too-long initializer diagnostics under #line remap should preserve spelling file/line',
+        required_substrings=[
+            "Error at (7311:0): String literal for array 'a' is too long (needs 4, size 2)",
+            'Spelling: virtual_init_include_string_too_long_probe.h:7311:0',
+        ],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='08__probe_diag_line_directive_include_string_too_long_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c',
+        note='reduced threshold: include-header string-too-long initializer diagnostics should emit semantic rejection message',
+        required_substrings=["String literal for array 'a' is too long (needs 4, size 2)"],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.h'],
     ),
 ]
 
@@ -617,5 +991,65 @@ DIAG_JSON_PROBES = [
         note='diagnostics JSON should include include-header file-scope nested designated non-constant initializer rejection',
         expected_codes=[2000],
         inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_file_scope_include_nested_designated_nonconst_reject.h'],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_line_directive_array_excess_file_presence_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_array_excess_spelling_reject.c',
+        note='strict frontier: excess array initializer diagnostics JSON under #line remap should include file presence',
+        expected_codes=[2000],
+        expected_line=7201,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_line_directive_array_excess_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_array_excess_spelling_reject.c',
+        note='reduced threshold: excess array initializer diagnostics JSON should emit semantic payload',
+        expected_codes=[2000],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_line_directive_include_array_excess_file_presence_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c',
+        note='strict frontier: include-header excess array initializer diagnostics JSON under #line remap should include file presence',
+        expected_codes=[2000],
+        expected_line=7211,
+        expected_has_file=True,
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.h'],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_line_directive_include_array_excess_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c',
+        note='reduced threshold: include-header excess array initializer diagnostics JSON should emit semantic payload',
+        expected_codes=[2000],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.h'],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_line_directive_string_too_long_file_presence_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_string_too_long_spelling_reject.c',
+        note='strict frontier: string-too-long initializer diagnostics JSON under #line remap should include file presence',
+        expected_codes=[2000],
+        expected_line=7301,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_line_directive_string_too_long_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_string_too_long_spelling_reject.c',
+        note='reduced threshold: string-too-long initializer diagnostics JSON should emit semantic payload',
+        expected_codes=[2000],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_line_directive_include_string_too_long_file_presence_reject',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c',
+        note='strict frontier: include-header string-too-long initializer diagnostics JSON under #line remap should include file presence',
+        expected_codes=[2000],
+        expected_line=7311,
+        expected_has_file=True,
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.h'],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_diagjson_line_directive_include_string_too_long_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c',
+        note='reduced threshold: include-header string-too-long initializer diagnostics JSON should emit semantic payload',
+        expected_codes=[2000],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.h'],
     ),
 ]

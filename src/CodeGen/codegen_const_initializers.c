@@ -12,6 +12,26 @@
 
 static int g_const_string_counter = 0;
 
+static LLVMValueRef cg_build_const_array(CodegenContext* ctx,
+                                         LLVMTypeRef arrayType,
+                                         const ParsedType* parsedType,
+                                         DesignatedInit** entries,
+                                         size_t entryCount);
+static LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
+                                          LLVMTypeRef structType,
+                                          const ParsedType* parsedType,
+                                          DesignatedInit** entries,
+                                          size_t entryCount);
+static LLVMValueRef cg_merge_const_initializer(CodegenContext* ctx,
+                                               LLVMValueRef baseConst,
+                                               ASTNode* expr,
+                                               LLVMTypeRef targetType,
+                                               const ParsedType* parsedType);
+static bool cg_find_field_in_definition(const ASTNode* def,
+                                        const char* fieldName,
+                                        unsigned* outIndex,
+                                        const ParsedType** outParsed);
+
 static bool cg_named_type_has_surface_derivations(const ParsedType* type) {
     if (!type || type->kind != TYPE_NAMED) {
         return false;
@@ -403,6 +423,327 @@ static bool cg_entries_flat_scalars(DesignatedInit** entries, size_t entryCount)
     return true;
 }
 
+static bool cg_entries_have_designators(DesignatedInit** entries, size_t entryCount) {
+    if (!entries || entryCount == 0) return false;
+    for (size_t i = 0; i < entryCount; ++i) {
+        DesignatedInit* entry = entries[i];
+        if (!entry) continue;
+        if (entry->fieldName || entry->indexExpr) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static LLVMValueRef cg_const_extract_aggregate_value(LLVMValueRef aggregateConst,
+                                                     unsigned index,
+                                                     LLVMTypeRef fallbackType) {
+    if (!fallbackType) return NULL;
+    if (!aggregateConst) {
+        return cg_zero_const(fallbackType);
+    }
+
+    LLVMTypeRef aggregateType = LLVMTypeOf(aggregateConst);
+    if (!aggregateType) {
+        return cg_zero_const(fallbackType);
+    }
+
+    LLVMTypeKind kind = LLVMGetTypeKind(aggregateType);
+    if (kind != LLVMArrayTypeKind && kind != LLVMStructTypeKind) {
+        return cg_zero_const(fallbackType);
+    }
+
+    LLVMValueRef extracted = LLVMGetAggregateElement(aggregateConst, index);
+    if (!extracted) {
+        return cg_zero_const(fallbackType);
+    }
+    return extracted;
+}
+
+static LLVMValueRef cg_merge_const_array(CodegenContext* ctx,
+                                         LLVMValueRef baseConst,
+                                         LLVMTypeRef arrayType,
+                                         const ParsedType* parsedType,
+                                         DesignatedInit** entries,
+                                         size_t entryCount) {
+    if (!ctx || !arrayType || LLVMGetTypeKind(arrayType) != LLVMArrayTypeKind) return NULL;
+
+    unsigned length = LLVMGetArrayLength(arrayType);
+    LLVMTypeRef elemType = LLVMGetElementType(arrayType);
+    if (!elemType) return NULL;
+
+    LLVMValueRef* values = (LLVMValueRef*)calloc(length, sizeof(LLVMValueRef));
+    if (!values) return NULL;
+    for (unsigned i = 0; i < length; ++i) {
+        values[i] = cg_const_extract_aggregate_value(baseConst, i, elemType);
+    }
+
+    ParsedType elementParsed = {0};
+    bool hasElementParsed = false;
+    if (parsedType && parsedTypeIsDirectArray(parsedType)) {
+        elementParsed = parsedTypeArrayElementType(parsedType);
+        hasElementParsed = true;
+    }
+
+    unsigned long long implicitIndex = 0;
+    for (size_t i = 0; i < entryCount; ++i) {
+        DesignatedInit* entry = entries[i];
+        if (!entry || !entry->expression) continue;
+
+        unsigned long long targetIndex = implicitIndex;
+        if (entry->indexExpr) {
+            bool ok = false;
+            targetIndex = cg_eval_initializer_index_const(ctx, entry->indexExpr, &ok);
+            if (!ok) {
+                free(values);
+                if (hasElementParsed) parsedTypeFree(&elementParsed);
+                return NULL;
+            }
+        }
+        implicitIndex = targetIndex + 1;
+        if (targetIndex >= length) {
+            continue;
+        }
+
+        LLVMValueRef baseElementConst = values[targetIndex];
+        if (entry->resetSubobjectBeforeStore &&
+            entry->expression->type == AST_COMPOUND_LITERAL) {
+            baseElementConst = cg_zero_const(elemType);
+        }
+        LLVMValueRef elementConst = cg_merge_const_initializer(ctx,
+                                                               baseElementConst,
+                                                               entry->expression,
+                                                               elemType,
+                                                               hasElementParsed ? &elementParsed : NULL);
+        if (!elementConst) {
+            free(values);
+            if (hasElementParsed) parsedTypeFree(&elementParsed);
+            return NULL;
+        }
+        values[targetIndex] = elementConst;
+    }
+
+    LLVMValueRef result = LLVMConstArray(elemType, values, length);
+    free(values);
+    if (hasElementParsed) parsedTypeFree(&elementParsed);
+    return result;
+}
+
+static LLVMValueRef cg_merge_const_struct(CodegenContext* ctx,
+                                          LLVMValueRef baseConst,
+                                          LLVMTypeRef structType,
+                                          const ParsedType* parsedType,
+                                          DesignatedInit** entries,
+                                          size_t entryCount) {
+    if (!ctx || !structType || LLVMGetTypeKind(structType) != LLVMStructTypeKind) return NULL;
+
+    const ParsedType* resolvedType = parsedType ? cg_resolve_typedef_parsed(ctx, parsedType) : parsedType;
+    const ParsedType* lookupType = resolvedType ? resolvedType : parsedType;
+    CGStructLLVMInfo* info = cg_find_struct_info(ctx, structType, lookupType);
+
+    unsigned fieldCount = LLVMCountStructElementTypes(structType);
+    if (fieldCount == 0 && parsedType) {
+        LLVMTypeRef resolved = cg_type_from_parsed(ctx, parsedType);
+        if (resolved) {
+            structType = resolved;
+            fieldCount = LLVMCountStructElementTypes(structType);
+        }
+    }
+    if (fieldCount == 0 && info && info->definition) {
+        (void)codegenStructDefinition(ctx, (ASTNode*)info->definition);
+        fieldCount = LLVMCountStructElementTypes(structType);
+    }
+    if (fieldCount == 0 && info && info->fieldCount > 0) {
+        LLVMTypeRef* fieldTypes = (LLVMTypeRef*)calloc(info->fieldCount, sizeof(LLVMTypeRef));
+        if (fieldTypes) {
+            for (size_t i = 0; i < info->fieldCount; ++i) {
+                fieldTypes[i] = cg_type_from_parsed(ctx, &info->fields[i].parsedType);
+            }
+            LLVMStructSetBody(structType, fieldTypes, (unsigned)info->fieldCount, 0);
+            free(fieldTypes);
+            fieldCount = LLVMCountStructElementTypes(structType);
+        }
+    }
+    if (!info && lookupType && lookupType->userTypeName && ctx->semanticModel) {
+        CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+        if (cctx) {
+            CCTagKind kind = (lookupType->kind == TYPE_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+            ASTNode* def = cc_tag_definition(cctx, kind, lookupType->userTypeName);
+            if (def) {
+                (void)codegenStructDefinition(ctx, def);
+                info = cg_find_struct_info(ctx, structType, lookupType);
+            }
+        }
+    }
+    if (fieldCount == 0 && parsedType && parsedType->userTypeName && ctx->semanticModel) {
+        CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+        if (cctx) {
+            CCTagKind kind = (parsedType->kind == TYPE_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+            ASTNode* def = cc_tag_definition(cctx, kind, parsedType->userTypeName);
+            if (def) {
+                (void)codegenStructDefinition(ctx, def);
+                structType = cg_type_from_parsed(ctx, parsedType);
+                fieldCount = LLVMCountStructElementTypes(structType);
+            }
+        }
+    }
+    if (fieldCount == 0) {
+        return NULL;
+    }
+
+    LLVMValueRef* fields = (LLVMValueRef*)calloc(fieldCount, sizeof(LLVMValueRef));
+    if (!fields) return NULL;
+    for (unsigned i = 0; i < fieldCount; ++i) {
+        LLVMTypeRef fieldType = LLVMStructGetTypeAtIndex(structType, i);
+        fields[i] = cg_const_extract_aggregate_value(baseConst, i, fieldType);
+    }
+
+    unsigned implicitIndex = 0;
+    for (size_t i = 0; i < entryCount; ++i) {
+        DesignatedInit* entry = entries[i];
+        if (!entry || !entry->expression) continue;
+
+        unsigned targetIndex = implicitIndex;
+        const ParsedType* fieldParsed = NULL;
+        const char* targetFieldName = entry->fieldName;
+        bool matchedField = false;
+        if (entry->fieldName && info && info->fieldCount > 0) {
+            for (size_t f = 0; f < info->fieldCount; ++f) {
+                if (info->fields[f].name && strcmp(info->fields[f].name, entry->fieldName) == 0) {
+                    targetIndex = info->fields[f].index;
+                    fieldParsed = &info->fields[f].parsedType;
+                    targetFieldName = info->fields[f].name;
+                    matchedField = true;
+                    break;
+                }
+            }
+        }
+        if (entry->fieldName && !matchedField) {
+            const ASTNode* def = info ? (const ASTNode*)info->definition : NULL;
+            if (!def && lookupType && lookupType->userTypeName && ctx->semanticModel) {
+                CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+                if (cctx) {
+                    CCTagKind kind = (lookupType->kind == TYPE_UNION) ? CC_TAG_UNION : CC_TAG_STRUCT;
+                    def = cc_tag_definition(cctx, kind, lookupType->userTypeName);
+                }
+            }
+            if (def) {
+                matchedField = cg_find_field_in_definition(def, entry->fieldName, &targetIndex, &fieldParsed);
+            }
+        }
+        if (!targetFieldName && info && targetIndex < info->fieldCount) {
+            targetFieldName = info->fields[targetIndex].name;
+        }
+        implicitIndex = targetIndex + 1;
+        if (targetIndex >= fieldCount) {
+            continue;
+        }
+
+        LLVMTypeRef fieldType = LLVMStructGetTypeAtIndex(structType, targetIndex);
+        LLVMValueRef fieldConst = NULL;
+        size_t mergedLast = i;
+        DesignatedInit** mergedEntries = NULL;
+        size_t mergedCount = 0;
+        if (!entry->resetSubobjectBeforeStore &&
+            targetFieldName &&
+            entry->expression->type == AST_COMPOUND_LITERAL &&
+            cg_entries_have_designators(entry->expression->compoundLiteral.entries,
+                                        entry->expression->compoundLiteral.entryCount) &&
+            (LLVMGetTypeKind(fieldType) == LLVMArrayTypeKind ||
+             LLVMGetTypeKind(fieldType) == LLVMStructTypeKind)) {
+            mergedCount = entry->expression->compoundLiteral.entryCount;
+            for (size_t j = i + 1; j < entryCount; ++j) {
+                DesignatedInit* next = entries[j];
+                if (!next || !next->expression || !next->fieldName) {
+                    break;
+                }
+                if (strcmp(next->fieldName, targetFieldName) != 0 ||
+                    next->resetSubobjectBeforeStore ||
+                    next->expression->type != AST_COMPOUND_LITERAL ||
+                    !cg_entries_have_designators(next->expression->compoundLiteral.entries,
+                                                next->expression->compoundLiteral.entryCount)) {
+                    break;
+                }
+                mergedCount += next->expression->compoundLiteral.entryCount;
+                mergedLast = j;
+            }
+            if (mergedLast > i) {
+                mergedEntries = (DesignatedInit**)calloc(mergedCount, sizeof(DesignatedInit*));
+                if (!mergedEntries) {
+                    free(fields);
+                    return NULL;
+                }
+                size_t cursor = 0;
+                for (size_t j = i; j <= mergedLast; ++j) {
+                    DesignatedInit* next = entries[j];
+                    for (size_t k = 0; k < next->expression->compoundLiteral.entryCount; ++k) {
+                        mergedEntries[cursor++] = next->expression->compoundLiteral.entries[k];
+                    }
+                }
+            }
+        }
+        if (mergedEntries) {
+            if (LLVMGetTypeKind(fieldType) == LLVMArrayTypeKind) {
+                fieldConst = cg_build_const_array(ctx, fieldType, fieldParsed, mergedEntries, mergedCount);
+            } else {
+                fieldConst = cg_build_const_struct(ctx, fieldType, fieldParsed, mergedEntries, mergedCount);
+            }
+            free(mergedEntries);
+            i = mergedLast;
+        } else {
+            LLVMValueRef baseFieldConst = fields[targetIndex];
+            if (entry->resetSubobjectBeforeStore &&
+                entry->expression->type == AST_COMPOUND_LITERAL) {
+                baseFieldConst = cg_zero_const(fieldType);
+            }
+            fieldConst = cg_merge_const_initializer(ctx,
+                                                    baseFieldConst,
+                                                    entry->expression,
+                                                    fieldType,
+                                                    fieldParsed);
+        }
+        if (!fieldConst) {
+            free(fields);
+            return NULL;
+        }
+        fields[targetIndex] = fieldConst;
+    }
+
+    LLVMValueRef result = LLVMConstNamedStruct(structType, fields, fieldCount);
+    free(fields);
+    return result;
+}
+
+static LLVMValueRef cg_merge_const_initializer(CodegenContext* ctx,
+                                               LLVMValueRef baseConst,
+                                               ASTNode* expr,
+                                               LLVMTypeRef targetType,
+                                               const ParsedType* parsedType) {
+    if (!ctx || !expr || !targetType) return NULL;
+    if (expr->type == AST_COMPOUND_LITERAL &&
+        cg_entries_have_designators(expr->compoundLiteral.entries,
+                                    expr->compoundLiteral.entryCount)) {
+        LLVMTypeKind targetKind = LLVMGetTypeKind(targetType);
+        if (targetKind == LLVMArrayTypeKind) {
+            return cg_merge_const_array(ctx,
+                                        baseConst,
+                                        targetType,
+                                        parsedType,
+                                        expr->compoundLiteral.entries,
+                                        expr->compoundLiteral.entryCount);
+        }
+        if (targetKind == LLVMStructTypeKind) {
+            return cg_merge_const_struct(ctx,
+                                         baseConst,
+                                         targetType,
+                                         parsedType,
+                                         expr->compoundLiteral.entries,
+                                         expr->compoundLiteral.entryCount);
+        }
+    }
+    return cg_build_const_initializer(ctx, expr, targetType, parsedType);
+}
+
 static LLVMValueRef cg_build_const_array_flat(CodegenContext* ctx,
                                               LLVMTypeRef arrayType,
                                               const ParsedType* parsedType,
@@ -518,7 +859,13 @@ static LLVMValueRef cg_build_const_array(CodegenContext* ctx,
         if (targetIndex >= length) {
             continue;
         }
-        LLVMValueRef elementConst = cg_build_const_initializer(ctx,
+        LLVMValueRef baseElementConst = values[targetIndex];
+        if (entry->resetSubobjectBeforeStore &&
+            entry->expression->type == AST_COMPOUND_LITERAL) {
+            baseElementConst = cg_zero_const(elemType);
+        }
+        LLVMValueRef elementConst = cg_merge_const_initializer(ctx,
+                                                               baseElementConst,
                                                                entry->expression,
                                                                elemType,
                                                                parsedType ? &elementParsed : NULL);
@@ -578,7 +925,6 @@ static LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
                                           DesignatedInit** entries,
                                           size_t entryCount) {
     if (!ctx || !structType || LLVMGetTypeKind(structType) != LLVMStructTypeKind) return NULL;
-    const char* dbg = getenv("FISICS_DEBUG_CONST");
 
     const ParsedType* resolvedType = parsedType ? cg_resolve_typedef_parsed(ctx, parsedType) : parsedType;
     const ParsedType* lookupType = resolvedType ? resolvedType : parsedType;
@@ -636,22 +982,7 @@ static LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
         }
     }
     if (fieldCount == 0) {
-        if (dbg) {
-            const char* name = parsedType ? parsedType->userTypeName : NULL;
-            fprintf(stderr,
-                    "[const-init] struct still opaque (entries=%zu, name=%s, info=%s)\n",
-                    entryCount,
-                    name ? name : "<anon>",
-                    info ? "yes" : "no");
-        }
         return LLVMConstStruct(NULL, 0, 0);
-    }
-
-    if (dbg) {
-        fprintf(stderr, "[const-init] struct fields=%u entries=%zu isUnion=%d\n",
-                fieldCount,
-                entryCount,
-                isUnion ? 1 : 0);
     }
 
     LLVMValueRef* fields = (LLVMValueRef*)calloc(fieldCount, sizeof(LLVMValueRef));
@@ -757,18 +1088,21 @@ static LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
         }
         implicitIndex = targetIndex + 1;
 
-        if (dbg) {
-            fprintf(stderr, "[const-init] struct entry idx=%u field=%s\n",
-                    targetIndex,
-                    entry->fieldName ? entry->fieldName : "<implicit>");
-        }
-
         if (targetIndex >= fieldCount) {
             continue;
         }
 
         LLVMTypeRef fieldType = LLVMStructGetTypeAtIndex(structType, targetIndex);
-        LLVMValueRef fieldConst = cg_build_const_initializer(ctx, entry->expression, fieldType, fieldParsed);
+        LLVMValueRef baseFieldConst = fields[targetIndex];
+        if (entry->resetSubobjectBeforeStore &&
+            entry->expression->type == AST_COMPOUND_LITERAL) {
+            baseFieldConst = cg_zero_const(fieldType);
+        }
+        LLVMValueRef fieldConst = cg_merge_const_initializer(ctx,
+                                                             baseFieldConst,
+                                                             entry->expression,
+                                                             fieldType,
+                                                             fieldParsed);
         if (!fieldConst) {
             free(fields);
             return NULL;
@@ -1040,18 +1374,6 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                 LLVMValueRef casted = LLVMConstPointerCast(fn, targetType);
                 if (!casted) {
                     casted = LLVMConstBitCast(fn, targetType);
-                }
-                if (getenv("FISICS_DEBUG_CONST")) {
-                    char* printed = LLVMPrintValueToString(casted);
-                    char* castType = casted ? LLVMPrintTypeToString(LLVMTypeOf(casted)) : NULL;
-                    char* targetStr = LLVMPrintTypeToString(targetType);
-                    fprintf(stderr, "[const-init] fn %s -> %s\n", name ? name : "<null>", printed ? printed : "<null>");
-                    fprintf(stderr, "[const-init] fn type=%s target=%s\n",
-                            castType ? castType : "<null>",
-                            targetStr ? targetStr : "<null>");
-                    if (printed) LLVMDisposeMessage(printed);
-                    if (castType) LLVMDisposeMessage(castType);
-                    if (targetStr) LLVMDisposeMessage(targetStr);
                 }
                 CG_CONST_INIT_RETURN(casted);
             }

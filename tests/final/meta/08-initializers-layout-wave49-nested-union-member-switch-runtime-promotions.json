@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_nested_union_string_member_switch_cube",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_nested_union_string_member_switch_cube.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_union_string_member_switch_cube.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "nested", "union", "string", "member-switch", "cube", "wave49"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

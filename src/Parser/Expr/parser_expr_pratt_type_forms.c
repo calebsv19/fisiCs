@@ -249,6 +249,9 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
 
             if (fieldCount == 1) {
                 di = createDesignatedInit(fieldNames[0], value);
+                if (di && value->type == AST_COMPOUND_LITERAL) {
+                    di->resetSubobjectBeforeStore = true;
+                }
             } else {
                 ASTNode* nestedExpr = value;
                 for (size_t i = fieldCount; i-- > 1;) {
@@ -258,6 +261,9 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
                         for (size_t j = 0; j < fieldCount; ++j) free(fieldNames[j]);
                         free(fieldNames);
                         return NULL;
+                    }
+                    if (value->type == AST_COMPOUND_LITERAL && i == fieldCount - 1) {
+                        fieldInit->resetSubobjectBeforeStore = true;
                     }
                     nestedEntries[0] = fieldInit;
                     nestedExpr = createCompoundInit(nestedEntries, 1);
@@ -299,6 +305,9 @@ ASTNode* parseCompoundLiteralPratt(Parser* parser, bool alreadyConsumedLParen) {
             di = createSimpleInit(value);
             if (!di) return NULL;
             di->indexExpr = idx;
+            if (value->type == AST_COMPOUND_LITERAL) {
+                di->resetSubobjectBeforeStore = true;
+            }
         } else {
             ASTNode* value = NULL;
             if (parser->currentToken.type == TOKEN_LBRACE) {

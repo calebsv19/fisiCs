@@ -1,0 +1,4 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/08__probe_diag_line_directive_include_array_excess_spelling_reject.h
+Error at (7211:0): Too many initializers for array 'a' (size 2)
+   Spelling: virtual_init_include_array_excess_probe.h:7211:0

@@ -461,23 +461,8 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     if (!externDeclOnly && !sym->isTentative) {
         DesignatedInit* init = cg_find_initializer_for_symbol(sym);
         const char* skipConst = getenv("FISICS_NO_CONST_GLOBALS");
-        const char* dbg = getenv("FISICS_DEBUG_CONST");
-        if (dbg) {
-            if (!init) {
-                fprintf(stderr, "[const-init] no initializer found for %s\n", sym->name);
-            } else if (!init->expression) {
-                fprintf(stderr, "[const-init] no expression for %s\n", sym->name);
-            }
-        }
         if (!skipConst && init && init->expression && !parsedTypeHasVLA(&sym->type)) {
             LLVMTypeRef elementType = LLVMGlobalGetValueType(existing);
-            if (dbg) {
-                fprintf(stderr,
-                        "[const-init] %s targetKind=%d exprType=%d\n",
-                        sym->name,
-                        elementType ? (int)LLVMGetTypeKind(elementType) : -1,
-                        init->expression ? (int)init->expression->type : -1);
-            }
             if (elementType) {
                 LLVMValueRef constInit = cg_build_const_initializer(ctx,
                                                                     init->expression,

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_designated_override_zero_fill",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_designated_override_zero_fill.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_designated_override_zero_fill.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "zero-fill", "wave13"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_nested_brace_elision_matrix",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_nested_brace_elision_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_brace_elision_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "brace-elision", "nested-aggregate", "wave13"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_union_designator_selection",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_union_designator_selection.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_union_designator_selection.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "designator", "wave13"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

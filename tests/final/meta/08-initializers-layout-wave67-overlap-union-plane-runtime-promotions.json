@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_designator_overlap_union_feedback_plane",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_designator_overlap_union_feedback_plane.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_designator_overlap_union_feedback_plane.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "overlap", "union", "feedback", "plane", "wave67"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (7301:0): String literal for array 'a' is too long (needs 4, size 2)
+   Spelling: virtual_init_string_too_long_probe.c:7301:0

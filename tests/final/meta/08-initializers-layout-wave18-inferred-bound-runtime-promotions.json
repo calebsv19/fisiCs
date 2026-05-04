@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_sparse_inferred_bound_extent",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_sparse_inferred_bound_extent.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_sparse_inferred_bound_extent.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "sparse-fill", "inferred-bound", "wave18"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_struct_array_inferred_bound_mesh",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_struct_array_inferred_bound_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_struct_array_inferred_bound_mesh.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "aggregate", "inferred-bound", "wave18"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/08__probe_diagjson_line_directive_include_nested_designator_unknown_field_rich_presence.h
+Error at (4206:20): Unknown field 'missing' in designated initializer for 'g'
+   Spelling: virtual_init_include_nested_designator_unknown_field_probe.h:4206:20

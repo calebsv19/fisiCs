@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_union_whole_element_rewrite_mesh",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_union_whole_element_rewrite_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_union_whole_element_rewrite_mesh.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "whole-element", "rewrite", "mesh", "wave46"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

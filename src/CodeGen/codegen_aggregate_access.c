@@ -71,13 +71,17 @@ const CCTagFieldLayout* cg_lookup_field_layout(CodegenContext* ctx,
         }
         resolved = next;
     }
-    if (!resolved || (resolved->tag != TAG_STRUCT && resolved->tag != TAG_UNION)) return NULL;
+    bool isStructLike =
+        resolved && (resolved->tag == TAG_STRUCT || resolved->kind == TYPE_STRUCT);
+    bool isUnionLike =
+        resolved && (resolved->tag == TAG_UNION || resolved->kind == TYPE_UNION);
+    if (!resolved || (!isStructLike && !isUnionLike)) return NULL;
     if (!resolved->userTypeName) return NULL;
     CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
     if (!cctx) return NULL;
     const CCTagFieldLayout* layouts = NULL;
     size_t count = 0;
-    CCTagKind kind = (resolved->tag == TAG_STRUCT) ? CC_TAG_STRUCT : CC_TAG_UNION;
+    CCTagKind kind = isUnionLike ? CC_TAG_UNION : CC_TAG_STRUCT;
     if (!cc_get_tag_field_layouts(cctx, kind, resolved->userTypeName, &layouts, &count)) {
         Scope* globalScope = semanticModelGetGlobalScope(ctx->semanticModel);
         layout_struct_union(cctx, globalScope, kind, resolved->userTypeName, NULL, NULL);

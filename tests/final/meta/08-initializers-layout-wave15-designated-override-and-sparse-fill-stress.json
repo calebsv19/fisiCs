@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_sparse_designator_checksum_grid",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_sparse_designator_checksum_grid.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_sparse_designator_checksum_grid.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "sparse-fill", "wave15"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_nested_designator_override_chain",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_nested_designator_override_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_designator_override_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "override-chain", "wave15"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

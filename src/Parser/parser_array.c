@@ -138,7 +138,8 @@ static bool parseInitializerDesignatorPath(Parser* parser,
 
 static DesignatedInit* createNestedDesignatorPath(InitializerPathStep* steps,
                                                   size_t stepCount,
-                                                  ASTNode* expr) {
+                                                  ASTNode* expr,
+                                                  bool resetInnermostSubobject) {
     if (!steps || stepCount == 0 || !expr) {
         return NULL;
     }
@@ -154,6 +155,9 @@ static DesignatedInit* createNestedDesignatorPath(InitializerPathStep* steps,
         if (!nestedInit) {
             return NULL;
         }
+        if (resetInnermostSubobject && i == stepCount - 1) {
+            nestedInit->resetSubobjectBeforeStore = true;
+        }
         DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
         if (!nestedEntries) {
             return NULL;
@@ -166,9 +170,17 @@ static DesignatedInit* createNestedDesignatorPath(InitializerPathStep* steps,
     }
 
     if (steps[0].kind == INIT_PATH_FIELD) {
-        return createDesignatedInit(steps[0].fieldName, nestedExpr);
+        DesignatedInit* init = createDesignatedInit(steps[0].fieldName, nestedExpr);
+        if (init && resetInnermostSubobject && stepCount == 1) {
+            init->resetSubobjectBeforeStore = true;
+        }
+        return init;
     }
-    return createIndexedInit(steps[0].indexExpr, nestedExpr);
+    DesignatedInit* init = createIndexedInit(steps[0].indexExpr, nestedExpr);
+    if (init && resetInnermostSubobject && stepCount == 1) {
+        init->resetSubobjectBeforeStore = true;
+    }
+    return init;
 }
 
 
@@ -389,6 +401,9 @@ DesignatedInit** parseArrayInitializer(Parser* parser, ParsedType parentType, si
                     return NULL;
                 }
                 DesignatedInit* fieldInit = createDesignatedInit(fieldName, valueExpr);
+                if (fieldInit && valueExpr->type == AST_COMPOUND_LITERAL) {
+                    fieldInit->resetSubobjectBeforeStore = true;
+                }
                 DesignatedInit** nestedEntries = malloc(sizeof(DesignatedInit*));
                 if (!nestedEntries) {
                     free(values);
@@ -424,8 +439,11 @@ DesignatedInit** parseArrayInitializer(Parser* parser, ParsedType parentType, si
                 free(values);
                 return NULL; 
             }
-             
+
             init = createIndexedInit(indexExpr, valueExpr);
+            if (init && valueExpr->type == AST_COMPOUND_LITERAL) {
+                init->resetSubobjectBeforeStore = true;
+            }
             
         } else {
             // Positional value — allow `{ ... }` compound or normal expression
@@ -544,7 +562,10 @@ DesignatedInit** parseStructInitializer(Parser* parser, ParsedType parentType, s
                 return NULL;
             }
 
-            init = createNestedDesignatorPath(steps, stepCount, expr);
+            init = createNestedDesignatorPath(steps,
+                                              stepCount,
+                                              expr,
+                                              expr->type == AST_COMPOUND_LITERAL);
             if (!init) {
                 freeInitializerPathSteps(steps, stepCount);
                 free(entries);

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_nested_sparse_row_checksum",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_nested_sparse_row_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_sparse_row_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "nested-aggregate", "sparse-fill", "wave23"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
