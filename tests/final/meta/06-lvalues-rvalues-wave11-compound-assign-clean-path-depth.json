@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__compound_assign_volatile_scalar_clean",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__compound_assign_volatile_scalar_clean.c",
+      "expects": [
+        "expect/06__compound_assign_volatile_scalar_clean.ast",
+        "expect/06__compound_assign_volatile_scalar_clean.diag"
+      ],
+      "tags": ["lvalue", "compound-assign", "volatile", "clean-path", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__compound_assign_through_volatile_pointer_clean",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__compound_assign_through_volatile_pointer_clean.c",
+      "expects": [
+        "expect/06__compound_assign_through_volatile_pointer_clean.ast",
+        "expect/06__compound_assign_through_volatile_pointer_clean.diag"
+      ],
+      "tags": ["lvalue", "compound-assign", "volatile", "pointer", "clean-path", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__compound_assign_restrict_pointer_clean",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__compound_assign_restrict_pointer_clean.c",
+      "expects": [
+        "expect/06__compound_assign_restrict_pointer_clean.ast",
+        "expect/06__compound_assign_restrict_pointer_clean.diag"
+      ],
+      "tags": ["lvalue", "compound-assign", "restrict", "pointer", "clean-path", "wave11"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__compound_assign_volatile_restrict_pointer_clean",
+      "bucket": "lvalues-rvalues",
+      "input": "cases/06__compound_assign_volatile_restrict_pointer_clean.c",
+      "expects": [
+        "expect/06__compound_assign_volatile_restrict_pointer_clean.ast",
+        "expect/06__compound_assign_volatile_restrict_pointer_clean.diag"
+      ],
+      "tags": ["lvalue", "compound-assign", "volatile", "restrict", "pointer", "clean-path", "wave11"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

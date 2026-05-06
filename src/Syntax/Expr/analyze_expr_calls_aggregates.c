@@ -269,6 +269,151 @@ static bool shouldDowngradeArgTypeMismatchToWarning(const Scope* scope,
     return true;
 }
 
+static void validateCallArgumentsAgainstParsedSignature(ASTNode* node,
+                                                        Scope* scope,
+                                                        const char* calleeName,
+                                                        const ParsedType* params,
+                                                        size_t paramCount,
+                                                        bool isVariadic,
+                                                        size_t argCount,
+                                                        const TypeInfo* argInfos,
+                                                        const TypeInfo* argRawInfos) {
+    bool tooFew = argCount < paramCount;
+    bool tooMany = !isVariadic && argCount > paramCount;
+    if (tooFew) {
+        reportArgumentCountError(node, calleeName, paramCount, argCount, true);
+    }
+    if (tooMany) {
+        reportArgumentCountError(node, calleeName, paramCount, argCount, false);
+    }
+
+    size_t pairCount = paramCount < argCount ? paramCount : argCount;
+    noteFunctionCallUnitsContracts(node, scope, params, paramCount);
+    bool* paramRestrict = pairCount ? calloc(pairCount, sizeof(bool)) : NULL;
+    char** argPaths = pairCount ? calloc(pairCount, sizeof(char*)) : NULL;
+
+    for (size_t i = 0; i < pairCount; ++i) {
+        profiler_record_value("semantic_count_type_info_site_signature", 1);
+        TypeInfo paramInfo = typeInfoFromParsedType(&params[i], scope);
+        if (paramInfo.isArray) {
+            paramInfo = decayToRValue(paramInfo);
+        }
+        if (params[i].hasParamArrayInfo &&
+            params[i].paramArrayInfo.hasStatic &&
+            argRawInfos) {
+            long long required = 0;
+            bool haveRequired = false;
+            const ParsedArrayInfo* paramArr = &params[i].paramArrayInfo;
+            if (paramArr->sizeExpr) {
+                haveRequired = constEvalInteger(paramArr->sizeExpr, scope, &required, true);
+            } else if (paramArr->hasConstantSize) {
+                required = paramArr->constantSize;
+                haveRequired = true;
+            }
+            if (haveRequired && required > 0 && i < argCount) {
+                const TypeInfo* argRaw = &argRawInfos[i];
+                if (argRaw->isArray && argRaw->originalType) {
+                    long long argSize = 0;
+                    bool haveArgSize = false;
+                    const TypeDerivation* argArr =
+                        parsedTypeGetArrayDerivation(argRaw->originalType, 0);
+                    if (argArr) {
+                        if (argArr->as.array.sizeExpr) {
+                            haveArgSize = constEvalInteger(argArr->as.array.sizeExpr,
+                                                           scope,
+                                                           &argSize,
+                                                           true);
+                        } else if (argArr->as.array.hasConstantSize) {
+                            argSize = argArr->as.array.constantSize;
+                            haveArgSize = true;
+                        }
+                    }
+                    if (haveArgSize && argSize < required) {
+                        addWarning(node->functionCall.arguments[i]->line,
+                                   0,
+                                   "Array argument smaller than 'static' parameter size",
+                                   NULL);
+                    }
+                }
+            }
+        }
+        if (paramRestrict) {
+            paramRestrict[i] = parsedTypeIsRestrictPointer(&params[i]) ||
+                               ((paramInfo.pointerDepth > 0) && paramInfo.pointerLevels[0].isRestrict);
+        }
+        if (argPaths && node->functionCall.arguments) {
+            argPaths[i] = analyzeExprAccessPath(node->functionCall.arguments[i]);
+        }
+        TypeInfo argInfo = argInfos ? argInfos[i] : makeInvalidType();
+        if (argInfo.isArray) {
+            argInfo = decayToRValue(argInfo);
+        }
+        AssignmentCheckResult check = canAssignTypesInScope(&paramInfo, &argInfo, scope);
+        if (check == ASSIGN_INCOMPATIBLE &&
+            typeInfoIsPointerLike(&paramInfo) &&
+            typeInfoIsInteger(&argInfo) &&
+            node->functionCall.arguments &&
+            isNullPointerConstant(node->functionCall.arguments[i], scope)) {
+            check = ASSIGN_OK;
+        }
+        if (check == ASSIGN_QUALIFIER_LOSS) {
+            if (calleeName && strcmp(calleeName, "core_dataset_add_table_typed") == 0) {
+                ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : node;
+                char buf[256];
+                snprintf(buf, sizeof(buf),
+                         "Argument %zu of '%s' discards qualifiers from pointer target",
+                         i + 1,
+                         calleeName);
+                addWarning(argNode->line, 0, buf, NULL);
+            } else {
+                reportArgumentTypeError(node->functionCall.arguments ? node->functionCall.arguments[i] : node,
+                                        i,
+                                        calleeName,
+                                        "discards qualifiers from pointer target");
+            }
+        } else if (check == ASSIGN_INCOMPATIBLE) {
+            ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : node;
+            if (shouldDowngradeArgTypeMismatchToWarning(scope,
+                                                        calleeName,
+                                                        &paramInfo,
+                                                        &argInfo)) {
+                char buf[200];
+                snprintf(buf,
+                         sizeof(buf),
+                         "Argument %zu of '%s' has incompatible type",
+                         i + 1,
+                         fallbackFunctionName(calleeName));
+                addWarning(argNode ? argNode->line : 0, 0, buf, NULL);
+            } else {
+                reportArgumentTypeError(argNode,
+                                        i,
+                                        calleeName,
+                                        "has incompatible type");
+            }
+        }
+    }
+
+    if (paramRestrict && argPaths) {
+        for (size_t i = 0; i < pairCount; ++i) {
+            if (!paramRestrict[i] || !argPaths[i]) continue;
+            for (size_t j = i + 1; j < pairCount; ++j) {
+                if (!paramRestrict[j] || !argPaths[j]) continue;
+                if (strcmp(argPaths[i], argPaths[j]) == 0) {
+                    addWarning(node->line, 0, "Restrict parameters may alias the same object", argPaths[i]);
+                }
+            }
+        }
+    }
+
+    free(paramRestrict);
+    if (argPaths) {
+        for (size_t i = 0; i < pairCount; ++i) {
+            free(argPaths[i]);
+        }
+        free(argPaths);
+    }
+}
+
 static TypeInfo functionCallResultTypeFromSymbol(const Symbol* sym, Scope* scope) {
     if (!sym) {
         return makeInvalidType();
@@ -430,143 +575,21 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
             return result;
         }
         size_t expected = sig->paramCount;
-        bool tooFew = argCount < expected;
-        bool tooMany = !sig->isVariadic && argCount > expected;
-        if (tooFew) {
-            reportArgumentCountError(node, calleeName, expected, argCount, true);
-        }
-        if (tooMany) {
-            reportArgumentCountError(node, calleeName, expected, argCount, false);
-        }
-        size_t pairCount = expected < argCount ? expected : argCount;
-        noteFunctionCallUnitsContracts(node, scope, sig->params, sig->paramCount);
-        bool* paramRestrict = pairCount ? calloc(pairCount, sizeof(bool)) : NULL;
-        char** argPaths = pairCount ? calloc(pairCount, sizeof(char*)) : NULL;
-        for (size_t i = 0; i < pairCount; ++i) {
-            profiler_record_value("semantic_count_type_info_site_signature", 1);
-            TypeInfo paramInfo = typeInfoFromParsedType(&sig->params[i], scope);
-            if (paramInfo.isArray) {
-                paramInfo = decayToRValue(paramInfo);
-            }
-            if (sig->params[i].hasParamArrayInfo &&
-                sig->params[i].paramArrayInfo.hasStatic &&
-                argRawInfos) {
-                long long required = 0;
-                bool haveRequired = false;
-                const ParsedArrayInfo* paramArr = &sig->params[i].paramArrayInfo;
-                if (paramArr->sizeExpr) {
-                    haveRequired = constEvalInteger(paramArr->sizeExpr, scope, &required, true);
-                } else if (paramArr->hasConstantSize) {
-                    required = paramArr->constantSize;
-                    haveRequired = true;
-                }
-                if (haveRequired && required > 0 && i < argCount) {
-                    const TypeInfo* argRaw = &argRawInfos[i];
-                    if (argRaw->isArray && argRaw->originalType) {
-                        long long argSize = 0;
-                        bool haveArgSize = false;
-                        const TypeDerivation* argArr =
-                            parsedTypeGetArrayDerivation(argRaw->originalType, 0);
-                        if (argArr) {
-                            if (argArr->as.array.sizeExpr) {
-                                haveArgSize = constEvalInteger(argArr->as.array.sizeExpr,
-                                                               scope,
-                                                               &argSize,
-                                                               true);
-                            } else if (argArr->as.array.hasConstantSize) {
-                                argSize = argArr->as.array.constantSize;
-                                haveArgSize = true;
-                            }
-                        }
-                        if (haveArgSize && argSize < required) {
-                            addWarning(node->functionCall.arguments[i]->line,
-                                       0,
-                                       "Array argument smaller than 'static' parameter size",
-                                       NULL);
-                        }
-                    }
-                }
-            }
-            if (paramRestrict) {
-                paramRestrict[i] = parsedTypeIsRestrictPointer(&sig->params[i]) ||
-                                   ((paramInfo.pointerDepth > 0) && paramInfo.pointerLevels[0].isRestrict);
-            }
-            if (argPaths && node->functionCall.arguments) {
-                argPaths[i] = analyzeExprAccessPath(node->functionCall.arguments[i]);
-            }
-            TypeInfo argInfo = argInfos ? argInfos[i] : makeInvalidType();
-            if (argInfo.isArray) {
-                argInfo = decayToRValue(argInfo);
-            }
-            AssignmentCheckResult check = canAssignTypesInScope(&paramInfo, &argInfo, scope);
-            if (check == ASSIGN_INCOMPATIBLE &&
-                typeInfoIsPointerLike(&paramInfo) &&
-                typeInfoIsInteger(&argInfo) &&
-                node->functionCall.arguments &&
-                isNullPointerConstant(node->functionCall.arguments[i], scope)) {
-                check = ASSIGN_OK;
-            }
-            if (check == ASSIGN_QUALIFIER_LOSS) {
-                if (calleeName && strcmp(calleeName, "core_dataset_add_table_typed") == 0) {
-                    ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : node;
-                    char buf[256];
-                    snprintf(buf, sizeof(buf),
-                             "Argument %zu of '%s' discards qualifiers from pointer target",
-                             i + 1,
-                             calleeName);
-                    addWarning(argNode->line, 0, buf, NULL);
-                } else {
-                    reportArgumentTypeError(node->functionCall.arguments ? node->functionCall.arguments[i] : node,
-                                            i,
-                                            calleeName,
-                                            "discards qualifiers from pointer target");
-                }
-            } else if (check == ASSIGN_INCOMPATIBLE) {
-                ASTNode* argNode = node->functionCall.arguments ? node->functionCall.arguments[i] : node;
-                if (shouldDowngradeArgTypeMismatchToWarning(scope,
-                                                            calleeName,
-                                                            &paramInfo,
-                                                            &argInfo)) {
-                    char buf[200];
-                    snprintf(buf,
-                             sizeof(buf),
-                             "Argument %zu of '%s' has incompatible type",
-                             i + 1,
-                             fallbackFunctionName(calleeName));
-                    addWarning(argNode ? argNode->line : 0, 0, buf, NULL);
-                } else {
-                    reportArgumentTypeError(argNode,
-                                            i,
-                                            calleeName,
-                                            "has incompatible type");
-                }
-            }
-        }
-        if (paramRestrict && argPaths) {
-            for (size_t i = 0; i < pairCount; ++i) {
-                if (!paramRestrict[i] || !argPaths[i]) continue;
-                for (size_t j = i + 1; j < pairCount; ++j) {
-                    if (!paramRestrict[j] || !argPaths[j]) continue;
-                    if (strcmp(argPaths[i], argPaths[j]) == 0) {
-                        addWarning(node->line, 0, "Restrict parameters may alias the same object", argPaths[i]);
-                    }
-                }
-            }
-        }
+        validateCallArgumentsAgainstParsedSignature(node,
+                                                    scope,
+                                                    calleeName,
+                                                    sig->params,
+                                                    sig->paramCount,
+                                                    sig->isVariadic,
+                                                    argCount,
+                                                    argInfos,
+                                                    argRawInfos);
         if (sig->isVariadic && argInfos) {
             for (size_t i = expected; i < argCount; ++i) {
                 argInfos[i] = defaultArgumentPromotion(argInfos[i]);
             }
         }
         result = functionCallResultTypeFromSymbol(sym, scope);
-
-        free(paramRestrict);
-        if (argPaths) {
-            for (size_t i = 0; i < pairCount; ++i) {
-                free(argPaths[i]);
-            }
-            free(argPaths);
-        }
     }
 
     if (result.category == TYPEINFO_INVALID) {
@@ -584,16 +607,15 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
             }
 
             if (callSig) {
-                size_t expected = callSig->paramCount;
-                bool tooFew = argCount < expected;
-                bool tooMany = !callSig->isVariadic && argCount > expected;
-                if (tooFew) {
-                    reportArgumentCountError(node, calleeName, expected, argCount, true);
-                }
-                if (tooMany) {
-                    reportArgumentCountError(node, calleeName, expected, argCount, false);
-                }
-                noteFunctionCallUnitsContracts(node, scope, callSig->params, callSig->paramCount);
+                validateCallArgumentsAgainstParsedSignature(node,
+                                                            scope,
+                                                            calleeName,
+                                                            callSig->params,
+                                                            callSig->paramCount,
+                                                            callSig->isVariadic,
+                                                            argCount,
+                                                            argInfos,
+                                                            argRawInfos);
             }
 
             parsedTypeFree(&fnTarget);

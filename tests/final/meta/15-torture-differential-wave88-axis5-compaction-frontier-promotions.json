@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis5_wave4_reducer_cancel_pair_confluence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave4_reducer_cancel_pair_confluence_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave4_reducer_cancel_pair_confluence_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "axis5",
+        "reducer",
+        "wave4",
+        "cancel-pair-confluence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave4_reducer_tombstone_compaction_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave4_reducer_tombstone_compaction_invariance_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave4_reducer_tombstone_compaction_invariance_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "axis5",
+        "reducer",
+        "wave4",
+        "tombstone-compaction",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave4_reducer_cross_tu_epoch_frontier_replay_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "axis5",
+        "reducer",
+        "wave4",
+        "multitu",
+        "epoch-frontier-replay",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_link_order_resalt_feedback_braid",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_link_order_resalt_feedback_braid_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_link_order_resalt_feedback_braid_main.c",
+        "probes/runtime/14__probe_multitu_link_order_resalt_feedback_mesh_lib_a.c",
+        "probes/runtime/14__probe_multitu_link_order_resalt_feedback_mesh_lib_b.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_link_order_resalt_feedback_braid.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "determinism",
+        "multitu",
+        "link-order",
+        "resalt-feedback",
+        "braid",
+        "wave128"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_static_init_epoch_feedback_weave",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_static_init_epoch_feedback_weave_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_static_init_epoch_feedback_weave_main.c",
+        "probes/runtime/14__probe_multitu_static_init_epoch_feedback_mesh_lib_a.c",
+        "probes/runtime/14__probe_multitu_static_init_epoch_feedback_mesh_lib_b.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_static_init_epoch_feedback_weave.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "determinism",
+        "multitu",
+        "static-init",
+        "epoch-feedback",
+        "weave",
+        "wave128"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

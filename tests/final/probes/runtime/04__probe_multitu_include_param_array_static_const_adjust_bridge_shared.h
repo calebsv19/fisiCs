@@ -1,0 +1,6 @@
+#ifndef FISICS_PROBE_04_WAVE17_INCLUDE_PARAM_ARRAY_STATIC_CONST_ADJUST_BRIDGE_SHARED_H
+#define FISICS_PROBE_04_WAVE17_INCLUDE_PARAM_ARRAY_STATIC_CONST_ADJUST_BRIDGE_SHARED_H
+
+int wave17_multitu_include_static_const_fold(int values[static const 5]);
+
+#endif

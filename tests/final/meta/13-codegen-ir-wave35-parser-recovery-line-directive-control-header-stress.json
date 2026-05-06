@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__line_directive_for_missing_first_semicolon_diag_text_parity",
+      "bucket": "codegen-ir",
+      "input": "probes/diagnostics/13__probe_diagjson_line_directive_for_missing_first_semicolon_parser_presence.c",
+      "expects": [
+        "expect/13__line_directive_for_missing_first_semicolon_diag_text_parity.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diag",
+        "parser-recovery",
+        "for",
+        "control-header",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_include_for_missing_first_semicolon_diag_text_parity",
+      "bucket": "codegen-ir",
+      "input": "probes/diagnostics/13__probe_diagjson_line_directive_include_for_missing_first_semicolon_parser_presence.c",
+      "expects": [
+        "expect/13__line_directive_include_for_missing_first_semicolon_diag_text_parity.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diag",
+        "include",
+        "parser-recovery",
+        "for",
+        "control-header",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_for_missing_first_semicolon_diagjson_strict",
+      "bucket": "codegen-ir",
+      "input": "probes/diagnostics/13__probe_diagjson_line_directive_for_missing_first_semicolon_parser_presence.c",
+      "expects": [
+        "expect/13__line_directive_for_missing_first_semicolon_diagjson_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "parser-recovery",
+        "for",
+        "control-header",
+        "strict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__line_directive_include_for_missing_first_semicolon_diagjson_strict",
+      "bucket": "codegen-ir",
+      "input": "probes/diagnostics/13__probe_diagjson_line_directive_include_for_missing_first_semicolon_parser_presence.c",
+      "expects": [
+        "expect/13__line_directive_include_for_missing_first_semicolon_diagjson_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "ir",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "include",
+        "parser-recovery",
+        "for",
+        "control-header",
+        "strict",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

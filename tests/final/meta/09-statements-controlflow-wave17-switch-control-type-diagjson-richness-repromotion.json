@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__diagjson__line_directive_switch_pointer_condition_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_pointer_condition_file_presence_reject.c",
+      "expects": ["expect/09__diagjson__line_directive_switch_pointer_condition_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "control-type", "pointer", "strict", "wave17"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_include_switch_pointer_condition_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_pointer_condition_file_presence_reject.c",
+      "expects": ["expect/09__diagjson__line_directive_include_switch_pointer_condition_strict.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "control-type", "pointer", "strict", "wave17"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_switch_string_condition_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_string_condition_file_presence_reject.c",
+      "expects": ["expect/09__diagjson__line_directive_switch_string_condition_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "control-type", "string", "strict", "wave17"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_include_switch_string_condition_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_string_condition_file_presence_reject.c",
+      "expects": ["expect/09__diagjson__line_directive_include_switch_string_condition_strict.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "control-type", "string", "strict", "wave17"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_switch_double_condition_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_double_condition_file_presence_reject.c",
+      "expects": ["expect/09__diagjson__line_directive_switch_double_condition_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "control-type", "double", "strict", "wave17"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_include_switch_double_condition_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_double_condition_file_presence_reject.c",
+      "expects": ["expect/09__diagjson__line_directive_include_switch_double_condition_strict.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "control-type", "double", "strict", "wave17"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

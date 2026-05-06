@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__line_directive_include_unterminated_string_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_include_unterminated_string_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_include_unterminated_string_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "include",
+        "string",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_include_char_invalid_hex_escape_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_include_char_invalid_hex_escape_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_include_char_invalid_hex_escape_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "include",
+        "char",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_include_string_invalid_escape_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_include_string_invalid_escape_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_include_string_invalid_escape_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "include",
+        "string",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_include_unterminated_char_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_include_unterminated_char_diagjson_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_include_unterminated_char_diagjson_current_physical_line.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "include",
+        "char",
+        "diagjson",
+        "current-threshold"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

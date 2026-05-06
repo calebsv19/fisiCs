@@ -224,7 +224,8 @@ def run_diag_probe(probe):
     with tempfile.TemporaryDirectory(prefix=f"probe-diag-{probe.probe_id}-") as tmp:
         cmd = [str(FISICS)] + [str(arg) for arg in (probe.fisics_args or [])] + [str(src) for src in sources]
         env = compile_env(probe.fisics_env)
-        if len(sources) > 1:
+        disable_codegen = str(env.get("DISABLE_CODEGEN", "")).strip() not in ("", "0")
+        if len(sources) > 1 and not disable_codegen:
             # Force full multi-input compilation/linking path for cross-TU diagnostics.
             cmd += ["-o", str(Path(tmp) / "diag.out")]
         _, out, _ = run_cmd(cmd, COMPILE_TIMEOUT_SEC, env=env)
@@ -263,7 +264,8 @@ def run_diag_json_probe(probe):
         sources = list(probe.inputs) if probe.inputs else [probe.source]
         cmd = [str(FISICS)] + [str(arg) for arg in (probe.fisics_args or [])] + ["--emit-diags-json", str(json_path)] + [str(src) for src in sources]
         env = compile_env(probe.fisics_env)
-        if len(sources) > 1:
+        disable_codegen = str(env.get("DISABLE_CODEGEN", "")).strip() not in ("", "0")
+        if len(sources) > 1 and not disable_codegen:
             # Force full multi-input compilation/linking path for cross-TU diagnostics.
             cmd += ["-o", str(Path(tmp) / "diagjson.out")]
         exit_code, out, timed_out = run_cmd(

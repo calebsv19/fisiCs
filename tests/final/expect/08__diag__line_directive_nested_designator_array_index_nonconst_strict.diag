@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6402:54): Array 'grid_probe_nested_nonconst_text' designator index must be a constant expression
+   Spelling: virtual_init_nested_designator_array_nonconst_probe_diag_text.c:6402:54

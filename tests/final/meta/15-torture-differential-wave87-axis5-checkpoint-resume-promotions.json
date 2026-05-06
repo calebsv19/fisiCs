@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis5_wave3_reducer_delta_roundtrip_invariance_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave3_reducer_delta_roundtrip_invariance_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave3_reducer_delta_roundtrip_invariance_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "axis5",
+        "reducer",
+        "wave3",
+        "delta-roundtrip",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave3_reducer_shard_fold_associativity_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave3_reducer_shard_fold_associativity_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave3_reducer_shard_fold_associativity_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "axis5",
+        "reducer",
+        "wave3",
+        "shard-fold-associativity",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave3_reducer_cross_tu_checkpoint_resume_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "axis5",
+        "reducer",
+        "wave3",
+        "multitu",
+        "checkpoint-resume",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

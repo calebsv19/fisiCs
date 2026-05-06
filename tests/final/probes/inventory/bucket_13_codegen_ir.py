@@ -64,6 +64,18 @@ DIAG_PROBES = [
         required_substrings=['Error: Failed to parse expression at line 132153'],
     ),
     DiagnosticProbe(
+        probe_id='13__probe_diag_line_directive_for_missing_first_semicolon_parser_text_strict',
+        source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_for_missing_first_semicolon_parser_presence.c',
+        note="text diagnostics should preserve parser missing first ';' in for-header under #line remap",
+        required_substrings=["line 135004"],
+    ),
+    DiagnosticProbe(
+        probe_id='13__probe_diag_line_directive_include_for_missing_first_semicolon_parser_text_strict',
+        source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_include_for_missing_first_semicolon_parser_presence.c',
+        note="text diagnostics should preserve parser missing first ';' in include for-header under #line remap",
+        required_substrings=["line 135054"],
+    ),
+    DiagnosticProbe(
         probe_id='13__probe_diag_line_directive_if_missing_body_parser_text_strict',
         source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_if_missing_body_parser_presence.c',
         note='text diagnostics should preserve parser missing-body line under #line remap for if',
@@ -367,6 +379,22 @@ DIAG_JSON_PROBES = [
         note="strict frontier: include #line switch-missing-')' should preserve parser diagnostics JSON presence",
         expected_codes=[1000],
         expected_line=132153,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='13__probe_diagjson_line_directive_for_missing_first_semicolon_parser_presence_reject',
+        source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_for_missing_first_semicolon_parser_presence.c',
+        note="strict frontier: #line for-missing-first-';' should preserve parser diagnostics JSON presence",
+        expected_codes=[1000],
+        expected_line=135004,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='13__probe_diagjson_line_directive_include_for_missing_first_semicolon_parser_presence_reject',
+        source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_include_for_missing_first_semicolon_parser_presence.c',
+        note="strict frontier: include #line for-missing-first-';' should preserve parser diagnostics JSON presence",
+        expected_codes=[1000],
+        expected_line=135054,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(

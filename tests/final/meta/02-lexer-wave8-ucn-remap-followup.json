@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__line_directive_ucn_identifier_unsupported_diagjson_current_empty",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_ucn_identifier_unsupported_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_ucn_identifier_unsupported_diagjson_current_empty.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "ucn",
+        "identifier",
+        "unsupported",
+        "line-directive",
+        "diagjson",
+        "current-threshold",
+        "wave8"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_include_ucn_identifier_unsupported_diagjson_current_parser_only",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_include_ucn_identifier_unsupported_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_include_ucn_identifier_unsupported_diagjson_current_parser_only.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "ucn",
+        "identifier",
+        "unsupported",
+        "include",
+        "line-directive",
+        "diagjson",
+        "current-threshold",
+        "wave8"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

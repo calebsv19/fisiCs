@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__param_vla_pointer_adjust",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_param_vla_pointer_adjust_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__param_vla_pointer_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "vla-param", "pointer-adjustment", "clean-path", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__param_vla_const_pointer_adjust",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_param_vla_const_pointer_adjust_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__param_vla_const_pointer_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "vla-param", "const", "pointer-adjustment", "clean-path", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__param_vla_restrict_pointer_adjust",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_param_vla_restrict_pointer_adjust_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__param_vla_restrict_pointer_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "vla-param", "restrict", "pointer-adjustment", "clean-path", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_param_vla_pointer_adjust_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_param_vla_pointer_adjust_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_param_vla_pointer_adjust_bridge_main.c",
+        "probes/runtime/04__probe_multitu_param_vla_pointer_adjust_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_param_vla_pointer_adjust_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "vla-param", "pointer-adjustment", "clean-path", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_include_param_vla_const_pointer_adjust_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_include_param_vla_const_pointer_adjust_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_include_param_vla_const_pointer_adjust_bridge_main.c",
+        "probes/runtime/04__probe_multitu_include_param_vla_const_pointer_adjust_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_include_param_vla_const_pointer_adjust_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "include", "vla-param", "const", "pointer-adjustment", "clean-path", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_include_param_vla_restrict_pointer_adjust_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_include_param_vla_restrict_pointer_adjust_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_include_param_vla_restrict_pointer_adjust_bridge_main.c",
+        "probes/runtime/04__probe_multitu_include_param_vla_restrict_pointer_adjust_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_include_param_vla_restrict_pointer_adjust_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "include", "vla-param", "restrict", "pointer-adjustment", "clean-path", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

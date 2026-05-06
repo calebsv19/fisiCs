@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_cast_struct_to_int_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_cast_struct_to_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_cast_struct_to_int_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "cast",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave24",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_cast_struct_to_int_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_cast_struct_to_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_cast_struct_to_int_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "cast",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave24",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_agg_invalid_member_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_agg_invalid_member_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_agg_invalid_member_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave24",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_agg_invalid_member_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_agg_invalid_member_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_agg_invalid_member_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave24",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

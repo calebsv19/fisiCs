@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__diag__line_directive_nested_designator_array_index_nonconst_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_line_directive_nested_designator_array_index_nonconst_spelling_strict.c",
+      "expects": ["expect/08__diag__line_directive_nested_designator_array_index_nonconst_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "designator", "diag", "line-directive", "strict", "nested", "index", "nonconst", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__line_directive_include_nested_designator_array_index_nonconst_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.c",
+      "inputs": [
+        "probes/diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.c",
+        "probes/diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.h"
+      ],
+      "expects": ["expect/08__diag__line_directive_include_nested_designator_array_index_nonconst_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "designator", "diag", "line-directive", "strict", "include", "nested", "index", "nonconst", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__line_directive_nested_designator_array_index_negative_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_line_directive_nested_designator_array_index_negative_spelling_strict.c",
+      "expects": ["expect/08__diag__line_directive_nested_designator_array_index_negative_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "designator", "diag", "line-directive", "strict", "nested", "index", "negative", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__diag__line_directive_include_nested_designator_array_index_negative_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.c",
+      "inputs": [
+        "probes/diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.c",
+        "probes/diagnostics/08__probe_diag_line_directive_include_nested_designator_array_index_negative_spelling_strict.h"
+      ],
+      "expects": ["expect/08__diag__line_directive_include_nested_designator_array_index_negative_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializer", "designator", "diag", "line-directive", "strict", "include", "nested", "index", "negative", "wave68"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -244,6 +244,42 @@ RUNTIME_PROBES = [
         inputs=[PROBE_DIR / 'runtime/14__probe_multitu_link_order_checkpoint_feedback_main.c', PROBE_DIR / 'runtime/14__probe_multitu_link_order_checkpoint_feedback_lib_a.c', PROBE_DIR / 'runtime/14__probe_multitu_link_order_checkpoint_feedback_lib_b.c'],
     ),
     RuntimeProbe(
+        probe_id='14__probe_multitu_link_order_resalt_feedback_mesh',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_link_order_resalt_feedback_mesh_main.c',
+        note='multi-TU link-order resalt feedback mesh should remain deterministic and match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_link_order_resalt_feedback_mesh_main.c', PROBE_DIR / 'runtime/14__probe_multitu_link_order_resalt_feedback_mesh_lib_a.c', PROBE_DIR / 'runtime/14__probe_multitu_link_order_resalt_feedback_mesh_lib_b.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_init_epoch_feedback_mesh',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_init_epoch_feedback_mesh_main.c',
+        note='multi-TU static-init epoch feedback mesh should remain deterministic and match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_init_epoch_feedback_mesh_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_init_epoch_feedback_mesh_lib_a.c', PROBE_DIR / 'runtime/14__probe_multitu_static_init_epoch_feedback_mesh_lib_b.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_link_order_resalt_feedback_braid',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_link_order_resalt_feedback_braid_main.c',
+        note='multi-TU link-order resalt feedback braid should remain deterministic and match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_link_order_resalt_feedback_braid_main.c', PROBE_DIR / 'runtime/14__probe_multitu_link_order_resalt_feedback_mesh_lib_a.c', PROBE_DIR / 'runtime/14__probe_multitu_link_order_resalt_feedback_mesh_lib_b.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_init_epoch_feedback_weave',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_init_epoch_feedback_weave_main.c',
+        note='multi-TU static-init epoch feedback weave should remain deterministic and match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_init_epoch_feedback_weave_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_init_epoch_feedback_mesh_lib_a.c', PROBE_DIR / 'runtime/14__probe_multitu_static_init_epoch_feedback_mesh_lib_b.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_token_generation_import_collapse_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_token_generation_import_collapse_bridge_main.c',
+        note='multi-TU token-generation import-collapse bridge should remain deterministic and match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_token_generation_import_collapse_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_token_generation_stale_drop_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_token_reserve_latest_commit_collapse',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_token_reserve_latest_commit_collapse_main.c',
+        note='multi-TU reserve/latest-commit collapse bridge should remain deterministic and match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_token_reserve_latest_commit_collapse_main.c', PROBE_DIR / 'runtime/14__probe_multitu_token_reserve_commit_abort_lib.c'],
+    ),
+    RuntimeProbe(
         probe_id='14__probe_queue_push_fail_preserves_committed_slot',
         source=PROBE_DIR / 'runtime/14__probe_queue_push_fail_preserves_committed_slot.c',
         note='queue push-fail path should preserve committed slot state and match clang runtime behavior',

@@ -492,8 +492,8 @@ DIAG_PROBES = [
     DiagnosticProbe(
         probe_id='15__probe_diag_multitu_symbol_type_conflict_reject',
         source=PROBE_DIR / 'diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_main.c',
-        note='multi-TU duplicate global symbols with type conflict should fail at link stage',
-        required_substrings=['duplicate symbol'],
+        note='multi-TU duplicate global symbols with type conflict should fail during cross-TU semantic reconciliation',
+        required_substrings=['Conflicting types for variable'],
         inputs=[PROBE_DIR / 'diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_main.c', PROBE_DIR / 'diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_lib.c'],
     ),
     DiagnosticProbe(

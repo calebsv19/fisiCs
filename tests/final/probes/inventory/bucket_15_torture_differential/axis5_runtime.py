@@ -151,6 +151,38 @@ RUNTIME_PROBES = [
         inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave9_reducer_cross_tu_checkpoint_chain_merge_invariance_matrix_lib.c'],
     ),
     RuntimeProbe(
+        probe_id='15__probe_axis5_wave10_reducer_delta_log_coalescing_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave10_reducer_delta_log_coalescing_matrix.c',
+        note='axis5 wave10: reducer delta-log coalescing matrix should preserve signatures when adjacent same-key deltas are compressed before fold',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave10_reducer_dominated_checkpoint_prune_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave10_reducer_dominated_checkpoint_prune_matrix.c',
+        note='axis5 wave10: reducer dominated-checkpoint prune matrix should preserve signatures when stale per-slot checkpoints are removed before replay',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave10_reducer_cross_tu_redundant_snapshot_absorption_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave10_reducer_cross_tu_redundant_snapshot_absorption_matrix_main.c',
+        note='axis5 wave10: reducer cross-TU redundant-snapshot absorption matrix should preserve signatures when duplicate and stale shard snapshots are replayed through latest-only import',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave10_reducer_cross_tu_redundant_snapshot_absorption_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave10_reducer_cross_tu_redundant_snapshot_absorption_matrix_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave11_reducer_carry_rebalance_equivalence_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_carry_rebalance_equivalence_matrix.c',
+        note='axis5 wave11: reducer carry-rebalance equivalence matrix should preserve signatures across inline and post-pass spill normalization',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave11_reducer_watermark_clip_equivalence_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_watermark_clip_equivalence_matrix.c',
+        note='axis5 wave11: reducer watermark-clip equivalence matrix should preserve signatures when stale epochs are filtered before or after epoch-bucket materialization',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave11_reducer_cross_tu_watermark_handoff_collapse_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_cross_tu_watermark_handoff_collapse_matrix_main.c',
+        note='axis5 wave11: reducer cross-TU watermark-handoff collapse matrix should preserve signatures when stale and lower-watermark shard snapshots are replayed after newer handoffs',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_cross_tu_watermark_handoff_collapse_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_cross_tu_watermark_handoff_collapse_matrix_lib.c'],
+    ),
+    RuntimeProbe(
         probe_id='15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix',
         source=PROBE_DIR / 'runtime/15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix.c',
         note='VLA stride/rebase matrix lane should match both clang and gcc when gcc is available',

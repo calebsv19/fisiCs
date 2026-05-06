@@ -1,0 +1,6 @@
+#ifndef FISICS_PROBE_04_WAVE19_INCLUDE_PARAM_VLA_STATIC_RESTRICT_ADJUST_BRIDGE_SHARED_H
+#define FISICS_PROBE_04_WAVE19_INCLUDE_PARAM_VLA_STATIC_RESTRICT_ADJUST_BRIDGE_SHARED_H
+
+int wave19_multitu_include_vla_static_restrict_fold(int rows, int cols, int matrix[restrict static rows][cols]);
+
+#endif

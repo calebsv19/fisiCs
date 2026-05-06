@@ -1,0 +1,6 @@
+#ifndef FISICS_PROBE_04_WAVE18_INCLUDE_PARAM_VLA_CONST_POINTER_ADJUST_BRIDGE_SHARED_H
+#define FISICS_PROBE_04_WAVE18_INCLUDE_PARAM_VLA_CONST_POINTER_ADJUST_BRIDGE_SHARED_H
+
+int wave18_multitu_include_vla_const_fold(int rows, int cols, const int matrix[rows][cols]);
+
+#endif

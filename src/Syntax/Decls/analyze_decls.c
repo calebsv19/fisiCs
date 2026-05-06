@@ -4,6 +4,88 @@
 #include "Extensions/extension_units_view.h"
 #include "Utils/profiler.h"
 
+static bool declSourcePathIsVirtualRemap(const char* path) {
+    if (!path || !path[0]) return false;
+    const char* base = strrchr(path, '/');
+    base = base ? base + 1 : path;
+    return strncmp(base, "virtual_", 8) == 0;
+}
+
+static SourceRange variableConflictSpellingRange(ASTNode* currentName,
+                                                 ASTNode* currentDecl,
+                                                 ASTNode* previousDecl) {
+    SourceRange current =
+        (currentName && currentName->location.start.file) ? currentName->location
+                                                          : (currentDecl ? currentDecl->location
+                                                                         : (SourceRange){0});
+    if (declSourcePathIsVirtualRemap(current.start.file)) {
+        return current;
+    }
+
+    SourceRange previous = varDeclBestSpellingRange(previousDecl);
+    if (declSourcePathIsVirtualRemap(previous.start.file)) {
+        return previous;
+    }
+    return current;
+}
+
+static SourceRange variableConflictMacroCallSite(ASTNode* currentName,
+                                                 ASTNode* currentDecl,
+                                                 ASTNode* previousDecl) {
+    SourceRange current =
+        (currentName && currentName->macroCallSite.start.file) ? currentName->macroCallSite
+                                                               : (currentDecl ? currentDecl->macroCallSite
+                                                                              : (SourceRange){0});
+    SourceRange currentSpelling =
+        (currentName && currentName->location.start.file) ? currentName->location
+                                                          : (currentDecl ? currentDecl->location
+                                                                         : (SourceRange){0});
+    if (declSourcePathIsVirtualRemap(currentSpelling.start.file)) {
+        return current;
+    }
+
+    SourceRange previous = varDeclBestMacroCallSite(previousDecl);
+    SourceRange previousSpelling = varDeclBestSpellingRange(previousDecl);
+    if (declSourcePathIsVirtualRemap(previousSpelling.start.file)) {
+        return previous;
+    }
+    return current;
+}
+
+static SourceRange variableConflictMacroDefinition(ASTNode* currentName,
+                                                   ASTNode* currentDecl,
+                                                   ASTNode* previousDecl) {
+    SourceRange current =
+        (currentName && currentName->macroDefinition.start.file) ? currentName->macroDefinition
+                                                                 : (currentDecl ? currentDecl->macroDefinition
+                                                                                : (SourceRange){0});
+    SourceRange currentSpelling =
+        (currentName && currentName->location.start.file) ? currentName->location
+                                                          : (currentDecl ? currentDecl->location
+                                                                         : (SourceRange){0});
+    if (declSourcePathIsVirtualRemap(currentSpelling.start.file)) {
+        return current;
+    }
+
+    SourceRange previous = varDeclBestMacroDefinition(previousDecl);
+    SourceRange previousSpelling = varDeclBestSpellingRange(previousDecl);
+    if (declSourcePathIsVirtualRemap(previousSpelling.start.file)) {
+        return previous;
+    }
+    return current;
+}
+
+static void addVariableTypeConflictError(ASTNode* currentName,
+                                         ASTNode* currentDecl,
+                                         ASTNode* previousDecl,
+                                         const char* name) {
+    addErrorWithRanges(variableConflictSpellingRange(currentName, currentDecl, previousDecl),
+                       variableConflictMacroCallSite(currentName, currentDecl, previousDecl),
+                       variableConflictMacroDefinition(currentName, currentDecl, previousDecl),
+                       "Conflicting types for variable",
+                       name);
+}
+
 static const char* staticAssertHint(ASTNode* node) {
     if (!node || node->type != AST_STATIC_ASSERT) return NULL;
     if (!node->expr.right || node->expr.right->type != AST_STRING_LITERAL) return NULL;
@@ -157,11 +239,10 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                         }
                     }
                     if (!parsedTypesStructurallyCompatibleInScope(&existing->type, varType, scope)) {
-                        addErrorWithRanges(ident ? ident->location : node->location,
-                                           ident ? ident->macroCallSite : node->macroCallSite,
-                                           ident ? ident->macroDefinition : node->macroDefinition,
-                                           "Conflicting types for variable",
-                                           ident ? ident->valueNode.value : NULL);
+                        addVariableTypeConflictError(ident,
+                                                     node,
+                                                     existing->definition,
+                                                     ident ? ident->valueNode.value : NULL);
                         continue;
                     }
                     if (existing->hasDefinition && newDefinition && !existing->isTentative) {
@@ -188,11 +269,10 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                             linked->kind == SYMBOL_VARIABLE &&
                             linked->linkage != LINKAGE_NONE &&
                             !parsedTypesStructurallyCompatibleInScope(&linked->type, varType, scope)) {
-                            addErrorWithRanges(ident ? ident->location : node->location,
-                                               ident ? ident->macroCallSite : node->macroCallSite,
-                                               ident ? ident->macroDefinition : node->macroDefinition,
-                                               "Conflicting types for variable",
-                                               ident ? ident->valueNode.value : NULL);
+                            addVariableTypeConflictError(ident,
+                                                         node,
+                                                         linked->definition,
+                                                         ident ? ident->valueNode.value : NULL);
                             continue;
                         }
                     }

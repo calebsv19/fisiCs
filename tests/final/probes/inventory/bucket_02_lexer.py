@@ -9,6 +9,60 @@ RUNTIME_PROBES = []
 
 DIAG_PROBES = [
     DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_include_invalid_dollar_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_invalid_dollar_diagjson_current_physical_line.c',
+        note="fixed baseline: include-header lexer invalid '$' diagnostic now reports remapped virtual line",
+        required_substrings=[':1831:9'],
+    ),
+    DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_include_unterminated_string_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_unterminated_string_diagjson_current_physical_line.c',
+        note='fixed baseline: include-header lexer unterminated-string diagnostic now reports remapped virtual line',
+        required_substrings=[':1721:21'],
+    ),
+    DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_include_char_invalid_hex_escape_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_char_invalid_hex_escape_diagjson_current_physical_line.c',
+        note='fixed baseline: include-header lexer invalid \\x escape diagnostic now reports remapped virtual line',
+        required_substrings=[':1911:14'],
+    ),
+    DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_include_string_invalid_escape_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_string_invalid_escape_diagjson_current_physical_line.c',
+        note='fixed baseline: include-header lexer invalid string-escape diagnostic now reports remapped virtual line',
+        required_substrings=[':1941:21'],
+    ),
+    DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_include_invalid_at_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_invalid_at_diagjson_current_physical_line.c',
+        note="fixed baseline: include-header lexer invalid '@' diagnostic now reports remapped virtual line",
+        required_substrings=[':1971:9'],
+    ),
+    DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_include_invalid_backtick_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_invalid_backtick_diagjson_current_physical_line.c',
+        note="fixed baseline: include-header lexer invalid '`' diagnostic now reports remapped virtual line",
+        required_substrings=[':1981:9'],
+    ),
+    DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_include_unterminated_char_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_unterminated_char_diagjson_current_physical_line.c',
+        note='fixed baseline: include-header lexer unterminated-char diagnostic now reports remapped virtual line',
+        required_substrings=[':1991:14'],
+    ),
+    DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_ucn_identifier_unsupported_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_ucn_identifier_unsupported_current_physical_line.c',
+        note='current threshold: direct UCN policy lane still reports the physical source line under #line remap',
+        required_substrings=['02__line_directive_ucn_identifier_unsupported_current_physical_line.c:2'],
+    ),
+    DiagnosticProbe(
+        probe_id='02__probe_lexer_line_directive_include_ucn_identifier_unsupported_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_ucn_identifier_unsupported_current_physical_line.c',
+        note='current threshold: include-header UCN policy lane falls through to remapped parser diagnostics after the initial lexer rejection',
+        required_substrings=['virtual_lexer_include_ucn_identifier_case.h:2130'],
+    ),
+    DiagnosticProbe(
         probe_id='02__probe_lexer_line_directive_invalid_dollar_location_reject',
         source=PROBE_DIR / 'diagnostics/02__probe_lexer_line_directive_invalid_dollar_location_reject.c',
         note="lexer diagnostic should honor #line remap for invalid '$' token",
@@ -95,6 +149,62 @@ DIAG_PROBES = [
 ]
 
 DIAG_JSON_PROBES = [
+    DiagnosticJsonProbe(
+        probe_id='02__probe_diagjson_lexer_line_directive_include_invalid_dollar_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_invalid_dollar_diagjson_current_physical_line.c',
+        note="fixed baseline: diagnostics JSON reports remapped line for include-header lexer invalid '$' token",
+        expected_codes=[1],
+        expected_line=1831,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='02__probe_diagjson_lexer_line_directive_include_unterminated_string_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_unterminated_string_diagjson_current_physical_line.c',
+        note='fixed baseline: diagnostics JSON reports remapped line for include-header lexer unterminated string',
+        expected_codes=[1],
+        expected_line=1721,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='02__probe_diagjson_lexer_line_directive_include_char_invalid_hex_escape_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_char_invalid_hex_escape_diagjson_current_physical_line.c',
+        note='fixed baseline: diagnostics JSON reports remapped line for include-header lexer invalid \\x char escape',
+        expected_codes=[1],
+        expected_line=1911,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='02__probe_diagjson_lexer_line_directive_include_string_invalid_escape_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_string_invalid_escape_diagjson_current_physical_line.c',
+        note='fixed baseline: diagnostics JSON reports remapped line for include-header lexer invalid string escape',
+        expected_codes=[1],
+        expected_line=1941,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='02__probe_diagjson_lexer_line_directive_include_invalid_at_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_invalid_at_diagjson_current_physical_line.c',
+        note="fixed baseline: diagnostics JSON reports remapped line for include-header lexer invalid '@' token",
+        expected_codes=[1],
+        expected_line=1971,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='02__probe_diagjson_lexer_line_directive_include_invalid_backtick_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_invalid_backtick_diagjson_current_physical_line.c',
+        note="fixed baseline: diagnostics JSON reports remapped line for include-header lexer invalid '`' token",
+        expected_codes=[1],
+        expected_line=1981,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='02__probe_diagjson_lexer_line_directive_include_unterminated_char_current_physical_line',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_unterminated_char_diagjson_current_physical_line.c',
+        note='fixed baseline: diagnostics JSON reports remapped line for include-header lexer unterminated character literal',
+        expected_codes=[1],
+        expected_line=1991,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='02__probe_diagjson_lexer_line_directive_include_ucn_identifier_unsupported_current_parser_only',
+        source=PROBE_DIR.parent / 'cases/02__line_directive_include_ucn_identifier_unsupported_current_physical_line.c',
+        note='current threshold: include-header UCN policy lane exports remapped parser diagnostics JSON rather than a lexer-policy payload',
+        expected_codes=[1000],
+        expected_line=2130,
+    ),
     DiagnosticJsonProbe(
         probe_id='02__probe_diagjson_lexer_line_directive_invalid_dollar_location_reject',
         source=PROBE_DIR / 'diagnostics/02__probe_lexer_line_directive_invalid_dollar_location_reject.c',

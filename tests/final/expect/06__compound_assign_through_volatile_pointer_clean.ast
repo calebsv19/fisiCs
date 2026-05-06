@@ -1,0 +1,30 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int
+        IDENTIFIER value
+          = NUMBER_LITERAL 4
+      VAR_DECL
+        TYPE: volatile int*
+        IDENTIFIER p
+          = 
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER value
+      ASSIGNMENT (+=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER p
+        NUMBER_LITERAL 6
+      ASSIGNMENT (-=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER p
+        NUMBER_LITERAL 2
+      RETURN
+        IDENTIFIER value

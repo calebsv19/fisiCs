@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_fnptr_nested_const_qualifier_loss_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_fnptr_nested_const_qualifier_loss.c",
+      "expects": [
+        "expect/07__line_directive_fnptr_nested_const_qualifier_loss_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "fnptr",
+        "qualifiers",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave23",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_fnptr_nested_volatile_qualifier_loss_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_fnptr_nested_volatile_qualifier_loss.c",
+      "expects": [
+        "expect/07__line_directive_fnptr_nested_volatile_qualifier_loss_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "fnptr",
+        "qualifiers",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave23",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_fnptr_deep_const_qualifier_loss_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_fnptr_deep_const_qualifier_loss.c",
+      "expects": [
+        "expect/07__line_directive_fnptr_deep_const_qualifier_loss_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "fnptr",
+        "qualifiers",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave23",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_fnptr_nested_const_qualifier_loss_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_fnptr_nested_const_qualifier_loss.c",
+      "expects": [
+        "expect/07__line_directive_include_fnptr_nested_const_qualifier_loss_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "fnptr",
+        "qualifiers",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave23",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_fnptr_nested_volatile_qualifier_loss_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_fnptr_nested_volatile_qualifier_loss.c",
+      "expects": [
+        "expect/07__line_directive_include_fnptr_nested_volatile_qualifier_loss_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "fnptr",
+        "qualifiers",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave23",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_fnptr_deep_const_qualifier_loss_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_fnptr_deep_const_qualifier_loss.c",
+      "expects": [
+        "expect/07__line_directive_include_fnptr_deep_const_qualifier_loss_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "fnptr",
+        "qualifiers",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave23",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

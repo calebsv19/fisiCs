@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_next_missing_diagjson_strict",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_missing.c",
+      "expects": [
+        "expect/03__include_next_missing_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "missing-target",
+        "diagjson",
+        "wave7",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_missing_mid_chain_diagjson_strict",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_missing_mid_chain.c",
+      "expects": [
+        "expect/03__include_next_missing_mid_chain_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "missing-target",
+        "mid-chain",
+        "diagjson",
+        "wave7",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

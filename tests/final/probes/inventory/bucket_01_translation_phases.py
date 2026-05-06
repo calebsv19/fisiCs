@@ -62,6 +62,18 @@ DIAG_PROBES = [
         note='fixed baseline: #line + macro-expanded non-void return now emits mapped location',
         required_substrings=['Error at (453:'],
     ),
+    DiagnosticProbe(
+        probe_id='01__probe_line_directive_include_nested_macro_undeclared_identifier_location_strict',
+        source=PROBE_DIR / 'diagnostics/01__probe_line_directive_include_nested_macro_undeclared_identifier_location_strict.c',
+        note='#line include-header nested macro rescan should preserve remapped undeclared-identifier location',
+        required_substrings=['Error at (3619:'],
+    ),
+    DiagnosticProbe(
+        probe_id='01__probe_line_directive_include_tokenpaste_undeclared_identifier_location_strict',
+        source=PROBE_DIR / 'diagnostics/01__probe_line_directive_include_tokenpaste_undeclared_identifier_location_strict.c',
+        note='#line include-header token-paste should preserve remapped undeclared-identifier location',
+        required_substrings=['Error at (3819:'],
+    ),
 ]
 
 DIAG_JSON_PROBES = [
@@ -105,5 +117,21 @@ DIAG_JSON_PROBES = [
         note='fixed baseline: diagnostics JSON emits mapped line for #line+macro non-void return diagnostics',
         expected_codes=[2000],
         expected_line=453,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='01__probe_diagjson_line_directive_include_nested_macro_undeclared_identifier_location_strict',
+        source=PROBE_DIR / 'diagnostics/01__probe_line_directive_include_nested_macro_undeclared_identifier_location_strict.c',
+        note='diagnostics JSON should preserve remapped include-header nested macro rescan location',
+        expected_codes=[2000],
+        expected_line=3619,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='01__probe_diagjson_line_directive_include_tokenpaste_undeclared_identifier_location_strict',
+        source=PROBE_DIR / 'diagnostics/01__probe_line_directive_include_tokenpaste_undeclared_identifier_location_strict.c',
+        note='diagnostics JSON should preserve remapped include-header token-paste location',
+        expected_codes=[2000],
+        expected_line=3819,
+        expected_has_file=True,
     ),
 ]

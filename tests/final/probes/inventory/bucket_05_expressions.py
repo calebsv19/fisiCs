@@ -71,6 +71,66 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/05__probe_compound_literal_array_runtime.c',
         note='compound-literal array value/lifetime-in-block behavior should match clang',
     ),
+    RuntimeProbe(
+        probe_id='05__probe_sizeof_nonvla_unevaluated_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_sizeof_nonvla_unevaluated_runtime.c',
+        note='sizeof on non-VLA expression should not evaluate assignment side effects',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_sizeof_null_deref_unevaluated_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_sizeof_null_deref_unevaluated_runtime.c',
+        note='sizeof on dereferenced null pointer expression should remain unevaluated and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_ternary_inactive_comma_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_ternary_inactive_comma_runtime.c',
+        note='inactive ternary branch with comma side effects should remain unevaluated and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_nested_ternary_short_circuit_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_nested_ternary_short_circuit_runtime.c',
+        note='nested ternary sequencing on the taken branch should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_logical_and_comma_chain_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_logical_and_comma_chain_runtime.c',
+        note='logical AND with comma-chain rhs should preserve defined sequencing and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_logical_or_nested_comma_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_logical_or_nested_comma_runtime.c',
+        note='logical OR should skip nested comma side effects on truthy lhs and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_logical_and_false_skips_nested_comma_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_logical_and_false_skips_nested_comma_runtime.c',
+        note='logical AND with false lhs should skip nested comma side effects and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_logical_or_false_executes_nested_comma_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_logical_or_false_executes_nested_comma_runtime.c',
+        note='logical OR with false lhs should execute nested comma rhs and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_ternary_condition_comma_gate_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_ternary_condition_comma_gate_runtime.c',
+        note='comma sequencing inside ternary condition and chosen branch should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_nested_ternary_postinc_path_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_nested_ternary_postinc_path_runtime.c',
+        note='nested ternary post-increment chosen-path sequencing should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_logical_and_vla_sizeof_eval_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_logical_and_vla_sizeof_eval_runtime.c',
+        note='logical AND should evaluate VLA sizeof rhs only when lhs is truthy and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_logical_or_vla_sizeof_skip_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_logical_or_vla_sizeof_skip_runtime.c',
+        note='logical OR should skip VLA sizeof rhs side effects on truthy lhs and match clang',
+    ),
 ]
 
 DIAG_PROBES = [

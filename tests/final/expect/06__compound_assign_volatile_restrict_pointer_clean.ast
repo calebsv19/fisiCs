@@ -1,0 +1,39 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: static int
+    IDENTIFIER adjust
+    PARAMETERS
+      VAR_DECL
+        TYPE: volatile int* restrict
+        IDENTIFIER p
+    BLOCK
+      ASSIGNMENT (+=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER p
+        NUMBER_LITERAL 4
+      ASSIGNMENT (/=)
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER p
+        NUMBER_LITERAL 2
+      RETURN
+        UNARY EXPRESSION '*' (prefix)
+          IDENTIFIER p
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int
+        IDENTIFIER value
+          = NUMBER_LITERAL 8
+      RETURN
+        FUNCTION CALL
+          IDENTIFIER adjust
+          ARGUMENTS
+            UNARY EXPRESSION '&' (prefix)
+              IDENTIFIER value

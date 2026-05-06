@@ -7,6 +7,7 @@ static int countParameterDeclarators(ASTNode** params, size_t paramCount);
 static bool isVoidParameterDecl(ASTNode* param);
 static bool isSyntheticUnnamedParameterName(const char* name);
 static bool adjustFunctionParameterType(ParsedType* type);
+static void stripTopLevelParameterQualifiers(ParsedType* type);
 static bool parameterNameAlreadySeen(char** names, size_t count, const char* candidate);
 static void parameterNameRemember(char*** names, size_t* count, size_t* capacity, char* name);
 static int ascii_tolower(int c);
@@ -93,6 +94,37 @@ static bool adjustFunctionParameterType(ParsedType* type) {
     type->directlyDeclaresFunction = false;
     changed = true;
     return changed;
+}
+
+static void stripTopLevelParameterQualifiers(ParsedType* type) {
+    if (!type) return;
+
+    /* C function type compatibility ignores top-level qualifiers on parameters
+       after array/function adjustment. */
+    bool pointerLike =
+        (type->pointerDepth > 0) ||
+        (type->derivationCount > 0 &&
+         type->derivations &&
+         type->derivations[0].kind == TYPE_DERIVATION_POINTER);
+
+    /* For pointer-typed parameters, ParsedType base qualifiers represent the
+       pointed-to type, not the parameter's own top-level qualifiers. */
+    if (!pointerLike) {
+        type->isConst = false;
+        type->isVolatile = false;
+        type->isRestrict = false;
+    }
+
+    if (type->derivationCount == 0 || !type->derivations) {
+        return;
+    }
+
+    TypeDerivation* outer = &type->derivations[0];
+    if (outer->kind == TYPE_DERIVATION_POINTER) {
+        outer->as.pointer.isConst = false;
+        outer->as.pointer.isVolatile = false;
+        outer->as.pointer.isRestrict = false;
+    }
 }
 
 static bool parameterNameAlreadySeen(char** names, size_t count, const char* candidate) {
@@ -284,6 +316,7 @@ void assignFunctionSignature(Symbol* sym,
                 const ParsedType* srcType = perTypes ? &perTypes[k] : &param->varDecl.declaredType;
                 ParsedType adjusted = parsedTypeClone(srcType);
                 adjustFunctionParameterType(&adjusted);
+                stripTopLevelParameterQualifiers(&adjusted);
                 sym->signature.params[idx] = adjusted;
                 idx++;
             }

@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__param_array_static_adjust",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_param_array_static_adjust_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__param_array_static_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "array-param", "static", "adjustment", "clean-path", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__param_array_restrict_adjust",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_param_array_restrict_adjust_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__param_array_restrict_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "array-param", "restrict", "adjustment", "clean-path", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__param_array_static_const_adjust",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_param_array_static_const_adjust_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__param_array_static_const_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "array-param", "static", "const", "adjustment", "clean-path", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_param_array_static_adjust_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_param_array_static_adjust_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_param_array_static_adjust_bridge_main.c",
+        "probes/runtime/04__probe_multitu_param_array_static_adjust_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_param_array_static_adjust_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "array-param", "static", "adjustment", "clean-path", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_include_param_array_restrict_adjust_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_include_param_array_restrict_adjust_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_include_param_array_restrict_adjust_bridge_main.c",
+        "probes/runtime/04__probe_multitu_include_param_array_restrict_adjust_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_include_param_array_restrict_adjust_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "include", "array-param", "restrict", "adjustment", "clean-path", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_include_param_array_static_const_adjust_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_include_param_array_static_const_adjust_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_include_param_array_static_const_adjust_bridge_main.c",
+        "probes/runtime/04__probe_multitu_include_param_array_static_const_adjust_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_include_param_array_static_const_adjust_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "include", "array-param", "static", "const", "adjustment", "clean-path", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

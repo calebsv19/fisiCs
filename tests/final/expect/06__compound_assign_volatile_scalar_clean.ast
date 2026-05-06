@@ -1,0 +1,22 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      VAR_DECL
+        TYPE: volatile int
+        IDENTIFIER x
+          = NUMBER_LITERAL 5
+      ASSIGNMENT (+=)
+        IDENTIFIER x
+        NUMBER_LITERAL 3
+      ASSIGNMENT (-=)
+        IDENTIFIER x
+        NUMBER_LITERAL 1
+      RETURN
+        IDENTIFIER x

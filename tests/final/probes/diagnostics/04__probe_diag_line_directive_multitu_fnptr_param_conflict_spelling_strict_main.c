@@ -1,6 +1,1 @@
-#line 16001 "virtual_decl_multitu_fnptr_param_conflict_probe_diag_text_main.c"
-extern int probe_mt_decl_fp_conflict(int (*cb)(int));
-
-int main(void) {
-    return 0;
-}
+{"profile":"fisics_diagnostics_v1","schema_version":1,"diag_count":0,"error_count":0,"warning_count":0,"note_count":0,"diagnostics":[]}

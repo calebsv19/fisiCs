@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (1819:41): Undeclared identifier
+   Hint: missing_token_pasted_symbol
+   Spelling: virtual_include_tokenpaste_undeclared_phase01.h:1819:41

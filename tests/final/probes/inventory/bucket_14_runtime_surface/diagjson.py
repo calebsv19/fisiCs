@@ -200,7 +200,7 @@ DIAG_JSON_PROBES = [
         probe_id='14__probe_diagjson_multitu_duplicate_tentative_type_conflict_reject',
         source=PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_main.c',
         note='diagnostics JSON should be exported for multi-TU tentative-definition type conflict link failures',
-        expected_codes=[4001],
+        expected_codes=[2000],
         inputs=[PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_main.c', PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_lib.c'],
     ),
     DiagnosticJsonProbe(

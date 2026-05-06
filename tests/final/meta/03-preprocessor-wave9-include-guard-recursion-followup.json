@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_cycle_three_hop_include_guard_clean_diag",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle_three_hop_include_guard_clean.c",
+      "expects": [
+        "expect/03__include_cycle_three_hop_include_guard_clean_diag.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-graph",
+        "include-guard",
+        "recursion",
+        "clean-path",
+        "wave9"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_cycle_three_hop_mixed_guard_once_clean_diag",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle_three_hop_mixed_guard_once_clean.c",
+      "expects": [
+        "expect/03__include_cycle_three_hop_mixed_guard_once_clean_diag.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-graph",
+        "include-guard",
+        "pragma-once",
+        "recursion",
+        "clean-path",
+        "wave9"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

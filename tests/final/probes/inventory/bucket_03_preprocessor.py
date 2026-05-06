@@ -9,6 +9,18 @@ RUNTIME_PROBES = []
 
 DIAG_PROBES = [
     DiagnosticProbe(
+        probe_id='03__probe_include_next_extra_tokens_diag_current_text',
+        source=PROBE_DIR.parent / 'cases/03__include_next_extra_tokens_reject.c',
+        note='current threshold: invalid #include_next operand with trailing tokens still emits text diagnostics even without diagjson export',
+        required_substrings=['invalid #include operand'],
+    ),
+    DiagnosticProbe(
+        probe_id='03__probe_include_next_macro_trailing_diag_current_text',
+        source=PROBE_DIR.parent / 'cases/03__include_next_macro_trailing_tokens_reject.c',
+        note='current threshold: macro-expanded invalid #include_next operand still emits text diagnostics even without diagjson export',
+        required_substrings=['invalid #include operand'],
+    ),
+    DiagnosticProbe(
         probe_id='03__probe_line_directive_error_location_reject',
         source=PROBE_DIR / 'diagnostics/03__probe_line_directive_error_location_reject.c',
         note='#line virtual line should propagate into #error diagnostic location',
@@ -95,6 +107,42 @@ DIAG_PROBES = [
 ]
 
 DIAG_JSON_PROBES = [
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_include_next_missing_target_basic_strict',
+        source=PROBE_DIR.parent / 'cases/03__include_next_missing.c',
+        note='strict parity: missing first-hop #include_next target should export preprocessor diagnostics JSON with file, line, and column',
+        expected_codes=[3000],
+        expected_line=1,
+        expected_column=15,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_include_next_missing_target_mid_chain_strict',
+        source=PROBE_DIR.parent / 'cases/03__include_next_missing_mid_chain.c',
+        note='strict parity: missing mid-chain #include_next target should export preprocessor diagnostics JSON with file, line, and column',
+        expected_codes=[3000],
+        expected_line=1,
+        expected_column=10,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_include_next_extra_tokens_strict',
+        source=PROBE_DIR.parent / 'cases/03__include_next_extra_tokens_reject.c',
+        note='strict frontier: invalid #include_next operand with trailing tokens should still export diagnostics JSON',
+        expected_codes=[3000],
+        expected_line=1,
+        expected_column=1,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_include_next_macro_trailing_strict',
+        source=PROBE_DIR.parent / 'cases/03__include_next_macro_trailing_tokens_reject.c',
+        note='strict frontier: macro-expanded invalid #include_next operand should still export diagnostics JSON',
+        expected_codes=[3000],
+        expected_line=2,
+        expected_column=1,
+        expected_has_file=True,
+    ),
     DiagnosticJsonProbe(
         probe_id='03__probe_diagjson_line_directive_error_location_reject',
         source=PROBE_DIR / 'diagnostics/03__probe_line_directive_error_location_reject.c',

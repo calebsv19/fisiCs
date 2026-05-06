@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_next_extra_tokens_diagjson_strict",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_extra_tokens_reject.c",
+      "expects": [
+        "expect/03__include_next_extra_tokens_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "invalid-operand",
+        "extra-tokens",
+        "diagjson",
+        "wave8",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_macro_trailing_diagjson_strict",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_macro_trailing_tokens_reject.c",
+      "expects": [
+        "expect/03__include_next_macro_trailing_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "invalid-operand",
+        "macro-trailing",
+        "diagjson",
+        "wave8",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

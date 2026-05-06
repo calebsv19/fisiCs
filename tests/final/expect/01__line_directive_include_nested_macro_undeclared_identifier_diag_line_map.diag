@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (1619:36): Undeclared identifier
+   Hint: missing_nested_symbol
+   Spelling: virtual_include_nested_macro_undeclared_phase01.h:1619:36

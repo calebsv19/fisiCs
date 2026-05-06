@@ -158,7 +158,7 @@ DIAG_PROBES = [
         probe_id='14__probe_diag_multitu_duplicate_tentative_type_conflict_reject',
         source=PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_main.c',
         note='multi-TU lane should reject conflicting external definitions with mismatched types',
-        required_substrings=['duplicate symbol'],
+        required_substrings=["Conflicting types for variable 'wave79_tent' across translation units"],
         inputs=[PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_main.c', PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_tentative_type_conflict_reject_lib.c'],
     ),
     DiagnosticProbe(
