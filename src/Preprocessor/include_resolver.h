@@ -77,6 +77,7 @@ typedef struct {
 
 typedef struct {
     size_t parentFileIndex; // SIZE_MAX when there is no includer context.
+    char* parentDir; // used for quoted non-include_next requests keyed by includer directory.
     char* includeName;
     bool isSystem;
     bool isIncludeNext;

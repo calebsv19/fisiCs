@@ -84,13 +84,16 @@ static size_t ir_lookup_canonical_index(const IncludeResolver* resolver, const c
 static const IncludeFile* ir_lookup_exact_path(const IncludeResolver* resolver, const char* path);
 static const IncludeFile* ir_lookup_by_canonical_path(const IncludeResolver* resolver,
                                                       const char* canonicalPath);
+static bool ir_build_parent_dir(char* buffer, size_t bufSize, const char* path);
 static size_t ir_lookup_request_cache_index(const IncludeResolver* resolver,
                                             size_t parentFileIndex,
+                                            const char* parentDir,
                                             const char* name,
                                             bool isSystem,
                                             bool isIncludeNext);
 static bool ir_cache_request_result(IncludeResolver* resolver,
                                     size_t parentFileIndex,
+                                    const char* parentDir,
                                     const char* name,
                                     bool isSystem,
                                     bool isIncludeNext,
@@ -244,15 +247,33 @@ static const IncludeFile* ir_lookup_by_canonical_path(const IncludeResolver* res
     return &resolver->files[index];
 }
 
+static bool ir_build_parent_dir(char* buffer, size_t bufSize, const char* path) {
+    if (!buffer || bufSize == 0 || !path) return false;
+    const char* slash = strrchr(path, '/');
+    if (!slash) return false;
+    size_t dirLen = (size_t)(slash - path);
+    if (dirLen == 0 || dirLen >= bufSize) return false;
+    memcpy(buffer, path, dirLen);
+    buffer[dirLen] = '\0';
+    return true;
+}
+
 static size_t ir_lookup_request_cache_index(const IncludeResolver* resolver,
                                             size_t parentFileIndex,
+                                            const char* parentDir,
                                             const char* name,
                                             bool isSystem,
                                             bool isIncludeNext) {
     if (!resolver || !name) return (size_t)-1;
+    bool useParentDir = !isSystem && !isIncludeNext;
     for (size_t i = 0; i < resolver->requestCacheCount; ++i) {
         const IncludeRequestCacheEntry* entry = &resolver->requestCache[i];
-        if (entry->parentFileIndex != parentFileIndex) continue;
+        if (useParentDir) {
+            if (!parentDir || !entry->parentDir) continue;
+            if (strcmp(entry->parentDir, parentDir) != 0) continue;
+        } else if (entry->parentFileIndex != parentFileIndex) {
+            continue;
+        }
         if (entry->isSystem != isSystem) continue;
         if (entry->isIncludeNext != isIncludeNext) continue;
         if (strcmp(entry->includeName, name) != 0) continue;
@@ -263,6 +284,7 @@ static size_t ir_lookup_request_cache_index(const IncludeResolver* resolver,
 
 static bool ir_cache_request_result(IncludeResolver* resolver,
                                     size_t parentFileIndex,
+                                    const char* parentDir,
                                     const char* name,
                                     bool isSystem,
                                     bool isIncludeNext,
@@ -270,9 +292,11 @@ static bool ir_cache_request_result(IncludeResolver* resolver,
                                     IncludeSearchOrigin origin,
                                     size_t originIndex) {
     if (!resolver || !name || fileIndex >= resolver->count) return false;
+    bool useParentDir = !isSystem && !isIncludeNext;
 
     size_t existingIndex = ir_lookup_request_cache_index(resolver,
                                                          parentFileIndex,
+                                                         parentDir,
                                                          name,
                                                          isSystem,
                                                          isIncludeNext);
@@ -295,9 +319,22 @@ static bool ir_cache_request_result(IncludeResolver* resolver,
 
     char* includeName = ir_strdup(name);
     if (!includeName) return false;
+    char* parentDirCopy = NULL;
+    if (useParentDir) {
+        if (!parentDir || !parentDir[0]) {
+            free(includeName);
+            return false;
+        }
+        parentDirCopy = ir_strdup(parentDir);
+        if (!parentDirCopy) {
+            free(includeName);
+            return false;
+        }
+    }
 
     IncludeRequestCacheEntry entry = {0};
     entry.parentFileIndex = parentFileIndex;
+    entry.parentDir = parentDirCopy;
     entry.includeName = includeName;
     entry.isSystem = isSystem;
     entry.isIncludeNext = isIncludeNext;
@@ -377,6 +414,11 @@ static const IncludeFile* ir_search_ancestor_dirs(IncludeResolver* resolver,
     memcpy(dir, includingFile, dirLen);
     dir[dirLen] = '\0';
 
+    // The caller already probed the includer's directory; start ancestor fallback one level up.
+    char* up = strrchr(dir, '/');
+    if (!up || up == dir) return NULL;
+    *up = '\0';
+
     for (int depth = 0; depth < 24; ++depth) {
         char candidate[4096];
         if (ir_build_path(candidate, sizeof(candidate), dir, name)) {
@@ -391,9 +433,8 @@ static const IncludeFile* ir_search_ancestor_dirs(IncludeResolver* resolver,
             }
         }
 
-        char* up = strrchr(dir, '/');
-        if (!up) break;
-        if (up == dir) break;
+        up = strrchr(dir, '/');
+        if (!up || up == dir) break;
         *up = '\0';
     }
 
@@ -595,6 +636,7 @@ IncludeResolver* include_resolver_create(const char* const* includePaths, size_t
 void include_resolver_destroy(IncludeResolver* resolver) {
     if (!resolver) return;
     for (size_t i = 0; i < resolver->requestCacheCount; ++i) {
+        free(resolver->requestCache[i].parentDir);
         free(resolver->requestCache[i].includeName);
     }
     free(resolver->requestCache);
@@ -824,7 +866,14 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
 
     size_t parentFileIndex = (size_t)-1;
     bool canUseRequestCache = true;
-    if (includingFile && (!isSystem || isIncludeNext)) {
+    char parentDir[4096];
+    parentDir[0] = '\0';
+    bool useParentDirKey = includingFile && !isSystem && !isIncludeNext;
+    if (useParentDirKey) {
+        if (!ir_build_parent_dir(parentDir, sizeof(parentDir), includingFile)) {
+            canUseRequestCache = false;
+        }
+    } else if (includingFile && (!isSystem || isIncludeNext)) {
         parentFileIndex = ir_lookup_exact_index(resolver, includingFile);
         if (parentFileIndex == (size_t)-1) {
             canUseRequestCache = false;
@@ -834,6 +883,7 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
     if (canUseRequestCache) {
         size_t cacheIndex = ir_lookup_request_cache_index(resolver,
                                                           parentFileIndex,
+                                                          useParentDirKey ? parentDir : NULL,
                                                           name,
                                                           isSystem,
                                                           isIncludeNext);
@@ -862,6 +912,7 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
         size_t cachedOriginIndex = originIndexOut ? *originIndexOut : file->originIndex;
         (void)ir_cache_request_result(resolver,
                                       parentFileIndex,
+                                      useParentDirKey ? parentDir : NULL,
                                       name,
                                       isSystem,
                                       isIncludeNext,
@@ -951,4 +1002,3 @@ const IncludeSummaryAction* include_resolver_get_cached_summary_actions(const In
     if (actionCountOut) *actionCountOut = file->summaryActionCount;
     return file->summaryActions;
 }
-
