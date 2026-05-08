@@ -358,6 +358,9 @@ static size_t ir_lookup_include_path_hint_index(const IncludeResolver* resolver,
                                                 const char* name,
                                                 bool isSystem,
                                                 bool isIncludeNext);
+static size_t ir_lookup_include_path_stem_match_index(const IncludeResolver* resolver,
+                                                      const char* name,
+                                                      size_t startIdx);
 static bool ir_cache_include_path_hint(IncludeResolver* resolver,
                                        const char* name,
                                        bool isSystem,
@@ -538,6 +541,39 @@ static size_t ir_lookup_include_path_hint_index(const IncludeResolver* resolver,
         if (strcmp(entry->includeName, name) != 0) continue;
         return i;
     }
+    return (size_t)-1;
+}
+
+static size_t ir_lookup_include_path_stem_match_index(const IncludeResolver* resolver,
+                                                      const char* name,
+                                                      size_t startIdx) {
+    if (!resolver || !name) return (size_t)-1;
+    if (strchr(name, '/')) return (size_t)-1;
+
+    const char* dot = strrchr(name, '.');
+    size_t stemLen = dot ? (size_t)(dot - name) : strlen(name);
+    if (stemLen == 0) return (size_t)-1;
+
+    for (size_t i = startIdx; i < resolver->includePathCount; ++i) {
+        const char* includePath = resolver->includePaths[i];
+        if (!includePath || !includePath[0]) continue;
+
+        const char* includeMarker = strstr(includePath, "/include");
+        const char* segmentEnd = includeMarker ? includeMarker : includePath + strlen(includePath);
+        while (segmentEnd > includePath && segmentEnd[-1] == '/') {
+            segmentEnd--;
+        }
+        const char* segmentStart = segmentEnd;
+        while (segmentStart > includePath && segmentStart[-1] != '/') {
+            segmentStart--;
+        }
+
+        size_t segmentLen = (size_t)(segmentEnd - segmentStart);
+        if (segmentLen != stemLen) continue;
+        if (strncmp(segmentStart, name, stemLen) != 0) continue;
+        return i;
+    }
+
     return (size_t)-1;
 }
 
@@ -1142,21 +1178,9 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
         }
     }
 
-    // 2) Project include paths
-    if (!isSystem && !isIncludeNext && includingFile) {
-        const IncludeFile* ancestorFile = ir_search_ancestor_dirs(resolver,
-                                                                  includingFile,
-                                                                  name,
-                                                                  originOut,
-                                                                  originIndexOut);
-        if (ancestorFile) {
-            return ancestorFile;
-        }
-    }
-
-    // 3) Project include paths
     size_t startIdx = 0;
     size_t hintedIndex = (size_t)-1;
+    bool hintedIndexTried = false;
     if (isIncludeNext && parentOrigin == INCLUDE_SEARCH_INCLUDE_PATH && parentIndex != (size_t)-1) {
         startIdx = parentIndex + 1;
     }
@@ -1188,9 +1212,55 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
         } else {
             profiler_record_value("pp_count_include_path_hint_miss", 1);
         }
+        if (hintedIndex == (size_t)-1) {
+            size_t stemMatchIndex =
+                ir_lookup_include_path_stem_match_index(resolver, name, startIdx);
+            if (stemMatchIndex != (size_t)-1) {
+                hintedIndex = stemMatchIndex;
+                profiler_record_value("pp_count_include_path_stem_hint_hit", 1);
+            } else {
+                profiler_record_value("pp_count_include_path_stem_hint_miss", 1);
+            }
+        }
     }
+
+    // 2) For quoted includes, use a known include-path winner before paying
+    // ancestor traversal. Same-dir still wins if present.
+    if (!isSystem && !isIncludeNext && includingFile && hintedIndex != (size_t)-1) {
+        profiler_record_value("pp_count_include_path_hint_preancestor_probe", 1);
+        hintedIndexTried = true;
+        if (ir_build_path(candidate, sizeof(candidate), resolver->includePaths[hintedIndex], name)) {
+            ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_INCLUDE_PATH);
+            const IncludeFile* file = ir_try_load(resolver,
+                                                  candidate,
+                                                  INCLUDE_SEARCH_INCLUDE_PATH,
+                                                  hintedIndex);
+            if (file) {
+                profiler_record_value("pp_count_include_path_hint_preancestor_hit", 1);
+                origin = INCLUDE_SEARCH_INCLUDE_PATH;
+                originIndex = hintedIndex;
+                if (originOut) *originOut = origin;
+                if (originIndexOut) *originIndexOut = originIndex;
+                return file;
+            }
+        }
+    }
+
+    // 3) Project ancestor search for quoted includes without a local hit.
+    if (!isSystem && !isIncludeNext && includingFile) {
+        const IncludeFile* ancestorFile = ir_search_ancestor_dirs(resolver,
+                                                                  includingFile,
+                                                                  name,
+                                                                  originOut,
+                                                                  originIndexOut);
+        if (ancestorFile) {
+            return ancestorFile;
+        }
+    }
+
+    // 4) Project include paths
     for (size_t i = startIdx; i < resolver->includePathCount; ++i) {
-        if (i == hintedIndex) continue;
+        if (hintedIndexTried && i == hintedIndex) continue;
         if (ir_build_path(candidate, sizeof(candidate), resolver->includePaths[i], name)) {
             ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_INCLUDE_PATH);
             const IncludeFile* file = ir_try_load(resolver,
@@ -1208,7 +1278,7 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
         }
     }
 
-    // 4) Fallback: raw name
+    // 5) Fallback: raw name
     if (isSystem) {
         ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
         const IncludeFile* frameworkFile = ir_try_framework_header(resolver, name, originOut, originIndexOut);
