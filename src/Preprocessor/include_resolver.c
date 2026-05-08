@@ -8,9 +8,248 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+typedef enum {
+    INCLUDE_PROFILE_PHASE_SAME_DIR = 0,
+    INCLUDE_PROFILE_PHASE_ANCESTOR = 1,
+    INCLUDE_PROFILE_PHASE_INCLUDE_PATH = 2,
+    INCLUDE_PROFILE_PHASE_RAW = 3,
+    INCLUDE_PROFILE_PHASE_COUNT = 4
+} IncludeProfilePhase;
+
+struct IncludeLoadProfileEntry {
+    char* path;
+    IncludeSearchOrigin finalOrigin;
+    uint64_t firstLoadCount;
+    uint64_t probeCount[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t failedProbeCount[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t missingDirCount[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t missingLeafCount[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t probeTimeNs[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t canonicalizeNs;
+    uint64_t statNs;
+    uint64_t readNs;
+};
+
+struct IncludeLoadAttemptTrace {
+    IncludeProfilePhase currentPhase;
+    uint64_t probeCount[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t failedProbeCount[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t missingDirCount[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t missingLeafCount[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t probeTimeNs[INCLUDE_PROFILE_PHASE_COUNT];
+    uint64_t canonicalizeNs;
+    uint64_t statNs;
+    uint64_t readNs;
+    bool loadedNewFile;
+    IncludeSearchOrigin finalOrigin;
+};
+
+struct IncludePathHintEntry {
+    char* includeName;
+    bool isSystem;
+    bool isIncludeNext;
+    size_t includePathIndex;
+};
+
+static char* ir_strdup(const char* s);
+static bool ir_path_is_dir(const char* path);
+
+static uint64_t ir_now_ns(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
+}
+
+static const char* ir_origin_label(IncludeSearchOrigin origin) {
+    switch (origin) {
+        case INCLUDE_SEARCH_SAME_DIR: return "same_dir";
+        case INCLUDE_SEARCH_INCLUDE_PATH: return "include_path";
+        case INCLUDE_SEARCH_RAW:
+        default: return "raw";
+    }
+}
+
+static size_t ir_parse_size_t_env(const char* name, size_t defaultValue) {
+    const char* raw = getenv(name);
+    if (!raw || !raw[0]) return defaultValue;
+    char* end = NULL;
+    unsigned long long value = strtoull(raw, &end, 10);
+    if (!end || *end != '\0') return defaultValue;
+    return (size_t)value;
+}
+
+static IncludeProfilePhase ir_phase_from_origin(IncludeSearchOrigin origin) {
+    switch (origin) {
+        case INCLUDE_SEARCH_SAME_DIR: return INCLUDE_PROFILE_PHASE_SAME_DIR;
+        case INCLUDE_SEARCH_INCLUDE_PATH: return INCLUDE_PROFILE_PHASE_INCLUDE_PATH;
+        case INCLUDE_SEARCH_RAW:
+        default: return INCLUDE_PROFILE_PHASE_RAW;
+    }
+}
+
+static void ir_set_trace_phase(IncludeResolver* resolver, IncludeProfilePhase phase) {
+    if (!resolver || !resolver->activeTrace) return;
+    resolver->activeTrace->currentPhase = phase;
+}
+
+static void ir_trace_add_probe_duration(IncludeResolver* resolver,
+                                        uint64_t durationNs,
+                                        bool failedProbe) {
+    if (!resolver || !resolver->activeTrace) return;
+    IncludeLoadAttemptTrace* trace = resolver->activeTrace;
+    size_t phase = (size_t)trace->currentPhase;
+    if (phase >= INCLUDE_PROFILE_PHASE_COUNT) return;
+    trace->probeCount[phase] += 1u;
+    trace->probeTimeNs[phase] += durationNs;
+    if (failedProbe) {
+        trace->failedProbeCount[phase] += 1u;
+    }
+}
+
+static void ir_trace_note_missing_kind(IncludeResolver* resolver,
+                                       bool missingDir,
+                                       bool missingLeaf) {
+    if (!resolver || !resolver->activeTrace) return;
+    IncludeLoadAttemptTrace* trace = resolver->activeTrace;
+    size_t phase = (size_t)trace->currentPhase;
+    if (phase >= INCLUDE_PROFILE_PHASE_COUNT) return;
+    if (missingDir) {
+        trace->missingDirCount[phase] += 1u;
+    }
+    if (missingLeaf) {
+        trace->missingLeafCount[phase] += 1u;
+    }
+}
+
+static IncludeLoadProfileEntry* ir_find_profile_entry(IncludeResolver* resolver, const char* path) {
+    if (!resolver || !path) return NULL;
+    for (size_t i = 0; i < resolver->profileEntryCount; ++i) {
+        if (strcmp(resolver->profileEntries[i].path, path) == 0) {
+            return &resolver->profileEntries[i];
+        }
+    }
+    return NULL;
+}
+
+static void ir_record_profile_entry(IncludeResolver* resolver,
+                                    const IncludeFile* file,
+                                    const IncludeLoadAttemptTrace* trace) {
+    if (!resolver || !resolver->headerProfileEnabled || !file || !trace || !trace->loadedNewFile) {
+        return;
+    }
+    const char* path = file->canonicalPath ? file->canonicalPath : file->path;
+    if (!path) return;
+
+    IncludeLoadProfileEntry* entry = ir_find_profile_entry(resolver, path);
+    if (!entry) {
+        if (resolver->profileEntryCount == resolver->profileEntryCapacity) {
+            size_t newCapacity = resolver->profileEntryCapacity ? resolver->profileEntryCapacity * 2 : 32;
+            IncludeLoadProfileEntry* resized =
+                realloc(resolver->profileEntries, newCapacity * sizeof(*resized));
+            if (!resized) return;
+            resolver->profileEntries = resized;
+            resolver->profileEntryCapacity = newCapacity;
+        }
+        entry = &resolver->profileEntries[resolver->profileEntryCount++];
+        memset(entry, 0, sizeof(*entry));
+        entry->path = ir_strdup(path);
+        if (!entry->path) {
+            resolver->profileEntryCount--;
+            return;
+        }
+    }
+
+    entry->finalOrigin = trace->finalOrigin;
+    entry->firstLoadCount += 1u;
+    for (size_t i = 0; i < INCLUDE_PROFILE_PHASE_COUNT; ++i) {
+        entry->probeCount[i] += trace->probeCount[i];
+        entry->failedProbeCount[i] += trace->failedProbeCount[i];
+        entry->missingDirCount[i] += trace->missingDirCount[i];
+        entry->missingLeafCount[i] += trace->missingLeafCount[i];
+        entry->probeTimeNs[i] += trace->probeTimeNs[i];
+    }
+    entry->canonicalizeNs += trace->canonicalizeNs;
+    entry->statNs += trace->statNs;
+    entry->readNs += trace->readNs;
+}
+
+static uint64_t ir_entry_total_traversal_ns(const IncludeLoadProfileEntry* entry) {
+    uint64_t total = 0;
+    if (!entry) return 0;
+    for (size_t i = 0; i < INCLUDE_PROFILE_PHASE_COUNT; ++i) {
+        total += entry->probeTimeNs[i];
+    }
+    return total;
+}
+
+static int ir_profile_entry_cmp_desc(const void* lhs, const void* rhs) {
+    const IncludeLoadProfileEntry* const* a = lhs;
+    const IncludeLoadProfileEntry* const* b = rhs;
+    uint64_t aTotal = ir_entry_total_traversal_ns(*a);
+    uint64_t bTotal = ir_entry_total_traversal_ns(*b);
+    if (aTotal < bTotal) return 1;
+    if (aTotal > bTotal) return -1;
+    return strcmp((*a)->path, (*b)->path);
+}
+
+static void ir_dump_profile_report(const IncludeResolver* resolver) {
+    if (!resolver || !resolver->headerProfileEnabled || resolver->profileEntryCount == 0) return;
+    IncludeLoadProfileEntry** sorted =
+        calloc(resolver->profileEntryCount, sizeof(*sorted));
+    if (!sorted) return;
+    for (size_t i = 0; i < resolver->profileEntryCount; ++i) {
+        sorted[i] = &resolver->profileEntries[i];
+    }
+    qsort(sorted,
+          resolver->profileEntryCount,
+          sizeof(*sorted),
+          ir_profile_entry_cmp_desc);
+
+    size_t limit = resolver->headerProfileTopN;
+    if (limit == 0 || limit > resolver->profileEntryCount) {
+        limit = resolver->profileEntryCount;
+    }
+
+    for (size_t i = 0; i < limit; ++i) {
+        const IncludeLoadProfileEntry* entry = sorted[i];
+        uint64_t totalProbes = 0;
+        uint64_t totalFailed = 0;
+        for (size_t phase = 0; phase < INCLUDE_PROFILE_PHASE_COUNT; ++phase) {
+            totalProbes += entry->probeCount[phase];
+            totalFailed += entry->failedProbeCount[phase];
+        }
+        fprintf(stderr,
+                "[pp-first-include] rank=%zu origin=%s first_loads=%llu total_ms=%.3f probes=%llu failed=%llu same_dir_ms=%.3f ancestor_ms=%.3f include_path_ms=%.3f raw_ms=%.3f same_dir_dir_miss=%llu same_dir_leaf_miss=%llu ancestor_dir_miss=%llu ancestor_leaf_miss=%llu include_path_dir_miss=%llu include_path_leaf_miss=%llu raw_dir_miss=%llu raw_leaf_miss=%llu canonicalize_ms=%.3f stat_ms=%.3f read_ms=%.3f path=%s\n",
+                i + 1u,
+                ir_origin_label(entry->finalOrigin),
+                (unsigned long long)entry->firstLoadCount,
+                (double)ir_entry_total_traversal_ns(entry) / 1000000.0,
+                (unsigned long long)totalProbes,
+                (unsigned long long)totalFailed,
+                (double)entry->probeTimeNs[INCLUDE_PROFILE_PHASE_SAME_DIR] / 1000000.0,
+                (double)entry->probeTimeNs[INCLUDE_PROFILE_PHASE_ANCESTOR] / 1000000.0,
+                (double)entry->probeTimeNs[INCLUDE_PROFILE_PHASE_INCLUDE_PATH] / 1000000.0,
+                (double)entry->probeTimeNs[INCLUDE_PROFILE_PHASE_RAW] / 1000000.0,
+                (unsigned long long)entry->missingDirCount[INCLUDE_PROFILE_PHASE_SAME_DIR],
+                (unsigned long long)entry->missingLeafCount[INCLUDE_PROFILE_PHASE_SAME_DIR],
+                (unsigned long long)entry->missingDirCount[INCLUDE_PROFILE_PHASE_ANCESTOR],
+                (unsigned long long)entry->missingLeafCount[INCLUDE_PROFILE_PHASE_ANCESTOR],
+                (unsigned long long)entry->missingDirCount[INCLUDE_PROFILE_PHASE_INCLUDE_PATH],
+                (unsigned long long)entry->missingLeafCount[INCLUDE_PROFILE_PHASE_INCLUDE_PATH],
+                (unsigned long long)entry->missingDirCount[INCLUDE_PROFILE_PHASE_RAW],
+                (unsigned long long)entry->missingLeafCount[INCLUDE_PROFILE_PHASE_RAW],
+                (double)entry->canonicalizeNs / 1000000.0,
+                (double)entry->statNs / 1000000.0,
+                (double)entry->readNs / 1000000.0,
+                entry->path ? entry->path : "<unknown>");
+    }
+    free(sorted);
+}
 
 static char* ir_strdup(const char* s) {
     if (!s) return NULL;
@@ -52,6 +291,37 @@ static bool ir_path_is_dir(const char* path) {
     return S_ISDIR(st.st_mode);
 }
 
+static void ir_classify_missing_path(const char* path,
+                                     bool* missingDirOut,
+                                     bool* missingLeafOut) {
+    if (missingDirOut) *missingDirOut = false;
+    if (missingLeafOut) *missingLeafOut = false;
+    if (!path) return;
+
+    const char* slash = strrchr(path, '/');
+    if (!slash) {
+        if (missingLeafOut) *missingLeafOut = true;
+        return;
+    }
+
+    size_t dirLen = (size_t)(slash - path);
+    if (dirLen == 0 || dirLen >= 4096) {
+        if (missingLeafOut) *missingLeafOut = true;
+        return;
+    }
+
+    char dir[4096];
+    memcpy(dir, path, dirLen);
+    dir[dirLen] = '\0';
+
+    struct stat st;
+    if (stat(dir, &st) != 0 || !S_ISDIR(st.st_mode)) {
+        if (missingDirOut) *missingDirOut = true;
+        return;
+    }
+    if (missingLeafOut) *missingLeafOut = true;
+}
+
 static char* ir_read_file(const char* path) {
     profiler_record_value("pp_count_file_open_read_calls", 1);
     ProfilerScope scope = profiler_begin("pp_fs_read");
@@ -84,6 +354,15 @@ static size_t ir_lookup_canonical_index(const IncludeResolver* resolver, const c
 static const IncludeFile* ir_lookup_exact_path(const IncludeResolver* resolver, const char* path);
 static const IncludeFile* ir_lookup_by_canonical_path(const IncludeResolver* resolver,
                                                       const char* canonicalPath);
+static size_t ir_lookup_include_path_hint_index(const IncludeResolver* resolver,
+                                                const char* name,
+                                                bool isSystem,
+                                                bool isIncludeNext);
+static bool ir_cache_include_path_hint(IncludeResolver* resolver,
+                                       const char* name,
+                                       bool isSystem,
+                                       bool isIncludeNext,
+                                       size_t includePathIndex);
 static bool ir_build_parent_dir(char* buffer, size_t bufSize, const char* path);
 static size_t ir_lookup_request_cache_index(const IncludeResolver* resolver,
                                             size_t parentFileIndex,
@@ -245,6 +524,55 @@ static const IncludeFile* ir_lookup_by_canonical_path(const IncludeResolver* res
     size_t index = ir_lookup_canonical_index(resolver, canonicalPath);
     if (index == (size_t)-1) return NULL;
     return &resolver->files[index];
+}
+
+static size_t ir_lookup_include_path_hint_index(const IncludeResolver* resolver,
+                                                const char* name,
+                                                bool isSystem,
+                                                bool isIncludeNext) {
+    if (!resolver || !name) return (size_t)-1;
+    for (size_t i = 0; i < resolver->includePathHintCount; ++i) {
+        const IncludePathHintEntry* entry = &resolver->includePathHints[i];
+        if (entry->isSystem != isSystem) continue;
+        if (entry->isIncludeNext != isIncludeNext) continue;
+        if (strcmp(entry->includeName, name) != 0) continue;
+        return i;
+    }
+    return (size_t)-1;
+}
+
+static bool ir_cache_include_path_hint(IncludeResolver* resolver,
+                                       const char* name,
+                                       bool isSystem,
+                                       bool isIncludeNext,
+                                       size_t includePathIndex) {
+    if (!resolver || !name) return false;
+    size_t existingIndex = ir_lookup_include_path_hint_index(resolver, name, isSystem, isIncludeNext);
+    if (existingIndex != (size_t)-1) {
+        resolver->includePathHints[existingIndex].includePathIndex = includePathIndex;
+        return true;
+    }
+
+    if (resolver->includePathHintCount == resolver->includePathHintCapacity) {
+        size_t newCapacity = resolver->includePathHintCapacity ? resolver->includePathHintCapacity * 2 : 32;
+        IncludePathHintEntry* entries =
+            realloc(resolver->includePathHints, newCapacity * sizeof(*entries));
+        if (!entries) return false;
+        resolver->includePathHints = entries;
+        resolver->includePathHintCapacity = newCapacity;
+    }
+
+    char* includeName = ir_strdup(name);
+    if (!includeName) return false;
+
+    IncludePathHintEntry entry = {
+        .includeName = includeName,
+        .isSystem = isSystem,
+        .isIncludeNext = isIncludeNext,
+        .includePathIndex = includePathIndex,
+    };
+    resolver->includePathHints[resolver->includePathHintCount++] = entry;
+    return true;
 }
 
 static bool ir_build_parent_dir(char* buffer, size_t bufSize, const char* path) {
@@ -422,6 +750,7 @@ static const IncludeFile* ir_search_ancestor_dirs(IncludeResolver* resolver,
     for (int depth = 0; depth < 24; ++depth) {
         char candidate[4096];
         if (ir_build_path(candidate, sizeof(candidate), dir, name)) {
+            ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_ANCESTOR);
             const IncludeFile* file = ir_try_load(resolver,
                                                   candidate,
                                                   INCLUDE_SEARCH_SAME_DIR,
@@ -476,6 +805,7 @@ static const IncludeFile* ir_try_framework_header(IncludeResolver* resolver,
                          base,
                          framework,
                          slash + 1) < (int)sizeof(candidate)) {
+                ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
                 const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
                 if (file) {
                     if (originOut) *originOut = INCLUDE_SEARCH_RAW;
@@ -489,6 +819,7 @@ static const IncludeFile* ir_try_framework_header(IncludeResolver* resolver,
                          base,
                          framework,
                          slash + 1) < (int)sizeof(candidate)) {
+                ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
                 const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
                 if (file) {
                     if (originOut) *originOut = INCLUDE_SEARCH_RAW;
@@ -502,6 +833,7 @@ static const IncludeFile* ir_try_framework_header(IncludeResolver* resolver,
                          "/System/Library/Frameworks/%s.framework/Headers/%s",
                          framework,
                          slash + 1) < (int)sizeof(candidate)) {
+                ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
                 const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
                 if (file) {
                     if (originOut) *originOut = INCLUDE_SEARCH_RAW;
@@ -514,6 +846,7 @@ static const IncludeFile* ir_try_framework_header(IncludeResolver* resolver,
                          "/Library/Frameworks/%s.framework/Headers/%s",
                          framework,
                          slash + 1) < (int)sizeof(candidate)) {
+                ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
                 const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
                 if (file) {
                     if (originOut) *originOut = INCLUDE_SEARCH_RAW;
@@ -550,6 +883,7 @@ static const IncludeFile* ir_try_shared_workspace_header(IncludeResolver* resolv
         if (ir_path_is_dir(sharedRoot)) {
             char candidate[4096];
             if (snprintf(candidate, sizeof(candidate), "%s/include/%s", sharedRoot, name) < (int)sizeof(candidate)) {
+                ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
                 const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
                 if (file) {
                     if (originOut) *originOut = INCLUDE_SEARCH_RAW;
@@ -570,6 +904,7 @@ static const IncludeFile* ir_try_shared_workspace_header(IncludeResolver* resolv
                     if (!ir_path_is_dir(l1)) continue;
 
                     if (snprintf(candidate, sizeof(candidate), "%s/include/%s", l1, name) < (int)sizeof(candidate)) {
+                        ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
                         const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
                         if (file) {
                             closedir(d1);
@@ -592,6 +927,7 @@ static const IncludeFile* ir_try_shared_workspace_header(IncludeResolver* resolv
                         if (snprintf(candidate, sizeof(candidate), "%s/include/%s", l2, name) >= (int)sizeof(candidate)) {
                             continue;
                         }
+                        ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
                         const IncludeFile* file = ir_try_load(resolver, candidate, INCLUDE_SEARCH_RAW, (size_t)-1);
                         if (file) {
                             closedir(d2);
@@ -619,6 +955,8 @@ static const IncludeFile* ir_try_shared_workspace_header(IncludeResolver* resolv
 IncludeResolver* include_resolver_create(const char* const* includePaths, size_t pathCount) {
     IncludeResolver* resolver = calloc(1, sizeof(IncludeResolver));
     if (!resolver) return NULL;
+    resolver->headerProfileEnabled = getenv("FISICS_PP_FIRST_INCLUDE_REPORT") != NULL;
+    resolver->headerProfileTopN = ir_parse_size_t_env("FISICS_PP_FIRST_INCLUDE_REPORT_TOP", 40);
     if (pathCount > 0) {
         resolver->includePaths = calloc(pathCount, sizeof(char*));
         if (!resolver->includePaths) {
@@ -635,11 +973,16 @@ IncludeResolver* include_resolver_create(const char* const* includePaths, size_t
 
 void include_resolver_destroy(IncludeResolver* resolver) {
     if (!resolver) return;
+    ir_dump_profile_report(resolver);
     for (size_t i = 0; i < resolver->requestCacheCount; ++i) {
         free(resolver->requestCache[i].parentDir);
         free(resolver->requestCache[i].includeName);
     }
     free(resolver->requestCache);
+    for (size_t i = 0; i < resolver->includePathHintCount; ++i) {
+        free(resolver->includePathHints[i].includeName);
+    }
+    free(resolver->includePathHints);
     for (size_t i = 0; i < resolver->count; ++i) {
         free(resolver->files[i].path);
         free(resolver->files[i].contents);
@@ -654,6 +997,10 @@ void include_resolver_destroy(IncludeResolver* resolver) {
         }
         free(resolver->includePaths);
     }
+    for (size_t i = 0; i < resolver->profileEntryCount; ++i) {
+        free(resolver->profileEntries[i].path);
+    }
+    free(resolver->profileEntries);
     free(resolver);
 }
 
@@ -662,11 +1009,28 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
                                       IncludeSearchOrigin origin,
                                       size_t originIndex) {
     profiler_record_value("pp_count_resolver_try_load", 1);
+    uint64_t probeStartNs = ir_now_ns();
+    uint64_t canonicalStartNs = ir_now_ns();
     char* canonical = ir_canonicalize_path(path);
+    uint64_t canonicalEndNs = ir_now_ns();
     if (!canonical) return NULL;
+    if (resolver && resolver->activeTrace) {
+        resolver->activeTrace->canonicalizeNs += (canonicalEndNs - canonicalStartNs);
+    }
 
     long mtime = 0;
-    if (!ir_path_exists(canonical, &mtime)) {
+    uint64_t statStartNs = ir_now_ns();
+    bool exists = ir_path_exists(canonical, &mtime);
+    uint64_t statEndNs = ir_now_ns();
+    if (resolver && resolver->activeTrace) {
+        resolver->activeTrace->statNs += (statEndNs - statStartNs);
+    }
+    if (!exists) {
+        bool missingDir = false;
+        bool missingLeaf = false;
+        ir_classify_missing_path(path, &missingDir, &missingLeaf);
+        ir_trace_note_missing_kind(resolver, missingDir, missingLeaf);
+        ir_trace_add_probe_duration(resolver, ir_now_ns() - probeStartNs, true);
         free(canonical);
         return NULL;
     }
@@ -674,14 +1038,21 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
     const IncludeFile* cached = ir_lookup_by_canonical_path(resolver, canonical);
     if (cached && cached->mtime == mtime) {
         profiler_record_value("pp_count_resolver_cache_hit", 1);
+        ir_trace_add_probe_duration(resolver, ir_now_ns() - probeStartNs, false);
         free(canonical);
         // cached origin is authoritative; ignore requested origin/index
         return cached;
     }
     profiler_record_value("pp_count_resolver_cache_miss", 1);
 
+    uint64_t readStartNs = ir_now_ns();
     char* data = ir_read_file(canonical);
+    uint64_t readEndNs = ir_now_ns();
+    if (resolver && resolver->activeTrace) {
+        resolver->activeTrace->readNs += (readEndNs - readStartNs);
+    }
     if (!data) {
+        ir_trace_add_probe_duration(resolver, ir_now_ns() - probeStartNs, true);
         free(canonical);
         return NULL;
     }
@@ -691,6 +1062,7 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
     if (!file.path) {
         free(data);
         free(canonical);
+        ir_trace_add_probe_duration(resolver, ir_now_ns() - probeStartNs, true);
         return NULL;
     }
     file.contents = data;
@@ -709,9 +1081,15 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
         free(file.path);
         free(file.contents);
         free(file.canonicalPath);
+        ir_trace_add_probe_duration(resolver, ir_now_ns() - probeStartNs, true);
         return NULL;
     }
     profiler_record_value("pp_count_unique_files_loaded", 1);
+    ir_trace_add_probe_duration(resolver, ir_now_ns() - probeStartNs, false);
+    if (resolver && resolver->activeTrace) {
+        resolver->activeTrace->loadedNewFile = true;
+        resolver->activeTrace->finalOrigin = origin;
+    }
 
     return &resolver->files[resolver->count - 1];
 }
@@ -747,6 +1125,7 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
                 memcpy(dir, includingFile, dirLen);
                 dir[dirLen] = '\0';
                 if (ir_build_path(candidate, sizeof(candidate), dir, name)) {
+                    ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_SAME_DIR);
                     const IncludeFile* file = ir_try_load(resolver,
                                                           candidate,
                                                           INCLUDE_SEARCH_SAME_DIR,
@@ -777,16 +1156,49 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
 
     // 3) Project include paths
     size_t startIdx = 0;
+    size_t hintedIndex = (size_t)-1;
     if (isIncludeNext && parentOrigin == INCLUDE_SEARCH_INCLUDE_PATH && parentIndex != (size_t)-1) {
         startIdx = parentIndex + 1;
     }
+    if (startIdx < resolver->includePathCount) {
+        size_t hintEntryIndex =
+            ir_lookup_include_path_hint_index(resolver, name, isSystem, isIncludeNext);
+        if (hintEntryIndex != (size_t)-1) {
+            size_t candidateIndex = resolver->includePathHints[hintEntryIndex].includePathIndex;
+            if (candidateIndex >= startIdx && candidateIndex < resolver->includePathCount) {
+                hintedIndex = candidateIndex;
+                profiler_record_value("pp_count_include_path_hint_hit", 1);
+                if (ir_build_path(candidate, sizeof(candidate), resolver->includePaths[hintedIndex], name)) {
+                    ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_INCLUDE_PATH);
+                    const IncludeFile* file = ir_try_load(resolver,
+                                                          candidate,
+                                                          INCLUDE_SEARCH_INCLUDE_PATH,
+                                                          hintedIndex);
+                    if (file) {
+                        origin = INCLUDE_SEARCH_INCLUDE_PATH;
+                        originIndex = hintedIndex;
+                        if (originOut) *originOut = origin;
+                        if (originIndexOut) *originIndexOut = originIndex;
+                        return file;
+                    }
+                }
+            } else {
+                profiler_record_value("pp_count_include_path_hint_stale", 1);
+            }
+        } else {
+            profiler_record_value("pp_count_include_path_hint_miss", 1);
+        }
+    }
     for (size_t i = startIdx; i < resolver->includePathCount; ++i) {
+        if (i == hintedIndex) continue;
         if (ir_build_path(candidate, sizeof(candidate), resolver->includePaths[i], name)) {
+            ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_INCLUDE_PATH);
             const IncludeFile* file = ir_try_load(resolver,
                                                   candidate,
                                                   INCLUDE_SEARCH_INCLUDE_PATH,
                                                   i);
             if (file) {
+                (void)ir_cache_include_path_hint(resolver, name, isSystem, isIncludeNext, i);
                 origin = INCLUDE_SEARCH_INCLUDE_PATH;
                 originIndex = i;
                 if (originOut) *originOut = origin;
@@ -798,6 +1210,7 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
 
     // 4) Fallback: raw name
     if (isSystem) {
+        ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
         const IncludeFile* frameworkFile = ir_try_framework_header(resolver, name, originOut, originIndexOut);
         if (frameworkFile) {
             return frameworkFile;
@@ -806,6 +1219,7 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
 
     origin = INCLUDE_SEARCH_RAW;
     originIndex = (size_t)-1;
+    ir_set_trace_phase(resolver, INCLUDE_PROFILE_PHASE_RAW);
     const IncludeFile* file = ir_try_load(resolver, name, origin, originIndex);
     if (file) {
         if (originOut) *originOut = origin;
@@ -899,6 +1313,11 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
     }
 
     profiler_record_value("pp_count_resolver_front_cache_miss", 1);
+    IncludeLoadAttemptTrace trace = {0};
+    trace.currentPhase = ir_phase_from_origin(INCLUDE_SEARCH_RAW);
+    if (resolver->headerProfileEnabled) {
+        resolver->activeTrace = &trace;
+    }
     const IncludeFile* file = ir_search_and_load(resolver,
                                                  includingFile,
                                                  name,
@@ -906,6 +1325,12 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
                                                  isIncludeNext,
                                                  originOut,
                                                  originIndexOut);
+    if (resolver->headerProfileEnabled) {
+        resolver->activeTrace = NULL;
+    }
+    if (file && trace.loadedNewFile) {
+        ir_record_profile_entry(resolver, file, &trace);
+    }
     if (file && canUseRequestCache) {
         size_t fileIndex = (size_t)(file - resolver->files);
         IncludeSearchOrigin cachedOrigin = originOut ? *originOut : file->origin;

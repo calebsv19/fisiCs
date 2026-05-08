@@ -86,6 +86,10 @@ typedef struct {
     size_t originIndex;
 } IncludeRequestCacheEntry;
 
+typedef struct IncludeLoadProfileEntry IncludeLoadProfileEntry;
+typedef struct IncludeLoadAttemptTrace IncludeLoadAttemptTrace;
+typedef struct IncludePathHintEntry IncludePathHintEntry;
+
 typedef struct {
     IncludeFile* files;
     size_t count;
@@ -95,6 +99,15 @@ typedef struct {
     size_t requestCacheCapacity;
     char** includePaths;
     size_t includePathCount;
+    IncludeLoadProfileEntry* profileEntries;
+    size_t profileEntryCount;
+    size_t profileEntryCapacity;
+    IncludePathHintEntry* includePathHints;
+    size_t includePathHintCount;
+    size_t includePathHintCapacity;
+    IncludeLoadAttemptTrace* activeTrace;
+    bool headerProfileEnabled;
+    size_t headerProfileTopN;
 } IncludeResolver;
 
 IncludeResolver* include_resolver_create(const char* const* includePaths, size_t pathCount);
