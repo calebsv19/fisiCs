@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "Lexer/tokens.h"
 
@@ -55,6 +56,7 @@ typedef struct MacroTable {
     size_t expansionCapacity;
     size_t expansionLimit;
     MacroExpansionError lastError;
+    uint64_t mutationSerial;
 } MacroTable;
 
 MacroTable* macro_table_create(void);
@@ -76,6 +78,7 @@ bool macro_table_define_function(MacroTable* table,
                                  size_t bodyCount,
                                  SourceRange definitionRange);
 bool macro_table_undef(MacroTable* table, const char* name);
+uint64_t macro_table_mutation_serial(const MacroTable* table);
 
 bool macro_table_push_expansion(MacroTable* table,
                                 const MacroDefinition* macro,

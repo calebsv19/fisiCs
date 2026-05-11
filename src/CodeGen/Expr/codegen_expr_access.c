@@ -362,7 +362,9 @@ static LLVMValueRef cg_materialize_compound_literal(CodegenContext* ctx,
         *outLiteralType = literalType;
     }
 
-    if (node->compoundLiteral.isStaticStorage) {
+    bool hasInsertBlock = (ctx->builder && LLVMGetInsertBlock(ctx->builder) != NULL);
+    bool requiresStaticMaterialization = node->compoundLiteral.isStaticStorage || !hasInsertBlock;
+    if (requiresStaticMaterialization) {
         LLVMValueRef constInit = cg_build_const_initializer(ctx,
                                                             node,
                                                             literalType,
@@ -377,6 +379,9 @@ static LLVMValueRef cg_materialize_compound_literal(CodegenContext* ctx,
             LLVMSetInitializer(global, constInit);
             LLVMSetUnnamedAddr(global, LLVMGlobalUnnamedAddr);
             return global;
+        }
+        if (!hasInsertBlock) {
+            return NULL;
         }
     }
 

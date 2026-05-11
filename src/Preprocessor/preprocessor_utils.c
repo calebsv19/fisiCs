@@ -142,6 +142,15 @@ static void safe_free_token_value(char* value) {
     free(value);
 }
 
+static bool token_value_needs_dup(const char* value) {
+    if (!value) return false;
+#if defined(__APPLE__)
+    return malloc_zone_from_ptr((void*)value) != NULL;
+#else
+    return true;
+#endif
+}
+
 void pp_token_free(Token* tok) {
     if (!tok) return;
     safe_free_token_value(tok->value);
@@ -150,7 +159,7 @@ void pp_token_free(Token* tok) {
 
 Token pp_token_clone(const Token* tok) {
     Token clone = *tok;
-    if (tok->value) {
+    if (tok->value && token_value_needs_dup(tok->value)) {
         clone.value = pp_strdup_local(tok->value);
     }
     return clone;
@@ -213,6 +222,21 @@ bool pp_token_buffer_append_clone_remap(PPTokenBuffer* buffer,
     if (!pp_token_buffer_append_token(buffer, clone)) {
         pp_token_free(&clone);
         return false;
+    }
+    return true;
+}
+
+bool pp_token_buffer_append_clone_remap_span(PPTokenBuffer* buffer,
+                                             Preprocessor* pp,
+                                             const Token* tokens,
+                                             size_t count) {
+    if (!buffer || !tokens || count == 0) return true;
+    if (!pp_token_buffer_reserve(buffer, count)) {
+        return false;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        Token clone = pp_token_clone_remap(pp, &tokens[i]);
+        buffer->tokens[buffer->count++] = clone;
     }
     return true;
 }
@@ -383,7 +407,7 @@ bool pp_prepare_expr_tokens(Preprocessor* pp,
             if (parsed && pp && pp->resolver && nameBuf[0]) {
                 IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;
                 size_t originIndex = (size_t)-1;
-                const char* parent = pp->logicalFile ? pp->logicalFile : NULL;
+                const char* parent = token_file(tok);
                 const IncludeFile* inc = include_resolver_load(pp->resolver,
                                                                parent,
                                                                nameBuf,

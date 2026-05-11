@@ -82,6 +82,35 @@ static unsigned long long cg_guess_compound_literal_length(ASTNode* literal) {
     return maxIndexPlusOne;
 }
 
+static void cg_complete_local_array_bound_from_initializer(ParsedType* type,
+                                                           ASTNode* initExpr) {
+    if (!type || !initExpr || !parsedTypeIsDirectArray(type)) {
+        return;
+    }
+
+    TypeDerivation* topArray = parsedTypeGetMutableArrayDerivation(type, 0);
+    if (!topArray) {
+        return;
+    }
+    if (topArray->as.array.isFlexible ||
+        topArray->as.array.isVLA ||
+        topArray->as.array.hasConstantSize) {
+        return;
+    }
+    if (initExpr->type != AST_COMPOUND_LITERAL) {
+        return;
+    }
+
+    unsigned long long guessedLen = cg_guess_compound_literal_length(initExpr);
+    if (guessedLen == 0) {
+        return;
+    }
+
+    topArray->as.array.hasConstantSize = true;
+    topArray->as.array.constantSize = (long long)guessedLen;
+    topArray->as.array.isVLA = false;
+}
+
 static bool cg_init_pointer_from_compound_literal(CodegenContext* ctx,
                                                   LLVMValueRef storage,
                                                   LLVMTypeRef storageType,
@@ -214,6 +243,11 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
         ASTNode* varNameNode = node->varDecl.varNames[i];
         const ParsedType* varParsed = astVarDeclTypeAt(node, i);
         const ParsedType* effectiveParsed = varParsed ? varParsed : &node->varDecl.declaredType;
+        DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
+        if (effectiveParsed && init && init->expression) {
+            cg_complete_local_array_bound_from_initializer((ParsedType*)effectiveParsed,
+                                                           init->expression);
+        }
         const ParsedType* resolvedParsed = cg_resolve_typedef_parsed(ctx, effectiveParsed);
         const ParsedType* arrayParsed = (resolvedParsed && parsedTypeIsDirectArray(resolvedParsed))
             ? resolvedParsed
@@ -272,7 +306,6 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
                 LLVMSetAlignment(global, alignVal);
             }
 
-            DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
             if (init && init->expression) {
                 LLVMValueRef constInit = cg_build_const_initializer(ctx,
                                                                     init->expression,
@@ -388,7 +421,6 @@ LLVMValueRef codegenVariableDeclaration(CodegenContext* ctx, ASTNode* node) {
             LLVMSetAlignment(storage, alignVal);
         }
 
-        DesignatedInit* init = node->varDecl.initializers ? node->varDecl.initializers[i] : NULL;
         if (init && init->expression) {
             LLVMTypeRef valueType = LLVMGetAllocatedType(storage);
             if (!valueType) {

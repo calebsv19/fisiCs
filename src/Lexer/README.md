@@ -15,9 +15,9 @@ Transforms the raw source buffer into `Token` objects with line tracking, ready 
 - `token_buffer.h` / `token_buffer.c`
   - Owns the one-time lexed stream (`TokenBuffer`) and exposes helpers to append tokens, peek with arbitrary lookahead, and fill the buffer directly from a `Lexer`.
 - `keyword_lookup.h` / `keyword_lookup.c`
-  - Thin wrapper around the gperf table; exposes `in_keyword_set()` used both by lookup and parser passes.
+  - Small checked-in keyword table used by lexer lookup; exposes `in_keyword_set()` used both by lookup and parser passes.
 - `keywords.gperf`
-  - Canonical list of C/C++ keywords fed into gperf to generate perfect-hash lookup code.
+  - Canonical keyword inventory kept in sync with the runtime lookup table.
 
 ## How it fits
 

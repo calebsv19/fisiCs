@@ -80,10 +80,15 @@ bool parse_integer_literal_info(const char* text,
     unsigned longBits = (unsigned)(tl && tl->longBits ? tl->longBits : 64);
     unsigned longLongBits = (unsigned)(tl && tl->longLongBits ? tl->longLongBits : 64);
 
-    typedef struct { unsigned bits; bool isUnsigned; } Candidate;
-    Candidate cands[8];
+    unsigned candBits[8];
+    bool candUnsigned[8];
     int candCount = 0;
-    #define ADD(bitsVal, unsVal) do { cands[candCount].bits = (bitsVal); cands[candCount].isUnsigned = (unsVal); candCount++; } while (0)
+    #define ADD(bitsVal, unsVal) \
+        do { \
+            candBits[candCount] = (bitsVal); \
+            candUnsigned[candCount] = (unsVal); \
+            candCount++; \
+        } while (0)
 
     if (hasU) {
         if (lCount >= 2) {
@@ -122,14 +127,14 @@ bool parse_integer_literal_info(const char* text,
 
     int chosen = candCount - 1;
     for (int i = 0; i < candCount; ++i) {
-        if (fits_in_bits(raw, cands[i].bits, cands[i].isUnsigned)) {
+        if (fits_in_bits(raw, candBits[i], candUnsigned[i])) {
             chosen = i;
             break;
         }
     }
 
-    unsigned bits = cands[chosen].bits;
-    bool isUnsigned = cands[chosen].isUnsigned;
+    unsigned bits = candBits[chosen];
+    bool isUnsigned = candUnsigned[chosen];
     if (!fits_in_bits(raw, bits, isUnsigned)) {
         overflow = true;
     }

@@ -8,6 +8,7 @@
 
 #include "Compiler/diagnostics.h"
 #include "Preprocessor/preprocessor.h"
+#include "Utils/profiler.h"
 
 // Shared conditional frame used across the driver and conditional handlers.
 typedef struct {
@@ -23,6 +24,22 @@ typedef struct PPIncludeFrame {
     size_t originIndex;
 } PPIncludeFrame;
 
+static inline ProfilerScope pp_profiler_begin_if_enabled(bool enabled, const char* name) {
+    return enabled ? profiler_begin(name) : (ProfilerScope){0};
+}
+
+static inline void pp_profiler_end_if_enabled(bool enabled, ProfilerScope scope) {
+    if (enabled) {
+        profiler_end(scope);
+    }
+}
+
+static inline void pp_profiler_record_value_if_enabled(bool enabled, const char* name, uint64_t value) {
+    if (enabled) {
+        profiler_record_value(name, value);
+    }
+}
+
 // Utility helpers (defined in preprocessor_utils.c)
 void pp_token_buffer_init_local(PPTokenBuffer* buffer);
 bool pp_token_buffer_reserve(PPTokenBuffer* buffer, size_t extra);
@@ -33,8 +50,12 @@ Token pp_token_clone_remap(Preprocessor* pp, const Token* tok);
 bool pp_token_buffer_append_token(PPTokenBuffer* buffer, Token token);
 bool pp_token_buffer_append_clone(PPTokenBuffer* buffer, const Token* tok);
 bool pp_token_buffer_append_clone_remap(PPTokenBuffer* buffer,
-                                         Preprocessor* pp,
-                                         const Token* tok);
+                                        Preprocessor* pp,
+                                        const Token* tok);
+bool pp_token_buffer_append_clone_remap_span(PPTokenBuffer* buffer,
+                                             Preprocessor* pp,
+                                             const Token* tokens,
+                                             size_t count);
 bool pp_token_buffer_append_buffer(PPTokenBuffer* dest, const PPTokenBuffer* src);
 void pp_token_buffer_reset(PPTokenBuffer* buffer);
 void skip_to_line_end(const Token* tokens, size_t count, size_t* cursor);
@@ -46,9 +67,16 @@ bool pp_append_directive_line(const Token* tokens,
                               size_t cursor,
                               PPTokenBuffer* output,
                               Preprocessor* pp);
+bool pp_append_directive_span(const Token* tokens,
+                              size_t start,
+                              size_t end,
+                              PPTokenBuffer* output,
+                              Preprocessor* pp);
 bool pp_directive_has_trailing_tokens(const Token* tokens,
                                       size_t count,
                                       size_t cursor);
+bool pp_directive_span_has_trailing_tokens(size_t start,
+                                           size_t end);
 bool pp_skip_pragma_operator(const Token* tokens,
                              size_t count,
                              size_t* cursor);
@@ -108,21 +136,21 @@ typedef enum {
 
 PPSummaryReplayResult preprocess_tokens_summary_replay(Preprocessor* pp,
                                                        const TokenBuffer* input,
-                                                       const IncludeSummaryAction* actions,
+                                                       IncludeSummaryAction* actions,
                                                        size_t actionCount,
                                                        PPTokenBuffer* output,
                                                        bool appendEOF);
 PPSummaryReplayResult preprocess_tokens_router_replay(Preprocessor* pp,
                                                       const TokenBuffer* input,
                                                       const IncludeSummaryProbe* probe,
-                                                      const IncludeSummaryAction* actions,
+                                                      IncludeSummaryAction* actions,
                                                       size_t actionCount,
                                                       PPTokenBuffer* output,
                                                       bool appendEOF);
 PPSummaryReplayResult preprocess_tokens_scaffold_replay(Preprocessor* pp,
                                                         const TokenBuffer* input,
                                                         const IncludeSummaryProbe* probe,
-                                                        const IncludeSummaryAction* actions,
+                                                        IncludeSummaryAction* actions,
                                                         size_t actionCount,
                                                         PPTokenBuffer* output,
                                                         bool appendEOF);

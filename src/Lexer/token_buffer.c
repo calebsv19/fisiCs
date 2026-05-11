@@ -7,15 +7,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const char kTokenBufferUnknownFile[] = "<unknown>";
+
 static const Token* token_buffer_sentinel(void) {
-    static const Token token = {
-        TOKEN_EOF,
-        (char*)"EOF",
-        0,
-        { { "<unknown>", 0, 0 }, { "<unknown>", 0, 0 } },
-        { { NULL, 0, 0 }, { NULL, 0, 0 } },
-        { { NULL, 0, 0 }, { NULL, 0, 0 } }
-    };
+    static bool initialized = false;
+    static Token token;
+    if (!initialized) {
+        memset(&token, 0, sizeof(token));
+        token.type = TOKEN_EOF;
+        token.value = "EOF";
+        token.location.start.file = kTokenBufferUnknownFile;
+        token.location.end.file = kTokenBufferUnknownFile;
+        initialized = true;
+    }
     return &token;
 }
 

@@ -7,6 +7,15 @@
 
 #include "Utils/profiler.h"
 
+static bool directive_line_matches_empty_guard_define(const Token* tokens,
+                                                      size_t count,
+                                                      size_t cursor,
+                                                      const char* ident);
+static bool raw_range_starts_with_typedef(const TokenBuffer* buffer,
+                                          const IncludeSummaryAction* action);
+static bool raw_range_is_single_top_level_typedef_declaration(const TokenBuffer* buffer,
+                                                              const IncludeSummaryAction* action);
+
 static void strip_include_spaces(char* name) {
     if (!name) return;
     char* out = name;
@@ -111,6 +120,44 @@ const char* detect_include_guard(const TokenBuffer* buffer) {
     return guard;
 }
 
+const char* detect_include_guard_from_summary_actions(const TokenBuffer* buffer,
+                                                      const IncludeSummaryAction* actions,
+                                                      size_t actionCount) {
+    if (!buffer || !buffer->tokens || !actions || actionCount < 2) {
+        return NULL;
+    }
+
+    size_t index = 0;
+    while (index < actionCount && actions[index].kind == INCLUDE_SUMMARY_ACTION_PRAGMA) {
+        index++;
+    }
+    if (index + 1 >= actionCount) {
+        return NULL;
+    }
+
+    const IncludeSummaryAction* ifndefAction = &actions[index];
+    const IncludeSummaryAction* defineAction = &actions[index + 1];
+    if (ifndefAction->kind != INCLUDE_SUMMARY_ACTION_IFNDEF ||
+        defineAction->kind != INCLUDE_SUMMARY_ACTION_DEFINE) {
+        return NULL;
+    }
+
+    size_t cursor = ifndefAction->start + 1;
+    if (cursor >= buffer->count ||
+        buffer->tokens[cursor].type != TOKEN_IDENTIFIER ||
+        !buffer->tokens[cursor].value) {
+        return NULL;
+    }
+    const char* guard = buffer->tokens[cursor].value;
+    if (!directive_line_matches_empty_guard_define(buffer->tokens,
+                                                   buffer->count,
+                                                   defineAction->start,
+                                                   guard)) {
+        return NULL;
+    }
+    return guard;
+}
+
 static size_t skip_directive_line_cursor(const Token* tokens,
                                          size_t count,
                                          size_t cursor) {
@@ -150,6 +197,34 @@ static bool include_summary_action_append(IncludeSummaryAction** actions,
     }
     (*actions)[(*count)++] = action;
     return true;
+}
+
+static IncludeSummaryAction include_summary_action_make(const TokenBuffer* buffer,
+                                                        IncludeSummaryActionKind kind,
+                                                        size_t start,
+                                                        size_t end) {
+    IncludeSummaryAction action = {
+        .kind = kind,
+        .start = start,
+        .end = end,
+        .flags = INCLUDE_SUMMARY_ACTION_FLAG_NONE,
+        .directCloneMacroSerial = 0,
+        .directCloneMemoValid = false,
+        .directCloneMemoResult = false,
+    };
+
+    if (kind == INCLUDE_SUMMARY_ACTION_RAW_RANGE) {
+        if (raw_range_starts_with_typedef(buffer, &action)) {
+            action.flags |= INCLUDE_SUMMARY_ACTION_FLAG_RAW_RANGE_STARTS_WITH_TYPEDEF;
+        }
+        if (raw_range_is_single_top_level_typedef_declaration(buffer, &action)) {
+            action.flags |= INCLUDE_SUMMARY_ACTION_FLAG_RAW_RANGE_SINGLE_TOP_LEVEL_TYPEDEF;
+        }
+    } else if (end <= start + 1) {
+        action.flags |= INCLUDE_SUMMARY_ACTION_FLAG_NO_TRAILING_TOKENS;
+    }
+
+    return action;
 }
 
 static bool directive_line_matches_single_identifier(const Token* tokens,
@@ -267,6 +342,55 @@ static bool raw_range_starts_with_typedef(const TokenBuffer* buffer,
     return false;
 }
 
+static bool raw_range_is_single_top_level_typedef_declaration(const TokenBuffer* buffer,
+                                                              const IncludeSummaryAction* action) {
+    if (!buffer || !buffer->tokens || !action) return false;
+
+    int parenDepth = 0;
+    int braceDepth = 0;
+    int bracketDepth = 0;
+    size_t topLevelSemicolons = 0;
+
+    for (size_t i = action->start; i < action->end && i < buffer->count; ++i) {
+        TokenType type = buffer->tokens[i].type;
+        if (type == TOKEN_EOF || type == TOKEN_UNKNOWN) {
+            continue;
+        }
+        switch (type) {
+            case TOKEN_LPAREN:
+                ++parenDepth;
+                break;
+            case TOKEN_RPAREN:
+                if (parenDepth > 0) --parenDepth;
+                break;
+            case TOKEN_LBRACE:
+                ++braceDepth;
+                break;
+            case TOKEN_RBRACE:
+                if (braceDepth > 0) --braceDepth;
+                break;
+            case TOKEN_LBRACKET:
+                ++bracketDepth;
+                break;
+            case TOKEN_RBRACKET:
+                if (bracketDepth > 0) --bracketDepth;
+                break;
+            case TOKEN_SEMICOLON:
+                if (parenDepth == 0 && braceDepth == 0 && bracketDepth == 0) {
+                    ++topLevelSemicolons;
+                    if (topLevelSemicolons > 1) {
+                        return false;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    return topLevelSemicolons == 1;
+}
+
 bool classify_include_summary_router_raw_tail(const TokenBuffer* buffer,
                                               const IncludeSummaryAction* actions,
                                               size_t actionCount,
@@ -323,7 +447,10 @@ bool classify_include_summary_router_raw_tail(const TokenBuffer* buffer,
                 if (!sawIfndef || !sawDefine || sawEndif) {
                     return false;
                 }
-                if (!raw_range_starts_with_typedef(buffer, action)) {
+                if ((action->flags & INCLUDE_SUMMARY_ACTION_FLAG_RAW_RANGE_STARTS_WITH_TYPEDEF) == 0) {
+                    return false;
+                }
+                if ((action->flags & INCLUDE_SUMMARY_ACTION_FLAG_RAW_RANGE_SINGLE_TOP_LEVEL_TYPEDEF) == 0) {
                     return false;
                 }
                 sawRawTail = true;
@@ -412,6 +539,10 @@ static bool classify_include_summary_include_define_scaffold(Preprocessor* pp,
                                                            action->end)) {
                     return false;
                 }
+                if ((action->flags & INCLUDE_SUMMARY_ACTION_FLAG_RAW_RANGE_STARTS_WITH_TYPEDEF) == 0 ||
+                    (action->flags & INCLUDE_SUMMARY_ACTION_FLAG_RAW_RANGE_SINGLE_TOP_LEVEL_TYPEDEF) == 0) {
+                    return false;
+                }
                 sawBodyAction = true;
                 break;
             case INCLUDE_SUMMARY_ACTION_ENDIF:
@@ -442,6 +573,9 @@ static bool classify_include_summary_conditional_scaffold(const IncludeSummaryAc
         switch (actions[i].kind) {
             case INCLUDE_SUMMARY_ACTION_RAW_RANGE:
             case INCLUDE_SUMMARY_ACTION_DEFINE:
+            case INCLUDE_SUMMARY_ACTION_UNDEF:
+            case INCLUDE_SUMMARY_ACTION_LINE:
+            case INCLUDE_SUMMARY_ACTION_DIAGNOSTIC:
             case INCLUDE_SUMMARY_ACTION_INCLUDE:
             case INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT:
             case INCLUDE_SUMMARY_ACTION_IF:
@@ -544,11 +678,10 @@ IncludeSummaryProbe analyze_include_summary_probe(const TokenBuffer* buffer,
                     !include_summary_action_append(&actions,
                                                    &actionCount,
                                                    &actionCapacity,
-                                                   (IncludeSummaryAction){
-                                                       .kind = INCLUDE_SUMMARY_ACTION_RAW_RANGE,
-                                                       .start = rawStart,
-                                                       .end = i
-                                                   })) {
+                                                   include_summary_action_make(buffer,
+                                                                               INCLUDE_SUMMARY_ACTION_RAW_RANGE,
+                                                                               rawStart,
+                                                                               i))) {
                     probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
                     free(includeName);
                     free(actions);
@@ -557,11 +690,10 @@ IncludeSummaryProbe analyze_include_summary_probe(const TokenBuffer* buffer,
                 if (!include_summary_action_append(&actions,
                                                    &actionCount,
                                                    &actionCapacity,
-                                                   (IncludeSummaryAction){
-                                                       .kind = actionKind,
-                                                       .start = i,
-                                                       .end = operandCursor + 1
-                                                   })) {
+                                                   include_summary_action_make(buffer,
+                                                                               actionKind,
+                                                                               i,
+                                                                               operandCursor + 1))) {
                     probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
                     free(includeName);
                     free(actions);
@@ -576,6 +708,10 @@ IncludeSummaryProbe analyze_include_summary_probe(const TokenBuffer* buffer,
                 probe.directiveCount++;
                 probe.defineCount++;
                 actionKind = INCLUDE_SUMMARY_ACTION_DEFINE;
+                goto append_directive_action;
+            case TOKEN_UNDEF:
+                probe.directiveCount++;
+                actionKind = INCLUDE_SUMMARY_ACTION_UNDEF;
                 goto append_directive_action;
             case TOKEN_PP_IF:
                 actionKind = INCLUDE_SUMMARY_ACTION_IF;
@@ -599,11 +735,6 @@ append_conditional_action:
                 probe.conditionalCount++;
                 goto append_directive_action;
             case TOKEN_PRAGMA:
-                if (!pragma_is_once_directive(buffer->tokens, buffer->count, i)) {
-                    probe.status = INCLUDE_SUMMARY_PROBE_REJECT_UNSUPPORTED_DIRECTIVE;
-                    free(actions);
-                    return probe;
-                }
                 probe.directiveCount++;
                 actionKind = INCLUDE_SUMMARY_ACTION_PRAGMA;
 append_directive_action: {
@@ -612,11 +743,10 @@ append_directive_action: {
                     !include_summary_action_append(&actions,
                                                    &actionCount,
                                                    &actionCapacity,
-                                                   (IncludeSummaryAction){
-                                                       .kind = INCLUDE_SUMMARY_ACTION_RAW_RANGE,
-                                                       .start = rawStart,
-                                                       .end = i
-                                                   })) {
+                                                   include_summary_action_make(buffer,
+                                                                               INCLUDE_SUMMARY_ACTION_RAW_RANGE,
+                                                                               rawStart,
+                                                                               i))) {
                     probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
                     free(actions);
                     return probe;
@@ -624,11 +754,10 @@ append_directive_action: {
                 if (!include_summary_action_append(&actions,
                                                    &actionCount,
                                                    &actionCapacity,
-                                                   (IncludeSummaryAction){
-                                                       .kind = actionKind,
-                                                       .start = i,
-                                                       .end = lineEnd
-                                                   })) {
+                                                   include_summary_action_make(buffer,
+                                                                               actionKind,
+                                                                               i,
+                                                                               lineEnd))) {
                     probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
                     free(actions);
                     return probe;
@@ -637,8 +766,18 @@ append_directive_action: {
                 rawStart = lineEnd;
                 break;
             }
-            case TOKEN_UNDEF:
             case TOKEN_PREPROCESSOR_OTHER:
+                if (tok->value && strcmp(tok->value, "line") == 0) {
+                    probe.directiveCount++;
+                    actionKind = INCLUDE_SUMMARY_ACTION_LINE;
+                    goto append_directive_action;
+                }
+                if (tok->value &&
+                    (strcmp(tok->value, "warning") == 0 || strcmp(tok->value, "error") == 0)) {
+                    probe.directiveCount++;
+                    actionKind = INCLUDE_SUMMARY_ACTION_DIAGNOSTIC;
+                    goto append_directive_action;
+                }
                 probe.status = INCLUDE_SUMMARY_PROBE_REJECT_UNSUPPORTED_DIRECTIVE;
                 free(actions);
                 return probe;
@@ -651,11 +790,10 @@ append_directive_action: {
         if (!include_summary_action_append(&actions,
                                            &actionCount,
                                            &actionCapacity,
-                                           (IncludeSummaryAction){
-                                               .kind = INCLUDE_SUMMARY_ACTION_RAW_RANGE,
-                                               .start = rawStart,
-                                               .end = eofIndex
-                                           })) {
+                                           include_summary_action_make(buffer,
+                                                                       INCLUDE_SUMMARY_ACTION_RAW_RANGE,
+                                                                       rawStart,
+                                                                       eofIndex))) {
             probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
             free(actions);
             return probe;
@@ -673,9 +811,8 @@ append_directive_action: {
 }
 
 void pp_profile_event(const char* name) {
-    if (!name) return;
-    ProfilerScope scope = profiler_begin(name);
-    profiler_end(scope);
+    if (!name || !profiler_counters_enabled()) return;
+    profiler_record_value(name, 1);
 }
 
 void pp_profile_summary_probe(const IncludeSummaryProbe* probe) {
@@ -803,6 +940,12 @@ void pp_profile_conditional_scaffold_shape(Preprocessor* pp,
                     hasBodyDefine = true;
                 }
                 break;
+            case INCLUDE_SUMMARY_ACTION_UNDEF:
+                hasBodyDefine = true;
+                break;
+            case INCLUDE_SUMMARY_ACTION_LINE:
+            case INCLUDE_SUMMARY_ACTION_DIAGNOSTIC:
+                break;
             case INCLUDE_SUMMARY_ACTION_RAW_RANGE:
                 hasRawRange = true;
                 break;
@@ -888,6 +1031,26 @@ bool pp_summary_replay_experiment_enabled(void) {
         initialized = 1;
     }
     return enabled;
+}
+
+static bool pp_env_toggle_enabled(const char* name) {
+    const char* env = getenv(name);
+    return env && env[0] && env[0] != '0';
+}
+
+bool pp_summary_replay_router_enabled(void) {
+    return pp_env_toggle_enabled("FISICS_PP_SUMMARY_REPLAY_ROUTER") ||
+           pp_summary_replay_experiment_enabled();
+}
+
+bool pp_summary_replay_scaffold_enabled(void) {
+    return pp_env_toggle_enabled("FISICS_PP_SUMMARY_REPLAY_SCAFFOLD") ||
+           pp_summary_replay_experiment_enabled();
+}
+
+bool pp_summary_replay_general_enabled(void) {
+    return pp_env_toggle_enabled("FISICS_PP_SUMMARY_REPLAY_GENERAL") ||
+           pp_summary_replay_experiment_enabled();
 }
 
 const char* nested_recurse_scope_name(bool repeatSeen, IncludeSearchOrigin origin) {

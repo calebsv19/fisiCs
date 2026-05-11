@@ -244,13 +244,15 @@ static LLVMTypeRef applyPointerDepth(CodegenContext* ctx, LLVMTypeRef base, int 
 }
 
 static LLVMTypeRef functionPointerType(CodegenContext* ctx, const ParsedType* type, LLVMTypeRef returnType) {
-    size_t count = type->fpParamCount;
+    const ParsedType* fpParams = NULL;
+    size_t count = 0;
+    parsedTypeGetEffectiveFunctionPointerSignature(type, &fpParams, &count, NULL);
     LLVMTypeRef* params = NULL;
     if (count > 0) {
         params = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * count);
         if (!params) return LLVMPointerType(returnType, 0);
         for (size_t i = 0; i < count; ++i) {
-            params[i] = cg_lower_parameter_type(ctx, &type->fpParams[i], NULL, NULL);
+            params[i] = cg_lower_parameter_type(ctx, &fpParams[i], NULL, NULL);
             if (!params[i]) {
                 params[i] = LLVMInt32TypeInContext(cg_context_get_llvm_context(ctx));
             }

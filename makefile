@@ -99,16 +99,11 @@ APPLE_SIGN_IDENTITY ?=
 APPLE_NOTARY_PROFILE ?=
 APPLE_INSTALLER_IDENTITY ?=
 
-# === Step 1: Generate keyword_lookup.c from keywords.gperf ===
-src/Lexer/keyword_lookup.c: src/Lexer/keywords.gperf
-	@echo "Generating keyword_lookup.c from keywords.gperf..."
-	gperf src/Lexer/keywords.gperf > src/Lexer/keyword_lookup.c
-
-# === Step 2: Ensure all objects depend on keyword_lookup.c ===
-# This makes sure it's generated before any compilation happens
+# === Step 1: Ensure all objects depend on keyword_lookup.c ===
+# The keyword lookup implementation is committed source code.
 $(BUILD_DIR)/%.o: src/Lexer/keyword_lookup.c
 
-# === Step 3: Find all .c files and create .o list ===
+# === Step 2: Find all .c files and create .o list ===
 SRCS := $(shell find $(SRC_DIR) -name '*.c')
 SRCS += src/Lexer/keyword_lookup.c
 
@@ -195,7 +190,6 @@ $(BUILD_DIR)/core_pack/%.o: $(CORE_PACK_DIR)/src/%.c
 clean:
 	@echo "Cleaning..."
 	rm -rf build $(BIN) $(LIB_FRONTEND) libfisics_frontend_unsanitized.a libfisics_frontend_sanitized.a
-	rm -f src/Lexer/keyword_lookup.c
 
 release-clean:
 	@echo "Cleaning release artifacts..."

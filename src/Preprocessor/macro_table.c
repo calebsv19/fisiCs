@@ -202,6 +202,7 @@ bool macro_table_define_object(MacroTable* table,
         return false;
     }
     def->definitionRange = definitionRange;
+    table->mutationSerial++;
     return true;
 }
 
@@ -227,6 +228,7 @@ bool macro_table_define_function(MacroTable* table,
         return false;
     }
     def->definitionRange = definitionRange;
+    table->mutationSerial++;
     return true;
 }
 
@@ -239,10 +241,15 @@ bool macro_table_undef(MacroTable* table, const char* name) {
             if (i != table->macroCount) {
                 table->macros[i] = table->macros[table->macroCount];
             }
+            table->mutationSerial++;
             return true;
         }
     }
     return false;
+}
+
+uint64_t macro_table_mutation_serial(const MacroTable* table) {
+    return table ? table->mutationSerial : 0;
 }
 
 static bool macro_expansion_grow(MacroTable* table) {

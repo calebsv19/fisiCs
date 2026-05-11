@@ -13,6 +13,119 @@
 #include "Utils/logging.h"
 #include "Utils/profiler.h"
 
+typedef enum {
+    PP_INCLUDE_PATH_INACTIVE_SKIP_DEFINE = 0,
+    PP_INCLUDE_PATH_INACTIVE_SKIP_INCLUDE,
+    PP_INCLUDE_PATH_INACTIVE_SKIP_UNDEF,
+    PP_INCLUDE_PATH_INACTIVE_SKIP_PRAGMA,
+    PP_INCLUDE_PATH_INACTIVE_SKIP_LINE,
+    PP_INCLUDE_PATH_INACTIVE_SKIP_DIAGNOSTIC,
+    PP_INCLUDE_PATH_INACTIVE_SKIP_OTHER,
+} PPIncludePathInactiveSkipKind;
+
+static bool pp_stagea_diagnostic_profile_enabled(void) {
+    static int initialized = 0;
+    static bool enabled = false;
+    if (!initialized) {
+        const char* env = getenv("FISICS_PP_STAGEA_DIAGNOSTIC_PROFILE");
+        enabled = (env && env[0] && env[0] != '0');
+        initialized = 1;
+    }
+    return enabled && profiler_counters_enabled();
+}
+
+static const char* pp_include_path_inactive_skip_scope_name(PPIncludePathInactiveSkipKind kind) {
+    switch (kind) {
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_DEFINE:
+            return "pp_recurse_include_path_inactive_skip_define";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_INCLUDE:
+            return "pp_recurse_include_path_inactive_skip_include";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_UNDEF:
+            return "pp_recurse_include_path_inactive_skip_undef";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_PRAGMA:
+            return "pp_recurse_include_path_inactive_skip_pragma";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_LINE:
+            return "pp_recurse_include_path_inactive_skip_line";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_DIAGNOSTIC:
+            return "pp_recurse_include_path_inactive_skip_diagnostic";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_OTHER:
+            return "pp_recurse_include_path_inactive_skip_other";
+    }
+    return "pp_recurse_include_path_inactive_skip_other";
+}
+
+static const char* pp_include_path_inactive_skip_line_counter_name(PPIncludePathInactiveSkipKind kind) {
+    switch (kind) {
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_DEFINE:
+            return "pp_count_include_path_inactive_skip_define_lines";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_INCLUDE:
+            return "pp_count_include_path_inactive_skip_include_lines";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_UNDEF:
+            return "pp_count_include_path_inactive_skip_undef_lines";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_PRAGMA:
+            return "pp_count_include_path_inactive_skip_pragma_lines";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_LINE:
+            return "pp_count_include_path_inactive_skip_line_directive_lines";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_DIAGNOSTIC:
+            return "pp_count_include_path_inactive_skip_diagnostic_lines";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_OTHER:
+            return "pp_count_include_path_inactive_skip_other_lines";
+    }
+    return "pp_count_include_path_inactive_skip_other_lines";
+}
+
+static const char* pp_include_path_inactive_skip_token_counter_name(PPIncludePathInactiveSkipKind kind) {
+    switch (kind) {
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_DEFINE:
+            return "pp_count_include_path_inactive_skip_define_tokens";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_INCLUDE:
+            return "pp_count_include_path_inactive_skip_include_tokens";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_UNDEF:
+            return "pp_count_include_path_inactive_skip_undef_tokens";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_PRAGMA:
+            return "pp_count_include_path_inactive_skip_pragma_tokens";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_LINE:
+            return "pp_count_include_path_inactive_skip_line_directive_tokens";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_DIAGNOSTIC:
+            return "pp_count_include_path_inactive_skip_diagnostic_tokens";
+        case PP_INCLUDE_PATH_INACTIVE_SKIP_OTHER:
+            return "pp_count_include_path_inactive_skip_other_tokens";
+    }
+    return "pp_count_include_path_inactive_skip_other_tokens";
+}
+
+static void pp_include_path_skip_inactive_line(const Token* tokens,
+                                               size_t count,
+                                               size_t* cursor,
+                                               PPIncludePathInactiveSkipKind kind) {
+    bool timingEnabled = profiler_timing_enabled();
+    bool counterEnabled = pp_stagea_diagnostic_profile_enabled();
+    if (!tokens || !cursor || *cursor >= count) return;
+    if (!timingEnabled && !counterEnabled) {
+        skip_to_line_end(tokens, count, cursor);
+        return;
+    }
+    size_t tokenCost = 0;
+    if (counterEnabled) {
+        tokenCost = pp_count_line_tokens_from_cursor(tokens, count, *cursor);
+        profiler_record_value("pp_count_include_path_inactive_skip_lines", 1);
+        profiler_record_value("pp_count_include_path_inactive_skip_tokens", tokenCost);
+        profiler_record_value(pp_include_path_inactive_skip_line_counter_name(kind), 1);
+        profiler_record_value(pp_include_path_inactive_skip_token_counter_name(kind), tokenCost);
+    }
+    ProfilerScope inactiveSkipScope = timingEnabled
+        ? profiler_begin("pp_recurse_include_path_inactive_skip")
+        : (ProfilerScope){0};
+    ProfilerScope kindScope = timingEnabled
+        ? profiler_begin(pp_include_path_inactive_skip_scope_name(kind))
+        : (ProfilerScope){0};
+    skip_to_line_end(tokens, count, cursor);
+    if (timingEnabled) {
+        profiler_end(kindScope);
+        profiler_end(inactiveSkipScope);
+    }
+}
+
 bool preprocess_tokens(Preprocessor* pp,
                        const TokenBuffer* input,
                        PPTokenBuffer* output,
@@ -44,6 +157,8 @@ bool preprocess_tokens(Preprocessor* pp,
     size_t condCap = 0;
     size_t activeTokenCount = 0;
     size_t inactiveTokenCount = 0;
+    bool timingEnabled = profiler_timing_enabled();
+    bool counterEnabled = profiler_counters_enabled();
     bool nestedIncludeBody = pp && pp->includeStack.depth > 1;
     const PPIncludeFrame* includeFrame = pp_include_stack_top(pp);
     bool includePathBody = nestedIncludeBody &&
@@ -66,7 +181,7 @@ bool preprocess_tokens(Preprocessor* pp,
         }
         const Token* tok = &input->tokens[i];
         bool active = conditional_stack_is_active(condStack, condDepth);
-        if (tok->type != TOKEN_EOF) {
+        if (counterEnabled && tok->type != TOKEN_EOF) {
             size_t tokenCost = 1;
             bool directiveLike = false;
             switch (tok->type) {
@@ -111,7 +226,11 @@ bool preprocess_tokens(Preprocessor* pp,
         switch (tok->type) {
             case TOKEN_DEFINE:
                 if (active) {
-                    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                    if (!pp_flush_chunk_profiled(pp,
+                                                 &chunk,
+                                                 output,
+                                                 nestedIncludeBody,
+                                                 includePathBody)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
@@ -126,39 +245,44 @@ bool preprocess_tokens(Preprocessor* pp,
                     }
                     ProfilerScope recurseDefineScope = {0};
                     ProfilerScope includePathDefineScope = {0};
-                    if (nestedIncludeBody) {
+                    if (timingEnabled && nestedIncludeBody) {
                         recurseDefineScope = profiler_begin("pp_recurse_define");
                     }
-                    if (includePathBody) {
+                    if (timingEnabled && includePathBody) {
                         includePathDefineScope = profiler_begin("pp_recurse_include_path_define");
                     }
-                    ProfilerScope defineScope = profiler_begin("pp_define");
+                    ProfilerScope defineScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_define");
                     if (!process_define(pp, input->tokens, input->count, &i)) {
-                        profiler_end(defineScope);
-                        if (includePathBody) profiler_end(includePathDefineScope);
-                        if (nestedIncludeBody) profiler_end(recurseDefineScope);
+                        pp_profiler_end_if_enabled(timingEnabled, defineScope);
+                        if (timingEnabled && includePathBody) profiler_end(includePathDefineScope);
+                        if (timingEnabled && nestedIncludeBody) profiler_end(recurseDefineScope);
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         pp_debug_fail("process_define", &input->tokens[i]);
                         return false;
                     }
-                    profiler_end(defineScope);
-                    if (includePathBody) profiler_end(includePathDefineScope);
-                    if (nestedIncludeBody) profiler_end(recurseDefineScope);
+                    pp_profiler_end_if_enabled(timingEnabled, defineScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathDefineScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseDefineScope);
                 } else {
-                    ProfilerScope inactiveSkipScope = {0};
                     if (includePathBody) {
-                        profiler_record_value("pp_count_include_path_inactive_skip_lines", 1);
-                        inactiveSkipScope = profiler_begin("pp_recurse_include_path_inactive_skip");
+                        pp_include_path_skip_inactive_line(input->tokens,
+                                                           input->count,
+                                                           &i,
+                                                           PP_INCLUDE_PATH_INACTIVE_SKIP_DEFINE);
+                    } else {
+                        skip_to_line_end(input->tokens, input->count, &i);
                     }
-                    skip_to_line_end(input->tokens, input->count, &i);
-                    if (includePathBody) profiler_end(inactiveSkipScope);
                 }
                 break;
             case TOKEN_INCLUDE:
             case TOKEN_INCLUDE_NEXT:
                 if (active) {
-                    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                    if (!pp_flush_chunk_profiled(pp,
+                                                 &chunk,
+                                                 output,
+                                                 nestedIncludeBody,
+                                                 includePathBody)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
@@ -174,38 +298,43 @@ bool preprocess_tokens(Preprocessor* pp,
                     bool isIncludeNext = tok->type == TOKEN_INCLUDE_NEXT;
                     ProfilerScope recurseIncludeScope = {0};
                     ProfilerScope includePathNestedIncludeScope = {0};
-                    if (nestedIncludeBody) {
+                    if (timingEnabled && nestedIncludeBody) {
                         recurseIncludeScope = profiler_begin("pp_recurse_nested_include");
                     }
-                    if (includePathBody) {
+                    if (timingEnabled && includePathBody) {
                         includePathNestedIncludeScope = profiler_begin("pp_recurse_include_path_nested_include");
                     }
-                    ProfilerScope includeScope = profiler_begin("pp_include");
+                    ProfilerScope includeScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include");
                     if (!process_include(pp, input->tokens, input->count, &i, output, isIncludeNext)) {
-                        profiler_end(includeScope);
-                        if (includePathBody) profiler_end(includePathNestedIncludeScope);
-                        if (nestedIncludeBody) profiler_end(recurseIncludeScope);
+                        pp_profiler_end_if_enabled(timingEnabled, includeScope);
+                        if (timingEnabled && includePathBody) profiler_end(includePathNestedIncludeScope);
+                        if (timingEnabled && nestedIncludeBody) profiler_end(recurseIncludeScope);
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         pp_debug_fail("process_include", &input->tokens[i]);
                         return false;
                     }
-                    profiler_end(includeScope);
-                    if (includePathBody) profiler_end(includePathNestedIncludeScope);
-                    if (nestedIncludeBody) profiler_end(recurseIncludeScope);
+                    pp_profiler_end_if_enabled(timingEnabled, includeScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathNestedIncludeScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseIncludeScope);
                 } else {
-                    ProfilerScope inactiveSkipScope = {0};
                     if (includePathBody) {
-                        profiler_record_value("pp_count_include_path_inactive_skip_lines", 1);
-                        inactiveSkipScope = profiler_begin("pp_recurse_include_path_inactive_skip");
+                        pp_include_path_skip_inactive_line(input->tokens,
+                                                           input->count,
+                                                           &i,
+                                                           PP_INCLUDE_PATH_INACTIVE_SKIP_INCLUDE);
+                    } else {
+                        skip_to_line_end(input->tokens, input->count, &i);
                     }
-                    skip_to_line_end(input->tokens, input->count, &i);
-                    if (includePathBody) profiler_end(inactiveSkipScope);
                 }
                 break;
             case TOKEN_UNDEF:
                 if (active) {
-                    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                    if (!pp_flush_chunk_profiled(pp,
+                                                 &chunk,
+                                                 output,
+                                                 nestedIncludeBody,
+                                                 includePathBody)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
@@ -217,17 +346,22 @@ bool preprocess_tokens(Preprocessor* pp,
                         return false;
                     }
                 } else {
-                    ProfilerScope inactiveSkipScope = {0};
                     if (includePathBody) {
-                        profiler_record_value("pp_count_include_path_inactive_skip_lines", 1);
-                        inactiveSkipScope = profiler_begin("pp_recurse_include_path_inactive_skip");
+                        pp_include_path_skip_inactive_line(input->tokens,
+                                                           input->count,
+                                                           &i,
+                                                           PP_INCLUDE_PATH_INACTIVE_SKIP_UNDEF);
+                    } else {
+                        skip_to_line_end(input->tokens, input->count, &i);
                     }
-                    skip_to_line_end(input->tokens, input->count, &i);
-                    if (includePathBody) profiler_end(inactiveSkipScope);
                 }
                 break;
             case TOKEN_PP_IF:
-                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp,
+                                             &chunk,
+                                             output,
+                                             nestedIncludeBody,
+                                             includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -235,29 +369,33 @@ bool preprocess_tokens(Preprocessor* pp,
                 }
                 ProfilerScope recurseIfScope = {0};
                 ProfilerScope includePathConditionalScope = {0};
-                if (nestedIncludeBody) {
+                if (timingEnabled && nestedIncludeBody) {
                     recurseIfScope = profiler_begin("pp_recurse_conditional");
                 }
-                if (includePathBody) {
+                if (timingEnabled && includePathBody) {
                     includePathConditionalScope = profiler_begin("pp_recurse_include_path_conditional");
                 }
-                ProfilerScope ifScope = profiler_begin("pp_if");
+                ProfilerScope ifScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_if");
                 if (!process_if(pp, input->tokens, input->count, &i,
                                 &condStack, &condDepth, &condCap)) {
-                    profiler_end(ifScope);
-                    if (includePathBody) profiler_end(includePathConditionalScope);
-                    if (nestedIncludeBody) profiler_end(recurseIfScope);
+                    pp_profiler_end_if_enabled(timingEnabled, ifScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathConditionalScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseIfScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_if", &input->tokens[i]);
                     return false;
                 }
-                profiler_end(ifScope);
-                if (includePathBody) profiler_end(includePathConditionalScope);
-                if (nestedIncludeBody) profiler_end(recurseIfScope);
+                pp_profiler_end_if_enabled(timingEnabled, ifScope);
+                if (timingEnabled && includePathBody) profiler_end(includePathConditionalScope);
+                if (timingEnabled && nestedIncludeBody) profiler_end(recurseIfScope);
                 break;
             case TOKEN_PP_ELIF:
-                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp,
+                                             &chunk,
+                                             output,
+                                             nestedIncludeBody,
+                                             includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -265,29 +403,33 @@ bool preprocess_tokens(Preprocessor* pp,
                 }
                 ProfilerScope recurseElifScope = {0};
                 ProfilerScope includePathElifScope = {0};
-                if (nestedIncludeBody) {
+                if (timingEnabled && nestedIncludeBody) {
                     recurseElifScope = profiler_begin("pp_recurse_conditional");
                 }
-                if (includePathBody) {
+                if (timingEnabled && includePathBody) {
                     includePathElifScope = profiler_begin("pp_recurse_include_path_conditional");
                 }
-                ProfilerScope elifScope = profiler_begin("pp_elif");
+                ProfilerScope elifScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_elif");
                 if (!process_elif(pp, input->tokens, input->count, &i,
                                   condStack, condDepth)) {
-                    profiler_end(elifScope);
-                    if (includePathBody) profiler_end(includePathElifScope);
-                    if (nestedIncludeBody) profiler_end(recurseElifScope);
+                    pp_profiler_end_if_enabled(timingEnabled, elifScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathElifScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseElifScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_elif", &input->tokens[i]);
                     return false;
                 }
-                profiler_end(elifScope);
-                if (includePathBody) profiler_end(includePathElifScope);
-                if (nestedIncludeBody) profiler_end(recurseElifScope);
+                pp_profiler_end_if_enabled(timingEnabled, elifScope);
+                if (timingEnabled && includePathBody) profiler_end(includePathElifScope);
+                if (timingEnabled && nestedIncludeBody) profiler_end(recurseElifScope);
                 break;
             case TOKEN_PP_ELSE:
-                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp,
+                                             &chunk,
+                                             output,
+                                             nestedIncludeBody,
+                                             includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -295,10 +437,10 @@ bool preprocess_tokens(Preprocessor* pp,
                 }
                 ProfilerScope recurseElseScope = {0};
                 ProfilerScope includePathElseScope = {0};
-                if (nestedIncludeBody) {
+                if (timingEnabled && nestedIncludeBody) {
                     recurseElseScope = profiler_begin("pp_recurse_conditional");
                 }
-                if (includePathBody) {
+                if (timingEnabled && includePathBody) {
                     includePathElseScope = profiler_begin("pp_recurse_include_path_conditional");
                 }
                 if (pp_directive_has_trailing_tokens(input->tokens, input->count, i)) {
@@ -307,26 +449,30 @@ bool preprocess_tokens(Preprocessor* pp,
                                    DIAG_ERROR,
                                    CDIAG_PREPROCESSOR_GENERIC,
                                    "unexpected tokens after #else directive");
-                    if (includePathBody) profiler_end(includePathElseScope);
-                    if (nestedIncludeBody) profiler_end(recurseElseScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathElseScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseElseScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     return false;
                 }
                 if (!process_else(pp, condStack, condDepth, &input->tokens[i])) {
-                    if (includePathBody) profiler_end(includePathElseScope);
-                    if (nestedIncludeBody) profiler_end(recurseElseScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathElseScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseElseScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_else", &input->tokens[i]);
                     return false;
                 }
-                if (includePathBody) profiler_end(includePathElseScope);
-                if (nestedIncludeBody) profiler_end(recurseElseScope);
+                if (timingEnabled && includePathBody) profiler_end(includePathElseScope);
+                if (timingEnabled && nestedIncludeBody) profiler_end(recurseElseScope);
                 skip_to_line_end(input->tokens, input->count, &i);
                 break;
             case TOKEN_ENDIF:
-                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp,
+                                             &chunk,
+                                             output,
+                                             nestedIncludeBody,
+                                             includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -334,10 +480,10 @@ bool preprocess_tokens(Preprocessor* pp,
                 }
                 ProfilerScope recurseEndifScope = {0};
                 ProfilerScope includePathEndifScope = {0};
-                if (nestedIncludeBody) {
+                if (timingEnabled && nestedIncludeBody) {
                     recurseEndifScope = profiler_begin("pp_recurse_conditional");
                 }
-                if (includePathBody) {
+                if (timingEnabled && includePathBody) {
                     includePathEndifScope = profiler_begin("pp_recurse_include_path_conditional");
                 }
                 if (pp_directive_has_trailing_tokens(input->tokens, input->count, i)) {
@@ -346,8 +492,8 @@ bool preprocess_tokens(Preprocessor* pp,
                                    DIAG_ERROR,
                                    CDIAG_PREPROCESSOR_GENERIC,
                                    "unexpected tokens after #endif directive");
-                    if (includePathBody) profiler_end(includePathEndifScope);
-                    if (nestedIncludeBody) profiler_end(recurseEndifScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathEndifScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseEndifScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     return false;
@@ -361,20 +507,24 @@ bool preprocess_tokens(Preprocessor* pp,
                     }
                 }
                 if (!process_endif(pp, condStack, &condDepth, &input->tokens[i])) {
-                    if (includePathBody) profiler_end(includePathEndifScope);
-                    if (nestedIncludeBody) profiler_end(recurseEndifScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathEndifScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseEndifScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_endif", &input->tokens[i]);
                     return false;
                 }
-                if (includePathBody) profiler_end(includePathEndifScope);
-                if (nestedIncludeBody) profiler_end(recurseEndifScope);
+                if (timingEnabled && includePathBody) profiler_end(includePathEndifScope);
+                if (timingEnabled && nestedIncludeBody) profiler_end(recurseEndifScope);
                 skip_to_line_end(input->tokens, input->count, &i);
                 break;
             case TOKEN_IFDEF:
             case TOKEN_IFNDEF: {
-                if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                if (!pp_flush_chunk_profiled(pp,
+                                             &chunk,
+                                             output,
+                                             nestedIncludeBody,
+                                             includePathBody)) {
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("flush_chunk", &input->tokens[i]);
@@ -383,31 +533,35 @@ bool preprocess_tokens(Preprocessor* pp,
                 bool negate = tok->type == TOKEN_IFNDEF;
                 ProfilerScope recurseIfdefScope = {0};
                 ProfilerScope includePathIfdefScope = {0};
-                if (nestedIncludeBody) {
+                if (timingEnabled && nestedIncludeBody) {
                     recurseIfdefScope = profiler_begin("pp_recurse_conditional");
                 }
-                if (includePathBody) {
+                if (timingEnabled && includePathBody) {
                     includePathIfdefScope = profiler_begin("pp_recurse_include_path_conditional");
                 }
-                ProfilerScope ifdefScope = profiler_begin("pp_ifdef");
+                ProfilerScope ifdefScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_ifdef");
                 if (!process_ifdeflike(pp, input->tokens, input->count, &i,
                                        &condStack, &condDepth, &condCap, negate)) {
-                    profiler_end(ifdefScope);
-                    if (includePathBody) profiler_end(includePathIfdefScope);
-                    if (nestedIncludeBody) profiler_end(recurseIfdefScope);
+                    pp_profiler_end_if_enabled(timingEnabled, ifdefScope);
+                    if (timingEnabled && includePathBody) profiler_end(includePathIfdefScope);
+                    if (timingEnabled && nestedIncludeBody) profiler_end(recurseIfdefScope);
                     pp_token_buffer_reset(&chunk);
                     free(condStack);
                     pp_debug_fail("process_ifdeflike", &input->tokens[i]);
                     return false;
                 }
-                profiler_end(ifdefScope);
-                if (includePathBody) profiler_end(includePathIfdefScope);
-                if (nestedIncludeBody) profiler_end(recurseIfdefScope);
+                pp_profiler_end_if_enabled(timingEnabled, ifdefScope);
+                if (timingEnabled && includePathBody) profiler_end(includePathIfdefScope);
+                if (timingEnabled && nestedIncludeBody) profiler_end(recurseIfdefScope);
                 break;
             }
             case TOKEN_PRAGMA:
                 if (active) {
-                    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                    if (!pp_flush_chunk_profiled(pp,
+                                                 &chunk,
+                                                 output,
+                                                 nestedIncludeBody,
+                                                 includePathBody)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
@@ -427,19 +581,24 @@ bool preprocess_tokens(Preprocessor* pp,
                         return false;
                     }
                 } else {
-                    ProfilerScope inactiveSkipScope = {0};
                     if (includePathBody) {
-                        profiler_record_value("pp_count_include_path_inactive_skip_lines", 1);
-                        inactiveSkipScope = profiler_begin("pp_recurse_include_path_inactive_skip");
+                        pp_include_path_skip_inactive_line(input->tokens,
+                                                           input->count,
+                                                           &i,
+                                                           PP_INCLUDE_PATH_INACTIVE_SKIP_PRAGMA);
+                    } else {
+                        skip_to_line_end(input->tokens, input->count, &i);
                     }
-                    skip_to_line_end(input->tokens, input->count, &i);
-                    if (includePathBody) profiler_end(inactiveSkipScope);
                 }
                 break;
             case TOKEN_PREPROCESSOR_OTHER:
                 if (tok->value && strcmp(tok->value, "line") == 0) {
                     if (active) {
-                        if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+                        if (!pp_flush_chunk_profiled(pp,
+                                                     &chunk,
+                                                     output,
+                                                     nestedIncludeBody,
+                                                     includePathBody)) {
                             pp_token_buffer_reset(&chunk);
                             free(condStack);
                             return false;
@@ -451,13 +610,14 @@ bool preprocess_tokens(Preprocessor* pp,
                             return false;
                         }
                     } else {
-                        ProfilerScope inactiveSkipScope = {0};
                         if (includePathBody) {
-                            profiler_record_value("pp_count_include_path_inactive_skip_lines", 1);
-                            inactiveSkipScope = profiler_begin("pp_recurse_include_path_inactive_skip");
+                            pp_include_path_skip_inactive_line(input->tokens,
+                                                               input->count,
+                                                               &i,
+                                                               PP_INCLUDE_PATH_INACTIVE_SKIP_LINE);
+                        } else {
+                            skip_to_line_end(input->tokens, input->count, &i);
                         }
-                        skip_to_line_end(input->tokens, input->count, &i);
-                        if (includePathBody) profiler_end(inactiveSkipScope);
                     }
                     break;
                 } else if (tok->value &&
@@ -485,13 +645,14 @@ bool preprocess_tokens(Preprocessor* pp,
                         const char* msg = buffer[0] ? buffer : (isError ? "#error" : "#warning");
                         pp_report_diag(pp, tok, kind, CDIAG_PREPROCESSOR_GENERIC, "%s", msg);
                     }
-                    ProfilerScope inactiveSkipScope = {0};
                     if (includePathBody) {
-                        profiler_record_value("pp_count_include_path_inactive_skip_lines", 1);
-                        inactiveSkipScope = profiler_begin("pp_recurse_include_path_inactive_skip");
+                        pp_include_path_skip_inactive_line(input->tokens,
+                                                           input->count,
+                                                           &i,
+                                                           PP_INCLUDE_PATH_INACTIVE_SKIP_DIAGNOSTIC);
+                    } else {
+                        skip_to_line_end(input->tokens, input->count, &i);
                     }
-                    skip_to_line_end(input->tokens, input->count, &i);
-                    if (includePathBody) profiler_end(inactiveSkipScope);
                     break;
                 }
                 if (active) {
@@ -505,13 +666,14 @@ bool preprocess_tokens(Preprocessor* pp,
                     free(condStack);
                     return false;
                 }
-                ProfilerScope inactiveSkipScope = {0};
                 if (includePathBody) {
-                    profiler_record_value("pp_count_include_path_inactive_skip_lines", 1);
-                    inactiveSkipScope = profiler_begin("pp_recurse_include_path_inactive_skip");
+                    pp_include_path_skip_inactive_line(input->tokens,
+                                                       input->count,
+                                                       &i,
+                                                       PP_INCLUDE_PATH_INACTIVE_SKIP_OTHER);
+                } else {
+                    skip_to_line_end(input->tokens, input->count, &i);
                 }
-                skip_to_line_end(input->tokens, input->count, &i);
-                if (includePathBody) profiler_end(inactiveSkipScope);
                 break;
             case TOKEN_EOF:
                 // handled after loop
@@ -531,15 +693,19 @@ bool preprocess_tokens(Preprocessor* pp,
         }
     }
 
-    if (!pp_flush_chunk_profiled(pp, &chunk, output, nestedIncludeBody, includePathBody)) {
+    if (!pp_flush_chunk_profiled(pp,
+                                 &chunk,
+                                 output,
+                                 nestedIncludeBody,
+                                 includePathBody)) {
         pp_token_buffer_reset(&chunk);
         free(condStack);
         return false;
     }
-    if (activeTokenCount > 0) {
+    if (counterEnabled && activeTokenCount > 0) {
         profiler_record_value("pp_count_active_tokens_scanned", activeTokenCount);
     }
-    if (inactiveTokenCount > 0) {
+    if (counterEnabled && inactiveTokenCount > 0) {
         profiler_record_value("pp_count_inactive_tokens_scanned", inactiveTokenCount);
     }
 

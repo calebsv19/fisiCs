@@ -124,8 +124,10 @@ static void canonicalizeParsedTypeAliases(Scope* scope, ParsedType* type, int de
         }
     }
 
-    for (size_t i = 0; i < type->fpParamCount; ++i) {
-        canonicalizeParsedTypeAliases(scope, &type->fpParams[i], depth + 1);
+    if (type->fpParamCount > 0) {
+        for (size_t i = 0; i < type->fpParamCount; ++i) {
+            canonicalizeParsedTypeAliases(scope, &type->fpParams[i], depth + 1);
+        }
     }
 
     for (size_t i = 0; i < type->derivationCount; ++i) {
@@ -368,9 +370,11 @@ static void hashParsedTypeFingerprint(uint64_t* hash, const ParsedType* type) {
     hash_u64(hash, (uint64_t)type->tag);
     hash_u64(hash, (uint64_t)type->primitiveType);
     hash_bool(hash, type->isFunctionPointer);
-    hash_u64(hash, (uint64_t)type->fpParamCount);
-    for (size_t i = 0; i < type->fpParamCount; ++i) {
-        hashParsedTypeFingerprint(hash, &type->fpParams[i]);
+    if (type->fpParamCount > 0) {
+        hash_u64(hash, (uint64_t)type->fpParamCount);
+        for (size_t i = 0; i < type->fpParamCount; ++i) {
+            hashParsedTypeFingerprint(hash, &type->fpParams[i]);
+        }
     }
     hash_string(hash, type->userTypeName);
     hash_bool(hash, type->isConst);

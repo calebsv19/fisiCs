@@ -12,6 +12,9 @@ bool parse_include_operand(const Token* tokens,
                            bool* outIsSystem);
 bool include_name_is_suspicious(const char* name);
 const char* detect_include_guard(const TokenBuffer* buffer);
+const char* detect_include_guard_from_summary_actions(const TokenBuffer* buffer,
+                                                      const IncludeSummaryAction* actions,
+                                                      size_t actionCount);
 bool classify_include_summary_router_only(const TokenBuffer* buffer,
                                           const IncludeSummaryAction* actions,
                                           size_t actionCount,
@@ -42,6 +45,9 @@ void pp_profile_conditional_scaffold_shape(Preprocessor* pp,
                                            const char* guard);
 void pp_profile_summary_probe_scan_result(const IncludeSummaryProbe* probe);
 bool pp_summary_replay_experiment_enabled(void);
+bool pp_summary_replay_router_enabled(void);
+bool pp_summary_replay_scaffold_enabled(void);
+bool pp_summary_replay_general_enabled(void);
 const char* nested_recurse_scope_name(bool repeatSeen, IncludeSearchOrigin origin);
 
 #endif /* PREPROCESSOR_INCLUDE_SUPPORT_H */

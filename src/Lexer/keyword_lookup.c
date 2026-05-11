@@ -1,190 +1,76 @@
-/* C code produced by gperf version 3.0.3 */
-/* Command-line: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/gperf src/Lexer/keywords.gperf  */
-/* Computed positions: -k'1,3' */
+// SPDX-License-Identifier: Apache-2.0
 
-#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
-      && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
-      && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
-      && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
-      && ('1' == 49) && ('2' == 50) && ('3' == 51) && ('4' == 52) \
-      && ('5' == 53) && ('6' == 54) && ('7' == 55) && ('8' == 56) \
-      && ('9' == 57) && (':' == 58) && (';' == 59) && ('<' == 60) \
-      && ('=' == 61) && ('>' == 62) && ('?' == 63) && ('A' == 65) \
-      && ('B' == 66) && ('C' == 67) && ('D' == 68) && ('E' == 69) \
-      && ('F' == 70) && ('G' == 71) && ('H' == 72) && ('I' == 73) \
-      && ('J' == 74) && ('K' == 75) && ('L' == 76) && ('M' == 77) \
-      && ('N' == 78) && ('O' == 79) && ('P' == 80) && ('Q' == 81) \
-      && ('R' == 82) && ('S' == 83) && ('T' == 84) && ('U' == 85) \
-      && ('V' == 86) && ('W' == 87) && ('X' == 88) && ('Y' == 89) \
-      && ('Z' == 90) && ('[' == 91) && ('\\' == 92) && (']' == 93) \
-      && ('^' == 94) && ('_' == 95) && ('a' == 97) && ('b' == 98) \
-      && ('c' == 99) && ('d' == 100) && ('e' == 101) && ('f' == 102) \
-      && ('g' == 103) && ('h' == 104) && ('i' == 105) && ('j' == 106) \
-      && ('k' == 107) && ('l' == 108) && ('m' == 109) && ('n' == 110) \
-      && ('o' == 111) && ('p' == 112) && ('q' == 113) && ('r' == 114) \
-      && ('s' == 115) && ('t' == 116) && ('u' == 117) && ('v' == 118) \
-      && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
-      && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
-/* The character set is not based on ISO-646.  */
-error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
-#endif
+#include "keyword_lookup.h"
 
-#line 1 "src/Lexer/keywords.gperf"
-
-#include <stddef.h>
 #include <string.h>
-#include "tokens.h"
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wdeprecated-non-prototype"
-#endif
 
-#define TOTAL_KEYWORDS 45
-#define MIN_WORD_LENGTH 2
-#define MAX_WORD_LENGTH 14
-#define MIN_HASH_VALUE 2
-#define MAX_HASH_VALUE 83
-/* maximum key range = 82, duplicates = 0 */
+typedef struct KeywordEntry {
+    const char* name;
+    size_t len;
+} KeywordEntry;
 
-#ifdef __GNUC__
-__inline
-#else
-#ifdef __cplusplus
-inline
-#endif
-#endif
-static unsigned int
-keyword_hash (str, len)
-     register const char *str;
-     register unsigned int len;
-{
-  static const unsigned char asso_values[] =
-    {
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84,  0, 84, 15,  5, 20,
-      15, 40, 25, 30,  0,  0, 84, 84, 25, 35,
-      15,  0, 30, 84, 10,  5,  0, 15, 50, 10,
-      84, 84, 45, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84, 84, 84, 84, 84,
-      84, 84, 84, 84, 84, 84
-    };
-  register unsigned int hval = len;
+static const KeywordEntry kKeywords[] = {
+    {"int", 3},
+    {"char", 4},
+    {"float", 5},
+    {"double", 6},
+    {"long", 4},
+    {"short", 5},
+    {"signed", 6},
+    {"unsigned", 8},
+    {"enum", 4},
+    {"union", 5},
+    {"struct", 6},
+    {"typedef", 7},
+    {"void", 4},
+    {"if", 2},
+    {"else", 4},
+    {"for", 3},
+    {"while", 5},
+    {"do", 2},
+    {"switch", 6},
+    {"case", 4},
+    {"default", 7},
+    {"return", 6},
+    {"goto", 4},
+    {"break", 5},
+    {"continue", 8},
+    {"extern", 6},
+    {"static", 6},
+    {"auto", 4},
+    {"register", 8},
+    {"_Thread_local", 13},
+    {"const", 5},
+    {"volatile", 8},
+    {"restrict", 8},
+    {"inline", 6},
+    {"_Atomic", 7},
+    {"sizeof", 6},
+    {"_Alignof", 8},
+    {"alignof", 7},
+    {"_Static_assert", 14},
+    {"_Bool", 5},
+    {"asm", 3},
+    {"_Complex", 8},
+    {"_Imaginary", 10},
+    {"pragma", 6},
+    {"once", 4},
+};
 
-  switch (hval)
-    {
-      default:
-        hval += asso_values[(unsigned char)str[2]];
-      /*FALLTHROUGH*/
-      case 2:
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
+const char* in_keyword_set(const char* str, size_t len) {
+    if (!str) {
+        return NULL;
     }
-  return hval;
-}
 
-const char *
-in_keyword_set (str, len)
-     register const char *str;
-     register unsigned int len;
-{
-  static const char * const wordlist[] =
-    {
-      "", "",
-      "if",
-      "int",
-      "",
-      "_Bool",
-      "",
-      "_Atomic",
-      "_Complex",
-      "",
-      "short",
-      "switch",
-      "",
-      "_Thread_local",
-      "_Static_assert",
-      "while",
-      "return",
-      "do",
-      "",
-      "auto",
-      "union",
-      "struct",
-      "alignof",
-      "restrict",
-      "once",
-      "",
-      "static",
-      "",
-      "unsigned",
-      "case",
-      "float",
-      "inline",
-      "",
-      "_Alignof",
-      "goto",
-      "",
-      "double",
-      "typedef",
-      "for",
-      "char",
-      "const",
-      "signed",
-      "",
-      "continue",
-      "long",
-      "_Imaginary",
-      "extern",
-      "default",
-      "register",
-      "else",
-      "break",
-      "pragma",
-      "",
-      "asm",
-      "void",
-      "",
-      "sizeof",
-      "", "",
-      "enum",
-      "", "", "", "", "", "", "", "", "",
-      "", "", "", "", "", "", "", "", "",
-      "", "", "", "", "",
-      "volatile"
-    };
-
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
-    {
-      unsigned int key = keyword_hash (str, len);
-
-      if (key <= MAX_HASH_VALUE)
-        {
-          register const char *s = wordlist[key];
-
-          if (*str == *s && !strcmp (str + 1, s + 1))
-            return s;
+    for (size_t i = 0; i < (sizeof(kKeywords) / sizeof(kKeywords[0])); ++i) {
+        const KeywordEntry* entry = &kKeywords[i];
+        if (entry->len != len) {
+            continue;
+        }
+        if (memcmp(str, entry->name, len) == 0) {
+            return entry->name;
         }
     }
-  return 0;
-}
-#line 62 "src/Lexer/keywords.gperf"
 
+    return NULL;
+}

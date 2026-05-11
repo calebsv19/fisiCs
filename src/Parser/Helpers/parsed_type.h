@@ -150,6 +150,10 @@ ParsedType parsedTypePointerTargetType(const ParsedType* t);
 ParsedType parsedTypeFunctionReturnType(const ParsedType* t);
 ParsedType parsedTypeDeclaredFunctionReturnType(const ParsedType* t);
 void parsedTypeNormalizeFunctionPointer(ParsedType* t);
+bool parsedTypeGetEffectiveFunctionPointerSignature(const ParsedType* t,
+                                                    const ParsedType** params,
+                                                    size_t* count,
+                                                    bool* isVariadic);
 bool parsedTypesStructurallyEqual(const ParsedType* a, const ParsedType* b);
 const TypeDerivation* parsedTypeGetDerivation(const ParsedType* t, size_t index);
 const TypeDerivation* parsedTypeGetArrayDerivation(const ParsedType* t, size_t dimensionIndex);

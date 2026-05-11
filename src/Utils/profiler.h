@@ -13,6 +13,8 @@ typedef struct ProfilerScope {
 void profiler_init(void);
 void profiler_shutdown(void);
 int profiler_enabled(void);
+int profiler_timing_enabled(void);
+int profiler_counters_enabled(void);
 
 ProfilerScope profiler_begin(const char* name);
 void profiler_end(ProfilerScope scope);

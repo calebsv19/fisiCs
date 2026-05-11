@@ -47,6 +47,398 @@
             "-Wextra",
             "-Wpedantic"
           ]
+        },
+        "B_link_subset": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "fisics_units_registry_model_subset",
+              "inputs": [
+                "tests/unit/frontend_api_contract_units_registry_model.c",
+                "src/Extensions/Units/units_model.c",
+                "src/Extensions/Units/units_registry.c"
+              ]
+            },
+            {
+              "id": "fisics_units_registry_validation_subset",
+              "inputs": [
+                "tests/unit/frontend_api_contract_units_registry_validation.c",
+                "src/Extensions/Units/units_model.c",
+                "src/Extensions/Units/units_registry.c"
+              ]
+            },
+            {
+              "id": "fisics_frontend_contract_metadata_subset",
+              "inputs": [
+                "tests/unit/frontend_api_contract_metadata.c"
+              ],
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "exclude_inputs": [
+                "src/main.c",
+                "src/main_diagnostics.c",
+                "src/main_driver.c",
+                "src/Compiler/object_emit.c"
+              ],
+              "use_llvm_core_link_args": true
+            },
+            {
+              "id": "fisics_frontend_contract_parent_stable_id_subset",
+              "inputs": [
+                "tests/unit/frontend_api_contract_parent_stable_id.c"
+              ],
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "exclude_inputs": [
+                "src/main.c",
+                "src/main_diagnostics.c",
+                "src/main_driver.c",
+                "src/Compiler/object_emit.c"
+              ],
+              "use_llvm_core_link_args": true
+            },
+            {
+              "id": "fisics_frontend_contract_hash_stability_subset",
+              "inputs": [
+                "tests/unit/frontend_api_contract_hash_stability.c"
+              ],
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "exclude_inputs": [
+                "src/main.c",
+                "src/main_diagnostics.c",
+                "src/main_driver.c",
+                "src/Compiler/object_emit.c"
+              ],
+              "use_llvm_core_link_args": true
+            },
+            {
+              "id": "fisics_frontend_contract_capabilities_subset",
+              "inputs": [
+                "tests/unit/frontend_api_contract_capabilities.c"
+              ],
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "exclude_inputs": [
+                "src/main.c",
+                "src/main_diagnostics.c",
+                "src/main_driver.c",
+                "src/Compiler/object_emit.c"
+              ],
+              "use_llvm_core_link_args": true
+            },
+            {
+              "id": "fisics_frontend_contract_diagnostics_taxonomy_subset",
+              "inputs": [
+                "tests/unit/frontend_api_contract_diagnostics_taxonomy.c"
+              ],
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "exclude_inputs": [
+                "src/main.c",
+                "src/main_diagnostics.c",
+                "src/main_driver.c",
+                "src/Compiler/object_emit.c"
+              ],
+              "use_llvm_core_link_args": true
+            },
+            {
+              "id": "fisics_frontend_contract_extension_diag_namespace_subset",
+              "inputs": [
+                "tests/unit/frontend_api_contract_extension_diag_namespace.c"
+              ],
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "exclude_inputs": [
+                "src/main.c",
+                "src/main_diagnostics.c",
+                "src/main_driver.c",
+                "src/Compiler/object_emit.c"
+              ],
+              "use_llvm_core_link_args": true
+            }
+          ]
+        },
+        "C_full_build": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "fisics_cli_full_default",
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "use_llvm_core_link_args": true
+            },
+            {
+              "id": "fisics_cli_shadow_profile_default",
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/core/core_base/src/*.c",
+                "third_party/codework_shared/core/core_io/src/*.c",
+                "third_party/codework_shared/core/core_data/src/*.c",
+                "third_party/codework_shared/core/core_pack/src/*.c"
+              ],
+              "fisics_extra_args": [
+                "-DDEFAULT_INCLUDE_PATHS=\"third_party/codework_shared/sys_shims/overlay/include:third_party/codework_shared/sys_shims/include:include\""
+              ],
+              "clang_extra_args": [
+                "-DDEFAULT_INCLUDE_PATHS=\"third_party/codework_shared/sys_shims/overlay/include:third_party/codework_shared/sys_shims/include:include\""
+              ],
+              "use_llvm_core_link_args": true
+            }
+          ]
+        },
+        "D_runtime_smoke": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 10,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "fisics_runtime_small_project_link_smoke",
+              "build_target": "fisics_cli_full_default",
+              "run_args": [
+                "-Itests/fixtures/small_project/include",
+                "tests/fixtures/small_project/src/main.c",
+                "tests/fixtures/small_project/src/a.c",
+                "tests/fixtures/small_project/src/b.c",
+                "-o",
+                "/private/tmp/fisics_stage_d_small_project.out"
+              ],
+              "expected_exit_code": 0
+            },
+            {
+              "id": "fisics_runtime_shadow_profile_compile_smoke",
+              "build_target": "fisics_cli_shadow_profile_default",
+              "run_args": [
+                "-c",
+                "tests/preprocessor/system_include_shim_domains.c",
+                "-o",
+                "/private/tmp/fisics_stage_d_shadow_profile.o"
+              ],
+              "expected_exit_code": 0
+            },
+            {
+              "id": "fisics_runtime_small_project_deps_json_smoke",
+              "build_target": "fisics_cli_full_default",
+              "run_args": [
+                "--emit-deps-json",
+                "/private/tmp/fisics_stage_d_small_project_deps.json",
+                "-Itests/fixtures/small_project/include",
+                "-c",
+                "tests/fixtures/small_project/src/main.c",
+                "-o",
+                "/private/tmp/fisics_stage_d_small_project_deps.o"
+              ],
+              "expected_exit_code": 0
+            },
+            {
+              "id": "fisics_runtime_small_project_dump_sema_smoke",
+              "build_target": "fisics_cli_full_default",
+              "run_args": [
+                "--dump-sema",
+                "-Itests/fixtures/small_project/include",
+                "tests/fixtures/small_project/src/main.c",
+                "tests/fixtures/small_project/src/a.c",
+                "tests/fixtures/small_project/src/b.c",
+                "-o",
+                "/private/tmp/fisics_stage_d_small_project_dump_sema.out"
+              ],
+              "expected_exit_code": 0
+            },
+            {
+              "id": "fisics_runtime_fnptr_first_param_decl_smoke",
+              "build_target": "fisics_cli_full_default",
+              "run_args": [
+                "-c",
+                "tests/fixtures/self_host_runtime/fnptr_first_param_decl.c",
+                "-o",
+                "/private/tmp/fisics_stage_d_fnptr_first_param_decl.o"
+              ],
+              "expected_exit_code": 0
+            },
+            {
+              "id": "fisics_runtime_shadow_profile_overlay_stdio_smoke",
+              "build_target": "fisics_cli_shadow_profile_default",
+              "run_args": [
+                "--overlay=physics-units",
+                "-c",
+                "tests/fixtures/self_host_runtime/overlay_stdio_nocall.c",
+                "-o",
+                "/private/tmp/fisics_stage_d_overlay_stdio_nocall.o"
+              ],
+              "expected_exit_code": 0
+            }
+          ]
+        },
+        "E_golden_behavior": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 10,
+          "expected_exit_code": 0,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "fisics_golden_small_project_dump_sema",
+              "build_target": "fisics_cli_full_default",
+              "run_args": [
+                "--dump-sema",
+                "-Itests/fixtures/small_project/include",
+                "tests/fixtures/small_project/src/main.c",
+                "tests/fixtures/small_project/src/a.c",
+                "tests/fixtures/small_project/src/b.c",
+                "-o",
+                "/private/tmp/fisics_stage_e_small_project_dump_sema.out"
+              ],
+              "expected_stdout_sha256": "dc23590483dabb3f1a29a6e6c5d7bda5e419eafd872c95d35d7cd35febcb7d6d",
+              "expected_stdout_contains": [
+                "SemanticModel: 0 error(s)",
+                "  - function: a_value",
+                "  - function: b_value",
+                "  - function: main"
+              ],
+              "expected_stderr_contains": [
+                "[link] clang ",
+                "/private/tmp/fisics_stage_e_small_project_dump_sema.out"
+              ]
+            },
+            {
+              "id": "fisics_golden_shadow_profile_shim_domain_dump_sema",
+              "build_target": "fisics_cli_shadow_profile_default",
+              "run_args": [
+                "--dump-sema",
+                "-c",
+                "tests/preprocessor/system_include_shim_domains.c",
+                "-o",
+                "/private/tmp/fisics_stage_e_shadow_profile_dump_sema.o"
+              ],
+              "expected_stdout_sha256": "0e55f292345bd61cdcc1728611cf21d44bf7ef1d9102351192ac1701ce901f5a",
+              "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "expected_stdout_contains": [
+                "SemanticModel: 0 error(s)",
+                "  - function: shim_sqrt_checked",
+                "  - function: localeconv",
+                "  - typedef: uint32_t"
+              ]
+            },
+            {
+              "id": "fisics_golden_overlay_ballistics_valid_dump_sema",
+              "build_target": "fisics_cli_shadow_profile_default",
+              "run_args": [
+                "--overlay=physics-units",
+                "--dump-sema",
+                "-c",
+                "examples/physics_units/ballistics_valid.c",
+                "-o",
+                "/private/tmp/fisics_stage_e_ballistics_valid.o"
+              ]
+            },
+            {
+              "id": "fisics_golden_overlay_ballistics_invalid_assignment_diag",
+              "build_target": "fisics_cli_full_default",
+              "run_args": [
+                "--overlay=physics-units",
+                "--dump-sema",
+                "-c",
+                "examples/physics_units/ballistics_invalid_assignment.c",
+                "-o",
+                "/private/tmp/fisics_stage_e_ballistics_invalid_assignment.o"
+              ],
+              "expected_exit_code": 1
+            }
+          ]
+        },
+        "F_perf_telemetry": {
+          "enabled": true,
+          "required_stages": [
+            "A_tu_compile",
+            "B_link_subset",
+            "C_full_build",
+            "D_runtime_smoke",
+            "E_golden_behavior"
+          ],
+          "hard_fail_on_regression": false,
+          "regression_warn_pct": 30,
+          "regression_warn_min_ms": 250,
+          "ratio_warn": 20.0,
+          "binary_candidates": [
+            "fisics"
+          ]
         }
       }
     },
@@ -59,19 +451,22 @@
         "src/**/*.c"
       ],
       "exclude_globs": [],
-      "include_dirs": [
-        "include",
-        "src",
-        "third_party/codework_shared/core/core_base/include",
-        "third_party/codework_shared/core/core_io/include",
-        "third_party/codework_shared/core/core_data/include",
-        "third_party/codework_shared/core/core_pack/include",
-        "third_party/codework_shared/kit/kit_viz/include",
-        "third_party/codework_shared/kit/kit_graph_timeseries/include",
-        "third_party/codework_shared/kit/kit_render/include",
-        "third_party/codework_shared/core/core_theme/include",
-        "third_party/codework_shared/core/core_font/include"
-      ],
+    "include_dirs": [
+      "include",
+      "src",
+      "third_party/codework_shared/core/core_base/include",
+      "third_party/codework_shared/core/core_io/include",
+      "third_party/codework_shared/core/core_pane/include",
+      "third_party/codework_shared/core/core_viewport2d/include",
+      "third_party/codework_shared/core/core_data/include",
+      "third_party/codework_shared/core/core_pack/include",
+      "third_party/codework_shared/kit/kit_viz/include",
+      "third_party/codework_shared/kit/kit_graph_timeseries/include",
+      "third_party/codework_shared/kit/kit_render/include",
+      "third_party/codework_shared/kit/kit_workspace_authoring/include",
+      "third_party/codework_shared/core/core_theme/include",
+      "third_party/codework_shared/core/core_font/include"
+    ],
       "defines": [],
       "platform_overrides": {
         "darwin": {
@@ -290,15 +685,17 @@
         "src/**/*.c"
       ],
       "exclude_globs": [],
-      "include_dirs": [
-        "include",
-        "src",
+    "include_dirs": [
+      "include",
+      "src",
         "src/app",
         "src/app/lifecycle",
+        "src/authoring_engine",
         "src/runtime",
         "src/runtime/drag",
         "src/ui",
         "src/ui/corner",
+        "src/ui/font_theme",
         "src/ui/hud",
         "src/ui/ingest",
         "src/ui/input",
@@ -315,12 +712,13 @@
         "../shared/core/core_pane_module/include",
         "../shared/core/core_pane_snapshot/include",
         "../shared/core/core_pack/include",
-        "../shared/core/core_theme/include",
-        "../shared/core/core_font/include",
-        "../shared/kit/kit_render/include",
-        "../shared/kit/kit_pane/include",
-        "../shared/vk_renderer/include"
-      ],
+      "../shared/core/core_theme/include",
+      "../shared/core/core_font/include",
+      "../shared/kit/kit_render/include",
+      "../shared/kit/kit_pane/include",
+      "../shared/kit/kit_workspace_authoring/include",
+      "../shared/vk_renderer/include"
+    ],
       "defines": [],
       "platform_overrides": {
         "darwin": {
@@ -814,11 +1212,11 @@
         "src/Tools/*.c",
         "src/Tools/**/*.c"
       ],
-      "include_dirs": [
-        "include",
-        "src",
-        "src/Tools",
-        "external",
+    "include_dirs": [
+      "include",
+      "src",
+      "src/Tools",
+      "external",
         "../shared/vk_renderer/include",
         "../shared/core/core_base/include",
         "../shared/core/core_io/include",
@@ -833,10 +1231,13 @@
         "../shared/core/core_pane_module/include",
         "../shared/core/core_pack/include",
         "../shared/core/core_trace/include",
-        "../shared/core/core_theme/include",
-        "../shared/core/core_font/include",
-        "../shared/timer_hud/include"
-      ],
+      "../shared/core/core_theme/include",
+      "../shared/core/core_font/include",
+      "../shared/kit/kit_render/include",
+      "../shared/kit/kit_pane/include",
+      "../shared/kit/kit_workspace_authoring/include",
+      "../shared/timer_hud/include"
+    ],
       "defines": [
         "USE_VULKAN=1"
       ],
@@ -1259,6 +1660,8 @@
         "src",
         "extern",
         "SDLApp",
+        "../shared/timer_hud/include",
+        "../shared/timer_hud/external",
         "third_party/codework_shared/vk_renderer/include",
         "third_party/codework_shared/timer_hud/include",
         "third_party/codework_shared/timer_hud/external",
@@ -1276,6 +1679,7 @@
         "third_party/codework_shared/core/core_wake/include",
         "third_party/codework_shared/core/core_kernel/include",
         "third_party/codework_shared/core/core_trace/include",
+        "third_party/codework_shared/kit/kit_render/include",
         "third_party/codework_shared/kit/kit_viz/include",
         "/usr/local/include"
       ],
@@ -1505,6 +1909,8 @@
         "include",
         "src",
         "third_party/codework_shared/vk_renderer/include",
+        "../shared/timer_hud/include",
+        "../shared/timer_hud/external",
         "third_party/codework_shared/core/core_base/include",
         "third_party/codework_shared/core/core_io/include",
         "third_party/codework_shared/core/core_data/include",
@@ -1519,7 +1925,6 @@
         "third_party/codework_shared/core/core_wake/include",
         "third_party/codework_shared/core/core_kernel/include",
         "../fisiCs/src",
-        "third_party/codework_shared/timer_hud/include",
         "third_party/codework_shared/timer_hud/external",
         "/usr/local/include"
       ],
@@ -1733,14 +2138,19 @@
         "../shared/core/core_io/include",
         "../shared/core/core_data/include",
         "../shared/core/core_pack/include",
+        "../shared/core/core_pane/include",
         "../shared/core/core_scene/include",
         "../shared/core/core_scene_compile/include",
+        "../shared/core/core_sim/include",
         "../shared/core/core_object/include",
         "../shared/core/core_units/include",
         "../shared/core/core_trace/include",
         "../shared/core/core_theme/include",
         "../shared/core/core_font/include",
+        "../shared/kit/kit_render/include",
+        "../shared/kit/kit_pane/include",
         "../shared/kit/kit_viz/include",
+        "../shared/kit/kit_workspace_authoring/include",
         "../shared/timer_hud/include",
         "../shared/timer_hud/external"
       ],
@@ -1769,34 +2179,26 @@
           "enabled": true,
           "timeout_sec": 120,
           "fisics_extra_args": [
-            "--extensions=gnu",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "--extensions=gnu"
           ],
           "clang_extra_args": [
             "-std=c11",
             "-Wall",
             "-Wextra",
-            "-Wpedantic",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "-Wpedantic"
           ]
         },
         "B_link_subset": {
           "enabled": true,
           "timeout_sec": 120,
           "fisics_extra_args": [
-            "--extensions=gnu",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "--extensions=gnu"
           ],
           "clang_extra_args": [
             "-std=c11",
             "-Wall",
             "-Wextra",
-            "-Wpedantic",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "-Wpedantic"
           ],
           "link_args": [
             "-lm"
@@ -1822,17 +2224,13 @@
           "enabled": true,
           "timeout_sec": 120,
           "fisics_extra_args": [
-            "--extensions=gnu",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "--extensions=gnu"
           ],
           "clang_extra_args": [
             "-std=c11",
             "-Wall",
             "-Wextra",
-            "-Wpedantic",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "-Wpedantic"
           ],
           "link_args": [
             "-lm"
@@ -1854,17 +2252,13 @@
           "run_timeout_sec": 8,
           "expected_exit_code": 1,
           "fisics_extra_args": [
-            "--extensions=gnu",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "--extensions=gnu"
           ],
           "clang_extra_args": [
             "-std=c11",
             "-Wall",
             "-Wextra",
-            "-Wpedantic",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "-Wpedantic"
           ],
           "link_args": [
             "-lm"
@@ -1884,17 +2278,13 @@
           "run_timeout_sec": 8,
           "expected_exit_code": 1,
           "fisics_extra_args": [
-            "--extensions=gnu",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "--extensions=gnu"
           ],
           "clang_extra_args": [
             "-std=c11",
             "-Wall",
             "-Wextra",
-            "-Wpedantic",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
+            "-Wpedantic"
           ],
           "link_args": [
             "-lm"
@@ -1945,13 +2335,14 @@
         "src/**/*.c"
       ],
       "exclude_globs": [],
-      "include_dirs": [
-        "include",
-        "src",
-        "third_party/codework_shared/core/core_space/include",
-        "third_party/codework_shared/core/core_base/include",
-        "third_party/codework_shared/core/core_io/include",
-        "third_party/codework_shared/core/core_data/include",
+    "include_dirs": [
+      "include",
+      "src",
+      "third_party/codework_shared/core/core_space/include",
+      "third_party/codework_shared/core/core_base/include",
+      "third_party/codework_shared/core/core_viewport2d/include",
+      "third_party/codework_shared/core/core_io/include",
+      "third_party/codework_shared/core/core_data/include",
         "third_party/codework_shared/core/core_pack/include",
         "third_party/codework_shared/core/core_time/include",
         "third_party/codework_shared/core/core_queue/include",
@@ -1963,6 +2354,7 @@
         "third_party/codework_shared/core/core_trace/include",
         "third_party/codework_shared/core/core_theme/include",
         "third_party/codework_shared/core/core_font/include",
+        "third_party/codework_shared/kit/kit_render/include",
         "third_party/codework_shared/kit/kit_runtime_diag/include",
         "third_party/codework_shared/vk_renderer/include"
       ],
@@ -2174,15 +2566,20 @@
         "../shared/core/core_data/include",
         "../shared/core/core_pack/include",
         "../shared/core/core_time/include",
+        "../shared/core/core_pane/include",
         "../shared/core/core_scene/include",
         "../shared/core/core_scene_compile/include",
+        "../shared/core/core_sim/include",
         "../shared/core/core_object/include",
         "../shared/core/core_units/include",
         "../shared/core/core_trace/include",
         "../shared/core/core_space/include",
         "../shared/core/core_theme/include",
         "../shared/core/core_font/include",
+        "../shared/kit/kit_render/include",
+        "../shared/kit/kit_pane/include",
         "../shared/kit/kit_viz/include",
+        "../shared/kit/kit_workspace_authoring/include",
         "../shared/kit/kit_runtime_diag/include",
         "../shared/timer_hud/include",
         "../shared/timer_hud/external"

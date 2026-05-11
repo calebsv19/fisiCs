@@ -58,6 +58,7 @@ struct IncludePathHintEntry {
 
 static char* ir_strdup(const char* s);
 static bool ir_path_is_dir(const char* path);
+static bool ir_path_is_absolute(const char* path);
 
 static uint64_t ir_now_ns(void) {
     struct timespec ts;
@@ -259,6 +260,14 @@ static char* ir_strdup(const char* s) {
     return copy;
 }
 
+static bool ir_path_is_absolute(const char* path) {
+    if (!path || !path[0]) return false;
+    if (path[0] == '/') return true;
+    return ((path[0] >= 'A' && path[0] <= 'Z') ||
+            (path[0] >= 'a' && path[0] <= 'z')) &&
+           path[1] == ':';
+}
+
 static char* ir_canonicalize_path(const char* path) {
     if (!path) return NULL;
     profiler_record_value("pp_count_path_canonicalize_calls", 1);
@@ -358,6 +367,9 @@ static size_t ir_lookup_include_path_hint_index(const IncludeResolver* resolver,
                                                 const char* name,
                                                 bool isSystem,
                                                 bool isIncludeNext);
+static size_t ir_lookup_include_path_exact_alias_index(const IncludeResolver* resolver,
+                                                       const char* name,
+                                                       size_t startIdx);
 static size_t ir_lookup_include_path_stem_match_index(const IncludeResolver* resolver,
                                                       const char* name,
                                                       size_t startIdx);
@@ -455,11 +467,7 @@ static const IncludeFile* ir_try_virtual_audio_toolbox(IncludeResolver* resolver
     IncludeFile file = {0};
     file.path = ir_strdup(kVirtualPath);
     file.contents = ir_strdup(kShim);
-    file.cachedGuardName = NULL;
     file.canonicalPath = ir_strdup(kVirtualPath);
-    file.summaryProbe = (IncludeSummaryProbe){0};
-    file.summaryActions = NULL;
-    file.summaryActionCount = 0;
     file.mtime = 0;
     file.pragmaOnce = true;
     file.includedOnce = false;
@@ -541,6 +549,46 @@ static size_t ir_lookup_include_path_hint_index(const IncludeResolver* resolver,
         if (strcmp(entry->includeName, name) != 0) continue;
         return i;
     }
+    return (size_t)-1;
+}
+
+static const char* ir_lookup_include_path_exact_alias_root(const char* name) {
+    if (!name) return NULL;
+    if (strcmp(name, "kit_workspace_authoring_ui.h") == 0) {
+        return "kit_workspace_authoring";
+    }
+    return NULL;
+}
+
+static size_t ir_lookup_include_path_exact_alias_index(const IncludeResolver* resolver,
+                                                       const char* name,
+                                                       size_t startIdx) {
+    if (!resolver || !name) return (size_t)-1;
+
+    const char* aliasRoot = ir_lookup_include_path_exact_alias_root(name);
+    if (!aliasRoot || !aliasRoot[0]) return (size_t)-1;
+
+    size_t aliasLen = strlen(aliasRoot);
+    for (size_t i = startIdx; i < resolver->includePathCount; ++i) {
+        const char* includePath = resolver->includePaths[i];
+        if (!includePath || !includePath[0]) continue;
+
+        const char* includeMarker = strstr(includePath, "/include");
+        const char* segmentEnd = includeMarker ? includeMarker : includePath + strlen(includePath);
+        while (segmentEnd > includePath && segmentEnd[-1] == '/') {
+            segmentEnd--;
+        }
+        const char* segmentStart = segmentEnd;
+        while (segmentStart > includePath && segmentStart[-1] != '/') {
+            segmentStart--;
+        }
+
+        size_t segmentLen = (size_t)(segmentEnd - segmentStart);
+        if (segmentLen != aliasLen) continue;
+        if (strncmp(segmentStart, aliasRoot, aliasLen) != 0) continue;
+        return i;
+    }
+
     return (size_t)-1;
 }
 
@@ -722,7 +770,7 @@ bool include_resolver_set_root_buffer(IncludeResolver* resolver,
         free(contents_owned);
         return true;
     }
-    IncludeFile file;
+    IncludeFile file = {0};
     file.path = ir_strdup(path);
     file.contents = contents_owned;
     file.cachedGuardName = NULL;
@@ -1045,18 +1093,17 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
                                       IncludeSearchOrigin origin,
                                       size_t originIndex) {
     profiler_record_value("pp_count_resolver_try_load", 1);
-    uint64_t probeStartNs = ir_now_ns();
-    uint64_t canonicalStartNs = ir_now_ns();
-    char* canonical = ir_canonicalize_path(path);
-    uint64_t canonicalEndNs = ir_now_ns();
-    if (!canonical) return NULL;
-    if (resolver && resolver->activeTrace) {
-        resolver->activeTrace->canonicalizeNs += (canonicalEndNs - canonicalStartNs);
+    const IncludeFile* exactCached = ir_lookup_exact_path(resolver, path);
+    if (exactCached) {
+        profiler_record_value("pp_count_resolver_exact_cache_hit", 1);
+        ir_trace_add_probe_duration(resolver, 0, false);
+        return exactCached;
     }
 
+    uint64_t probeStartNs = ir_now_ns();
     long mtime = 0;
     uint64_t statStartNs = ir_now_ns();
-    bool exists = ir_path_exists(canonical, &mtime);
+    bool exists = ir_path_exists(path, &mtime);
     uint64_t statEndNs = ir_now_ns();
     if (resolver && resolver->activeTrace) {
         resolver->activeTrace->statNs += (statEndNs - statStartNs);
@@ -1067,8 +1114,18 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
         ir_classify_missing_path(path, &missingDir, &missingLeaf);
         ir_trace_note_missing_kind(resolver, missingDir, missingLeaf);
         ir_trace_add_probe_duration(resolver, ir_now_ns() - probeStartNs, true);
-        free(canonical);
         return NULL;
+    }
+
+    uint64_t canonicalStartNs = ir_now_ns();
+    char* canonical = ir_canonicalize_path(path);
+    uint64_t canonicalEndNs = ir_now_ns();
+    if (!canonical) {
+        ir_trace_add_probe_duration(resolver, ir_now_ns() - probeStartNs, true);
+        return NULL;
+    }
+    if (resolver && resolver->activeTrace) {
+        resolver->activeTrace->canonicalizeNs += (canonicalEndNs - canonicalStartNs);
     }
 
     const IncludeFile* cached = ir_lookup_by_canonical_path(resolver, canonical);
@@ -1082,7 +1139,7 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
     profiler_record_value("pp_count_resolver_cache_miss", 1);
 
     uint64_t readStartNs = ir_now_ns();
-    char* data = ir_read_file(canonical);
+    char* data = ir_read_file(path);
     uint64_t readEndNs = ir_now_ns();
     if (resolver && resolver->activeTrace) {
         resolver->activeTrace->readNs += (readEndNs - readStartNs);
@@ -1093,7 +1150,7 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
         return NULL;
     }
 
-    IncludeFile file;
+    IncludeFile file = {0};
     file.path = ir_strdup(path);
     if (!file.path) {
         free(data);
@@ -1179,11 +1236,12 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
     }
 
     size_t startIdx = 0;
-    size_t hintedIndex = (size_t)-1;
-    bool hintedIndexTried = false;
     if (isIncludeNext && parentOrigin == INCLUDE_SEARCH_INCLUDE_PATH && parentIndex != (size_t)-1) {
         startIdx = parentIndex + 1;
     }
+
+    size_t hintedIndex = (size_t)-1;
+    bool hintedIndexTried = false;
     if (startIdx < resolver->includePathCount) {
         size_t hintEntryIndex =
             ir_lookup_include_path_hint_index(resolver, name, isSystem, isIncludeNext);
@@ -1211,6 +1269,16 @@ static const IncludeFile* ir_search_and_load(IncludeResolver* resolver,
             }
         } else {
             profiler_record_value("pp_count_include_path_hint_miss", 1);
+        }
+        if (hintedIndex == (size_t)-1) {
+            size_t exactAliasIndex =
+                ir_lookup_include_path_exact_alias_index(resolver, name, startIdx);
+            if (exactAliasIndex != (size_t)-1) {
+                hintedIndex = exactAliasIndex;
+                profiler_record_value("pp_count_include_path_exact_alias_hint_hit", 1);
+            } else {
+                profiler_record_value("pp_count_include_path_exact_alias_hint_miss", 1);
+            }
         }
         if (hintedIndex == (size_t)-1) {
             size_t stemMatchIndex =
@@ -1328,17 +1396,6 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
         return seeded;
     }
 
-    char* canonicalName = ir_canonicalize_path(name);
-    if (canonicalName) {
-        seeded = ir_lookup_by_canonical_path(resolver, canonicalName);
-        free(canonicalName);
-        if (seeded) {
-            if (originOut) *originOut = seeded->origin;
-            if (originIndexOut) *originIndexOut = seeded->originIndex;
-            return seeded;
-        }
-    }
-
     if (isSystem) {
         const IncludeFile* virtualAudioToolbox = ir_try_virtual_audio_toolbox(resolver, name);
         if (virtualAudioToolbox) {
@@ -1382,7 +1439,22 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
         }
     }
 
-    profiler_record_value("pp_count_resolver_front_cache_miss", 1);
+    if (ir_path_is_absolute(name)) {
+        char* canonicalName = ir_canonicalize_path(name);
+        if (canonicalName) {
+            seeded = ir_lookup_by_canonical_path(resolver, canonicalName);
+            free(canonicalName);
+            if (seeded) {
+                if (originOut) *originOut = seeded->origin;
+                if (originIndexOut) *originIndexOut = seeded->originIndex;
+                return seeded;
+            }
+        }
+    }
+
+    if (canUseRequestCache) {
+        profiler_record_value("pp_count_resolver_front_cache_miss", 1);
+    }
     IncludeLoadAttemptTrace trace = {0};
     trace.currentPhase = ir_phase_from_origin(INCLUDE_SEARCH_RAW);
     if (resolver->headerProfileEnabled) {

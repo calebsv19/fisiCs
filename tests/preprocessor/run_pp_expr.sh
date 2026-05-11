@@ -8,11 +8,6 @@ SRC_EXPR="$ROOT_DIR/tests/preprocessor/pp_expr_runner.c"
 OUT_BIN=$(mktemp)
 trap 'rm -f "$OUT_BIN"' EXIT
 
-# Ensure the generated keyword lookup exists (make clean deletes it).
-if [ ! -f "$ROOT_DIR/src/Lexer/keyword_lookup.c" ]; then
-  gperf "$ROOT_DIR/src/Lexer/keywords.gperf" > "$ROOT_DIR/src/Lexer/keyword_lookup.c"
-fi
-
 cc -Wall -Wextra -std=c99 \
   -I"$ROOT_DIR/src" \
   -I"$ROOT_DIR/src/Lexer" \

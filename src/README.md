@@ -3,7 +3,7 @@
 This tree implements a single-pass C front-end with optional LLVM IR emission. Control flows through:
 
 - **Driver** (`main.c`, `main_driver.c`, `main_diagnostics.c`) configures `CompilerContext` (include graph, target triple, data layout), then executes lexing → preprocessing → parsing → semantic analysis (and optional code generation/AST dumps), while the compile/link driver path and diagnostics artifact emission live in focused helper modules.
-- **Lexer** tokenises the raw buffer into `Token` objects (keyword lookup via an auto-generated gperf table).
+- **Lexer** tokenises the raw buffer into `Token` objects (keyword lookup via a checked-in keyword table derived from `keywords.gperf`).
 - **Preprocessor** resolves includes (cached, pragma once/guards, dependency JSON), expands macros, and evaluates `#if/#elif` conditionals before handing a `TokenBuffer` to the parser; preservation mode keeps directive stubs.
 - **Parser** consumes tokens into an annotated AST. Pratt and recursive-descent expression engines coexist, sharing helper utilities for type probing, declarations, and designators.
 - **AST** defines the node model plus printers for debugging.

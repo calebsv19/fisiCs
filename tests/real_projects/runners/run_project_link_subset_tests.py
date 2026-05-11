@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+import shlex
 import shutil
 import subprocess
 import sys
@@ -230,6 +231,70 @@ def resolve_input_path(project_root: Path, raw: str) -> Path:
     return (project_root / p).resolve()
 
 
+def expand_target_inputs(project_root: Path, target: dict[str, Any]) -> list[Path]:
+    ordered: list[Path] = []
+    seen: set[Path] = set()
+
+    raw_inputs = list(target.get("inputs", []))
+    raw_input_globs = list(target.get("input_globs", []))
+    raw_exclude_inputs = list(target.get("exclude_inputs", []))
+    raw_exclude_globs = list(target.get("exclude_globs", []))
+
+    def add_path(path: Path) -> None:
+        resolved = path.resolve()
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        ordered.append(resolved)
+
+    for raw in raw_inputs:
+        add_path(resolve_input_path(project_root, raw))
+
+    for raw_glob in raw_input_globs:
+        pattern_root = project_root
+        pattern = raw_glob
+        if Path(raw_glob).is_absolute():
+            raw_path = Path(raw_glob)
+            pattern_root = raw_path.anchor and Path(raw_path.anchor) or Path("/")
+            pattern = raw_path.as_posix().lstrip("/")
+        matches = sorted(pattern_root.glob(pattern))
+        for match in matches:
+            if match.is_file():
+                add_path(match)
+
+    excluded: set[Path] = set()
+    for raw in raw_exclude_inputs:
+        excluded.add(resolve_input_path(project_root, raw).resolve())
+    for raw_glob in raw_exclude_globs:
+        pattern_root = project_root
+        pattern = raw_glob
+        if Path(raw_glob).is_absolute():
+            raw_path = Path(raw_glob)
+            pattern_root = raw_path.anchor and Path(raw_path.anchor) or Path("/")
+            pattern = raw_path.as_posix().lstrip("/")
+        for match in sorted(pattern_root.glob(pattern)):
+            if match.is_file():
+                excluded.add(match.resolve())
+
+    return [path for path in ordered if path not in excluded]
+
+
+def llvm_core_link_args() -> list[str]:
+    completed = subprocess.run(
+        ["llvm-config", "--ldflags", "--libs", "core"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        stderr = completed.stderr.strip()
+        raise RuntimeError(
+            "failed to query llvm-config for link flags"
+            + (f": {stderr}" if stderr else "")
+        )
+    return shlex.split(completed.stdout)
+
+
 def normalize_name(path: Path) -> str:
     return path.as_posix().replace("/", "__")
 
@@ -355,10 +420,9 @@ def run_stage_b(
             target_id = str(target.get("id", "")).strip()
             if not target_id:
                 raise RuntimeError("stage B target missing id")
-            raw_inputs = list(target.get("inputs", []))
-            if not raw_inputs:
-                raise RuntimeError(f"stage B target '{target_id}' missing inputs")
-            input_paths = [resolve_input_path(project_root, raw) for raw in raw_inputs]
+            input_paths = expand_target_inputs(project_root, target)
+            if not input_paths:
+                raise RuntimeError(f"stage B target '{target_id}' selected zero inputs")
             for p in input_paths:
                 if not p.exists() or not p.is_file():
                     raise RuntimeError(f"stage B target '{target_id}' input missing: {p}")
@@ -366,6 +430,8 @@ def run_stage_b(
             target_fisics_args = default_fisics_extra_args + list(target.get("fisics_extra_args", []))
             target_clang_args = default_clang_extra_args + list(target.get("clang_extra_args", []))
             target_link_args = default_link_args + list(target.get("link_args", []))
+            if target.get("use_llvm_core_link_args", False):
+                target_link_args += llvm_core_link_args()
 
             fisics_compile_cmd = [str(fisics_bin)] + pp_flags + target_fisics_args
             fisics_obj_root = tmp_root / "fisics" / target_id

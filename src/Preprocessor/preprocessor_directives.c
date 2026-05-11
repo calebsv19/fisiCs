@@ -22,6 +22,148 @@ typedef struct {
     bool hasVaOpt;
 } MacroParamParse;
 
+static IncludeFile* pp_include_file_at(Preprocessor* pp, size_t includeFileIndex) {
+    if (!pp || !pp->resolver) return NULL;
+    if (includeFileIndex >= pp->resolver->count) return NULL;
+    return &pp->resolver->files[includeFileIndex];
+}
+
+static const IncludeFile* pp_include_file_at_const(const Preprocessor* pp, size_t includeFileIndex) {
+    if (!pp || !pp->resolver) return NULL;
+    if (includeFileIndex >= pp->resolver->count) return NULL;
+    return &pp->resolver->files[includeFileIndex];
+}
+
+static bool pp_include_file_was_included(const Preprocessor* pp, size_t includeFileIndex) {
+    const IncludeFile* file = pp_include_file_at_const(pp, includeFileIndex);
+    return file ? file->includedOnce : false;
+}
+
+static void pp_include_file_mark_included(Preprocessor* pp, size_t includeFileIndex) {
+    IncludeFile* file = pp_include_file_at(pp, includeFileIndex);
+    if (file) {
+        file->includedOnce = true;
+    }
+}
+
+static const char* pp_include_file_cached_guard(const Preprocessor* pp, size_t includeFileIndex) {
+    const IncludeFile* file = pp_include_file_at_const(pp, includeFileIndex);
+    return file ? file->cachedGuardName : NULL;
+}
+
+static void pp_include_file_cache_guard(Preprocessor* pp,
+                                        size_t includeFileIndex,
+                                        const char* guardName) {
+    if (!guardName || !guardName[0]) return;
+    IncludeFile* file = pp_include_file_at(pp, includeFileIndex);
+    if (!file) return;
+    if (file->cachedGuardName && strcmp(file->cachedGuardName, guardName) == 0) {
+        return;
+    }
+    char* copy = pp_strdup_local(guardName);
+    if (!copy) return;
+    free(file->cachedGuardName);
+    file->cachedGuardName = copy;
+}
+
+static void pp_include_file_cache_summary_probe(Preprocessor* pp,
+                                                size_t includeFileIndex,
+                                                IncludeSummaryProbe probe) {
+    IncludeFile* file = pp_include_file_at(pp, includeFileIndex);
+    if (file) {
+        file->summaryProbe = probe;
+    }
+}
+
+static void pp_include_file_cache_summary_actions(Preprocessor* pp,
+                                                  size_t includeFileIndex,
+                                                  const IncludeSummaryAction* actions,
+                                                  size_t actionCount) {
+    IncludeFile* file = pp_include_file_at(pp, includeFileIndex);
+    if (!file) return;
+
+    IncludeSummaryAction* copy = NULL;
+    if (actions && actionCount > 0) {
+        copy = (IncludeSummaryAction*)malloc(actionCount * sizeof(IncludeSummaryAction));
+        if (!copy) return;
+        memcpy(copy, actions, actionCount * sizeof(IncludeSummaryAction));
+    }
+
+    free(file->summaryActions);
+    file->summaryActions = copy;
+    file->summaryActionCount = copy ? actionCount : 0;
+}
+
+static IncludeSummaryAction* pp_include_file_summary_actions(Preprocessor* pp,
+                                                             size_t includeFileIndex,
+                                                             size_t* actionCountOut) {
+    IncludeFile* file = pp_include_file_at(pp, includeFileIndex);
+    if (!file) {
+        if (actionCountOut) *actionCountOut = 0;
+        return NULL;
+    }
+    if (actionCountOut) *actionCountOut = file->summaryActionCount;
+    return file->summaryActions;
+}
+
+static bool pp_stagea_diagnostic_profile_enabled(void) {
+    static int initialized = 0;
+    static bool enabled = false;
+    if (!initialized) {
+        const char* env = getenv("FISICS_PP_STAGEA_DIAGNOSTIC_PROFILE");
+        enabled = (env && env[0] && env[0] != '0');
+        initialized = 1;
+    }
+    return enabled && profiler_counters_enabled();
+}
+
+static bool pp_summary_replay_any_enabled(void) {
+    return pp_summary_replay_router_enabled() ||
+           pp_summary_replay_scaffold_enabled() ||
+           pp_summary_replay_general_enabled();
+}
+
+static bool pp_path_is_absolute(const char* path) {
+    if (!path || !path[0]) return false;
+    if (path[0] == '/') return true;
+    return isalpha((unsigned char)path[0]) && path[1] == ':';
+}
+
+static bool pp_include_supports_summary_probe(IncludeSearchOrigin origin,
+                                              const char* resolvedPath) {
+    if (origin == INCLUDE_SEARCH_INCLUDE_PATH) {
+        return true;
+    }
+    if (origin == INCLUDE_SEARCH_SAME_DIR) {
+        return pp_summary_replay_any_enabled() &&
+               pp_path_is_absolute(resolvedPath);
+    }
+    return false;
+}
+
+static bool pp_profile_include_path_full_token_walk(Preprocessor* pp,
+                                                    const TokenBuffer* buffer,
+                                                    PPTokenBuffer* output,
+                                                    const char* countName,
+                                                    const char* scopeName) {
+    if (!pp || !buffer || !output) return false;
+    if (!pp_stagea_diagnostic_profile_enabled()) {
+        return preprocess_tokens(pp, buffer, output, false);
+    }
+    if (countName && countName[0]) {
+        profiler_record_value(countName, 1);
+    }
+    ProfilerScope scope = {0};
+    if (scopeName && scopeName[0]) {
+        scope = profiler_begin(scopeName);
+    }
+    bool ok = preprocess_tokens(pp, buffer, output, false);
+    if (scopeName && scopeName[0]) {
+        profiler_end(scope);
+    }
+    return ok;
+}
+
 static void macro_param_parse_destroy(MacroParamParse* params) {
     if (!params) return;
     for (size_t i = 0; i < params->count; ++i) {
@@ -292,6 +434,8 @@ bool process_include(Preprocessor* pp,
         pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "include resolver not initialized");
         return false;
     }
+    bool timingEnabled = profiler_timing_enabled();
+    bool counterEnabled = profiler_counters_enabled();
     char* name = NULL;
     bool isSystem = false;
     size_t lineStart = *cursor;
@@ -306,13 +450,14 @@ bool process_include(Preprocessor* pp,
         pp_profile_event("pp_include_operand_direct");
         *cursor = tempCursor;
     } else {
-        ProfilerScope operandExpandScope = profiler_begin("pp_include_operand_expand_path");
+        ProfilerScope operandExpandScope =
+            pp_profiler_begin_if_enabled(timingEnabled, "pp_include_operand_expand_path");
         PPTokenBuffer expanded = {0};
         size_t span = (lineEnd > lineStart + 1) ? (lineEnd - (lineStart + 1)) : 0;
-        profiler_record_value("pp_count_macro_expand_calls", 1);
-        profiler_record_value("pp_count_macro_expand_input_tokens", span);
+        pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_macro_expand_calls", 1);
+        pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_macro_expand_input_tokens", span);
         if (!macro_expander_expand(&pp->expander, tokens + lineStart + 1, span, &expanded)) {
-            profiler_end(operandExpandScope);
+            pp_profiler_end_if_enabled(timingEnabled, operandExpandScope);
             pp_token_buffer_destroy(&expanded);
             pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "failed to expand #include operand");
             return false;
@@ -321,7 +466,7 @@ bool process_include(Preprocessor* pp,
         size_t tempCount = expanded.count + 2;
         Token* tempTokens = (Token*)calloc(tempCount, sizeof(Token));
         if (!tempTokens) {
-            profiler_end(operandExpandScope);
+            pp_profiler_end_if_enabled(timingEnabled, operandExpandScope);
             pp_token_buffer_destroy(&expanded);
             pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "out of memory parsing #include");
             return false;
@@ -338,7 +483,7 @@ bool process_include(Preprocessor* pp,
 
         tempCursor = 0;
         if (!parse_include_operand(tempTokens, tempCount, &tempCursor, &name, &isSystem)) {
-            profiler_end(operandExpandScope);
+            pp_profiler_end_if_enabled(timingEnabled, operandExpandScope);
             free(tempTokens);
             pp_token_buffer_destroy(&expanded);
             pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC, "invalid #include operand");
@@ -346,14 +491,14 @@ bool process_include(Preprocessor* pp,
         }
         free(tempTokens);
         pp_token_buffer_destroy(&expanded);
-        profiler_end(operandExpandScope);
+        pp_profiler_end_if_enabled(timingEnabled, operandExpandScope);
         *cursor = (lineEnd == 0) ? 0 : lineEnd - 1;
     }
 
     const char* parentFile = token_file(&tokens[*cursor]);
     IncludeSearchOrigin origin = INCLUDE_SEARCH_RAW;
     size_t originIndex = (size_t)-1;
-    ProfilerScope resolveScope = profiler_begin("pp_include_resolve");
+    ProfilerScope resolveScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_resolve");
     const IncludeFile* incPtr = include_resolver_load(pp->resolver,
                                                       parentFile,
                                                       name,
@@ -361,21 +506,26 @@ bool process_include(Preprocessor* pp,
                                                       isIncludeNext,
                                                       &origin,
                                                       &originIndex);
-    profiler_end(resolveScope);
-    IncludeFile incValue;
+    pp_profiler_end_if_enabled(timingEnabled, resolveScope);
+    size_t includeFileIndex = (size_t)-1;
     bool haveInc = false;
     if (incPtr) {
-        incValue = *incPtr;
-        incPtr = NULL;
+        includeFileIndex = (size_t)(incPtr - pp->resolver->files);
         haveInc = true;
     }
     IncludeSummaryProbe summaryProbe = {0};
-    const IncludeSummaryAction* summaryActions = NULL;
+    IncludeSummaryAction* summaryActions = NULL;
     size_t summaryActionCount = 0;
+    const IncludeFile* incValue = NULL;
     if (haveInc) {
-        summaryProbe = incValue.summaryProbe;
-        summaryActions = incValue.summaryActions;
-        summaryActionCount = incValue.summaryActionCount;
+        incValue = pp_include_file_at_const(pp, includeFileIndex);
+        if (incValue) {
+            summaryProbe = incValue->summaryProbe;
+            summaryActions = incValue->summaryActions;
+            summaryActionCount = incValue->summaryActionCount;
+        } else {
+            haveInc = false;
+        }
     }
 
     FisicsInclude incRec = {0};
@@ -384,7 +534,7 @@ bool process_include(Preprocessor* pp,
     incRec.line = tokens ? tokens[*cursor].line : 0;
     incRec.column = tokens ? tokens[*cursor].location.start.column : 0;
     incRec.resolved = haveInc;
-    incRec.resolved_path = haveInc ? incValue.path : NULL;
+    incRec.resolved_path = haveInc ? incValue->path : NULL;
     if (!haveInc) {
         incRec.origin = FISICS_INCLUDE_UNRESOLVED;
     } else {
@@ -427,14 +577,15 @@ bool process_include(Preprocessor* pp,
 
     include_graph_add(&pp->includeGraph,
                       parentFile ? parentFile : "<unknown>",
-                      incValue.path ? incValue.path : "<unknown>");
+                      incValue->path ? incValue->path : "<unknown>");
 
     bool nestedIncludeDispatch = pp->includeStack.depth > 1;
-    bool wasIncludedBefore = include_resolver_was_included(pp->resolver, incValue.path);
-    profiler_record_value(wasIncludedBefore
-                              ? "pp_count_repeat_include_attempts"
-                              : "pp_count_first_include_attempts",
-                          1);
+    bool wasIncludedBefore = pp_include_file_was_included(pp, includeFileIndex);
+    pp_profiler_record_value_if_enabled(counterEnabled,
+                                        wasIncludedBefore
+                                            ? "pp_count_repeat_include_attempts"
+                                            : "pp_count_first_include_attempts",
+                                        1);
     if (nestedIncludeDispatch) {
         pp_profile_event(wasIncludedBefore
                              ? "pp_nested_include_repeat_seen"
@@ -454,32 +605,32 @@ bool process_include(Preprocessor* pp,
         }
         char* extBuf = NULL;
         size_t extLen = 0;
-        ProfilerScope externalScope = profiler_begin("pp_include_external");
+        ProfilerScope externalScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_external");
         bool externalOk = pp_run_external_preprocessor(cmd,
                                                        args,
-                                                       incValue.path,
+                                                       incValue->path,
                                                        pp->includePaths,
                                                        pp->includePathCount,
                                                        &extBuf,
                                                        &extLen);
-        profiler_end(externalScope);
+        pp_profiler_end_if_enabled(timingEnabled, externalScope);
         if (!externalOk) {
             bool warnOnly = pp->lenientMissingIncludes;
             if (warnOnly) {
                 pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_WARNING, CDIAG_PREPROCESSOR_GENERIC,
-                               "external preprocessing failed for system include '%s'", incValue.path ? incValue.path : "<unknown>");
+                               "external preprocessing failed for system include '%s'", incValue->path ? incValue->path : "<unknown>");
                 free(extBuf);
                 return true;
             }
             pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,
-                           "external preprocessing failed for system include '%s'", incValue.path ? incValue.path : "<unknown>");
+                           "external preprocessing failed for system include '%s'", incValue->path ? incValue->path : "<unknown>");
             free(extBuf);
             return false;
         }
 
-        ProfilerScope externalLexScope = profiler_begin("pp_include_external_lex");
+        ProfilerScope externalLexScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_external_lex");
         Lexer extLexer;
-        initLexer(&extLexer, extBuf, incValue.path, pp->enableTrigraphs);
+        initLexer(&extLexer, extBuf, incValue->path, pp->enableTrigraphs);
         TokenBuffer extTokens;
         token_buffer_init(&extTokens);
         bool lexOk = token_buffer_fill_from_lexer(&extTokens, &extLexer);
@@ -494,23 +645,23 @@ bool process_include(Preprocessor* pp,
             }
         }
         token_buffer_destroy(&extTokens);
-        profiler_end(externalLexScope);
+        pp_profiler_end_if_enabled(timingEnabled, externalLexScope);
         free(extBuf);
-        include_resolver_mark_included(pp->resolver, incValue.path);
+        pp_include_file_mark_included(pp, includeFileIndex);
         return lexOk;
     }
 
-    if (incValue.pragmaOnce && wasIncludedBefore) {
-        profiler_record_value("pp_count_include_short_circuit_pragma_once", 1);
+    if (incValue->pragmaOnce && wasIncludedBefore) {
+        pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_include_short_circuit_pragma_once", 1);
         if (nestedIncludeDispatch) {
             pp_profile_event("pp_nested_include_repeat_pragma_once_skip");
         }
         return true;
     }
 
-    const char* cachedGuard = include_resolver_get_cached_guard(pp->resolver, incValue.path);
+    const char* cachedGuard = pp_include_file_cached_guard(pp, includeFileIndex);
     if (cachedGuard && macro_table_lookup(pp->table, cachedGuard) != NULL) {
-        profiler_record_value("pp_count_include_short_circuit_cached_guard", 1);
+        pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_include_short_circuit_cached_guard", 1);
         if (nestedIncludeDispatch) {
             pp_profile_event(wasIncludedBefore
                                  ? "pp_nested_include_repeat_cached_guard_skip"
@@ -519,47 +670,69 @@ bool process_include(Preprocessor* pp,
         return true;
     }
 
-    bool includeWouldRecurse = pp_include_stack_contains(pp, incValue.path);
+    bool includeWouldRecurse = pp_include_stack_contains(pp, incValue->path);
+    bool summaryProbeSupported = pp_include_supports_summary_probe(origin, incValue->path);
 
     int savedOffset = pp->lineOffset;
     char* savedLogical = pp->logicalFile;
     bool savedRemap = pp->lineRemapActive;
     pp->lineOffset = 0;
     pp->lineRemapActive = false;
-    pp_set_logical_file(pp, incValue.path);
+    pp->logicalFile = NULL;
 
-    ProfilerScope lexScope = profiler_begin("pp_include_lex");
+    ProfilerScope lexScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_lex");
     Lexer lexer;
-    initLexer(&lexer, incValue.contents, incValue.path, pp->enableTrigraphs);
+    initLexer(&lexer, incValue->contents, incValue->path, pp->enableTrigraphs);
     TokenBuffer buffer;
     token_buffer_init(&buffer);
     if (!token_buffer_fill_from_lexer(&buffer, &lexer)) {
         token_buffer_destroy(&buffer);
         destroyLexer(&lexer);
-        profiler_end(lexScope);
+        pp_profiler_end_if_enabled(timingEnabled, lexScope);
         pp->lineOffset = savedOffset;
         pp->logicalFile = savedLogical;
         pp->lineRemapActive = savedRemap;
         return false;
     }
     destroyLexer(&lexer);
-    profiler_end(lexScope);
+    pp_profiler_end_if_enabled(timingEnabled, lexScope);
 
-    ProfilerScope guardScope = profiler_begin("pp_include_guard_check");
-    const char* guard = detect_include_guard(&buffer);
-    profiler_end(guardScope);
-    if (guard) {
-        profiler_record_value("pp_count_guarded_headers_detected", 1);
-        include_resolver_cache_guard(pp->resolver, incValue.path, guard);
+    const char* guard = cachedGuard;
+    bool deferGuardDetection = !guard &&
+                               summaryProbeSupported &&
+                               summaryProbe.status == INCLUDE_SUMMARY_PROBE_UNKNOWN;
+    if (!guard && !deferGuardDetection) {
+        ProfilerScope guardScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_guard_check");
+        guard = detect_include_guard(&buffer);
+        pp_profiler_end_if_enabled(timingEnabled, guardScope);
+        if (guard) {
+            pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_guarded_headers_detected", 1);
+            pp_include_file_cache_guard(pp, includeFileIndex, guard);
+        }
     }
-    if (origin == INCLUDE_SEARCH_INCLUDE_PATH &&
+    if (summaryProbeSupported &&
         summaryProbe.status == INCLUDE_SUMMARY_PROBE_UNKNOWN) {
         IncludeSummaryAction* builtSummaryActions = NULL;
         size_t builtSummaryActionCount = 0;
-        ProfilerScope summaryProbeScope = profiler_begin("pp_include_summary_probe_scan");
+        ProfilerScope summaryProbeScope =
+            pp_profiler_begin_if_enabled(timingEnabled, "pp_include_summary_probe_scan");
         summaryProbe = analyze_include_summary_probe(&buffer,
                                                     &builtSummaryActions,
                                                     &builtSummaryActionCount);
+        if (!guard) {
+            ProfilerScope guardScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_guard_check");
+            guard = detect_include_guard_from_summary_actions(&buffer,
+                                                             builtSummaryActions,
+                                                             builtSummaryActionCount);
+            if (!guard) {
+                guard = detect_include_guard(&buffer);
+            }
+            pp_profiler_end_if_enabled(timingEnabled, guardScope);
+            if (guard) {
+                pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_guarded_headers_detected", 1);
+                pp_include_file_cache_guard(pp, includeFileIndex, guard);
+            }
+        }
         if (summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE) {
             summaryProbe.routerOnly = classify_include_summary_router_only(&buffer,
                                                                            builtSummaryActions,
@@ -581,29 +754,29 @@ bool process_include(Preprocessor* pp,
                                                         guard,
                                                         &summaryProbe);
         }
-        profiler_end(summaryProbeScope);
-        include_resolver_cache_summary_probe(pp->resolver, incValue.path, summaryProbe);
+        pp_profiler_end_if_enabled(timingEnabled, summaryProbeScope);
+        pp_include_file_cache_summary_probe(pp, includeFileIndex, summaryProbe);
         if (summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE) {
-            include_resolver_cache_summary_actions(pp->resolver,
-                                                   incValue.path,
-                                                   builtSummaryActions,
-                                                   builtSummaryActionCount);
+            pp_include_file_cache_summary_actions(pp,
+                                                  includeFileIndex,
+                                                  builtSummaryActions,
+                                                  builtSummaryActionCount);
         }
         free(builtSummaryActions);
-        summaryActions = include_resolver_get_cached_summary_actions(pp->resolver,
-                                                                     incValue.path,
-                                                                     &summaryActionCount);
+        summaryActions = pp_include_file_summary_actions(pp,
+                                                         includeFileIndex,
+                                                         &summaryActionCount);
         pp_profile_summary_probe_scan_result(&summaryProbe);
     }
-    if (origin == INCLUDE_SEARCH_INCLUDE_PATH) {
+    if (summaryProbeSupported) {
         pp_profile_summary_probe(&summaryProbe);
         pp_profile_behavior_class(&summaryProbe);
         if (summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE &&
             summaryProbe.behaviorClass == INCLUDE_HEADER_BEHAVIOR_CONDITIONAL_SCAFFOLD) {
-            profiler_record_value("pp_conditional_scaffold_profile_entered", 1);
-            profiler_record_value("pp_conditional_scaffold_action_count_seen", (long long)summaryActionCount);
+            pp_profiler_record_value_if_enabled(counterEnabled, "pp_conditional_scaffold_profile_entered", 1);
+            pp_profiler_record_value_if_enabled(counterEnabled, "pp_conditional_scaffold_action_count_seen", (long long)summaryActionCount);
             if (!summaryActions || summaryActionCount == 0) {
-                profiler_record_value("pp_conditional_scaffold_missing_actions", 1);
+                pp_profiler_record_value_if_enabled(counterEnabled, "pp_conditional_scaffold_missing_actions", 1);
             }
         }
         pp_profile_conditional_scaffold_shape(pp,
@@ -614,14 +787,14 @@ bool process_include(Preprocessor* pp,
                                               guard);
     }
     if (guard && macro_table_lookup(pp->table, guard) != NULL) {
-        profiler_record_value("pp_count_include_short_circuit_guard_after_lex", 1);
+        pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_include_short_circuit_guard_after_lex", 1);
         if (nestedIncludeDispatch) {
             pp_profile_event(wasIncludedBefore
                                  ? "pp_nested_include_repeat_guard_skip"
                                  : "pp_nested_include_first_guard_skip");
         }
         token_buffer_destroy(&buffer);
-        include_resolver_mark_included(pp->resolver, incValue.path);
+        pp_include_file_mark_included(pp, includeFileIndex);
         pp->lineOffset = savedOffset;
         pp->logicalFile = savedLogical;
         pp->lineRemapActive = savedRemap;
@@ -644,20 +817,20 @@ bool process_include(Preprocessor* pp,
                        DIAG_ERROR,
                        CDIAG_PREPROCESSOR_GENERIC,
                        "detected recursive include of '%s'",
-                       incValue.path ? incValue.path : "<unknown>");
+                       incValue->path ? incValue->path : "<unknown>");
         return false;
     }
 
-    bool pushedFrame = pp_include_stack_push(pp, incValue.path, origin, originIndex);
+    bool pushedFrame = pp_include_stack_push(pp, incValue->path, origin, originIndex);
 
-    ProfilerScope recurseScope = profiler_begin("pp_include_recurse");
+    ProfilerScope recurseScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_recurse");
     ProfilerScope nestedOriginScope = {0};
-    if (nestedIncludeDispatch) {
+    if (timingEnabled && nestedIncludeDispatch) {
         nestedOriginScope = profiler_begin(nested_recurse_scope_name(wasIncludedBefore, origin));
     }
     bool ok = false;
-    if (origin == INCLUDE_SEARCH_INCLUDE_PATH &&
-        pp_summary_replay_experiment_enabled() &&
+    if (summaryProbeSupported &&
+        pp_summary_replay_router_enabled() &&
         summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE &&
         (summaryProbe.behaviorClass == INCLUDE_HEADER_BEHAVIOR_ROUTER_ONLY ||
          summaryProbe.behaviorClass == INCLUDE_HEADER_BEHAVIOR_ROUTER_RAW_TAIL)) {
@@ -677,13 +850,22 @@ bool process_include(Preprocessor* pp,
             ok = true;
         } else if (replayResult == PP_SUMMARY_REPLAY_UNSUPPORTED) {
             pp_profile_event("pp_include_router_replay_fallback");
-            ok = preprocess_tokens(pp, &buffer, output, false);
+            if (pp_stagea_diagnostic_profile_enabled()) {
+                profiler_record_value("pp_count_include_path_replay_unsupported_fallback", 1);
+                profiler_record_value("pp_count_include_path_router_replay_fallback", 1);
+            }
+            ok = pp_profile_include_path_full_token_walk(
+                pp,
+                &buffer,
+                output,
+                NULL,
+                "pp_recurse_include_path_router_replay_fallback_full_walk");
         } else {
             pp_profile_event("pp_include_router_replay_error");
             ok = false;
         }
-    } else if (origin == INCLUDE_SEARCH_INCLUDE_PATH &&
-               pp_summary_replay_experiment_enabled() &&
+    } else if (summaryProbeSupported &&
+               pp_summary_replay_scaffold_enabled() &&
                summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE &&
                summaryProbe.behaviorClass == INCLUDE_HEADER_BEHAVIOR_INCLUDE_DEFINE_SCAFFOLD) {
         PPSummaryReplayResult replayResult =
@@ -695,18 +877,27 @@ bool process_include(Preprocessor* pp,
                                               output,
                                               false);
         if (replayResult == PP_SUMMARY_REPLAY_USED) {
-            profiler_record_value("pp_include_behavior_class_scaffold_replay", 1);
+            pp_profiler_record_value_if_enabled(counterEnabled, "pp_include_behavior_class_scaffold_replay", 1);
             ok = true;
         } else if (replayResult == PP_SUMMARY_REPLAY_UNSUPPORTED) {
-            profiler_record_value("pp_include_behavior_class_scaffold_fallback", 1);
-            ok = preprocess_tokens(pp, &buffer, output, false);
+            pp_profiler_record_value_if_enabled(counterEnabled, "pp_include_behavior_class_scaffold_fallback", 1);
+            if (pp_stagea_diagnostic_profile_enabled()) {
+                profiler_record_value("pp_count_include_path_replay_unsupported_fallback", 1);
+                profiler_record_value("pp_count_include_path_scaffold_replay_fallback", 1);
+            }
+            ok = pp_profile_include_path_full_token_walk(
+                pp,
+                &buffer,
+                output,
+                NULL,
+                "pp_recurse_include_path_scaffold_replay_fallback_full_walk");
         } else {
             pp_profile_event("pp_include_scaffold_replay_error");
             ok = false;
         }
-    } else if (origin == INCLUDE_SEARCH_INCLUDE_PATH &&
+    } else if (summaryProbeSupported &&
         summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE &&
-        pp_summary_replay_experiment_enabled()) {
+        pp_summary_replay_general_enabled()) {
         PPSummaryReplayResult replayResult =
             preprocess_tokens_summary_replay(pp,
                                              &buffer,
@@ -719,18 +910,39 @@ bool process_include(Preprocessor* pp,
             ok = true;
         } else if (replayResult == PP_SUMMARY_REPLAY_UNSUPPORTED) {
             pp_profile_event("pp_include_summary_replay_fallback");
-            ok = preprocess_tokens(pp, &buffer, output, false);
+            if (pp_stagea_diagnostic_profile_enabled()) {
+                profiler_record_value("pp_count_include_path_replay_unsupported_fallback", 1);
+                profiler_record_value("pp_count_include_path_summary_replay_fallback", 1);
+            }
+            ok = pp_profile_include_path_full_token_walk(
+                pp,
+                &buffer,
+                output,
+                NULL,
+                "pp_recurse_include_path_summary_replay_fallback_full_walk");
         } else {
             pp_profile_event("pp_include_summary_replay_error");
             ok = false;
         }
     } else {
-        ok = preprocess_tokens(pp, &buffer, output, false);
+        if (summaryProbeSupported) {
+            if (pp_stagea_diagnostic_profile_enabled()) {
+                profiler_record_value("pp_count_include_path_full_token_walk", 1);
+            }
+            ok = pp_profile_include_path_full_token_walk(
+                pp,
+                &buffer,
+                output,
+                NULL,
+                "pp_recurse_include_path_full_token_walk");
+        } else {
+            ok = preprocess_tokens(pp, &buffer, output, false);
+        }
     }
-    if (nestedIncludeDispatch) {
+    if (timingEnabled && nestedIncludeDispatch) {
         profiler_end(nestedOriginScope);
     }
-    profiler_end(recurseScope);
+    pp_profiler_end_if_enabled(timingEnabled, recurseScope);
     if (!ok) {
         pp_debug_fail("process_include_body", tokens ? &tokens[*cursor] : NULL);
     }
@@ -738,7 +950,7 @@ bool process_include(Preprocessor* pp,
     pp->lineOffset = savedOffset;
     pp->logicalFile = savedLogical;
     pp->lineRemapActive = savedRemap;
-    include_resolver_mark_included(pp->resolver, incValue.path);
+    pp_include_file_mark_included(pp, includeFileIndex);
     if (pushedFrame) pp_include_stack_pop(pp);
     return ok;
 }
@@ -747,11 +959,12 @@ bool process_pragma(Preprocessor* pp,
                     const Token* tokens,
                     size_t count,
                     size_t* cursor) {
+    bool counterEnabled = profiler_counters_enabled();
     size_t i = *cursor;
     int directiveLine = tokens[i].line;
     i++;
     if (i < count && tokens[i].type == TOKEN_ONCE) {
-        profiler_record_value("pp_count_pragma_once_headers_detected", 1);
+        pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_pragma_once_headers_detected", 1);
         const char* path = token_file(&tokens[i]);
         if (!path) path = token_file(&tokens[*cursor]);
         if (path && pp && pp->resolver) {
@@ -797,8 +1010,9 @@ bool process_line_directive(Preprocessor* pp,
     size_t span = (lineEnd > lineStart + 1) ? (lineEnd - (lineStart + 1)) : 0;
 
     PPTokenBuffer expanded = {0};
-    profiler_record_value("pp_count_macro_expand_calls", 1);
-    profiler_record_value("pp_count_macro_expand_input_tokens", span);
+    bool counterEnabled = profiler_counters_enabled();
+    pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_macro_expand_calls", 1);
+    pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_macro_expand_input_tokens", span);
     if (!macro_expander_expand(&pp->expander, tokens + lineStart + 1, span, &expanded)) {
         pp_token_buffer_destroy(&expanded);
         pp_report_diag(pp, tokens ? &tokens[*cursor] : NULL, DIAG_ERROR, CDIAG_PREPROCESSOR_GENERIC,

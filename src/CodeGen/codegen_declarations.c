@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "codegen_private.h"
-
 #include "codegen_types.h"
 #include "Syntax/symbol_table.h"
 
@@ -419,6 +418,7 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     if (!storedParsed) {
         storedParsed = &sym->type;
     }
+    DesignatedInit* init = cg_find_initializer_for_symbol(sym);
 
     LLVMTypeRef varType = cg_type_from_parsed(ctx, storedParsed);
     if (!varType || LLVMGetTypeKind(varType) == LLVMVoidTypeKind) {
@@ -465,7 +465,6 @@ void declareGlobalVariableSymbol(CodegenContext* ctx, const Symbol* sym) {
     }
 
     if (!externDeclOnly && !sym->isTentative) {
-        DesignatedInit* init = cg_find_initializer_for_symbol(sym);
         const char* skipConst = getenv("FISICS_NO_CONST_GLOBALS");
         if (!skipConst && init && init->expression && !parsedTypeHasVLA(storedParsed)) {
             LLVMTypeRef elementType = LLVMGlobalGetValueType(existing);

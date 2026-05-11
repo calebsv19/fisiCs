@@ -13,12 +13,50 @@ typedef struct ProfilerEntry {
 } ProfilerEntry;
 
 static int g_enabled = -1;
+static int g_timing_enabled = 0;
+static int g_counters_enabled = 0;
 static int g_stream = 0;
 static char* g_output_path = NULL;
 static ProfilerEntry* g_entries = NULL;
 static size_t g_entry_count = 0;
 static size_t g_entry_capacity = 0;
 static FILE* g_stream_file = NULL;
+
+static int profiler_env_flag_enabled(const char* name) {
+    const char* value = getenv(name);
+    return value && value[0] && value[0] != '0';
+}
+
+static void profiler_set_mode_from_string(const char* mode) {
+    if (!mode || !mode[0]) {
+        return;
+    }
+    if (strcmp(mode, "off") == 0 || strcmp(mode, "none") == 0 || strcmp(mode, "0") == 0) {
+        g_timing_enabled = 0;
+        g_counters_enabled = 0;
+        return;
+    }
+    if (strcmp(mode, "timing") == 0 ||
+        strcmp(mode, "time") == 0 ||
+        strcmp(mode, "timing-only") == 0) {
+        g_timing_enabled = 1;
+        g_counters_enabled = 0;
+        return;
+    }
+    if (strcmp(mode, "counters") == 0 ||
+        strcmp(mode, "counter") == 0 ||
+        strcmp(mode, "counts") == 0 ||
+        strcmp(mode, "counting") == 0) {
+        g_timing_enabled = 0;
+        g_counters_enabled = 1;
+        return;
+    }
+    if (strcmp(mode, "both") == 0 || strcmp(mode, "all") == 0 || strcmp(mode, "1") == 0) {
+        g_timing_enabled = 1;
+        g_counters_enabled = 1;
+        return;
+    }
+}
 
 static uint64_t profiler_now_ns(void) {
     struct timespec ts;
@@ -42,8 +80,15 @@ static void profiler_add_entry(const char* name, uint64_t duration_ns) {
 
 void profiler_init(void) {
     if (g_enabled != -1) return;
-    const char* env = getenv("FISICS_PROFILE");
-    g_enabled = (env && env[0] && env[0] != '0') ? 1 : 0;
+    g_timing_enabled = 0;
+    g_counters_enabled = 0;
+
+    profiler_set_mode_from_string(getenv("FISICS_PROFILE_MODE"));
+    if (!g_timing_enabled && !g_counters_enabled && profiler_env_flag_enabled("FISICS_PROFILE")) {
+        g_timing_enabled = 1;
+        g_counters_enabled = 1;
+    }
+    g_enabled = (g_timing_enabled || g_counters_enabled) ? 1 : 0;
     if (!g_enabled) return;
 
     const char* out = getenv("FISICS_PROFILE_PATH");
@@ -68,9 +113,23 @@ int profiler_enabled(void) {
     return g_enabled == 1;
 }
 
+int profiler_timing_enabled(void) {
+    if (g_enabled == -1) {
+        profiler_init();
+    }
+    return g_timing_enabled == 1;
+}
+
+int profiler_counters_enabled(void) {
+    if (g_enabled == -1) {
+        profiler_init();
+    }
+    return g_counters_enabled == 1;
+}
+
 ProfilerScope profiler_begin(const char* name) {
     ProfilerScope scope = { .name = name, .start_ns = 0 };
-    if (!profiler_enabled()) {
+    if (!profiler_timing_enabled()) {
         return scope;
     }
     scope.start_ns = profiler_now_ns();
@@ -78,7 +137,7 @@ ProfilerScope profiler_begin(const char* name) {
 }
 
 void profiler_end(ProfilerScope scope) {
-    if (!profiler_enabled() || !scope.name || scope.start_ns == 0) {
+    if (!profiler_timing_enabled() || !scope.name || scope.start_ns == 0) {
         return;
     }
     uint64_t end = profiler_now_ns();
@@ -92,7 +151,7 @@ void profiler_end(ProfilerScope scope) {
 }
 
 void profiler_record_value(const char* name, uint64_t value) {
-    if (!profiler_enabled() || !name) {
+    if (!profiler_counters_enabled() || !name) {
         return;
     }
     profiler_add_entry(name, value);
@@ -134,5 +193,7 @@ void profiler_shutdown(void) {
     free(g_output_path);
     g_output_path = NULL;
     g_enabled = 0;
+    g_timing_enabled = 0;
+    g_counters_enabled = 0;
     g_stream = 0;
 }

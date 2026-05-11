@@ -67,6 +67,11 @@ RUNTIME_PROBES = [
         note='struct-array byte-stride invariants should match clang runtime behavior',
     ),
     RuntimeProbe(
+        probe_id='14__probe_static_pointer_array_struct_write_chain',
+        source=PROBE_DIR / 'runtime/14__probe_static_pointer_array_struct_write_chain.c',
+        note='file-scope compound-literal array decay should materialize static storage and remain readable through later writes',
+    ),
+    RuntimeProbe(
         probe_id='14__probe_union_embedded_alignment',
         source=PROBE_DIR / 'runtime/14__probe_union_embedded_alignment.c',
         note='embedded union alignment/offset invariants should compile and match clang behavior',

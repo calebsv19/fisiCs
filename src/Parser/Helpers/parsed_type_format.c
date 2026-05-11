@@ -108,9 +108,12 @@ static bool append_parsed_type(StrBuf* b, const ParsedType* pt) {
             }
         }
         if (!sb_append(b, ")(")) return false;
-        for (size_t i = 0; i < pt->fpParamCount; i++) {
+        const ParsedType* fpParams = NULL;
+        size_t fpParamCount = 0;
+        parsedTypeGetEffectiveFunctionPointerSignature(pt, &fpParams, &fpParamCount, NULL);
+        for (size_t i = 0; i < fpParamCount; i++) {
             if (i && !sb_append(b, ", ")) return false;
-            if (!append_parsed_type(b, &pt->fpParams[i])) return false;
+            if (!append_parsed_type(b, &fpParams[i])) return false;
         }
         if (!sb_append(b, ")")) return false;
     } else {

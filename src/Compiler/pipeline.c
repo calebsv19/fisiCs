@@ -336,8 +336,6 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
                                            size_t* outSemanticErrors) {
     (void)ctx; // ctx is valid for logging below
     log_layout_state(ctx, "frontend entry");
-    const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
-    bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
     initErrorList(ctx);
     lexer_set_diag_context(ctx);
 
@@ -407,7 +405,6 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     }
     log_layout_state(ctx, "after root load");
 
-    if (debugProgress) fprintf(stderr, "[pipeline] lexing %s\n", rootFile->path);
     Lexer lexer;
     initLexer(&lexer, rootFile->contents, rootFile->path, preprocessor.enableTrigraphs);
 
@@ -442,7 +439,6 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         }
     }
 
-    if (debugProgress) fprintf(stderr, "[pipeline] preprocessing\n");
     scope = profiler_begin("preprocess");
     bool ppOk = preprocessor_run(&preprocessor, &tokenBuffer, &preprocessed);
     profiler_end(scope);
@@ -451,9 +447,6 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
         pipeline_print_diagnostics(ctx);
         if (!lenientIncludes || preprocessed.count == 0) {
             goto cleanup;
-        }
-        if (debugProgress) {
-            fprintf(stderr, "[pipeline] preprocessing failed; continuing with partial tokens\n");
         }
     }
     log_layout_state(ctx, "after preprocessor_run");
@@ -513,7 +506,6 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     cc_set_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
     log_layout_state(ctx, "after include graph copy");
 
-    if (debugProgress) fprintf(stderr, "[pipeline] parsing\n");
     Parser parser;
     initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx, preservePPNodes);
 

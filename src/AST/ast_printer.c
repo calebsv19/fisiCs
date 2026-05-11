@@ -90,9 +90,12 @@ static void printParsedType_inner(const ParsedType* pt) {
             printf("*");
         }
         printf(")(");
-        for (size_t i = 0; i < pt->fpParamCount; i++) {
+        const ParsedType* fpParams = NULL;
+        size_t fpParamCount = 0;
+        parsedTypeGetEffectiveFunctionPointerSignature(pt, &fpParams, &fpParamCount, NULL);
+        for (size_t i = 0; i < fpParamCount; i++) {
             if (i) printf(", ");
-            printParsedType_inner(&pt->fpParams[i]);
+            printParsedType_inner(&fpParams[i]);
         }
         printf(")");
     } else {

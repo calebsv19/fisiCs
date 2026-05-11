@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import platform
+import shlex
 import shutil
 import subprocess
 import sys
@@ -240,6 +241,69 @@ def resolve_input_path(project_root: Path, raw: str) -> Path:
     return (project_root / p).resolve()
 
 
+def expand_target_inputs(project_root: Path, target: dict[str, Any]) -> list[Path]:
+    ordered: list[Path] = []
+    seen: set[Path] = set()
+
+    raw_inputs = list(target.get("inputs", []))
+    raw_input_globs = list(target.get("input_globs", []))
+    raw_exclude_inputs = list(target.get("exclude_inputs", []))
+    raw_exclude_globs = list(target.get("exclude_globs", []))
+
+    def add_path(path: Path) -> None:
+        resolved = path.resolve()
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        ordered.append(resolved)
+
+    for raw in raw_inputs:
+        add_path(resolve_input_path(project_root, raw))
+
+    for raw_glob in raw_input_globs:
+        pattern_root = project_root
+        pattern = raw_glob
+        if Path(raw_glob).is_absolute():
+            raw_path = Path(raw_glob)
+            pattern_root = raw_path.anchor and Path(raw_path.anchor) or Path("/")
+            pattern = raw_path.as_posix().lstrip("/")
+        for match in sorted(pattern_root.glob(pattern)):
+            if match.is_file():
+                add_path(match)
+
+    excluded: set[Path] = set()
+    for raw in raw_exclude_inputs:
+        excluded.add(resolve_input_path(project_root, raw).resolve())
+    for raw_glob in raw_exclude_globs:
+        pattern_root = project_root
+        pattern = raw_glob
+        if Path(raw_glob).is_absolute():
+            raw_path = Path(raw_glob)
+            pattern_root = raw_path.anchor and Path(raw_path.anchor) or Path("/")
+            pattern = raw_path.as_posix().lstrip("/")
+        for match in sorted(pattern_root.glob(pattern)):
+            if match.is_file():
+                excluded.add(match.resolve())
+
+    return [path for path in ordered if path not in excluded]
+
+
+def llvm_core_link_args() -> list[str]:
+    completed = subprocess.run(
+        ["llvm-config", "--ldflags", "--libs", "core"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        stderr = completed.stderr.strip()
+        raise RuntimeError(
+            "failed to query llvm-config for link flags"
+            + (f": {stderr}" if stderr else "")
+        )
+    return shlex.split(completed.stdout)
+
+
 def resolve_working_dir(project_root: Path, raw: str | None) -> Path:
     if not raw:
         return project_root
@@ -430,12 +494,11 @@ def run_stage_e(
             build_target_id = str(target.get("build_target", "")).strip()
             build_target = stage_c_targets.get(build_target_id) if build_target_id else None
 
-            raw_inputs = list(target.get("inputs", []))
-            if not raw_inputs and build_target is not None:
-                raw_inputs = list(build_target.get("inputs", []))
-            if not raw_inputs:
+            input_paths = expand_target_inputs(project_root, target)
+            if not input_paths and build_target is not None:
+                input_paths = expand_target_inputs(project_root, build_target)
+            if not input_paths:
                 raise RuntimeError(f"stage E target '{target_id}' missing inputs")
-            input_paths = [resolve_input_path(project_root, raw) for raw in raw_inputs]
             for p in input_paths:
                 if not p.exists() or not p.is_file():
                     raise RuntimeError(f"stage E target '{target_id}' input missing: {p}")
@@ -455,6 +518,10 @@ def run_stage_e(
                 + (list(build_target.get("link_args", [])) if build_target is not None else [])
                 + list(target.get("link_args", []))
             )
+            if (build_target is not None and build_target.get("use_llvm_core_link_args", False)) or target.get(
+                "use_llvm_core_link_args", False
+            ):
+                target_link_args += llvm_core_link_args()
             raw_link_inputs = (
                 default_link_inputs
                 + (list(build_target.get("link_inputs", [])) if build_target is not None else [])

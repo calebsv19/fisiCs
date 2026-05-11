@@ -40,6 +40,26 @@ class CommandResult:
     signal: int | None
 
 
+def summarize_hot_file(
+    results: list[dict[str, Any]],
+    lane_key: str,
+) -> dict[str, Any] | None:
+    hottest: dict[str, Any] | None = None
+    for row in results:
+        lane = row.get(lane_key)
+        if lane is None:
+            continue
+        candidate = {
+            "source": row["source"],
+            "duration_ms": lane["duration_ms"],
+            "ok": lane["ok"],
+            "parity": row["parity"],
+        }
+        if hottest is None or candidate["duration_ms"] > hottest["duration_ms"]:
+            hottest = candidate
+    return hottest
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run real-project translation-unit compile validation (Stage A)."
@@ -411,6 +431,9 @@ def run_stage_a(
     if not args.skip_clang:
         clang_total_ms = sum(row["clang"]["duration_ms"] for row in results if row["clang"] is not None)
 
+    slowest_fisics = summarize_hot_file(results, "fisics")
+    slowest_clang = None if args.skip_clang else summarize_hot_file(results, "clang")
+
     report = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "history_id": history_id,
@@ -431,6 +454,8 @@ def run_stage_a(
             "blockers": blocker_count,
             "fisics_total_ms": fisics_total_ms,
             "clang_total_ms": clang_total_ms,
+            "slowest_fisics": slowest_fisics,
+            "slowest_clang": slowest_clang,
         },
         "results": results,
     }
@@ -465,6 +490,20 @@ def print_summary(report: dict[str, Any], latest_path: Path, history_path: Path)
         if row["is_blocker"]:
             print(format_real_project_blocker_line(report["stage"], row))
     print(f"timing_ms fisics={summary['fisics_total_ms']} clang={summary['clang_total_ms']}")
+    if summary.get("slowest_fisics") is not None:
+        slowest = summary["slowest_fisics"]
+        print(
+            "slowest_fisics "
+            f"source={slowest['source']} duration_ms={slowest['duration_ms']} "
+            f"ok={int(bool(slowest['ok']))} parity={slowest['parity']}"
+        )
+    if summary.get("slowest_clang") is not None:
+        slowest = summary["slowest_clang"]
+        print(
+            "slowest_clang "
+            f"source={slowest['source']} duration_ms={slowest['duration_ms']} "
+            f"ok={int(bool(slowest['ok']))} parity={slowest['parity']}"
+        )
     print(f"latest_report={latest_path}")
     print(f"history_report={history_path}")
     print(

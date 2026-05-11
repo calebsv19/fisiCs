@@ -329,6 +329,7 @@
     "14-runtime-surface-wave103-global-array-decay-const-init-regression.json",
     "14-runtime-surface-wave104-mapforge-queue-ownership.json",
     "14-runtime-surface-wave105-mapforge-queue-state-depth.json",
+    "14-runtime-surface-wave135-file-scope-compound-literal-decay.json",
     "14-runtime-surface.json",
     "15-torture-differential.json",
     "15-torture-differential-wave1-control-decl-depth.json",
@@ -492,6 +493,12 @@
     "04-declarations-wave16-array-param-adjustment-clean-paths.json",
     "04-declarations-wave17-array-param-static-restrict-depth.json",
     "04-declarations-wave18-vla-pointer-adjust-depth.json",
-    "04-declarations-wave19-vla-static-adjust-depth.json"
+    "04-declarations-wave19-vla-static-adjust-depth.json",
+    "14-runtime-surface-wave130-generation-replay-collapse-followup.json",
+    "14-runtime-surface-wave131-reserve-reclaim-collapse-followup.json",
+    "14-runtime-surface-wave132-generation-import-order-followup.json",
+    "14-runtime-surface-wave133-reserve-shadow-collapse-followup.json",
+    "14-runtime-surface-wave134-live-shadow-handoff-followup.json",
+    "15-torture-differential-wave92-axis5-partial-order-promotions.json"
   ]
 }

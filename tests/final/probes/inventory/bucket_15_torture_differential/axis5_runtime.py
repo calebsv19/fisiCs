@@ -183,6 +183,22 @@ RUNTIME_PROBES = [
         inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_cross_tu_watermark_handoff_collapse_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_cross_tu_watermark_handoff_collapse_matrix_lib.c'],
     ),
     RuntimeProbe(
+        probe_id='15__probe_axis5_wave12_reducer_partial_order_merge_stability_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave12_reducer_partial_order_merge_stability_matrix.c',
+        note='axis5 wave12: reducer partial-order merge stability matrix should preserve signatures across equivalent shard aggregate merge schedules',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave12_reducer_adversarial_replay_dedup_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave12_reducer_adversarial_replay_dedup_matrix.c',
+        note='axis5 wave12: reducer adversarial replay-dedup matrix should preserve canonical signatures when duplicate and stale shard snapshots are interleaved aggressively',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave12_reducer_cross_tu_checkpoint_watermark_canonical_collapse_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave12_reducer_cross_tu_checkpoint_watermark_canonical_collapse_matrix_main.c',
+        note='axis5 wave12: reducer cross-TU checkpoint/watermark canonical collapse matrix should preserve signatures when replayed checkpoints are collapsed to the latest watermark-consistent state',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave12_reducer_cross_tu_checkpoint_watermark_canonical_collapse_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_cross_tu_watermark_handoff_collapse_matrix_lib.c'],
+    ),
+    RuntimeProbe(
         probe_id='15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix',
         source=PROBE_DIR / 'runtime/15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix.c',
         note='VLA stride/rebase matrix lane should match both clang and gcc when gcc is available',

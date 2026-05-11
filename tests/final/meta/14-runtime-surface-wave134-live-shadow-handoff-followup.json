@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_token_generation_cross_slot_shadow_elimination",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_token_generation_cross_slot_shadow_elimination_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_token_generation_cross_slot_shadow_elimination_main.c",
+        "probes/runtime/14__probe_multitu_token_generation_stale_drop_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_generation_cross_slot_shadow_elimination.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "multitu",
+        "determinism",
+        "generation-replay",
+        "shadow-elimination",
+        "wave134"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_token_reserve_abort_shadow_recommit_handoff",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_token_reserve_abort_shadow_recommit_handoff_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_token_reserve_abort_shadow_recommit_handoff_main.c",
+        "probes/runtime/14__probe_multitu_token_reserve_commit_abort_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_reserve_abort_shadow_recommit_handoff.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "multitu",
+        "determinism",
+        "reserve-collapse",
+        "recommit-handoff",
+        "wave134"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_static_pointer_array_struct_write_chain",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_static_pointer_array_struct_write_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_static_pointer_array_struct_write_chain.stdout",
+      "expected_stderr": "expect/14__runtime_static_pointer_array_struct_write_chain.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "globals",
+        "compound-literal",
+        "array-decay",
+        "regression"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

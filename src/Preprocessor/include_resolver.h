@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 typedef enum {
     INCLUDE_SEARCH_SAME_DIR = 0,
@@ -43,6 +44,9 @@ typedef struct {
 typedef enum {
     INCLUDE_SUMMARY_ACTION_RAW_RANGE = 0,
     INCLUDE_SUMMARY_ACTION_DEFINE,
+    INCLUDE_SUMMARY_ACTION_UNDEF,
+    INCLUDE_SUMMARY_ACTION_LINE,
+    INCLUDE_SUMMARY_ACTION_DIAGNOSTIC,
     INCLUDE_SUMMARY_ACTION_INCLUDE,
     INCLUDE_SUMMARY_ACTION_INCLUDE_NEXT,
     INCLUDE_SUMMARY_ACTION_IF,
@@ -54,10 +58,21 @@ typedef enum {
     INCLUDE_SUMMARY_ACTION_PRAGMA
 } IncludeSummaryActionKind;
 
+typedef enum {
+    INCLUDE_SUMMARY_ACTION_FLAG_NONE = 0,
+    INCLUDE_SUMMARY_ACTION_FLAG_NO_TRAILING_TOKENS = 1u << 0,
+    INCLUDE_SUMMARY_ACTION_FLAG_RAW_RANGE_STARTS_WITH_TYPEDEF = 1u << 1,
+    INCLUDE_SUMMARY_ACTION_FLAG_RAW_RANGE_SINGLE_TOP_LEVEL_TYPEDEF = 1u << 2
+} IncludeSummaryActionFlags;
+
 typedef struct {
     IncludeSummaryActionKind kind;
     size_t start;
     size_t end;
+    uint32_t flags;
+    uint64_t directCloneMacroSerial;
+    bool directCloneMemoValid;
+    bool directCloneMemoResult;
 } IncludeSummaryAction;
 
 typedef struct {
