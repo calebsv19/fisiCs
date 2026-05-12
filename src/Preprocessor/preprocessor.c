@@ -164,6 +164,8 @@ bool preprocess_tokens(Preprocessor* pp,
     bool includePathBody = nestedIncludeBody &&
                            includeFrame &&
                            includeFrame->origin == INCLUDE_SEARCH_INCLUDE_PATH;
+    uint64_t includePathActiveRawAppendNs = 0;
+    uint64_t includePathActivePragmaSkipNs = 0;
 
     for (size_t i = 0; i < input->count; ++i) {
         if (ctx && pp_debug_layout_enabled()) {
@@ -680,13 +682,23 @@ bool preprocess_tokens(Preprocessor* pp,
                 break;
             default:
                 if (active) {
+                    uint64_t rawStartNs = 0;
+                    if (timingEnabled && includePathBody) {
+                        rawStartNs = profiler_now_ns();
+                    }
                     if (pp_skip_pragma_operator(input->tokens, input->count, &i)) {
+                        if (rawStartNs != 0) {
+                            includePathActivePragmaSkipNs += profiler_now_ns() - rawStartNs;
+                        }
                         break;
                     }
                     if (!pp_token_buffer_append_clone(&chunk, tok)) {
                         pp_token_buffer_reset(&chunk);
                         free(condStack);
                         return false;
+                    }
+                    if (rawStartNs != 0) {
+                        includePathActiveRawAppendNs += profiler_now_ns() - rawStartNs;
                     }
                 }
                 break;
@@ -707,6 +719,12 @@ bool preprocess_tokens(Preprocessor* pp,
     }
     if (counterEnabled && inactiveTokenCount > 0) {
         profiler_record_value("pp_count_inactive_tokens_scanned", inactiveTokenCount);
+    }
+    if (timingEnabled && includePathBody) {
+        profiler_record_duration("pp_recurse_include_path_active_raw_append",
+                                 includePathActiveRawAppendNs);
+        profiler_record_duration("pp_recurse_include_path_active_pragma_skip",
+                                 includePathActivePragmaSkipNs);
     }
 
     if (appendEOF) {
@@ -769,6 +787,11 @@ bool preprocessor_init(Preprocessor* pp,
     pp->includeStack.frames = NULL;
     pp->includeStack.depth = 0;
     pp->includeStack.capacity = 0;
+    pp->includeStack.memberPaths = NULL;
+    pp->includeStack.memberCounts = NULL;
+    pp->includeStack.memberStates = NULL;
+    pp->includeStack.memberCapacity = 0;
+    pp->includeStack.memberTombstones = 0;
     pp->logicalFilePool = NULL;
     pp->logicalFileCount = 0;
     pp->logicalFileCap = 0;
@@ -804,9 +827,17 @@ void preprocessor_destroy(Preprocessor* pp) {
     pp->resolver = NULL;
     include_graph_destroy(&pp->includeGraph);
     free(pp->includeStack.frames);
+    free(pp->includeStack.memberPaths);
+    free(pp->includeStack.memberCounts);
+    free(pp->includeStack.memberStates);
     pp->includeStack.frames = NULL;
     pp->includeStack.depth = 0;
     pp->includeStack.capacity = 0;
+    pp->includeStack.memberPaths = NULL;
+    pp->includeStack.memberCounts = NULL;
+    pp->includeStack.memberStates = NULL;
+    pp->includeStack.memberCapacity = 0;
+    pp->includeStack.memberTombstones = 0;
     for (size_t i = 0; i < pp->logicalFileCount; ++i) {
         free(pp->logicalFilePool[i]);
     }

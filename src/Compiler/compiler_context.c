@@ -10,6 +10,10 @@
 
 #define CC_GROW_CAP(cap) ((cap) < 8 ? 8 : (cap) * 2)
 
+enum {
+    CC_INCLUDE_OWN_RESOLVED_PATH = 1u << 0,
+};
+
 // -------------------- tiny StringSet --------------------
 static void cc_stringset_free(CCStringSet* s) {
     if (!s) return;
@@ -41,6 +45,24 @@ static bool cc_stringset_add(CCStringSet* s, const char* key) {
     if (!s->items[s->count]) return false;
     s->count++;
     return true;
+}
+
+static const char* cc_stringset_intern(CCStringSet* s, const char* key) {
+    if (!s || !key) return NULL;
+    for (size_t i = 0; i < s->count; ++i) {
+        if (strcmp(s->items[i], key) == 0) return s->items[i];
+    }
+    if (s->count == s->capacity) {
+        size_t new_cap = CC_GROW_CAP(s->capacity);
+        char** n = (char**)realloc(s->items, new_cap * sizeof(char*));
+        if (!n) return NULL;
+        s->items = n;
+        s->capacity = new_cap;
+    }
+    s->items[s->count] = strdup(key);
+    if (!s->items[s->count]) return NULL;
+    s->count++;
+    return s->items[s->count - 1];
 }
 
 // -------------------- Tag tables --------------------
@@ -458,6 +480,14 @@ bool cc_set_include_graph(CompilerContext* ctx, const IncludeGraph* graph) {
     return include_graph_clone(&ctx->includeGraph, graph);
 }
 
+bool cc_take_include_graph(CompilerContext* ctx, IncludeGraph* graph) {
+    if (!ctx || !graph) return false;
+    include_graph_destroy(&ctx->includeGraph);
+    ctx->includeGraph = *graph;
+    include_graph_init(graph);
+    return true;
+}
+
 const IncludeGraph* cc_get_include_graph(const CompilerContext* ctx) {
     return ctx ? &ctx->includeGraph : NULL;
 }
@@ -699,11 +729,16 @@ void cc_clear_symbols(CompilerContext* ctx) {
 static void cc_includes_free(CompilerIncludes* includes) {
     if (!includes) return;
     for (size_t i = 0; i < includes->count; ++i) {
-        free((char*)includes->items[i].name);
-        free((char*)includes->items[i].resolved_path);
+        uint8_t flags = includes->ownershipFlags ? includes->ownershipFlags[i] : 0u;
+        if ((flags & CC_INCLUDE_OWN_RESOLVED_PATH) != 0u) {
+            free((char*)includes->items[i].resolved_path);
+        }
     }
     free(includes->items);
+    free(includes->ownershipFlags);
+    cc_stringset_free(&includes->namePool);
     includes->items = NULL;
+    includes->ownershipFlags = NULL;
     includes->count = 0;
     includes->capacity = 0;
 }
@@ -716,24 +751,33 @@ bool cc_set_includes(CompilerContext* ctx, const FisicsInclude* includes, size_t
     }
     FisicsInclude* copy = (FisicsInclude*)calloc(count, sizeof(FisicsInclude));
     if (!copy) return false;
+    uint8_t* flags = (uint8_t*)calloc(count, sizeof(uint8_t));
+    if (!flags) {
+        free(copy);
+        return false;
+    }
+    CCStringSet namePool = {0};
     for (size_t i = 0; i < count; ++i) {
         copy[i] = includes[i];
         if (includes[i].name) {
-            copy[i].name = cc_strdup(includes[i].name);
+            copy[i].name = cc_stringset_intern(&namePool, includes[i].name);
             if (!copy[i].name) {
-                cc_includes_free(&(CompilerIncludes){ .items = copy, .count = i, .capacity = count });
+                cc_includes_free(&(CompilerIncludes){ .items = copy, .ownershipFlags = flags, .namePool = namePool, .count = i, .capacity = count });
                 return false;
             }
         }
         if (includes[i].resolved_path) {
             copy[i].resolved_path = cc_strdup(includes[i].resolved_path);
             if (!copy[i].resolved_path) {
-                cc_includes_free(&(CompilerIncludes){ .items = copy, .count = i + 1, .capacity = count });
+                cc_includes_free(&(CompilerIncludes){ .items = copy, .ownershipFlags = flags, .namePool = namePool, .count = i + 1, .capacity = count });
                 return false;
             }
+            flags[i] |= CC_INCLUDE_OWN_RESOLVED_PATH;
         }
     }
     ctx->includes.items = copy;
+    ctx->includes.ownershipFlags = flags;
+    ctx->includes.namePool = namePool;
     ctx->includes.count = count;
     ctx->includes.capacity = count;
     return true;
@@ -747,24 +791,19 @@ bool cc_append_include(CompilerContext* ctx, const FisicsInclude* include) {
         FisicsInclude* grown = (FisicsInclude*)realloc(inc->items, newCap * sizeof(FisicsInclude));
         if (!grown) return false;
         inc->items = grown;
+        uint8_t* grownFlags = (uint8_t*)realloc(inc->ownershipFlags, newCap * sizeof(uint8_t));
+        if (!grownFlags) return false;
+        inc->ownershipFlags = grownFlags;
         inc->capacity = newCap;
     }
     FisicsInclude* dst = &inc->items[inc->count];
     *dst = *include;
+    inc->ownershipFlags[inc->count] = 0u;
     dst->name = NULL;
-    dst->resolved_path = NULL;
+    dst->resolved_path = include->resolved_path;
     if (include->name) {
-        dst->name = cc_strdup(include->name);
+        dst->name = cc_stringset_intern(&inc->namePool, include->name);
         if (!dst->name) return false;
-    }
-    if (include->resolved_path) {
-        dst->resolved_path = cc_strdup(include->resolved_path);
-        if (!dst->resolved_path) {
-            free((char*)dst->name);
-            dst->name = NULL;
-            dst->resolved_path = NULL;
-            return false;
-        }
     }
     inc->count++;
     return true;

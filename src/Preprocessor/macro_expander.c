@@ -623,113 +623,135 @@ bool macro_expander_expand(MacroExpander* expander,
     for (size_t i = 0; i < count; ++i) {
         const Token* tok = &input[i];
 
-        if (tok->type == TOKEN_IDENTIFIER && expander) {
+        if (tok->type != TOKEN_IDENTIFIER) {
+            size_t spanStart = i;
+            size_t spanEnd = i + 1;
+            while (spanEnd < count) {
+                const Token* spanTok = &input[spanEnd];
+                if (spanTok->type == TOKEN_IDENTIFIER) {
+                    break;
+                }
+                spanEnd++;
+            }
+            if (!pp_token_buffer_append_clone_span(outTokens, input + spanStart, spanEnd - spanStart)) {
+                return false;
+            }
+            i = spanEnd - 1;
+            continue;
+        }
+
+        if (expander) {
             if (handle_builtin_identifier(expander, tok, outTokens)) {
                 continue;
             }
         }
 
-        if (tok->type == TOKEN_IDENTIFIER && expander && expander->table) {
-            if (expander->preserveDefinedOperands &&
-                token_is_defined_operand_context(input, i)) {
-                if (!pp_token_buffer_append_clone(outTokens, tok)) {
-                    return false;
-                }
-                continue;
+        if (!expander || !expander->table) {
+            if (!pp_token_buffer_append_clone(outTokens, tok)) {
+                return false;
             }
-            const MacroDefinition* def = macro_table_lookup(expander->table, tok->value);
-            if (def && macro_table_is_expanding(expander->table, tok->value)) {
-                if (!pp_token_buffer_append_clone(outTokens, tok)) {
-                    return false;
-                }
-                continue;
+            continue;
+        }
+
+        if (expander->preserveDefinedOperands &&
+            token_is_defined_operand_context(input, i)) {
+            if (!pp_token_buffer_append_clone(outTokens, tok)) {
+                return false;
             }
-            if (def && !macro_table_is_expanding(expander->table, tok->value)) {
-                SourceRange callRange = tok->location;
-                if (def->kind == MACRO_OBJECT) {
-                    PPTokenBuffer replaced = {0};
-                    if (!macro_table_push_expansion(expander->table, def, callRange, def->definitionRange)) {
-                        pp_token_buffer_release(&replaced);
-                        return false;
-                    }
-                    bool ok = substitute_macro(expander, def, NULL, callRange, &replaced);
-                    PPTokenBuffer nested = {0};
-                    if (ok) {
-                        ok = macro_expander_expand(expander, replaced.tokens, replaced.count, &nested);
-                    }
-                    macro_table_pop_expansion(expander->table, def);
+            continue;
+        }
+        const MacroDefinition* def = macro_table_lookup(expander->table, tok->value);
+        if (def && macro_table_is_expanding(expander->table, tok->value)) {
+            if (!pp_token_buffer_append_clone(outTokens, tok)) {
+                return false;
+            }
+            continue;
+        }
+        if (def && !macro_table_is_expanding(expander->table, tok->value)) {
+            SourceRange callRange = tok->location;
+            if (def->kind == MACRO_OBJECT) {
+                PPTokenBuffer replaced = {0};
+                if (!macro_table_push_expansion(expander->table, def, callRange, def->definitionRange)) {
                     pp_token_buffer_release(&replaced);
-                    if (!ok) {
-                        pp_token_buffer_release(&nested);
-                        return false;
-                    }
-                    bool handledCallBoundary = false;
-                    size_t consumedIndex = i;
-                    if (!try_expand_function_like_alias_boundary(expander,
-                                                                 input,
-                                                                 count,
-                                                                 i,
-                                                                 &nested,
-                                                                 outTokens,
-                                                                 &handledCallBoundary,
-                                                                 &consumedIndex)) {
-                        pp_token_buffer_release(&nested);
-                        return false;
-                    }
-                    if (handledCallBoundary) {
-                        i = consumedIndex;
-                        pp_token_buffer_release(&nested);
-                        continue;
-                    }
-                    ok = append_buffer(outTokens, &nested);
+                    return false;
+                }
+                bool ok = substitute_macro(expander, def, NULL, callRange, &replaced);
+                PPTokenBuffer nested = {0};
+                if (ok) {
+                    ok = macro_expander_expand(expander, replaced.tokens, replaced.count, &nested);
+                }
+                macro_table_pop_expansion(expander->table, def);
+                pp_token_buffer_release(&replaced);
+                if (!ok) {
                     pp_token_buffer_release(&nested);
-                    if (!ok) {
-                        return false;
-                    }
+                    return false;
+                }
+                bool handledCallBoundary = false;
+                size_t consumedIndex = i;
+                if (!try_expand_function_like_alias_boundary(expander,
+                                                             input,
+                                                             count,
+                                                             i,
+                                                             &nested,
+                                                             outTokens,
+                                                             &handledCallBoundary,
+                                                             &consumedIndex)) {
+                    pp_token_buffer_release(&nested);
+                    return false;
+                }
+                if (handledCallBoundary) {
+                    i = consumedIndex;
+                    pp_token_buffer_release(&nested);
                     continue;
-                } else if (def->kind == MACRO_FUNCTION) {
-                    bool expanded = false;
-                    if (i + 1 < count && input[i + 1].type == TOKEN_LPAREN) {
-                        size_t cursor = i + 2;
-                        PPArgumentList rawArgs;
-                        pp_argument_list_init(&rawArgs);
-                        if (parse_macro_argument_tokens(input, count, &cursor, &rawArgs, def)) {
-                            MacroArgPack pack;
-                            if (build_macro_arg_pack(expander, def, &rawArgs, &pack, callRange)) {
-                                if (expand_macro_arguments(expander, &pack) &&
-                                    macro_table_push_expansion(expander->table, def, callRange, def->definitionRange)) {
-                                    PPTokenBuffer replaced = {0};
-                                    bool ok = substitute_macro(expander, def, &pack, callRange, &replaced);
+                }
+                ok = append_buffer(outTokens, &nested);
+                pp_token_buffer_release(&nested);
+                if (!ok) {
+                    return false;
+                }
+                continue;
+            } else if (def->kind == MACRO_FUNCTION) {
+                bool expanded = false;
+                if (i + 1 < count && input[i + 1].type == TOKEN_LPAREN) {
+                    size_t cursor = i + 2;
+                    PPArgumentList rawArgs;
+                    pp_argument_list_init(&rawArgs);
+                    if (parse_macro_argument_tokens(input, count, &cursor, &rawArgs, def)) {
+                        MacroArgPack pack;
+                        if (build_macro_arg_pack(expander, def, &rawArgs, &pack, callRange)) {
+                            if (expand_macro_arguments(expander, &pack) &&
+                                macro_table_push_expansion(expander->table, def, callRange, def->definitionRange)) {
+                                PPTokenBuffer replaced = {0};
+                                bool ok = substitute_macro(expander, def, &pack, callRange, &replaced);
+                                if (ok) {
+                                    PPTokenBuffer nested = {0};
+                                    ok = macro_expander_expand(expander, replaced.tokens, replaced.count, &nested);
                                     if (ok) {
-                                        PPTokenBuffer nested = {0};
-                                        ok = macro_expander_expand(expander, replaced.tokens, replaced.count, &nested);
-                                        if (ok) {
-                                            ok = append_buffer(outTokens, &nested);
-                                        }
-                                        pp_token_buffer_release(&nested);
+                                        ok = append_buffer(outTokens, &nested);
                                     }
-                                    macro_table_pop_expansion(expander->table, def);
-                                    pp_token_buffer_release(&replaced);
-                                    if (ok) {
-                                        expanded = true;
-                                        i = cursor - 1;
-                                    } else {
-                                        macro_arg_pack_destroy(&pack);
-                                        pp_argument_list_destroy(&rawArgs);
-                                        return false;
-                                    }
+                                    pp_token_buffer_release(&nested);
                                 }
-                                macro_arg_pack_destroy(&pack);
-                            } else if (expander && expander->lastError.kind != ME_ERR_NONE) {
-                                pp_argument_list_destroy(&rawArgs);
-                                return false;
+                                macro_table_pop_expansion(expander->table, def);
+                                pp_token_buffer_release(&replaced);
+                                if (ok) {
+                                    expanded = true;
+                                    i = cursor - 1;
+                                } else {
+                                    macro_arg_pack_destroy(&pack);
+                                    pp_argument_list_destroy(&rawArgs);
+                                    return false;
+                                }
                             }
+                            macro_arg_pack_destroy(&pack);
+                        } else if (expander->lastError.kind != ME_ERR_NONE) {
+                            pp_argument_list_destroy(&rawArgs);
+                            return false;
                         }
-                        pp_argument_list_destroy(&rawArgs);
                     }
-                    if (expanded) {
-                        continue;
-                    }
+                    pp_argument_list_destroy(&rawArgs);
+                }
+                if (expanded) {
+                    continue;
                 }
             }
         }

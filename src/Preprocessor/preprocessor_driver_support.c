@@ -183,19 +183,32 @@ static bool pp_flush_chunk(Preprocessor* pp,
     }
     pp_profiler_end_if_enabled(timingEnabled, scope);
     bool ok = true;
+    size_t spanStart = 0;
     for (size_t j = 0; j < expanded.count; ++j) {
         size_t cursor = j;
-        if (pp_skip_pragma_operator(expanded.tokens, expanded.count, &cursor)) {
-            j = cursor;
+        bool skipPragma = pp_skip_pragma_operator(expanded.tokens, expanded.count, &cursor);
+        bool skipUnknown = expanded.tokens[j].type == TOKEN_UNKNOWN;
+        if (!skipPragma && !skipUnknown) {
             continue;
         }
-        if (expanded.tokens[j].type == TOKEN_UNKNOWN) {
-            continue;
-        }
-        if (!pp_token_buffer_append_clone_remap(output, pp, &expanded.tokens[j])) {
+        if (j > spanStart &&
+            !pp_token_buffer_append_clone_remap_span(output,
+                                                     pp,
+                                                     expanded.tokens + spanStart,
+                                                     j - spanStart)) {
             ok = false;
             break;
         }
+        spanStart = skipPragma ? cursor + 1 : j + 1;
+        if (skipPragma) {
+            j = cursor;
+        }
+    }
+    if (ok && expanded.count > spanStart) {
+        ok = pp_token_buffer_append_clone_remap_span(output,
+                                                     pp,
+                                                     expanded.tokens + spanStart,
+                                                     expanded.count - spanStart);
     }
     pp_token_buffer_destroy(&expanded);
     pp_token_buffer_destroy(chunk);

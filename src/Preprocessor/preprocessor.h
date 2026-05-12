@@ -37,6 +37,11 @@ typedef struct {
         struct PPIncludeFrame* frames;
         size_t depth;
         size_t capacity;
+        const char** memberPaths;
+        size_t* memberCounts;
+        unsigned char* memberStates;
+        size_t memberCapacity;
+        size_t memberTombstones;
     } includeStack;
     bool preserveDirectives;
     bool lenientMissingIncludes;

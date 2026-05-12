@@ -503,8 +503,8 @@ static bool compiler_run_frontend_internal(CompilerContext* ctx,
     preprocessed.count = 0;
     preprocessed.capacity = 0;
 
-    cc_set_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
-    log_layout_state(ctx, "after include graph copy");
+    cc_take_include_graph(ctx, preprocessor_get_include_graph(&preprocessor));
+    log_layout_state(ctx, "after include graph move");
 
     Parser parser;
     initParser(&parser, &parserTokens, PARSER_MODE_PRATT, ctx, preservePPNodes);

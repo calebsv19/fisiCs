@@ -120,6 +120,21 @@ bool pp_token_buffer_append(PPTokenBuffer* buffer, Token token) {
     return true;
 }
 
+bool pp_token_buffer_append_clone_span(PPTokenBuffer* buffer,
+                                       const Token* tokens,
+                                       size_t count) {
+    if (!buffer || !tokens || count == 0) {
+        return true;
+    }
+    if (!pp_token_buffer_reserve(buffer, count)) {
+        return false;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        buffer->tokens[buffer->count++] = token_clone(&tokens[i]);
+    }
+    return true;
+}
+
 void pp_token_buffer_move(PPTokenBuffer* dest, PPTokenBuffer* src) {
     if (!dest || !src) return;
     *dest = *src;

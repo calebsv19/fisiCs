@@ -58,7 +58,7 @@ static void profiler_set_mode_from_string(const char* mode) {
     }
 }
 
-static uint64_t profiler_now_ns(void) {
+uint64_t profiler_now_ns(void) {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
@@ -142,10 +142,18 @@ void profiler_end(ProfilerScope scope) {
     }
     uint64_t end = profiler_now_ns();
     uint64_t duration = end - scope.start_ns;
-    profiler_add_entry(scope.name, duration);
+    profiler_record_duration(scope.name, duration);
+}
+
+void profiler_record_duration(const char* name, uint64_t duration_ns) {
+    if (!profiler_timing_enabled() || !name || duration_ns == 0) {
+        return;
+    }
+    uint64_t duration = duration_ns;
+    profiler_add_entry(name, duration);
     if (g_stream_file) {
         double ms = (double)duration / 1000000.0;
-        fprintf(g_stream_file, "%s,%llu,%.3f\n", scope.name, (unsigned long long)duration, ms);
+        fprintf(g_stream_file, "%s,%llu,%.3f\n", name, (unsigned long long)duration, ms);
         fflush(g_stream_file);
     }
 }

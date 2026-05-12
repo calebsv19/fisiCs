@@ -117,6 +117,39 @@ static bool pp_stagea_diagnostic_profile_enabled(void) {
     return enabled && profiler_counters_enabled();
 }
 
+static bool pp_include_file_get_lexed_tokens(Preprocessor* pp,
+                                             size_t includeFileIndex,
+                                             TokenBuffer* buffer) {
+    if (!pp || !buffer) return false;
+    IncludeFile* file = pp_include_file_at(pp, includeFileIndex);
+    if (!file || !file->contents || !file->path) return false;
+    if (file->lexedTokens) {
+        buffer->tokens = file->lexedTokens;
+        buffer->count = file->lexedTokenCount;
+        buffer->capacity = file->lexedTokenCapacity;
+        return true;
+    }
+
+    Lexer lexer;
+    initLexer(&lexer, file->contents, file->path, pp->enableTrigraphs);
+    TokenBuffer fresh;
+    token_buffer_init(&fresh);
+    if (!token_buffer_fill_from_lexer(&fresh, &lexer)) {
+        token_buffer_destroy(&fresh);
+        destroyLexer(&lexer);
+        return false;
+    }
+    destroyLexer(&lexer);
+
+    file->lexedTokens = fresh.tokens;
+    file->lexedTokenCount = fresh.count;
+    file->lexedTokenCapacity = fresh.capacity;
+    buffer->tokens = file->lexedTokens;
+    buffer->count = file->lexedTokenCount;
+    buffer->capacity = file->lexedTokenCapacity;
+    return true;
+}
+
 static bool pp_summary_replay_any_enabled(void) {
     return pp_summary_replay_router_enabled() ||
            pp_summary_replay_scaffold_enabled() ||
@@ -147,18 +180,17 @@ static bool pp_profile_include_path_full_token_walk(Preprocessor* pp,
                                                     const char* countName,
                                                     const char* scopeName) {
     if (!pp || !buffer || !output) return false;
-    if (!pp_stagea_diagnostic_profile_enabled()) {
-        return preprocess_tokens(pp, buffer, output, false);
-    }
-    if (countName && countName[0]) {
+    bool counterEnabled = pp_stagea_diagnostic_profile_enabled();
+    bool timingEnabled = profiler_timing_enabled();
+    if (counterEnabled && countName && countName[0]) {
         profiler_record_value(countName, 1);
     }
     ProfilerScope scope = {0};
-    if (scopeName && scopeName[0]) {
+    if (timingEnabled && scopeName && scopeName[0]) {
         scope = profiler_begin(scopeName);
     }
     bool ok = preprocess_tokens(pp, buffer, output, false);
-    if (scopeName && scopeName[0]) {
+    if (timingEnabled && scopeName && scopeName[0]) {
         profiler_end(scope);
     }
     return ok;
@@ -680,21 +712,15 @@ bool process_include(Preprocessor* pp,
     pp->lineRemapActive = false;
     pp->logicalFile = NULL;
 
-    ProfilerScope lexScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_lex");
-    Lexer lexer;
-    initLexer(&lexer, incValue->contents, incValue->path, pp->enableTrigraphs);
     TokenBuffer buffer;
-    token_buffer_init(&buffer);
-    if (!token_buffer_fill_from_lexer(&buffer, &lexer)) {
-        token_buffer_destroy(&buffer);
-        destroyLexer(&lexer);
+    ProfilerScope lexScope = pp_profiler_begin_if_enabled(timingEnabled, "pp_include_lex");
+    if (!pp_include_file_get_lexed_tokens(pp, includeFileIndex, &buffer)) {
         pp_profiler_end_if_enabled(timingEnabled, lexScope);
         pp->lineOffset = savedOffset;
         pp->logicalFile = savedLogical;
         pp->lineRemapActive = savedRemap;
         return false;
     }
-    destroyLexer(&lexer);
     pp_profiler_end_if_enabled(timingEnabled, lexScope);
 
     const char* guard = cachedGuard;
@@ -793,7 +819,6 @@ bool process_include(Preprocessor* pp,
                                  ? "pp_nested_include_repeat_guard_skip"
                                  : "pp_nested_include_first_guard_skip");
         }
-        token_buffer_destroy(&buffer);
         pp_include_file_mark_included(pp, includeFileIndex);
         pp->lineOffset = savedOffset;
         pp->logicalFile = savedLogical;
@@ -805,7 +830,6 @@ bool process_include(Preprocessor* pp,
         if (nestedIncludeDispatch) {
             pp_profile_event("pp_nested_include_recursive_cycle");
         }
-        token_buffer_destroy(&buffer);
         pp->lineOffset = savedOffset;
         pp->logicalFile = savedLogical;
         pp->lineRemapActive = savedRemap;
@@ -946,7 +970,6 @@ bool process_include(Preprocessor* pp,
     if (!ok) {
         pp_debug_fail("process_include_body", tokens ? &tokens[*cursor] : NULL);
     }
-    token_buffer_destroy(&buffer);
     pp->lineOffset = savedOffset;
     pp->logicalFile = savedLogical;
     pp->lineRemapActive = savedRemap;

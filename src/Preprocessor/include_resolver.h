@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "tokens.h"
+
 typedef enum {
     INCLUDE_SEARCH_SAME_DIR = 0,
     INCLUDE_SEARCH_INCLUDE_PATH = 1,
@@ -78,6 +80,9 @@ typedef struct {
 typedef struct {
     char* path;
     char* contents;
+    Token* lexedTokens;
+    size_t lexedTokenCount;
+    size_t lexedTokenCapacity;
     char* cachedGuardName;
     char* canonicalPath;
     IncludeSummaryProbe summaryProbe;
@@ -112,6 +117,8 @@ typedef struct {
     IncludeRequestCacheEntry* requestCache;
     size_t requestCacheCount;
     size_t requestCacheCapacity;
+    size_t* requestCacheHashSlots;
+    size_t requestCacheHashCapacity;
     char** includePaths;
     size_t includePathCount;
     IncludeLoadProfileEntry* profileEntries;
@@ -174,6 +181,8 @@ typedef struct {
     IncludeEdge* edges;
     size_t count;
     size_t capacity;
+    size_t* hashSlots;
+    size_t hashCapacity;
 } IncludeGraph;
 
 void include_graph_init(IncludeGraph* graph);

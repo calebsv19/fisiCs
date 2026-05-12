@@ -41,6 +41,9 @@ bool range_is_initialized(const SourceRange* range);
 
 bool pp_token_buffer_append(PPTokenBuffer* buffer, Token token);
 bool pp_token_buffer_append_clone(PPTokenBuffer* buffer, const Token* tok);
+bool pp_token_buffer_append_clone_span(PPTokenBuffer* buffer,
+                                       const Token* tokens,
+                                       size_t count);
 void pp_token_buffer_move(PPTokenBuffer* dest, PPTokenBuffer* src);
 bool pp_token_buffer_pop_if_type(PPTokenBuffer* buffer, TokenType type);
 void pp_token_buffer_release(PPTokenBuffer* buffer);

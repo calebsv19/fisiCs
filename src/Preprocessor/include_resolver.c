@@ -394,6 +394,23 @@ static bool ir_cache_request_result(IncludeResolver* resolver,
                                     size_t fileIndex,
                                     IncludeSearchOrigin origin,
                                     size_t originIndex);
+static bool ir_request_cache_uses_parent_dir(bool isSystem, bool isIncludeNext);
+static uint64_t ir_hash_bytes(uint64_t seed, const char* value);
+static uint64_t ir_hash_size_t(uint64_t seed, size_t value);
+static uint64_t ir_request_cache_hash_key(size_t parentFileIndex,
+                                          const char* parentDir,
+                                          const char* name,
+                                          bool isSystem,
+                                          bool isIncludeNext);
+static bool ir_request_cache_hash_reserve(IncludeResolver* resolver, size_t minCapacity);
+static bool ir_request_cache_hash_ensure_for_insert(IncludeResolver* resolver);
+static size_t ir_request_cache_find_slot(const IncludeResolver* resolver,
+                                         size_t parentFileIndex,
+                                         const char* parentDir,
+                                         const char* name,
+                                         bool isSystem,
+                                         bool isIncludeNext,
+                                         bool* found);
 
 static const IncludeFile* ir_try_virtual_audio_toolbox(IncludeResolver* resolver, const char* name) {
     static const char* kAudioToolboxName = "AudioToolbox/AudioToolbox.h";
@@ -467,6 +484,9 @@ static const IncludeFile* ir_try_virtual_audio_toolbox(IncludeResolver* resolver
     IncludeFile file = {0};
     file.path = ir_strdup(kVirtualPath);
     file.contents = ir_strdup(kShim);
+    file.lexedTokens = NULL;
+    file.lexedTokenCount = 0;
+    file.lexedTokenCapacity = 0;
     file.canonicalPath = ir_strdup(kVirtualPath);
     file.mtime = 0;
     file.pragmaOnce = true;
@@ -670,6 +690,130 @@ static bool ir_build_parent_dir(char* buffer, size_t bufSize, const char* path) 
     return true;
 }
 
+static bool ir_request_cache_uses_parent_dir(bool isSystem, bool isIncludeNext) {
+    return !isSystem && !isIncludeNext;
+}
+
+static uint64_t ir_hash_bytes(uint64_t seed, const char* value) {
+    uint64_t hash = seed;
+    if (!value) return hash;
+    for (const unsigned char* p = (const unsigned char*)value; *p; ++p) {
+        hash ^= (uint64_t)(*p);
+        hash *= 1099511628211ull;
+    }
+    return hash;
+}
+
+static uint64_t ir_hash_size_t(uint64_t seed, size_t value) {
+    uint64_t hash = seed;
+    for (size_t i = 0; i < sizeof(size_t); ++i) {
+        hash ^= (uint64_t)((value >> (i * 8u)) & 0xffu);
+        hash *= 1099511628211ull;
+    }
+    return hash;
+}
+
+static uint64_t ir_request_cache_hash_key(size_t parentFileIndex,
+                                          const char* parentDir,
+                                          const char* name,
+                                          bool isSystem,
+                                          bool isIncludeNext) {
+    uint64_t hash = 1469598103934665603ull;
+    hash = ir_hash_size_t(hash, (size_t)isSystem);
+    hash = ir_hash_size_t(hash, (size_t)isIncludeNext);
+    if (ir_request_cache_uses_parent_dir(isSystem, isIncludeNext)) {
+        hash = ir_hash_bytes(hash, parentDir);
+    } else {
+        hash = ir_hash_size_t(hash, parentFileIndex);
+    }
+    return ir_hash_bytes(hash, name);
+}
+
+static bool ir_request_cache_hash_reserve(IncludeResolver* resolver, size_t minCapacity) {
+    if (!resolver) return false;
+    size_t newCapacity = resolver->requestCacheHashCapacity ? resolver->requestCacheHashCapacity : 16u;
+    while (newCapacity < minCapacity) {
+        if (newCapacity > SIZE_MAX / 2u) {
+            newCapacity = minCapacity;
+            break;
+        }
+        newCapacity *= 2u;
+    }
+    size_t* slots = calloc(newCapacity, sizeof(size_t));
+    if (!slots) return false;
+    for (size_t i = 0; i < resolver->requestCacheCount; ++i) {
+        const IncludeRequestCacheEntry* entry = &resolver->requestCache[i];
+        uint64_t hash = ir_request_cache_hash_key(entry->parentFileIndex,
+                                                  entry->parentDir,
+                                                  entry->includeName,
+                                                  entry->isSystem,
+                                                  entry->isIncludeNext);
+        size_t mask = newCapacity - 1u;
+        size_t slot = (size_t)(hash & (uint64_t)mask);
+        while (slots[slot] != 0u) {
+            slot = (slot + 1u) & mask;
+        }
+        slots[slot] = i + 1u;
+    }
+    free(resolver->requestCacheHashSlots);
+    resolver->requestCacheHashSlots = slots;
+    resolver->requestCacheHashCapacity = newCapacity;
+    return true;
+}
+
+static bool ir_request_cache_hash_ensure_for_insert(IncludeResolver* resolver) {
+    if (!resolver) return false;
+    size_t minCapacity = resolver->requestCacheHashCapacity;
+    if (minCapacity == 0u) {
+        minCapacity = 16u;
+    }
+    while ((resolver->requestCacheCount + 1u) * 10u >= minCapacity * 7u) {
+        if (minCapacity > SIZE_MAX / 2u) break;
+        minCapacity *= 2u;
+    }
+    if (resolver->requestCacheHashCapacity == minCapacity) return true;
+    return ir_request_cache_hash_reserve(resolver, minCapacity);
+}
+
+static size_t ir_request_cache_find_slot(const IncludeResolver* resolver,
+                                         size_t parentFileIndex,
+                                         const char* parentDir,
+                                         const char* name,
+                                         bool isSystem,
+                                         bool isIncludeNext,
+                                         bool* found) {
+    if (found) *found = false;
+    if (!resolver || !name || resolver->requestCacheHashCapacity == 0u ||
+        !resolver->requestCacheHashSlots) {
+        return 0u;
+    }
+    bool useParentDir = ir_request_cache_uses_parent_dir(isSystem, isIncludeNext);
+    uint64_t hash = ir_request_cache_hash_key(parentFileIndex, parentDir, name, isSystem, isIncludeNext);
+    size_t mask = resolver->requestCacheHashCapacity - 1u;
+    size_t slot = (size_t)(hash & (uint64_t)mask);
+    while (resolver->requestCacheHashSlots[slot] != 0u) {
+        size_t entryIndex = resolver->requestCacheHashSlots[slot] - 1u;
+        if (entryIndex < resolver->requestCacheCount) {
+            const IncludeRequestCacheEntry* entry = &resolver->requestCache[entryIndex];
+            bool parentMatches = false;
+            if (useParentDir) {
+                parentMatches = parentDir && entry->parentDir && strcmp(entry->parentDir, parentDir) == 0;
+            } else {
+                parentMatches = entry->parentFileIndex == parentFileIndex;
+            }
+            if (parentMatches &&
+                entry->isSystem == isSystem &&
+                entry->isIncludeNext == isIncludeNext &&
+                strcmp(entry->includeName, name) == 0) {
+                if (found) *found = true;
+                return slot;
+            }
+        }
+        slot = (slot + 1u) & mask;
+    }
+    return slot;
+}
+
 static size_t ir_lookup_request_cache_index(const IncludeResolver* resolver,
                                             size_t parentFileIndex,
                                             const char* parentDir,
@@ -677,19 +821,16 @@ static size_t ir_lookup_request_cache_index(const IncludeResolver* resolver,
                                             bool isSystem,
                                             bool isIncludeNext) {
     if (!resolver || !name) return (size_t)-1;
-    bool useParentDir = !isSystem && !isIncludeNext;
-    for (size_t i = 0; i < resolver->requestCacheCount; ++i) {
-        const IncludeRequestCacheEntry* entry = &resolver->requestCache[i];
-        if (useParentDir) {
-            if (!parentDir || !entry->parentDir) continue;
-            if (strcmp(entry->parentDir, parentDir) != 0) continue;
-        } else if (entry->parentFileIndex != parentFileIndex) {
-            continue;
-        }
-        if (entry->isSystem != isSystem) continue;
-        if (entry->isIncludeNext != isIncludeNext) continue;
-        if (strcmp(entry->includeName, name) != 0) continue;
-        return i;
+    bool found = false;
+    size_t slot = ir_request_cache_find_slot(resolver,
+                                             parentFileIndex,
+                                             parentDir,
+                                             name,
+                                             isSystem,
+                                             isIncludeNext,
+                                             &found);
+    if (found) {
+        return resolver->requestCacheHashSlots[slot] - 1u;
     }
     return (size_t)-1;
 }
@@ -704,7 +845,7 @@ static bool ir_cache_request_result(IncludeResolver* resolver,
                                     IncludeSearchOrigin origin,
                                     size_t originIndex) {
     if (!resolver || !name || fileIndex >= resolver->count) return false;
-    bool useParentDir = !isSystem && !isIncludeNext;
+    bool useParentDir = ir_request_cache_uses_parent_dir(isSystem, isIncludeNext);
 
     size_t existingIndex = ir_lookup_request_cache_index(resolver,
                                                          parentFileIndex,
@@ -718,6 +859,10 @@ static bool ir_cache_request_result(IncludeResolver* resolver,
         entry->origin = origin;
         entry->originIndex = originIndex;
         return true;
+    }
+
+    if (!ir_request_cache_hash_ensure_for_insert(resolver)) {
+        return false;
     }
 
     if (resolver->requestCacheCount == resolver->requestCacheCapacity) {
@@ -753,7 +898,18 @@ static bool ir_cache_request_result(IncludeResolver* resolver,
     entry.fileIndex = fileIndex;
     entry.origin = origin;
     entry.originIndex = originIndex;
-    resolver->requestCache[resolver->requestCacheCount++] = entry;
+    size_t slot = ir_request_cache_find_slot(resolver,
+                                             parentFileIndex,
+                                             useParentDir ? parentDir : NULL,
+                                             name,
+                                             isSystem,
+                                             isIncludeNext,
+                                             NULL);
+    resolver->requestCache[resolver->requestCacheCount] = entry;
+    if (resolver->requestCacheHashSlots && resolver->requestCacheHashCapacity > 0u) {
+        resolver->requestCacheHashSlots[slot] = resolver->requestCacheCount + 1u;
+    }
+    resolver->requestCacheCount++;
     return true;
 }
 
@@ -773,6 +929,9 @@ bool include_resolver_set_root_buffer(IncludeResolver* resolver,
     IncludeFile file = {0};
     file.path = ir_strdup(path);
     file.contents = contents_owned;
+    file.lexedTokens = NULL;
+    file.lexedTokenCount = 0;
+    file.lexedTokenCapacity = 0;
     file.cachedGuardName = NULL;
     file.canonicalPath = ir_canonicalize_path(path);
     file.summaryProbe = (IncludeSummaryProbe){0};
@@ -1063,6 +1222,7 @@ void include_resolver_destroy(IncludeResolver* resolver) {
         free(resolver->requestCache[i].includeName);
     }
     free(resolver->requestCache);
+    free(resolver->requestCacheHashSlots);
     for (size_t i = 0; i < resolver->includePathHintCount; ++i) {
         free(resolver->includePathHints[i].includeName);
     }
@@ -1070,6 +1230,7 @@ void include_resolver_destroy(IncludeResolver* resolver) {
     for (size_t i = 0; i < resolver->count; ++i) {
         free(resolver->files[i].path);
         free(resolver->files[i].contents);
+        free(resolver->files[i].lexedTokens);
         free(resolver->files[i].cachedGuardName);
         free(resolver->files[i].canonicalPath);
         free(resolver->files[i].summaryActions);
@@ -1159,6 +1320,9 @@ static const IncludeFile* ir_try_load(IncludeResolver* resolver,
         return NULL;
     }
     file.contents = data;
+    file.lexedTokens = NULL;
+    file.lexedTokenCount = 0;
+    file.lexedTokenCapacity = 0;
     file.cachedGuardName = NULL;
     file.canonicalPath = canonical;
     file.summaryProbe = (IncludeSummaryProbe){0};

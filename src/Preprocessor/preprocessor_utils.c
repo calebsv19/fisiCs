@@ -13,6 +13,108 @@
 #include "Compiler/diagnostics.h"
 #include "Lexer/tokens.h"
 
+enum {
+    PP_INCLUDE_STACK_SLOT_EMPTY = 0,
+    PP_INCLUDE_STACK_SLOT_ACTIVE = 1,
+    PP_INCLUDE_STACK_SLOT_TOMBSTONE = 2
+};
+
+static size_t pp_hash_bytes(const char* text) {
+    const unsigned char* bytes = (const unsigned char*)text;
+    size_t hash = (size_t)1469598103934665603ull;
+    while (bytes && *bytes) {
+        hash ^= (size_t)(*bytes++);
+        hash *= (size_t)1099511628211ull;
+    }
+    return hash;
+}
+
+static size_t pp_include_stack_find_slot(const Preprocessor* pp,
+                                         const char* path,
+                                         bool* foundOut) {
+    size_t capacity = pp->includeStack.memberCapacity;
+    size_t mask = capacity - 1;
+    size_t slot = pp_hash_bytes(path) & mask;
+    size_t firstTombstone = SIZE_MAX;
+    while (true) {
+        unsigned char state = pp->includeStack.memberStates[slot];
+        if (state == PP_INCLUDE_STACK_SLOT_EMPTY) {
+            if (foundOut) *foundOut = false;
+            return firstTombstone != SIZE_MAX ? firstTombstone : slot;
+        }
+        if (state == PP_INCLUDE_STACK_SLOT_TOMBSTONE) {
+            if (firstTombstone == SIZE_MAX) {
+                firstTombstone = slot;
+            }
+        } else if (pp->includeStack.memberPaths[slot] &&
+                   strcmp(pp->includeStack.memberPaths[slot], path) == 0) {
+            if (foundOut) *foundOut = true;
+            return slot;
+        }
+        slot = (slot + 1) & mask;
+    }
+}
+
+static bool pp_include_stack_member_rehash(Preprocessor* pp, size_t newCapacity) {
+    const char** newPaths = calloc(newCapacity, sizeof(*newPaths));
+    size_t* newCounts = calloc(newCapacity, sizeof(*newCounts));
+    unsigned char* newStates = calloc(newCapacity, sizeof(*newStates));
+    if (!newPaths || !newCounts || !newStates) {
+        free(newPaths);
+        free(newCounts);
+        free(newStates);
+        return false;
+    }
+
+    const char** oldPaths = pp->includeStack.memberPaths;
+    size_t* oldCounts = pp->includeStack.memberCounts;
+    unsigned char* oldStates = pp->includeStack.memberStates;
+    size_t oldCapacity = pp->includeStack.memberCapacity;
+
+    pp->includeStack.memberPaths = newPaths;
+    pp->includeStack.memberCounts = newCounts;
+    pp->includeStack.memberStates = newStates;
+    pp->includeStack.memberCapacity = newCapacity;
+    pp->includeStack.memberTombstones = 0;
+
+    for (size_t i = 0; i < oldCapacity; ++i) {
+        if (!oldStates || oldStates[i] != PP_INCLUDE_STACK_SLOT_ACTIVE || !oldPaths[i] ||
+            oldCounts[i] == 0) {
+            continue;
+        }
+        bool found = false;
+        size_t slot = pp_include_stack_find_slot(pp, oldPaths[i], &found);
+        pp->includeStack.memberPaths[slot] = oldPaths[i];
+        pp->includeStack.memberCounts[slot] = oldCounts[i];
+        pp->includeStack.memberStates[slot] = PP_INCLUDE_STACK_SLOT_ACTIVE;
+    }
+
+    free(oldPaths);
+    free(oldCounts);
+    free(oldStates);
+    return true;
+}
+
+static bool pp_include_stack_member_ensure_capacity(Preprocessor* pp, size_t nextDepth) {
+    size_t capacity = pp->includeStack.memberCapacity;
+    if (capacity == 0) {
+        return pp_include_stack_member_rehash(pp, 16);
+    }
+    size_t active = pp->includeStack.depth;
+    if ((active + pp->includeStack.memberTombstones + 1) * 2 <= capacity &&
+        nextDepth * 2 <= capacity) {
+        return true;
+    }
+    size_t newCapacity = capacity;
+    while ((nextDepth + 1) * 2 > newCapacity) {
+        newCapacity *= 2;
+    }
+    if ((active + pp->includeStack.memberTombstones + 1) * 2 > newCapacity) {
+        newCapacity *= 2;
+    }
+    return pp_include_stack_member_rehash(pp, newCapacity);
+}
+
 static void strip_include_spaces_local(char* name) {
     if (!name) return;
     char* out = name;
@@ -524,15 +626,40 @@ bool pp_include_stack_push(Preprocessor* pp,
         pp->includeStack.frames = frames;
         pp->includeStack.capacity = newCap;
     }
+    if (!pp_include_stack_member_ensure_capacity(pp, pp->includeStack.depth + 1)) {
+        return false;
+    }
     pp->includeStack.frames[pp->includeStack.depth].path = path;
     pp->includeStack.frames[pp->includeStack.depth].origin = origin;
     pp->includeStack.frames[pp->includeStack.depth].originIndex = originIndex;
+    bool found = false;
+    size_t slot = pp_include_stack_find_slot(pp, path, &found);
+    if (!found && pp->includeStack.memberStates[slot] == PP_INCLUDE_STACK_SLOT_TOMBSTONE &&
+        pp->includeStack.memberTombstones > 0) {
+        pp->includeStack.memberTombstones--;
+    }
+    pp->includeStack.memberPaths[slot] = path;
+    pp->includeStack.memberCounts[slot]++;
+    pp->includeStack.memberStates[slot] = PP_INCLUDE_STACK_SLOT_ACTIVE;
     pp->includeStack.depth++;
     return true;
 }
 
 void pp_include_stack_pop(Preprocessor* pp) {
     if (!pp || pp->includeStack.depth == 0) return;
+    const char* path = pp->includeStack.frames[pp->includeStack.depth - 1].path;
+    if (path && pp->includeStack.memberCapacity > 0) {
+        bool found = false;
+        size_t slot = pp_include_stack_find_slot(pp, path, &found);
+        if (found && pp->includeStack.memberCounts[slot] > 0) {
+            pp->includeStack.memberCounts[slot]--;
+            if (pp->includeStack.memberCounts[slot] == 0) {
+                pp->includeStack.memberPaths[slot] = NULL;
+                pp->includeStack.memberStates[slot] = PP_INCLUDE_STACK_SLOT_TOMBSTONE;
+                pp->includeStack.memberTombstones++;
+            }
+        }
+    }
     pp->includeStack.depth--;
 }
 
@@ -542,14 +669,10 @@ const PPIncludeFrame* pp_include_stack_top(const Preprocessor* pp) {
 }
 
 bool pp_include_stack_contains(const Preprocessor* pp, const char* path) {
-    if (!pp || !path) return false;
-    for (size_t i = 0; i < pp->includeStack.depth; ++i) {
-        if (pp->includeStack.frames[i].path &&
-            strcmp(pp->includeStack.frames[i].path, path) == 0) {
-            return true;
-        }
-    }
-    return false;
+    if (!pp || !path || pp->includeStack.memberCapacity == 0) return false;
+    bool found = false;
+    size_t slot = pp_include_stack_find_slot(pp, path, &found);
+    return found && pp->includeStack.memberCounts[slot] > 0;
 }
 
 void pp_report_diag(Preprocessor* pp,

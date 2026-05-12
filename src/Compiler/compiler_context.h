@@ -152,6 +152,8 @@ typedef struct {
 
 typedef struct {
     FisicsInclude* items;
+    uint8_t* ownershipFlags;
+    CCStringSet namePool;
     size_t count;
     size_t capacity;
 } CompilerIncludes;
@@ -267,6 +269,7 @@ bool cc_is_builtin_type(const CompilerContext* ctx, const char* name);
 
 // Include graph access
 bool cc_set_include_graph(CompilerContext* ctx, const IncludeGraph* graph);
+bool cc_take_include_graph(CompilerContext* ctx, IncludeGraph* graph);
 const IncludeGraph* cc_get_include_graph(const CompilerContext* ctx);
 
 // Target recording (threaded to codegen/layout consumers)

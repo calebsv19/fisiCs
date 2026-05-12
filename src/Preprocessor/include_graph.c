@@ -15,11 +15,100 @@ static char* irg_strdup(const char* s) {
     return copy;
 }
 
+static uint64_t include_graph_hash_string(const char* s) {
+    uint64_t hash = 1469598103934665603ull;
+    if (!s) return hash;
+    for (const unsigned char* p = (const unsigned char*)s; *p; ++p) {
+        hash ^= (uint64_t)(*p);
+        hash *= 1099511628211ull;
+    }
+    return hash;
+}
+
+static uint64_t include_graph_hash_edge(const char* from, const char* to) {
+    uint64_t hash = include_graph_hash_string(from);
+    hash ^= 0x9e3779b97f4a7c15ull;
+    hash *= 1099511628211ull;
+    hash ^= include_graph_hash_string(to);
+    hash *= 1099511628211ull;
+    return hash;
+}
+
+static bool include_graph_hash_reserve(IncludeGraph* graph, size_t minCapacity) {
+    if (!graph) return false;
+    size_t newCapacity = graph->hashCapacity ? graph->hashCapacity : 16u;
+    while (newCapacity < minCapacity) {
+        if (newCapacity > SIZE_MAX / 2u) {
+            newCapacity = minCapacity;
+            break;
+        }
+        newCapacity *= 2u;
+    }
+    size_t* slots = (size_t*)calloc(newCapacity, sizeof(size_t));
+    if (!slots) return false;
+    for (size_t i = 0; i < graph->count; ++i) {
+        uint64_t hash = include_graph_hash_edge(graph->edges[i].from, graph->edges[i].to);
+        size_t mask = newCapacity - 1u;
+        size_t slot = (size_t)(hash & (uint64_t)mask);
+        while (slots[slot] != 0u) {
+            slot = (slot + 1u) & mask;
+        }
+        slots[slot] = i + 1u;
+    }
+    free(graph->hashSlots);
+    graph->hashSlots = slots;
+    graph->hashCapacity = newCapacity;
+    return true;
+}
+
+static bool include_graph_hash_ensure_for_insert(IncludeGraph* graph) {
+    if (!graph) return false;
+    size_t minCapacity = graph->hashCapacity;
+    if (minCapacity == 0u) {
+        minCapacity = 16u;
+    }
+    while ((graph->count + 1u) * 10u >= minCapacity * 7u) {
+        if (minCapacity > SIZE_MAX / 2u) {
+            break;
+        }
+        minCapacity *= 2u;
+    }
+    if (graph->hashCapacity == minCapacity) return true;
+    return include_graph_hash_reserve(graph, minCapacity);
+}
+
+static size_t include_graph_find_slot(const IncludeGraph* graph,
+                                      const char* from,
+                                      const char* to,
+                                      bool* found) {
+    if (found) *found = false;
+    if (!graph || graph->hashCapacity == 0u || !graph->hashSlots) {
+        return 0u;
+    }
+    size_t mask = graph->hashCapacity - 1u;
+    uint64_t hash = include_graph_hash_edge(from, to);
+    size_t slot = (size_t)(hash & (uint64_t)mask);
+    while (graph->hashSlots[slot] != 0u) {
+        size_t edgeIndex = graph->hashSlots[slot] - 1u;
+        if (edgeIndex < graph->count &&
+            graph->edges[edgeIndex].from && graph->edges[edgeIndex].to &&
+            strcmp(graph->edges[edgeIndex].from, from) == 0 &&
+            strcmp(graph->edges[edgeIndex].to, to) == 0) {
+            if (found) *found = true;
+            return slot;
+        }
+        slot = (slot + 1u) & mask;
+    }
+    return slot;
+}
+
 void include_graph_init(IncludeGraph* graph) {
     if (!graph) return;
     graph->edges = NULL;
     graph->count = 0;
     graph->capacity = 0;
+    graph->hashSlots = NULL;
+    graph->hashCapacity = 0;
 }
 
 void include_graph_destroy(IncludeGraph* graph) {
@@ -29,20 +118,20 @@ void include_graph_destroy(IncludeGraph* graph) {
         free(graph->edges[i].to);
     }
     free(graph->edges);
+    free(graph->hashSlots);
     graph->edges = NULL;
     graph->count = 0;
     graph->capacity = 0;
+    graph->hashSlots = NULL;
+    graph->hashCapacity = 0;
 }
 
 bool include_graph_add(IncludeGraph* graph, const char* from, const char* to) {
     if (!graph || !from || !to) return false;
-    for (size_t i = 0; i < graph->count; ++i) {
-        if (graph->edges[i].from && graph->edges[i].to &&
-            strcmp(graph->edges[i].from, from) == 0 &&
-            strcmp(graph->edges[i].to, to) == 0) {
-            return true;
-        }
-    }
+    if (!include_graph_hash_ensure_for_insert(graph)) return false;
+    bool found = false;
+    size_t slot = include_graph_find_slot(graph, from, to, &found);
+    if (found) return true;
     if (graph->count == graph->capacity) {
         size_t newCap = graph->capacity ? graph->capacity * 2u : 8u;
         IncludeEdge* edges = (IncludeEdge*)realloc(graph->edges, newCap * sizeof(IncludeEdge));
@@ -57,6 +146,7 @@ bool include_graph_add(IncludeGraph* graph, const char* from, const char* to) {
         free(graph->edges[graph->count].to);
         return false;
     }
+    graph->hashSlots[slot] = graph->count + 1u;
     graph->count++;
     return true;
 }
