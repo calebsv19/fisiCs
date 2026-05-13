@@ -3,13 +3,13 @@
 #ifndef CODEGEN_INTERNAL_H
 #define CODEGEN_INTERNAL_H
 
-#include "code_gen.h"
 #include "codegen_type_cache.h"
+#include "Syntax/target_layout.h"
 
 #include <llvm-c/Core.h>
 
+typedef struct CodegenContext CodegenContext;
 struct SemanticModel;
-struct CGTypeCache;
 
 #ifdef __cplusplus
 extern "C" {

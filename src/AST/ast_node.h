@@ -4,13 +4,13 @@
 #define AST_NODE_H
 
 #include "AST/ast_attribute.h"
+#include "AST/ast_node_type.h"
 #include "Parser/Helpers/designated_init.h"
 #include "Parser/Helpers/parsed_type.h"
-#include "Lexer/tokens.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "Lexer/source_range.h"
+#include "Lexer/token_type.h"
 #include <stdbool.h>
-#include <string.h>
+#include <stddef.h>
 
 typedef enum {
     LIT_ENC_NARROW = 0,
@@ -38,77 +38,10 @@ static inline LiteralEncoding ast_literal_encoding(const char* value, const char
 }
 
 struct DesignatedInit;
-
-// Define AST Node Types
-typedef enum {
-    AST_PROGRAM,
-    AST_BLOCK,
-    AST_STATEMENT_EXPRESSION,
-    AST_HEAP_ALLOCATION,
-
-    AST_INCLUDE_DIRECTIVE,
-    AST_DEFINE_DIRECTIVE,
-    AST_CONDITIONAL_DIRECTIVE,
-    AST_ENDIF_DIRECTIVE,
-
-    AST_TYPEDEF,
-    AST_VARIABLE_DECLARATION,
-    AST_UNION_DEFINITION,
-    AST_STRUCT_DEFINITION,
-    AST_STRUCT_FIELD_ACCESS,
-    AST_ENUM_DEFINITION,
-
-    AST_ARRAY_ACCESS,
-    AST_POINTER_ACCESS,
-    AST_DOT_ACCESS,
-    AST_POINTER_DEREFERENCE,
-
-    AST_TERNARY_EXPRESSION,
-    AST_BINARY_EXPRESSION,
-    AST_UNARY_EXPRESSION,
-    AST_COMMA_EXPRESSION,
-    AST_CAST_EXPRESSION,
-
-    AST_BASIC_TYPE,
-    AST_PARSED_TYPE,
-    AST_NUMBER_LITERAL,
-    AST_CHAR_LITERAL,
-    AST_STRING_LITERAL,
-    AST_IDENTIFIER,
-    AST_SIZEOF,
-    AST_COMPOUND_LITERAL,
-
-    AST_ASSIGNMENT,
-
-    AST_IF_STATEMENT,
-    AST_ALIGNOF,
-    AST_SEQUENCE,
-    AST_WHILE_LOOP,
-    AST_FOR_LOOP,
-
-    AST_RETURN,
-    AST_BREAK,
-    AST_CONTINUE,
-    AST_GOTO_STATEMENT,
-    AST_LABEL_DECLARATION,
-
-    AST_FUNCTION_DECLARATION,
-    AST_FUNCTION_DEFINITION,
-    AST_FUNCTION_CALL,
-    AST_FUNCTION_POINTER,
-    
-    AST_SWITCH,
-    AST_CASE,
-    AST_STATIC_ASSERT,
-
-    AST_ASM
-
-} ASTNodeType;
-
+typedef struct Token Token;
 
 // Definition of the AST Node Structure
 // Forward declaration of the ASTNode structure
-typedef struct ASTNode ASTNode;
 
 struct ASTNode {
     ASTNodeType type;

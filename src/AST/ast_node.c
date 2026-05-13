@@ -4,7 +4,9 @@
 #include "Parser/parser.h"
 #include "Parser/Helpers/parser_helpers.h"
 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 // Safer strdup (portable even if strdup isn't declared)
@@ -26,6 +28,10 @@ static ASTNode* new_node(ASTNodeType tag) {
     n->attributes = NULL;
     n->attributeCount = 0;
     return n;
+}
+
+ASTNodeType astNodeGetType(const ASTNode* node) {
+    return node ? node->type : AST_PROGRAM;
 }
 
 static void inherit_line_from_node(ASTNode* target, ASTNode* source) {

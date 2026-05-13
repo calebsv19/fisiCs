@@ -3,6 +3,8 @@
 #include "analyze_decls_internal.h"
 #include "Utils/profiler.h"
 
+#include <string.h>
+
 static bool typeInfoIsStructLike(const TypeInfo* info);
 static bool inlineAggregateHasField(const ASTNode* aggregateDef, const char* fieldName);
 static bool aggregateTypeHasField(const ParsedType* parsedType,

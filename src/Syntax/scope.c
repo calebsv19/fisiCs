@@ -3,6 +3,7 @@
 #include "scope.h"
 #include "Utils/profiler.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 Scope* createScope(Scope* parent) {
     profiler_record_value("semantic_count_create_scope", 1);

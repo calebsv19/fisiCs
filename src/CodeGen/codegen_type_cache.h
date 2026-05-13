@@ -3,15 +3,17 @@
 #ifndef CODEGEN_TYPE_CACHE_H
 #define CODEGEN_TYPE_CACHE_H
 
-#include "codegen_model_adapter.h"
-#include "Syntax/semantic_model.h"
+#include "Parser/Helpers/parsed_type.h"
+
 #include <llvm-c/Core.h>
+
+typedef struct ASTNode ASTNode;
+typedef struct SemanticModel SemanticModel;
+typedef struct Symbol Symbol;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "Parser/Helpers/parsed_type.h"
 
 typedef struct CGNamedLLVMType {
     char* name;

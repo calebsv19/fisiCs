@@ -2,7 +2,7 @@
 
 This document defines the `make final` timing capture system.
 The goal is to track full-suite runtime as validation coverage grows.
-Last updated: 2026-04-25.
+Last updated: 2026-05-12.
 
 ## Scope
 
@@ -10,6 +10,7 @@ Last updated: 2026-04-25.
 - Record current suite size from harness output (`PASS` / `FAIL` / `SKIP` counts).
 - Track average seconds per test (`median_seconds / total_count`) for trend comparisons.
 - Keep detailed time-series data in maintainer audit storage configured by timing make variables.
+- Keep this lane separate from exact single-TU optimization acceptance work.
 
 ## Capture Command
 
@@ -40,6 +41,20 @@ Defaults point to maintainer/internal audit locations and can be overridden per 
 
 Within the public trust ladder, this is the `Tier 7` maintainer checkpoint from
 `docs/compiler_test_confidence_tiers.md`, not the normal inner-loop validation path.
+
+## Relationship To Optimization Oracles
+
+`make final-timing` is the macro-trend lane.
+
+For optimization work:
+
+- use `tests/real_projects/runners/run_project_exact_compile_oracle.py` as the
+  keep / drop lane
+- use `tests/real_projects/runners/run_project_profile_oracle.py` as the
+  attribution lane
+
+Do not use `make final-timing` alone to accept or reject a narrow compiler
+optimization.
 
 ## SQLite Mirror And Rollups
 
@@ -88,4 +103,6 @@ make final-timing-rollup
 - Run captures on a stable tree (no in-flight benchmarking experiments).
 - Prefer `FINAL_TIMING_RUNS=3` (or `--runs 3`) when reporting publicly.
 - Treat this lane as a trend reference, not a micro-benchmark.
+- Treat recent snapshot values as historical trend points, not per-change
+  acceptance evidence.
 - Clang comparisons are optional and can be added later as a separate column set once standardized.

@@ -3,6 +3,9 @@
 #include "analyze_decls_internal.h"
 #include "Utils/profiler.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 static ASTNode* symbolConstInitializerExpr(const Symbol* sym);
 static bool isSimpleFloatingConstExpr(ASTNode* expr, Scope* scope, int depth);
 static void reportScalarInitializerIssue(ASTNode* context, const char* name, const char* detail);

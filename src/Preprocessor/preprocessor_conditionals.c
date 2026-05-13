@@ -2,6 +2,7 @@
 
 #include "Preprocessor/pp_internal.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "Lexer/tokens.h"

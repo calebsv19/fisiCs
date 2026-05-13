@@ -13,6 +13,7 @@
 #include "Utils/profiler.h"
 
 #include <llvm-c/Core.h>
+#include <llvm-c/Target.h>
 
 #include <stdbool.h>
 #include <stddef.h>

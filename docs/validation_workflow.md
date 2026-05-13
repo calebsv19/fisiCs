@@ -1,41 +1,72 @@
 # Full-Program Compilation Validation Workflow
 
-Purpose: Validate fisics against real projects by compiling every translation unit, triaging failures, fixing issues in focused batches, and tracking progress in a master log.
-Last updated: 2026-04-22.
+Purpose: validate `fisiCs` against real projects using the staged
+`tests/real_projects/` ladder, then use the exact/profile oracles correctly
+when the work shifts from functional parity to compiler-efficiency tuning.
+Last updated: 2026-05-12.
 
-## Workflow (per project)
-1) **Inventory translation units**
-   - Enumerate all `.c` files in the project.
-   - Decide the include roots (`-I<project>/include`, `-I<project>/src`, etc.).
+## Validation Ladder
 
-2) **Compile each file and capture errors**
-   - Run `./fisics -c <file.c>` with the selected include paths.
-   - Record the first error (or full log if needed) per file.
-   - Store results in your active failure tracking document (or a dedicated report file) with:
-     - File path
-     - Error class (missing header / parser / semantic / codegen / crash)
-     - Key message
+The real-project scaffold is staged:
 
-3) **Cluster by root cause**
-   - Group failures by likely shared cause.
-   - Rank clusters by impact (largest count first, then easiest fixes).
+- Stage `A_tu_compile`: translation-unit compile parity
+- Stage `B_link_subset`: focused link-subset parity
+- Stage `C_full_build`: full-build target parity
+- Stage `D_runtime_smoke`: headless runtime smoke parity
+- Stage `E_golden_behavior`: deterministic output/hash parity
+- Stage `F_perf_telemetry`: non-gating timing and environment telemetry
 
-4) **Fix by cluster, then re-run**
-   - Apply the minimal compiler fixes for a cluster.
-   - Re-compile the same subset of files to confirm the fix.
-   - Update the failure log, moving files to `[PASS]` as they succeed.
+Use `tests/real_projects/README.md` as the authoritative public runner map.
 
-5) **Progressive project validation**
-   - Repeat until all files compile or remaining failures are clearly scoped.
-   - For stubborn failures, mark `[PARTIAL]` with concrete blockers.
+## Standard Functional Workflow
 
-6) **Regression checks**
-   - Run `make test`, `make final`, and (for frontend/IDE contract-touching changes) `make frontend-contract-test`.
-   - Update expected outputs only for tests impacted by the fixes.
+1. Reproduce the issue in the narrowest real-project stage that still shows it.
+2. Capture the failing TU/target and classify the blocker.
+3. Reduce and fix in `fisiCs`, not in the external project source.
+4. Re-run the same stage to confirm the fix.
+5. Promote stable coverage into `tests/final/` or `tests/binary/` when the
+   issue is no longer just a canary-only failure.
+6. Re-run the source canary stage after promotion.
+
+## When Timing Work Starts
+
+Functional real-project stages and performance oracles are separate lanes.
+
+### Use The Exact Compile Oracle For Acceptance
+
+Use `tests/real_projects/runners/run_project_exact_compile_oracle.py` when the
+question is whether a compiler optimization should be kept.
+
+Rule:
+
+- this is the keep / drop lane
+- keep `clang` control enabled
+- keep sentinel preflight enabled for serious sessions
+
+### Use The Profile Oracle For Attribution
+
+Use `tests/real_projects/runners/run_project_profile_oracle.py` after the exact
+lane already shows a credible move.
+
+Rule:
+
+- this explains where time moved
+- this does not replace the exact acceptance lane
+
+### Use `make final-timing` Only For Macro Trend
+
+`make final-timing` is for long-horizon suite trend tracking.
+
+Rule:
+
+- do not accept or reject narrow compiler optimizations from this lane
 
 ## Notes
-- Keep fixes scoped to the active cluster to avoid unrelated regressions.
-- Always prefer fixes that unblock many files at once.
-- If a failure is due to missing third-party headers, document it clearly and skip unless the headers are available.
-- Keep one live tracking doc while a project is in progress to avoid split state.
-- Keep deep triage execution notes outside this public workflow guide.
+
+- Keep fixes scoped to the active blocker cluster.
+- Prefer fixes that unblock many files at once.
+- If a failure depends on unavailable third-party headers or runtime assets,
+  document the blocker clearly and skip rather than forcing local edits into the
+  external project.
+- Keep deep triage and execution logs in the private maintainer docs lane, not
+  in this public guide.

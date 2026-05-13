@@ -10,6 +10,7 @@
 #include "Parser/Expr/parser_expr_pratt.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 ASTNode* parseExpression(Parser* parser) {

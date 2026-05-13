@@ -3,7 +3,7 @@
 #ifndef PARSED_TYPE_H
 #define PARSED_TYPE_H
 
-#include "Lexer/tokens.h"  // Required for TokenType
+#include "Lexer/token_type.h"  // Required for TokenType
 #include <stdbool.h>
 #include <stddef.h>
 #include "AST/ast_attribute.h"

@@ -1,7 +1,7 @@
 # Docs Index
 
 This is the table of contents for the public `docs/` tree in `fisiCs`.
-Last audited: 2026-05-01.
+Last audited: 2026-05-12.
 
 ## Start Here
 
@@ -59,7 +59,8 @@ Operational guide for bucket-by-bucket compiler test execution.
 
 ### `docs/validation_workflow.md`
 
-Full-project validation workflow for compile-each-TU campaigns.
+Public workflow for the real-project validation ladder, including compile,
+runtime, and timing-oracle roles.
 
 ### `docs/frontend_api.md`
 
@@ -81,7 +82,7 @@ CLI release packaging/sign/notarize workflow for macOS distribution artifacts.
 
 ### `docs/make_final_timing_log.md`
 
-Public timing-baseline lane for `make final`, including capture workflow and CSV metrics contract.
+Public macro-trend timing lane for `make final`, including capture workflow and CSV metrics contract.
 
 ## Private Docs
 

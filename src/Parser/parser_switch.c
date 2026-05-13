@@ -5,6 +5,9 @@
 #include "Parser/Expr/parser_expr.h"
 #include "parser_main.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 ASTNode* parseSwitchStatement(Parser* parser) {  
     if (parser->currentToken.type != TOKEN_SWITCH) {
         printParseError("'switch'", parser);

@@ -2,6 +2,8 @@
 
 #include "analyze_decls_internal.h"
 
+#include <string.h>
+
 static const uint64_t FNV_OFFSET = 1469598103934665603ULL;
 static const uint64_t FNV_PRIME = 1099511628211ULL;
 

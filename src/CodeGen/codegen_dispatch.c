@@ -1,8 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-#include "codegen_private.h"
+#include "codegen_dispatch_internal.h"
+#include "AST/ast_node_type.h"
+#include "Utils/logging.h"
 
 #include <stdio.h>
+
+#ifdef CODEGEN_DEBUG
+#define CG_DISPATCH_DEBUG(...) LOG_DEBUG("codegen", __VA_ARGS__)
+#else
+#define CG_DISPATCH_DEBUG(...) ((void)0)
+#endif
 
 LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
     if (!node) {
@@ -10,9 +18,11 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
-    CG_DEBUG("[CG] Enter node type %d\n", node->type);
+    ASTNodeType nodeType = astNodeGetType(node);
 
-    switch (node->type) {
+    CG_DISPATCH_DEBUG("[CG] Enter node type %d\n", nodeType);
+
+    switch (nodeType) {
         case AST_PROGRAM:
             return codegenProgram(ctx, node);
         case AST_BLOCK:
@@ -103,7 +113,7 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
         case AST_ASM:
             return NULL; // inline asm is parsed but not lowered yet
         default:
-            fprintf(stderr, "Error: Unhandled AST node type %d\n", node->type);
+            fprintf(stderr, "Error: Unhandled AST node type %d\n", nodeType);
             return NULL;
     }
 }

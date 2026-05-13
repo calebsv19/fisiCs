@@ -6,6 +6,7 @@
 #include "Parser/Expr/parser_expr_pratt.h"
 #include "parser_decl.h"
 #include "Utils/profiler.h"
+#include <stdio.h>
 #include <string.h>
 
 static bool isAlignasToken(const Token* tok) {

@@ -9,6 +9,10 @@
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 static void reportParserDiagAtCurrentToken(Parser* parser, const char* message) {
     if (!parser || parser->suppressErrors || !parser->ctx || !message) {
         return;

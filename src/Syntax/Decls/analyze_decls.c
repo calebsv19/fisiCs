@@ -4,6 +4,9 @@
 #include "Extensions/extension_units_view.h"
 #include "Utils/profiler.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 static bool declSourcePathIsVirtualRemap(const char* path) {
     if (!path || !path[0]) return false;
     const char* base = strrchr(path, '/');

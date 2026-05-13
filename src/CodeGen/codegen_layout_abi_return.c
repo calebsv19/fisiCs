@@ -2,6 +2,8 @@
 
 #include "codegen_private.h"
 
+#include <stdlib.h>
+
 static bool cg_abi_return_contains_fp_or_vector(LLVMTypeRef type, unsigned depth) {
     if (!type || depth > 8u) return false;
     switch (LLVMGetTypeKind(type)) {

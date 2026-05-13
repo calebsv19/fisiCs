@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 static const ParsedType* cg_stmt_resolve_typedef_parsed(CodegenContext* ctx, const ParsedType* type) {
     if (!ctx || !type || type->kind != TYPE_NAMED || !type->userTypeName) {

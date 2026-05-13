@@ -9,6 +9,7 @@
 #include "Parser/Helpers/parser_attributes.h"
 #include "Extensions/extension_hooks.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

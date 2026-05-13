@@ -4,6 +4,8 @@
 #include "Parser/Helpers/parser_helpers.h"
 #include "Parser/Expr/parser_expr.h"
 #include "Parser/Expr/parser_expr_pratt.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef enum InitializerPathStepKind {

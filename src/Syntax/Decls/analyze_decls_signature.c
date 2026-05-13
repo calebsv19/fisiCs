@@ -3,6 +3,9 @@
 #include "analyze_decls_internal.h"
 #include "Utils/profiler.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 static int countParameterDeclarators(ASTNode** params, size_t paramCount);
 static bool isVoidParameterDecl(ASTNode* param);
 static bool isSyntheticUnnamedParameterName(const char* name);
