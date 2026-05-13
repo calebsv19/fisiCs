@@ -2,11 +2,10 @@
 
 #include "codegen_dispatch_internal.h"
 #include "AST/ast_node_type.h"
-#include "Utils/logging.h"
-
-#include <stdio.h>
+#include "codegen_dispatch_diagnostics.h"
 
 #ifdef CODEGEN_DEBUG
+#include "Utils/logging.h"
 #define CG_DISPATCH_DEBUG(...) LOG_DEBUG("codegen", __VA_ARGS__)
 #else
 #define CG_DISPATCH_DEBUG(...) ((void)0)
@@ -14,8 +13,8 @@
 
 LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
     if (!node) {
-        fprintf(stderr, "Error: NULL node in codegen\n");
-        return NULL;
+        codegenDispatchReportNullNode();
+        return 0;
     }
 
     ASTNodeType nodeType = astNodeGetType(node);
@@ -58,12 +57,12 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
         case AST_FUNCTION_DEFINITION:
             return codegenFunctionDefinition(ctx, node);
         case AST_FUNCTION_DECLARATION:
-            return NULL; // prototypes do not emit code
+            return 0; // prototypes do not emit code
         case AST_INCLUDE_DIRECTIVE:
         case AST_DEFINE_DIRECTIVE:
         case AST_CONDITIONAL_DIRECTIVE:
         case AST_ENDIF_DIRECTIVE:
-            return NULL; // preserved preprocessor artifacts are non-code
+            return 0; // preserved preprocessor artifacts are non-code
         case AST_FUNCTION_CALL:
             return codegenFunctionCall(ctx, node);
         case AST_TYPEDEF:
@@ -97,7 +96,7 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
         case AST_STATEMENT_EXPRESSION:
             return codegenStatementExpression(ctx, node);
         case AST_PARSED_TYPE:
-            return NULL; /* handled contextually (e.g., sizeof) */
+            return 0; /* handled contextually (e.g., sizeof) */
         case AST_COMPOUND_LITERAL:
             return codegenCompoundLiteral(ctx, node);
         case AST_STRUCT_DEFINITION:
@@ -109,11 +108,11 @@ LLVMValueRef codegenNode(CodegenContext* ctx, ASTNode* node) {
         case AST_HEAP_ALLOCATION:
             return codegenHeapAllocation(ctx, node);
         case AST_STATIC_ASSERT:
-            return NULL; // semantic-only declaration
+            return 0; // semantic-only declaration
         case AST_ASM:
-            return NULL; // inline asm is parsed but not lowered yet
+            return 0; // inline asm is parsed but not lowered yet
         default:
-            fprintf(stderr, "Error: Unhandled AST node type %d\n", nodeType);
-            return NULL;
+            codegenDispatchReportUnhandledNodeType(nodeType);
+            return 0;
     }
 }
