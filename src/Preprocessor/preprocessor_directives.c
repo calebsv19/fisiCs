@@ -794,7 +794,7 @@ bool process_include(Preprocessor* pp,
                                                          &summaryActionCount);
         pp_profile_summary_probe_scan_result(&summaryProbe);
     }
-    if (summaryProbeSupported) {
+    if (summaryProbeSupported && counterEnabled) {
         pp_profile_summary_probe(&summaryProbe);
         pp_profile_behavior_class(&summaryProbe);
         if (summaryProbe.status == INCLUDE_SUMMARY_PROBE_CANDIDATE &&
