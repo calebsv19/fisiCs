@@ -166,6 +166,8 @@ static void resolve_parent_stable_links(FisicsSymbol* symbols, size_t count) {
 
         ssize_t best = -1;
         uint64_t best_measure = UINT64_MAX;
+        ssize_t fallback_best = -1;
+        uint64_t fallback_measure = UINT64_MAX;
 
         for (size_t j = 0; j < count; ++j) {
             if (i == j) continue;
@@ -177,15 +179,27 @@ static void resolve_parent_stable_links(FisicsSymbol* symbols, size_t count) {
             bool same_file = symbol_same_file(cand, child);
             bool contains = symbol_range_contains(cand, child);
             if (child->file_path && child->file_path[0] && !same_file) continue;
-            if (symbol_span_is_known(cand) && symbol_span_is_known(child) && !contains) continue;
 
             uint64_t measure = symbol_span_measure(cand);
+            if (symbol_span_is_known(cand) && symbol_span_is_known(child)) {
+                if (!contains) {
+                    if (fallback_best < 0 || measure < fallback_measure) {
+                        fallback_best = (ssize_t)j;
+                        fallback_measure = measure;
+                    }
+                    continue;
+                }
+            }
+
             if (best < 0 || measure < best_measure) {
                 best = (ssize_t)j;
                 best_measure = measure;
             }
         }
 
+        if (best < 0) {
+            best = fallback_best;
+        }
         if (best >= 0) {
             child->parent_stable_id = symbols[(size_t)best].stable_id;
         }
