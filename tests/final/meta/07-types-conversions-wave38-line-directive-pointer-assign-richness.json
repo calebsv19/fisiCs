@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_conv_assign_pointer_to_int_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_conv_assign_pointer_to_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_conv_assign_pointer_to_int_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "assignment",
+        "pointer",
+        "line-directive",
+        "diagjson",
+        "wave38",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_conv_assign_pointer_to_int_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_conv_assign_pointer_to_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_conv_assign_pointer_to_int_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "assignment",
+        "pointer",
+        "line-directive",
+        "include",
+        "diagjson",
+        "wave38",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_conv_assign_pointer_to_int_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_conv_assign_pointer_to_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_conv_assign_pointer_to_int_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "assignment",
+        "pointer",
+        "line-directive",
+        "diagjson",
+        "wave38",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_conv_assign_pointer_to_int_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_conv_assign_pointer_to_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_conv_assign_pointer_to_int_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "assignment",
+        "pointer",
+        "line-directive",
+        "include",
+        "diagjson",
+        "wave38",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

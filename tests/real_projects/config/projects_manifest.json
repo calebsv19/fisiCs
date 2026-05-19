@@ -2354,8 +2354,10 @@
         "third_party/codework_shared/core/core_trace/include",
         "third_party/codework_shared/core/core_theme/include",
         "third_party/codework_shared/core/core_font/include",
+        "third_party/codework_shared/core/core_pane/include",
         "third_party/codework_shared/kit/kit_render/include",
         "third_party/codework_shared/kit/kit_runtime_diag/include",
+        "third_party/codework_shared/kit/kit_workspace_authoring/include",
         "third_party/codework_shared/vk_renderer/include"
       ],
       "defines": [
@@ -2462,7 +2464,7 @@
         "D_runtime_smoke": {
           "enabled": true,
           "timeout_sec": 120,
-          "run_timeout_sec": 8,
+          "run_timeout_sec": 20,
           "expected_exit_code": 0,
           "fisics_extra_args": [
             "--extensions=gnu"
@@ -2478,9 +2480,63 @@
           ],
           "targets": [
             {
-              "id": "map_forge_runtime_wrapper_exit_smoke",
+              "id": "map_forge_runtime_headless_viewport_smoke",
               "build_target": "map_forge_full_wrapper_minimal",
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/kit/kit_render/src/*.c",
+                "third_party/codework_shared/kit/kit_workspace_authoring/src/**/*.c",
+                "third_party/codework_shared/vk_renderer/src/*.c"
+              ],
+              "link_inputs": [
+                "third_party/codework_shared/core/core_trace/build/libcore_trace.a",
+                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
+                "third_party/codework_shared/core/core_kernel/build/libcore_kernel.a",
+                "third_party/codework_shared/core/core_wake/build/libcore_wake.a",
+                "third_party/codework_shared/core/core_workers/build/libcore_workers.a",
+                "third_party/codework_shared/core/core_jobs/build/libcore_jobs.a",
+                "third_party/codework_shared/core/core_sched/build/libcore_sched.a",
+                "third_party/codework_shared/core/core_queue/build/libcore_queue.a",
+                "third_party/codework_shared/core/core_time/build/libcore_time.a",
+                "third_party/codework_shared/core/core_theme/build/libcore_theme.a",
+                "third_party/codework_shared/core/core_font/build/libcore_font.a",
+                "third_party/codework_shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "third_party/codework_shared/kit/kit_runtime_diag/build/libkit_runtime_diag.a",
+                "third_party/codework_shared/core/core_space/build/libcore_space.a",
+                "third_party/codework_shared/core/core_io/build/libcore_io.a",
+                "third_party/codework_shared/core/core_data/build/libcore_data.a",
+                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-pthread",
+                "-L/opt/homebrew/lib",
+                "-lSDL2",
+                "-lSDL2_ttf",
+                "-ljson-c",
+                "-lvulkan",
+                "-framework",
+                "Metal",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Cocoa",
+                "-framework",
+                "IOKit",
+                "-framework",
+                "CoreVideo"
+              ],
               "run_args": [],
+              "run_env": {
+                "SDL_VIDEODRIVER": "dummy",
+                "SDL_RENDER_DRIVER": "software",
+                "MAPFORGE_RENDER_BACKEND": "sdl",
+                "MAPFORGE_START_REGION": "seattle_downtown",
+                "MAPFORGE_VIEWPORT_SCENARIO": "phase_a",
+                "MAPFORGE_VIEWPORT_SCENARIO_DURATION_SEC": "10",
+                "MAPFORGE_RUNTIME_DIR": "build/realproj_runtime",
+                "MAPFORGE_THEME_PERSIST_PATH": "build/realproj_runtime/theme_preset.txt"
+              },
+              "run_cwd": ".",
               "expected_exit_code": 0
             }
           ]
@@ -2488,7 +2544,7 @@
         "E_golden_behavior": {
           "enabled": true,
           "timeout_sec": 120,
-          "run_timeout_sec": 8,
+          "run_timeout_sec": 20,
           "expected_exit_code": 0,
           "fisics_extra_args": [
             "--extensions=gnu"
@@ -2504,19 +2560,71 @@
           ],
           "targets": [
             {
-              "id": "map_forge_golden_wrapper_exit_behavior",
+              "id": "map_forge_golden_headless_viewport_behavior",
               "build_target": "map_forge_full_wrapper_minimal",
-              "run_args": [],
-              "expected_exit_code": 0,
-              "expected_stdout_sha256": "16a951f69bd76035715dfef86fe5caa9e5df62d4ebed398dcbd819cb3d3fb289",
-              "expected_stderr_sha256": "2784f31de23734c8585b4402ed1c2f577274fa23b580340255681dee7903c7ae",
-              "expected_stdout_contains": [
-                "stage_c_fullbuild_rc=0"
+              "input_globs": [
+                "src/**/*.c",
+                "third_party/codework_shared/kit/kit_render/src/*.c",
+                "third_party/codework_shared/kit/kit_workspace_authoring/src/**/*.c",
+                "third_party/codework_shared/vk_renderer/src/*.c"
               ],
+              "link_inputs": [
+                "third_party/codework_shared/core/core_trace/build/libcore_trace.a",
+                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
+                "third_party/codework_shared/core/core_kernel/build/libcore_kernel.a",
+                "third_party/codework_shared/core/core_wake/build/libcore_wake.a",
+                "third_party/codework_shared/core/core_workers/build/libcore_workers.a",
+                "third_party/codework_shared/core/core_jobs/build/libcore_jobs.a",
+                "third_party/codework_shared/core/core_sched/build/libcore_sched.a",
+                "third_party/codework_shared/core/core_queue/build/libcore_queue.a",
+                "third_party/codework_shared/core/core_time/build/libcore_time.a",
+                "third_party/codework_shared/core/core_theme/build/libcore_theme.a",
+                "third_party/codework_shared/core/core_font/build/libcore_font.a",
+                "third_party/codework_shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "third_party/codework_shared/kit/kit_runtime_diag/build/libkit_runtime_diag.a",
+                "third_party/codework_shared/core/core_space/build/libcore_space.a",
+                "third_party/codework_shared/core/core_io/build/libcore_io.a",
+                "third_party/codework_shared/core/core_data/build/libcore_data.a",
+                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-pthread",
+                "-L/opt/homebrew/lib",
+                "-lSDL2",
+                "-lSDL2_ttf",
+                "-ljson-c",
+                "-lvulkan",
+                "-framework",
+                "Metal",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Cocoa",
+                "-framework",
+                "IOKit",
+                "-framework",
+                "CoreVideo"
+              ],
+              "run_args": [],
+              "run_env": {
+                "SDL_VIDEODRIVER": "dummy",
+                "SDL_RENDER_DRIVER": "software",
+                "MAPFORGE_RENDER_BACKEND": "sdl",
+                "MAPFORGE_START_REGION": "seattle_downtown",
+                "MAPFORGE_VIEWPORT_SCENARIO": "phase_a",
+                "MAPFORGE_VIEWPORT_SCENARIO_DURATION_SEC": "10",
+                "MAPFORGE_RUNTIME_DIR": "build/realproj_runtime",
+                "MAPFORGE_THEME_PERSIST_PATH": "build/realproj_runtime/theme_preset.txt"
+              },
+              "run_cwd": ".",
+              "expected_exit_code": 0,
+              "expected_stdout_contains": [],
               "expected_stderr_contains": [
-                "map_forge: wrapper exit stage=7 exit_code=0",
-                "dispatch_count=1 dispatch_ok=1 last_dispatch_exit=0",
-                "wrapper_error=0"
+                "[info] Requested render backend env='sdl' resolved='sdl'",
+                "[info] Viewport scenario active: phase_a duration=10.0s region_pref=seattle_downtown",
+                "[info] Startup region 'seattle_downtown' runtime source policy=",
+                "[info] trace exported: build/traces/mapforge_trace_",
+                "map_forge: wrapper exit stage=7 exit_code=0 dispatch_count=1 dispatch_ok=1 last_dispatch_exit=0 wrapper_error=0"
               ]
             }
           ]

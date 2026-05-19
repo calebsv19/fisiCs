@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_agg_union_arrow_nonptr_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_agg_union_arrow_nonptr_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_agg_union_arrow_nonptr_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave26",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_agg_union_arrow_nonptr_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_agg_union_arrow_nonptr_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_agg_union_arrow_nonptr_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave26",
+        "current-threshold",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (7202:9): Flexible array member must be the last field in a struct
+   Hint: data
+   Spelling: virtual_types_include_flex_not_last_probe_diag_text.h:7202:9

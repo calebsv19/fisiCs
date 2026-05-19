@@ -796,7 +796,7 @@ TypeInfo analyzeExpression(ASTNode* node, Scope* scope) {
             bool targetIsScalar = typeInfoIsArithmetic(&target) || typeInfoIsPointerLike(&target);
             bool sourceIsScalar = typeInfoIsArithmetic(&source) || typeInfoIsPointerLike(&source);
             if (!targetIsVoid && targetKnown && sourceKnown && (!targetIsScalar || !sourceIsScalar)) {
-                addError(node->line, 0, "Invalid cast between non-scalar types", NULL);
+                reportNodeError(node, "Invalid cast between non-scalar types", NULL);
             }
             target.isLValue = false;
             return target;

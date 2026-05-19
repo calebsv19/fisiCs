@@ -1,0 +1,225 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_units_conversion_chain",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_conversion_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_conversion_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_formula_graph_call_boundary",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_formula_graph_call_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_formula_graph_call_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_conversion_reduction_ladder",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_conversion_reduction_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_conversion_reduction_ladder.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_return_bridge_pipeline",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_return_bridge_pipeline.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_return_bridge_pipeline.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_loop_normalization_mesh",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_loop_normalization_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_loop_normalization_mesh.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_branch_conversion_mesh",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_branch_conversion_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_branch_conversion_mesh.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_multitu_gpu_checkpoint_fanout",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_multitu_gpu_checkpoint_fanout_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_multitu_gpu_checkpoint_fanout_main.c",
+        "probes/runtime/15__probe_units_runtime_multitu_gpu_checkpoint_fanout_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_multitu_gpu_checkpoint_fanout.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "backfill",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_multitu_gpu_feedback_ladder",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_multitu_gpu_feedback_ladder_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_multitu_gpu_feedback_ladder_main.c",
+        "probes/runtime/15__probe_units_runtime_multitu_gpu_feedback_ladder_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_multitu_gpu_feedback_ladder.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "backfill",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

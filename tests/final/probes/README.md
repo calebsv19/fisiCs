@@ -30,6 +30,13 @@ Overlay-aware probe support:
   `--dump-sema` stress probes; do not add new one-off shell wrappers when a
   probe inventory entry can express the check directly
 
+Binary lifecycle support:
+- the probe runner now resolves the requested `fisics` path once at startup,
+  falls back to numbered sibling binaries such as `fisics 2` when needed, and
+  stages an immutable temp copy for the whole run
+- this keeps probe validation off the mutable repo-root binary path and reduces
+  rebuild churn when overlapping local work swaps or removes `fisiCs/fisics`
+
 ## Layout
 - `runtime/`: runtime differential repros (`fisics` vs `clang`).
 - `diagnostics/`: diagnostics/constraint repros.

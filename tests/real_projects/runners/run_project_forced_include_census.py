@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import run_project_compile_tests as stage_a
+from report_contract import build_report_contract, git_meta, write_json_report
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -154,8 +155,6 @@ def main() -> int:
     sources = pick_sources(project_root, project, args)
     fisics_bin = (stage_a.FISICS_ROOT / "fisics").resolve()
     history_id = f"{time.strftime('%Y%m%dT%H%M%S')}_{time.time_ns() % 1_000_000_000:09d}"
-    latest_report = DEFAULT_REPORT_ROOT / "latest" / f"{project['name']}_forced_include_census_latest.json"
-    history_report = DEFAULT_REPORT_ROOT / "history" / f"{history_id}_{project['name']}_forced_include_census.json"
 
     rows: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="fisics-include-census-") as tmp:
@@ -224,8 +223,34 @@ def main() -> int:
         summary_counts[key] = summary_counts.get(key, 0) + 1
 
     report = {
+        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "history_id": history_id,
+        "workspace_root": str(stage_a.WORKSPACE_ROOT),
+        "fisics_root": str(stage_a.FISICS_ROOT),
+        "project_root": str(project_root),
         "project": project["name"],
         "stage": args.stage,
+        "git": {
+            "fisics": git_meta(stage_a.FISICS_ROOT),
+            "project": git_meta(project_root),
+        },
+        "report_contract": build_report_contract(
+            report_family="real_project_oracle",
+            selection_kind="oracle_only",
+            canonical_stage_closure=False,
+            selected_count=len(rows),
+            available_count=len(rows),
+            selector={
+                "source": args.source,
+                "filter": args.filter,
+                "limit": args.limit,
+                "remove_include_substr": args.remove_include_substr,
+            },
+            lane_flags={
+                "clang_parity_enabled": True,
+                "skip_fisics": args.skip_fisics,
+            },
+        ),
         "remove_include_substr": args.remove_include_substr,
         "removed_fisics_args": removed_fisics,
         "removed_clang_args": removed_clang,
@@ -234,14 +259,24 @@ def main() -> int:
         "rows": rows,
     }
 
-    latest_report.parent.mkdir(parents=True, exist_ok=True)
-    history_report.parent.mkdir(parents=True, exist_ok=True)
-    latest_report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    shutil.copy2(latest_report, history_report)
+    latest_report, history_report = write_json_report(
+        DEFAULT_REPORT_ROOT,
+        project_name=project["name"],
+        report_key="forced_include_census",
+        history_id=history_id,
+        canonical=False,
+        payload=report,
+    )
 
     print(
         f"project={project['name']} stage={args.stage} sources={len(rows)} "
         f"remove_include_substr={args.remove_include_substr}"
+    )
+    print(
+        "report_contract "
+        f"selection_kind={report['report_contract']['selection_kind']} "
+        f"canonical_stage_closure={int(bool(report['report_contract']['canonical_stage_closure']))} "
+        f"latest_scope={report['report_contract']['latest_scope']}"
     )
     print(f"summary_counts={json.dumps(summary_counts, sort_keys=True)}")
     for row in rows:

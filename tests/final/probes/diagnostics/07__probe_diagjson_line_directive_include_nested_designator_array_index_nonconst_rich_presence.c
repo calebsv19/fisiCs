@@ -1,0 +1,4 @@
+#line 6551 "virtual_types_include_nested_designator_array_nonconst_probe_host.c"
+#include "07__probe_diagjson_line_directive_include_nested_designator_array_index_nonconst_rich_presence.h"
+
+int main(void) { return probe_wave50_include_nested_designator_array_nonconst(); }

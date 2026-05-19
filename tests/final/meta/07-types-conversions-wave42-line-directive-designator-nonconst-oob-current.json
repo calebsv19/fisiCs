@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_designator_array_index_nonconst_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_designator_array_index_nonconst_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_designator_array_index_nonconst_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "designator",
+        "line-directive",
+        "diagjson",
+        "wave42",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_designator_array_index_nonconst_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_designator_array_index_nonconst_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_designator_array_index_nonconst_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "designator",
+        "line-directive",
+        "include",
+        "diagjson",
+        "wave42",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_designator_array_index_oob_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_designator_array_index_oob_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_designator_array_index_oob_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "designator",
+        "line-directive",
+        "diagjson",
+        "wave42",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_designator_array_index_oob_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_designator_array_index_oob_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "designator",
+        "line-directive",
+        "include",
+        "diagjson",
+        "wave42",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

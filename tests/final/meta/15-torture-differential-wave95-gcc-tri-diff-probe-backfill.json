@@ -1,0 +1,405 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_smoke",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_smoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_smoke.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_control_checksum",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_control_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_control_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_multitu_state_bridge",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge_main.c",
+        "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_state_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_multitu_state_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_abi_args_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_abi_args_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_abi_args_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_loop_state_crc_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_loop_state_crc_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_loop_state_crc_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_struct_array_stride_crc_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_struct_array_stride_crc_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_struct_array_stride_crc_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_pointer_mix_checksum_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_pointer_mix_checksum_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_pointer_mix_checksum_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge_main.c",
+        "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_multitu_fnptr_table_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline_main.c",
+        "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_multitu_const_seed_pipeline.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge_main.c",
+        "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_multitu_layout_digest_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill",
+        "multitu"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_policy_shift_char_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_policy_shift_char_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_policy_shift_char_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_policy_struct_abi_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_policy_struct_abi_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_policy_struct_abi_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_header_control_dispatch_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_header_control_dispatch_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_header_control_dispatch_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_header_layout_fold_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_header_layout_fold_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_header_layout_fold_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_control_flow_lattice_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_control_flow_lattice_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_control_flow_lattice_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_abi_variadic_regstack_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_abi_variadic_regstack_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_abi_variadic_regstack_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_clang_gcc_tri_diff_struct_union_layout_bridge",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_runtime_clang_gcc_tri_diff_struct_union_layout_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_clang_gcc_tri_diff_struct_union_layout_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "clang-gcc-tri-diff",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

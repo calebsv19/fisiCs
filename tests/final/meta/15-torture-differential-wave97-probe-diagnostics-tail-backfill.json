@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__pp_macro_paste_variadic_comma_extension_no_diag",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diag__pp_macro_paste_variadic_comma_extension_no_diag.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "pp",
+        "macro",
+        "paste",
+        "variadic-comma",
+        "no-diag",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diagjson__pp_macro_paste_variadic_comma_extension_no_diag",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_malformed_pp_macro_paste_fragments_no_crash.c"
+      ],
+      "expects": [
+        "expect/15__diagjson__pp_macro_paste_variadic_comma_extension_no_diag.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagjson",
+        "probe-promotion",
+        "pp",
+        "macro",
+        "paste",
+        "variadic-comma",
+        "no-diag",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_multitu_gpu_checkpoint_fanout_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_multitu_gpu_checkpoint_fanout_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_multitu_gpu_checkpoint_fanout_main.c",
+        "probes/runtime/15__probe_units_runtime_multitu_gpu_checkpoint_fanout_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_multitu_gpu_checkpoint_fanout_overlay_clean.diag",
+        "expect/15__diag__units_multitu_gpu_checkpoint_fanout_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "multitu",
+        "gpu-checkpoint-fanout",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_multitu_gpu_feedback_ladder_overlay_clean",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_multitu_gpu_feedback_ladder_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_multitu_gpu_feedback_ladder_main.c",
+        "probes/runtime/15__probe_units_runtime_multitu_gpu_feedback_ladder_lib.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_multitu_gpu_feedback_ladder_overlay_clean.diag",
+        "expect/15__diag__units_multitu_gpu_feedback_ladder_overlay_clean.sema"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "diag",
+        "probe-promotion",
+        "physics",
+        "units",
+        "overlay",
+        "positive",
+        "sema-dump",
+        "multitu",
+        "gpu-feedback-ladder",
+        "backfill"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

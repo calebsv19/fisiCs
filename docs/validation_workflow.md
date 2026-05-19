@@ -3,7 +3,7 @@
 Purpose: validate `fisiCs` against real projects using the staged
 `tests/real_projects/` ladder, then use the exact/profile oracles correctly
 when the work shifts from functional parity to compiler-efficiency tuning.
-Last updated: 2026-05-12.
+Last updated: 2026-05-17.
 
 ## Validation Ladder
 
@@ -17,6 +17,14 @@ The real-project scaffold is staged:
 - Stage `F_perf_telemetry`: non-gating timing and environment telemetry
 
 Use `tests/real_projects/README.md` as the authoritative public runner map.
+
+Current report-contract rule:
+
+- canonical full-stage closure and narrowed/noncanonical evidence are now
+  separated explicitly through `report_contract` metadata on the staged
+  real-project reports
+- use that contract when deciding whether a runner result is real stage truth
+  or only scoped evidence for one subset/filter run
 
 ## Standard Functional Workflow
 

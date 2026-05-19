@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_agg_dot_scalar_base_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_agg_dot_scalar_base_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_agg_dot_scalar_base_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave30",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_agg_arrow_ptr_to_scalar_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_agg_arrow_ptr_to_scalar_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_agg_arrow_ptr_to_scalar_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave30",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_agg_dot_array_base_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_agg_dot_array_base_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_agg_dot_array_base_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave30",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

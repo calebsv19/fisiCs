@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__agg_union_arrow_nonptr_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_agg_union_arrow_nonptr_reject.c",
+      "expects": [
+        "expect/07__agg_union_arrow_nonptr_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "diagjson",
+        "wave25",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__designator_array_index_negative_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_designator_array_index_negative_reject.c",
+      "expects": [
+        "expect/07__designator_array_index_negative_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "designator",
+        "negative",
+        "diagjson",
+        "wave25",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

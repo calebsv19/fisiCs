@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_agg_invalid_member_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_agg_invalid_member_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_agg_invalid_member_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave35",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_agg_invalid_member_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_agg_invalid_member_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_agg_invalid_member_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "include",
+        "diagjson",
+        "wave35",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

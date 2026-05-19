@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-05-12.
+Last audited: 2026-05-17.
 
 ## Repository Entry
 
@@ -45,10 +45,14 @@ Real-project validation references live under `tests/real_projects/`:
 - project manifest: `tests/real_projects/config/projects_manifest.json`
 - exact compile oracle: `tests/real_projects/runners/run_project_exact_compile_oracle.py`
 - profile oracle: `tests/real_projects/runners/run_project_profile_oracle.py`
+- canonical stage reports now carry shared `report_contract` metadata so
+  narrowed and full-closure runs remain distinguishable in public evidence
 
 Current public test campaign context:
 - higher-stress runtime and diagnostics validation expansion is active under `tests/final/`
 - real-project compile and runtime-smoke validation continues under `tests/real_projects/`
+- current runner maintenance also includes keeping the staged canary reports on
+  one explicit canonical/noncanonical contract
 
 ## Private Docs Boundary
 

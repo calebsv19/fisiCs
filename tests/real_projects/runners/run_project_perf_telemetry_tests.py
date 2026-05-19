@@ -4,12 +4,20 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Any
 
+from report_contract import (
+    build_report_contract,
+    canonical_latest_report_path,
+    canonical_stage_closure_enabled,
+    git_meta,
+    history_artifact_dir,
+    latest_artifact_dir,
+    write_json_report,
+)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REAL_PROJECTS_ROOT = SCRIPT_DIR.parent
@@ -43,44 +51,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def run_checked(cmd: list[str], cwd: Path) -> tuple[int, str]:
-    completed = subprocess.run(
-        cmd,
-        cwd=str(cwd),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    out = (completed.stdout or "") + (completed.stderr or "")
-    return completed.returncode, out.strip()
-
-
-def git_meta(repo_root: Path) -> dict[str, Any]:
-    commit = "unknown"
-    branch = "unknown"
-    dirty = None
-
-    rc, out = run_checked(["git", "-C", str(repo_root), "rev-parse", "HEAD"], cwd=repo_root)
-    if rc == 0 and out:
-        commit = out.splitlines()[-1].strip()
-
-    rc, out = run_checked(
-        ["git", "-C", str(repo_root), "rev-parse", "--abbrev-ref", "HEAD"], cwd=repo_root
-    )
-    if rc == 0 and out:
-        branch = out.splitlines()[-1].strip()
-
-    rc, out = run_checked(["git", "-C", str(repo_root), "status", "--porcelain"], cwd=repo_root)
-    if rc == 0:
-        dirty = len(out.strip()) > 0
-
-    return {
-        "commit": commit,
-        "branch": branch,
-        "dirty": dirty,
-    }
-
-
 def load_manifest(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as f:
         data = json.load(f)
@@ -110,7 +80,11 @@ def resolve_project_root(project_root_value: str) -> Path:
 
 
 def read_latest_stage_report(project_name: str, stage_name: str) -> tuple[dict[str, Any] | None, Path]:
-    path = DEFAULT_REPORT_ROOT / "latest" / f"{project_name}_{stage_name}_latest.json"
+    path = canonical_latest_report_path(
+        DEFAULT_REPORT_ROOT,
+        project_name=project_name,
+        report_key=stage_name,
+    )
     if not path.exists():
         return None, path
     with path.open("r", encoding="utf-8") as f:
@@ -288,7 +262,27 @@ def run_stage_f(project: dict[str, Any], project_root: Path, args: argparse.Name
             "entry": project.get("entry"),
             "kind": project.get("kind"),
         },
+        "git": {
+            "fisics": fisics_git,
+            "project": project_git,
+        },
         "stage": DEFAULT_STAGE_KEY,
+        "report_contract": build_report_contract(
+            report_family="real_project_stage",
+            selection_kind="full",
+            canonical_stage_closure=canonical_stage_closure_enabled(
+                selection_kind="full",
+                clang_parity_enabled=True,
+                dry_run=args.dry_run,
+            ),
+            selected_count=len(required_stages),
+            available_count=len(required_stages),
+            selector={},
+            lane_flags={
+                "clang_parity_enabled": True,
+                "dry_run": args.dry_run,
+            },
+        ),
         "dry_run": args.dry_run,
         "telemetry": {
             "required_stages": required_stages,
@@ -323,9 +317,18 @@ def run_stage_f(project: dict[str, Any], project_root: Path, args: argparse.Name
     if args.dry_run:
         return report
 
-    latest_stage_dir = DEFAULT_ARTIFACT_ROOT / "latest" / project["name"] / DEFAULT_STAGE_KEY
-    history_stage_dir = (
-        DEFAULT_ARTIFACT_ROOT / "history" / history_id / project["name"] / DEFAULT_STAGE_KEY
+    latest_stage_dir = latest_artifact_dir(
+        DEFAULT_ARTIFACT_ROOT,
+        project_name=project["name"],
+        stage_key=DEFAULT_STAGE_KEY,
+        canonical=True,
+    )
+    history_stage_dir = history_artifact_dir(
+        DEFAULT_ARTIFACT_ROOT,
+        history_id=history_id,
+        project_name=project["name"],
+        stage_key=DEFAULT_STAGE_KEY,
+        canonical=True,
     )
     latest_stage_dir.mkdir(parents=True, exist_ok=True)
 
@@ -359,20 +362,14 @@ def run_stage_f(project: dict[str, Any], project_root: Path, args: argparse.Name
 def write_report(report: dict[str, Any]) -> tuple[Path, Path]:
     project_name = report["project"]["name"]
     history_id = report["history_id"]
-    latest_dir = DEFAULT_REPORT_ROOT / "latest"
-    history_dir = DEFAULT_REPORT_ROOT / "history"
-    latest_dir.mkdir(parents=True, exist_ok=True)
-    history_dir.mkdir(parents=True, exist_ok=True)
-
-    latest_path = latest_dir / f"{project_name}_{DEFAULT_STAGE_KEY}_latest.json"
-    history_path = history_dir / f"{history_id}_{project_name}_{DEFAULT_STAGE_KEY}.json"
-    with latest_path.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-        f.write("\n")
-    with history_path.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-        f.write("\n")
-    return latest_path, history_path
+    return write_json_report(
+        DEFAULT_REPORT_ROOT,
+        project_name=project_name,
+        report_key=DEFAULT_STAGE_KEY,
+        history_id=history_id,
+        canonical=bool(report["report_contract"]["canonical_stage_closure"]),
+        payload=report,
+    )
 
 
 def print_summary(report: dict[str, Any], latest_path: Path, history_path: Path) -> None:
@@ -382,12 +379,18 @@ def print_summary(report: dict[str, Any], latest_path: Path, history_path: Path)
         f"stages_observed={len(report['telemetry']['stages'])}"
     )
     print(f"blockers={summary['blockers']} warnings={summary['warnings']}")
+    print(
+        "report_contract "
+        f"selection_kind={report['report_contract']['selection_kind']} "
+        f"canonical_stage_closure={int(bool(report['report_contract']['canonical_stage_closure']))} "
+        f"latest_scope={report['report_contract']['latest_scope']}"
+    )
     print(f"timing_ms fisics={summary['fisics_total_ms']} clang={summary['clang_total_ms']}")
     print(f"latest_report={latest_path}")
     print(f"history_report={history_path}")
     print(
         "latest_artifacts="
-        f"{DEFAULT_ARTIFACT_ROOT / 'latest' / report['project']['name'] / DEFAULT_STAGE_KEY}"
+        f"{latest_artifact_dir(DEFAULT_ARTIFACT_ROOT, project_name=report['project']['name'], stage_key=DEFAULT_STAGE_KEY, canonical=True)}"
     )
 
 

@@ -389,6 +389,56 @@ RUNTIME_PROBES = [
         note='reduced map_forge owner-transfer single-release behavior should match clang runtime behavior',
     ),
     RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_layer_commit_abort_budget_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_layer_commit_abort_budget_runtime.c',
+        note='reduced map_forge layer commit/abort budget behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_owner_ttl_replay_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_owner_ttl_replay_runtime.c',
+        note='reduced map_forge owner/ttl replay behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_fnptr_owner_guard_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_fnptr_owner_guard_runtime.c',
+        note='reduced map_forge function-pointer owner/guard behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_stale_residency_reclaim_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_stale_residency_reclaim_runtime.c',
+        note='reduced map_forge stale residency reclaim behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_owner_mask_dispatch_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_owner_mask_dispatch_runtime.c',
+        note='reduced map_forge owner-mask dispatch behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_epoch_guard_reclaim_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_epoch_guard_reclaim_runtime.c',
+        note='reduced map_forge epoch/guard reclaim behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_epoch_commit_trim_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_epoch_commit_trim_runtime.c',
+        note='reduced map_forge epoch commit/trim behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_owner_ttl_dispatch_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_owner_ttl_dispatch_runtime.c',
+        note='reduced map_forge owner/ttl dispatch behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_epoch_stale_drop_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_epoch_stale_drop_runtime.c',
+        note='reduced map_forge epoch/stale drop behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_owner_guard_dispatch_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_owner_guard_dispatch_runtime.c',
+        note='reduced map_forge owner/guard dispatch behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
         probe_id='14__probe_cleanup_double_call_guard_matrix',
         source=PROBE_DIR / 'runtime/14__probe_cleanup_double_call_guard_matrix.c',
         note='cleanup double-call guard matrix should match clang runtime behavior',

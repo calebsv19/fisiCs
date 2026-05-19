@@ -1,0 +1,3 @@
+#include "07__probe_diag_line_directive_include_nested_designator_array_index_nonconst_spelling_strict.h"
+
+int main(void) { return probe_wave52_diag_text_include_nested_designator_array_nonconst(); }

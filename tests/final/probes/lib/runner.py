@@ -1,10 +1,17 @@
 import json
 import os
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 
 from inventory.registry import DIAG_JSON_PROBES, DIAG_PROBES, RUNTIME_PROBES
+
+FINAL_ROOT = Path(__file__).resolve().parents[2]
+if str(FINAL_ROOT) not in sys.path:
+    sys.path.insert(0, str(FINAL_ROOT))
+
+from bin_resolver import stage_bin_copy
 
 from .exec import run_binary, run_cmd
 from .selection import parse_probe_filters, probe_selected
@@ -13,7 +20,6 @@ from .taxonomy import emit_probe_blocked_classification
 
 PROBE_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = PROBE_DIR.parent.parent.parent
-FISICS = REPO_ROOT / "fisics"
 COMPILE_TIMEOUT_SEC = 20
 RUN_TIMEOUT_SEC = 8
 
@@ -40,14 +46,14 @@ def compile_output_substrings(out, required_substrings=None, forbidden_substring
     return True, ""
 
 
-def run_runtime_probe(probe, clang_path):
+def run_runtime_probe(probe, clang_path, fisics_bin):
     with tempfile.TemporaryDirectory(prefix=f"probe-{probe.probe_id}-") as tmp:
         tmp_dir = Path(tmp)
         fisics_exe = tmp_dir / "fisics.out"
         clang_exe = tmp_dir / "clang.out"
         sources = list(probe.inputs) if probe.inputs else [probe.source]
         mixed_clang_inputs = list(probe.mixed_clang_inputs) if probe.mixed_clang_inputs else []
-        fisics_cmd = [str(FISICS)] + [str(arg) for arg in (probe.fisics_args or [])]
+        fisics_cmd = [str(fisics_bin)] + [str(arg) for arg in (probe.fisics_args or [])]
         fisics_env = compile_env(probe.fisics_env)
         clang_cmd = [clang_path or "clang", "-std=c99", "-O0"] + [str(arg) for arg in (probe.clang_args or [])]
         clang_env = compile_env(probe.clang_env)
@@ -219,10 +225,10 @@ def run_runtime_probe(probe, clang_path):
         return ("BLOCKED", "runtime mismatch vs clang", detail)
 
 
-def run_diag_probe(probe):
+def run_diag_probe(probe, fisics_bin):
     sources = list(probe.inputs) if probe.inputs else [probe.source]
     with tempfile.TemporaryDirectory(prefix=f"probe-diag-{probe.probe_id}-") as tmp:
-        cmd = [str(FISICS)] + [str(arg) for arg in (probe.fisics_args or [])] + [str(src) for src in sources]
+        cmd = [str(fisics_bin)] + [str(arg) for arg in (probe.fisics_args or [])] + [str(src) for src in sources]
         env = compile_env(probe.fisics_env)
         disable_codegen = str(env.get("DISABLE_CODEGEN", "")).strip() not in ("", "0")
         if len(sources) > 1 and not disable_codegen:
@@ -258,11 +264,11 @@ def run_diag_probe(probe):
     return ("RESOLVED", "no diagnostic emitted (expected for this lane)", "")
 
 
-def run_diag_json_probe(probe):
+def run_diag_json_probe(probe, fisics_bin):
     with tempfile.TemporaryDirectory(prefix=f"probe-diagjson-{probe.probe_id}-") as tmp:
         json_path = Path(tmp) / "diags.json"
         sources = list(probe.inputs) if probe.inputs else [probe.source]
-        cmd = [str(FISICS)] + [str(arg) for arg in (probe.fisics_args or [])] + ["--emit-diags-json", str(json_path)] + [str(src) for src in sources]
+        cmd = [str(fisics_bin)] + [str(arg) for arg in (probe.fisics_args or [])] + ["--emit-diags-json", str(json_path)] + [str(src) for src in sources]
         env = compile_env(probe.fisics_env)
         disable_codegen = str(env.get("DISABLE_CODEGEN", "")).strip() not in ("", "0")
         if len(sources) > 1 and not disable_codegen:
@@ -317,13 +323,20 @@ def run_diag_json_probe(probe):
 
 
 def main():
-    if not FISICS.exists():
-        print(f"fisics binary not found at {FISICS}")
+    try:
+        staged_bin = stage_bin_copy("./fisics", REPO_ROOT, prefix="probe-fisics-")
+    except FileNotFoundError as exc:
+        print(str(exc))
         return 1
 
     clang_path = shutil.which("clang")
     print("Probe Runner")
-    print(f"fisics: {FISICS}")
+    print(f"fisics_source: {staged_bin.resolved_path}")
+    print(f"fisics: {staged_bin.staged_path}")
+    if staged_bin.used_fallback:
+        print("fisics_resolution: using numbered sibling fallback")
+    else:
+        print("fisics_resolution: using requested repo-root binary")
     print(f"clang: {clang_path or 'not found'}")
     filters = parse_probe_filters()
     if filters:
@@ -337,70 +350,73 @@ def main():
     skipped = 0
     selected = 0
 
-    print("[runtime probes]")
-    for probe in RUNTIME_PROBES:
-        if not probe_selected(probe.probe_id, filters):
-            continue
-        selected += 1
-        status, summary, detail = run_runtime_probe(probe, clang_path)
-        print(f"{status:8s} {probe.probe_id} - {summary}")
-        print(f"         note: {probe.note}")
-        if status == "BLOCKED":
-            emit_probe_blocked_classification(probe, "runtime", summary)
-        if detail:
-            print(f"         detail: {detail}")
-        if status == "BLOCKED":
-            blocked += 1
-        elif status == "RESOLVED":
-            resolved += 1
-        else:
-            skipped += 1
+    try:
+        print("[runtime probes]")
+        for probe in RUNTIME_PROBES:
+            if not probe_selected(probe.probe_id, filters):
+                continue
+            selected += 1
+            status, summary, detail = run_runtime_probe(probe, clang_path, staged_bin.staged_path)
+            print(f"{status:8s} {probe.probe_id} - {summary}")
+            print(f"         note: {probe.note}")
+            if status == "BLOCKED":
+                emit_probe_blocked_classification(probe, "runtime", summary)
+            if detail:
+                print(f"         detail: {detail}")
+            if status == "BLOCKED":
+                blocked += 1
+            elif status == "RESOLVED":
+                resolved += 1
+            else:
+                skipped += 1
 
-    print("")
-    print("[diagnostic probes]")
-    for probe in DIAG_PROBES:
-        if not probe_selected(probe.probe_id, filters):
-            continue
-        selected += 1
-        status, summary, detail = run_diag_probe(probe)
-        print(f"{status:8s} {probe.probe_id} - {summary}")
-        print(f"         note: {probe.note}")
-        if status == "BLOCKED":
-            emit_probe_blocked_classification(probe, "diagnostic", summary)
-        if detail:
-            print(f"         detail: {detail}")
-        if status == "BLOCKED":
-            blocked += 1
-        elif status == "RESOLVED":
-            resolved += 1
-        else:
-            skipped += 1
-
-    print("")
-    print("[diagnostic-json probes]")
-    for probe in DIAG_JSON_PROBES:
-        if not probe_selected(probe.probe_id, filters):
-            continue
-        selected += 1
-        status, summary, detail = run_diag_json_probe(probe)
-        print(f"{status:8s} {probe.probe_id} - {summary}")
-        print(f"         note: {probe.note}")
-        if status == "BLOCKED":
-            emit_probe_blocked_classification(probe, "diagnostic-json", summary)
-        if detail:
-            print(f"         detail: {detail}")
-        if status == "BLOCKED":
-            blocked += 1
-        elif status == "RESOLVED":
-            resolved += 1
-        else:
-            skipped += 1
-
-    if filters and selected == 0:
         print("")
-        print(f"error: no probes selected (filter={', '.join(filters)})")
-        return 1
+        print("[diagnostic probes]")
+        for probe in DIAG_PROBES:
+            if not probe_selected(probe.probe_id, filters):
+                continue
+            selected += 1
+            status, summary, detail = run_diag_probe(probe, staged_bin.staged_path)
+            print(f"{status:8s} {probe.probe_id} - {summary}")
+            print(f"         note: {probe.note}")
+            if status == "BLOCKED":
+                emit_probe_blocked_classification(probe, "diagnostic", summary)
+            if detail:
+                print(f"         detail: {detail}")
+            if status == "BLOCKED":
+                blocked += 1
+            elif status == "RESOLVED":
+                resolved += 1
+            else:
+                skipped += 1
 
-    print("")
-    print(f"Summary: blocked={blocked}, resolved={resolved}, skipped={skipped}")
-    return 0
+        print("")
+        print("[diagnostic-json probes]")
+        for probe in DIAG_JSON_PROBES:
+            if not probe_selected(probe.probe_id, filters):
+                continue
+            selected += 1
+            status, summary, detail = run_diag_json_probe(probe, staged_bin.staged_path)
+            print(f"{status:8s} {probe.probe_id} - {summary}")
+            print(f"         note: {probe.note}")
+            if status == "BLOCKED":
+                emit_probe_blocked_classification(probe, "diagnostic-json", summary)
+            if detail:
+                print(f"         detail: {detail}")
+            if status == "BLOCKED":
+                blocked += 1
+            elif status == "RESOLVED":
+                resolved += 1
+            else:
+                skipped += 1
+
+        if filters and selected == 0:
+            print("")
+            print(f"error: no probes selected (filter={', '.join(filters)})")
+            return 1
+
+        print("")
+        print(f"Summary: blocked={blocked}, resolved={resolved}, skipped={skipped}")
+        return 0
+    finally:
+        staged_bin.cleanup()

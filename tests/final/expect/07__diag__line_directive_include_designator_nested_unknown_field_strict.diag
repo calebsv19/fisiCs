@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6006:20): Unknown field 'missing' in designated initializer for 'g'
+   Spelling: virtual_types_include_nested_designator_unknown_field_probe.h:6006:20

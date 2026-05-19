@@ -199,6 +199,38 @@ RUNTIME_PROBES = [
         inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave12_reducer_cross_tu_checkpoint_watermark_canonical_collapse_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave11_reducer_cross_tu_watermark_handoff_collapse_matrix_lib.c'],
     ),
     RuntimeProbe(
+        probe_id='15__probe_axis5_wave13_reducer_frontier_projection_shadow_equivalence_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave13_reducer_frontier_projection_shadow_equivalence_matrix.c',
+        note='axis5 wave13: reducer frontier-projection shadow equivalence matrix should preserve signatures when stale frontier rows are removed before or during reduction',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave13_reducer_checkpoint_rotation_shadow_dedup_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave13_reducer_checkpoint_rotation_shadow_dedup_matrix.c',
+        note='axis5 wave13: reducer checkpoint-rotation shadow dedup matrix should preserve signatures when duplicate and shadowed checkpoint rows are normalized across rotation orders',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave13_reducer_cross_tu_frontier_shadow_splice_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave13_reducer_cross_tu_frontier_shadow_splice_matrix_main.c',
+        note='axis5 wave13: reducer cross-TU frontier-shadow splice matrix should preserve signatures when replayed shard snapshots are spliced after stale frontier imports',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave13_reducer_cross_tu_frontier_shadow_splice_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave13_reducer_cross_tu_frontier_shadow_splice_matrix_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave14_reducer_frontier_braid_canonicalization_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave14_reducer_frontier_braid_canonicalization_matrix.c',
+        note='axis5 wave14: reducer frontier-braid canonicalization matrix should preserve signatures when equivalent frontier rows are normalized across braided import orderings',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave14_reducer_epoch_shadow_convergence_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave14_reducer_epoch_shadow_convergence_matrix.c',
+        note='axis5 wave14: reducer epoch-shadow convergence matrix should preserve signatures when shadowed epoch rows are collapsed before or after convergence replay',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave14_reducer_cross_tu_checkpoint_frontier_braid_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave14_reducer_cross_tu_checkpoint_frontier_braid_matrix_main.c',
+        note='axis5 wave14: reducer cross-TU checkpoint-frontier braid matrix should preserve signatures when replayed checkpoints and frontier imports are braided across shards',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave14_reducer_cross_tu_checkpoint_frontier_braid_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave14_reducer_cross_tu_checkpoint_frontier_braid_matrix_lib.c'],
+    ),
+    RuntimeProbe(
         probe_id='15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix',
         source=PROBE_DIR / 'runtime/15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix.c',
         note='VLA stride/rebase matrix lane should match both clang and gcc when gcc is available',

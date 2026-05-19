@@ -116,11 +116,55 @@ static bool callableTargetFromTypeInfo(const TypeInfo* calleeInfo, Scope* scope,
     return false;
 }
 
-static bool parsedTypeIsRestrictPointer(const ParsedType* pt) {
+static bool parsedTypeHasRestrictPointer(const ParsedType* pt) {
     if (!pt) return false;
-    const TypeDerivation* d = parsedTypeGetDerivation(pt, 0);
-    if (!d || d->kind != TYPE_DERIVATION_POINTER) return false;
-    return d->as.pointer.isRestrict;
+    if (pt->isRestrict) return true;
+    for (size_t i = 0; i < pt->derivationCount; ++i) {
+        const TypeDerivation* d = parsedTypeGetDerivation(pt, i);
+        if (d && d->kind == TYPE_DERIVATION_POINTER && d->as.pointer.isRestrict) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool functionAstParamHasRestrict(const ASTNode* funcNode, size_t flatIndex) {
+    if (!funcNode) return false;
+
+    ASTNode** params = NULL;
+    size_t paramCount = 0;
+    if (funcNode->type == AST_FUNCTION_DEFINITION) {
+        params = funcNode->functionDef.parameters;
+        paramCount = funcNode->functionDef.paramCount;
+    } else if (funcNode->type == AST_FUNCTION_DECLARATION) {
+        params = funcNode->functionDecl.parameters;
+        paramCount = funcNode->functionDecl.paramCount;
+    } else {
+        return false;
+    }
+
+    size_t current = 0;
+    for (size_t i = 0; i < paramCount; ++i) {
+        ASTNode* param = params ? params[i] : NULL;
+        if (!param || param->type != AST_VARIABLE_DECLARATION) {
+            continue;
+        }
+        ParsedType* perTypes = param->varDecl.declaredTypes;
+        for (size_t k = 0; k < param->varDecl.varCount; ++k) {
+            if (current == flatIndex) {
+                const ParsedType* srcType = perTypes ? &perTypes[k] : &param->varDecl.declaredType;
+                return parsedTypeHasRestrictPointer(srcType);
+            }
+            current++;
+        }
+    }
+
+    return false;
+}
+
+static bool functionSymbolParamHasRestrict(const Symbol* sym, size_t flatIndex) {
+    if (!sym) return false;
+    return functionAstParamHasRestrict(sym->definition, flatIndex);
 }
 
 static void analyzeDesignatedInitializerExpr(DesignatedInit* init, Scope* scope) {
@@ -271,6 +315,7 @@ static bool shouldDowngradeArgTypeMismatchToWarning(const Scope* scope,
 
 static void validateCallArgumentsAgainstParsedSignature(ASTNode* node,
                                                         Scope* scope,
+                                                        const Symbol* calleeSym,
                                                         const char* calleeName,
                                                         const ParsedType* params,
                                                         size_t paramCount,
@@ -338,7 +383,9 @@ static void validateCallArgumentsAgainstParsedSignature(ASTNode* node,
             }
         }
         if (paramRestrict) {
-            paramRestrict[i] = parsedTypeIsRestrictPointer(&params[i]) ||
+            paramRestrict[i] = parsedTypeHasRestrictPointer(&params[i]) ||
+                               functionSymbolParamHasRestrict(calleeSym, i) ||
+                               paramInfo.isRestrict ||
                                ((paramInfo.pointerDepth > 0) && paramInfo.pointerLevels[0].isRestrict);
         }
         if (argPaths && node->functionCall.arguments) {
@@ -577,6 +624,7 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
         size_t expected = sig->paramCount;
         validateCallArgumentsAgainstParsedSignature(node,
                                                     scope,
+                                                    sym,
                                                     calleeName,
                                                     sig->params,
                                                     sig->paramCount,
@@ -609,6 +657,7 @@ TypeInfo analyzeFunctionCallExpression(ASTNode* node, Scope* scope) {
             if (callSig) {
                 validateCallArgumentsAgainstParsedSignature(node,
                                                             scope,
+                                                            NULL,
                                                             calleeName,
                                                             callSig->params,
                                                             callSig->paramCount,
@@ -736,7 +785,7 @@ TypeInfo analyzeMemberAccessExpression(ASTNode* node, Scope* scope) {
         return fieldInfo;
     }
 
-    addError(node->line, 0, "Unknown field in member access", NULL);
+    reportNodeError(node, "Unknown field in member access", NULL);
     return makeInvalidType();
 }
 

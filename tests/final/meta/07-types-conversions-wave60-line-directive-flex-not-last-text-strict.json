@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__diag__line_directive_flex_not_last_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diag_line_directive_flex_not_last_spelling_strict.c",
+      "expects": [
+        "expect/07__diag__line_directive_flex_not_last_strict.diag"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "flex-not-last",
+        "line-directive",
+        "diag",
+        "wave60",
+        "strict",
+        "spelling",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diag__line_directive_include_flex_not_last_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diag_line_directive_include_flex_not_last_spelling_strict.c",
+      "expects": [
+        "expect/07__diag__line_directive_include_flex_not_last_strict.diag"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "flex-not-last",
+        "line-directive",
+        "include",
+        "diag",
+        "wave60",
+        "strict",
+        "spelling",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

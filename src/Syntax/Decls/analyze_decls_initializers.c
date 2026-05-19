@@ -333,14 +333,20 @@ void validateVariableInitializer(ParsedType* type,
                          sizeof(buffer),
                          "Incompatible initializer type for '%s'",
                          name ? name : "<unnamed>");
-                addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+                reportErrorAtAstNode(init->expression,
+                                     nameNode ? nameNode->line : 0,
+                                     buffer,
+                                     NULL);
             } else if (assign == ASSIGN_QUALIFIER_LOSS) {
                 char buffer[256];
                 snprintf(buffer,
                          sizeof(buffer),
                          "Initializer for '%s' discards qualifiers from pointer target",
                          name ? name : "<unnamed>");
-                addError(nameNode ? nameNode->line : 0, 0, buffer, NULL);
+                reportErrorAtAstNode(init->expression,
+                                     nameNode ? nameNode->line : 0,
+                                     buffer,
+                                     NULL);
             }
         }
     }

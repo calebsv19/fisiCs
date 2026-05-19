@@ -54,71 +54,6 @@ static bool input_path_matches_mapforge_tools_lane(const char* inputPath) {
     return strstr(inputPath, "/map_forge/tools/") != NULL;
 }
 
-static bool maybe_stub_mapforge_legacy_entrypoint(const CompileOptions* options,
-                                                  LLVMModuleRef module) {
-    if (!options || !module) return false;
-
-    if (!env_flag_enabled("FISICS_ENABLE_MAPFORGE_APP_RUN_LEGACY_STUB")) {
-        return false;
-    }
-    if (env_flag_enabled("FISICS_DISABLE_MAPFORGE_APP_RUN_LEGACY_STUB")) {
-        return false;
-    }
-
-    if (!env_flag_enabled("FISICS_DISABLE_AUTO_CLANG_BACKEND_FALLBACK")) {
-        return false;
-    }
-    if (!target_is_apple_arm64(options->targetTriple)) {
-        return false;
-    }
-    if (!input_path_matches_mapforge_legacy_lane(options->inputPath)) {
-        return false;
-    }
-
-    LLVMValueRef fn = LLVMGetNamedFunction(module, "app_run_legacy");
-    if (!fn) {
-        return false;
-    }
-    if (LLVMCountBasicBlocks(fn) == 0) {
-        return false;
-    }
-
-    LLVMTypeRef fnTy = LLVMGlobalGetValueType(fn);
-    if (!fnTy || LLVMGetTypeKind(fnTy) != LLVMFunctionTypeKind) {
-        return false;
-    }
-    LLVMTypeRef retTy = LLVMGetReturnType(fnTy);
-    if (!retTy) {
-        return false;
-    }
-
-    LLVMBasicBlockRef block = LLVMGetFirstBasicBlock(fn);
-    while (block) {
-        LLVMBasicBlockRef next = LLVMGetNextBasicBlock(block);
-        LLVMDeleteBasicBlock(block);
-        block = next;
-    }
-
-    LLVMContextRef llvmCtx = LLVMGetModuleContext(module);
-    LLVMBasicBlockRef stubEntry = LLVMAppendBasicBlockInContext(llvmCtx, fn, "fisics_stub");
-    LLVMBuilderRef builder = LLVMCreateBuilderInContext(llvmCtx);
-    if (!builder) {
-        return false;
-    }
-    LLVMPositionBuilderAtEnd(builder, stubEntry);
-    if (LLVMGetTypeKind(retTy) == LLVMVoidTypeKind) {
-        LLVMBuildRetVoid(builder);
-    } else {
-        LLVMBuildRet(builder, LLVMConstNull(retTy));
-    }
-    LLVMDisposeBuilder(builder);
-
-    fprintf(stderr,
-            "Warning: strict-pure map_forge mitigation enabled for %s (stubbed app_run_legacy)\n",
-            options->inputPath ? options->inputPath : "<unknown>");
-    return true;
-}
-
 static bool should_use_clang_frontend_fallback(const CompileOptions* options) {
     if (!options) return false;
 
@@ -429,7 +364,6 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
         free(diagPath);
         free(diagPackPathForInput);
 
-        (void)maybe_stub_mapforge_legacy_entrypoint(&options, result.module);
         if (should_use_clang_backend_fallback(&options, result.module)) {
             fprintf(stderr,
                     "Warning: using clang backend fallback for %s (AArch64 ISel compatibility)\n",
@@ -623,7 +557,6 @@ static int run_link_mode(const MainDriverConfig* config) {
         free(diagPath);
         free(diagPackPathForInput);
 
-        (void)maybe_stub_mapforge_legacy_entrypoint(&options, result.module);
         if (should_use_clang_backend_fallback(&options, result.module)) {
             fprintf(stderr,
                     "Warning: using clang backend fallback for %s (AArch64 ISel compatibility)\n",

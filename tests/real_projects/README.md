@@ -9,9 +9,10 @@ Current scope in this scaffold:
 - Stage `D_runtime_smoke` (headless runtime smoke parity)
 - Stage `E_golden_behavior` (deterministic output hash/marker parity)
 - Stage `F_perf_telemetry` (timing + commit + binary snapshot telemetry)
-- validated projects: `datalab`, `workspace_sandbox`, `mem_console`, `line_drawing`, `ray_tracing`, `physics_sim`, `map_forge`, `ide` (Stages A-F closed)
+- validated projects: `datalab`, `workspace_sandbox`, `mem_console`, `line_drawing`, `ray_tracing`, `physics_sim`, `map_forge`, `ide`, and `daw` (Stages A-F closed in the latest saved reports)
 - self-host compiler canary: `fisiCs` (Stage A clean; Stage B widened to utility + frontend contract subsets; two Stage C CLI lanes closed; six Stage D runtime-smoke targets closed; four Stage E golden-behavior targets closed; refreshed Stage F telemetry snapshot closed)
-- active onboarding project: `daw` (Stage A running; blockers active)
+- active open real-project risk: none
+  - `map_forge` now uses the real headless viewport canary and the old strict-pure `app_run_legacy` compiler mitigation has been removed after the native strict-pure build path reclosed
 
 ## Layout
 
@@ -30,13 +31,44 @@ Current scope in this scaffold:
 - `runners/run_project_perf_telemetry_tests.py`
   - Stage-F runner (non-gating telemetry snapshots and trend warnings)
 - `reports/latest/`
-  - latest JSON report per project/stage
+  - canonical full-stage closure JSON per project/stage
+- `reports/latest/noncanonical/`
+  - filtered, limited, fisics-only, dry-run, or oracle-only reports that must not replace canonical stage closure
 - `reports/history/`
-  - timestamped report snapshots
+  - timestamped canonical report snapshots
+- `reports/history/noncanonical/`
+  - timestamped noncanonical report snapshots
 - `artifacts/latest/`
-  - latest per-file command/stdout/stderr artifacts
+  - canonical full-stage latest artifacts
+- `artifacts/latest/noncanonical/`
+  - filtered or limited latest artifacts kept separate from canonical closure artifacts
 - `artifacts/history/`
-  - timestamped artifact snapshots
+  - timestamped canonical artifact snapshots
+- `artifacts/history/noncanonical/`
+  - timestamped noncanonical artifact snapshots
+
+## Report Contract
+
+Canonical closure rule:
+- `reports/latest/` is reserved for full stage-closure reports only
+- a run is canonical only when it uses full selection, keeps clang parity
+  enabled, and is not `--dry-run`
+- filtered, limited, fisics-only, and oracle-only runs write into the
+  noncanonical report and artifact lanes instead
+
+Every real-project stage report now carries `report_contract` metadata with:
+- `selection_kind`
+- `canonical_stage_closure`
+- `latest_scope`
+- `selected_count`
+- `available_count`
+- selector inputs such as `filter`, `target`, and `limit`
+
+Interpretation:
+- `selection_kind=full` with `canonical_stage_closure=true` means the report is
+  the current stage-truth artifact
+- `canonical_stage_closure=false` means the report is still useful evidence, but
+  it must not be treated as full project/stage closure
 
 ## Stage-A Usage
 
@@ -69,6 +101,12 @@ python3 tests/real_projects/runners/run_project_compile_tests.py --project datal
 
 Fail-closed selector rule:
 - if `--filter` and/or `--limit` reduces Stage A to zero selected sources, the runner exits with an error instead of reporting a green no-op pass
+
+Canonical-latest rule:
+- Stage-A runs that use `--filter`, `--limit`, `--skip-clang`, or `--dry-run`
+  are noncanonical and now write into the noncanonical report/artifact lanes
+- a narrowed Stage-A run no longer overwrites
+  `reports/latest/<project>_A_tu_compile_latest.json`
 
 Exit codes:
 - `0`: no Stage-A blockers (`fisics` compile failures with clang pass)

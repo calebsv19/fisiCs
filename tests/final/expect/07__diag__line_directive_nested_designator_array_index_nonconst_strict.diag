@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6502:61): Array 'probe_wave52_nested_nonconst_text_grid' designator index must be a constant expression
+   Spelling: virtual_types_nested_designator_array_nonconst_probe_diag_text.c:6502:61

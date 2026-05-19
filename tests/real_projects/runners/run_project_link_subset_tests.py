@@ -18,6 +18,16 @@ from failure_taxonomy import (
     classify_real_project_blocker,
     format_real_project_blocker_line,
 )
+from report_contract import (
+    build_report_contract,
+    canonical_latest_report_path,
+    canonical_stage_closure_enabled,
+    classify_selection_kind,
+    git_meta,
+    history_artifact_dir,
+    latest_artifact_dir,
+    write_json_report,
+)
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -392,9 +402,10 @@ def run_stage_b(
     defines = merged_project_lists(project, "defines")
     pp_flags = render_preprocessor_flags(project_root, include_dirs, defines)
 
-    targets = list(stage_cfg.get("targets", []))
-    if not targets:
+    all_targets = list(stage_cfg.get("targets", []))
+    if not all_targets:
         raise RuntimeError("stage B has no targets configured in manifest")
+    targets = list(all_targets)
     if args.target:
         targets = [t for t in targets if args.target in str(t.get("id", ""))]
     if args.limit > 0:
@@ -402,10 +413,30 @@ def run_stage_b(
     if not targets:
         raise RuntimeError("no stage B targets selected")
 
-    latest_stage_dir = DEFAULT_ARTIFACT_ROOT / "latest" / project["name"] / DEFAULT_STAGE_KEY
+    selection_kind = classify_selection_kind(
+        selected_count=len(targets),
+        available_count=len(all_targets),
+        target_value=args.target,
+        limit=args.limit,
+    )
+    canonical_stage_closure = canonical_stage_closure_enabled(
+        selection_kind=selection_kind,
+        clang_parity_enabled=not args.skip_clang,
+        dry_run=args.dry_run,
+    )
+    latest_stage_dir = latest_artifact_dir(
+        DEFAULT_ARTIFACT_ROOT,
+        project_name=project["name"],
+        stage_key=DEFAULT_STAGE_KEY,
+        canonical=canonical_stage_closure,
+    )
     history_id = f"{time.strftime('%Y%m%dT%H%M%S')}_{time.time_ns() % 1_000_000_000:09d}"
-    history_stage_dir = (
-        DEFAULT_ARTIFACT_ROOT / "history" / history_id / project["name"] / DEFAULT_STAGE_KEY
+    history_stage_dir = history_artifact_dir(
+        DEFAULT_ARTIFACT_ROOT,
+        history_id=history_id,
+        project_name=project["name"],
+        stage_key=DEFAULT_STAGE_KEY,
+        canonical=canonical_stage_closure,
     )
     latest_stage_dir.mkdir(parents=True, exist_ok=True)
 
@@ -472,7 +503,7 @@ def run_stage_b(
             clang_link_ms = 0
 
             if not args.skip_clang:
-                clang_compile_cmd = ["clang"] + target_clang_args + pp_flags
+                clang_compile_cmd = ["clang"] + pp_flags + target_clang_args
                 clang_obj_root = tmp_root / "clang" / target_id
                 clang_objects, clang_compile_rows, clang_compile_ok, clang_compile_ms = compile_lane(
                     compiler_cmd=clang_compile_cmd,
@@ -614,7 +645,23 @@ def run_stage_b(
             "entry": project.get("entry"),
             "kind": project.get("kind"),
         },
+        "git": {
+            "fisics": git_meta(FISICS_ROOT),
+            "project": git_meta(project_root),
+        },
         "stage": DEFAULT_STAGE_KEY,
+        "report_contract": build_report_contract(
+            report_family="real_project_stage",
+            selection_kind=selection_kind,
+            canonical_stage_closure=canonical_stage_closure,
+            selected_count=len(results),
+            available_count=len(all_targets),
+            selector={"target": args.target, "limit": args.limit},
+            lane_flags={
+                "clang_parity_enabled": not args.skip_clang,
+                "dry_run": args.dry_run,
+            },
+        ),
         "dry_run": args.dry_run,
         "targets_total": len(results),
         "timeout_sec": timeout_sec,
@@ -632,20 +679,14 @@ def run_stage_b(
 def write_report(report: dict[str, Any]) -> tuple[Path, Path]:
     project_name = report["project"]["name"]
     history_id = report["history_id"]
-    latest_dir = DEFAULT_REPORT_ROOT / "latest"
-    history_dir = DEFAULT_REPORT_ROOT / "history"
-    latest_dir.mkdir(parents=True, exist_ok=True)
-    history_dir.mkdir(parents=True, exist_ok=True)
-
-    latest_path = latest_dir / f"{project_name}_{DEFAULT_STAGE_KEY}_latest.json"
-    history_path = history_dir / f"{history_id}_{project_name}_{DEFAULT_STAGE_KEY}.json"
-    with latest_path.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-        f.write("\n")
-    with history_path.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-        f.write("\n")
-    return latest_path, history_path
+    return write_json_report(
+        DEFAULT_REPORT_ROOT,
+        project_name=project_name,
+        report_key=DEFAULT_STAGE_KEY,
+        history_id=history_id,
+        canonical=bool(report["report_contract"]["canonical_stage_closure"]),
+        payload=report,
+    )
 
 
 def print_summary(report: dict[str, Any], latest_path: Path, history_path: Path) -> None:
@@ -653,15 +694,28 @@ def print_summary(report: dict[str, Any], latest_path: Path, history_path: Path)
     parity_counts = summary["parity_counts"]
     print(f"project={report['project']['name']} stage={report['stage']} targets={report['targets_total']}")
     print(f"blockers={summary['blockers']} parity={json.dumps(parity_counts, sort_keys=True)}")
+    print(
+        "report_contract "
+        f"selection_kind={report['report_contract']['selection_kind']} "
+        f"canonical_stage_closure={int(bool(report['report_contract']['canonical_stage_closure']))} "
+        f"latest_scope={report['report_contract']['latest_scope']} "
+        f"selected={report['report_contract']['selected_count']} "
+        f"available={report['report_contract']['available_count']}"
+    )
     for row in report["results"]:
         if row["is_blocker"]:
             print(format_real_project_blocker_line(report["stage"], row))
     print(f"timing_ms fisics={summary['fisics_total_ms']} clang={summary['clang_total_ms']}")
     print(f"latest_report={latest_path}")
     print(f"history_report={history_path}")
+    if not report["report_contract"]["canonical_stage_closure"]:
+        print(
+            "canonical_latest_report="
+            f"{canonical_latest_report_path(DEFAULT_REPORT_ROOT, project_name=report['project']['name'], report_key=DEFAULT_STAGE_KEY)}"
+        )
     print(
         "latest_artifacts="
-        f"{DEFAULT_ARTIFACT_ROOT / 'latest' / report['project']['name'] / DEFAULT_STAGE_KEY}"
+        f"{latest_artifact_dir(DEFAULT_ARTIFACT_ROOT, project_name=report['project']['name'], stage_key=DEFAULT_STAGE_KEY, canonical=bool(report['report_contract']['canonical_stage_closure']))}"
     )
 
 

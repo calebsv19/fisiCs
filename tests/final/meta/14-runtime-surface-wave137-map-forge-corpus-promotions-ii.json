@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_realproj_map_forge_stale_residency_reclaim_runtime",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_realproj_map_forge_stale_residency_reclaim_runtime.c",
+      "inputs": [
+        "probes/runtime/14__probe_realproj_map_forge_stale_residency_reclaim_runtime.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_realproj_map_forge_stale_residency_reclaim_runtime.stdout",
+      "expected_stderr": "expect/14__runtime_realproj_map_forge_stale_residency_reclaim_runtime.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "realproj",
+        "map",
+        "forge",
+        "stale",
+        "residency",
+        "reclaim"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_realproj_map_forge_owner_mask_dispatch_runtime",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_realproj_map_forge_owner_mask_dispatch_runtime.c",
+      "inputs": [
+        "probes/runtime/14__probe_realproj_map_forge_owner_mask_dispatch_runtime.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_realproj_map_forge_owner_mask_dispatch_runtime.stdout",
+      "expected_stderr": "expect/14__runtime_realproj_map_forge_owner_mask_dispatch_runtime.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "realproj",
+        "map",
+        "forge",
+        "owner",
+        "mask",
+        "dispatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_realproj_map_forge_epoch_guard_reclaim_runtime",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_realproj_map_forge_epoch_guard_reclaim_runtime.c",
+      "inputs": [
+        "probes/runtime/14__probe_realproj_map_forge_epoch_guard_reclaim_runtime.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_realproj_map_forge_epoch_guard_reclaim_runtime.stdout",
+      "expected_stderr": "expect/14__runtime_realproj_map_forge_epoch_guard_reclaim_runtime.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "runtime",
+        "realproj",
+        "map",
+        "forge",
+        "epoch",
+        "guard",
+        "reclaim"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

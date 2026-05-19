@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__diag__line_directive_array_excess_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diag_line_directive_array_excess_spelling_reject.c",
+      "expects": [
+        "expect/07__diag__line_directive_array_excess_strict.diag"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "array-excess",
+        "line-directive",
+        "diag",
+        "wave64",
+        "strict",
+        "spelling",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diag__line_directive_include_array_excess_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diag_line_directive_include_array_excess_spelling_reject.c",
+      "expects": [
+        "expect/07__diag__line_directive_include_array_excess_strict.diag"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "array-excess",
+        "line-directive",
+        "include",
+        "diag",
+        "wave64",
+        "strict",
+        "spelling",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

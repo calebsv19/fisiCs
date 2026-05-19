@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_cast_struct_to_int_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_cast_struct_to_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_cast_struct_to_int_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "cast",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave34",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_cast_struct_to_int_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_cast_struct_to_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_cast_struct_to_int_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "cast",
+        "negative",
+        "line-directive",
+        "include",
+        "diagjson",
+        "wave34",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -169,16 +169,12 @@ bool pp_summary_raw_range_can_clone_direct(Preprocessor* pp,
                                            size_t start,
                                            size_t end) {
     if (!pp || !tokens) return false;
-    bool sawTypedef = false;
     for (size_t i = start; i < end && i < count; ++i) {
         const Token* tok = &tokens[i];
         if (tok->type == TOKEN_EOF) break;
         switch (tok->type) {
             case TOKEN_UNKNOWN:
                 return false;
-            case TOKEN_TYPEDEF:
-                sawTypedef = true;
-                break;
             case TOKEN_INCLUDE:
             case TOKEN_INCLUDE_NEXT:
             case TOKEN_DEFINE:
@@ -205,7 +201,7 @@ bool pp_summary_raw_range_can_clone_direct(Preprocessor* pp,
                 break;
         }
     }
-    return sawTypedef;
+    return end > start;
 }
 
 static bool pp_summary_action_raw_range_can_clone_direct(Preprocessor* pp,
@@ -239,12 +235,6 @@ static bool pp_summary_append_raw_range_direct(Preprocessor* pp,
     }
     size_t start = action->start;
     size_t spanEnd = action->end < input->count ? action->end : input->count;
-    for (size_t i = start; i < spanEnd; ++i) {
-        if (input->tokens[i].type == TOKEN_EOF) {
-            spanEnd = i;
-            break;
-        }
-    }
     return pp_token_buffer_append_clone_remap_span(output, pp, input->tokens + start, spanEnd - start);
 }
 

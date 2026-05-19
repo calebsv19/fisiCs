@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_flex_not_last_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_flex_not_last_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_flex_not_last_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "flex-not-last",
+        "line-directive",
+        "diagjson",
+        "wave58",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_flex_not_last_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_flex_not_last_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_flex_not_last_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "flex-not-last",
+        "line-directive",
+        "include",
+        "diagjson",
+        "wave58",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_array_excess_diag_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diag_line_directive_array_excess_spelling_reject.c",
+      "expects": [
+        "expect/07__line_directive_array_excess_diag_current_sparse.diag"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "array-excess",
+        "line-directive",
+        "diag",
+        "wave63",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_array_excess_diag_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diag_line_directive_include_array_excess_spelling_reject.c",
+      "expects": [
+        "expect/07__line_directive_include_array_excess_diag_current_sparse.diag"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "array-excess",
+        "line-directive",
+        "include",
+        "diag",
+        "wave63",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

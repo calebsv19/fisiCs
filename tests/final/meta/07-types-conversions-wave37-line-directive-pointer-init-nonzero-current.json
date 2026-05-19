@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_conv_pointer_init_nonzero_int_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_conv_pointer_init_nonzero_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_conv_pointer_init_nonzero_int_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "initializer",
+        "line-directive",
+        "diagjson",
+        "wave37",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_conv_pointer_init_nonzero_int_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_conv_pointer_init_nonzero_int_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_conv_pointer_init_nonzero_int_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "initializer",
+        "line-directive",
+        "include",
+        "diagjson",
+        "wave37",
+        "current-sparse",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -14,6 +14,11 @@ Quick run entrypoints:
 - `make final-runtime`: bucket-14 runtime slice.
 - `make final-bucket BUCKET=torture-differential`: bucket-15 torture slice.
 
+Harness note:
+- the final/probe harnesses resolve `fisics` once at startup and stage a temp
+  executable copy for the run, so validation does not depend on the mutable
+  repo-root binary path staying present mid-run
+
 ## Files
 - `00-harness.md`: How this suite is run and how expected outputs are stored.
 - `01-translation-phases.md`: Translation phases and pipeline integrity.

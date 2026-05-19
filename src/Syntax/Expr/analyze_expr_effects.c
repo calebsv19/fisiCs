@@ -158,6 +158,8 @@ char* analyzeExprAccessPath(ASTNode* node) {
                 return analyzeExprAccessPath(node->expr.left);
             }
             return NULL;
+        case AST_CAST_EXPRESSION:
+            return analyzeExprAccessPath(node->castExpr.expression);
         default:
             return NULL;
     }

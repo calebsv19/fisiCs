@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__line_directive_include_conv_pointer_assign_float_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_conv_pointer_assign_float_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_conv_pointer_assign_float_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "conversion",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave29",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_void_pointer_arith_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_void_pointer_arith_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_void_pointer_arith_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "pointer",
+        "conversion",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave29",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_agg_union_arrow_nonptr_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_agg_union_arrow_nonptr_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_agg_union_arrow_nonptr_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave29",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__line_directive_include_designator_array_index_negative_diagjson_file_presence_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_designator_array_index_negative_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_designator_array_index_negative_diagjson_file_presence_strict.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "initializer",
+        "designator",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave29",
+        "strict",
+        "file-presence",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
