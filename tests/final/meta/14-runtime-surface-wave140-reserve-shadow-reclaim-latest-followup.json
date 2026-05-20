@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_token_reserve_shadow_reclaim_reimport_fence",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_token_reserve_shadow_reclaim_reimport_fence_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_token_reserve_shadow_reclaim_reimport_fence_main.c",
+        "probes/runtime/14__probe_multitu_token_reserve_commit_abort_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_reserve_shadow_reclaim_reimport_fence.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "multitu",
+        "determinism",
+        "reserve-collapse",
+        "reclaim-fence",
+        "wave140"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_token_reserve_wrap_shadow_recommit_latest",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_token_reserve_wrap_shadow_recommit_latest_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_token_reserve_wrap_shadow_recommit_latest_main.c",
+        "probes/runtime/14__probe_multitu_token_reserve_commit_abort_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_reserve_wrap_shadow_recommit_latest.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "multitu",
+        "determinism",
+        "reserve-collapse",
+        "shadow-recommit",
+        "wave140"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

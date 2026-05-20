@@ -1,0 +1,16 @@
+Diagnostics:
+Error at (9315:17): Undeclared identifier
+   Hint: missing
+   Spelling: virtual_diagrec_include_mixed_switch_followup.h:9315:17
+Error at (9315:13): Incompatible assignment operands
+   Spelling: virtual_diagrec_include_mixed_switch_followup.h:9315:13
+Error at (9316:13): Break statement not within loop or switch
+   Spelling: virtual_diagrec_include_mixed_switch_followup.h:9316:13
+Error at (9319:13): Break statement not within loop or switch
+   Spelling: virtual_diagrec_include_mixed_switch_followup.h:9319:13
+Error at (9321:12): Undeclared identifier
+   Hint: x
+   Spelling: virtual_diagrec_include_mixed_switch_followup.h:9321:12
+Warning at (9319:0): Unreachable statement
+Error at (9311:5): Control reaches end of non-void function 'f'
+   Spelling: virtual_diagrec_include_mixed_switch_followup.h:9311:5

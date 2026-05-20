@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__parserdiag__mixed__while_missing_lparen_then_undeclared_promotions",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__while_missing_lparen_then_undeclared.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__while_missing_lparen_then_undeclared.ast",
+        "expect/12__parserdiag__mixed__while_missing_lparen_then_undeclared.diag",
+        "expect/12__parserdiag__mixed__while_missing_lparen_then_undeclared.diagjson",
+        "expect/12__parserdiag__mixed__while_missing_lparen_then_undeclared.pdiag"
+      ],
+      "tags": ["diag", "diagjson", "pdiag", "parser-recovery", "mixed", "semantic-followup", "while", "wave23", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__do_while_missing_semicolon_then_undeclared_promotions",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__do_while_missing_semicolon_then_undeclared.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__do_while_missing_semicolon_then_undeclared.ast",
+        "expect/12__parserdiag__mixed__do_while_missing_semicolon_then_undeclared.diag",
+        "expect/12__parserdiag__mixed__do_while_missing_semicolon_then_undeclared.diagjson",
+        "expect/12__parserdiag__mixed__do_while_missing_semicolon_then_undeclared.pdiag"
+      ],
+      "tags": ["diag", "diagjson", "pdiag", "parser-recovery", "mixed", "semantic-followup", "do-while", "wave23", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

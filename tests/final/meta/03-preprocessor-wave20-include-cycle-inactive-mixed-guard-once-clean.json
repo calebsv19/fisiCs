@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_cycle_inactive_reject_active_mixed_guard_once_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle_inactive_reject_active_mixed_guard_once_clean.c",
+      "expects": [
+        "expect/03__include_cycle_inactive_reject_active_mixed_guard_once_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-graph",
+        "inactive-branch",
+        "include-cycle",
+        "include-guard",
+        "pragma-once",
+        "clean-path",
+        "wave20",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

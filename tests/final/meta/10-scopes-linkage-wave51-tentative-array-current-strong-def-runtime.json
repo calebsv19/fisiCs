@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__multitu_tentative_array_current_strong_def_runtime",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_main.c",
+        "probes/runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_liba.c",
+        "probes/runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_libb.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__multitu_tentative_array_current_strong_def_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "reference_args": ["-fcommon"],
+      "standard": "c99",
+      "tags": ["scopes-linkage", "runtime", "multitu", "tentative-definition", "array", "strong-definition", "clean-path", "wave51", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

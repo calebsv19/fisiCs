@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (9219:5): Incompatible assignment operands
+   Spelling: virtual_diagrec_include_mixed_bad_call_followup.h:9219:5

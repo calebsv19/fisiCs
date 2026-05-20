@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__multitu_static_global_partition_runtime",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_multitu_static_global_partition_runtime_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_multitu_static_global_partition_runtime_main.c",
+        "probes/runtime/10__probe_multitu_static_global_partition_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__multitu_static_global_partition_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["scopes-linkage", "runtime", "multitu", "static", "global", "partition", "clean-path", "wave22", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__multitu_include_static_global_partition_runtime",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_multitu_include_static_global_partition_runtime_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_multitu_include_static_global_partition_runtime_main.c",
+        "probes/runtime/10__probe_multitu_include_static_global_partition_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__multitu_include_static_global_partition_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["scopes-linkage", "runtime", "multitu", "include", "static", "global", "partition", "clean-path", "wave22", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

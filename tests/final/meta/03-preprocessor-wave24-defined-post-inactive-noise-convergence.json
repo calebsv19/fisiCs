@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__defined_include_nested_post_inactive_noise_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_include_nested_post_inactive_noise_clean.c",
+      "expects": [
+        "expect/03__defined_include_nested_post_inactive_noise_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "defined",
+        "undef",
+        "inactive-branch",
+        "include-graph",
+        "macro-state",
+        "clean-path",
+        "wave24",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

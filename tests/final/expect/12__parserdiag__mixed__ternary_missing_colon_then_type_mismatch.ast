@@ -1,0 +1,24 @@
+AST:
+PROGRAM
+  FUNCTION DEFINITION
+    RETURN TYPE: int
+    IDENTIFIER main
+    PARAMETERS
+      VAR_DECL
+        TYPE: void
+        IDENTIFIER __unnamed_param0
+    BLOCK
+      NUMBER_LITERAL 3
+      VAR_DECL
+        TYPE: int*
+        IDENTIFIER p
+          = NUMBER_LITERAL 0
+      VAR_DECL
+        TYPE: double*
+        IDENTIFIER q
+          = NUMBER_LITERAL 0
+      ASSIGNMENT (=)
+        IDENTIFIER p
+        IDENTIFIER q
+      RETURN
+        IDENTIFIER x

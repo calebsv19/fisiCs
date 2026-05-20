@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_next_inactive_invalid_skip_mixed_chain_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_inactive_invalid_skip_mixed_chain_clean.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_mix_p1",
+        "-Itests/final/cases/pp_inext_mix_p2",
+        "-Itests/final/cases/pp_inext_mix_p3",
+        "-Itests/final/cases/pp_inext_mix_p4"
+      ],
+      "expects": [
+        "expect/03__include_next_inactive_invalid_skip_mixed_chain_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "inactive-branch",
+        "invalid-operand",
+        "mixed-delimiters",
+        "clean-path",
+        "wave11",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

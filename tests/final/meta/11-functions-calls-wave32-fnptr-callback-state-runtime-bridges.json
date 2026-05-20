@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__multitu_fnptr_callback_state_runtime",
+      "bucket": "functions-calls",
+      "input": "cases/11__multitu_fnptr_callback_state_runtime_main.c",
+      "inputs": [
+        "cases/11__multitu_fnptr_callback_state_runtime_main.c",
+        "cases/11__multitu_fnptr_callback_state_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["fnptr", "multitu", "runtime", "regression"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__include_multitu_fnptr_callback_state_runtime",
+      "bucket": "functions-calls",
+      "input": "cases/11__include_multitu_fnptr_callback_state_runtime_main.c",
+      "inputs": [
+        "cases/11__include_multitu_fnptr_callback_state_runtime_main.c",
+        "cases/11__include_multitu_fnptr_callback_state_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["fnptr", "include", "multitu", "runtime", "regression"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

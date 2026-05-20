@@ -11,6 +11,9 @@ static bool directive_line_matches_empty_guard_define(const Token* tokens,
                                                       size_t count,
                                                       size_t cursor,
                                                       const char* ident);
+static bool pragma_is_once_directive(const Token* tokens,
+                                     size_t count,
+                                     size_t cursor);
 static bool raw_range_starts_with_typedef(const TokenBuffer* buffer,
                                           const IncludeSummaryAction* action);
 static bool raw_range_is_single_top_level_typedef_declaration(const TokenBuffer* buffer,
@@ -97,6 +100,24 @@ bool include_name_is_suspicious(const char* name) {
         if (!ok) return true;
     }
     return false;
+}
+
+bool detect_leading_pragma_once(const TokenBuffer* buffer) {
+    if (!buffer || !buffer->tokens || buffer->count == 0) {
+        return false;
+    }
+
+    size_t cursor = 0;
+    while (cursor < buffer->count && buffer->tokens[cursor].type == TOKEN_EOF) {
+        cursor++;
+    }
+    if (cursor >= buffer->count) {
+        return false;
+    }
+    if (buffer->tokens[cursor].type != TOKEN_PRAGMA) {
+        return false;
+    }
+    return pragma_is_once_directive(buffer->tokens, buffer->count, cursor);
 }
 
 const char* detect_include_guard(const TokenBuffer* buffer) {

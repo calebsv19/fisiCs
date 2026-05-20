@@ -11,6 +11,374 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/10__probe_static_function_then_extern_decl_ok.c',
         note='file-scope static function followed by extern declaration should remain valid',
     ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_tentative_shared_state_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_tentative_shared_state_runtime_main.c',
+        note='multi-TU tentative definition should share one backing object at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_shared_state_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_shared_state_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_extern_array_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_bridge_runtime_main.c',
+        note='header-declared extern array should link cleanly across TUs at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_static_global_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_static_global_partition_runtime_main.c',
+        note='file-local static object should stay partitioned from same-spelling external object across TUs',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_static_global_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_static_global_partition_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_static_global_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_static_global_partition_runtime_main.c',
+        note='header-routed wrappers should preserve static-vs-external object partition across TUs',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_global_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_global_partition_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_static_function_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_static_function_partition_runtime_main.c',
+        note='file-local static function should stay partitioned from same-spelling external function across TUs',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_static_function_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_static_function_partition_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_static_function_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_static_function_partition_runtime_main.c',
+        note='header-routed wrappers should preserve static-vs-external function partition across TUs',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_function_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_function_partition_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_tentative_header_strong_def_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_tentative_header_strong_def_bridge_runtime_main.c',
+        note='header tentative declarations should resolve cleanly against strong definitions across TUs',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_header_strong_def_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_header_strong_def_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_linkorder_seed_fold_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_main.c',
+        note='multi-TU linkage clean path should stay deterministic under canonical TU order',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_linkorder_seed_fold_bridge_runtime_permuted',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_main.c',
+        note='multi-TU linkage clean path should preserve runtime output when sibling TU order is permuted',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_libb.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_liba.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_tentative_array_coalescing_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_coalescing_runtime_main.c',
+        note='compatible tentative array definitions across sibling translation units should coalesce into one shared object at runtime',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_coalescing_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_coalescing_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_coalescing_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_tentative_header_array_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_header_array_runtime_main.c',
+        note='header-borne tentative definitions should still coalesce cleanly across translation units at runtime',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_header_array_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_header_array_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_internal_global_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_internal_global_twin_partition_runtime_main.c',
+        note='same-spelling internal-linkage objects in sibling translation units should keep isolated state behind exported wrappers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_global_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_global_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_global_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_tentative_struct_coalescing_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_tentative_struct_coalescing_runtime_main.c',
+        note='compatible tentative struct objects across sibling translation units should coalesce into one shared runtime object',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_struct_coalescing_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_struct_coalescing_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_struct_coalescing_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_extern_struct_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_extern_struct_bridge_runtime_main.c',
+        note='header-declared extern struct objects should link and mutate cleanly across translation units at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_struct_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_struct_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_static_array_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_static_array_partition_runtime_main.c',
+        note='same-spelling file-local static arrays in sibling translation units should keep isolated state behind exported wrappers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_static_array_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_static_array_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_static_array_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_tentative_struct_coalescing_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_struct_coalescing_runtime_main.c',
+        note='header-borne tentative struct objects should coalesce cleanly across translation units at runtime',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_struct_coalescing_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_struct_coalescing_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_struct_strong_def_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_struct_strong_def_bridge_runtime_main.c',
+        note='strongly defined struct objects should bridge cleanly into sibling translation units through extern declarations',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_struct_strong_def_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_struct_strong_def_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_static_struct_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_static_struct_partition_runtime_main.c',
+        note='same-spelling file-local static structs in sibling translation units should keep isolated state behind exported wrappers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_static_struct_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_static_struct_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_static_struct_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_struct_strong_def_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_struct_strong_def_bridge_runtime_main.c',
+        note='header-routed extern struct declarations should resolve cleanly against strong definitions across translation units at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_struct_strong_def_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_struct_strong_def_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_static_struct_array_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_static_struct_array_partition_runtime_main.c',
+        note='same-spelling file-local static struct arrays in sibling translation units should keep isolated state behind exported wrappers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_static_struct_array_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_static_struct_array_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_static_struct_array_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_linkorder_struct_trace_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_linkorder_struct_trace_bridge_runtime_main.c',
+        note='struct-based multi-TU linkage clean path should stay deterministic under canonical sibling TU order',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_struct_trace_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_struct_trace_bridge_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_struct_trace_bridge_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_linkorder_struct_trace_bridge_runtime_permuted',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_linkorder_struct_trace_bridge_runtime_main.c',
+        note='struct-based multi-TU linkage clean path should preserve runtime output when sibling TU order is permuted',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_struct_trace_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_struct_trace_bridge_runtime_libb.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_linkorder_struct_trace_bridge_runtime_liba.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_static_struct_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_static_struct_partition_runtime_main.c',
+        note='header-routed wrappers should preserve static-vs-external struct partition across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_struct_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_struct_partition_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_static_struct_array_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_static_struct_array_partition_runtime_main.c',
+        note='header-routed wrappers should preserve static-vs-external struct-array partition across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_struct_array_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_struct_array_partition_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_static_array_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_static_array_partition_runtime_main.c',
+        note='header-routed wrappers should preserve static-vs-external array partition across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_array_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_static_array_partition_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_internal_struct_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_internal_struct_twin_partition_runtime_main.c',
+        note='same-spelling internal-linkage structs in sibling translation units should keep isolated state behind exported wrappers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_struct_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_struct_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_struct_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_internal_struct_array_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_internal_struct_array_twin_partition_runtime_main.c',
+        note='same-spelling internal-linkage struct arrays in sibling translation units should keep isolated state behind exported wrappers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_struct_array_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_struct_array_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_struct_array_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_internal_array_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_internal_array_twin_partition_runtime_main.c',
+        note='same-spelling internal-linkage arrays in sibling translation units should keep isolated state behind exported wrappers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_array_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_array_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_array_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_internal_function_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_internal_function_twin_partition_runtime_main.c',
+        note='same-spelling internal-linkage functions in sibling translation units should stay distinct behind exported wrappers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_function_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_function_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_internal_function_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_internal_function_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_internal_function_twin_partition_runtime_main.c',
+        note='header-routed wrappers should preserve sibling internal-function partition across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_function_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_function_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_function_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_internal_array_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_internal_array_twin_partition_runtime_main.c',
+        note='header-routed wrappers should preserve sibling internal-array partition across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_array_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_array_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_array_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_internal_struct_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_internal_struct_twin_partition_runtime_main.c',
+        note='header-routed wrappers should preserve sibling internal-struct partition across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_struct_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_struct_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_struct_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_internal_struct_array_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_internal_struct_array_twin_partition_runtime_main.c',
+        note='header-routed wrappers should preserve sibling internal-struct-array partition across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_struct_array_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_struct_array_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_struct_array_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_internal_global_twin_partition_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_internal_global_twin_partition_runtime_main.c',
+        note='header-routed wrappers should preserve sibling internal-global partition across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_global_twin_partition_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_global_twin_partition_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_internal_global_twin_partition_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_scalar_strong_def_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_scalar_strong_def_bridge_runtime_main.c',
+        note='strongly defined scalar objects should bridge cleanly into sibling translation units through extern declarations',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_scalar_strong_def_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_scalar_strong_def_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_extern_scalar_bridge_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_bridge_runtime_main.c',
+        note='header-declared extern scalar objects should link and mutate cleanly across translation units at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_tentative_array_current_strong_def_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_main.c',
+        note='tentative array declarations should resolve cleanly against one strong definition across sibling translation units at runtime',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_tentative_header_array_current_strong_def_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_header_array_current_strong_def_runtime_main.c',
+        note='header-routed extern array declarations should resolve cleanly against one strong definition across translation units at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_header_array_current_strong_def_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_header_array_current_strong_def_runtime_lib.c',
+        ],
+    ),
 ]
 
 DIAG_PROBES = [

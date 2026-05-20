@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_token_generation_reimport_shadow_prune_wrap",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_token_generation_reimport_shadow_prune_wrap_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_token_generation_reimport_shadow_prune_wrap_main.c",
+        "probes/runtime/14__probe_multitu_token_generation_stale_drop_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_generation_reimport_shadow_prune_wrap.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "multitu",
+        "determinism",
+        "generation-replay",
+        "shadow-prune-wrap",
+        "wave142"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_token_generation_latest_reimport_fanout",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_token_generation_latest_reimport_fanout_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_token_generation_latest_reimport_fanout_main.c",
+        "probes/runtime/14__probe_multitu_token_generation_stale_drop_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_generation_latest_reimport_fanout.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "14",
+        "multitu",
+        "determinism",
+        "generation-replay",
+        "reimport-fanout",
+        "wave142"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

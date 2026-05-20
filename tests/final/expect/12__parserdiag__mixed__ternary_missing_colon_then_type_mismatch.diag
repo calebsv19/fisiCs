@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (5:5): Incompatible assignment operands
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.c:5:5
+Error at (6:12): Undeclared identifier
+   Hint: x
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.c:6:12

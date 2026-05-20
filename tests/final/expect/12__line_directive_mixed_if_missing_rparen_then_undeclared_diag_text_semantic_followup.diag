@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (9106:12): Undeclared identifier
+   Hint: y
+   Spelling: virtual_diagrec_mixed_if_followup.c:9106:12

@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (9415:5): Incompatible assignment operands
+   Spelling: virtual_diagrec_include_mixed_ternary_followup.h:9415:5
+Error at (9416:12): Undeclared identifier
+   Hint: x
+   Spelling: virtual_diagrec_include_mixed_ternary_followup.h:9416:12

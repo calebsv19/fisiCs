@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_collision_inactive_angle_active_quote_long_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_collision_inactive_angle_active_quote_long_clean.c",
+      "args": [
+        "-Itests/final/cases/pp_collide2_p1",
+        "-Itests/final/cases/pp_collide2_p2",
+        "-Itests/final/cases/pp_collide2_p3"
+      ],
+      "expects": [
+        "expect/03__include_collision_inactive_angle_active_quote_long_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-collision",
+        "inactive-branch",
+        "search-order",
+        "quote-include",
+        "long-chain",
+        "clean-path",
+        "wave22",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

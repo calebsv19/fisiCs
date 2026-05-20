@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__parserdiag__mixed__if_missing_rparen_then_undeclared_diag",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__if_missing_rparen_then_undeclared.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__if_missing_rparen_then_undeclared.ast",
+        "expect/12__parserdiag__mixed__if_missing_rparen_then_undeclared.diag"
+      ],
+      "tags": ["diag", "parser-recovery", "mixed", "ordering", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__bad_call_then_incompatible_ptr_diag",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__bad_call_then_incompatible_ptr.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__bad_call_then_incompatible_ptr.ast",
+        "expect/12__parserdiag__mixed__bad_call_then_incompatible_ptr.diag"
+      ],
+      "tags": ["diag", "parser-recovery", "mixed", "ordering", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__switch_case_missing_colon_then_undeclared_diag",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.ast",
+        "expect/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.diag"
+      ],
+      "tags": ["diag", "parser-recovery", "mixed", "cascade", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch_diag",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.ast",
+        "expect/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.diag"
+      ],
+      "tags": ["diag", "parser-recovery", "mixed", "cascade", "wave15", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

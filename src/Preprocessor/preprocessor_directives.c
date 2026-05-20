@@ -723,6 +723,13 @@ bool process_include(Preprocessor* pp,
     }
     pp_profiler_end_if_enabled(timingEnabled, lexScope);
 
+    if (!incValue->pragmaOnce && detect_leading_pragma_once(&buffer)) {
+        IncludeFile* includeFile = pp_include_file_at(pp, includeFileIndex);
+        if (includeFile) {
+            includeFile->pragmaOnce = true;
+        }
+    }
+
     const char* guard = cachedGuard;
     bool deferGuardDetection = !guard &&
                                summaryProbeSupported &&
@@ -827,6 +834,16 @@ bool process_include(Preprocessor* pp,
     }
 
     if (includeWouldRecurse) {
+        if (incValue->pragmaOnce) {
+            pp_profiler_record_value_if_enabled(counterEnabled, "pp_count_include_short_circuit_recursive_pragma_once", 1);
+            if (nestedIncludeDispatch) {
+                pp_profile_event("pp_nested_include_recursive_pragma_once_skip");
+            }
+            pp->lineOffset = savedOffset;
+            pp->logicalFile = savedLogical;
+            pp->lineRemapActive = savedRemap;
+            return true;
+        }
         if (nestedIncludeDispatch) {
             pp_profile_event("pp_nested_include_recursive_cycle");
         }

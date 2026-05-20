@@ -33,6 +33,276 @@ RUNTIME_PROBES = [
             PROBE_DIR / 'runtime/11__probe_small_struct_byval_multitu_definition_lib.c',
         ],
     ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_variadic_fold_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_variadic_fold_runtime_main.c',
+        note='multi-TU variadic declaration and definition should preserve integer vararg folding at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_variadic_fold_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_variadic_fold_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_variadic_fold_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_variadic_fold_runtime_main.c',
+        note='include-routed multi-TU variadic declaration and definition should preserve integer vararg folding at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_variadic_fold_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_variadic_fold_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_return_dispatch_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_dispatch_runtime_main.c',
+        note='multi-TU function returning a function pointer should preserve returned callee selection and dispatch at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_dispatch_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_dispatch_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_return_dispatch_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_dispatch_runtime_main.c',
+        note='include-routed multi-TU function returning a function pointer should preserve returned callee selection and dispatch at runtime',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_dispatch_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_dispatch_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_small_struct_return_multitu_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_small_struct_return_multitu_runtime_main.c',
+        note='multi-TU small-struct return should preserve aggregate value transfer without hidden-sret drift',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_small_struct_return_multitu_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_small_struct_return_multitu_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_small_struct_return_multitu_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_small_struct_return_multitu_runtime_main.c',
+        note='include-routed multi-TU small-struct return should preserve aggregate value transfer without hidden-sret drift',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_small_struct_return_multitu_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_small_struct_return_multitu_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_large_struct_return_accumulate_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_large_struct_return_accumulate_runtime_main.c',
+        note='multi-TU large-struct return should preserve hidden-sret transfer while trailing state remains intact',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_large_struct_return_accumulate_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_large_struct_return_accumulate_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_large_struct_return_accumulate_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_return_accumulate_runtime_main.c',
+        note='include-routed multi-TU large-struct return should preserve hidden-sret transfer while trailing state remains intact',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_return_accumulate_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_return_accumulate_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_callback_accumulate_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_callback_accumulate_runtime_main.c',
+        note='multi-TU callback parameter should preserve function-pointer call ABI across repeated callback invocations',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_callback_accumulate_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_callback_accumulate_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_callback_accumulate_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_callback_accumulate_runtime_main.c',
+        note='include-routed multi-TU callback parameter should preserve function-pointer call ABI across repeated callback invocations',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_callback_accumulate_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_callback_accumulate_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_table_route_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_route_runtime_main.c',
+        note='multi-TU function-pointer table selection should preserve returned callee routing through a table state bridge',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_route_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_route_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_table_route_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_route_runtime_main.c',
+        note='include-routed multi-TU function-pointer table selection should preserve returned callee routing through a table state bridge',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_route_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_route_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_callback_state_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_callback_state_runtime_main.c',
+        note='multi-TU callback parameter should preserve stateful pointer mutation and callback ABI across repeated invocations',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_callback_state_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_callback_state_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_callback_state_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_callback_state_runtime_main.c',
+        note='include-routed multi-TU callback parameter should preserve stateful pointer mutation and callback ABI across repeated invocations',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_callback_state_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_callback_state_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_table_reseed_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_reseed_runtime_main.c',
+        note='multi-TU function-pointer table reseed path should preserve stateful route selection and callee ABI',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_reseed_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_reseed_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_table_reseed_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_reseed_runtime_main.c',
+        note='include-routed multi-TU function-pointer table reseed path should preserve stateful route selection and callee ABI',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_reseed_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_reseed_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_large_struct_fnptr_bridge_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_large_struct_fnptr_bridge_runtime_main.c',
+        note='multi-TU large-struct return mixed with function-pointer parameter should preserve hidden-sret and callback ABI together',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_large_struct_fnptr_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_large_struct_fnptr_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_large_struct_fnptr_bridge_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_fnptr_bridge_runtime_main.c',
+        note='include-routed multi-TU large-struct return mixed with function-pointer parameter should preserve hidden-sret and callback ABI together',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_fnptr_bridge_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_fnptr_bridge_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_return_callback_state_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_callback_state_runtime_main.c',
+        note='multi-TU function-pointer return plus callback-state chain should preserve callee selection and state mutation together',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_callback_state_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_callback_state_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_return_callback_state_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_callback_state_runtime_main.c',
+        note='include-routed multi-TU function-pointer return plus callback-state chain should preserve callee selection and state mutation together',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_callback_state_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_callback_state_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_table_callback_route_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_callback_route_runtime_main.c',
+        note='multi-TU function-pointer table callback route should preserve selected route ABI across callback shape differences',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_callback_route_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_table_callback_route_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_table_callback_route_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_callback_route_runtime_main.c',
+        note='include-routed multi-TU function-pointer table callback route should preserve selected route ABI across callback shape differences',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_callback_route_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_table_callback_route_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_large_struct_route_ladder_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_large_struct_route_ladder_runtime_main.c',
+        note='multi-TU large-struct route ladder should preserve aggregate return layout across a two-hop function-pointer chain',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_large_struct_route_ladder_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_large_struct_route_ladder_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_large_struct_route_ladder_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_route_ladder_runtime_main.c',
+        note='include-routed multi-TU large-struct route ladder should preserve aggregate return layout across a two-hop function-pointer chain',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_route_ladder_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_route_ladder_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_return_table_callback_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_table_callback_runtime_main.c',
+        note='multi-TU function-pointer return into table-routed callback chain should preserve selected callee ABI',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_table_callback_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_return_table_callback_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_return_table_callback_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_table_callback_runtime_main.c',
+        note='include-routed multi-TU function-pointer return into table-routed callback chain should preserve selected callee ABI',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_table_callback_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_return_table_callback_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_fnptr_reseed_callback_state_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_fnptr_reseed_callback_state_runtime_main.c',
+        note='multi-TU reseed-plus-callback-state chain should preserve callee routing and pointer-state updates together',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_reseed_callback_state_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_fnptr_reseed_callback_state_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_fnptr_reseed_callback_state_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_reseed_callback_state_runtime_main.c',
+        note='include-routed multi-TU reseed-plus-callback-state chain should preserve callee routing and pointer-state updates together',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_reseed_callback_state_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_fnptr_reseed_callback_state_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_multitu_large_struct_return_route_callback_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_multitu_large_struct_return_route_callback_runtime_main.c',
+        note='multi-TU large-struct return route-callback chain should preserve aggregate layout across returned function results',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_multitu_large_struct_return_route_callback_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_multitu_large_struct_return_route_callback_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='11__probe_include_multitu_large_struct_return_route_callback_runtime',
+        source=PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_return_route_callback_runtime_main.c',
+        note='include-routed multi-TU large-struct return route-callback chain should preserve aggregate layout across returned function results',
+        inputs=[
+            PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_return_route_callback_runtime_main.c',
+            PROBE_DIR / 'runtime/11__probe_include_multitu_large_struct_return_route_callback_runtime_lib.c',
+        ],
+    ),
 ]
 
 DIAG_PROBES = [

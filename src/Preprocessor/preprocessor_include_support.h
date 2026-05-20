@@ -11,6 +11,7 @@ bool parse_include_operand(const Token* tokens,
                            char** outName,
                            bool* outIsSystem);
 bool include_name_is_suspicious(const char* name);
+bool detect_leading_pragma_once(const TokenBuffer* buffer);
 const char* detect_include_guard(const TokenBuffer* buffer);
 const char* detect_include_guard_from_summary_actions(const TokenBuffer* buffer,
                                                       const IncludeSummaryAction* actions,

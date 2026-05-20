@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_collision_inactive_angle_active_mixed_quote_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_collision_inactive_angle_active_mixed_quote_clean.c",
+      "args": [
+        "-Itests/final/cases/pp_mix2_p1",
+        "-Itests/final/cases/pp_mix2_p2",
+        "-Itests/final/cases/pp_mix2_p3",
+        "-Itests/final/cases/pp_mix2_p4"
+      ],
+      "expects": [
+        "expect/03__include_collision_inactive_angle_active_mixed_quote_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-collision",
+        "inactive-branch",
+        "search-order",
+        "mixed-delimiters",
+        "quote-include",
+        "clean-path",
+        "wave17",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__defined_include_nested_undef_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_include_nested_undef_clean.c",
+      "expects": [
+        "expect/03__defined_include_nested_undef_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "defined",
+        "undef",
+        "include-graph",
+        "macro-state",
+        "nested-headers",
+        "clean-path",
+        "wave18",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

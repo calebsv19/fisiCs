@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__multitu_variadic_fold_runtime",
+      "bucket": "functions-calls",
+      "input": "cases/11__multitu_variadic_fold_runtime_main.c",
+      "inputs": [
+        "cases/11__multitu_variadic_fold_runtime_main.c",
+        "cases/11__multitu_variadic_fold_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["variadic", "multitu", "runtime", "wave26", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__include_multitu_variadic_fold_runtime",
+      "bucket": "functions-calls",
+      "input": "cases/11__include_multitu_variadic_fold_runtime_main.c",
+      "inputs": [
+        "cases/11__include_multitu_variadic_fold_runtime_main.c",
+        "cases/11__include_multitu_variadic_fold_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["variadic", "multitu", "include", "runtime", "wave26", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

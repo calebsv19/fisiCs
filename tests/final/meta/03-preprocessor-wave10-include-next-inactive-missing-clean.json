@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_next_inactive_missing_skip_order_chain_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_inactive_missing_skip_order_chain_clean.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_ord_p1",
+        "-Itests/final/cases/pp_inext_ord_p2",
+        "-Itests/final/cases/pp_inext_ord_p3",
+        "-Itests/final/cases/pp_inext_ord_p4"
+      ],
+      "expects": [
+        "expect/03__include_next_inactive_missing_skip_order_chain_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "inactive-branch",
+        "missing-target",
+        "clean-path",
+        "wave10",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

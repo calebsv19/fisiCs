@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_cycle_inactive_reject_active_pragma_once_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle_inactive_reject_active_pragma_once_clean.c",
+      "expects": [
+        "expect/03__include_cycle_inactive_reject_active_pragma_once_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-graph",
+        "inactive-branch",
+        "include-cycle",
+        "pragma-once",
+        "clean-path",
+        "wave23",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

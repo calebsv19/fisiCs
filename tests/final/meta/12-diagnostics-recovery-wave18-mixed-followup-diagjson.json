@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__parserdiag__mixed__if_missing_rparen_then_undeclared_diagjson",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__if_missing_rparen_then_undeclared.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__if_missing_rparen_then_undeclared.diagjson"
+      ],
+      "tags": ["diagjson", "parser-recovery", "mixed", "semantic-followup", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__bad_call_then_incompatible_ptr_diagjson",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__bad_call_then_incompatible_ptr.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__bad_call_then_incompatible_ptr.diagjson"
+      ],
+      "tags": ["diagjson", "parser-recovery", "mixed", "semantic-followup", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__switch_case_missing_colon_then_undeclared_diagjson",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.diagjson"
+      ],
+      "tags": ["diagjson", "parser-recovery", "mixed", "cascade", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch_diagjson",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.c",
+      "expects": [
+        "expect/12__parserdiag__mixed__ternary_missing_colon_then_type_mismatch.diagjson"
+      ],
+      "tags": ["diagjson", "parser-recovery", "mixed", "cascade", "wave18", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

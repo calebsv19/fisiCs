@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_multitu_token_generation_shadow_latest_wrap_fanout",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_token_generation_shadow_latest_wrap_fanout_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_token_generation_shadow_latest_wrap_fanout_main.c",
+        "probes/runtime/14__probe_multitu_token_generation_stale_drop_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_generation_shadow_latest_wrap_fanout.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "14", "multitu", "determinism", "generation-replay", "shadow-latest", "wave150"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_multitu_token_reserve_shadow_latest_abort_reclaim_chain",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_multitu_token_reserve_shadow_latest_abort_reclaim_chain_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_multitu_token_reserve_shadow_latest_abort_reclaim_chain_main.c",
+        "probes/runtime/14__probe_multitu_token_reserve_commit_abort_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_multitu_token_reserve_shadow_latest_abort_reclaim_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "14", "multitu", "determinism", "reserve-collapse", "shadow-latest", "wave150"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

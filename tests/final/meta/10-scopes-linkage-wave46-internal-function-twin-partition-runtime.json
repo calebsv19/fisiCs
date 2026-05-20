@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__multitu_internal_function_twin_partition_runtime",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_multitu_internal_function_twin_partition_runtime_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_multitu_internal_function_twin_partition_runtime_main.c",
+        "probes/runtime/10__probe_multitu_internal_function_twin_partition_runtime_liba.c",
+        "probes/runtime/10__probe_multitu_internal_function_twin_partition_runtime_libb.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__multitu_internal_function_twin_partition_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["scopes-linkage", "runtime", "multitu", "internal-linkage", "function", "partition", "clean-path", "wave46", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

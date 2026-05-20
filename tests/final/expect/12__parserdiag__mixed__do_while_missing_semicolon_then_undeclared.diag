@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (7:12): Undeclared identifier
+   Hint: y
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__do_while_missing_semicolon_then_undeclared.c:7:12

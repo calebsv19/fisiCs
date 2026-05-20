@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__multitu_include_tentative_struct_coalescing_runtime",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_multitu_include_tentative_struct_coalescing_runtime_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_multitu_include_tentative_struct_coalescing_runtime_main.c",
+        "probes/runtime/10__probe_multitu_include_tentative_struct_coalescing_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__multitu_include_tentative_struct_coalescing_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "reference_args": ["-fcommon"],
+      "standard": "c99",
+      "tags": ["scopes-linkage", "runtime", "multitu", "tentative-definition", "struct", "include", "coalescing", "clean-path", "wave33", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

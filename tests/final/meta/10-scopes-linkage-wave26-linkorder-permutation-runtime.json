@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__multitu_linkorder_seed_fold_bridge_runtime_permuted",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_main.c",
+        "probes/runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_libb.c",
+        "probes/runtime/10__probe_multitu_linkorder_seed_fold_bridge_runtime_liba.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__multitu_linkorder_seed_fold_bridge_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["scopes-linkage", "runtime", "multitu", "link-order", "permutation", "determinism", "clean-path", "wave26", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

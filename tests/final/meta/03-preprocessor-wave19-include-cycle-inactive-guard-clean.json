@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_cycle_inactive_reject_active_guard_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_cycle_inactive_reject_active_guard_clean.c",
+      "expects": [
+        "expect/03__include_cycle_inactive_reject_active_guard_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-graph",
+        "inactive-branch",
+        "include-cycle",
+        "include-guard",
+        "clean-path",
+        "wave19",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

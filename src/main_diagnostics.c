@@ -365,12 +365,6 @@ void main_cross_tu_type_conflict_clear(CrossTUTypeConflict* conflict) {
     memset(conflict, 0, sizeof(*conflict));
 }
 
-void main_cross_tu_tentative_duplicate_clear(CrossTUTentativeDuplicate* duplicate) {
-    if (!duplicate) return;
-    free(duplicate->symbolName);
-    memset(duplicate, 0, sizeof(*duplicate));
-}
-
 static void cross_tu_adjust_parameter_type(ParsedType* type) {
     if (!type) return;
     parsedTypeAdjustArrayParameter(type);
@@ -502,19 +496,6 @@ static bool cross_tu_var_defs_push(CrossTUVarDefList* defs,
     out->storage = sym->storage;
     defs->count++;
     return true;
-}
-
-static bool cross_tu_var_is_tentative_candidate(const CrossTUVarDef* def) {
-    if (!def) return false;
-    if (def->kind != SYMBOL_VARIABLE) return false;
-    if (def->storage == STORAGE_EXTERN) return false;
-    return def->isTentative;
-}
-
-static bool cross_tu_var_is_strong_definition(const CrossTUVarDef* def) {
-    if (!def) return false;
-    if (def->kind != SYMBOL_VARIABLE) return false;
-    return def->hasDefinition && !def->isTentative;
 }
 
 static bool cross_tu_set_type_conflict(CrossTUTypeConflict* conflict,
@@ -791,51 +772,6 @@ bool main_collect_cross_tu_virtual_type_conflict(const SemanticModel* model,
     return !ctx.oom;
 }
 
-bool main_find_cross_tu_duplicate_tentative(const CrossTUVarDefList* defs,
-                                            CrossTUTentativeDuplicate* duplicate) {
-    if (duplicate) {
-        main_cross_tu_tentative_duplicate_clear(duplicate);
-    }
-    if (!defs || !duplicate) return true;
-
-    for (size_t i = 0; i < defs->count; ++i) {
-        const CrossTUVarDef* first = &defs->items[i];
-        if (!first->name || !cross_tu_var_is_tentative_candidate(first)) continue;
-
-        bool hasStrongDefinition = false;
-        bool foundPeerTentative = false;
-        for (size_t j = 0; j < defs->count; ++j) {
-            if (i == j) continue;
-            const CrossTUVarDef* candidate = &defs->items[j];
-            if (!candidate->name || strcmp(candidate->name, first->name) != 0) continue;
-            if (!parsedTypesStructurallyCompatibleInScope(&first->type,
-                                                          &candidate->type,
-                                                          NULL)) {
-                continue;
-            }
-            if (!cross_tu_array_bounds_compatible(&first->type, &candidate->type)) continue;
-            if (cross_tu_var_is_strong_definition(candidate)) {
-                hasStrongDefinition = true;
-                break;
-            }
-            if (cross_tu_var_is_tentative_candidate(candidate)) {
-                foundPeerTentative = true;
-            }
-        }
-
-        if (hasStrongDefinition || !foundPeerTentative) {
-            continue;
-        }
-
-        duplicate->symbolName = strdup(first->name);
-        if (!duplicate->symbolName) return false;
-        duplicate->found = true;
-        return true;
-    }
-
-    return true;
-}
-
 bool main_write_semantic_conflict_diag_json(const char* outPath,
                                             const CrossTUTypeConflict* conflict) {
     enum { SEMANTIC_CONFLICT_DIAG_CODE = 2000 };
@@ -933,13 +869,4 @@ void main_print_semantic_conflict_text(const CrossTUTypeConflict* conflict) {
                 line,
                 column);
     }
-}
-
-void main_print_cross_tu_tentative_duplicate_text(const CrossTUTentativeDuplicate* duplicate) {
-    if (!duplicate || !duplicate->found) return;
-    fprintf(stderr,
-            "Error: duplicate symbol '%s' across translation units\n",
-            duplicate->symbolName ? duplicate->symbolName : "<unknown>");
-    fprintf(stderr,
-            "   Hint: tentative definitions without one strong definition are rejected in this lane\n");
 }

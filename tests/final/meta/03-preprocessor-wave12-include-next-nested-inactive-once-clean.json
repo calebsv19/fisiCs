@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_next_nested_inactive_expr_once_chain_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_nested_inactive_expr_once_chain_clean.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_once_p1",
+        "-Itests/final/cases/pp_inext_once_p2"
+      ],
+      "expects": [
+        "expect/03__include_next_nested_inactive_expr_once_chain_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "inactive-branch",
+        "nested-conditional",
+        "pragma-once",
+        "clean-path",
+        "wave12",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
