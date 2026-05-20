@@ -1,0 +1,34 @@
+#include <stdio.h>
+
+int main(void) {
+    int outer;
+    int inner;
+    int acc = 0;
+
+    for (outer = 0; outer < 4; ++outer) {
+        for (inner = 0; inner < 5; ++inner) {
+            switch ((outer * 4) + inner) {
+                case 0:
+                    acc += 1;
+                    continue;
+                case 5:
+                    acc += 100;
+                    break;
+                default:
+                    acc += 1000;
+                    if (inner == 2) {
+                        continue;
+                    }
+                    if (outer == 3) {
+                        break;
+                    }
+                    break;
+            }
+
+            acc += outer + inner + 12;
+        }
+    }
+
+    printf("%d\n", acc);
+    return 0;
+}

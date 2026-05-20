@@ -15,8 +15,11 @@ TypeInfo integerPromote(TypeInfo info) {
         return info;
     }
 
+    // This compiler currently models plain int as 32-bit, so every narrower
+    // integer type promotes to signed int under the usual integer promotions.
     info.bitWidth = defaultIntBits();
     info.primitive = TOKEN_INT;
+    info.isSigned = true;
     return info;
 }
 

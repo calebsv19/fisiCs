@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_ushort_guardrail_offset_mesh",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_ushort_guardrail_offset_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_ushort_guardrail_offset_mesh.stdout",
+      "expected_stderr": "expect/09__runtime__switch_ushort_guardrail_offset_mesh.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "ushort", "guardrail", "wave56"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_basin_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_basin_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_basin_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_basin_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "basin", "wave56"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_break_fallthrough_default_continue_braid_iv",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_break_fallthrough_default_continue_braid_iv.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_break_fallthrough_default_continue_braid_iv.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_break_fallthrough_default_continue_braid_iv.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "break", "continue", "wave56"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

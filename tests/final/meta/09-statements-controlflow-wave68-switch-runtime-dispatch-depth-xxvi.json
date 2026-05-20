@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_char_guardrail_arc_mesh_iv",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_char_guardrail_arc_mesh_iv.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_char_guardrail_arc_mesh_iv.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_char_guardrail_arc_mesh_iv.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-char", "arc", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_plateau_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_plateau_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_plateau_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_plateau_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "plateau", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_break_default_fallthrough_continue_braid_x",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_break_default_fallthrough_continue_braid_x.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_break_default_fallthrough_continue_braid_x.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_break_default_fallthrough_continue_braid_x.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "break", "default", "wave68"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

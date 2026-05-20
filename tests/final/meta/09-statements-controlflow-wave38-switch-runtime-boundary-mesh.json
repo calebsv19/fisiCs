@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_uint_max_boundary_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_uint_max_boundary_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_uint_max_boundary_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_uint_max_boundary_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "unsigned", "boundary", "wave38"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_char_boundary_foldback",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_char_boundary_foldback.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_char_boundary_foldback.stdout",
+      "expected_stderr": "expect/09__runtime__switch_char_boundary_foldback.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "char", "boundary", "wave38"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_loop_fallthrough_mesh",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_loop_fallthrough_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_loop_fallthrough_mesh.stdout",
+      "expected_stderr": "expect/09__runtime__switch_loop_fallthrough_mesh.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "loop", "fallthrough", "wave38"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

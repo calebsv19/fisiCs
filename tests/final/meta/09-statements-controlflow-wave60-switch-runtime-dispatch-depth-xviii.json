@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_char_offset_guardrail_mesh",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_char_offset_guardrail_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_char_offset_guardrail_mesh.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_char_offset_guardrail_mesh.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-char", "offset", "wave60"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_delta_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_delta_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_delta_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_delta_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "delta", "wave60"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_break_default_continue_fallthrough_braid_vi",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_break_default_continue_fallthrough_braid_vi.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_break_default_continue_fallthrough_braid_vi.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_break_default_continue_fallthrough_braid_vi.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "break", "default", "wave60"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

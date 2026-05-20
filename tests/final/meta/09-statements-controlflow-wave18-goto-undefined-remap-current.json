@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__line_directive_goto_undefined_label_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_goto_undefined_label_rich_presence.c",
+      "expects": ["expect/09__line_directive_goto_undefined_label_diagjson_current_sparse.diagjson"],
+      "tags": ["line-directive", "diagjson", "goto", "undefined-label", "current-threshold", "wave18"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_include_goto_undefined_label_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_goto_undefined_label_rich_presence.c",
+      "expects": ["expect/09__line_directive_include_goto_undefined_label_diagjson_current_sparse.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "goto", "undefined-label", "current-threshold", "wave18"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_goto_undefined_label_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diag_line_directive_goto_undefined_label_spelling_strict.c",
+      "expects": ["expect/09__line_directive_goto_undefined_label_diag_current_sparse.diag"],
+      "tags": ["line-directive", "diag", "goto", "undefined-label", "current-threshold", "wave18"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__line_directive_include_goto_undefined_label_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diag_line_directive_include_goto_undefined_label_spelling_strict.c",
+      "expects": ["expect/09__line_directive_include_goto_undefined_label_diag_current_sparse.diag"],
+      "tags": ["line-directive", "include", "diag", "goto", "undefined-label", "current-threshold", "wave18"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

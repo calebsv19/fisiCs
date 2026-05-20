@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_ushort_arc_guardrail_mesh_iv",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_ushort_arc_guardrail_mesh_iv.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_ushort_arc_guardrail_mesh_iv.stdout",
+      "expected_stderr": "expect/09__runtime__switch_ushort_arc_guardrail_mesh_iv.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "ushort", "arc", "wave69"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_glacier_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_glacier_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_glacier_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_glacier_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "glacier", "wave69"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_continue_break_fallthrough_default_chain_xii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_continue_break_fallthrough_default_chain_xii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_continue_break_fallthrough_default_chain_xii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_continue_break_fallthrough_default_chain_xii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "continue", "break", "wave69"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

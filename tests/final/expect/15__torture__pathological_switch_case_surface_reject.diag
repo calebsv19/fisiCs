@@ -1,2 +1,3 @@
 Diagnostics:
-Error at (5:0): Case label is not an integer constant expression
+Error at (5:15): Case label is not an integer constant expression
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__pathological_switch_case_surface_reject.c:5:15

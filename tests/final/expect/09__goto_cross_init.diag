@@ -1,4 +1,5 @@
 Diagnostics:
-Error at (0:0): goto jumps into scope of initialized variable
+Error at (3:5): goto jumps into scope of initialized variable
    Hint: skip
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/09__goto_cross_init.c:3:5
 Warning at (4:0): Unreachable statement

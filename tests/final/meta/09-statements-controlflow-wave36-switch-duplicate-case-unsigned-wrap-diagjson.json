@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__diagjson__line_directive_switch_duplicate_case_unsigned_wrap_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_duplicate_case_unsigned_wrap_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_switch_duplicate_case_unsigned_wrap_current_sparse.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "duplicate-case", "unsigned-wrap", "current-threshold", "wave36"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_include_switch_duplicate_case_unsigned_wrap_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_duplicate_case_unsigned_wrap_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_include_switch_duplicate_case_unsigned_wrap_current_sparse.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "duplicate-case", "unsigned-wrap", "current-threshold", "wave36"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_switch_duplicate_case_unsigned_wrap_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_duplicate_case_unsigned_wrap_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_switch_duplicate_case_unsigned_wrap_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "duplicate-case", "unsigned-wrap", "strict", "wave36"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_include_switch_duplicate_case_unsigned_wrap_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_duplicate_case_unsigned_wrap_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_include_switch_duplicate_case_unsigned_wrap_strict.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "duplicate-case", "unsigned-wrap", "strict", "wave36"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (5896:14): Duplicate case label with value 18446744073709551615
+   Spelling: virtual_stmt_switch_duplicate_case_ull_wrap_include_probe.h:5896:14
+Warning at (5894:14): Previous case label with same value here
+   Spelling: virtual_stmt_switch_duplicate_case_ull_wrap_include_probe.h:5894:14

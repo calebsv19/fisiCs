@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_short_wrap_fold_matrix",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_short_wrap_fold_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_short_wrap_fold_matrix.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_short_wrap_fold_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-short", "wrap", "wave48"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_offset_fanout_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_offset_fanout_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_offset_fanout_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_offset_fanout_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "offset", "wave48"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_default_break_continue_braid_ii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_default_break_continue_braid_ii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_default_break_continue_braid_ii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_default_break_continue_braid_ii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "default", "break", "continue", "wave48"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

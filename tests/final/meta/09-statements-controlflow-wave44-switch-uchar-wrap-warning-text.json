@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__diag__line_directive_switch_duplicate_case_uchar_wrap_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_duplicate_case_uchar_wrap_rich_presence.c",
+      "expects": ["expect/09__diag__line_directive_switch_duplicate_case_uchar_wrap_current_sparse.diag"],
+      "tags": ["line-directive", "diag", "switch", "unsigned-char-wrap", "case-overflow-warning", "current-threshold", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_include_switch_duplicate_case_uchar_wrap_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_duplicate_case_uchar_wrap_rich_presence.c",
+      "expects": ["expect/09__diag__line_directive_include_switch_duplicate_case_uchar_wrap_current_sparse.diag"],
+      "tags": ["line-directive", "include", "diag", "switch", "unsigned-char-wrap", "case-overflow-warning", "current-threshold", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_switch_duplicate_case_uchar_wrap_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_duplicate_case_uchar_wrap_rich_presence.c",
+      "expects": ["expect/09__diag__line_directive_switch_duplicate_case_uchar_wrap_strict.diag"],
+      "tags": ["line-directive", "diag", "switch", "unsigned-char-wrap", "case-overflow-warning", "strict", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_include_switch_duplicate_case_uchar_wrap_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_duplicate_case_uchar_wrap_rich_presence.c",
+      "expects": ["expect/09__diag__line_directive_include_switch_duplicate_case_uchar_wrap_strict.diag"],
+      "tags": ["line-directive", "include", "diag", "switch", "unsigned-char-wrap", "case-overflow-warning", "strict", "wave44"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

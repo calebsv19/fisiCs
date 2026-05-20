@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__diagjson__line_directive_switch_case_range_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_case_range_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_switch_case_range_current_sparse.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "case-range", "parser-adjacent", "current-threshold", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_include_switch_case_range_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_case_range_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_include_switch_case_range_current_sparse.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "case-range", "parser-adjacent", "current-threshold", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_switch_case_range_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_case_range_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_switch_case_range_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "switch", "case-range", "parser-adjacent", "strict", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_include_switch_case_range_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_case_range_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_include_switch_case_range_strict.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "switch", "case-range", "parser-adjacent", "strict", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_switch_case_range_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_case_range_rich_presence.c",
+      "expects": ["expect/09__diag__line_directive_switch_case_range_current_sparse.diag"],
+      "tags": ["line-directive", "diag", "switch", "case-range", "parser-adjacent", "current-threshold", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_include_switch_case_range_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_case_range_rich_presence.c",
+      "expects": ["expect/09__diag__line_directive_include_switch_case_range_current_sparse.diag"],
+      "tags": ["line-directive", "include", "diag", "switch", "case-range", "parser-adjacent", "current-threshold", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_switch_case_range_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_switch_case_range_rich_presence.c",
+      "expects": ["expect/09__diag__line_directive_switch_case_range_strict.diag"],
+      "tags": ["line-directive", "diag", "switch", "case-range", "parser-adjacent", "strict", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_include_switch_case_range_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_switch_case_range_rich_presence.c",
+      "expects": ["expect/09__diag__line_directive_include_switch_case_range_strict.diag"],
+      "tags": ["line-directive", "include", "diag", "switch", "case-range", "parser-adjacent", "strict", "wave41"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

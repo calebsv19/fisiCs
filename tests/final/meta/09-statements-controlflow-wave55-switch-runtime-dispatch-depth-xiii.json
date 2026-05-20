@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_char_skew_promote_mesh",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_char_skew_promote_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_char_skew_promote_mesh.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_char_skew_promote_mesh.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-char", "skew", "wave55"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_pivot_fanout_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_pivot_fanout_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_pivot_fanout_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_pivot_fanout_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "pivot", "wave55"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_default_continue_fallthrough_chain_v",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_default_continue_fallthrough_chain_v.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_default_continue_fallthrough_chain_v.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_default_continue_fallthrough_chain_v.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "default", "fallthrough", "wave55"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_sparse_default_break_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_default_break_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_default_break_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_default_break_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "default", "dispatch", "wave42"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_loop_default_break_braid",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_loop_default_break_braid.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_loop_default_break_braid.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_loop_default_break_braid.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "default", "break", "wave42"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_continue_outer_loop",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_continue_outer_loop.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_continue_outer_loop.stdout",
+      "expected_stderr": "expect/09__runtime__switch_continue_outer_loop.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "do-while", "continue", "wave28"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_break_isolation",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_break_isolation.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_break_isolation.stdout",
+      "expected_stderr": "expect/09__runtime__switch_break_isolation.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "for", "break", "wave28"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__loop_inside_switch_continue",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__loop_inside_switch_continue.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__loop_inside_switch_continue.stdout",
+      "expected_stderr": "expect/09__runtime__loop_inside_switch_continue.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "loop", "continue", "wave28"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

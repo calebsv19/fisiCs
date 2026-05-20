@@ -550,6 +550,7 @@ ASTNode* parseGotoStatement(Parser* parser) {
         printParseError("Expected 'goto'", parser);
         return NULL;
     }
+    Token gotoTok = parser->currentToken;
     advance(parser); // consume 'goto'
     
     if (parser->currentToken.type != TOKEN_IDENTIFIER) {
@@ -566,7 +567,11 @@ ASTNode* parseGotoStatement(Parser* parser) {
     }
     advance(parser); // consume ';'
     
-    return createGotoStatementNode(label);
+    ASTNode* node = createGotoStatementNode(label);
+    if (node) {
+        astNodeSetProvenance(node, &gotoTok);
+    }
+    return node;
 }
 
 ASTNode* parseLabel(Parser* parser) {
@@ -574,12 +579,17 @@ ASTNode* parseLabel(Parser* parser) {
         Token next = peekNextToken(parser);
         if (next.type == TOKEN_COLON) {
             const char* labelName = parser->currentToken.value;
+            Token labelTok = parser->currentToken;
             
             advance(parser);  // consume identifier
             advance(parser);  // consume colon
             
             ASTNode* statement = parseStatement(parser);
-            return createLabelDeclarationNode(labelName, statement);
+            ASTNode* node = createLabelDeclarationNode(labelName, statement);
+            if (node) {
+                astNodeSetProvenance(node, &labelTok);
+            }
+            return node;
         }
     }
     return NULL;

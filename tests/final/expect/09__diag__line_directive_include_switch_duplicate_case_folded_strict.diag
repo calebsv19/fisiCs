@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (5715:15): Duplicate case label with value 1
+   Spelling: virtual_stmt_include_switch_duplicate_case_folded_probe.h:5715:15
+Warning at (5714:14): Previous case label with same value here
+   Spelling: virtual_stmt_include_switch_duplicate_case_folded_probe.h:5714:14

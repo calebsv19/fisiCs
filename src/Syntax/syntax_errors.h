@@ -35,6 +35,11 @@ void addErrorWithRanges(SourceRange spelling,
                         const char* message,
                         const char* hint);
 void addWarning(int line, int column, const char* message, const char* hint);
+void addWarningWithRanges(SourceRange spelling,
+                          SourceRange macroCallSite,
+                          SourceRange macroDefinition,
+                          const char* message,
+                          const char* hint);
 void reportErrors(void);
 size_t getErrorCount(void);
 void freeErrorList(void);

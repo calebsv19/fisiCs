@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_ushort_asymmetric_spoke_mesh",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_ushort_asymmetric_spoke_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_ushort_asymmetric_spoke_mesh.stdout",
+      "expected_stderr": "expect/09__runtime__switch_ushort_asymmetric_spoke_mesh.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "ushort", "asymmetric", "wave53"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_diagonal_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_diagonal_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_diagonal_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_diagonal_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "diagonal", "wave53"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_continue_default_break_chain_iv",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_continue_default_break_chain_iv.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_continue_default_break_chain_iv.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_continue_default_break_chain_iv.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "continue", "default", "wave53"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

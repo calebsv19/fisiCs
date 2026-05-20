@@ -1,3 +1,6 @@
 Diagnostics:
-Warning at (5:0): Label 'label' redefined
+Warning at (4:1): Label 'label' redefined
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/09__label_redefinition.c:4:1
+Warning at (2:1): Previous label is here
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/09__label_redefinition.c:2:1
 Semantic analysis: no issues found.

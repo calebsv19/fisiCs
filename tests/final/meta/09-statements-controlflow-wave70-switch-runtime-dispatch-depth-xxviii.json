@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_char_pivot_guardrail_mesh_v",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_char_pivot_guardrail_mesh_v.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_char_pivot_guardrail_mesh_v.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_char_pivot_guardrail_mesh_v.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-char", "pivot", "wave70"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_badlands_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_badlands_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_badlands_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_badlands_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "badlands", "wave70"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_default_break_continue_fallthrough_braid_xi",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_default_break_continue_fallthrough_braid_xi.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_default_break_continue_fallthrough_braid_xi.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_default_break_continue_fallthrough_braid_xi.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "default", "break", "wave70"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

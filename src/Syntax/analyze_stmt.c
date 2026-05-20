@@ -11,7 +11,9 @@
 #include "Parser/Helpers/parsed_type.h"
 #include "Lexer/tokens.h"
 #include "Utils/profiler.h"
+#include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 typedef struct {
@@ -26,23 +28,33 @@ typedef struct {
     const char* name;
     ASTNode* block;
     size_t index;
-    int line;
+    SourceRange location;
+    SourceRange macroCallSite;
+    SourceRange macroDefinition;
 } LabelInfo;
 
 typedef struct {
     const char* name;
     ASTNode* block;
     size_t index;
-    int line;
+    SourceRange location;
+    SourceRange macroCallSite;
+    SourceRange macroDefinition;
 } GotoInfo;
 
 typedef struct {
-    long long* values;
+    uint64_t* values;
     SourceRange* locations;
     size_t count;
     size_t capacity;
     bool hasDefault;
     SourceRange defaultLoc;
+    unsigned switchBits;
+    bool switchIsUnsigned;
+    bool hasSwitchType;
+    unsigned originalSwitchBits;
+    bool originalSwitchIsUnsigned;
+    bool hasOriginalSwitchType;
 } SwitchFrame;
 
 #define SWITCH_STACK_MAX 32
@@ -142,7 +154,9 @@ static void labelInfoAdd(LabelInfo** list,
                          const char* name,
                          ASTNode* block,
                          size_t index,
-                         int line) {
+                         SourceRange location,
+                         SourceRange macroCallSite,
+                         SourceRange macroDefinition) {
     if (!list || !count || !capacity || !name) return;
     if (*count >= *capacity) {
         size_t newCap = *capacity ? *capacity * 2 : 8;
@@ -155,7 +169,9 @@ static void labelInfoAdd(LabelInfo** list,
         .name = name,
         .block = block,
         .index = index,
-        .line = line
+        .location = location,
+        .macroCallSite = macroCallSite,
+        .macroDefinition = macroDefinition
     };
     (*count)++;
 }
@@ -166,7 +182,9 @@ static void gotoInfoAdd(GotoInfo** list,
                         const char* name,
                         ASTNode* block,
                         size_t index,
-                        int line) {
+                        SourceRange location,
+                        SourceRange macroCallSite,
+                        SourceRange macroDefinition) {
     if (!list || !count || !capacity || !name) return;
     if (*count >= *capacity) {
         size_t newCap = *capacity ? *capacity * 2 : 8;
@@ -179,7 +197,9 @@ static void gotoInfoAdd(GotoInfo** list,
         .name = name,
         .block = block,
         .index = index,
-        .line = line
+        .location = location,
+        .macroCallSite = macroCallSite,
+        .macroDefinition = macroDefinition
     };
     (*count)++;
 }
@@ -219,9 +239,25 @@ static void collectGotoInfoFromBlock(ASTNode* block,
             blockInitInfoAddIndex(&(*blocks)[blockIndex], i);
         }
         if (stmt->type == AST_LABEL_DECLARATION && stmt->label.labelName) {
-            labelInfoAdd(labels, labelCount, labelCapacity, stmt->label.labelName, block, i, stmt->line);
+            labelInfoAdd(labels,
+                         labelCount,
+                         labelCapacity,
+                         stmt->label.labelName,
+                         block,
+                         i,
+                         stmt->location,
+                         stmt->macroCallSite,
+                         stmt->macroDefinition);
         } else if (stmt->type == AST_GOTO_STATEMENT && stmt->gotoStmt.label) {
-            gotoInfoAdd(gotos, gotoCount, gotoCapacity, stmt->gotoStmt.label, block, i, stmt->line);
+            gotoInfoAdd(gotos,
+                        gotoCount,
+                        gotoCapacity,
+                        stmt->gotoStmt.label,
+                        block,
+                        i,
+                        stmt->location,
+                        stmt->macroCallSite,
+                        stmt->macroDefinition);
         }
         collectGotoInfoFromStatement(stmt,
                                      block,
@@ -377,7 +413,7 @@ void validateGotoScopes(ASTNode* node) {
         if (!label) {
             char buffer[256];
             snprintf(buffer, sizeof(buffer), "goto to undefined label '%s'", gt->name ? gt->name : "");
-            addError(gt->line, 0, buffer, NULL);
+            addErrorWithRanges(gt->location, gt->macroCallSite, gt->macroDefinition, buffer, NULL);
             continue;
         }
 
@@ -385,18 +421,22 @@ void validateGotoScopes(ASTNode* node) {
         if (label->block == gt->block) {
             if (gt->index < label->index &&
                 blockHasInitBetween(labelBlockInfo, gt->index, label->index)) {
-                addError(gt->line, 0,
-                         "goto jumps into scope of initialized variable",
-                         gt->name);
+                addErrorWithRanges(gt->location,
+                                   gt->macroCallSite,
+                                   gt->macroDefinition,
+                                   "goto jumps into scope of initialized variable",
+                                   gt->name);
             }
             continue;
         }
 
         if (blockIsDescendant(blocks, blockCount, label->block, gt->block) &&
             blockHasInitBefore(labelBlockInfo, label->index)) {
-            addError(gt->line, 0,
-                     "goto jumps into scope of initialized variable",
-                     gt->name);
+            addErrorWithRanges(gt->location,
+                               gt->macroCallSite,
+                               gt->macroDefinition,
+                               "goto jumps into scope of initialized variable",
+                               gt->name);
         }
     }
 
@@ -418,6 +458,12 @@ static void switchFrameFree(SwitchFrame* frame) {
     frame->capacity = 0;
     frame->hasDefault = false;
     frame->defaultLoc = (SourceRange){0};
+    frame->switchBits = 0;
+    frame->switchIsUnsigned = false;
+    frame->hasSwitchType = false;
+    frame->originalSwitchBits = 0;
+    frame->originalSwitchIsUnsigned = false;
+    frame->hasOriginalSwitchType = false;
 }
 
 static SwitchFrame* pushSwitchFrame(SwitchStack* stack) {
@@ -431,6 +477,12 @@ static SwitchFrame* pushSwitchFrame(SwitchStack* stack) {
     frame->capacity = 0;
     frame->hasDefault = false;
     frame->defaultLoc = (SourceRange){0};
+    frame->switchBits = 0;
+    frame->switchIsUnsigned = false;
+    frame->hasSwitchType = false;
+    frame->originalSwitchBits = 0;
+    frame->originalSwitchIsUnsigned = false;
+    frame->hasOriginalSwitchType = false;
     return frame;
 }
 
@@ -440,7 +492,43 @@ static void popSwitchFrame(SwitchStack* stack) {
     switchFrameFree(&stack->frames[stack->depth]);
 }
 
-static bool switchFrameRecordValue(SwitchFrame* frame, long long value, SourceRange loc) {
+static uint64_t normalizeSwitchCaseValue(ConstEvalResult value,
+                                         unsigned switchBits,
+                                         bool switchIsUnsigned) {
+    unsigned bits = switchBits ? switchBits : (value.bitWidth ? value.bitWidth : 64);
+    if (bits >= 64) {
+        return (uint64_t)value.value;
+    }
+    uint64_t mask = (1ULL << bits) - 1ULL;
+    uint64_t normalized = ((uint64_t)value.value) & mask;
+    if (!switchIsUnsigned && bits > 0) {
+        uint64_t sign = 1ULL << (bits - 1);
+        if (normalized & sign) {
+            normalized |= ~mask;
+        }
+    }
+    return normalized;
+}
+
+static long long convertSwitchCaseValue(ConstEvalResult value,
+                                        unsigned switchBits,
+                                        bool switchIsUnsigned) {
+    return (long long)normalizeSwitchCaseValue(value, switchBits, switchIsUnsigned);
+}
+
+static void formatSwitchCaseValue(char* buffer,
+                                  size_t bufferSize,
+                                  uint64_t value,
+                                  bool isUnsigned) {
+    if (!buffer || bufferSize == 0) return;
+    if (isUnsigned) {
+        snprintf(buffer, bufferSize, "%llu", (unsigned long long)value);
+    } else {
+        snprintf(buffer, bufferSize, "%lld", (long long)value);
+    }
+}
+
+static bool switchFrameRecordValue(SwitchFrame* frame, uint64_t value, SourceRange loc) {
     if (!frame) return false;
     for (size_t i = 0; i < frame->count; ++i) {
         if (frame->values[i] == value) {
@@ -449,7 +537,7 @@ static bool switchFrameRecordValue(SwitchFrame* frame, long long value, SourceRa
     }
     if (frame->count == frame->capacity) {
         size_t newCap = frame->capacity == 0 ? 8 : frame->capacity * 2;
-        long long* newVals = realloc(frame->values, newCap * sizeof(long long));
+        uint64_t* newVals = realloc(frame->values, newCap * sizeof(uint64_t));
         SourceRange* newLocs = realloc(frame->locations, newCap * sizeof(SourceRange));
         if (!newVals || !newLocs) {
             free(newVals);
@@ -530,6 +618,22 @@ static bool isFunctionDesignatorExpr(ASTNode* expr, Scope* scope) {
 
 static bool typeInfoIsScalar(const TypeInfo* info) {
     return typeInfoIsArithmetic(info) || typeInfoIsPointerLike(info);
+}
+
+static TypeInfo switchOriginalConditionType(ASTNode* expr, Scope* scope) {
+    if (!expr) {
+        return makeInvalidType();
+    }
+    if (expr->type == AST_IDENTIFIER && expr->valueNode.value && scope) {
+        Symbol* sym = resolveInScopeChain(scope, expr->valueNode.value);
+        if (sym) {
+            TypeInfo info = typeInfoFromSymbolCached(sym, scope);
+            if (info.category != TYPEINFO_INVALID) {
+                return info;
+            }
+        }
+    }
+    return analyzeExpression(expr, scope);
 }
 
 static void analyzeControlCondition(ASTNode* expr,
@@ -699,6 +803,22 @@ static void analyzeStatementInternal(ASTNode* node,
         case AST_SWITCH: {
             analyzeControlCondition(node->switchStmt.condition, node, scope, true, "switch");
             SwitchFrame* frame = pushSwitchFrame(switchStack);
+            if (frame && node->switchStmt.condition) {
+                TypeInfo originalSwitchType = switchOriginalConditionType(node->switchStmt.condition, scope);
+                if (typeInfoIsInteger(&originalSwitchType)) {
+                    frame->originalSwitchBits = originalSwitchType.bitWidth ? originalSwitchType.bitWidth : 64;
+                    frame->originalSwitchIsUnsigned = !originalSwitchType.isSigned;
+                    frame->hasOriginalSwitchType = true;
+                }
+                TypeInfo switchType = analyzeExpression(node->switchStmt.condition, scope);
+                switchType = decayToRValue(switchType);
+                if (typeInfoIsInteger(&switchType)) {
+                    switchType = integerPromote(switchType);
+                    frame->switchBits = switchType.bitWidth ? switchType.bitWidth : 64;
+                    frame->switchIsUnsigned = !switchType.isSigned;
+                    frame->hasSwitchType = true;
+                }
+            }
             for (size_t i = 0; i < node->switchStmt.caseListSize; i++) {
                 analyzeStatementInternal(node->switchStmt.caseList[i], scope, switchStack, labels, loopDepth);
             }
@@ -712,36 +832,86 @@ static void analyzeStatementInternal(ASTNode* node,
                 node->caseStmt.caseBody &&
                 node->caseStmt.caseBody[0] &&
                 isDeclarationStatementType(node->caseStmt.caseBody[0]->type)) {
-                addError(node->line,
-                         0,
-                         "label before declaration is not allowed in C99; wrap declaration in a block",
-                         NULL);
+                addErrorWithRanges(node->location,
+                                   node->macroCallSite,
+                                   node->macroDefinition,
+                                   "label before declaration is not allowed in C99; wrap declaration in a block",
+                                   NULL);
             }
             if (node->caseStmt.caseValue) {
                 analyze(node->caseStmt.caseValue, scope);
                 ConstEvalResult res = constEval(node->caseStmt.caseValue, scope, true);
                 if (!res.isConst) {
-                    addError(node->caseStmt.caseValue->line, 0, "Case label is not an integer constant expression", NULL);
+                    addErrorWithRanges(node->caseStmt.caseValue->location,
+                                       node->caseStmt.caseValue->macroCallSite,
+                                       node->caseStmt.caseValue->macroDefinition,
+                                       "Case label is not an integer constant expression",
+                                       NULL);
                 } else if (switchStack && switchStack->depth > 0) {
                     SwitchFrame* frame = &switchStack->frames[switchStack->depth - 1];
-                    if (!switchFrameRecordValue(frame, res.value, node->caseStmt.caseValue->location)) {
+                    if (frame->hasOriginalSwitchType) {
+                        long long converted =
+                            convertSwitchCaseValue(res,
+                                                   frame->originalSwitchBits,
+                                                   frame->originalSwitchIsUnsigned);
+                        if (converted != res.value) {
+                            char originalValue[64];
+                            char convertedValue[64];
+                            char warningBuffer[160];
+                            formatSwitchCaseValue(originalValue,
+                                                  sizeof(originalValue),
+                                                  (uint64_t)res.value,
+                                                  res.isUnsigned);
+                            formatSwitchCaseValue(convertedValue,
+                                                  sizeof(convertedValue),
+                                                  (uint64_t)converted,
+                                                  frame->originalSwitchIsUnsigned);
+                            snprintf(warningBuffer,
+                                     sizeof(warningBuffer),
+                                     "overflow converting case value to switch condition type (%s to %s)",
+                                     originalValue,
+                                     convertedValue);
+                            addWarningWithRanges(node->caseStmt.caseValue->location,
+                                                 node->caseStmt.caseValue->macroCallSite,
+                                                 node->caseStmt.caseValue->macroDefinition,
+                                                 warningBuffer,
+                                                 NULL);
+                        }
+                    }
+                    uint64_t normalized =
+                        normalizeSwitchCaseValue(res,
+                                                 frame->hasSwitchType ? frame->switchBits : 0,
+                                                 frame->hasSwitchType ? frame->switchIsUnsigned : res.isUnsigned);
+                    if (!switchFrameRecordValue(frame, normalized, node->caseStmt.caseValue->location)) {
                         SourceRange prev = {0};
                         // find previous location to report
                         for (size_t i = 0; i < frame->count; ++i) {
-                            if (frame->values[i] == res.value) {
+                            if (frame->values[i] == normalized) {
                                 prev = frame->locations[i];
                                 break;
                             }
                         }
                         char buffer[128];
-                        snprintf(buffer, sizeof(buffer), "Duplicate case label with value %lld", res.value);
+                        char valueBuffer[64];
+                        formatSwitchCaseValue(valueBuffer,
+                                              sizeof(valueBuffer),
+                                              normalized,
+                                              frame->hasSwitchType ? frame->switchIsUnsigned : res.isUnsigned);
+                        snprintf(buffer,
+                                 sizeof(buffer),
+                                 "Duplicate case label with value %s",
+                                 valueBuffer);
                         addErrorWithRanges(node->caseStmt.caseValue->location,
                                            node->caseStmt.caseValue->macroCallSite,
                                            node->caseStmt.caseValue->macroDefinition,
                                            buffer,
                                            NULL);
                         if (prev.start.line > 0) {
-                            addWarning(prev.start.line, 0, "Previous case label with same value here", NULL);
+                            addWarningWithRanges(prev,
+                                                 (SourceRange){0},
+                                                 (SourceRange){0},
+                                                 "Previous case label with same value here",
+                                                 NULL);
                         }
                     }
                 }
@@ -777,18 +947,23 @@ static void analyzeStatementInternal(ASTNode* node,
                 if (!labelTrackerRecord(labels, node->label.labelName, node->location, &prev)) {
                     char buffer[256];
                     snprintf(buffer, sizeof(buffer), "Label '%s' redefined", node->label.labelName);
-                    addWarning(node->line, 0, buffer, NULL);
+                    addWarningWithRanges(node->location,
+                                         node->macroCallSite,
+                                         node->macroDefinition,
+                                         buffer,
+                                         NULL);
                     if (prev.start.line > 0) {
-                        addWarning(prev.start.line, 0, "Previous label is here", NULL);
+                        addWarningWithRanges(prev, (SourceRange){0}, (SourceRange){0}, "Previous label is here", NULL);
                     }
                 }
             }
             if (node->label.statement) {
                 if (isDeclarationStatementType(node->label.statement->type)) {
-                    addError(node->line,
-                             0,
-                             "label before declaration is not allowed in C99; wrap declaration in a block",
-                             NULL);
+                    addErrorWithRanges(node->location,
+                                       node->macroCallSite,
+                                       node->macroDefinition,
+                                       "label before declaration is not allowed in C99; wrap declaration in a block",
+                                       NULL);
                 }
                 analyzeStatementInternal(node->label.statement, scope, switchStack, labels, loopDepth);
             }

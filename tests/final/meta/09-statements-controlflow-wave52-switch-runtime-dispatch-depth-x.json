@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_short_sentinel_braid",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_short_sentinel_braid.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_short_sentinel_braid.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_short_sentinel_braid.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-short", "sentinel", "wave52"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_zigzag_dispatch_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_zigzag_dispatch_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_zigzag_dispatch_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_zigzag_dispatch_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "zigzag", "wave52"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_fallthrough_break_default_chain_ii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_fallthrough_break_default_chain_ii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_fallthrough_break_default_chain_ii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_fallthrough_break_default_chain_ii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "fallthrough", "break", "wave52"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

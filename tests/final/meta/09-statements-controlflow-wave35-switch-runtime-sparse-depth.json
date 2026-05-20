@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_sparse_signed_case_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_signed_case_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_signed_case_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_signed_case_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "signed", "wave35"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_default_braid",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_default_braid.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_default_braid.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_default_braid.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "default", "wave35"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_enum_alias_default_bias",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_enum_alias_default_bias.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_enum_alias_default_bias.stdout",
+      "expected_stderr": "expect/09__runtime__switch_enum_alias_default_bias.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "enum", "alias", "wave35"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

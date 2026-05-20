@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_short_promote_spoke_matrix",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_short_promote_spoke_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_short_promote_spoke_matrix.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_short_promote_spoke_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-short", "promote", "wave49"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_cluster_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_cluster_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_cluster_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_cluster_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "cluster", "wave49"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_fallthrough_default_break_spoke",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_fallthrough_default_break_spoke.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_fallthrough_default_break_spoke.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_fallthrough_default_break_spoke.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "fallthrough", "default", "wave49"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

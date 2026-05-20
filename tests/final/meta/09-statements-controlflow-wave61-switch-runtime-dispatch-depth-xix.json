@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_ushort_guardrail_spoke_mesh_ii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_ushort_guardrail_spoke_mesh_ii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_ushort_guardrail_spoke_mesh_ii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_ushort_guardrail_spoke_mesh_ii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "ushort", "guardrail", "wave61"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_rim_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_rim_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_rim_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_rim_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "rim", "wave61"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_continue_break_default_fallthrough_chain_viii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_continue_break_default_fallthrough_chain_viii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_continue_break_default_fallthrough_chain_viii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_continue_break_default_fallthrough_chain_viii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "continue", "break", "wave61"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

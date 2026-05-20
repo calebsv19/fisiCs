@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_unsigned_char_guardrail_offset_mesh_ii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_unsigned_char_guardrail_offset_mesh_ii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_unsigned_char_guardrail_offset_mesh_ii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_unsigned_char_guardrail_offset_mesh_ii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "unsigned-char", "guardrail", "wave63"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_shelf_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_shelf_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_shelf_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_shelf_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "shelf", "wave63"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_default_continue_break_fallthrough_chain_ix",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_default_continue_break_fallthrough_chain_ix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_default_continue_break_fallthrough_chain_ix.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_default_continue_break_fallthrough_chain_ix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "default", "continue", "wave63"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

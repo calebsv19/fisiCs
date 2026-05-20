@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (5921:12): Control reaches end of non-void function 'probe_include_switch_case_range_diagjson'
+   Spelling: virtual_stmt_switch_case_range_include_probe.h:5921:12

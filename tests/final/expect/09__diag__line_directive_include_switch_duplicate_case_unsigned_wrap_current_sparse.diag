@@ -1,0 +1,7 @@
+Diagnostics:
+Warning at (5874:14): overflow converting case value to switch condition type (-1 to 4294967295)
+   Spelling: virtual_stmt_switch_duplicate_case_unsigned_wrap_include_probe.h:5874:14
+Error at (5876:14): Duplicate case label with value 4294967295
+   Spelling: virtual_stmt_switch_duplicate_case_unsigned_wrap_include_probe.h:5876:14
+Warning at (5874:14): Previous case label with same value here
+   Spelling: virtual_stmt_switch_duplicate_case_unsigned_wrap_include_probe.h:5874:14

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_ushort_boundary_weave",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_ushort_boundary_weave.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_ushort_boundary_weave.stdout",
+      "expected_stderr": "expect/09__runtime__switch_ushort_boundary_weave.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "ushort", "boundary", "dispatch", "wave45"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_alias_mesh",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_alias_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_alias_mesh.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_alias_mesh.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "alias", "dispatch", "wave45"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_fallthrough_continue_braid",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_fallthrough_continue_braid.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_fallthrough_continue_braid.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_fallthrough_continue_braid.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "fallthrough", "continue", "wave45"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

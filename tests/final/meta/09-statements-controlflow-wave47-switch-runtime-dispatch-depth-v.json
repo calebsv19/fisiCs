@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_short_alias_foldback",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_short_alias_foldback.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_short_alias_foldback.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_short_alias_foldback.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-short", "alias", "wave47"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_negative_stride_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_negative_stride_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_negative_stride_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_negative_stride_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "negative", "wave47"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_break_continue_fallthrough_mesh",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_break_continue_fallthrough_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_break_continue_fallthrough_mesh.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_break_continue_fallthrough_mesh.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "break", "continue", "fallthrough", "wave47"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

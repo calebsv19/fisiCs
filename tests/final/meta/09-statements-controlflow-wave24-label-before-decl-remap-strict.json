@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__diagjson__line_directive_label_before_decl_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_label_before_decl_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_label_before_decl_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "label", "before-decl", "strict", "wave24"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diagjson__line_directive_include_label_before_decl_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diagjson_line_directive_include_label_before_decl_rich_presence.c",
+      "expects": ["expect/09__diagjson__line_directive_include_label_before_decl_strict.diagjson"],
+      "tags": ["line-directive", "include", "diagjson", "label", "before-decl", "strict", "wave24"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_label_before_decl_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diag_line_directive_label_before_decl_spelling_strict.c",
+      "expects": ["expect/09__diag__line_directive_label_before_decl_strict.diag"],
+      "tags": ["line-directive", "diag", "label", "before-decl", "strict", "wave24"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__diag__line_directive_include_label_before_decl_strict",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diag_line_directive_include_label_before_decl_spelling_strict.c",
+      "expects": ["expect/09__diag__line_directive_include_label_before_decl_strict.diag"],
+      "tags": ["line-directive", "include", "diag", "label", "before-decl", "strict", "wave24"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

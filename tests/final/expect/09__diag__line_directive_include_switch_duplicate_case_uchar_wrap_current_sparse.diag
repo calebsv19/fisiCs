@@ -1,0 +1,4 @@
+Diagnostics:
+Warning at (5914:14): overflow converting case value to switch condition type (-1 to 255)
+   Spelling: virtual_stmt_switch_duplicate_case_uchar_wrap_include_probe.h:5914:14
+Semantic analysis: no issues found.

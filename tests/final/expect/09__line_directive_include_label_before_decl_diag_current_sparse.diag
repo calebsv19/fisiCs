@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (8053:1): label before declaration is not allowed in C99; wrap declaration in a block
+   Spelling: virtual_stmt_include_label_before_decl_diag_probe.h:8053:1

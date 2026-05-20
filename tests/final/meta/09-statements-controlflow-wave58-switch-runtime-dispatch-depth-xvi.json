@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_signed_char_guardrail_mesh",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_signed_char_guardrail_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_signed_char_guardrail_mesh.stdout",
+      "expected_stderr": "expect/09__runtime__switch_signed_char_guardrail_mesh.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "signed-char", "guardrail", "wave58"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_sparse_crater_escape_ladder",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_sparse_crater_escape_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_sparse_crater_escape_ladder.stdout",
+      "expected_stderr": "expect/09__runtime__switch_sparse_crater_escape_ladder.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "sparse", "crater", "wave58"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_continue_fallthrough_default_break_braid_v",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_nested_continue_fallthrough_default_break_braid_v.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_continue_fallthrough_default_break_braid_v.stdout",
+      "expected_stderr": "expect/09__runtime__switch_nested_continue_fallthrough_default_break_braid_v.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested", "continue", "fallthrough", "wave58"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

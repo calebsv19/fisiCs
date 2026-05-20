@@ -1,0 +1,60 @@
+{
+  "diag_count": 5,
+  "diagnostics": [
+    {
+      "code": 1000,
+      "column": 16,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 3,
+      "line": 5914
+    },
+    {
+      "code": 1000,
+      "column": 16,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 3,
+      "line": 5914
+    },
+    {
+      "code": 1000,
+      "column": 9,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 7,
+      "line": 5916
+    },
+    {
+      "code": 1000,
+      "column": 1,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 5919
+    },
+    {
+      "code": 2000,
+      "column": 5,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 4,
+      "line": 5911
+    }
+  ],
+  "error_count": 5,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (5842:14): Duplicate case label with value 1
+   Spelling: virtual_stmt_include_switch_duplicate_case_enum_alias_probe.h:5842:14
+Warning at (5840:14): Previous case label with same value here
+   Spelling: virtual_stmt_include_switch_duplicate_case_enum_alias_probe.h:5840:14

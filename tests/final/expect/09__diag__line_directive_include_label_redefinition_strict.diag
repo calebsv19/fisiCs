@@ -1,0 +1,6 @@
+Diagnostics:
+Warning at (8075:1): Label 'label' redefined
+   Spelling: virtual_stmt_include_label_redefinition_diag_probe.h:8075:1
+Warning at (8073:1): Previous label is here
+   Spelling: virtual_stmt_include_label_redefinition_diag_probe.h:8073:1
+Semantic analysis: no issues found.

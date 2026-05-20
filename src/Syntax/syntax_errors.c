@@ -56,6 +56,20 @@ void addErrorWithRanges(SourceRange spelling,
     compiler_report_diag(g_ctx, loc, DIAG_ERROR, CDIAG_SEMANTIC_GENERIC, hint, "%s", message ? message : "error");
 }
 
+void addWarningWithRanges(SourceRange spelling,
+                          SourceRange macroCallSite,
+                          SourceRange macroDefinition,
+                          const char* message,
+                          const char* hint) {
+    if (!g_ctx) return;
+    (void)macroDefinition;
+    SourceRange loc = spelling;
+    if (macroCallSite.start.file) {
+        loc = macroCallSite;
+    }
+    compiler_report_diag(g_ctx, loc, DIAG_WARNING, CDIAG_SEMANTIC_GENERIC, hint, "%s", message ? message : "warning");
+}
+
 static void print_one(const FisicsDiagnostic* d) {
     if (!d) return;
     const char* kind = (d->kind == DIAG_WARNING) ? "Warning" : "Error";

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (8013:5): goto to undefined label 'missing_label'
+   Spelling: virtual_stmt_include_goto_undefined_diag_probe.h:8013:5
