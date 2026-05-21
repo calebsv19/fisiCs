@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis5_wave19_reducer_checkpoint_watermark_stability_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave19_reducer_checkpoint_watermark_stability_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave19_reducer_checkpoint_watermark_stability_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave19","checkpoint-watermark-stability","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave19_reducer_frontier_projection_tie_equivalence_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave19_reducer_frontier_projection_tie_equivalence_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave19_reducer_frontier_projection_tie_equivalence_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave19","frontier-projection-tie-equivalence","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave19_reducer_cross_tu_checkpoint_watermark_braid_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave19_reducer_cross_tu_checkpoint_watermark_braid_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave19_reducer_cross_tu_checkpoint_watermark_braid_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave19_reducer_cross_tu_checkpoint_watermark_braid_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave19_reducer_cross_tu_checkpoint_watermark_braid_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave19","multitu","checkpoint-watermark-braid","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+typedef struct Axis6W8Snapshot { unsigned int shard, frontier, spill, lane_a, lane_b; } Axis6W8Snapshot;
+typedef struct Axis6W8Aggregate { unsigned int frontier[4], spill[4], lane_a[4], lane_b[4]; } Axis6W8Aggregate;
+static unsigned int mix8s(unsigned int h,unsigned int v){ h ^= v + 0x9e3779b9u + (h<<6) + (h>>2); return h; }
+void axis6_w8_seed_snapshot(Axis6W8Snapshot* out,unsigned int shard,unsigned int frontier,unsigned int spill,unsigned int lane_a,unsigned int lane_b){ out->shard=shard%4u; out->frontier=frontier; out->spill=spill; out->lane_a=lane_a; out->lane_b=lane_b; }
+void axis6_w8_encode_snapshot(const Axis6W8Snapshot* s,unsigned int wire[5]){ wire[0]=s->shard^0x45u; wire[1]=s->frontier^0x67u; wire[2]=s->spill^0x89u; wire[3]=s->lane_a^0xabu; wire[4]=s->lane_b^0xcdu; }
+void axis6_w8_decode_snapshot(Axis6W8Snapshot* s,const unsigned int wire[5]){ s->shard=wire[0]^0x45u; s->frontier=wire[1]^0x67u; s->spill=wire[2]^0x89u; s->lane_a=wire[3]^0xabu; s->lane_b=wire[4]^0xcdu; }
+void axis6_w8_clear_aggregate(Axis6W8Aggregate* a){ for(int shard=0; shard<4; ++shard){ a->frontier[shard]=0u; a->spill[shard]=0u; a->lane_a[shard]=0u; a->lane_b[shard]=0u; } }
+void axis6_w8_absorb_snapshot(Axis6W8Aggregate* a,const Axis6W8Snapshot* s){ unsigned int shard=s->shard%4u; if(s->frontier<a->frontier[shard]) return; if(s->frontier>a->frontier[shard]){ a->frontier[shard]=s->frontier; a->spill[shard]=s->spill; a->lane_a[shard]=s->lane_a; a->lane_b[shard]=s->lane_b; return; } if(s->spill>a->spill[shard]){ a->spill[shard]=s->spill; a->lane_a[shard]=s->lane_a; a->lane_b[shard]=s->lane_b; } else if(s->spill==a->spill[shard]){ a->lane_a[shard]+=s->lane_a; a->lane_b[shard]+=s->lane_b; } }
+unsigned int axis6_w8_snapshot_signature(const Axis6W8Aggregate* a){ unsigned int h=2166136261u; for(int shard=0; shard<4; ++shard){ h=mix8s(h,a->frontier[shard]); h=mix8s(h,a->spill[shard]); h=mix8s(h,a->lane_a[shard]); h=mix8s(h,a->lane_b[shard]); } return h; }

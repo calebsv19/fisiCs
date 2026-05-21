@@ -55,7 +55,7 @@ make test
 When relevant to your change:
 
 ```bash
-make final
+make final-monitored
 make test-binary
 make frontend-contract-test
 ```
@@ -71,7 +71,7 @@ Default rule:
 1. start at the cheapest tier that proves the local change
 2. widen to runtime truth when ABI or wrong-code risk exists
 3. widen to canary stages when the bug was discovered in real project work
-4. use `make final` and `make final-timing-sync` only for true trust checkpoints
+4. use `make final-monitored` and `make final-timing-sync` only for true trust checkpoints
 
 ## Test Addition Rules
 

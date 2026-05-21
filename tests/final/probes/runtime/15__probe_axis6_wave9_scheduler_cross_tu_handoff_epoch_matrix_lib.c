@@ -1,0 +1,9 @@
+typedef struct Axis6W9Snapshot { unsigned int shard, epoch, handoff, lane_a, lane_b; } Axis6W9Snapshot;
+typedef struct Axis6W9Aggregate { unsigned int epoch[4], handoff[4], lane_a[4], lane_b[4]; } Axis6W9Aggregate;
+static unsigned int mix9s(unsigned int h,unsigned int v){ h ^= v + 0x9e3779b9u + (h<<6) + (h>>2); return h; }
+void axis6_w9_seed_snapshot(Axis6W9Snapshot* out,unsigned int shard,unsigned int epoch,unsigned int handoff,unsigned int lane_a,unsigned int lane_b){ out->shard=shard%4u; out->epoch=epoch; out->handoff=handoff; out->lane_a=lane_a; out->lane_b=lane_b; }
+void axis6_w9_encode_snapshot(const Axis6W9Snapshot* s,unsigned int wire[5]){ wire[0]=s->shard^0x55u; wire[1]=s->epoch^0x77u; wire[2]=s->handoff^0x99u; wire[3]=s->lane_a^0xbbu; wire[4]=s->lane_b^0xddu; }
+void axis6_w9_decode_snapshot(Axis6W9Snapshot* s,const unsigned int wire[5]){ s->shard=wire[0]^0x55u; s->epoch=wire[1]^0x77u; s->handoff=wire[2]^0x99u; s->lane_a=wire[3]^0xbbu; s->lane_b=wire[4]^0xddu; }
+void axis6_w9_clear_aggregate(Axis6W9Aggregate* a){ for(int shard=0; shard<4; ++shard){ a->epoch[shard]=0u; a->handoff[shard]=0u; a->lane_a[shard]=0u; a->lane_b[shard]=0u; } }
+void axis6_w9_absorb_snapshot(Axis6W9Aggregate* a,const Axis6W9Snapshot* s){ unsigned int shard=s->shard%4u; if(s->epoch<a->epoch[shard]) return; if(s->epoch>a->epoch[shard]){ a->epoch[shard]=s->epoch; a->handoff[shard]=s->handoff; a->lane_a[shard]=s->lane_a; a->lane_b[shard]=s->lane_b; return; } if(s->handoff>a->handoff[shard]){ a->handoff[shard]=s->handoff; a->lane_a[shard]=s->lane_a; a->lane_b[shard]=s->lane_b; } else if(s->handoff==a->handoff[shard]){ a->lane_a[shard]+=s->lane_a; a->lane_b[shard]+=s->lane_b; } }
+unsigned int axis6_w9_snapshot_signature(const Axis6W9Aggregate* a){ unsigned int h=2166136261u; for(int shard=0; shard<4; ++shard){ h=mix9s(h,a->epoch[shard]); h=mix9s(h,a->handoff[shard]); h=mix9s(h,a->lane_a[shard]); h=mix9s(h,a->lane_b[shard]); } return h; }

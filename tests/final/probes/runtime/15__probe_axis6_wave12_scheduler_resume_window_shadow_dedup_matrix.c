@@ -1,0 +1,8 @@
+#include <stdio.h>
+typedef struct R { unsigned int lane, window, shadow; int delta; } R;
+typedef struct A { unsigned int window[4], shadow[4]; int value[4]; } A;
+static unsigned int mix(unsigned int h,unsigned int v){ h ^= v + 0x9e3779b9u + (h<<6) + (h>>2); return h; }
+static void clear(A* a){ for(int i=0;i<4;++i){ a->window[i]=0u; a->shadow[i]=0u; a->value[i]=0; } }
+static void absorb(A* a,const R* r){ unsigned int lane=r->lane%4u; if(r->window<a->window[lane]) return; if(r->window>a->window[lane]){ a->window[lane]=r->window; a->shadow[lane]=r->shadow; a->value[lane]=r->delta; return; } if(r->shadow>a->shadow[lane]){ a->shadow[lane]=r->shadow; a->value[lane]=r->delta; } else if(r->shadow==a->shadow[lane]) a->value[lane]+=r->delta; }
+static unsigned int sig(const A* a){ unsigned int h=2166136261u; for(unsigned int lane=0; lane<4u; ++lane){ h=mix(h,lane+1u); h=mix(h,a->window[lane]); h=mix(h,a->shadow[lane]); h=mix(h,(unsigned int)(a->value[lane]&0xffff)); } return h; }
+int main(void){ const R old_rows[]={{0u,3u,2u,4},{1u,2u,1u,5},{2u,4u,2u,6},{3u,3u,3u,7}}; const R new_rows[]={{0u,6u,5u,8},{1u,7u,4u,9},{2u,8u,6u,10},{3u,9u,5u,11}}; A canonical,replayed; clear(&canonical); for(unsigned int i=0;i<4u;++i) absorb(&canonical,&new_rows[i]); clear(&replayed); absorb(&replayed,&old_rows[2]); absorb(&replayed,&new_rows[1]); absorb(&replayed,&old_rows[0]); absorb(&replayed,&new_rows[3]); absorb(&replayed,&old_rows[3]); absorb(&replayed,&new_rows[0]); absorb(&replayed,&new_rows[2]); absorb(&replayed,&old_rows[1]); { unsigned int sc=sig(&canonical), sr=sig(&replayed); printf("%u %u %u\n", sc, sr, (sc==sr)?1u:0u); } return 0; }

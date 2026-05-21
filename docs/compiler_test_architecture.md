@@ -209,7 +209,7 @@ Use the smallest command that proves the change, then widen outward.
 | broader binary/runtime pass | `make test-binary` |
 | probe-only blocker collection | `python3 tests/final/probes/run_probes.py` |
 | real-project canary stage | run the matching `tests/real_projects/runners/run_project_*_tests.py` stage |
-| checkpoint integration run | `make final` plus any relevant binary or real-project lane |
+| checkpoint integration run | `make final-monitored` plus any relevant binary or real-project lane |
 
 For the day-to-day stopping rules and tiered command ladder, use
 `docs/compiler_test_confidence_tiers.md`.

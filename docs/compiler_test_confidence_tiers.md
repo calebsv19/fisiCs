@@ -33,7 +33,7 @@ The intended model is simple:
 | `Tier 3` | Runtime Truth | catch wrong-code, ABI, runtime-output, and link/runtime surface regressions | `make final-runtime`, `make test-binary` | medium | runtime, codegen, ABI, multi-TU, or binary-surface changes |
 | `Tier 4` | Regression Frontier | work an unstable or newly discovered failure before stable promotion | `PROBE_FILTER=<id> python3 tests/final/probes/run_probes.py`, plus the source canary rerun | medium | new blocker reduction, probe work, or real-project-derived bug reduction |
 | `Tier 5` | Canary Program | confirm practical readiness on a real project stage | run the matching `tests/real_projects/runners/run_project_*_tests.py` stage | medium to high | project-adoption work, real-world regression fixes, or canary validation after a stable repro is added |
-| `Tier 6` | Full Trust Run | checkpoint the stable compiler behavior suite before handoff or larger merge points | `make final` plus any relevant `make test-binary` and/or real-project stage | high | before merge, before switching back to normal project work, or after broad compiler fixes |
+| `Tier 6` | Full Trust Run | checkpoint the stable compiler behavior suite before handoff or larger merge points | `make final-monitored` plus any relevant `make test-binary` and/or real-project stage | high | before merge, before switching back to normal project work, or after broad compiler fixes |
 | `Tier 7` | Timed Checkpoint | record performance-trend evidence for the full trust run | `make final-timing-sync` | highest | notable checkpoints, trend tracking, and maintainer audit captures rather than routine edit loops |
 
 ## Default Stopping Rules
@@ -60,7 +60,7 @@ If you already know the owning stable lane, begin there:
 - one binary test id
 - one real-project target only when the bug is truly canary-derived
 
-Do not jump to `make final` first unless the change is already broad enough to
+Do not jump to `make final-monitored` first unless the change is already broad enough to
 justify it.
 
 ### Widen On Surface Change
@@ -102,7 +102,7 @@ Use this when wrong-code or runtime behavior is at risk.
 1. `make`
 2. focused stable lane check (`make final-id`, `make final-bucket`, or `make test-binary-id`)
 3. `make final-runtime` and/or `make test-binary`
-4. `make final` if the change is broad enough to justify a full trust checkpoint
+4. `make final-monitored` if the change is broad enough to justify a full trust checkpoint
 
 ### Pattern C: Real-Project Regression
 
@@ -119,7 +119,7 @@ project work.
 
 Use this when you want a durable trust and timing checkpoint.
 
-1. `make final`
+1. `make final-monitored`
 2. relevant `make test-binary` or real-project stage if the recent work touched those surfaces
 3. `make final-timing-sync`
 

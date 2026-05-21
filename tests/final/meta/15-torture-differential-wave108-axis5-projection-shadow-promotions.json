@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis5_wave25_reducer_frontier_watermark_projection_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave25_reducer_frontier_watermark_projection_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave25_reducer_frontier_watermark_projection_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave25","frontier-watermark-projection","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave25_reducer_checkpoint_shadow_canonicalization_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave25_reducer_checkpoint_shadow_canonicalization_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave25_reducer_checkpoint_shadow_canonicalization_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave25","checkpoint-shadow-canonicalization","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave25_reducer_cross_tu_epoch_watermark_projection_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave25_reducer_cross_tu_epoch_watermark_projection_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave25_reducer_cross_tu_epoch_watermark_projection_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave25_reducer_cross_tu_epoch_watermark_projection_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave25_reducer_cross_tu_epoch_watermark_projection_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave25","multitu","epoch-watermark-projection","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

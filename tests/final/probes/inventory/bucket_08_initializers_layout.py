@@ -516,7 +516,7 @@ DIAG_PROBES = [
     ),
     DiagnosticProbe(
         probe_id='08__probe_diag_line_directive_designator_array_index_oob_spelling_reject',
-        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_designator_array_index_oob_rich_presence.c',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_designator_array_oob_rich_presence.c',
         note='strict frontier: designator array-index-oob text diagnostics under #line remap should preserve error line and spelling file/line',
         required_substrings=[
             "Error at (3101:16): Array 'arr' designator index 3 is out of bounds (size 2)",
@@ -535,13 +535,13 @@ DIAG_PROBES = [
     ),
     DiagnosticProbe(
         probe_id='08__probe_diag_line_directive_include_designator_array_index_oob_spelling_reject',
-        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_oob_rich_presence.c',
         note='strict frontier: include-header designator array-index-oob text diagnostics under #line remap should preserve error line and spelling file/line',
         required_substrings=[
             "Error at (3501:16): Array 'arr' designator index 3 is out of bounds (size 2)",
             'Spelling: virtual_init_include_designator_array_oob_probe.h:3501:16',
         ],
-        inputs=[PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c', PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.h'],
+        inputs=[PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_oob_rich_presence.c', PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_oob_rich_presence.h'],
     ),
     DiagnosticProbe(
         probe_id='08__probe_diag_line_directive_nested_designator_unknown_field_spelling_reject',
@@ -690,7 +690,7 @@ DIAG_JSON_PROBES = [
     ),
     DiagnosticJsonProbe(
         probe_id='08__probe_diagjson_line_directive_designator_array_index_oob_file_presence_reject',
-        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_designator_array_index_oob_rich_presence.c',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_designator_array_oob_rich_presence.c',
         note='strict frontier: designator array-index-oob diagnostics JSON under #line remap should include file presence',
         expected_codes=[2000],
         expected_line=3101,
@@ -698,7 +698,7 @@ DIAG_JSON_PROBES = [
     ),
     DiagnosticJsonProbe(
         probe_id='08__probe_diagjson_line_directive_designator_array_index_oob_current_sparse_pass',
-        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_designator_array_index_oob_rich_presence.c',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_designator_array_oob_rich_presence.c',
         note='reduced threshold: designator array-index-oob diagnostics JSON under #line remap emits initializer diagnostic payload',
         expected_codes=[2000],
     ),
@@ -718,7 +718,7 @@ DIAG_JSON_PROBES = [
     ),
     DiagnosticJsonProbe(
         probe_id='08__probe_diagjson_line_directive_include_designator_array_index_oob_file_presence_reject',
-        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_oob_rich_presence.c',
         note='strict frontier: include-header designator array-index-oob diagnostics JSON under #line remap should include file presence',
         expected_codes=[2000],
         expected_line=3501,
@@ -726,7 +726,7 @@ DIAG_JSON_PROBES = [
     ),
     DiagnosticJsonProbe(
         probe_id='08__probe_diagjson_line_directive_include_designator_array_index_oob_current_sparse_pass',
-        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_index_oob_rich_presence.c',
+        source=PROBE_DIR / 'diagnostics/08__probe_diagjson_line_directive_include_designator_array_oob_rich_presence.c',
         note='reduced threshold: include-header designator array-index-oob diagnostics JSON under #line remap emits initializer diagnostic payload',
         expected_codes=[2000],
     ),

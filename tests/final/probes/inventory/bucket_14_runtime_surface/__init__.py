@@ -1,9 +1,10 @@
-from . import axis_runtime, diagnostics, diagjson, multitu_runtime, runtime_core
+from . import axis_runtime, diagnostics, diagjson, late_multitu_runtime, multitu_runtime, runtime_core
 
 
 RUNTIME_PROBES = (
     runtime_core.RUNTIME_PROBES +
     multitu_runtime.RUNTIME_PROBES +
+    late_multitu_runtime.RUNTIME_PROBES +
     axis_runtime.RUNTIME_PROBES
 )
 

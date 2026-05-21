@@ -372,7 +372,7 @@ ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
 
 # Final C99 behavior suite
-.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime final-timing final-timing-sync-db final-timing-rollup final-timing-sync
+.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime final-monitored final-monitored-smoke final-timing final-timing-refresh-baseline final-timing-sync-db final-timing-rollup final-timing-sync
 final: $(BIN)
 	@python3 -u tests/final/run_final.py ./$(BIN)
 
@@ -423,20 +423,39 @@ FINAL_TIMING_LOG ?= $(abspath ../docs/private_program_docs/fisiCs/audits/make_fi
 FINAL_TIMING_NOTES ?= $(abspath ../docs/private_program_docs/fisiCs/audits/make_final_timing_notes.md)
 FINAL_TIMING_DB ?= $(abspath ../data/fisics_timing/make_final_timing.sqlite)
 FINAL_TIMING_ROLLUP ?= $(abspath ../docs/private_program_docs/fisiCs/audits/make_final_timing_rollup.md)
+FINAL_TIMING_BASELINE ?= $(abspath ../data/fisics_timing/make_final_timing_baseline.json)
+FINAL_MONITORED_RUNS_ROOT ?= $(abspath build/make_final_runs)
 FINAL_TIMING_NOTE ?=
 
-# Full-suite timing capture with append-only logging.
+# Broad full-suite checkpoint run with live status and timing history.
 # Examples:
-#   make final-timing
-#   make final-timing FINAL_TIMING_RUNS=3 FINAL_TIMING_TAG=checkpoint
-#   make final-timing FINAL_TIMING_NOTE="after bucket 15 wave update"
-final-timing: $(BIN)
+#   make final-monitored
+#   make final-monitored FINAL_TIMING_TAG=checkpoint
+#   make final-monitored FINAL_TIMING_RUNS=3 FINAL_TIMING_NOTE="after bucket 15 wave update"
+final-monitored: $(BIN)
 	@FINAL_TIMING_RUNS="$(FINAL_TIMING_RUNS)" \
 	  FINAL_TIMING_TAG="$(FINAL_TIMING_TAG)" \
 	  FINAL_TIMING_LOG="$(FINAL_TIMING_LOG)" \
 	  FINAL_TIMING_NOTES="$(FINAL_TIMING_NOTES)" \
 	  FINAL_TIMING_NOTE="$(FINAL_TIMING_NOTE)" \
-	  ./scripts/capture_make_final_timing.sh
+	  python3 ./scripts/run_make_final_monitored.py \
+	    --baseline-json "$(FINAL_TIMING_BASELINE)" \
+	    --runs-root "$(FINAL_MONITORED_RUNS_ROOT)"
+
+final-monitored-smoke:
+	@bash ./tests/integration/run_make_final_monitored_smoke.sh
+
+# Backward-compatible timing capture alias.
+# Examples:
+#   make final-timing
+#   make final-timing FINAL_TIMING_RUNS=3 FINAL_TIMING_TAG=checkpoint
+#   make final-timing FINAL_TIMING_NOTE="after bucket 15 wave update"
+final-timing: final-monitored
+
+final-timing-refresh-baseline:
+	@python3 ./scripts/refresh_make_final_timing_baseline.py \
+	  --csv "$(FINAL_TIMING_LOG)" \
+	  --output "$(FINAL_TIMING_BASELINE)"
 
 # Mirror canonical CSV rows into SQLite for query/rollup use.
 final-timing-sync-db:
@@ -451,8 +470,8 @@ final-timing-rollup:
 	  --db "$(FINAL_TIMING_DB)" \
 	  --output "$(FINAL_TIMING_ROLLUP)"
 
-# End-to-end timing capture + sqlite mirror + markdown rollup.
-final-timing-sync: final-timing final-timing-sync-db final-timing-rollup
+# End-to-end monitored capture + baseline refresh + sqlite mirror + markdown rollup.
+final-timing-sync: final-monitored final-timing-sync-db final-timing-rollup
 
 # === Run the compiled binary ===
 run: src/Lexer/keyword_lookup.c $(BIN)

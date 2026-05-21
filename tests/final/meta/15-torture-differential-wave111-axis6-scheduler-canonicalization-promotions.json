@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis6_wave3_scheduler_lane_checkpoint_canonicalization_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave3_scheduler_lane_checkpoint_canonicalization_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave3_scheduler_lane_checkpoint_canonicalization_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave3","lane-checkpoint-canonicalization","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis6_wave3_scheduler_resume_shadow_dedup_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave3_scheduler_resume_shadow_dedup_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave3_scheduler_resume_shadow_dedup_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave3","resume-shadow-dedup","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis6_wave3_scheduler_cross_tu_checkpoint_fanout_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave3_scheduler_cross_tu_checkpoint_fanout_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis6_wave3_scheduler_cross_tu_checkpoint_fanout_matrix_main.c",
+        "probes/runtime/15__probe_axis6_wave3_scheduler_cross_tu_checkpoint_fanout_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave3_scheduler_cross_tu_checkpoint_fanout_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave3","multitu","checkpoint-fanout","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

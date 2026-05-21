@@ -1,4 +1,4 @@
-from . import axis1_runtime, axis3_runtime, axis5_runtime, corpus_runtime, diagnostics, diagjson, multitu_runtime, physics_units, runtime_core
+from . import axis1_runtime, axis3_runtime, axis5_late_runtime, axis5_runtime, axis6_runtime, corpus_runtime, diagnostics, diagjson, multitu_runtime, physics_units, runtime_core
 
 
 RUNTIME_PROBES = (
@@ -8,6 +8,8 @@ RUNTIME_PROBES = (
     axis1_runtime.RUNTIME_PROBES +
     axis3_runtime.RUNTIME_PROBES +
     axis5_runtime.RUNTIME_PROBES +
+    axis5_late_runtime.RUNTIME_PROBES +
+    axis6_runtime.RUNTIME_PROBES +
     physics_units.RUNTIME_PROBES
 )
 

@@ -1,20 +1,27 @@
 # Make Final Timing Lane
 
-This document defines the `make final` timing capture system.
+This document defines the monitored `make final` timing capture system.
 The goal is to track full-suite runtime as validation coverage grows.
 Last updated: 2026-05-12.
 
 ## Scope
 
-- Measure end-to-end wall time for `make final` from the repository root.
+- Measure end-to-end wall time for broad `make final` checkpoint runs from the repository root.
 - Record current suite size from harness output (`PASS` / `FAIL` / `SKIP` counts).
 - Track average seconds per test (`median_seconds / total_count`) for trend comparisons.
 - Keep detailed time-series data in maintainer audit storage configured by timing make variables.
+- Keep a derived JSON baseline for first-audit prediction and live run status.
 - Keep this lane separate from exact single-TU optimization acceptance work.
 
 ## Capture Command
 
 Recommended entrypoint from repo root:
+
+```bash
+make final-monitored
+```
+
+Backward-compatible alias:
 
 ```bash
 make final-timing
@@ -23,19 +30,27 @@ make final-timing
 Recommended for lower-noise checkpoints:
 
 ```bash
-make final-timing FINAL_TIMING_RUNS=3 FINAL_TIMING_TAG=checkpoint
+make final-monitored FINAL_TIMING_RUNS=3 FINAL_TIMING_TAG=checkpoint
 ```
 
 Optional note attachment for notable changes:
 
 ```bash
-make final-timing FINAL_TIMING_TAG=checkpoint FINAL_TIMING_NOTE="after bucket 15 manifest expansion"
+make final-monitored FINAL_TIMING_TAG=checkpoint FINAL_TIMING_NOTE="after bucket 15 manifest expansion"
 ```
 
-The timing system writes using make variables:
+During a live run, the monitored runner writes:
+
+- a per-run `status.json` under `fisiCs/build/make_final_runs/<run_id>/`
+- the detached broad-run stdout log beside that status file
+- a derived baseline JSON under `data/fisics_timing/`
+
+The timing system writes canonical history using make variables:
 
 - `FINAL_TIMING_LOG` (CSV append target)
 - `FINAL_TIMING_NOTES` (optional notes target when `FINAL_TIMING_NOTE` or `--note` is provided)
+- `FINAL_TIMING_BASELINE` (derived baseline JSON for predicted first-audit timing)
+- `FINAL_MONITORED_RUNS_ROOT` (live status/log root for monitored broad runs)
 
 Defaults point to maintainer/internal audit locations and can be overridden per run.
 
@@ -44,7 +59,7 @@ Within the public trust ladder, this is the `Tier 7` maintainer checkpoint from
 
 ## Relationship To Optimization Oracles
 
-`make final-timing` is the macro-trend lane.
+`make final-monitored` / `make final-timing` is the macro-trend lane.
 
 For optimization work:
 
@@ -66,7 +81,7 @@ make final-timing-sync
 
 This command runs:
 
-1. `make final-timing` (capture + append CSV)
+1. `make final-monitored` (monitored run + append CSV on success)
 2. `make final-timing-sync-db` (CSV -> SQLite)
 3. `make final-timing-rollup` (SQLite -> markdown summary)
 
@@ -80,6 +95,7 @@ Defaults are internal maintainer paths and can be overridden when needed.
 You can run mirror and rollup independently:
 
 ```bash
+make final-timing-refresh-baseline
 make final-timing-sync-db
 make final-timing-rollup
 ```
@@ -100,9 +116,13 @@ make final-timing-rollup
 
 ## Policy
 
+- Use `make final-monitored` for broad checkpoint runs that are expensive enough to justify file-backed supervision.
 - Run captures on a stable tree (no in-flight benchmarking experiments).
 - Prefer `FINAL_TIMING_RUNS=3` (or `--runs 3`) when reporting publicly.
 - Treat this lane as a trend reference, not a micro-benchmark.
+- On each live run, first audit time is derived from recent successful timing history with a `+30s` buffer and a `420s` floor.
+- After the first audit window, status updates advance on a one-minute cadence.
+- `stalled` is observational only and is driven by abnormal no-output windows; it does not kill the live run.
 - Treat recent snapshot values as historical trend points, not per-change
   acceptance evidence.
 - Clang comparisons are optional and can be added later as a separate column set once standardized.

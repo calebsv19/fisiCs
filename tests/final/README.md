@@ -7,6 +7,7 @@ into it.
 
 Quick run entrypoints:
 - `make final`: full suite (checkpoint/integration run).
+- `make final-monitored`: monitored full suite with live status JSON and timing history capture.
 - `make final-id ID=<test_id>`: one test id.
 - `make final-wave WAVE=<n>`: one runtime wave shard (`14-runtime-surface` default).
 - `make final-manifest MANIFEST=<manifest.json>`: one manifest shard.

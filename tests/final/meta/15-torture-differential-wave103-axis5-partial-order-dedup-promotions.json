@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis5_wave20_reducer_checkpoint_frontier_dedup_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave20_reducer_checkpoint_frontier_dedup_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave20_reducer_checkpoint_frontier_dedup_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave20","checkpoint-frontier-dedup","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave20_reducer_partial_order_canonicalization_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave20_reducer_partial_order_canonicalization_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave20_reducer_partial_order_canonicalization_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave20","partial-order-canonicalization","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis5_wave20_reducer_cross_tu_replay_dedup_splice_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis5_wave20_reducer_cross_tu_replay_dedup_splice_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis5_wave20_reducer_cross_tu_replay_dedup_splice_matrix_main.c",
+        "probes/runtime/15__probe_axis5_wave20_reducer_cross_tu_replay_dedup_splice_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis5_wave20_reducer_cross_tu_replay_dedup_splice_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis5","reducer","wave20","multitu","replay-dedup-splice","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

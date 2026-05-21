@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis6_wave10_scheduler_lease_rebase_projection_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave10_scheduler_lease_rebase_projection_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave10_scheduler_lease_rebase_projection_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave10","lease-rebase-projection","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis6_wave10_scheduler_replay_lease_shadow_dedup_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave10_scheduler_replay_lease_shadow_dedup_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave10_scheduler_replay_lease_shadow_dedup_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave10","replay-lease-shadow-dedup","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis6_wave10_scheduler_cross_tu_lease_rebase_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave10_scheduler_cross_tu_lease_rebase_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis6_wave10_scheduler_cross_tu_lease_rebase_matrix_main.c",
+        "probes/runtime/15__probe_axis6_wave10_scheduler_cross_tu_lease_rebase_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave10_scheduler_cross_tu_lease_rebase_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave10","multitu","lease-rebase","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

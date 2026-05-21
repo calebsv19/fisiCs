@@ -231,6 +231,54 @@ RUNTIME_PROBES = [
         inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave14_reducer_cross_tu_checkpoint_frontier_braid_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave14_reducer_cross_tu_checkpoint_frontier_braid_matrix_lib.c'],
     ),
     RuntimeProbe(
+        probe_id='15__probe_axis5_wave15_reducer_checkpoint_shadow_lattice_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_checkpoint_shadow_lattice_matrix.c',
+        note='axis5 wave15: reducer checkpoint-shadow lattice matrix should preserve signatures when dominated checkpoint rows are eliminated before or during shard normalization',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave15_reducer_frontier_epoch_dedup_equivalence_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_frontier_epoch_dedup_equivalence_matrix.c',
+        note='axis5 wave15: reducer frontier-epoch dedup equivalence matrix should preserve signatures when duplicate frontier rows are pruned before or after epoch-bucket materialization',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave15_reducer_cross_tu_watermark_shadow_lattice_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_cross_tu_watermark_shadow_lattice_matrix_main.c',
+        note='axis5 wave15: reducer cross-TU watermark-shadow lattice matrix should preserve signatures when replayed shard snapshots collapse through latest-watermark and shadow-dominance rules',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_cross_tu_watermark_shadow_lattice_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_cross_tu_watermark_shadow_lattice_matrix_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave16_reducer_checkpoint_epoch_lattice_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave16_reducer_checkpoint_epoch_lattice_matrix.c',
+        note='axis5 wave16: reducer checkpoint-epoch lattice matrix should preserve signatures when checkpoint winners are reconstructed through descending checkpoint and ascending epoch passes',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave16_reducer_shadow_tie_fold_equivalence_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave16_reducer_shadow_tie_fold_equivalence_matrix.c',
+        note='axis5 wave16: reducer shadow-tie fold equivalence matrix should preserve signatures when same-shadow rows are pre-folded before canonical absorb',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave16_reducer_cross_tu_frontier_watermark_mesh_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave16_reducer_cross_tu_frontier_watermark_mesh_matrix_main.c',
+        note='axis5 wave16: reducer cross-TU frontier-watermark mesh matrix should preserve signatures when replayed shard snapshots collapse through latest frontier and watermark tie rules',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave16_reducer_cross_tu_frontier_watermark_mesh_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave16_reducer_cross_tu_frontier_watermark_mesh_matrix_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave17_reducer_checkpoint_frontier_projection_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave17_reducer_checkpoint_frontier_projection_matrix.c',
+        note='axis5 wave17: reducer checkpoint-frontier projection matrix should preserve signatures when checkpoint winners are rebuilt through frontier-bucket projection passes',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave17_reducer_watermark_tie_fold_equivalence_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave17_reducer_watermark_tie_fold_equivalence_matrix.c',
+        note='axis5 wave17: reducer watermark-tie fold equivalence matrix should preserve signatures when same-watermark rows are pre-folded before canonical absorb',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave17_reducer_cross_tu_checkpoint_frontier_mesh_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave17_reducer_cross_tu_checkpoint_frontier_mesh_matrix_main.c',
+        note='axis5 wave17: reducer cross-TU checkpoint-frontier mesh matrix should preserve signatures when replayed shard snapshots collapse through latest checkpoint and frontier tie rules',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave17_reducer_cross_tu_checkpoint_frontier_mesh_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave17_reducer_cross_tu_checkpoint_frontier_mesh_matrix_lib.c'],
+    ),
+    RuntimeProbe(
         probe_id='15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix',
         source=PROBE_DIR / 'runtime/15__probe_runtime_clang_gcc_tri_diff_vla_stride_rebase_matrix.c',
         note='VLA stride/rebase matrix lane should match both clang and gcc when gcc is available',

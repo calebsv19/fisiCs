@@ -29,7 +29,7 @@ Last audited: 2026-05-17.
   pilot/helper references for agents and users
 - `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.7.0`)
 - `cli_release_workflow.md`: CLI release packaging/sign/notarize flow for macOS artifacts
-- `make_final_timing_log.md`: public timing-baseline lane and capture policy for `make final`
+- `make_final_timing_log.md`: public timing-baseline lane and monitored broad-run policy for `make final`
 
 Public example references live under `examples/`:
 - `examples/README.md`: top-level examples lane

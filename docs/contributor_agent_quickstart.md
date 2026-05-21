@@ -24,7 +24,7 @@ make frontend-contract-test
 When relevant to your change:
 
 ```bash
-make final
+make final-monitored
 make test-binary
 make ci-guardrails
 ```

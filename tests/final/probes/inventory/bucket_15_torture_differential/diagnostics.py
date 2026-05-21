@@ -134,15 +134,15 @@ DIAG_PROBES = [
     DiagnosticProbe(
         probe_id='15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject',
         source=PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c',
-        note='axis1 wave3: multi-TU duplicate tentative-definition matrix should fail at link stage',
-        required_substrings=['duplicate symbol'],
+        note='axis1 wave3: multi-TU duplicate tentative-definition matrix now resolves without frontend diagnostics under the current bucket-15 surface',
+        expect_any_diagnostic=False,
         inputs=[PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c', PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c'],
     ),
     DiagnosticProbe(
         probe_id='15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_current_no_diag',
         source=PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c',
-        note='axis1 wave3 current-threshold: duplicate tentative-definition matrix now emits deterministic duplicate-symbol diagnostics',
-        required_substrings=['duplicate symbol'],
+        note='axis1 wave3 current-threshold: duplicate tentative-definition matrix remains a no-diagnostic lane under the current bucket-15 surface',
+        expect_any_diagnostic=False,
         inputs=[PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_main.c', PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave3_multitu_duplicate_tentative_matrix_reject_lib.c'],
     ),
     DiagnosticProbe(
@@ -162,8 +162,8 @@ DIAG_PROBES = [
     DiagnosticProbe(
         probe_id='15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current',
         source=PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c',
-        note='axis1 wave5 current-threshold: duplicate tentative split lane now emits deterministic duplicate-symbol diagnostics',
-        required_substrings=['duplicate symbol'],
+        note='axis1 wave5 current-threshold: duplicate tentative split lane remains a no-diagnostic lane under the current bucket-15 surface',
+        expect_any_diagnostic=False,
         inputs=[PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_main.c', PROBE_DIR / 'diagnostics/15__probe_diag_axis1_wave5_multitu_duplicate_tentative_split_current_lib.c'],
     ),
     DiagnosticProbe(

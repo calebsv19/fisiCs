@@ -61,9 +61,11 @@ Rule:
 - this explains where time moved
 - this does not replace the exact acceptance lane
 
-### Use `make final-timing` Only For Macro Trend
+### Use `make final-monitored` / `make final-timing` Only For Macro Trend
 
-`make final-timing` is for long-horizon suite trend tracking.
+`make final-monitored` is the standard broad-run path when you want a live
+status file, predicted first audit window, and automatic timing capture.
+`make final-timing` is a backward-compatible alias to the same monitored lane.
 
 Rule:
 

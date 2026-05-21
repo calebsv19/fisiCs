@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis6_wave4_scheduler_phase_watermark_projection_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave4_scheduler_phase_watermark_projection_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave4_scheduler_phase_watermark_projection_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave4","phase-watermark-projection","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis6_wave4_scheduler_replay_watermark_dedup_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave4_scheduler_replay_watermark_dedup_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave4_scheduler_replay_watermark_dedup_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave4","replay-watermark-dedup","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis6_wave4_scheduler_cross_tu_watermark_fanout_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis6_wave4_scheduler_cross_tu_watermark_fanout_matrix_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis6_wave4_scheduler_cross_tu_watermark_fanout_matrix_main.c",
+        "probes/runtime/15__probe_axis6_wave4_scheduler_cross_tu_watermark_fanout_matrix_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis6_wave4_scheduler_cross_tu_watermark_fanout_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime","15","axis6","scheduler","wave4","multitu","watermark-fanout","probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
