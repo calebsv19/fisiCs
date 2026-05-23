@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_axis3_wave35_multitu_abi_hfa_struct_return_variadic_highpressure_checkpoint_handoff_shadow_fold_edge",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_axis3_wave35_multitu_abi_hfa_struct_return_variadic_highpressure_checkpoint_handoff_shadow_fold_edge_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_axis3_wave35_multitu_abi_hfa_struct_return_variadic_highpressure_checkpoint_handoff_shadow_fold_edge_main.c",
+        "probes/runtime/14__probe_axis3_wave35_multitu_abi_hfa_struct_return_variadic_highpressure_checkpoint_handoff_shadow_fold_edge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_axis3_wave35_multitu_abi_hfa_struct_return_variadic_highpressure_checkpoint_handoff_shadow_fold_edge.stdout",
+      "expected_stderr": "expect/14__runtime_axis3_wave35_multitu_abi_hfa_struct_return_variadic_highpressure_checkpoint_handoff_shadow_fold_edge.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "14", "runtime", "axis3", "wave35", "multitu", "abi", "hfa", "variadic", "highpressure-checkpoint-handoff-shadow-fold"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_realproj_map_forge_borrow_epoch_residency_runtime",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_realproj_map_forge_borrow_epoch_residency_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_realproj_map_forge_borrow_epoch_residency_runtime.stdout",
+      "expected_stderr": "expect/14__runtime_realproj_map_forge_borrow_epoch_residency_runtime.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "14", "realproj", "map-forge", "borrow", "epoch", "residency"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

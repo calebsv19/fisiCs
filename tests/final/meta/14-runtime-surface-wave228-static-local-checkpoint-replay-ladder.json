@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_static_local_checkpoint_replay_ladder",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_static_local_checkpoint_replay_ladder.c",
+      "inputs": [
+        "probes/runtime/14__probe_static_local_checkpoint_replay_ladder.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_static_local_checkpoint_replay_ladder.stdout",
+      "expected_stderr": "expect/14__runtime_static_local_checkpoint_replay_ladder.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "14", "static-local", "checkpoint", "replay"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}
