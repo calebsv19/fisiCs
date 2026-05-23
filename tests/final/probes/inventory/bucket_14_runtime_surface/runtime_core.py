@@ -461,6 +461,51 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/14__probe_static_local_init_recursion_gate.c',
         note='static local recursion gate and state persistence should match clang runtime behavior',
     ),
+    RuntimeProbe(
+        probe_id='14__probe_static_local_checkpoint_replay_ladder',
+        source=PROBE_DIR / 'runtime/14__probe_static_local_checkpoint_replay_ladder.c',
+        note='static local checkpoint/replay ladder should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_static_local_alias_window_feedback',
+        source=PROBE_DIR / 'runtime/14__probe_static_local_alias_window_feedback.c',
+        note='static local alias-window feedback should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_static_local_owner_epoch_rollback',
+        source=PROBE_DIR / 'runtime/14__probe_static_local_owner_epoch_rollback.c',
+        note='static local owner/epoch rollback state should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_static_local_alias_guard_reclaim',
+        source=PROBE_DIR / 'runtime/14__probe_static_local_alias_guard_reclaim.c',
+        note='static local alias/guard reclaim state should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_pointer_window_borrow_replay_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_pointer_window_borrow_replay_matrix.c',
+        note='pointer-window borrow/replay matrix should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_pointer_window_stale_handoff_guard',
+        source=PROBE_DIR / 'runtime/14__probe_pointer_window_stale_handoff_guard.c',
+        note='pointer-window stale/handoff guard path should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_pointer_lifetime_epoch_invalidation_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_pointer_lifetime_epoch_invalidation_matrix.c',
+        note='pointer-lifetime epoch invalidation matrix should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_pointer_lifetime_borrow_trim_feedback',
+        source=PROBE_DIR / 'runtime/14__probe_pointer_lifetime_borrow_trim_feedback.c',
+        note='pointer-lifetime borrow/trim feedback should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_pointer_lifetime_reseed_handoff_lattice',
+        source=PROBE_DIR / 'runtime/14__probe_pointer_lifetime_reseed_handoff_lattice.c',
+        note='pointer-lifetime reseed/handoff lattice should match clang runtime behavior',
+    ),
 ]
 
 DIAG_PROBES = []

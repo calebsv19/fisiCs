@@ -748,6 +748,38 @@ RUNTIME_PROBES = [
         note='reduced map_forge epoch commit/trim behavior should match clang runtime behavior',
     ),
     RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_epoch_replay_guard_trim_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_epoch_replay_guard_trim_runtime.c',
+        note='map_forge epoch/replay/guard trim behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_epoch_shadow_abort_reclaim_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_epoch_shadow_abort_reclaim_runtime.c',
+        note='map_forge epoch/shadow abort/reclaim behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_checkpoint_budget_reseed_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_checkpoint_budget_reseed_runtime.c',
+        note='map_forge checkpoint/budget reseed behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_replay_window_guard_handoff_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_replay_window_guard_handoff_runtime.c',
+        note='map_forge replay-window guard/handoff behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_local_replay_handoff_mesh',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_local_replay_handoff_mesh_main.c',
+        note='multi-TU static-local replay handoff mesh should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_local_replay_handoff_mesh_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_local_replay_handoff_mesh_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_static_storage_alias_reseed_mesh',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_static_storage_alias_reseed_mesh_main.c',
+        note='multi-TU static-storage alias reseed mesh should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_static_storage_alias_reseed_mesh_main.c', PROBE_DIR / 'runtime/14__probe_multitu_static_storage_alias_reseed_mesh_lib.c'],
+    ),
+    RuntimeProbe(
         probe_id='14__probe_realproj_map_forge_owner_ttl_dispatch_runtime',
         source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_owner_ttl_dispatch_runtime.c',
         note='reduced map_forge owner/ttl dispatch behavior should match clang runtime behavior',
@@ -808,6 +840,72 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_window_stability_main.c',
         note='multi-TU pointer alias window stability path should match clang runtime behavior',
         inputs=[PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_window_stability_main.c', PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_window_stability_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_ptr_alias_owner_replay_mesh',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_owner_replay_mesh_main.c',
+        note='multi-TU pointer alias owner replay mesh should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_owner_replay_mesh_main.c', PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_owner_replay_mesh_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_ptr_alias_route_shadow_reclaim',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_route_shadow_reclaim_main.c',
+        note='multi-TU pointer alias route shadow reclaim should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_route_shadow_reclaim_main.c', PROBE_DIR / 'runtime/14__probe_multitu_ptr_alias_route_shadow_reclaim_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_owner_rollback_guard_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_owner_rollback_guard_runtime.c',
+        note='map_forge owner rollback/guard carry should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_epoch_transfer_rollback_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_epoch_transfer_rollback_runtime.c',
+        note='map_forge epoch transfer/rollback carry should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_owner_window_borrow_replay_mesh',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_owner_window_borrow_replay_mesh_main.c',
+        note='multi-TU owner-window borrow replay mesh should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_owner_window_borrow_replay_mesh_main.c', PROBE_DIR / 'runtime/14__probe_multitu_owner_window_borrow_replay_mesh_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_owner_window_stale_handoff_reclaim',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_owner_window_stale_handoff_reclaim_main.c',
+        note='multi-TU owner-window stale handoff reclaim should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_owner_window_stale_handoff_reclaim_main.c', PROBE_DIR / 'runtime/14__probe_multitu_owner_window_stale_handoff_reclaim_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_borrow_epoch_residency_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_borrow_epoch_residency_runtime.c',
+        note='map_forge borrow/epoch residency carry should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_owner_window_stale_rollback_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_owner_window_stale_rollback_runtime.c',
+        note='map_forge owner-window stale rollback carry should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_pointer_lifetime_epoch_bridge',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_pointer_lifetime_epoch_bridge_main.c',
+        note='multi-TU pointer-lifetime epoch bridge should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_pointer_lifetime_epoch_bridge_main.c', PROBE_DIR / 'runtime/14__probe_multitu_pointer_lifetime_epoch_bridge_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_multitu_pointer_lifetime_window_feedback',
+        source=PROBE_DIR / 'runtime/14__probe_multitu_pointer_lifetime_window_feedback_main.c',
+        note='multi-TU pointer-lifetime window feedback should match clang runtime behavior',
+        inputs=[PROBE_DIR / 'runtime/14__probe_multitu_pointer_lifetime_window_feedback_main.c', PROBE_DIR / 'runtime/14__probe_multitu_pointer_lifetime_window_feedback_lib.c'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_epoch_rollback_plane_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_epoch_rollback_plane_runtime.c',
+        note='map_forge epoch rollback/plane carry should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_realproj_map_forge_borrow_trim_rollback_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_realproj_map_forge_borrow_trim_rollback_runtime.c',
+        note='map_forge borrow/trim rollback carry should match clang runtime behavior',
     ),
 ]
 
