@@ -131,9 +131,20 @@ static TypeInfo typeFromLiteral(const char* text, Scope* scope, bool* outOverflo
     if (outOverflow) *outOverflow = false;
     if (literalLooksFloat(text)) {
         size_t len = text ? strlen(text) : 0;
-        bool hasImag = len > 0 && (text[len - 1] == 'i' || text[len - 1] == 'I' || text[len - 1] == 'j' || text[len - 1] == 'J');
+        bool hasImag = false;
         size_t coreLen = len;
-        if (hasImag && coreLen > 0) {
+        if (coreLen > 0 &&
+            (text[coreLen - 1] == 'i' || text[coreLen - 1] == 'I' ||
+             text[coreLen - 1] == 'j' || text[coreLen - 1] == 'J')) {
+            hasImag = true;
+            coreLen--;
+        }
+        if (coreLen > 1 &&
+            (text[coreLen - 2] == 'i' || text[coreLen - 2] == 'I' ||
+             text[coreLen - 2] == 'j' || text[coreLen - 2] == 'J') &&
+            (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F' ||
+             text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L')) {
+            hasImag = true;
             coreLen--;
         }
         bool isFloat = coreLen > 0 && (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F');

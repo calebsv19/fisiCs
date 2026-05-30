@@ -38,8 +38,10 @@ static int expect_invalid(const char* label,
 int main(void) {
     static const char* const kMeterAliases[] = {"meters"};
     static const char* const kSecondAliases[] = {"seconds"};
+    static const char* const kSquareMeterAliases[] = {"square_meters"};
     FisicsDim8 length = fisics_dim_length();
     FisicsDim8 time = fisics_dim_time();
+    FisicsDim8 area = fisics_dim_area();
 
     FisicsUnitDef valid_length_units[] = {
         {"meter", "m", FISICS_DIM_FAMILY_LENGTH, length, 1.0, 0.0, kMeterAliases, 1},
@@ -49,6 +51,15 @@ int main(void) {
         {FISICS_DIM_FAMILY_LENGTH, "length", valid_length_units, 2}
     };
     if (expect_valid("valid-length-family", valid_length_family, 1)) return 1;
+
+    FisicsUnitDef valid_area_units[] = {
+        {"square_meter", "m^2", FISICS_DIM_FAMILY_AREA, area, 1.0, 0.0, kSquareMeterAliases, 1},
+        {"square_millimeter", "mm^2", FISICS_DIM_FAMILY_AREA, area, 0.000001, 0.0, NULL, 0}
+    };
+    FisicsUnitFamilyDef valid_area_family[] = {
+        {FISICS_DIM_FAMILY_AREA, "area", valid_area_units, 2}
+    };
+    if (expect_valid("valid-area-family", valid_area_family, 1)) return 1;
 
     FisicsUnitDef duplicate_name_units[] = {
         {"meter", "m", FISICS_DIM_FAMILY_LENGTH, length, 1.0, 0.0, NULL, 0},

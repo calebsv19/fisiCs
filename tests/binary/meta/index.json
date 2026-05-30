@@ -66,6 +66,19 @@
     "binary-corpus-wave6.json",
     "binary-corpus-wave7.json",
     "binary-corpus-wave8.json",
-    "binary-corpus-wave9.json"
+    "binary-corpus-wave9.json",
+    "binary-header-corpus-wave1.json",
+    "binary-header-corpus-wave2.json",
+    "binary-header-corpus-wave3.json",
+    "binary-header-corpus-wave4.json",
+    "binary-header-corpus-wave5.json",
+    "binary-header-corpus-wave6.json",
+    "binary-header-corpus-wave7.json",
+    "binary-header-corpus-wave8.json",
+    "binary-header-corpus-wave9.json",
+    "binary-header-corpus-wave10.json",
+    "binary-header-corpus-wave11-wchar-audit.json",
+    "binary-header-corpus-complex-imag-unit-audit.json",
+    "binary-header-corpus-float-macro-audit.json"
   ]
 }

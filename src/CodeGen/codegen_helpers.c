@@ -87,10 +87,23 @@ static ParsedType cg_make_float_literal_type(const char* text) {
     t.kind = TYPE_PRIMITIVE;
     t.primitiveType = TOKEN_DOUBLE;
     size_t len = text ? strlen(text) : 0;
-    bool hasImag = len > 0 &&
-                   (text[len - 1] == 'i' || text[len - 1] == 'I' ||
-                    text[len - 1] == 'j' || text[len - 1] == 'J');
-    size_t coreLen = hasImag && len > 0 ? len - 1 : len;
+    bool hasImag = false;
+    size_t coreLen = len;
+
+    if (coreLen > 0 &&
+        (text[coreLen - 1] == 'i' || text[coreLen - 1] == 'I' ||
+         text[coreLen - 1] == 'j' || text[coreLen - 1] == 'J')) {
+        hasImag = true;
+        coreLen--;
+    }
+    if (coreLen > 1 &&
+        (text[coreLen - 2] == 'i' || text[coreLen - 2] == 'I' ||
+         text[coreLen - 2] == 'j' || text[coreLen - 2] == 'J') &&
+        (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F' ||
+         text[coreLen - 1] == 'l' || text[coreLen - 1] == 'L')) {
+        hasImag = true;
+        coreLen--;
+    }
     bool isFloat = coreLen > 0 &&
                    (text[coreLen - 1] == 'f' || text[coreLen - 1] == 'F');
     bool isLong = coreLen > 0 &&
@@ -317,6 +330,59 @@ static bool cg_is_unsigned_category(CGValueCategory category) {
     return category == CG_VALUE_UNSIGNED_INT || category == CG_VALUE_BOOL;
 }
 
+static bool cg_parsed_type_is_float_like(const ParsedType* type) {
+    if (!type) {
+        return false;
+    }
+    if (type->kind != TYPE_PRIMITIVE) {
+        return false;
+    }
+    return type->primitiveType == TOKEN_FLOAT || type->primitiveType == TOKEN_DOUBLE;
+}
+
+static const ParsedType* cg_resolve_arithmetic_binary_type(const ParsedType* left,
+                                                           const ParsedType* right) {
+    static ParsedType mergedTypes[4];
+    static int mergedIndex = 0;
+    ParsedType* merged = NULL;
+
+    if (!left) return right;
+    if (!right) return left;
+
+    if (!cg_parsed_type_is_float_like(left) || !cg_parsed_type_is_float_like(right)) {
+        CGValueCategory lcat = cg_classify_parsed_type(left);
+        CGValueCategory rcat = cg_classify_parsed_type(right);
+        if (cg_is_unsigned_category(lcat)) return left;
+        if (cg_is_unsigned_category(rcat)) return right;
+        return left;
+    }
+
+    merged = &mergedTypes[mergedIndex];
+    mergedIndex = (mergedIndex + 1) % 4;
+    parsedTypeFree(merged);
+    *merged = parsedTypeClone(left);
+    if (merged->kind == TYPE_INVALID) {
+        return left;
+    }
+
+    if (right->isLong) {
+        merged->isLong = true;
+        merged->primitiveType = TOKEN_DOUBLE;
+    } else if (!merged->isLong &&
+               (right->primitiveType == TOKEN_DOUBLE || merged->primitiveType == TOKEN_DOUBLE)) {
+        merged->primitiveType = TOKEN_DOUBLE;
+    } else {
+        merged->primitiveType = TOKEN_FLOAT;
+    }
+
+    if (left->isComplex || right->isComplex || left->isImaginary || right->isImaginary) {
+        merged->isComplex = true;
+        merged->isImaginary = false;
+    }
+
+    return merged;
+}
+
 static bool cg_kind_is_float(LLVMTypeKind kind) {
     switch (kind) {
         case LLVMHalfTypeKind:
@@ -507,13 +573,7 @@ const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node)
             if (strcmp(op, "+") == 0 && right && cg_parsed_type_is_pointer(right)) {
                 return right;
             }
-            if (!left) return right;
-            if (!right) return left;
-            CGValueCategory lcat = cg_classify_parsed_type(left);
-            CGValueCategory rcat = cg_classify_parsed_type(right);
-            if (cg_is_unsigned_category(lcat)) return left;
-            if (cg_is_unsigned_category(rcat)) return right;
-            return left;
+            return cg_resolve_arithmetic_binary_type(left, right);
         }
         case AST_COMPOUND_LITERAL:
             return &node->compoundLiteral.literalType;

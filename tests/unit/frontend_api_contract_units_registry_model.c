@@ -44,14 +44,14 @@ int main(void) {
                 audit.issue_count);
         return 1;
     }
-    if (audit.family_count < 10 || audit.unit_count < 20 || audit.alias_count < 10) {
+    if (audit.family_count < 18 || audit.unit_count < 30 || audit.alias_count < 20) {
         fprintf(stderr,
                 "built-in registry audit unexpectedly small: families=%zu units=%zu aliases=%zu\n",
                 audit.family_count, audit.unit_count, audit.alias_count);
         return 1;
     }
 
-    if (fisics_unit_family_count() < 10) {
+    if (fisics_unit_family_count() < 18) {
         fprintf(stderr, "unit family registry unexpectedly small: %zu\n", fisics_unit_family_count());
         return 1;
     }
@@ -91,6 +91,12 @@ int main(void) {
     if (check_unit("kiloohms", FISICS_DIM_FAMILY_RESISTANCE, "kOhm", 1000.0, fisics_dim_resistance())) return 1;
     if (check_unit("megaohm", FISICS_DIM_FAMILY_RESISTANCE, "MOhm", 1000000.0, fisics_dim_resistance())) return 1;
     if (check_unit("foot_per_second", FISICS_DIM_FAMILY_VELOCITY, "ft/s", 0.3048, fisics_dim_velocity())) return 1;
+    if (check_unit("square_meter", FISICS_DIM_FAMILY_AREA, "m^2", 1.0, fisics_dim_area())) return 1;
+    if (check_unit("square_millimeters", FISICS_DIM_FAMILY_AREA, "mm^2", 0.000001, fisics_dim_area())) return 1;
+    if (check_unit("square_centimeter", FISICS_DIM_FAMILY_AREA, "cm^2", 0.0001, fisics_dim_area())) return 1;
+    if (check_unit("meter_to_fourth", FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, "m^4", 1.0, fisics_dim_second_moment_of_area())) return 1;
+    if (check_unit("millimeters_to_fourth", FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, "mm^4", 1e-12, fisics_dim_second_moment_of_area())) return 1;
+    if (check_unit("centimeter_to_fourth", FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, "cm^4", 1e-8, fisics_dim_second_moment_of_area())) return 1;
 
     const FisicsUnitFamilyDef* family = NULL;
     if (!fisics_unit_lookup_family(FISICS_DIM_FAMILY_ENERGY, &family) || !family) {
@@ -119,6 +125,16 @@ int main(void) {
 
     if (!fisics_unit_lookup_family(FISICS_DIM_FAMILY_FORCE, &family) || !family || family->unit_count < 3) {
         fprintf(stderr, "force family unexpectedly small after engineering expansion\n");
+        return 1;
+    }
+
+    if (!fisics_unit_lookup_family(FISICS_DIM_FAMILY_AREA, &family) || !family || family->unit_count < 3) {
+        fprintf(stderr, "area family unexpectedly small after structural expansion\n");
+        return 1;
+    }
+
+    if (!fisics_unit_lookup_family(FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, &family) || !family || family->unit_count < 3) {
+        fprintf(stderr, "second_moment_of_area family unexpectedly small after structural expansion\n");
         return 1;
     }
 
@@ -174,6 +190,31 @@ int main(void) {
     if (!fisics_dim_lookup_atom("kilowatt_hour", &atom) || atom.kind != FISICS_DIM_ATOM_DEFERRED_UNIT ||
         atom.family != FISICS_DIM_FAMILY_ENERGY) {
         fprintf(stderr, "kilowatt_hour should remain a deferred unit-word in dim(...)\n");
+        return 1;
+    }
+
+    if (!fisics_dim_lookup_atom("area", &atom) || atom.kind != FISICS_DIM_ATOM_DIMENSION ||
+        atom.family != FISICS_DIM_FAMILY_AREA || !fisics_dim_equal(atom.dim, fisics_dim_area())) {
+        fprintf(stderr, "area should resolve as a direct dimension alias in dim(...)\n");
+        return 1;
+    }
+
+    if (!fisics_dim_lookup_atom("area_moment_of_inertia", &atom) || atom.kind != FISICS_DIM_ATOM_DIMENSION ||
+        atom.family != FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA ||
+        !fisics_dim_equal(atom.dim, fisics_dim_second_moment_of_area())) {
+        fprintf(stderr, "area_moment_of_inertia should resolve as a direct dimension alias in dim(...)\n");
+        return 1;
+    }
+
+    if (!fisics_dim_lookup_atom("square_meter", &atom) || atom.kind != FISICS_DIM_ATOM_DEFERRED_UNIT ||
+        atom.family != FISICS_DIM_FAMILY_AREA) {
+        fprintf(stderr, "square_meter should remain a deferred unit-word in dim(...)\n");
+        return 1;
+    }
+
+    if (!fisics_dim_lookup_atom("meter_to_fourth", &atom) || atom.kind != FISICS_DIM_ATOM_DEFERRED_UNIT ||
+        atom.family != FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA) {
+        fprintf(stderr, "meter_to_fourth should remain a deferred unit-word in dim(...)\n");
         return 1;
     }
 

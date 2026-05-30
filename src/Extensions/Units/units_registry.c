@@ -43,6 +43,12 @@ static const char* const kCandelaAliases[] = {"candelas", "candelas"};
 static const char* const kMeterPerSecondAliases[] = {"meters_per_second", "meters_per_second"};
 static const char* const kFootPerSecondAliases[] = {"feet_per_second", "feet_per_second"};
 static const char* const kMeterPerSecondSquaredAliases[] = {"meters_per_second_squared", "meters_per_second_squared"};
+static const char* const kSquareMeterAliases[] = {"square_meters", "square_metre", "square_metres"};
+static const char* const kSquareMillimeterAliases[] = {"square_millimeters", "square_millimetre", "square_millimetres"};
+static const char* const kSquareCentimeterAliases[] = {"square_centimeters", "square_centimetre", "square_centimetres"};
+static const char* const kMeterToFourthAliases[] = {"meters_to_fourth", "metre_to_fourth", "metres_to_fourth"};
+static const char* const kMillimeterToFourthAliases[] = {"millimeters_to_fourth", "millimetre_to_fourth", "millimetres_to_fourth"};
+static const char* const kCentimeterToFourthAliases[] = {"centimeters_to_fourth", "centimetre_to_fourth", "centimetres_to_fourth"};
 static const char* const kNewtonAliases[] = {"newtons", "newtons"};
 static const char* const kKilonewtonAliases[] = {"kilonewtons", "kilonewtons"};
 static const char* const kPoundForceAliases[] = {"pound_forces", "pound_forces"};
@@ -172,6 +178,8 @@ static FisicsUnitDef kAmountUnits[1];
 static FisicsUnitDef kLuminousUnits[1];
 static FisicsUnitDef kVelocityUnits[2];
 static FisicsUnitDef kAccelerationUnits[1];
+static FisicsUnitDef kAreaUnits[3];
+static FisicsUnitDef kSecondMomentOfAreaUnits[3];
 static FisicsUnitDef kForceUnits[3];
 static FisicsUnitDef kEnergyUnits[4];
 static FisicsUnitDef kPowerUnits[4];
@@ -179,7 +187,7 @@ static FisicsUnitDef kPressureUnits[4];
 static FisicsUnitDef kChargeUnits[3];
 static FisicsUnitDef kVoltageUnits[3];
 static FisicsUnitDef kResistanceUnits[4];
-static FisicsUnitFamilyDef kUnitFamilies[16];
+static FisicsUnitFamilyDef kUnitFamilies[18];
 static bool kUnitRegistryInitialized = false;
 
 static void init_length_units_head(void) {
@@ -241,6 +249,18 @@ static void init_acceleration_units(void) {
     ASSIGN_UNIT(kAccelerationUnits[0], "meter_per_second_squared", "m/s^2", FISICS_DIM_FAMILY_ACCELERATION, 1, 0, -2, 0, 0, 0, 0, 0, 1.0, kMeterPerSecondSquaredAliases);
 }
 
+static void init_area_units(void) {
+    ASSIGN_UNIT(kAreaUnits[0], "square_meter", "m^2", FISICS_DIM_FAMILY_AREA, 2, 0, 0, 0, 0, 0, 0, 0, 1.0, kSquareMeterAliases);
+    ASSIGN_UNIT(kAreaUnits[1], "square_millimeter", "mm^2", FISICS_DIM_FAMILY_AREA, 2, 0, 0, 0, 0, 0, 0, 0, 0.000001, kSquareMillimeterAliases);
+    ASSIGN_UNIT(kAreaUnits[2], "square_centimeter", "cm^2", FISICS_DIM_FAMILY_AREA, 2, 0, 0, 0, 0, 0, 0, 0, 0.0001, kSquareCentimeterAliases);
+}
+
+static void init_second_moment_of_area_units(void) {
+    ASSIGN_UNIT(kSecondMomentOfAreaUnits[0], "meter_to_fourth", "m^4", FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, 4, 0, 0, 0, 0, 0, 0, 0, 1.0, kMeterToFourthAliases);
+    ASSIGN_UNIT(kSecondMomentOfAreaUnits[1], "millimeter_to_fourth", "mm^4", FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, 4, 0, 0, 0, 0, 0, 0, 0, 1e-12, kMillimeterToFourthAliases);
+    ASSIGN_UNIT(kSecondMomentOfAreaUnits[2], "centimeter_to_fourth", "cm^4", FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, 4, 0, 0, 0, 0, 0, 0, 0, 1e-8, kCentimeterToFourthAliases);
+}
+
 static void init_force_units(void) {
     memcpy(kForceUnits, kForceUnitsTemplate, sizeof(kForceUnits));
 }
@@ -288,6 +308,8 @@ static void init_registry_stage2(void) {
 
 static void init_registry_stage3(void) {
     init_acceleration_units();
+    init_area_units();
+    init_second_moment_of_area_units();
     init_force_units();
     init_energy_units();
     init_power_units();
@@ -313,13 +335,15 @@ static void init_family_table_part1(void) {
 
 static void init_family_table_part2(void) {
     ASSIGN_FAMILY(kUnitFamilies[8], FISICS_DIM_FAMILY_ACCELERATION, "acceleration", kAccelerationUnits);
-    ASSIGN_FAMILY(kUnitFamilies[9], FISICS_DIM_FAMILY_FORCE, "force", kForceUnits);
-    ASSIGN_FAMILY(kUnitFamilies[10], FISICS_DIM_FAMILY_ENERGY, "energy", kEnergyUnits);
-    ASSIGN_FAMILY(kUnitFamilies[11], FISICS_DIM_FAMILY_POWER, "power", kPowerUnits);
-    ASSIGN_FAMILY(kUnitFamilies[12], FISICS_DIM_FAMILY_PRESSURE, "pressure", kPressureUnits);
-    ASSIGN_FAMILY(kUnitFamilies[13], FISICS_DIM_FAMILY_CHARGE, "charge", kChargeUnits);
-    ASSIGN_FAMILY(kUnitFamilies[14], FISICS_DIM_FAMILY_VOLTAGE, "voltage", kVoltageUnits);
-    ASSIGN_FAMILY(kUnitFamilies[15], FISICS_DIM_FAMILY_RESISTANCE, "resistance", kResistanceUnits);
+    ASSIGN_FAMILY(kUnitFamilies[9], FISICS_DIM_FAMILY_AREA, "area", kAreaUnits);
+    ASSIGN_FAMILY(kUnitFamilies[10], FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, "second_moment_of_area", kSecondMomentOfAreaUnits);
+    ASSIGN_FAMILY(kUnitFamilies[11], FISICS_DIM_FAMILY_FORCE, "force", kForceUnits);
+    ASSIGN_FAMILY(kUnitFamilies[12], FISICS_DIM_FAMILY_ENERGY, "energy", kEnergyUnits);
+    ASSIGN_FAMILY(kUnitFamilies[13], FISICS_DIM_FAMILY_POWER, "power", kPowerUnits);
+    ASSIGN_FAMILY(kUnitFamilies[14], FISICS_DIM_FAMILY_PRESSURE, "pressure", kPressureUnits);
+    ASSIGN_FAMILY(kUnitFamilies[15], FISICS_DIM_FAMILY_CHARGE, "charge", kChargeUnits);
+    ASSIGN_FAMILY(kUnitFamilies[16], FISICS_DIM_FAMILY_VOLTAGE, "voltage", kVoltageUnits);
+    ASSIGN_FAMILY(kUnitFamilies[17], FISICS_DIM_FAMILY_RESISTANCE, "resistance", kResistanceUnits);
 }
 
 static void init_registry_stage5(void) {
@@ -356,6 +380,8 @@ static bool family_expected_dim(FisicsDimFamily family, FisicsDim8* outDim) {
         case FISICS_DIM_FAMILY_CUSTOM: *outDim = fisics_dim_custom(); return true;
         case FISICS_DIM_FAMILY_VELOCITY: *outDim = fisics_dim_velocity(); return true;
         case FISICS_DIM_FAMILY_ACCELERATION: *outDim = fisics_dim_acceleration(); return true;
+        case FISICS_DIM_FAMILY_AREA: *outDim = fisics_dim_area(); return true;
+        case FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA: *outDim = fisics_dim_second_moment_of_area(); return true;
         case FISICS_DIM_FAMILY_FORCE: *outDim = fisics_dim_force(); return true;
         case FISICS_DIM_FAMILY_ENERGY: *outDim = fisics_dim_energy(); return true;
         case FISICS_DIM_FAMILY_POWER: *outDim = fisics_dim_power(); return true;

@@ -674,6 +674,7 @@ IncludeSummaryProbe analyze_include_summary_probe(const TokenBuffer* buffer,
     for (size_t i = 0; i < eofIndex; ++i) {
         const Token* tok = &buffer->tokens[i];
         IncludeSummaryActionKind actionKind;
+        bool shouldAppendDirective = false;
 
         switch (tok->type) {
             case TOKEN_INCLUDE:
@@ -729,81 +730,106 @@ IncludeSummaryProbe analyze_include_summary_probe(const TokenBuffer* buffer,
                 probe.directiveCount++;
                 probe.defineCount++;
                 actionKind = INCLUDE_SUMMARY_ACTION_DEFINE;
-                goto append_directive_action;
+                shouldAppendDirective = true;
+                break;
             case TOKEN_UNDEF:
                 probe.directiveCount++;
                 actionKind = INCLUDE_SUMMARY_ACTION_UNDEF;
-                goto append_directive_action;
+                shouldAppendDirective = true;
+                break;
             case TOKEN_PP_IF:
-                actionKind = INCLUDE_SUMMARY_ACTION_IF;
-                goto append_conditional_action;
-            case TOKEN_IFDEF:
-                actionKind = INCLUDE_SUMMARY_ACTION_IFDEF;
-                goto append_conditional_action;
-            case TOKEN_IFNDEF:
-                actionKind = INCLUDE_SUMMARY_ACTION_IFNDEF;
-                goto append_conditional_action;
-            case TOKEN_PP_ELIF:
-                actionKind = INCLUDE_SUMMARY_ACTION_ELIF;
-                goto append_conditional_action;
-            case TOKEN_PP_ELSE:
-                actionKind = INCLUDE_SUMMARY_ACTION_ELSE;
-                goto append_conditional_action;
-            case TOKEN_ENDIF:
-                actionKind = INCLUDE_SUMMARY_ACTION_ENDIF;
-append_conditional_action:
                 probe.directiveCount++;
                 probe.conditionalCount++;
-                goto append_directive_action;
+                actionKind = INCLUDE_SUMMARY_ACTION_IF;
+                shouldAppendDirective = true;
+                break;
+            case TOKEN_IFDEF:
+                probe.directiveCount++;
+                probe.conditionalCount++;
+                actionKind = INCLUDE_SUMMARY_ACTION_IFDEF;
+                shouldAppendDirective = true;
+                break;
+            case TOKEN_IFNDEF:
+                probe.directiveCount++;
+                probe.conditionalCount++;
+                actionKind = INCLUDE_SUMMARY_ACTION_IFNDEF;
+                shouldAppendDirective = true;
+                break;
+            case TOKEN_PP_ELIF:
+                probe.directiveCount++;
+                probe.conditionalCount++;
+                actionKind = INCLUDE_SUMMARY_ACTION_ELIF;
+                shouldAppendDirective = true;
+                break;
+            case TOKEN_PP_ELSE:
+                probe.directiveCount++;
+                probe.conditionalCount++;
+                actionKind = INCLUDE_SUMMARY_ACTION_ELSE;
+                shouldAppendDirective = true;
+                break;
+            case TOKEN_ENDIF:
+                probe.directiveCount++;
+                probe.conditionalCount++;
+                actionKind = INCLUDE_SUMMARY_ACTION_ENDIF;
+                shouldAppendDirective = true;
+                break;
             case TOKEN_PRAGMA:
                 probe.directiveCount++;
                 actionKind = INCLUDE_SUMMARY_ACTION_PRAGMA;
-append_directive_action: {
-                size_t lineEnd = skip_directive_line_cursor(buffer->tokens, eofIndex, i);
-                if (rawStart < i &&
-                    !include_summary_action_append(&actions,
-                                                   &actionCount,
-                                                   &actionCapacity,
-                                                   include_summary_action_make(buffer,
-                                                                               INCLUDE_SUMMARY_ACTION_RAW_RANGE,
-                                                                               rawStart,
-                                                                               i))) {
-                    probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
-                    free(actions);
-                    return probe;
-                }
-                if (!include_summary_action_append(&actions,
-                                                   &actionCount,
-                                                   &actionCapacity,
-                                                   include_summary_action_make(buffer,
-                                                                               actionKind,
-                                                                               i,
-                                                                               lineEnd))) {
-                    probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
-                    free(actions);
-                    return probe;
-                }
-                i = (lineEnd > 0) ? (lineEnd - 1) : i;
-                rawStart = lineEnd;
+                shouldAppendDirective = true;
                 break;
-            }
             case TOKEN_PREPROCESSOR_OTHER:
                 if (tok->value && strcmp(tok->value, "line") == 0) {
                     probe.directiveCount++;
                     actionKind = INCLUDE_SUMMARY_ACTION_LINE;
-                    goto append_directive_action;
+                    shouldAppendDirective = true;
+                    break;
                 }
                 if (tok->value &&
                     (strcmp(tok->value, "warning") == 0 || strcmp(tok->value, "error") == 0)) {
                     probe.directiveCount++;
                     actionKind = INCLUDE_SUMMARY_ACTION_DIAGNOSTIC;
-                    goto append_directive_action;
+                    shouldAppendDirective = true;
+                    break;
                 }
                 probe.status = INCLUDE_SUMMARY_PROBE_REJECT_UNSUPPORTED_DIRECTIVE;
                 free(actions);
                 return probe;
             default:
                 break;
+        }
+
+        if (!shouldAppendDirective) {
+            continue;
+        }
+
+        {
+            size_t lineEnd = skip_directive_line_cursor(buffer->tokens, eofIndex, i);
+            if (rawStart < i &&
+                !include_summary_action_append(&actions,
+                                               &actionCount,
+                                               &actionCapacity,
+                                               include_summary_action_make(buffer,
+                                                                           INCLUDE_SUMMARY_ACTION_RAW_RANGE,
+                                                                           rawStart,
+                                                                           i))) {
+                probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
+                free(actions);
+                return probe;
+            }
+            if (!include_summary_action_append(&actions,
+                                               &actionCount,
+                                               &actionCapacity,
+                                               include_summary_action_make(buffer,
+                                                                           actionKind,
+                                                                           i,
+                                                                           lineEnd))) {
+                probe.status = INCLUDE_SUMMARY_PROBE_UNKNOWN;
+                free(actions);
+                return probe;
+            }
+            i = (lineEnd > 0) ? (lineEnd - 1) : i;
+            rawStart = lineEnd;
         }
     }
 

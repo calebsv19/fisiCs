@@ -517,10 +517,15 @@ def run_stage_e(
     results: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="fisics-realproj-stagee-") as tmp:
         tmp_root = Path(tmp)
-        for target in targets:
+        target_count = len(targets)
+        for target_index, target in enumerate(targets, start=1):
             target_id = str(target.get("id", "")).strip()
             if not target_id:
                 raise RuntimeError("stage E target missing id")
+            print(
+                f"progress stage={DEFAULT_STAGE_KEY} target_index={target_index}/{target_count} target={target_id}",
+                flush=True,
+            )
 
             build_target_id = str(target.get("build_target", "")).strip()
             build_target = stage_c_targets.get(build_target_id) if build_target_id else None

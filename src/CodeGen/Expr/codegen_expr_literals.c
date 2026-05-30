@@ -32,6 +32,21 @@ LLVMValueRef codegenNumberLiteral(CodegenContext* ctx, ASTNode* node) {
         buf[outLen] = '\0';
         double value = strtod(buf, NULL);
         LLVMTypeRef floatTy = cg_type_from_parsed(ctx, parsed);
+        if (parsed->isComplex || parsed->isImaginary) {
+            LLVMTypeRef complexTy = cg_type_from_parsed(ctx, parsed);
+            LLVMTypeRef elemTy = cg_complex_element_type(ctx, parsed);
+            LLVMValueRef imagValue;
+
+            if (!elemTy || LLVMGetTypeKind(elemTy) == LLVMVoidTypeKind) {
+                elemTy = LLVMDoubleTypeInContext(ctx->llvmContext);
+            }
+            imagValue = LLVMConstReal(elemTy, value);
+            return cg_build_complex_value(ctx,
+                                          LLVMConstNull(elemTy),
+                                          imagValue,
+                                          complexTy,
+                                          "complex.literal.imag");
+        }
         if (floatTy && LLVMGetTypeKind(floatTy) == LLVMStructTypeKind) {
             floatTy = LLVMDoubleTypeInContext(ctx->llvmContext);
         }

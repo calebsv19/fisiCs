@@ -58,6 +58,11 @@ Current debug visibility contract:
 - Step 4 adds a maintainer-facing audit seam for that policy:
   - `fisics_unit_registry_validate(...)` audits the built-in registry and reports aggregate family/unit/alias counts plus total issue count
   - `fisics_unit_registry_validate_table(...)` exists so narrow tests can inject bad tables and prove duplicate-name, duplicate-symbol, alias-collision, family/dimension mismatch, scale, and offset failures mechanically
+- Structural registry coverage now includes the first geometry-derived families needed by real solvers:
+  - `area` (`L^2`) with canonical units such as `square_meter`
+  - `second_moment_of_area` (`L^4`) with canonical units such as `meter_to_fourth`
+  - dimension aliases such as `cross_sectional_area` and `area_moment_of_inertia` resolve directly through `dim(...)`
+  - concrete unit words such as `square_meter` and `meter_to_fourth` remain deferred unit tokens rather than direct dimension aliases
 - Phase 7 Slice 2 makes `[[fisics::unit(...)]]` live as a validation-only declaration attachment:
   - `unit(...)` currently requires `dim(...)`
   - the unit must exist in the seeded registry and match the declaration `Dim8` exactly

@@ -226,6 +226,7 @@ Scope depth 0
   - function: snprintf
   - typedef: __darwin_va_list
   - typedef: __int8_t
+  - function: __builtin_flt_rounds
   - variable: sys_nerr
   - function: __builtin_mul_overflow
   - function: ftell

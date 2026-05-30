@@ -53,6 +53,11 @@ static size_t pp_include_stack_find_slot(const Preprocessor* pp,
         }
         slot = (slot + 1) & mask;
     }
+
+    /* The probe loop is logically total, but keep an explicit fallback for
+       self-host control-flow analysis. */
+    if (foundOut) *foundOut = false;
+    return firstTombstone != SIZE_MAX ? firstTombstone : slot;
 }
 
 static bool pp_include_stack_member_rehash(Preprocessor* pp, size_t newCapacity) {

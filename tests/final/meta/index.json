@@ -810,6 +810,26 @@
     "14-runtime-surface-wave247-multitu-pointer-lifetime-epoch-bridge.json",
     "14-runtime-surface-wave248-multitu-pointer-lifetime-window-feedback.json",
     "14-runtime-surface-wave249-map-forge-epoch-rollback-plane.json",
-    "14-runtime-surface-wave250-map-forge-borrow-trim-rollback.json"
+    "14-runtime-surface-wave250-map-forge-borrow-trim-rollback.json",
+    "14-runtime-surface-wave251-header-corpus-runtime-promotion.json",
+    "14-runtime-surface-wave252-header-math-varargs-promotion.json",
+    "14-runtime-surface-wave253-header-ctype-errno-promotion.json",
+    "14-runtime-surface-wave254-header-qsort-bsearch-assert-promotion.json",
+    "14-runtime-surface-wave255-header-locale-time-promotion.json",
+    "14-runtime-surface-wave256-header-time-difftime-promotion.json",
+    "14-runtime-surface-wave257-header-errno-strtol-erange-promotion.json",
+    "14-runtime-surface-wave258-header-locale-ctype-fold-promotion.json",
+    "14-runtime-surface-wave259-header-stdbool-string-span-promotion.json",
+    "14-runtime-surface-wave260-header-stddef-ptrdiff-promotion.json",
+    "14-runtime-surface-wave261-header-inttypes-parse-format-promotion.json",
+    "14-runtime-surface-wave262-header-inttypes-div-promotion.json",
+    "14-runtime-surface-wave263-header-stdio-tmpfile-promotion.json",
+    "14-runtime-surface-wave264-header-signal-raise-promotion.json",
+    "14-runtime-surface-wave265-header-stdlib-strtod-promotion.json",
+    "14-runtime-surface-wave266-header-stdlib-div-promotion.json",
+    "14-runtime-surface-wave267-header-math-frexp-ldexp-promotion.json",
+    "14-runtime-surface-wave268-header-math-modf-signbit-promotion.json",
+    "14-runtime-surface-wave269-header-complex-parts-conj-promotion.json",
+    "14-runtime-surface-wave270-header-complex-long-double-promotion.json"
   ]
 }

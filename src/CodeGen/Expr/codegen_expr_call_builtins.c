@@ -82,6 +82,7 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         strcmp(calleeName, "__c11_atomic_init") == 0 ||
         strcmp(calleeName, "atomic_init") == 0;
     bool isExpectBuiltin = strcmp(calleeName, "__builtin_expect") == 0;
+    bool isFltRoundsBuiltin = strcmp(calleeName, "__builtin_flt_rounds") == 0;
     bool isFisicsConvertBuiltin = isFisicsUnitConvertBuiltin(calleeName);
 
     if (!isVaStartBuiltin && !isVaArgBuiltin && !isVaEndBuiltin &&
@@ -96,8 +97,14 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         !isStrcatChkBuiltin && !isMemmoveChkBuiltin &&
         !isC11AtomicLoadBuiltin && !isC11AtomicStoreBuiltin &&
         !isC11AtomicExchangeBuiltin && !isC11AtomicInitBuiltin &&
-        !isExpectBuiltin && !isFisicsConvertBuiltin) {
+        !isExpectBuiltin && !isFltRoundsBuiltin && !isFisicsConvertBuiltin) {
         return false;
+    }
+
+    if (isFltRoundsBuiltin) {
+        free(args);
+        *resultOut = LLVMConstInt(intType, 1, false);
+        return true;
     }
 
     if (isFisicsConvertBuiltin) {

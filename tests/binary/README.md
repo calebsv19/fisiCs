@@ -1,21 +1,22 @@
-# Binary Harness (Phases A-E)
+# Binary Harness (Phases A-F)
 
 This directory contains the safe binary-testing lane and its phased expansion.
 
 ## Current Phase Marker
 
-- Current phase: **Phase E (E6 SDL + stdio/libc + math + linkage expansion lanes active)**
-- Stable active scope: Levels 0-4 (`smoke`, `io`, `link`, `sdl`, `stdio`, `fortify`, `abi`)
+- Current phase: **Phase F (header-corpus lane activated on top of Phase E)**
+- Stable active scope: Levels 0-5 (`smoke`, `io`, `link`, `sdl`, `stdio`, `fortify`, `abi`, `header`)
 - Added scope: Level 5 corpus lane through wave 9 (`compile_only` + `link_only` + bounded `runtime`)
+- Added scope: Level 5 header corpus lane through wave 10 (curated header-rich `compile_only` + `link_only` + bounded `runtime`)
 - Added scope: differential lane (`level: diff`, waves 1-18, `fisics` vs `clang`)
 
 ## Current Snapshot
 
-- `make test-binary-abi`, `make test-binary-corpus`, `make test-binary-wave`, `make test-binary-diff`, `make test-binary-link`, `make test-binary-math`, and `make test-binary` are green.
+- `make test-binary-abi`, `make test-binary-corpus`, `make test-binary-header`, `make test-binary-header-shadow`, `make test-binary-wave`, `make test-binary-diff`, `make test-binary-link`, `make test-binary-math`, and `make test-binary` are green.
 - Active inventory:
-  - total tests: `244`
-  - categories: `runtime=184`, `compile_only=19`, `compile_fail=15`, `link_fail=12`, `link_only=14`
-  - levels: `smoke=17`, `io=4`, `link=8`, `sdl=34`, `stdio=11`, `math=4`, `fortify=3`, `abi=58`, `corpus=26`, `diff=79`
+  - total tests: `299`
+  - categories: `runtime=205`, `compile_only=43`, `compile_fail=15`, `link_fail=12`, `link_only=24`
+  - levels: `smoke=17`, `io=4`, `link=8`, `sdl=34`, `stdio=11`, `math=4`, `fortify=3`, `abi=58`, `corpus=26`, `header=55`, `diff=79`
 
 ## Entrypoints
 
@@ -28,6 +29,8 @@ This directory contains the safe binary-testing lane and its phased expansion.
 - `make test-binary-fortify`
 - `make test-binary-abi`
 - `make test-binary-corpus`
+- `make test-binary-header`
+- `make test-binary-header-shadow`
 - `make test-binary-diff`
 - `make test-binary-wave WAVE=<n> [BINARY_WAVE_BUCKET=<bucket-prefix>]`
 - `make test-binary`
@@ -61,6 +64,22 @@ Current coverage:
 - Level 5 (initial):
   - corpus compile-only and link-only lanes (`level: corpus`)
   - bounded execute-safe runtime slice (`level: corpus`, waves 7-9)
+- Phase F1 header corpus lane:
+  - curated header-rich compile/link/runtime fragments (`level: header`, waves 1-7)
+  - first bounded surfaces: `stdio.h`, `stdlib.h`, `string.h`, `stddef.h`, `stdint.h`, `limits.h`, `stdarg.h`, and `math.h`
+  - widened bounded surfaces in wave 2: `ctype.h`, `errno.h`, `float.h`, and `assert.h`, plus more `stdlib.h` callback/multi-TU usage through `qsort`, `bsearch`, and parse helpers
+  - widened bounded surfaces in wave 3: `locale.h`, `time.h`, and `signal.h`, with deterministic `strftime`/`difftime` runtime checks and multi-TU locale/time formatting linkage
+  - widened bounded surfaces in wave 4: deeper practical combinations across `locale.h`, `ctype.h`, `errno.h`, `limits.h`, `stdlib.h`, and `signal.h`, with deterministic locale/ctype folding and `strtol` `ERANGE` behavior
+  - widened bounded surfaces in wave 5: first-class `stdbool.h` behavior plus deeper `stddef.h` / `string.h` span and pointer-difference behavior, still inside the current shim-backed header surface
+  - widened bounded surfaces in wave 6: first-class `inttypes.h` behavior plus deeper fixed-width/max-width integer formatting, parsing, division, and multi-TU bridge coverage through `stdint.h`, `stdlib.h`, and `stdio.h`
+  - widened bounded surfaces in wave 7: practical `stdio.h` file-position/tmpfile behavior plus `signal.h` / `setjmp.h` parse surfaces and a new multi-TU `signal` + `stdio` bridge
+  - widened bounded surfaces in wave 8: `stdlib.h` numeric conversion and division families with deterministic `strtod`, `div`, `ldiv`, `abs`, and `labs`, plus a multi-TU div bridge
+  - widened bounded surfaces in wave 9: deterministic `float.h` / `math.h` scaling and decomposition behavior through `frexp`, `ldexp`, `modf`, `signbit`, and `DBL_EPSILON`, plus a new multi-TU float/math bridge
+  - widened bounded surfaces in wave 10: practical `complex.h` behavior through `creal`, `cimag`, `conj`, `creall`, `cimagl`, and `conjl`, plus a new multi-TU complex bridge
+  - widened bounded surfaces in the Wave 9 closeout: stable `float.h` builtin-macro coverage for `FLT_RADIX`, mantissa/digit macros, exponent macros, `FLT_EVAL_METHOD`, `DECIMAL_DIG`, and `FLT_ROUNDS`
+  - Wave 10 closeout now also includes the strict `double complex ... I` construction path, promoted from `binary-header-corpus-complex-imag-unit-audit.json` after fixing imaginary-suffix typing and arithmetic result typing for forms like `1.0iF` and `2.5 * I`
+  - current policy: core C system-header cases in this lane should carry explicit shadow-closure classification; waves 1-10 are classified as `shadow_closure=required` and close under `test-binary-header-shadow`
+  - intended as the stable floor before wider self-host or real-project header-heavy canary widening
 - Differential lane (initial):
   - runtime parity checks against `clang` on UB-clean subsets (`level: diff`, waves 1-18)
 - Phase E1 SDL lane:

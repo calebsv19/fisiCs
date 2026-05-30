@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_header_inttypes_parse_format_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_inttypes_parse_format_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_inttypes_parse_format_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_header_inttypes_parse_format_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "headers",
+        "inttypes",
+        "stdint",
+        "stdio",
+        "stdlib",
+        "strtoimax",
+        "strtoumax",
+        "promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

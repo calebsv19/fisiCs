@@ -70,6 +70,7 @@ Scope depth 0
   - function: __builtin___vsnprintf_chk
   - typedef: sig_atomic_t
   - function: __c11_atomic_init
+  - function: __builtin_flt_rounds
   - function: __builtin_mul_overflow
   - function: __builtin___strcat_chk
 Extension Units Annotations: 20

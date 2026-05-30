@@ -45,6 +45,8 @@ static const char* family_name(FisicsDimFamily family) {
         case FISICS_DIM_FAMILY_CUSTOM: return "custom";
         case FISICS_DIM_FAMILY_VELOCITY: return "velocity";
         case FISICS_DIM_FAMILY_ACCELERATION: return "acceleration";
+        case FISICS_DIM_FAMILY_AREA: return "area";
+        case FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA: return "second_moment_of_area";
         case FISICS_DIM_FAMILY_FORCE: return "force";
         case FISICS_DIM_FAMILY_ENERGY: return "energy";
         case FISICS_DIM_FAMILY_POWER: return "power";
@@ -96,6 +98,14 @@ static const DimAtomEntry kDimAtoms[] = {
     { "speed", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_VELOCITY, DIM_INIT(1, 0, -1, 0, 0, 0, 0, 0) },
 
     { "acceleration", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_ACCELERATION, DIM_INIT(1, 0, -2, 0, 0, 0, 0, 0) },
+
+    { "area", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_AREA, DIM_INIT(2, 0, 0, 0, 0, 0, 0, 0) },
+    { "cross_sectional_area", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_AREA, DIM_INIT(2, 0, 0, 0, 0, 0, 0, 0) },
+    { "section_area", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_AREA, DIM_INIT(2, 0, 0, 0, 0, 0, 0, 0) },
+
+    { "second_moment_of_area", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, DIM_INIT(4, 0, 0, 0, 0, 0, 0, 0) },
+    { "area_moment_of_inertia", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, DIM_INIT(4, 0, 0, 0, 0, 0, 0, 0) },
+    { "second_area_moment", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA, DIM_INIT(4, 0, 0, 0, 0, 0, 0, 0) },
 
     { "force", FISICS_DIM_ATOM_DIMENSION, FISICS_DIM_FAMILY_FORCE, DIM_INIT(1, 1, -2, 0, 0, 0, 0, 0) },
 
@@ -233,6 +243,16 @@ FisicsDim8 fisics_dim_velocity(void) {
 
 FisicsDim8 fisics_dim_acceleration(void) {
     FisicsDim8 dim = {{1, 0, -2, 0, 0, 0, 0, 0}};
+    return dim;
+}
+
+FisicsDim8 fisics_dim_area(void) {
+    FisicsDim8 dim = {{2, 0, 0, 0, 0, 0, 0, 0}};
+    return dim;
+}
+
+FisicsDim8 fisics_dim_second_moment_of_area(void) {
+    FisicsDim8 dim = {{4, 0, 0, 0, 0, 0, 0, 0}};
     return dim;
 }
 

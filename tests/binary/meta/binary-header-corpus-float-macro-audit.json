@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-header-corpus",
+  "tests": [
+    {
+      "id": "binary__compile_only__header_corpus_float_macro_digits_radix_audit",
+      "level": "header",
+      "category": "compile_only",
+      "shadow_closure": "required",
+      "inputs": [
+        "cases/binary__compile_only__header_corpus_float_macro_digits_radix_audit.c"
+      ],
+      "env": {
+        "FISICS_MAX_PROCS": "0"
+      },
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_only__header_corpus_float_macro_exp_audit",
+      "level": "header",
+      "category": "compile_only",
+      "shadow_closure": "required",
+      "inputs": [
+        "cases/binary__compile_only__header_corpus_float_macro_exp_audit.c"
+      ],
+      "env": {
+        "FISICS_MAX_PROCS": "0"
+      },
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_only__header_corpus_float_macro_eval_decimal_audit",
+      "level": "header",
+      "category": "compile_only",
+      "shadow_closure": "required",
+      "inputs": [
+        "cases/binary__compile_only__header_corpus_float_macro_eval_decimal_audit.c"
+      ],
+      "env": {
+        "FISICS_MAX_PROCS": "0"
+      },
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    },
+    {
+      "id": "binary__compile_only__header_corpus_float_macro_rounds_audit",
+      "level": "header",
+      "category": "compile_only",
+      "shadow_closure": "required",
+      "inputs": [
+        "cases/binary__compile_only__header_corpus_float_macro_rounds_audit.c"
+      ],
+      "env": {
+        "FISICS_MAX_PROCS": "0"
+      },
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

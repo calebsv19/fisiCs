@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_header_ctype_errno_parse_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_ctype_errno_parse_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_ctype_errno_parse_matrix.stdout",
+      "expected_stderr": "expect/14__runtime_header_ctype_errno_parse_matrix.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "headers",
+        "ctype",
+        "errno",
+        "float",
+        "stdlib",
+        "parse",
+        "promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

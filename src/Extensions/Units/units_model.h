@@ -36,6 +36,8 @@ typedef enum {
     FISICS_DIM_FAMILY_CUSTOM,
     FISICS_DIM_FAMILY_VELOCITY,
     FISICS_DIM_FAMILY_ACCELERATION,
+    FISICS_DIM_FAMILY_AREA,
+    FISICS_DIM_FAMILY_SECOND_MOMENT_OF_AREA,
     FISICS_DIM_FAMILY_FORCE,
     FISICS_DIM_FAMILY_ENERGY,
     FISICS_DIM_FAMILY_POWER,
@@ -77,6 +79,8 @@ FisicsDim8 fisics_dim_custom(void);
 
 FisicsDim8 fisics_dim_velocity(void);
 FisicsDim8 fisics_dim_acceleration(void);
+FisicsDim8 fisics_dim_area(void);
+FisicsDim8 fisics_dim_second_moment_of_area(void);
 FisicsDim8 fisics_dim_force(void);
 FisicsDim8 fisics_dim_energy(void);
 FisicsDim8 fisics_dim_power(void);

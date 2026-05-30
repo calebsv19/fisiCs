@@ -323,20 +323,130 @@
               ],
               "expected_exit_code": 0
             },
-            {
-              "id": "fisics_runtime_shadow_profile_overlay_stdio_smoke",
-              "build_target": "fisics_cli_shadow_profile_default",
-              "run_args": [
-                "--overlay=physics-units",
-                "-c",
-                "tests/fixtures/self_host_runtime/overlay_stdio_nocall.c",
-                "-o",
-                "/private/tmp/fisics_stage_d_overlay_stdio_nocall.o"
-              ],
-              "expected_exit_code": 0
-            }
-          ]
-        },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_overlay_stdio_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--overlay=physics-units",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/overlay_stdio_nocall.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_overlay_stdio_nocall.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_parse_format_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_parse_and_format_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_parse_format.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_qsort_bsearch_assert_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_qsort_bsearch_assert_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_qsort_bsearch_assert.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_locale_time_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_locale_time_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_locale_time.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_locale_ctype_errno_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_locale_ctype_errno_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_locale_ctype_errno.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_stdbool_stddef_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_stdbool_stddef_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_stdbool_stddef.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_inttypes_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_inttypes_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_inttypes.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_stdio_signal_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_stdio_signal_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_stdio_signal.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_stdlib_numeric_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_stdlib_numeric_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_stdlib_numeric.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_float_math_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_float_math_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_float_math.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          },
+                                          {
+                                            "id": "fisics_runtime_shadow_profile_header_corpus_complex_smoke",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_complex_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_d_header_corpus_complex.o"
+                                            ],
+                                            "expected_exit_code": 0
+                                          }
+                                        ]
+            },
         "E_golden_behavior": {
           "enabled": true,
           "timeout_sec": 240,
@@ -408,21 +518,211 @@
                 "/private/tmp/fisics_stage_e_ballistics_valid.o"
               ]
             },
-            {
-              "id": "fisics_golden_overlay_ballistics_invalid_assignment_diag",
-              "build_target": "fisics_cli_full_default",
-              "run_args": [
-                "--overlay=physics-units",
+                                          {
+                                            "id": "fisics_golden_overlay_ballistics_invalid_assignment_diag",
+                                            "build_target": "fisics_cli_full_default",
+                                            "run_args": [
+                                              "--overlay=physics-units",
                 "--dump-sema",
                 "-c",
-                "examples/physics_units/ballistics_invalid_assignment.c",
-                "-o",
-                "/private/tmp/fisics_stage_e_ballistics_invalid_assignment.o"
-              ],
-              "expected_exit_code": 1
-            }
-          ]
-        },
+                                              "examples/physics_units/ballistics_invalid_assignment.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_ballistics_invalid_assignment.o"
+                                            ],
+                                            "expected_exit_code": 1
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_parse_format_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_parse_and_format_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_parse_format.o"
+                                            ],
+                                            "expected_stdout_sha256": "6e0241195e7062a2564ac652efdca523e749a7353fd1795fdb68bf0cc7850279",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: strtoul",
+                                              "  - function: memcpy",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_qsort_bsearch_assert_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_qsort_bsearch_assert_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_qsort_bsearch_assert.o"
+                                            ],
+                                            "expected_stdout_sha256": "95061c7e1eeb93ff8ae890f2d3f36305126b5b053646767df8be4ff1dcfb312b",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: qsort",
+                                              "  - function: bsearch",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_locale_time_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_locale_time_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_locale_time.o"
+                                            ],
+                                            "expected_stdout_sha256": "91fac68961eed4b03fee3e7f197692e8fe7c0f6271810d57034167cf8c7b3f11",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: setlocale",
+                                              "  - function: difftime",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_locale_ctype_errno_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_locale_ctype_errno_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_locale_ctype_errno.o"
+                                            ],
+                                            "expected_stdout_sha256": "1a2b9f2ae2f506017d4a4bb86bd9b7f69ae3a7a06ea4cece1fe9f338e3f95e21",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: setlocale",
+                                              "  - function: strtol",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_stdbool_stddef_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_stdbool_stddef_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_stdbool_stddef.o"
+                                            ],
+                                            "expected_stdout_sha256": "cf81d77978ce6028af373f236667534af2632ef84c83412e52ba2b56807fab28",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: strcspn",
+                                              "  - function: header_corpus_wave5_span_summary",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_inttypes_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_inttypes_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_inttypes.o"
+                                            ],
+                                            "expected_stdout_sha256": "7aa74a21d840457ff7414dc0e2ce8fd00583942d983cb89ac6a7f8b264288073",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: strtoimax",
+                                              "  - function: header_corpus_wave6_parse_and_divide",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_stdio_signal_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_stdio_signal_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_stdio_signal.o"
+                                            ],
+                                            "expected_stdout_sha256": "48549756d2ebf8e51054b05957ff74f3f065d603e7192e8a83cd82bcfc070c85",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: tmpfile",
+                                              "  - function: header_corpus_wave7_stdio_signal_summary",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_stdlib_numeric_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_stdlib_numeric_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_stdlib_numeric.o"
+                                            ],
+                                            "expected_stdout_sha256": "fd39a63b94f7fe7395e111b7486a916f64c53c7133b96adbcf7c0fa0a476adb0",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: strtod",
+                                              "  - function: header_corpus_wave8_parse_and_divide",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_float_math_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_float_math_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_float_math.o"
+                                            ],
+                                            "expected_stdout_sha256": "849a3fd39a26d787400de3002ba7c33163c81c5334886a1e1f1c741dfe191ea3",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: frexp",
+                                              "  - function: header_corpus_wave9_scale_and_split",
+                                              "  - function: main"
+                                            ]
+                                          },
+                                          {
+                                            "id": "fisics_golden_shadow_profile_header_corpus_complex_dump_sema",
+                                            "build_target": "fisics_cli_shadow_profile_default",
+                                            "run_args": [
+                                              "--dump-sema",
+                                              "-c",
+                                              "tests/fixtures/self_host_runtime/header_corpus_complex_matrix.c",
+                                              "-o",
+                                              "/private/tmp/fisics_stage_e_header_corpus_complex.o"
+                                            ],
+                                            "expected_stdout_sha256": "2ed42d4110aff604f583a7967ac205ab2c92d0a1e56f3e637c5a5b2ce3054597",
+                                            "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                                            "expected_stdout_contains": [
+                                              "SemanticModel: 0 error(s)",
+                                              "  - function: conj",
+                                              "  - function: header_corpus_wave10_complex_summary",
+                                              "  - function: main"
+                                            ]
+                                          }
+                                        ]
+            },
         "F_perf_telemetry": {
           "enabled": true,
           "required_stages": [

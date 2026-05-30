@@ -918,6 +918,13 @@ test-binary-abi: $(BIN)
 test-binary-corpus: $(BIN)
 	@BINARY_LEVEL=corpus python3 tests/binary/run_binary.py ./$(BIN)
 
+test-binary-header: $(BIN)
+	@BINARY_LEVEL=header python3 tests/binary/run_binary.py ./$(BIN)
+
+test-binary-header-shadow: shim-build-shadow
+	@SYSTEM_INCLUDE_PATHS="$(SYS_SHIMS_OVERLAY):$(SYS_SHIMS_INCLUDE)" \
+		BINARY_LEVEL=header python3 tests/binary/run_binary.py ./fisics_shim_shadow
+
 test-binary-diff: $(BIN)
 	@BINARY_LEVEL=diff python3 tests/binary/run_binary.py ./$(BIN)
 
@@ -929,7 +936,7 @@ test-binary-wave: $(BIN)
 		BINARY_MANIFEST="wave$(WAVE).json" python3 tests/binary/run_binary.py ./$(BIN); \
 	fi
 
-test-binary: test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff
+test-binary: test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-header test-binary-diff
 
 test-binary-id: $(BIN)
 	@if [ -z "$(ID)" ]; then echo "ERROR: provide ID=<test_id>"; exit 2; fi
@@ -1131,7 +1138,7 @@ tests: test frontend-api-test
         statement-expr-codegen codegen-bitfield semantic-anon-record-flatten \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
-        test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-diff test-binary-wave test-binary-id binary-regen \
+        test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-header test-binary-header-shadow test-binary-diff test-binary-wave test-binary-id binary-regen \
         integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units ci-guardrails \
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

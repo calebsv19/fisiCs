@@ -502,6 +502,9 @@ void seedBuiltins(Scope* globalScope) {
     Symbol* expectSym = makeBuiltinFunc("__builtin_expect", longType(false), 2, expectArgs);
     if (expectSym) addToScope(scope, expectSym);
 
+    Symbol* fltRoundsSym = makeBuiltinFunc("__builtin_flt_rounds", intType(), 0, NULL);
+    if (fltRoundsSym) addToScope(scope, fltRoundsSym);
+
     Symbol* constantPSym = makeBuiltin("__builtin_constant_p", SYMBOL_FUNCTION, intType(), NULL);
     if (constantPSym) {
         // GCC/Clang treat this as a special builtin predicate that accepts arbitrary expressions.

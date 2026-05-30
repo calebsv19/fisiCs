@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-header-corpus",
+  "tests": [
+    {
+      "id": "binary__compile_only__header_probe_wchar_wctype_surface_mix",
+      "level": "header_probe",
+      "category": "compile_only",
+      "inputs": [
+        "cases/binary__compile_only__header_probe_wchar_wctype_surface_mix.c"
+      ],
+      "shadow_closure": "required",
+      "args": [
+        "-std=c99"
+      ],
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

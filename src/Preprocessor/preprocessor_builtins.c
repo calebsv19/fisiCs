@@ -133,6 +133,54 @@ static void define_builtin_empty_macro(Preprocessor* pp, const char* name) {
                                 (SourceRange){0});
 }
 
+static void define_default_float_builtins(Preprocessor* pp) {
+    define_builtin_object(pp, "__FLT_EVAL_METHOD__", "0");
+    define_builtin_object(pp, "__FLT_RADIX__", "2");
+
+    define_builtin_object(pp, "__FLT_MANT_DIG__", "24");
+    define_builtin_object(pp, "__DBL_MANT_DIG__", "53");
+    define_builtin_object(pp, "__LDBL_MANT_DIG__", "53");
+
+    define_builtin_object(pp, "__FLT_DIG__", "6");
+    define_builtin_object(pp, "__DBL_DIG__", "15");
+    define_builtin_object(pp, "__LDBL_DIG__", "15");
+
+    define_builtin_object(pp, "__FLT_MIN_EXP__", "(-125)");
+    define_builtin_object(pp, "__DBL_MIN_EXP__", "(-1021)");
+    define_builtin_object(pp, "__LDBL_MIN_EXP__", "(-1021)");
+
+    define_builtin_object(pp, "__FLT_MIN_10_EXP__", "(-37)");
+    define_builtin_object(pp, "__DBL_MIN_10_EXP__", "(-307)");
+    define_builtin_object(pp, "__LDBL_MIN_10_EXP__", "(-307)");
+
+    define_builtin_object(pp, "__FLT_MAX_EXP__", "128");
+    define_builtin_object(pp, "__DBL_MAX_EXP__", "1024");
+    define_builtin_object(pp, "__LDBL_MAX_EXP__", "1024");
+
+    define_builtin_object(pp, "__FLT_MAX_10_EXP__", "38");
+    define_builtin_object(pp, "__DBL_MAX_10_EXP__", "308");
+    define_builtin_object(pp, "__LDBL_MAX_10_EXP__", "308");
+
+    define_builtin_object(pp, "__FLT_MAX__", "3.402823466e+38F");
+    define_builtin_object(pp, "__DBL_MAX__", "1.7976931348623157e+308");
+    define_builtin_object(pp, "__LDBL_MAX__", "1.7976931348623157e+308L");
+    define_builtin_object(pp, "__FLT_MIN__", "1.175494351e-38F");
+    define_builtin_object(pp, "__DBL_MIN__", "2.2250738585072014e-308");
+    define_builtin_object(pp, "__LDBL_MIN__", "2.2250738585072014e-308L");
+    define_builtin_object(pp, "__FLT_EPSILON__", "1.19209290e-7F");
+    define_builtin_object(pp, "__DBL_EPSILON__", "2.2204460492503131e-16");
+    define_builtin_object(pp, "__LDBL_EPSILON__", "2.2204460492503131e-16L");
+
+    define_builtin_object(pp, "__FLT_DENORM_MIN__", "1.40129846e-45F");
+    define_builtin_object(pp, "__DBL_DENORM_MIN__", "4.9406564584124654e-324");
+    define_builtin_object(pp, "__LDBL_DENORM_MIN__", "4.9406564584124654e-324L");
+
+    define_builtin_object(pp, "__FLT_DECIMAL_DIG__", "9");
+    define_builtin_object(pp, "__DBL_DECIMAL_DIG__", "17");
+    define_builtin_object(pp, "__LDBL_DECIMAL_DIG__", "17");
+    define_builtin_object(pp, "__DECIMAL_DIG__", "__LDBL_DECIMAL_DIG__");
+}
+
 static void define_default_builtins(Preprocessor* pp) {
     define_builtin_object(pp, "__APPLE__", "1");
     define_builtin_object(pp, "__MACH__", "1");
@@ -161,15 +209,7 @@ static void define_default_builtins(Preprocessor* pp) {
         }
     }
     define_builtin_object(pp, "MAC_OS_X_VERSION_MIN_REQUIRED", "130000");
-    define_builtin_object(pp, "__FLT_MAX__", "3.402823466e+38F");
-    define_builtin_object(pp, "__DBL_MAX__", "1.7976931348623157e+308");
-    define_builtin_object(pp, "__LDBL_MAX__", "1.189731495357231765e+4932L");
-    define_builtin_object(pp, "__FLT_MIN__", "1.175494351e-38F");
-    define_builtin_object(pp, "__DBL_MIN__", "2.2250738585072014e-308");
-    define_builtin_object(pp, "__LDBL_MIN__", "3.3621031431120935063e-4932L");
-    define_builtin_object(pp, "__FLT_EPSILON__", "1.19209290e-7F");
-    define_builtin_object(pp, "__DBL_EPSILON__", "2.2204460492503131e-16");
-    define_builtin_object(pp, "__LDBL_EPSILON__", "1.0842021724855044e-19L");
+    define_default_float_builtins(pp);
     define_builtin_object(pp, "__ATOMIC_RELAXED", "0");
     define_builtin_object(pp, "__ATOMIC_CONSUME", "1");
     define_builtin_object(pp, "__ATOMIC_ACQUIRE", "2");

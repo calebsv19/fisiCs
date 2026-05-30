@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-header-corpus",
+  "tests": [
+    {
+      "id": "binary__runtime__header_probe_complex_imag_unit_construction_matrix",
+      "level": "header",
+      "category": "runtime",
+      "inputs": [
+        "cases/binary__runtime__header_probe_complex_imag_unit_construction_matrix.c"
+      ],
+      "shadow_closure": "required",
+      "env": {
+        "FISICS_MAX_PROCS": "0"
+      },
+      "args": [
+        "-std=c99"
+      ],
+      "expect_exit": 0,
+      "expected_stdout": "expect/binary__runtime__header_probe_complex_imag_unit_construction_matrix.stdout",
+      "timeout_sec": 10,
+      "resource_profile": "default"
+    }
+  ]
+}

@@ -496,10 +496,15 @@ def run_stage_d(
     results: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="fisics-realproj-staged-") as tmp:
         tmp_root = Path(tmp)
-        for target in targets:
+        target_count = len(targets)
+        for target_index, target in enumerate(targets, start=1):
             target_id = str(target.get("id", "")).strip()
             if not target_id:
                 raise RuntimeError("stage D target missing id")
+            print(
+                f"progress stage={DEFAULT_STAGE_KEY} target_index={target_index}/{target_count} target={target_id}",
+                flush=True,
+            )
 
             build_target_id = str(target.get("build_target", "")).strip()
             build_target = stage_c_targets.get(build_target_id) if build_target_id else None
@@ -791,10 +796,12 @@ def run_stage_d(
             )
 
     if latest_stage_dir.exists():
+        print("progress stage=D_runtime_smoke artifact_snapshot=start", flush=True)
         history_stage_dir.parent.mkdir(parents=True, exist_ok=True)
         if history_stage_dir.exists():
             shutil.rmtree(history_stage_dir)
         shutil.copytree(latest_stage_dir, history_stage_dir)
+        print("progress stage=D_runtime_smoke artifact_snapshot=done", flush=True)
 
     parity_counts: dict[str, int] = {}
     blocker_count = 0
@@ -903,7 +910,9 @@ def main() -> int:
         if not project_root.exists():
             raise RuntimeError(f"project root does not exist: {project_root}")
         report = run_stage_d(project=project, project_root=project_root, args=args)
+        print("progress stage=D_runtime_smoke report_write=start", flush=True)
         latest_path, history_path = write_report(report)
+        print("progress stage=D_runtime_smoke report_write=done", flush=True)
         print_summary(report, latest_path=latest_path, history_path=history_path)
         return 2 if report["summary"]["blockers"] > 0 else 0
     except Exception as exc:
