@@ -42,8 +42,10 @@ Experimental LLVM IR emitter that lowers the semantic AST into executable IR. Ty
   - Owns binary arithmetic/comparison/pointer-difference lowering, including complex arithmetic and integer/float promotion handling.
 - `Expr/codegen_expr_call_support.c`
   - Owns call-signature support helpers: default promotions, call-argument preparation, varargs intrinsics, and builtin call rewrite support.
+- `Expr/codegen_expr_call_builtins_atomics.c`
+  - Owns the C11/atomic builtin lowering lane: load/store/exchange/init routing, pointer/value coercions, and memory-order handling for atomic call builtins.
 - `Expr/codegen_expr_call_builtins.c`
-  - Owns builtin/special-case call lowering for atomics, `va_*`, fortified libc rewrites, allocation/object-size intrinsics, floating-point constants, and `__builtin_expect`.
+  - Owns the builtin-call dispatcher plus non-atomic special-case lowering for `va_*`, fortified libc rewrites, allocation/object-size intrinsics, floating-point constants, units conversion, and `__builtin_expect`.
 - `Expr/codegen_expr_calls.c`
   - Owns the ordinary function-call emission path: semantic signature recovery, opaque-pointer fallback inference, ABI-adjusted argument preparation, and aggregate return unpacks.
 - `codegen_control_flow.c`

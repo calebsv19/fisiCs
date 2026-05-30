@@ -36,6 +36,10 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         return false;
     }
 
+    if (cg_try_codegen_atomic_builtin_call(ctx, node, calleeName, args, resultOut)) {
+        return true;
+    }
+
     bool isVaStartBuiltin =
         strcmp(calleeName, "va_start") == 0 || strcmp(calleeName, "__builtin_va_start") == 0;
     bool isVaArgBuiltin =
@@ -69,18 +73,6 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
     bool isStrcpyChkBuiltin = strcmp(calleeName, "__builtin___strcpy_chk") == 0;
     bool isStrcatChkBuiltin = strcmp(calleeName, "__builtin___strcat_chk") == 0;
     bool isMemmoveChkBuiltin = strcmp(calleeName, "__builtin___memmove_chk") == 0;
-    bool isC11AtomicLoadBuiltin =
-        strcmp(calleeName, "__c11_atomic_load") == 0 ||
-        strcmp(calleeName, "atomic_load_explicit") == 0;
-    bool isC11AtomicStoreBuiltin =
-        strcmp(calleeName, "__c11_atomic_store") == 0 ||
-        strcmp(calleeName, "atomic_store_explicit") == 0;
-    bool isC11AtomicExchangeBuiltin =
-        strcmp(calleeName, "__c11_atomic_exchange") == 0 ||
-        strcmp(calleeName, "atomic_exchange_explicit") == 0;
-    bool isC11AtomicInitBuiltin =
-        strcmp(calleeName, "__c11_atomic_init") == 0 ||
-        strcmp(calleeName, "atomic_init") == 0;
     bool isExpectBuiltin = strcmp(calleeName, "__builtin_expect") == 0;
     bool isFltRoundsBuiltin = strcmp(calleeName, "__builtin_flt_rounds") == 0;
     bool isFisicsConvertBuiltin = isFisicsUnitConvertBuiltin(calleeName);
@@ -95,8 +87,6 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         !isMemcpyChkBuiltin && !isMemsetChkBuiltin && !isBzeroBuiltin &&
         !isStrncpyChkBuiltin && !isStrncatChkBuiltin && !isStrcpyChkBuiltin &&
         !isStrcatChkBuiltin && !isMemmoveChkBuiltin &&
-        !isC11AtomicLoadBuiltin && !isC11AtomicStoreBuiltin &&
-        !isC11AtomicExchangeBuiltin && !isC11AtomicInitBuiltin &&
         !isExpectBuiltin && !isFltRoundsBuiltin && !isFisicsConvertBuiltin) {
         return false;
     }
@@ -178,235 +168,6 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         }
         free(args);
         *resultOut = targetValue;
-        return true;
-    }
-
-    if (isC11AtomicLoadBuiltin) {
-        if (node->functionCall.argumentCount < 1 || !args || !args[0]) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-        LLVMValueRef atomicPtr = args[0];
-        if (LLVMGetTypeKind(LLVMTypeOf(atomicPtr)) != LLVMPointerTypeKind) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-        const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[0]);
-        LLVMTypeRef valueType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(atomicPtr));
-        if (!valueType || LLVMGetTypeKind(valueType) == LLVMVoidTypeKind) {
-            valueType = LLVMInt8TypeInContext(ctx->llvmContext);
-        }
-        LLVMTypeRef atomicType = valueType;
-        if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
-            LLVMGetIntTypeWidth(atomicType) == 1) {
-            atomicType = LLVMInt8TypeInContext(ctx->llvmContext);
-        }
-        atomicPtr = cg_atomic_cast_pointer(ctx, atomicPtr, atomicType, "atomic.load.ptr.cast");
-        if (!atomicPtr) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-
-        LLVMValueRef load = LLVMBuildLoad2(ctx->builder, atomicType, atomicPtr, "atomic.load");
-        LLVMAtomicOrdering ordering = LLVMAtomicOrderingSequentiallyConsistent;
-        if (node->functionCall.argumentCount >= 2 && args[1]) {
-            ordering = cg_atomic_order_from_builtin_arg(args[1],
-                                                        LLVMAtomicOrderingSequentiallyConsistent,
-                                                        true,
-                                                        false);
-        }
-        LLVMSetOrdering(load, ordering);
-        LLVMValueRef typedLoad = load;
-        if (atomicType != valueType) {
-            if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
-                LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
-                typedLoad = LLVMBuildIntCast2(ctx->builder,
-                                              typedLoad,
-                                              valueType,
-                                              false,
-                                              "atomic.load.bool.cast");
-            } else {
-                typedLoad = cg_cast_value(ctx,
-                                          typedLoad,
-                                          valueType,
-                                          NULL,
-                                          NULL,
-                                          "atomic.load.result.cast");
-            }
-        }
-        *resultOut = cg_atomic_cast_call_result(ctx, node, typedLoad, "atomic.load.result.cast");
-        free(args);
-        return true;
-    }
-
-    if (isC11AtomicStoreBuiltin || isC11AtomicInitBuiltin) {
-        if (node->functionCall.argumentCount < 2 || !args || !args[0] || !args[1]) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-        LLVMValueRef atomicPtr = args[0];
-        if (LLVMGetTypeKind(LLVMTypeOf(atomicPtr)) != LLVMPointerTypeKind) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-        const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[0]);
-        LLVMTypeRef valueType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(atomicPtr));
-        if (!valueType || LLVMGetTypeKind(valueType) == LLVMVoidTypeKind) {
-            valueType = LLVMInt8TypeInContext(ctx->llvmContext);
-        }
-        LLVMTypeRef atomicType = valueType;
-        if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
-            LLVMGetIntTypeWidth(atomicType) == 1) {
-            atomicType = LLVMInt8TypeInContext(ctx->llvmContext);
-        }
-        atomicPtr = cg_atomic_cast_pointer(ctx, atomicPtr, atomicType, "atomic.store.ptr.cast");
-        if (!atomicPtr) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-
-        LLVMValueRef desired = cg_atomic_cast_value(ctx,
-                                                    args[1],
-                                                    valueType,
-                                                    node->functionCall.arguments[1],
-                                                    "atomic.store.value.cast");
-        if (!desired) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-        LLVMValueRef opValue = desired;
-        if (atomicType != valueType) {
-            if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
-                LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
-                opValue = LLVMBuildIntCast2(ctx->builder,
-                                            opValue,
-                                            atomicType,
-                                            false,
-                                            "atomic.store.op.cast");
-            } else {
-                opValue = cg_cast_value(ctx,
-                                        opValue,
-                                        atomicType,
-                                        NULL,
-                                        NULL,
-                                        "atomic.store.op.cast");
-            }
-        }
-        if (isC11AtomicStoreBuiltin) {
-            LLVMAtomicOrdering ordering = LLVMAtomicOrderingSequentiallyConsistent;
-            if (node->functionCall.argumentCount >= 3 && args[2]) {
-                ordering = cg_atomic_order_from_builtin_arg(args[2],
-                                                            LLVMAtomicOrderingSequentiallyConsistent,
-                                                            false,
-                                                            true);
-            }
-            LLVMValueRef store = LLVMBuildStore(ctx->builder, opValue, atomicPtr);
-            LLVMSetOrdering(store, ordering);
-        } else {
-            (void)LLVMBuildStore(ctx->builder, opValue, atomicPtr);
-        }
-        free(args);
-        *resultOut = NULL;
-        return true;
-    }
-
-    if (isC11AtomicExchangeBuiltin) {
-        if (node->functionCall.argumentCount < 2 || !args || !args[0] || !args[1]) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-        LLVMValueRef atomicPtr = args[0];
-        if (LLVMGetTypeKind(LLVMTypeOf(atomicPtr)) != LLVMPointerTypeKind) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-        const ParsedType* ptrParsed = cg_resolve_expression_type(ctx, node->functionCall.arguments[0]);
-        LLVMTypeRef valueType = cg_element_type_from_pointer(ctx, ptrParsed, LLVMTypeOf(atomicPtr));
-        if (!valueType || LLVMGetTypeKind(valueType) == LLVMVoidTypeKind) {
-            valueType = LLVMInt8TypeInContext(ctx->llvmContext);
-        }
-        LLVMTypeRef atomicType = valueType;
-        if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
-            LLVMGetIntTypeWidth(atomicType) == 1) {
-            atomicType = LLVMInt8TypeInContext(ctx->llvmContext);
-        }
-        atomicPtr = cg_atomic_cast_pointer(ctx, atomicPtr, atomicType, "atomic.exchange.ptr.cast");
-        if (!atomicPtr) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-
-        LLVMValueRef desired = cg_atomic_cast_value(ctx,
-                                                    args[1],
-                                                    valueType,
-                                                    node->functionCall.arguments[1],
-                                                    "atomic.exchange.value.cast");
-        if (!desired) {
-            free(args);
-            *resultOut = NULL;
-            return true;
-        }
-        LLVMValueRef opValue = desired;
-        if (atomicType != valueType) {
-            if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
-                LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
-                opValue = LLVMBuildIntCast2(ctx->builder,
-                                            opValue,
-                                            atomicType,
-                                            false,
-                                            "atomic.exchange.op.cast");
-            } else {
-                opValue = cg_cast_value(ctx,
-                                        opValue,
-                                        atomicType,
-                                        NULL,
-                                        NULL,
-                                        "atomic.exchange.op.cast");
-            }
-        }
-        LLVMAtomicOrdering ordering = LLVMAtomicOrderingSequentiallyConsistent;
-        if (node->functionCall.argumentCount >= 3 && args[2]) {
-            ordering = cg_atomic_order_from_builtin_arg(args[2],
-                                                        LLVMAtomicOrderingSequentiallyConsistent,
-                                                        false,
-                                                        false);
-        }
-        LLVMValueRef exchange = LLVMBuildAtomicRMW(ctx->builder,
-                                                   LLVMAtomicRMWBinOpXchg,
-                                                   atomicPtr,
-                                                   opValue,
-                                                   ordering,
-                                                   0);
-        LLVMValueRef typedExchange = exchange;
-        if (atomicType != valueType) {
-            if (LLVMGetTypeKind(atomicType) == LLVMIntegerTypeKind &&
-                LLVMGetTypeKind(valueType) == LLVMIntegerTypeKind) {
-                typedExchange = LLVMBuildIntCast2(ctx->builder,
-                                                  typedExchange,
-                                                  valueType,
-                                                  false,
-                                                  "atomic.exchange.bool.cast");
-            } else {
-                typedExchange = cg_cast_value(ctx,
-                                              typedExchange,
-                                              valueType,
-                                              NULL,
-                                              NULL,
-                                              "atomic.exchange.result.cast");
-            }
-        }
-        *resultOut = cg_atomic_cast_call_result(ctx, node, typedExchange, "atomic.exchange.result.cast");
-        free(args);
         return true;
     }
 

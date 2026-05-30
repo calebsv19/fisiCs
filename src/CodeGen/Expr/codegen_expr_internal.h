@@ -132,6 +132,11 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                  LLVMTypeRef sizeType,
                                  LLVMTypeRef intType,
                                  LLVMValueRef* resultOut);
+bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
+                                        ASTNode* node,
+                                        const char* calleeName,
+                                        LLVMValueRef* args,
+                                        LLVMValueRef* resultOut);
 
 #ifdef __cplusplus
 }
