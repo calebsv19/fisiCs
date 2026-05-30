@@ -26,6 +26,8 @@ Experimental LLVM IR emitter that lowers the semantic AST into executable IR. Ty
   - Owns local variable declaration lowering: stack/static storage setup, VLA extent evaluation, inline struct-definition pre-emission, and local initializer materialization for scalars, arrays, and compound literals.
 - `codegen_initializers.c`
   - Emits designated/compound initializer stores for arrays/structs/scalars, reusing the expression helpers to fill aggregates element-by-element. Zero-inits use `memset`; aggregate copies use `memcpy` with semantic size/align hints.
+- `codegen_initializers_aggregate.c`
+  - Owns aggregate initializer helper logic for field lookup, bitfield stores, designator index evaluation, and aggregate-entry classification.
 - `codegen_structs.c`
   - Tracks struct metadata (`StructInfo` cache), bridges to the semantic/type-cache layer, and implements struct/union definition lowering plus the lvalue coordinator that delegates aggregate-address calculations to `codegen_aggregate_access.c`.
 - `codegen_expr.c`

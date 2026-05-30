@@ -15,10 +15,13 @@ Runs post-parse validation: builds symbol tables, checks scopes, and reports dia
   - `Decls/analyze_decls_types.c` owns typedef alias canonicalization, structural compatibility checks, layout fingerprints, array-bound evaluation, and enum-value helper logic.
   - `Decls/analyze_decls_signature.c` owns function parameter/signature normalization, storage/linkage validation, and interop attribute application.
   - `Decls/analyze_decls_aggregate_init.c` owns aggregate designated-initializer field lookup and recursive nested-field validation.
-  - `Decls/analyze_decls_initializers.c` owns variable/array initializer validation, function-pointer initializer compatibility, constant-expression checks for static storage, and bitfield-width validation.
+  - `Decls/analyze_decls_initializers.c` owns scalar/static initializer validation, constant-expression checks for static storage, and bitfield-width validation.
+  - `Decls/analyze_decls_array_initializers.c` owns array initializer validation, array-bound inference, string-literal array checks, and function-pointer table initializer compatibility.
 
 - `analyze_stmt.h` / `analyze_stmt.c`
   - Validates control-flow structures (`if`, `for`, `while`, `switch`, `case`, `return`, etc.) and ensures nested scopes are established where needed.
+- `analyze_stmt_goto.c`
+  - Owns goto/label scope validation, including initialized-object and VLA jump checks.
 - `control_flow.h` / `control_flow.c`
   - Flow-sensitive pass to ensure non-void functions return on every path, flag unreachable statements, and warn about fallthrough cases.
 

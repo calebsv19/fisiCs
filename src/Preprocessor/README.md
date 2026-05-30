@@ -15,20 +15,28 @@ Macro handling, conditional skipping, and include resolution live here. This is 
   - Private helper for hybrid/system-include external preprocessing. Builds the subprocess command, appends include search paths, captures tool output, strips stray directives that should not reach the parser, and hands filtered text back for re-lexing.
 - `preprocessor_include_support.h/.c`
   - Private include-handling support seam for literal operand parsing, suspicious include-name filtering, classic guard detection, include-summary action/probe classification, and replay/profiling helpers used by recursive include dispatch. Keeps `preprocessor_directives.c` focused on directive execution while isolating the high-churn include-summary analysis lane.
+- `preprocessor_include_profile.c`
+  - Private include-summary profiling and replay-toggle helpers used by include dispatch and summary replay selection.
+- `preprocessor_include_directive.c`
+  - Private include-directive execution seam for `#include` / `#include_next`. Expands include operands, resolves files, updates include graph records, short-circuits pragma-once and guard-protected headers, and dispatches recursive include bodies through the summary replay fast paths or the full token walk.
 - `preprocessor_driver_support.c`
   - Private driver-support seam for directive-line cloning, `_Pragma` skipping, chunk flush/expansion diagnostics, token-cost counting, and layout-debug gating shared by the main driver and summary replay lanes.
 - `preprocessor_builtins.c`
   - Private builtin/bootstrap seam for predefined macro registration and CLI `-D` normalization/tokenization. Keeps `preprocessor.c` focused on lifecycle setup while isolating the target-profile and command-line macro lane.
 - `preprocessor_summary_replay.c`
-  - Private replay seam for include-summary router/scaffold/full replay, raw-range direct-clone rules, and replay-time conditional orchestration. Keeps the summary fast path out of the main token-scanning host.
+  - Private replay seam for include-summary router/scaffold/full replay and replay-time conditional orchestration. Keeps the summary fast path out of the main token-scanning host.
+- `preprocessor_summary_replay_helpers.c` + `preprocessor_summary_replay_internal.h`
+  - Private support seam for include-summary replay helper logic: replay-kind profiling counters, router trace gating, raw-range direct-clone rules, and pragma-once replay marking.
+- `include_resolver_internal.h`, `include_resolver_profile.c`, `include_resolver_cache.c`, and `include_resolver_virtual.c`
+  - Private resolver support seams for first-include profiling/reporting, include-path hinting and request-cache hashing, and built-in virtual platform header shims. These keep `include_resolver.c` focused on filesystem probing, search-order orchestration, and public resolver cache ownership.
 - `pp_expr.h/.c`
   - Tiny expression evaluator for `#if` / `#elif`. Parses the limited preprocessor grammar (unary, multiplicative/additive, shifts, comparisons/equality, bitwise/logical ops, ternary), caps arithmetic to 32-bit results, folds `defined(name)` queries via the shared macro table, and treats all other identifiers as `0`.
 - `preprocessor.h/.c`
   - High-level driver host that scans the lexer’s token buffer, routes directives and conditionals, and flushes active chunks through the expander before handing them to the parser. Builtin/bootstrap setup, shared flush helpers, and include-summary replay now live in sibling private seams so the owner file stays on lifecycle and orchestration. A `--preserve-pp` flag or `PRESERVE_PP_NODES=1` keeps lightweight directive AST nodes when tooling needs them; otherwise the parser never sees `#` tokens.
 - `preprocessor_directives.c`
-  - Directive handlers for `#define`, `#undef`, `#include`, `#pragma`, and `#line`. Include handling expands operands, resolves recursive/include-next flows, delegates operand/summary analysis to `preprocessor_include_support`, and delegates hybrid external system-header preprocessing to `preprocessor_external`.
+  - Directive handlers for `#define`, `#undef`, `#pragma`, and `#line`. Include execution keeps the same `process_include` entrypoint but lives in `preprocessor_include_directive.c` so this file stays focused on non-include directive parsing.
 - `include_resolver.h/.c`
-  - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`) plus optional `SYSTEM_INCLUDE_PATHS`, caches file contents + mtimes, tracks `#pragma once` and classic guards, records dependency edges for JSON emission, and understands `#include_next` by skipping the directory that produced the current header.
+  - Resolves quoted vs. system includes using `INCLUDE_PATHS` (make variable, defaults to `include`) plus optional `SYSTEM_INCLUDE_PATHS`, caches file contents + mtimes, tracks `#pragma once` and classic guards, records dependency edges for JSON emission, and understands `#include_next` by skipping the directory that produced the current header. Profiling, request-cache/hint support, and virtual shim handling live in private sibling resolver modules.
   - Write the include graph to JSON via `include_graph_write_json`; surfaced to users with `--emit-deps-json <file>` or `EMIT_DEPS_JSON=path`.
 
 ## Usage notes

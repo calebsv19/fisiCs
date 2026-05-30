@@ -84,6 +84,9 @@ void reportErrorAtAstNode(ASTNode* node,
                           int fallbackLine,
                           const char* message,
                           const char* hint);
+void validateScalarCompoundLiteral(ASTNode* compound,
+                                   ASTNode* context,
+                                   const char* name);
 void validateAggregateDesignatedFieldsRecursive(const ParsedType* aggregateType,
                                                 const TypeInfo* aggregateInfo,
                                                 ASTNode* compoundExpr,
