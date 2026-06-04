@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (322:5): Non-void function must return a value
+   Spelling: virtual_return_probe.c:322:5

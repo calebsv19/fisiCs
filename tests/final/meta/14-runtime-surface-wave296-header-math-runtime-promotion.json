@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_header_math_classify_finite_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_math_classify_finite_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_math_classify_finite_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "math", "classification"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_math_rounding_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_math_rounding_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_math_rounding_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "math", "rounding"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (831:41): Operator '+' requires arithmetic operands
+   Spelling: virtual_expr_add_void_probe.c:831:41

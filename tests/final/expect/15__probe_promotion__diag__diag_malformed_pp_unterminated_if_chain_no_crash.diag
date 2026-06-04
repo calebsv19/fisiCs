@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_pp_unterminated_if_chain_no_crash.c:0:0: error: unclosed #if/#ifdef/#ifndef
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_pp_unterminated_if_chain_no_crash.c:0:0: error: unclosed #if/#ifdef/#ifndef

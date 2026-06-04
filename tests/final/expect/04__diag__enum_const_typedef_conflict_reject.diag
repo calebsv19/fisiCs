@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (4:5): Redefinition of enum constant
+   Hint: Token
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_enum_const_typedef_conflict_reject.c:4:5

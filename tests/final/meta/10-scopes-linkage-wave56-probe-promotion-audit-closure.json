@@ -1,0 +1,289 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__probe_promotion__diag__block_extern_different_type_reject",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_block_extern_different_type_reject.c",
+      "expects": [
+        "expect/10__diag__block_extern_different_type_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "block",
+        "extern",
+        "type-mismatch",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_block_extern_different_type_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_block_extern_different_type_spelling_strict.c",
+      "expects": [
+        "expect/10__diag__line_directive_block_extern_different_type_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "block",
+        "extern",
+        "type-mismatch",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_extern_static_mismatch_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_extern_static_mismatch_spelling_strict.c",
+      "expects": [
+        "expect/10__diag__line_directive_extern_static_mismatch_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "extern",
+        "static",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_extern_type_mismatch_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_extern_type_mismatch_spelling_strict.c",
+      "expects": [
+        "expect/10__diag__line_directive_extern_type_mismatch_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "extern",
+        "type-mismatch",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_function_redecl_conflict_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_function_redecl_conflict_spelling_strict.c",
+      "expects": [
+        "expect/10__diag__line_directive_function_redecl_conflict_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "function",
+        "redeclaration",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_include_block_extern_different_type_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_include_block_extern_different_type_spelling_strict.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diag_line_directive_include_block_extern_different_type_spelling_strict.c",
+        "probes/diagnostics/10__probe_diag_line_directive_include_block_extern_different_type_spelling_strict.h"
+      ],
+      "expects": [
+        "expect/10__diag__line_directive_include_block_extern_different_type_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "include",
+        "block",
+        "extern",
+        "type-mismatch",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_include_extern_static_mismatch_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_include_extern_static_mismatch_spelling_strict.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diag_line_directive_include_extern_static_mismatch_spelling_strict.c",
+        "probes/diagnostics/10__probe_diag_line_directive_include_extern_static_mismatch_spelling_strict.h"
+      ],
+      "expects": [
+        "expect/10__diag__line_directive_include_extern_static_mismatch_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "include",
+        "extern",
+        "static",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_include_extern_type_mismatch_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_include_extern_type_mismatch_spelling_strict.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diag_line_directive_include_extern_type_mismatch_spelling_strict.c",
+        "probes/diagnostics/10__probe_diag_line_directive_include_extern_type_mismatch_spelling_strict.h"
+      ],
+      "expects": [
+        "expect/10__diag__line_directive_include_extern_type_mismatch_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "include",
+        "extern",
+        "type-mismatch",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_include_function_redecl_conflict_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_include_function_redecl_conflict_spelling_strict.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diag_line_directive_include_function_redecl_conflict_spelling_strict.c",
+        "probes/diagnostics/10__probe_diag_line_directive_include_function_redecl_conflict_spelling_strict.h"
+      ],
+      "expects": [
+        "expect/10__diag__line_directive_include_function_redecl_conflict_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "include",
+        "function",
+        "redeclaration",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_include_tentative_static_conflict_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_include_tentative_static_conflict_spelling_strict.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diag_line_directive_include_tentative_static_conflict_spelling_strict.c",
+        "probes/diagnostics/10__probe_diag_line_directive_include_tentative_static_conflict_spelling_strict.h"
+      ],
+      "expects": [
+        "expect/10__diag__line_directive_include_tentative_static_conflict_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "include",
+        "tentative",
+        "static",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_tentative_static_conflict_spelling_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_tentative_static_conflict_spelling_strict.c",
+      "expects": [
+        "expect/10__diag__line_directive_tentative_static_conflict_spelling_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "tentative",
+        "static",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__static_function_then_extern_decl",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_static_function_then_extern_decl_ok.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__static_function_then_extern_decl.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "probe-promotion",
+        "static",
+        "function",
+        "extern",
+        "clean-path",
+        "wave56"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -174,11 +174,24 @@ Statement grammar, scoping, and control flow legality.
 65) `09__goto_undefined_label_nested_reject`
    - Nested-scope `goto` to missing label rejected with deterministic diagnostics.
 
+## Promotion Audit Closure
+
+As of 2026-06-02, bucket `09` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `287` bucket tests, including the
+probe-backed closure shard
+`tests/final/meta/09-statements-controlflow-wave71-probe-promotion-audit-closure.json`.
+
+That shard promotes the remaining `5` probe ownership cases for this bucket:
+`4` text diagnostics for malformed `if` / `else` / `for` / `switch` statement
+shapes and `1` differential runtime `do-while` codegen regression. The
+refreshed audit reports bucket `09` at `promoted=219`, `probe_only=20`, and
+`missing_promotion_candidate=0`.
+
 ## Probe Backlog
-- No open probes in this bucket at the current baseline.
-- Probe-to-active promotions completed in wave 7 for the full 09 diagnostics probe set.
-- `09__probe_do_while_runtime_codegen_crash` now resolves and its behavior is promoted
-  into active suite via `09__runtime__do_while_side_effects`.
+- No open promotion candidates remain in this bucket at the current baseline.
+- Probe-to-active promotions completed in wave 71 for the full 09 ownership set.
+- The remaining `20` resolved probes are explicitly classified as probe-only
+  control / frontier coverage by the promotion audit.
 - Current 09 probe sweep (`PROBE_FILTER=09__probe_`) is green:
   - blocked: `0`
   - resolved: `17`

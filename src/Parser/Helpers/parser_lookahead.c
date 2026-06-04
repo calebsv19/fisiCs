@@ -164,6 +164,7 @@ bool looksLikeTypeDeclaration(Parser* parser) {
         case TOKEN_VOLATILE:
         case TOKEN_RESTRICT:
         case TOKEN_INLINE:
+        case TOKEN_NORETURN:
         case TOKEN_STATIC:
         case TOKEN_EXTERN:
         case TOKEN_AUTO:

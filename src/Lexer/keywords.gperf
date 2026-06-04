@@ -49,6 +49,7 @@ volatile
 restrict
 inline
 _Atomic
+_Noreturn
 sizeof
 _Alignof
 alignof

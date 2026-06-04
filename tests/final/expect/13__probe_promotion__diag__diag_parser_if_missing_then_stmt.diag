@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diag_parser_if_missing_then_stmt.c:3 (got '}')
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diag_parser_if_missing_then_stmt.c:3 (got '}')
+Error: Failed to parse expression at line 3
+Error: Invalid body in 'if' statement at line 3
+Error: Failed to parse expression at line 3
+Error: invalid statement inside block at line 3

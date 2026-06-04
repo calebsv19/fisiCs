@@ -1,0 +1,4 @@
+Diagnostics:
+Warning at (616:1): bucket03 - probe - include - warning - filename
+   Spelling: virtual_pp_include_warning_header_probe_current.h:616:1
+Semantic analysis: no issues found.

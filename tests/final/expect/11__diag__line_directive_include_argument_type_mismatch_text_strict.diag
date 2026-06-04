@@ -1,0 +1,4 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/11__probe_diag_line_directive_include_argument_type_mismatch_text_strict.h
+Error at (9202:53): Argument 1 of 'takes_ptr_inc_text' has incompatible type
+   Spelling: virtual_fn_include_argument_type_mismatch_probe_diag_text.h:9202:53

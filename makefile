@@ -372,7 +372,7 @@ ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
 
 # Final C99 behavior suite
-.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime final-monitored final-monitored-smoke final-timing final-timing-refresh-baseline final-timing-sync-db final-timing-rollup final-timing-sync
+.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime final-promotion-audit final-monitored final-monitored-smoke final-timing final-timing-refresh-baseline final-timing-sync-db final-timing-rollup final-timing-sync
 final: $(BIN)
 	@python3 -u tests/final/run_final.py ./$(BIN)
 
@@ -416,6 +416,10 @@ final-wave: $(BIN)
 # Runtime convenience slice (all bucket-14 tests)
 final-runtime: $(BIN)
 	@FINAL_PREFIX="14__" python3 -u tests/final/run_final.py ./$(BIN)
+
+# Probe inventory vs promoted stable ownership audit.
+final-promotion-audit:
+	@python3 -u tests/final/probes/run_promotion_audit.py
 
 FINAL_TIMING_RUNS ?= 1
 FINAL_TIMING_TAG ?= manual

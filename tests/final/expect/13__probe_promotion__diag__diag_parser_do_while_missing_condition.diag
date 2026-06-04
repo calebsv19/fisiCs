@@ -1,0 +1,4 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diag_parser_do_while_missing_condition.c:5 (got ')')
+Error: Invalid condition in 'do-while' loop at line 5
+Error: invalid statement inside block at line 5

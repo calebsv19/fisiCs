@@ -1,0 +1,7 @@
+Diagnostics:
+Error at (1:25): Duplicate parameter name
+   Hint: value
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/11__probe_duplicate_param_name_reject.c:1:25
+Error at (6:12): Undeclared identifier
+   Hint: pick
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/11__probe_duplicate_param_name_reject.c:6:12

@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (2:5): Break statement not within loop or switch
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/14__probe_diag_break_outside_loop_reject.c:2:5
+Warning at (3:0): Unreachable statement
+Error at (1:5): Control reaches end of non-void function 'main'
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/14__probe_diag_break_outside_loop_reject.c:1:5

@@ -37,6 +37,22 @@ Binary lifecycle support:
 - this keeps probe validation off the mutable repo-root binary path and reduces
   rebuild churn when overlapping local work swaps or removes `fisiCs/fisics`
 
+Promotion audit support:
+- `python3 tests/final/probes/run_promotion_audit.py` writes a reproducible
+  diff against the stable `tests/final/meta/` inventory and emits:
+  - `tests/final/probes/reports/promotion_audit.json`
+  - `tests/final/probes/reports/promotion_audit_summary.md`
+- `make final-promotion-audit` is the matching convenience entrypoint
+- classification contract:
+  - `promoted`: a stable final manifest owns the resolved probe by exact id,
+    exact promoted input path, or canonical stem variant
+  - `probe-only`: the probe note or family explicitly marks the lane as a
+    frontier/current-threshold/exploratory surface
+  - `missing-promotion-candidate`: the probe resolves green, lacks promoted
+    final ownership, and has no explicit probe-only marker
+- the audit is intentionally inventory-driven; it does not claim a fake 1:1
+  filename match when the promoted stable inventory does not provide one
+
 ## Layout
 - `runtime/`: runtime differential repros (`fisics` vs `clang`).
 - `diagnostics/`: diagnostics/constraint repros.

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (453:5): Non-void function must return a value
+   Spelling: virtual_macro_return_probe_current_threshold.c:453:5

@@ -1,0 +1,1 @@
+atomic-compare ok1=1 ok2=0 value=9 expected=9

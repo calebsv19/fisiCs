@@ -339,6 +339,8 @@ def main():
                 input_paths = [ROOT / p for p in inputs]
             else:
                 input_paths = [ROOT / test["input"]]
+            mixed_clang_inputs = test.get("mixed_clang_inputs", [])
+            mixed_clang_input_paths = [ROOT / p for p in mixed_clang_inputs]
             expects = [ROOT / p for p in test.get("expects", [])]
 
             has_ast = any(p.suffix == ".ast" for p in expects)
@@ -363,7 +365,7 @@ def main():
             run_args = [str(a) for a in test.get("run_args", [])]
             run_stdin = test.get("run_stdin")
             run_env_overrides = {str(k): str(v) for k, v in test.get("run_env", {}).items()}
-            input_count = len(input_paths)
+            input_count = len(input_paths) + len(mixed_clang_input_paths)
 
             if differential and not run_enabled:
                 emit_final_failure(
@@ -380,7 +382,9 @@ def main():
                 continue
 
             extra_args = test.get("args", [])
-            cmd = [bin_path] + [str(a) for a in extra_args] + [str(p) for p in input_paths]
+            cmd = [bin_path, f"-std={standard}"] + [str(a) for a in extra_args] + [
+                str(p) for p in input_paths
+            ]
             if has_tokens:
                 if not enable_token_dump:
                     print(f"SKIP {test_id}: requires token-dump")
@@ -401,11 +405,74 @@ def main():
             if frontend_only_diag:
                 cmd_env["DISABLE_CODEGEN"] = "1"
 
+            mixed_clang_tmp = None
+            mixed_clang_object_paths = []
             runtime_tmp = None
             runtime_exec_path = None
             diag_json_tmp = None
             diag_json_path = None
             diag_json_raw = None
+            mixed_clang_failed = False
+            if mixed_clang_input_paths:
+                if not run_enabled:
+                    emit_final_failure(
+                        "mixed_clang_inputs requires run=true",
+                        failure_kind="harness_error",
+                        severity="medium",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
+                    failures += 1
+                    continue
+                mixed_compiler_name = str(
+                    test.get("mixed_clang_compiler", test.get("differential_compiler", "clang"))
+                )
+                mixed_compiler = shutil.which(mixed_compiler_name)
+                if not mixed_compiler:
+                    print(f"SKIP {test_id}: mixed_clang_inputs requested but {mixed_compiler_name} not found")
+                    skipped += 1
+                    continue
+                mixed_clang_tmp = tempfile.TemporaryDirectory(prefix=f"final-mixed-{test_id}-")
+                mixed_clang_args = [
+                    str(a)
+                    for a in test.get("mixed_clang_args", test.get("reference_args", test.get("clang_args", [])))
+                ]
+                for mixed_input in mixed_clang_input_paths:
+                    mixed_object = Path(mixed_clang_tmp.name) / f"{mixed_input.stem}.clang.o"
+                    mixed_cmd = [
+                        mixed_compiler,
+                        f"-std={standard}",
+                        "-O0",
+                    ] + mixed_clang_args + [
+                        "-c",
+                        str(mixed_input),
+                        "-o",
+                        str(mixed_object),
+                    ]
+                    mixed_exit, mixed_output = run_cmd(mixed_cmd)
+                    if mixed_exit != 0:
+                        emit_final_failure(
+                            f"mixed clang input compile exited {mixed_exit}",
+                            failure_kind="harness_error",
+                            severity="medium",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
+                        print(mixed_output)
+                        failures += 1
+                        mixed_clang_failed = True
+                        break
+                    mixed_clang_object_paths.append(mixed_object)
+                if mixed_clang_failed:
+                    if mixed_clang_tmp is not None:
+                        mixed_clang_tmp.cleanup()
+                    continue
             if run_enabled:
                 if has_tokens:
                     emit_final_failure(
@@ -422,7 +489,7 @@ def main():
                     continue
                 runtime_tmp = tempfile.TemporaryDirectory(prefix=f"final-{test_id}-")
                 runtime_exec_path = Path(runtime_tmp.name) / "a.out"
-                cmd = cmd + ["-o", str(runtime_exec_path)]
+                cmd = cmd + [str(p) for p in mixed_clang_object_paths] + ["-o", str(runtime_exec_path)]
             if has_diag_json or has_parser_diag:
                 diag_json_tmp = tempfile.TemporaryDirectory(prefix=f"final-diag-{test_id}-")
                 diag_json_path = Path(diag_json_tmp.name) / "diagnostics.json"
@@ -750,7 +817,7 @@ def main():
                                         reference_compiler,
                                         f"-std={standard}",
                                         "-O0",
-                                    ] + reference_args + [str(p) for p in input_paths] + [
+                                    ] + reference_args + [str(p) for p in input_paths + mixed_clang_input_paths] + [
                                         "-o",
                                         str(reference_exec),
                                     ]
@@ -836,6 +903,8 @@ def main():
             finally:
                 if runtime_tmp is not None:
                     runtime_tmp.cleanup()
+                if mixed_clang_tmp is not None:
+                    mixed_clang_tmp.cleanup()
                 if diag_json_tmp is not None:
                     diag_json_tmp.cleanup()
 

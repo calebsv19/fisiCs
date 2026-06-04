@@ -86,5 +86,24 @@ Function types, parameter adjustments, and call checking.
 29) `11__line_directive_include_prototype_too_many_args_diag_text_strict`
    - Text diagnostic parity for include-header + `#line` prototype-too-many-args.
 
+## Promotion Audit Closure
+
+As of 2026-06-02, bucket `11` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `153` bucket tests, including the
+probe-backed closure shard
+`tests/final/meta/11-functions-calls-wave41-probe-promotion-audit-closure.json`.
+
+That shard promotes the remaining `21` probe ownership cases for this bucket:
+`17` text diagnostics for line-remapped call/return checks and function
+parameter legality, plus `4` runtime cases covering function-parameter
+function-type adjustment, small-struct by-value multi-TU ABI, and clang-built
+external callee ABI bridges. The final harness supports
+`mixed_clang_inputs` for those external bridge cases so the stable final suite
+preserves the same probe semantics instead of collapsing them into same-compiler
+multi-TU coverage. The refreshed audit reports bucket `11` at `promoted=59`,
+`probe_only=42`, and `missing_promotion_candidate=0`.
+
 ## Probe Backlog
-- No open probes in this bucket after line-directive diagnostic provenance fixes.
+- No open promotion candidates remain in this bucket at the current baseline.
+- The remaining `42` resolved probes are explicitly classified as probe-only
+  control / frontier / reduced-threshold coverage by the promotion audit.

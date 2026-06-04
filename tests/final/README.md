@@ -38,7 +38,7 @@ Harness note:
 - `14-runtime-surface.md`: Minimal libc surface and header expectations.
 - `15-torture-differential.md`: Stress/differential torture coverage and expansion plan.
 - `15-conformance-strategy.md`: Feature matrix and intentional support gaps.
-- `probes/README.md`: Triage repro fixtures and probe runner (not in `make final`).
+- `probes/README.md`: Triage repro fixtures, probe runner, and promotion audit (not in `make final`).
 
 Related public references:
 - `docs/compiler_test_architecture.md`

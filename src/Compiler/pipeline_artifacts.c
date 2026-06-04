@@ -340,7 +340,7 @@ static FisicsTokenKind map_token_kind(TokenType t) {
         case TOKEN_DO: case TOKEN_SWITCH: case TOKEN_CASE: case TOKEN_DEFAULT: case TOKEN_RETURN: case TOKEN_GOTO:
         case TOKEN_BREAK: case TOKEN_CONTINUE: case TOKEN_EXTERN: case TOKEN_STATIC: case TOKEN_AUTO:
         case TOKEN_REGISTER: case TOKEN_THREAD_LOCAL: case TOKEN_CONST: case TOKEN_VOLATILE:
-        case TOKEN_RESTRICT: case TOKEN_INLINE: case TOKEN_ATOMIC: case TOKEN_NULL:
+        case TOKEN_RESTRICT: case TOKEN_INLINE: case TOKEN_ATOMIC: case TOKEN_NORETURN: case TOKEN_NULL:
         case TOKEN_SIZEOF: case TOKEN_ALIGNOF: case TOKEN_STATIC_ASSERT: case TOKEN_ASM:
             return FISICS_TOK_KEYWORD;
         case TOKEN_LPAREN: case TOKEN_RPAREN: case TOKEN_LBRACE: case TOKEN_RBRACE:

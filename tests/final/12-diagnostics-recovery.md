@@ -139,8 +139,24 @@ Recovery points and diagnostic quality for IDE usability.
 - AST and diagnostics expectations (`.ast` + `.diag`) for deterministic recovery checks.
 - Parser diagnostics expectations (`.pdiag`) via `--emit-diags-json` export path, normalized to parser diagnostic tuples (`code`, `line`, `column`, `length`, `kind`).
 
+## Promotion Audit Closure
+
+As of 2026-06-02, bucket `12` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `165` bucket tests, including the
+probe-backed closure shard
+`tests/final/meta/12-diagnostics-recovery-wave25-probe-promotion-audit-closure.json`.
+
+That shard promotes `35` canonical tests from exact probe fixtures: `28` text
+diagnostics for parser recovery, line-remapped statement-shape failures, and
+constraint diagnostics, plus `7` diagnostics JSON exports for parser recovery
+cases. Because several bucket `12` probe-only threshold records share those
+exact probe sources, the refreshed audit now classifies them as represented
+stable coverage too. Bucket `12` reports `promoted=123`, `probe_only=0`, and
+`missing_promotion_candidate=0`.
+
 ## Open Gaps (Tracked)
-- Active suite is stable for current promoted waves, including new fail-closed
+- No open promotion candidates remain in this bucket at the current baseline.
+- Active suite is stable for current promoted waves, including fail-closed
   harness assertions that capture frontend parser diagnostics for selected
   malformed-recovery files (`capture_frontend_diag: true` in metadata).
 - Diagnostics JSON export blockers are now resolved for statement-recovery

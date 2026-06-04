@@ -722,6 +722,22 @@ void analyzeDeclaration(ASTNode* node, Scope* scope) {
                     if (!cc_has_tag(scope->ctx, tagKind, nameNode->valueNode.value)) {
                         (void)cc_add_tag(scope->ctx, tagKind, nameNode->valueNode.value);
                     }
+                    if (!cc_tag_is_defined(scope->ctx, tagKind, nameNode->valueNode.value)) {
+                        CCTagDefineResult result = cc_define_tag(scope->ctx,
+                                                                 tagKind,
+                                                                 nameNode->valueNode.value,
+                                                                 fingerprint,
+                                                                 node);
+                        if (result == CC_TAGDEF_CONFLICT) {
+                            char buffer[128];
+                            snprintf(buffer,
+                                     sizeof(buffer),
+                                     "Conflicting definition of %s '%s'",
+                                     kindLabel,
+                                     nameNode->valueNode.value);
+                            addError(nameNode ? nameNode->line : node->line, 0, buffer, NULL);
+                        }
+                    }
                 } else {
                     CCTagDefineResult result = cc_define_tag(scope->ctx,
                                                              tagKind,

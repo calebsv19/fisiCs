@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__diag__lexer_line_directive_invalid_dollar_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_dollar_location_reject.c",
+      "expects": ["expect/02__diag__lexer_line_directive_invalid_dollar_location_reject.diag"],
+      "tags": ["lexer", "line-directive", "diag", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_invalid_dollar_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_dollar_current_physical_line.c",
+      "expects": ["expect/02__diag__lexer_line_directive_invalid_dollar_current_physical_line.diag"],
+      "tags": ["lexer", "line-directive", "diag", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_unterminated_string_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_unterminated_string_location_reject.c",
+      "expects": ["expect/02__diag__lexer_line_directive_unterminated_string_location_reject.diag"],
+      "tags": ["lexer", "line-directive", "string", "diag", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_unterminated_string_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_unterminated_string_current_physical_line.c",
+      "expects": ["expect/02__diag__lexer_line_directive_unterminated_string_current_physical_line.diag"],
+      "tags": ["lexer", "line-directive", "string", "diag", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_char_invalid_hex_escape_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_location_reject.c",
+      "expects": ["expect/02__diag__lexer_line_directive_char_invalid_hex_escape_location_reject.diag"],
+      "tags": ["lexer", "line-directive", "char", "diag", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_char_invalid_hex_escape_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_current_physical_line.c",
+      "expects": ["expect/02__diag__lexer_line_directive_char_invalid_hex_escape_current_physical_line.diag"],
+      "tags": ["lexer", "line-directive", "char", "diag", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_string_invalid_escape_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_string_invalid_escape_location_reject.c",
+      "expects": ["expect/02__diag__lexer_line_directive_string_invalid_escape_location_reject.diag"],
+      "tags": ["lexer", "line-directive", "string", "diag", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_string_invalid_escape_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_string_invalid_escape_current_physical_line.c",
+      "expects": ["expect/02__diag__lexer_line_directive_string_invalid_escape_current_physical_line.diag"],
+      "tags": ["lexer", "line-directive", "string", "diag", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_invalid_at_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_at_location_reject.c",
+      "expects": ["expect/02__diag__lexer_line_directive_invalid_at_location_reject.diag"],
+      "tags": ["lexer", "line-directive", "diag", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_invalid_at_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_at_current_physical_line.c",
+      "expects": ["expect/02__diag__lexer_line_directive_invalid_at_current_physical_line.diag"],
+      "tags": ["lexer", "line-directive", "diag", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_invalid_backtick_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_backtick_location_reject.c",
+      "expects": ["expect/02__diag__lexer_line_directive_invalid_backtick_location_reject.diag"],
+      "tags": ["lexer", "line-directive", "diag", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_invalid_backtick_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_backtick_current_physical_line.c",
+      "expects": ["expect/02__diag__lexer_line_directive_invalid_backtick_current_physical_line.diag"],
+      "tags": ["lexer", "line-directive", "diag", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_unterminated_char_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_unterminated_char_location_reject.c",
+      "expects": ["expect/02__diag__lexer_line_directive_unterminated_char_location_reject.diag"],
+      "tags": ["lexer", "line-directive", "char", "diag", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diag__lexer_line_directive_unterminated_char_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_unterminated_char_current_physical_line.c",
+      "expects": ["expect/02__diag__lexer_line_directive_unterminated_char_current_physical_line.diag"],
+      "tags": ["lexer", "line-directive", "char", "diag", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_invalid_dollar_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_dollar_location_reject.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_invalid_dollar_location_reject.diagjson"],
+      "tags": ["lexer", "line-directive", "diagjson", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_invalid_dollar_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_dollar_current_physical_line.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_invalid_dollar_current_physical_line.diagjson"],
+      "tags": ["lexer", "line-directive", "diagjson", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_unterminated_string_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_unterminated_string_location_reject.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_unterminated_string_location_reject.diagjson"],
+      "tags": ["lexer", "line-directive", "string", "diagjson", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_unterminated_string_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_unterminated_string_current_physical_line.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_unterminated_string_current_physical_line.diagjson"],
+      "tags": ["lexer", "line-directive", "string", "diagjson", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_char_invalid_hex_escape_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_location_reject.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_char_invalid_hex_escape_location_reject.diagjson"],
+      "tags": ["lexer", "line-directive", "char", "diagjson", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_char_invalid_hex_escape_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_char_invalid_hex_escape_current_physical_line.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_char_invalid_hex_escape_current_physical_line.diagjson"],
+      "tags": ["lexer", "line-directive", "char", "diagjson", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_string_invalid_escape_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_string_invalid_escape_location_reject.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_string_invalid_escape_location_reject.diagjson"],
+      "tags": ["lexer", "line-directive", "string", "diagjson", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_string_invalid_escape_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_string_invalid_escape_current_physical_line.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_string_invalid_escape_current_physical_line.diagjson"],
+      "tags": ["lexer", "line-directive", "string", "diagjson", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_invalid_at_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_at_location_reject.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_invalid_at_location_reject.diagjson"],
+      "tags": ["lexer", "line-directive", "diagjson", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_invalid_at_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_at_current_physical_line.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_invalid_at_current_physical_line.diagjson"],
+      "tags": ["lexer", "line-directive", "diagjson", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_invalid_backtick_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_backtick_location_reject.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_invalid_backtick_location_reject.diagjson"],
+      "tags": ["lexer", "line-directive", "diagjson", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_invalid_backtick_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_invalid_backtick_current_physical_line.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_invalid_backtick_current_physical_line.diagjson"],
+      "tags": ["lexer", "line-directive", "diagjson", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_unterminated_char_location_reject",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_unterminated_char_location_reject.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_unterminated_char_location_reject.diagjson"],
+      "tags": ["lexer", "line-directive", "char", "diagjson", "strict", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__diagjson__lexer_line_directive_unterminated_char_current_physical_line",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_directive_unterminated_char_current_physical_line.c",
+      "expects": ["expect/02__diagjson__lexer_line_directive_unterminated_char_current_physical_line.diagjson"],
+      "tags": ["lexer", "line-directive", "char", "diagjson", "current-threshold", "wave9", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

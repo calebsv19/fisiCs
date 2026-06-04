@@ -1,0 +1,4 @@
+Diagnostics:
+Warning at (888:1): bucket03 - probe - warning - filename
+   Spelling: virtual_pp_warning_filename_probe.c:888:1
+Semantic analysis: no issues found.

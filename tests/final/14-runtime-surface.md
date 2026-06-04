@@ -43,6 +43,38 @@ runtime repros.
 
 - minimal header surface such as `stdbool.h`, `stddef.h`, `stdint.h`, and
   `limits.h`
+- `setjmp.h` / `longjmp` control-transfer behavior for bounded direct and
+  helper-mediated runtime paths
+- `stdarg.h` variadic argument handling for default promotions and `va_copy`
+  forwarding across deterministic `va_list` consumers
+- `iso646.h` alternative-token behavior for boolean, bitwise, and compound
+  assignment operators
+- `limits.h` signed/unsigned range and implementation-width runtime contracts
+- `stdint.h` exact-width, least/fast-width, pointer-width, and max-width
+  integer runtime contracts
+- `stdbool.h` bool macro, conversion, and aggregate-storage runtime contracts
+- `stddef.h` `NULL`, `size_t`, `ptrdiff_t`, and nested `offsetof` runtime
+  contracts
+- `string.h` memory copy/compare and search/span runtime contracts
+- `ctype.h` classification and case-conversion runtime contracts
+- `stdio.h` formatting/scanning and file-position runtime contracts
+- `stdlib.h` allocation and numeric-conversion runtime contracts
+- `errno.h` macro/lvalue and libc error-state runtime contracts
+- `assert.h` enabled-assert and `NDEBUG` disabled-assert runtime contracts
+- `float.h` precision and range macro runtime contracts
+- `math.h` finite-classification and rounding runtime contracts
+- `complex.h` absolute-value, argument, projection, and conjugation runtime
+  contracts
+- `locale.h` / `time.h` C-locale formatting and calendar normalization
+  runtime contracts
+- `signal.h` handler sequencing and `sig_atomic_t` state runtime contracts
+- `inttypes.h` base formatting/scanning runtime contracts
+- `wchar.h` / `wctype.h` wide string/span and descriptor/classification
+  runtime contracts
+- `fenv.h` environment save/update and exception-flag restore runtime
+  contracts
+- `stdatomic.h` `atomic_flag` sequence/array-state contracts plus
+  compare-exchange and fetch read-modify-write runtime contracts
 - `offsetof`, fixed-width typedefs, and key macro contracts
 - direct calls, recursion, function pointers, and variadic call surfaces
 - pointer arithmetic, pointer-difference, and array/aggregate access

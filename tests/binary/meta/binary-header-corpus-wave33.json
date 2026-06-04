@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "suite": "binary",
+  "bucket": "binary-header-corpus",
+  "tests": [
+    {"id":"binary__compile_only__header_corpus_signal_action_surface_mix","level":"header","category":"compile_only","inputs":["cases/binary__compile_only__header_corpus_signal_action_surface_mix.c"],"shadow_closure":"required","args":["-std=c99"],"env":{"FISICS_MAX_PROCS":"0"},"timeout_sec":10,"resource_profile":"default"},
+    {"id":"binary__compile_only__header_corpus_signal_sigatomic_surface_mix","level":"header","category":"compile_only","inputs":["cases/binary__compile_only__header_corpus_signal_sigatomic_surface_mix.c"],"shadow_closure":"required","args":["-std=c99"],"env":{"FISICS_MAX_PROCS":"0"},"timeout_sec":10,"resource_profile":"default"},
+    {"id":"binary__link_only__header_corpus_signal_action_bridge","level":"header","category":"link_only","inputs":["cases/binary__link_only__header_corpus_signal_action_bridge_main.c","cases/binary__link_only__header_corpus_signal_action_bridge_helper.c"],"shadow_closure":"required","args":["-std=c99"],"env":{"FISICS_MAX_PROCS":"0"},"timeout_sec":10,"resource_profile":"default"},
+    {"id":"binary__runtime__header_corpus_signal_handler_sequence_matrix","level":"header","category":"runtime","inputs":["cases/binary__runtime__header_corpus_signal_handler_sequence_matrix.c"],"shadow_closure":"required","args":["-std=c99"],"env":{"FISICS_MAX_PROCS":"0"},"expect_exit":0,"expected_stdout":"expect/binary__runtime__header_corpus_signal_handler_sequence_matrix.stdout","timeout_sec":10,"resource_profile":"default"},
+    {"id":"binary__runtime__header_corpus_signal_sigatomic_state_matrix","level":"header","category":"runtime","inputs":["cases/binary__runtime__header_corpus_signal_sigatomic_state_matrix.c"],"shadow_closure":"required","args":["-std=c99"],"env":{"FISICS_MAX_PROCS":"0"},"expect_exit":0,"expected_stdout":"expect/binary__runtime__header_corpus_signal_sigatomic_state_matrix.stdout","timeout_sec":10,"resource_profile":"default"}
+  ]
+}

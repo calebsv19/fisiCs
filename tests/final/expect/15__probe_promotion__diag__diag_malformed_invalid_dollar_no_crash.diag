@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid character in source at tests/final/probes/diagnostics/15__probe_diag_malformed_invalid_dollar_no_crash.c:3:11 (got '$')

@@ -17,6 +17,15 @@ static Symbol* makeBuiltin(const char* name, SymbolKind kind, ParsedType type, A
     return sym;
 }
 
+static void addVariadicBuiltin(Scope* scope, const char* name, ParsedType retType) {
+    Symbol* sym = makeBuiltin(name, SYMBOL_FUNCTION, retType, NULL);
+    if (!sym) return;
+    sym->signature.isVariadic = true;
+    sym->signature.paramCount = 0;
+    sym->signature.hasPrototype = true;
+    addToScope(scope, sym);
+}
+
 static ParsedType intType(void) {
     ParsedType t;
     memset(&t, 0, sizeof(t));
@@ -411,62 +420,26 @@ void seedBuiltins(Scope* globalScope) {
         addToScope(scope, falseSym);
     }
 
-    Symbol* atomicLoad = makeBuiltin("atomic_load_explicit", SYMBOL_FUNCTION, longType(true), NULL);
-    if (atomicLoad) {
-        atomicLoad->signature.isVariadic = true;
-        atomicLoad->signature.paramCount = 0;
-        atomicLoad->signature.hasPrototype = true;
-        addToScope(scope, atomicLoad);
-    }
-    Symbol* atomicStore = makeBuiltin("atomic_store_explicit", SYMBOL_FUNCTION, voidType(), NULL);
-    if (atomicStore) {
-        atomicStore->signature.isVariadic = true;
-        atomicStore->signature.paramCount = 0;
-        atomicStore->signature.hasPrototype = true;
-        addToScope(scope, atomicStore);
-    }
-    Symbol* atomicExchange = makeBuiltin("atomic_exchange_explicit", SYMBOL_FUNCTION, longType(true), NULL);
-    if (atomicExchange) {
-        atomicExchange->signature.isVariadic = true;
-        atomicExchange->signature.paramCount = 0;
-        atomicExchange->signature.hasPrototype = true;
-        addToScope(scope, atomicExchange);
-    }
-    Symbol* atomicInit = makeBuiltin("atomic_init", SYMBOL_FUNCTION, voidType(), NULL);
-    if (atomicInit) {
-        atomicInit->signature.isVariadic = true;
-        atomicInit->signature.paramCount = 0;
-        atomicInit->signature.hasPrototype = true;
-        addToScope(scope, atomicInit);
-    }
-    Symbol* c11AtomicLoad = makeBuiltin("__c11_atomic_load", SYMBOL_FUNCTION, longType(true), NULL);
-    if (c11AtomicLoad) {
-        c11AtomicLoad->signature.isVariadic = true;
-        c11AtomicLoad->signature.paramCount = 0;
-        c11AtomicLoad->signature.hasPrototype = true;
-        addToScope(scope, c11AtomicLoad);
-    }
-    Symbol* c11AtomicStore = makeBuiltin("__c11_atomic_store", SYMBOL_FUNCTION, voidType(), NULL);
-    if (c11AtomicStore) {
-        c11AtomicStore->signature.isVariadic = true;
-        c11AtomicStore->signature.paramCount = 0;
-        c11AtomicStore->signature.hasPrototype = true;
-        addToScope(scope, c11AtomicStore);
-    }
-    Symbol* c11AtomicExchange = makeBuiltin("__c11_atomic_exchange", SYMBOL_FUNCTION, longType(true), NULL);
-    if (c11AtomicExchange) {
-        c11AtomicExchange->signature.isVariadic = true;
-        c11AtomicExchange->signature.paramCount = 0;
-        c11AtomicExchange->signature.hasPrototype = true;
-        addToScope(scope, c11AtomicExchange);
-    }
-    Symbol* c11AtomicInit = makeBuiltin("__c11_atomic_init", SYMBOL_FUNCTION, voidType(), NULL);
-    if (c11AtomicInit) {
-        c11AtomicInit->signature.isVariadic = true;
-        c11AtomicInit->signature.paramCount = 0;
-        c11AtomicInit->signature.hasPrototype = true;
-        addToScope(scope, c11AtomicInit);
-    }
+    addVariadicBuiltin(scope, "atomic_load_explicit", longType(true));
+    addVariadicBuiltin(scope, "atomic_store_explicit", voidType());
+    addVariadicBuiltin(scope, "atomic_exchange_explicit", longType(true));
+    addVariadicBuiltin(scope, "atomic_compare_exchange_strong_explicit", intType());
+    addVariadicBuiltin(scope, "atomic_fetch_add_explicit", longType(true));
+    addVariadicBuiltin(scope, "atomic_fetch_sub_explicit", longType(true));
+    addVariadicBuiltin(scope, "atomic_fetch_or_explicit", longType(true));
+    addVariadicBuiltin(scope, "atomic_fetch_xor_explicit", longType(true));
+    addVariadicBuiltin(scope, "atomic_fetch_and_explicit", longType(true));
+    addVariadicBuiltin(scope, "atomic_init", voidType());
+    addVariadicBuiltin(scope, "__c11_atomic_load", longType(true));
+    addVariadicBuiltin(scope, "__c11_atomic_store", voidType());
+    addVariadicBuiltin(scope, "__c11_atomic_exchange", longType(true));
+    addVariadicBuiltin(scope, "__c11_atomic_compare_exchange_strong", intType());
+    addVariadicBuiltin(scope, "__c11_atomic_fetch_add", longType(true));
+    addVariadicBuiltin(scope, "__c11_atomic_fetch_sub", longType(true));
+    addVariadicBuiltin(scope, "__c11_atomic_fetch_or", longType(true));
+    addVariadicBuiltin(scope, "__c11_atomic_fetch_xor", longType(true));
+    addVariadicBuiltin(scope, "__c11_atomic_fetch_and", longType(true));
+    addVariadicBuiltin(scope, "__c11_atomic_init", voidType());
 
     // Math-related builtins used in system headers
     ParsedType floatRet = floatType(false);

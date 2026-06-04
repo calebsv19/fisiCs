@@ -1,0 +1,238 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__probe_promotion__diag__agg_invalid_member_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_agg_invalid_member_reject.c",
+      "expects": ["expect/07__diag__agg_invalid_member_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diag", "aggregate", "member-access", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diag__constexpr_array_size_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_constexpr_array_size_reject.c",
+      "expects": ["expect/07__diag__constexpr_array_size_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diag", "constexpr", "array-size", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diag__constexpr_case_label_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_constexpr_case_label_reject.c",
+      "expects": ["expect/07__diag__constexpr_case_label_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diag", "constexpr", "case-label", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diag__constexpr_static_init_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_constexpr_static_init_reject.c",
+      "expects": ["expect/07__diag__constexpr_static_init_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diag", "constexpr", "static-init", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diag__conv_pointer_assign_float_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_assign_float_reject.c",
+      "expects": ["expect/07__diag__conv_pointer_assign_float_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diag", "conversion", "pointer", "float", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diag__conv_pointer_init_struct_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_init_struct_reject.c",
+      "expects": ["expect/07__diag__conv_pointer_init_struct_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diag", "conversion", "pointer", "struct", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diag__conv_pointer_init_nonzero_int_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_init_nonzero_int_reject.c",
+      "expects": ["expect/07__diag__conv_pointer_init_nonzero_int_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diag", "conversion", "pointer", "integer", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diag__conv_assign_pointer_to_int_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_assign_pointer_to_int_reject.c",
+      "expects": ["expect/07__diag__conv_assign_pointer_to_int_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diag", "conversion", "pointer", "integer", "assignment", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__agg_invalid_member_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_agg_invalid_member_reject.c",
+      "expects": ["expect/07__diagjson__agg_invalid_member_reject.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "aggregate", "member-access", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__agg_invalid_member_reject_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_agg_invalid_member_reject.c",
+      "expects": ["expect/07__diagjson__agg_invalid_member_reject_strict.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "aggregate", "member-access", "strict", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__constexpr_array_size_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_constexpr_array_size_reject.c",
+      "expects": ["expect/07__diagjson__constexpr_array_size_reject.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "constexpr", "array-size", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__constexpr_case_label_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_constexpr_case_label_reject.c",
+      "expects": ["expect/07__diagjson__constexpr_case_label_reject.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "constexpr", "case-label", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__constexpr_static_init_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_constexpr_static_init_reject.c",
+      "expects": ["expect/07__diagjson__constexpr_static_init_reject.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "constexpr", "static-init", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__conv_pointer_assign_float_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_assign_float_reject.c",
+      "expects": ["expect/07__diagjson__conv_pointer_assign_float_reject.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "conversion", "pointer", "float", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__conv_pointer_assign_float_reject_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_assign_float_reject.c",
+      "expects": ["expect/07__diagjson__conv_pointer_assign_float_reject_strict.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "conversion", "pointer", "float", "strict", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__conv_pointer_init_struct_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_init_struct_reject.c",
+      "expects": ["expect/07__diagjson__conv_pointer_init_struct_reject.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "conversion", "pointer", "struct", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__conv_pointer_init_struct_reject_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_init_struct_reject.c",
+      "expects": ["expect/07__diagjson__conv_pointer_init_struct_reject_strict.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "conversion", "pointer", "struct", "strict", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__conv_pointer_init_nonzero_int_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_init_nonzero_int_reject.c",
+      "expects": ["expect/07__diagjson__conv_pointer_init_nonzero_int_reject.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "conversion", "pointer", "integer", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__conv_pointer_init_nonzero_int_reject_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_pointer_init_nonzero_int_reject.c",
+      "expects": ["expect/07__diagjson__conv_pointer_init_nonzero_int_reject_strict.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "conversion", "pointer", "integer", "strict", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__conv_assign_pointer_to_int_reject",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_assign_pointer_to_int_reject.c",
+      "expects": ["expect/07__diagjson__conv_assign_pointer_to_int_reject.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "conversion", "pointer", "integer", "assignment", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__probe_promotion__diagjson__conv_assign_pointer_to_int_reject_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_conv_assign_pointer_to_int_reject.c",
+      "expects": ["expect/07__diagjson__conv_assign_pointer_to_int_reject_strict.diagjson"],
+      "capture_diag_json": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "diagjson", "conversion", "pointer", "integer", "assignment", "strict", "wave65", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

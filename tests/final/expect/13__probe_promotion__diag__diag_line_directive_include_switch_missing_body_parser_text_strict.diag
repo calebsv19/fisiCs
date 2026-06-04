@@ -1,0 +1,8 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diagjson_line_directive_include_switch_missing_body_parser_presence.h
+Error: '{' at virtual_probe_ir_include_parser_switch_missing_body_diagjson.h:134353 (got '}')
+Error: Unexpected token at start of expression at virtual_probe_ir_include_parser_switch_missing_body_diagjson.h:134353 (got '}')
+Error: Failed to parse expression at line 134353
+Error: invalid statement inside block at line 134353
+Error at (134351:5): Control reaches end of non-void function 'main'
+   Spelling: virtual_probe_ir_include_parser_switch_missing_body_diagjson.h:134351:5

@@ -1,0 +1,7 @@
+Diagnostics:
+Error: '{' at virtual_diagrec_switch_missing_body_probe.c:9403 (got '}')
+Error: Unexpected token at start of expression at virtual_diagrec_switch_missing_body_probe.c:9403 (got '}')
+Error: Failed to parse expression at line 9403
+Error: invalid statement inside block at line 9403
+Error at (9401:5): Control reaches end of non-void function 'main'
+   Spelling: virtual_diagrec_switch_missing_body_probe.c:9401:5

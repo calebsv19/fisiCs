@@ -101,5 +101,6 @@ bool ir_cache_request_result(IncludeResolver* resolver,
 bool ir_append_file(IncludeResolver* resolver, IncludeFile file);
 const IncludeFile* ir_lookup_exact_path(const IncludeResolver* resolver, const char* path);
 const IncludeFile* ir_try_virtual_audio_toolbox(IncludeResolver* resolver, const char* name);
+const IncludeFile* ir_try_virtual_tgmath(IncludeResolver* resolver, const char* name);
 
 #endif /* PREPROCESSOR_INCLUDE_RESOLVER_INTERNAL_H */

@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_pp_directive_no_crash.c:1:9: error: invalid parameter list in #define BROKEN
+/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_pp_directive_no_crash.c:1:9: error: invalid parameter list in #define BROKEN

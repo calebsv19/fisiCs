@@ -1,0 +1,9 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_diagrec_for_missing_body_probe.c:9303 (got '}')
+Error: Unexpected token at start of expression at virtual_diagrec_for_missing_body_probe.c:9303 (got '}')
+Error: Failed to parse expression at line 9303
+Error: Invalid statement in 'for' loop at line 9303
+Error: Failed to parse expression at line 9303
+Error: invalid statement inside block at line 9303
+Error at (9301:5): Control reaches end of non-void function 'main'
+   Spelling: virtual_diagrec_for_missing_body_probe.c:9301:5

@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_diagrec_if_missing_rparen_case.c:8603 (got '{')
+Error: expected ')' after condition at line 8603
+Error: Failed to parse expression at line 8603
+Error: invalid statement inside block at line 8603

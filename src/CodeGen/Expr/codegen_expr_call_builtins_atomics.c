@@ -29,6 +29,42 @@ static bool cg_builtin_is_c11_atomic_init(const char* calleeName) {
             strcmp(calleeName, "atomic_init") == 0);
 }
 
+static bool cg_builtin_is_c11_atomic_compare_exchange_strong(const char* calleeName) {
+    return calleeName &&
+           (strcmp(calleeName, "__c11_atomic_compare_exchange_strong") == 0 ||
+            strcmp(calleeName, "atomic_compare_exchange_strong_explicit") == 0);
+}
+
+static bool cg_builtin_atomic_fetch_binop(const char* calleeName, LLVMAtomicRMWBinOp* opOut) {
+    if (!calleeName || !opOut) return false;
+    if (strcmp(calleeName, "__c11_atomic_fetch_add") == 0 ||
+        strcmp(calleeName, "atomic_fetch_add_explicit") == 0) {
+        *opOut = LLVMAtomicRMWBinOpAdd;
+        return true;
+    }
+    if (strcmp(calleeName, "__c11_atomic_fetch_sub") == 0 ||
+        strcmp(calleeName, "atomic_fetch_sub_explicit") == 0) {
+        *opOut = LLVMAtomicRMWBinOpSub;
+        return true;
+    }
+    if (strcmp(calleeName, "__c11_atomic_fetch_or") == 0 ||
+        strcmp(calleeName, "atomic_fetch_or_explicit") == 0) {
+        *opOut = LLVMAtomicRMWBinOpOr;
+        return true;
+    }
+    if (strcmp(calleeName, "__c11_atomic_fetch_xor") == 0 ||
+        strcmp(calleeName, "atomic_fetch_xor_explicit") == 0) {
+        *opOut = LLVMAtomicRMWBinOpXor;
+        return true;
+    }
+    if (strcmp(calleeName, "__c11_atomic_fetch_and") == 0 ||
+        strcmp(calleeName, "atomic_fetch_and_explicit") == 0) {
+        *opOut = LLVMAtomicRMWBinOpAnd;
+        return true;
+    }
+    return false;
+}
+
 static LLVMTypeRef cg_builtin_atomic_value_type(CodegenContext* ctx,
                                                 ASTNode* pointerNode,
                                                 LLVMValueRef atomicPtr) {
@@ -91,8 +127,11 @@ bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
     bool isStore = cg_builtin_is_c11_atomic_store(calleeName);
     bool isExchange = cg_builtin_is_c11_atomic_exchange(calleeName);
     bool isInit = cg_builtin_is_c11_atomic_init(calleeName);
+    bool isCompareExchange = cg_builtin_is_c11_atomic_compare_exchange_strong(calleeName);
+    LLVMAtomicRMWBinOp fetchBinop = LLVMAtomicRMWBinOpAdd;
+    bool isFetch = cg_builtin_atomic_fetch_binop(calleeName, &fetchBinop);
 
-    if (!isLoad && !isStore && !isExchange && !isInit) {
+    if (!isLoad && !isStore && !isExchange && !isInit && !isCompareExchange && !isFetch) {
         return false;
     }
 
@@ -197,6 +236,103 @@ bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
         return true;
     }
 
+    if (isCompareExchange) {
+        if (node->functionCall.argumentCount < 3 || !args || !args[0] || !args[1] || !args[2]) {
+            free(args);
+            *resultOut = NULL;
+            return true;
+        }
+        LLVMValueRef atomicPtr = args[0];
+        LLVMValueRef expectedPtr = args[1];
+        if (LLVMGetTypeKind(LLVMTypeOf(atomicPtr)) != LLVMPointerTypeKind ||
+            LLVMGetTypeKind(LLVMTypeOf(expectedPtr)) != LLVMPointerTypeKind) {
+            free(args);
+            *resultOut = NULL;
+            return true;
+        }
+        LLVMTypeRef valueType =
+            cg_builtin_atomic_value_type(ctx, node->functionCall.arguments[0], atomicPtr);
+        LLVMTypeRef atomicType = cg_builtin_atomic_storage_type(ctx, valueType);
+        atomicPtr = cg_atomic_cast_pointer(ctx, atomicPtr, atomicType, "atomic.cmpxchg.ptr.cast");
+        expectedPtr = cg_atomic_cast_pointer(ctx, expectedPtr, atomicType, "atomic.cmpxchg.expected.ptr.cast");
+        if (!atomicPtr || !expectedPtr) {
+            free(args);
+            *resultOut = NULL;
+            return true;
+        }
+
+        LLVMValueRef expected = LLVMBuildLoad2(ctx->builder,
+                                               atomicType,
+                                               expectedPtr,
+                                               "atomic.cmpxchg.expected");
+        LLVMValueRef desired = cg_atomic_cast_value(ctx,
+                                                    args[2],
+                                                    valueType,
+                                                    node->functionCall.arguments[2],
+                                                    "atomic.cmpxchg.desired.value.cast");
+        if (!desired) {
+            free(args);
+            *resultOut = NULL;
+            return true;
+        }
+        LLVMValueRef opValue = cg_builtin_atomic_cast_op_value(ctx,
+                                                               desired,
+                                                               valueType,
+                                                               atomicType,
+                                                               "atomic.cmpxchg.desired.op.cast");
+        LLVMAtomicOrdering successOrdering = LLVMAtomicOrderingSequentiallyConsistent;
+        if (node->functionCall.argumentCount >= 4 && args[3]) {
+            successOrdering = cg_atomic_order_from_builtin_arg(args[3],
+                                                               LLVMAtomicOrderingSequentiallyConsistent,
+                                                               false,
+                                                               false);
+        }
+        LLVMAtomicOrdering failureOrdering = LLVMAtomicOrderingSequentiallyConsistent;
+        if (node->functionCall.argumentCount >= 5 && args[4]) {
+            failureOrdering = cg_atomic_order_from_builtin_arg(args[4],
+                                                               LLVMAtomicOrderingSequentiallyConsistent,
+                                                               true,
+                                                               false);
+        }
+        if (failureOrdering == LLVMAtomicOrderingRelease ||
+            failureOrdering == LLVMAtomicOrderingAcquireRelease) {
+            failureOrdering = LLVMAtomicOrderingAcquire;
+        }
+        LLVMValueRef cmpxchg = LLVMBuildAtomicCmpXchg(ctx->builder,
+                                                      atomicPtr,
+                                                      expected,
+                                                      opValue,
+                                                      successOrdering,
+                                                      failureOrdering,
+                                                      0);
+        LLVMSetWeak(cmpxchg, 0);
+        LLVMValueRef observed = LLVMBuildExtractValue(ctx->builder,
+                                                      cmpxchg,
+                                                      0,
+                                                      "atomic.cmpxchg.observed");
+        LLVMValueRef success = LLVMBuildExtractValue(ctx->builder,
+                                                     cmpxchg,
+                                                     1,
+                                                     "atomic.cmpxchg.success");
+
+        LLVMBasicBlockRef currentBlock = LLVMGetInsertBlock(ctx->builder);
+        LLVMValueRef function = LLVMGetBasicBlockParent(currentBlock);
+        LLVMBasicBlockRef failBlock =
+            LLVMAppendBasicBlockInContext(ctx->llvmContext, function, "atomic.cmpxchg.fail");
+        LLVMBasicBlockRef contBlock =
+            LLVMAppendBasicBlockInContext(ctx->llvmContext, function, "atomic.cmpxchg.cont");
+        LLVMBuildCondBr(ctx->builder, success, contBlock, failBlock);
+
+        LLVMPositionBuilderAtEnd(ctx->builder, failBlock);
+        (void)LLVMBuildStore(ctx->builder, observed, expectedPtr);
+        LLVMBuildBr(ctx->builder, contBlock);
+
+        LLVMPositionBuilderAtEnd(ctx->builder, contBlock);
+        *resultOut = cg_atomic_cast_call_result(ctx, node, success, "atomic.cmpxchg.result.cast");
+        free(args);
+        return true;
+    }
+
     if (node->functionCall.argumentCount < 2 || !args || !args[0] || !args[1]) {
         free(args);
         *resultOut = NULL;
@@ -233,7 +369,7 @@ bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
                                                            desired,
                                                            valueType,
                                                            atomicType,
-                                                           "atomic.exchange.op.cast");
+                                                           isFetch ? "atomic.fetch.op.cast" : "atomic.exchange.op.cast");
     LLVMAtomicOrdering ordering = LLVMAtomicOrderingSequentiallyConsistent;
     if (node->functionCall.argumentCount >= 3 && args[2]) {
         ordering = cg_atomic_order_from_builtin_arg(args[2],
@@ -242,7 +378,7 @@ bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
                                                     false);
     }
     LLVMValueRef exchange = LLVMBuildAtomicRMW(ctx->builder,
-                                               LLVMAtomicRMWBinOpXchg,
+                                               isFetch ? fetchBinop : LLVMAtomicRMWBinOpXchg,
                                                atomicPtr,
                                                opValue,
                                                ordering,
@@ -252,7 +388,7 @@ bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
                                                exchange,
                                                valueType,
                                                atomicType,
-                                               "atomic.exchange.result.cast");
+                                               isFetch ? "atomic.fetch.result.cast" : "atomic.exchange.result.cast");
     free(args);
     return true;
 }

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (516:13): Operator '+' requires arithmetic operands
+   Spelling: virtual_macro_phase01_probe.c:516:13

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (3819:47): Undeclared identifier
+   Hint: missing_probe_token_pasted_symbol
+   Spelling: virtual_probe_include_tokenpaste_undeclared_phase01.h:3819:47

@@ -379,6 +379,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_VOLATILE: type.isVolatile = true; advance(parser); continue;
             case TOKEN_RESTRICT: type.isRestrict = true; advance(parser); continue;
             case TOKEN_INLINE:   type.isInline   = true; advance(parser); continue;
+            case TOKEN_NORETURN: advance(parser); continue;
             case TOKEN_COMPLEX:  type.isComplex  = true; advance(parser); continue;
             case TOKEN_IMAGINARY: type.isImaginary = true; advance(parser); continue;
             default: break;
@@ -683,6 +684,7 @@ static ParsedType parseTypeCore(Parser* parser, TypeContext ctx) {
             case TOKEN_CONST:    type.isConst    = true; advance(parser); continue;
             case TOKEN_VOLATILE: type.isVolatile = true; advance(parser); continue;
             case TOKEN_RESTRICT: type.isRestrict = true; advance(parser); continue;
+            case TOKEN_NORETURN: advance(parser); continue;
             case TOKEN_COMPLEX:  type.isComplex  = true; advance(parser); continue;
             case TOKEN_IMAGINARY: type.isImaginary = true; advance(parser); continue;
             default: break;

@@ -110,6 +110,7 @@ static const char* token_type_name(TokenType type) {
         case TOKEN_RESTRICT: return "TOKEN_RESTRICT";
         case TOKEN_INLINE: return "TOKEN_INLINE";
         case TOKEN_ATOMIC: return "TOKEN_ATOMIC";
+        case TOKEN_NORETURN: return "TOKEN_NORETURN";
         case TOKEN_COMPLEX: return "TOKEN_COMPLEX";
         case TOKEN_IMAGINARY: return "TOKEN_IMAGINARY";
         case TOKEN_NULL: return "TOKEN_NULL";

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (5:12): Undeclared identifier
+   Hint: PROBE_GUARD_COLLIDE_CHAIN
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_include_graph_guard_collision_no_crash.c:5:12

@@ -51,8 +51,21 @@ Namespaces, redeclarations, and linkage behavior.
 ## Expected Outputs
 - AST/Diagnostics goldens for scope and linkage behavior.
 
+## Promotion Audit Closure
+
+As of 2026-06-02, bucket `10` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `137` bucket tests, including the
+probe-backed closure shard
+`tests/final/meta/10-scopes-linkage-wave56-probe-promotion-audit-closure.json`.
+
+That shard promotes the remaining `12` probe ownership cases for this bucket:
+`11` text diagnostics for block/file-scope linkage conflicts and line-remapped
+spelling stability, plus `1` differential runtime clean path for a static
+function followed by an extern declaration. The refreshed audit reports bucket
+`10` at `promoted=50`, `probe_only=33`, and
+`missing_promotion_candidate=0`.
+
 ## Probe Backlog
-- No open probes in this bucket at the current baseline.
-- Resolved probe set:
-  - `10__probe_block_extern_different_type_reject`
-  - `10__probe_static_function_then_extern_decl_ok`
+- No open promotion candidates remain in this bucket at the current baseline.
+- The remaining `33` resolved probes are explicitly classified as probe-only
+  control / frontier / reduced-threshold coverage by the promotion audit.

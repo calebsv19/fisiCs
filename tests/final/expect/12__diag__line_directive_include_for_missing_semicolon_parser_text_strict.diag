@@ -1,0 +1,16 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_diag_line_directive_include_for_missing_semicolon_parser_text_strict.h
+Error: expected ';' after for-loop initializer at line 8502
+Error at (8502:20): Undeclared identifier
+   Hint: i
+   Spelling: virtual_diagrec_include_for_missing_semicolon_probe_text.h:8502:20
+Error at (8502:20): Operator '<' requires comparable operands
+   Spelling: virtual_diagrec_include_for_missing_semicolon_probe_text.h:8502:20
+Error at (8502:29): Undeclared identifier
+   Hint: i
+   Spelling: virtual_diagrec_include_for_missing_semicolon_probe_text.h:8502:29
+Error at (8502:27): Operator '++' requires modifiable lvalue operand
+   Spelling: virtual_diagrec_include_for_missing_semicolon_probe_text.h:8502:27
+Error at (8503:16): Undeclared identifier
+   Hint: i
+   Spelling: virtual_diagrec_include_for_missing_semicolon_probe_text.h:8503:16

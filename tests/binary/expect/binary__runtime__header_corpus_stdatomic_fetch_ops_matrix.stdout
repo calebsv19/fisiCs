@@ -1,0 +1,1 @@
+atomic-fetch add=5 sub=8 or=6 xor=14 and=8 final=0

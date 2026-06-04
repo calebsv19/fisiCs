@@ -1,0 +1,4 @@
+Diagnostics:
+Error: expected '(' after 'while' at line 8703
+Error: expected ';' after expression at line 8703
+Error: invalid statement inside block at line 8703

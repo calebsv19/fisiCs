@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (1:8): Conflicting types for variable 'wave79_tent' across translation units

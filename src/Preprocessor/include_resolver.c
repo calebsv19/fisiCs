@@ -829,6 +829,12 @@ const IncludeFile* include_resolver_load(IncludeResolver* resolver,
             if (originIndexOut) *originIndexOut = (size_t)-1;
             return virtualAudioToolbox;
         }
+        const IncludeFile* virtualTgmath = ir_try_virtual_tgmath(resolver, name);
+        if (virtualTgmath) {
+            if (originOut) *originOut = INCLUDE_SEARCH_RAW;
+            if (originIndexOut) *originIndexOut = (size_t)-1;
+            return virtualTgmath;
+        }
     }
 
     size_t parentFileIndex = (size_t)-1;

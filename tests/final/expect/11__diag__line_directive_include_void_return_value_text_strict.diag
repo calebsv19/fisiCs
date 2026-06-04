@@ -1,0 +1,4 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/11__probe_diag_line_directive_include_void_return_value_text_strict.h
+Error at (10401:42): Void function should not return a value
+   Spelling: virtual_fn_include_void_return_value_probe_diag_text.h:10401:42

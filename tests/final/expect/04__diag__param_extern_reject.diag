@@ -1,0 +1,7 @@
+Diagnostics:
+Error at (1:23): Invalid storage class for function parameter
+   Hint: value
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_param_extern_reject.c:1:23
+Error at (6:12): Undeclared identifier
+   Hint: choose
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_param_extern_reject.c:6:12

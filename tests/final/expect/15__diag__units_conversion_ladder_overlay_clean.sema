@@ -11,18 +11,26 @@ Scope depth 0
   - function: vsnprintf
   - function: normalize_stage_energy
   - typedef: size_t
+  - function: atomic_fetch_add_explicit
+  - function: __c11_atomic_fetch_sub
   - function: __builtin_nan
   - function: __builtin_inff
   - function: __builtin_va_start
+  - function: atomic_fetch_and_explicit
+  - function: __c11_atomic_fetch_and
   - function: __builtin___strncpy_chk
   - function: __builtin___snprintf_chk
   - variable: __LDBL_MIN__
   - function: __builtin_infl
+  - function: __c11_atomic_fetch_xor
   - function: atomic_exchange_explicit
   - typedef: max_align_t
+  - function: __c11_atomic_compare_exchange_strong
   - function: __builtin_va_copy
   - function: __builtin___strncat_chk
+  - function: atomic_fetch_or_explicit
   - typedef: wchar_t
+  - function: __c11_atomic_fetch_or
   - function: __builtin_fabs
   - function: atomic_init
   - function: normalize_leg_distance
@@ -40,10 +48,12 @@ Scope depth 0
   - function: __c11_atomic_load
   - function: strncat
   - function: __builtin_alloca
+  - function: atomic_compare_exchange_strong_explicit
   - variable: __FLT_MIN__
   - typedef: uintptr_t
   - function: __c11_atomic_store
   - function: __builtin_constant_p
+  - function: __c11_atomic_fetch_add
   - function: strcat
   - function: __builtin___memset_chk
   - function: __builtin_fisics_convert_unit
@@ -51,6 +61,7 @@ Scope depth 0
   - function: __builtin_bzero
   - function: __builtin_bswap32
   - function: __builtin_expect
+  - function: atomic_fetch_xor_explicit
   - variable: true
   - typedef: ssize_t
   - function: __builtin_va_end
@@ -63,6 +74,7 @@ Scope depth 0
   - variable: false
   - function: __builtin___strcpy_chk
   - function: __builtin___sprintf_chk
+  - function: atomic_fetch_sub_explicit
   - variable: __DBL_MIN__
   - function: __builtin_inf
   - function: __builtin___vsnprintf_chk

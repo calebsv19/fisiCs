@@ -297,8 +297,12 @@ LLVMValueRef codegenAlignof(CodegenContext* ctx, ASTNode* node) {
         if (!ty || LLVMGetTypeKind(ty) == LLVMVoidTypeKind) {
             ty = LLVMInt32TypeInContext(ctx->llvmContext);
         }
-        unsigned align = LLVMABIAlignmentOfType(LLVMGetModuleDataLayout(ctx->module), ty);
-        return LLVMConstInt(intptrTy, align, 0);
+        uint32_t semanticAlign = 0;
+        if (cg_size_align_for_type(ctx, parsed, ty, NULL, &semanticAlign) && semanticAlign > 0) {
+            return LLVMConstInt(intptrTy, semanticAlign, 0);
+        }
+        unsigned llvmAlign = LLVMABIAlignmentOfType(LLVMGetModuleDataLayout(ctx->module), ty);
+        return LLVMConstInt(intptrTy, llvmAlign, 0);
     }
     LLVMTypeRef type = LLVMInt32TypeInContext(ctx->llvmContext);
     if (node->expr.left) {

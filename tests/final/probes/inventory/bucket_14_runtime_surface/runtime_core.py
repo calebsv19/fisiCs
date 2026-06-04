@@ -506,6 +506,16 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/14__probe_pointer_lifetime_reseed_handoff_lattice.c',
         note='pointer-lifetime reseed/handoff lattice should match clang runtime behavior',
     ),
+    RuntimeProbe(
+        probe_id='14__probe_header_setjmp_direct_longjmp_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_header_setjmp_direct_longjmp_runtime.c',
+        note='setjmp.h direct longjmp control transfer should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_header_setjmp_helper_longjmp_runtime',
+        source=PROBE_DIR / 'runtime/14__probe_header_setjmp_helper_longjmp_runtime.c',
+        note='setjmp.h helper-mediated longjmp control transfer should match clang runtime behavior',
+    ),
 ]
 
 DIAG_PROBES = []

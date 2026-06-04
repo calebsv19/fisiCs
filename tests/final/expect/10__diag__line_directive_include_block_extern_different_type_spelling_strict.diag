@@ -1,0 +1,5 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/10__probe_diag_line_directive_include_block_extern_different_type_spelling_strict.h
+Error at (8304:18): Conflicting types for variable
+   Hint: shared_block_inc_probe_diag_text
+   Spelling: virtual_scope_include_block_extern_type_conflict_probe_diag_text.h:8304:18

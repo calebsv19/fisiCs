@@ -269,6 +269,17 @@ Declarators, type qualifiers, aggregates, and C99 declaration features.
 114) `04__primitive__complex_int_reject`
     - Reject `_Complex int` because complex types require a floating base.
 
+## Promotion Audit Closure
+- Current declarations metadata lives across `tests/final/meta/04-declarations*.json`.
+- Current active declarations bucket cases: 203
+- Current active declarations bucket result: passing
+- Bucket `04` is closed in the probe-promotion audit at `promoted=85`,
+  `probe_only=2`, and `missing=0`.
+- The final closure shard
+  `tests/final/meta/04-declarations-wave20-probe-promotion-audit-closure.json`
+  promotes the remaining declaration diagnostics and runtime probe fixtures
+  into stable `make final` coverage.
+
 ## Probe Backlog
 - Current 04 probe sweep (`PROBE_FILTER=04__probe_`) result:
   - blocked: `0`

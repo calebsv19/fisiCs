@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diag_parser_if_missing_condition.c:3 (got ')')

@@ -345,9 +345,10 @@ Macro expansion rules, #if evaluation, and include handling.
   stores the full test list inline.
 
 ## Current Baseline
-- Current active preprocessor bucket cases: 145
+- Current active preprocessor bucket cases: 198
 - Current active preprocessor bucket result: passing
-- This is now a meaningful first expansion pass, not just the initial anchor set.
+- This is now a broad stable bucket with the line-directive remap promotion
+  audit closure absorbed into canonical coverage.
 
 ## Next Pass Focus
 - Add more include path and include-next layering coverage beyond the current

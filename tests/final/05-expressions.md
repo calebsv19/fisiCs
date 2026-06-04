@@ -136,6 +136,18 @@ Expression grammar, precedence, associativity, and ambiguous parses.
 52) `05__parserdiag__nested_group_unclosed`
    - Parser diagnostic tuples for nested grouping with unclosed parenthesis.
 
+## Promotion Audit Closure
+- Current expressions metadata lives across `tests/final/meta/05-expressions*.json`.
+- Current active expressions bucket cases: 129
+- Current active expressions bucket result: passing
+- Bucket `05` is closed in the probe-promotion audit at `promoted=58`,
+  `probe_only=8`, and `missing=0`.
+- The final closure shard
+  `tests/final/meta/05-expressions-wave13-probe-promotion-audit-closure.json`
+  promotes the remaining expression line-remap diagnostics, diagnostics JSON,
+  and runtime expression-semantics probe fixtures into stable `make final`
+  coverage.
+
 ## Probe Status
 - `tests/final/probes/run_probes.py` summary now reports:
   - blocked: `0`

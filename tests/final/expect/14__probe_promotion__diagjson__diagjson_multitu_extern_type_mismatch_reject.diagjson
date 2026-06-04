@@ -1,0 +1,22 @@
+{
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "code": 4001,
+      "column": 0,
+      "has_file": false,
+      "has_hint": true,
+      "has_message": true,
+      "hint": "Inspect linker stderr output and [link] argv for symbol/type conflicts.",
+      "kind": 0,
+      "length": 0,
+      "line": 0,
+      "message": "Link stage failed (linker=clang, exit=1, inputs=2)"
+    }
+  ],
+  "error_count": 1,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

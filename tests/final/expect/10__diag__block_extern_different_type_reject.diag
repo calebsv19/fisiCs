@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (4:18): Conflicting types for variable
+   Hint: shared
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/10__probe_block_extern_different_type_reject.c:4:18

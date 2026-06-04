@@ -26,6 +26,7 @@ ALLOWED_ENV_KEYS = {
     "USER",
     "LOGNAME",
     "SHELL",
+    "FISICS_MAX_PROCS",
 }
 
 RESOURCE_PROFILES = {

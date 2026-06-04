@@ -1,0 +1,287 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__probe_promotion__diag__line_directive_argument_type_mismatch_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_argument_type_mismatch_text_strict.c",
+      "expects": ["expect/11__diag__line_directive_argument_type_mismatch_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "argument", "type-mismatch", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_include_argument_type_mismatch_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_include_argument_type_mismatch_text_strict.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diag_line_directive_include_argument_type_mismatch_text_strict.c",
+        "probes/diagnostics/11__probe_diag_line_directive_include_argument_type_mismatch_text_strict.h"
+      ],
+      "expects": ["expect/11__diag__line_directive_include_argument_type_mismatch_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "include", "argument", "type-mismatch", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_include_nonvoid_missing_return_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_include_nonvoid_missing_return_text_strict.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diag_line_directive_include_nonvoid_missing_return_text_strict.c",
+        "probes/diagnostics/11__probe_diag_line_directive_include_nonvoid_missing_return_text_strict.h"
+      ],
+      "expects": ["expect/11__diag__line_directive_include_nonvoid_missing_return_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "include", "return", "missing-return", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_include_return_type_mismatch_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_include_return_type_mismatch_text_strict.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diag_line_directive_include_return_type_mismatch_text_strict.c",
+        "probes/diagnostics/11__probe_diag_line_directive_include_return_type_mismatch_text_strict.h"
+      ],
+      "expects": ["expect/11__diag__line_directive_include_return_type_mismatch_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "include", "return", "type-mismatch", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_include_too_few_args_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_include_too_few_args_text_strict.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diag_line_directive_include_too_few_args_text_strict.c",
+        "probes/diagnostics/11__probe_diag_line_directive_include_too_few_args_text_strict.h"
+      ],
+      "expects": ["expect/11__diag__line_directive_include_too_few_args_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "include", "arity", "too-few-args", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_include_too_many_args_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_include_too_many_args_text_strict.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diag_line_directive_include_too_many_args_text_strict.c",
+        "probes/diagnostics/11__probe_diag_line_directive_include_too_many_args_text_strict.h"
+      ],
+      "expects": ["expect/11__diag__line_directive_include_too_many_args_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "include", "arity", "too-many-args", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_include_void_return_value_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_include_void_return_value_text_strict.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diag_line_directive_include_void_return_value_text_strict.c",
+        "probes/diagnostics/11__probe_diag_line_directive_include_void_return_value_text_strict.h"
+      ],
+      "expects": ["expect/11__diag__line_directive_include_void_return_value_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "include", "return", "void", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_nonvoid_missing_return_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_nonvoid_missing_return_text_strict.c",
+      "expects": ["expect/11__diag__line_directive_nonvoid_missing_return_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "return", "missing-return", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_return_type_mismatch_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_return_type_mismatch_text_strict.c",
+      "expects": ["expect/11__diag__line_directive_return_type_mismatch_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "return", "type-mismatch", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_too_few_args_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_too_few_args_text_strict.c",
+      "expects": ["expect/11__diag__line_directive_too_few_args_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "arity", "too-few-args", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_too_many_args_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_too_many_args_text_strict.c",
+      "expects": ["expect/11__diag__line_directive_too_many_args_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "arity", "too-many-args", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__line_directive_void_return_value_text_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diag_line_directive_void_return_value_text_strict.c",
+      "expects": ["expect/11__diag__line_directive_void_return_value_text_strict.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "line-directive", "return", "void", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__duplicate_param_name_reject",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_duplicate_param_name_reject.c",
+      "expects": ["expect/11__diag__duplicate_param_name_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "parameter", "duplicate-name", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__param_auto_reject",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_param_auto_reject.c",
+      "expects": ["expect/11__diag__param_auto_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "parameter", "storage-class", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__param_incomplete_type_reject",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_param_incomplete_type_reject.c",
+      "expects": ["expect/11__diag__param_incomplete_type_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "parameter", "incomplete-type", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__param_void_plus_other_reject",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_param_void_plus_other_reject.c",
+      "expects": ["expect/11__diag__param_void_plus_other_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "parameter", "void", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_promotion__diag__return_void_expr_in_int_reject",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_return_void_expr_in_int_reject.c",
+      "expects": ["expect/11__diag__return_void_expr_in_int_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "diag", "probe-promotion", "return", "void-expression", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime__external_large_struct_sret_bridge",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_external_large_struct_sret_bridge_main.c",
+      "mixed_clang_inputs": ["probes/runtime/11__probe_external_large_struct_sret_bridge_lib.c"],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__external_large_struct_sret_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "runtime", "probe-promotion", "external", "large-struct", "sret", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime__external_small_struct_byval_pointer_bridge",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_external_small_struct_byval_pointer_bridge_main.c",
+      "mixed_clang_inputs": ["probes/runtime/11__probe_external_small_struct_byval_pointer_bridge_lib.c"],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__external_small_struct_byval_pointer_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "env": {
+        "FISICS_EXTERNAL_ABI_FUNCTIONS": "probe_external_small_struct_bridge"
+      },
+      "standard": "c99",
+      "tags": ["functions-calls", "runtime", "probe-promotion", "external", "small-struct", "byval", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime__function_param_function_type_adjust",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_function_param_function_type_adjust_ok.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__function_param_function_type_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "runtime", "probe-promotion", "parameter", "function-type-adjust", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime__small_struct_byval_multitu_definition",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_small_struct_byval_multitu_definition_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_small_struct_byval_multitu_definition_main.c",
+        "probes/runtime/11__probe_small_struct_byval_multitu_definition_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__small_struct_byval_multitu_definition.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "runtime", "probe-promotion", "small-struct", "byval", "multitu", "wave41"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

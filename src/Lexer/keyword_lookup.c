@@ -45,6 +45,7 @@ static const KeywordEntry kKeywords[] = {
     {"restrict", 8},
     {"inline", 6},
     {"_Atomic", 7},
+    {"_Noreturn", 9},
     {"sizeof", 6},
     {"_Alignof", 8},
     {"alignof", 7},

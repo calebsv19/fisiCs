@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__probe_promotion__diag__else_missing_stmt_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_else_missing_stmt_reject.c",
+      "expects": [
+        "expect/09__diag__else_missing_stmt_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "statement",
+        "control-flow",
+        "diag",
+        "probe-promotion",
+        "else",
+        "missing-statement",
+        "wave71"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_promotion__diag__for_missing_first_semicolon_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_for_missing_first_semicolon_reject.c",
+      "expects": [
+        "expect/09__diag__for_missing_first_semicolon_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "statement",
+        "control-flow",
+        "diag",
+        "probe-promotion",
+        "for",
+        "missing-semicolon",
+        "wave71"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_promotion__diag__if_missing_then_stmt_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_if_missing_then_stmt_reject.c",
+      "expects": [
+        "expect/09__diag__if_missing_then_stmt_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "statement",
+        "control-flow",
+        "diag",
+        "probe-promotion",
+        "if",
+        "missing-statement",
+        "wave71"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_promotion__diag__switch_missing_rparen_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_switch_missing_rparen_reject.c",
+      "expects": [
+        "expect/09__diag__switch_missing_rparen_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "statement",
+        "control-flow",
+        "diag",
+        "probe-promotion",
+        "switch",
+        "missing-rparen",
+        "wave71"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__do_while_codegen_crash_probe",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_do_while_runtime_codegen_crash.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__do_while_codegen_crash_probe.stdout",
+      "expected_stderr": "expect/09__runtime__do_while_codegen_crash_probe.stderr",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "statement",
+        "control-flow",
+        "runtime",
+        "probe-promotion",
+        "do-while",
+        "codegen",
+        "wave71"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

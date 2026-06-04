@@ -1,0 +1,7 @@
+Diagnostics:
+Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diagjson_line_directive_include_if_missing_lparen_parser_presence.h
+Error: expected '(' after 'if' at line 132053
+Error: expected ';' after expression at line 132053
+Error: invalid statement inside block at line 132053
+Error at (132051:5): Control reaches end of non-void function 'main'
+   Spelling: virtual_probe_ir_include_parser_if_missing_lparen_diagjson.h:132051:5

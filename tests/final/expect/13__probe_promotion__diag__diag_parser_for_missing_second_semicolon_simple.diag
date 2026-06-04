@@ -1,0 +1,3 @@
+Diagnostics:
+Error: expected ';' after for-loop condition at line 2
+Warning at (4:0): Unreachable statement

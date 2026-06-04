@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (1:8): Conflicting types for variable 'conflict_symbol_15' across translation units

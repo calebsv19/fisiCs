@@ -6,6 +6,37 @@
 #include <stdlib.h>
 #include <string.h>
 
+static LLVMValueRef cg_decay_array_argument_to_pointer(CodegenContext* ctx,
+                                                       ASTNode* argNode,
+                                                       const ParsedType* fromParsed,
+                                                       LLVMTypeRef paramTy) {
+    if (!ctx || !argNode || !fromParsed || !paramTy) {
+        return NULL;
+    }
+    if (LLVMGetTypeKind(paramTy) != LLVMPointerTypeKind ||
+        !parsedTypeIsDirectArray(fromParsed)) {
+        return NULL;
+    }
+
+    LLVMValueRef arrayPtr = NULL;
+    LLVMTypeRef arrayTy = NULL;
+    CGLValueInfo info;
+    if (!codegenLValue(ctx, argNode, &arrayPtr, &arrayTy, NULL, &info) || !arrayPtr) {
+        return NULL;
+    }
+
+    LLVMValueRef decayed = arrayPtr;
+    if (arrayTy && LLVMGetTypeKind(arrayTy) == LLVMArrayTypeKind) {
+        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvmContext), 0, 0);
+        LLVMValueRef idxs[2] = { zero, zero };
+        decayed = LLVMBuildGEP2(ctx->builder, arrayTy, arrayPtr, idxs, 2, "call.arg.array.decay");
+    }
+    if (decayed && LLVMTypeOf(decayed) != paramTy) {
+        decayed = LLVMBuildBitCast(ctx->builder, decayed, paramTy, "call.arg.array.decay.cast");
+    }
+    return decayed;
+}
+
 LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
 #define CG_CALL_RETURN(value) \
     do {                      \
@@ -523,6 +554,15 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
                     if (finalArgs[i] &&
                         LLVMGetTypeKind(paramTypes[i]) == LLVMPointerTypeKind &&
                         (!toParsed || !cg_parsed_type_is_pointerish(toParsed))) {
+                        LLVMValueRef decayedArray =
+                            cg_decay_array_argument_to_pointer(ctx,
+                                                               node->functionCall.arguments[i],
+                                                               fromParsed,
+                                                               paramTypes[i]);
+                        if (decayedArray) {
+                            finalArgs[i] = decayedArray;
+                            continue;
+                        }
                         LLVMTypeRef argTy = LLVMTypeOf(finalArgs[i]);
                         if (argTy) {
                             LLVMTypeKind argKind = LLVMGetTypeKind(argTy);

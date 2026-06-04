@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (97:0): __builtin_offsetof cannot be used on bitfields
+   Hint: x
+Error at (8:0): Initializer for static variable 'k' is not a constant expression

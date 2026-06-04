@@ -505,6 +505,27 @@ Lowering semantics once IR/codegen is enabled.
 - Active blockers: none.
 - Full suite status: `python3 tests/final/run_final.py` green after wave 41.
 
+## Wave 36 Additions (Promotion-Audit Closure)
+- Added `tests/final/meta/13-codegen-ir-wave36-probe-promotion-audit-closure.json`.
+- Promoted all bucket-13 audit-missing resolved probes into stable final coverage:
+  - `50` text diagnostic records covering parser-recovery line-directive parity,
+    parser control-header/body recovery, and function-pointer/modulo semantic
+    negatives.
+  - `29` diagnostic-JSON parser-recovery records covering the matching control
+    header/body families.
+  - `6` differential runtime records for function-pointer ternary decay,
+    global zero-fill initialization, loop-carried `continue`/`break`, pointer
+    stride arithmetic, short-circuit side effects, and struct copy/update.
+- Promotion-audit result after the pass:
+  - bucket `13`: `promoted=109`, `probe_only=0`, `missing=0`
+  - global: `promoted=2054`, `probe_only=214`, `missing=89`
+- Verification:
+  - `make` green.
+  - focused wave 36 final manifest green.
+  - `make final-promotion-audit` green.
+  - `make final-bucket BUCKET=codegen-ir` green.
+- No compiler/runtime behavior changed in this pass.
+
 ## Open 13 Gaps (Deferred/Optional)
 - Optional doc hygiene:
   collapse repeated recovery bullets into a short per-family checklist table to

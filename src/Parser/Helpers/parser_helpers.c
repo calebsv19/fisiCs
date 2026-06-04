@@ -301,7 +301,8 @@ bool isModifierToken(TokenType type) {
     return type == TOKEN_CONST ||
            type == TOKEN_VOLATILE ||
            type == TOKEN_RESTRICT ||
-           type == TOKEN_INLINE;
+           type == TOKEN_INLINE ||
+           type == TOKEN_NORETURN;
 }
  
 bool isStorageSpecifier(TokenType type) {

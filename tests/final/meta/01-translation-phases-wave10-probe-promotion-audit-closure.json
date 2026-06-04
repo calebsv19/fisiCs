@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__diag__line_directive_virtual_line_spelling_reject",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_virtual_line_spelling_reject.c",
+      "expects": ["expect/01__diag__line_directive_virtual_line_spelling_reject.diag"],
+      "tags": ["line-directive", "diag", "spelling", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_directive_virtual_macro_filename_spelling_reject",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_virtual_macro_filename_spelling_reject.c",
+      "expects": ["expect/01__diag__line_directive_virtual_macro_filename_spelling_reject.diag"],
+      "tags": ["line-directive", "macro", "diag", "spelling", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_mapping_real_file_baseline",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_mapping_real_file_baseline.c",
+      "expects": ["expect/01__diag__line_mapping_real_file_baseline.diag"],
+      "tags": ["line-directive", "diag", "baseline", "file-path", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_directive_virtual_line_nonvoid_return_location_reject",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_virtual_line_nonvoid_return_location_reject.c",
+      "expects": ["expect/01__diag__line_directive_virtual_line_nonvoid_return_location_reject.diag"],
+      "tags": ["line-directive", "diag", "semantic", "return", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_directive_virtual_line_nonvoid_return_current_zerozero",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_virtual_line_nonvoid_return_current_zerozero.c",
+      "expects": ["expect/01__diag__line_directive_virtual_line_nonvoid_return_current_zerozero.diag"],
+      "tags": ["line-directive", "diag", "semantic", "return", "current-threshold", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_directive_virtual_line_undeclared_identifier_location_reject",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_virtual_line_undeclared_identifier_location_reject.c",
+      "expects": ["expect/01__diag__line_directive_virtual_line_undeclared_identifier_location_reject.diag"],
+      "tags": ["line-directive", "diag", "semantic", "undeclared", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__nonvoid_return_plain_current_zerozero",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_nonvoid_return_plain_current_zerozero.c",
+      "expects": ["expect/01__diag__nonvoid_return_plain_current_zerozero.diag"],
+      "tags": ["diag", "semantic", "return", "current-threshold", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_directive_macro_nonvoid_return_location_reject",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_macro_nonvoid_return_location_reject.c",
+      "expects": ["expect/01__diag__line_directive_macro_nonvoid_return_location_reject.diag"],
+      "tags": ["line-directive", "macro", "diag", "semantic", "return", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_directive_macro_nonvoid_return_current_zerozero",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_macro_nonvoid_return_current_zerozero.c",
+      "expects": ["expect/01__diag__line_directive_macro_nonvoid_return_current_zerozero.diag"],
+      "tags": ["line-directive", "macro", "diag", "semantic", "return", "current-threshold", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_directive_include_nested_macro_undeclared_identifier_location_strict",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_include_nested_macro_undeclared_identifier_location_strict.c",
+      "expects": ["expect/01__diag__line_directive_include_nested_macro_undeclared_identifier_location_strict.diag"],
+      "tags": ["line-directive", "include", "macro", "diag", "semantic", "undeclared", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diag__line_directive_include_tokenpaste_undeclared_identifier_location_strict",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_include_tokenpaste_undeclared_identifier_location_strict.c",
+      "expects": ["expect/01__diag__line_directive_include_tokenpaste_undeclared_identifier_location_strict.diag"],
+      "tags": ["line-directive", "include", "macro", "token-paste", "diag", "semantic", "undeclared", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diagjson__line_directive_macro_line_map_strict",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_diagjson_line_directive_macro_line_map_strict.c",
+      "expects": ["expect/01__diagjson__line_directive_macro_line_map_strict.diagjson"],
+      "tags": ["line-directive", "macro", "diagjson", "semantic", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diagjson__line_directive_nonvoid_return_location_reject",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_virtual_line_nonvoid_return_location_reject.c",
+      "expects": ["expect/01__diagjson__line_directive_nonvoid_return_location_reject.diagjson"],
+      "tags": ["line-directive", "diagjson", "semantic", "return", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diagjson__line_directive_undeclared_identifier_location_strict",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_diagjson_line_directive_undeclared_identifier_location_strict.c",
+      "expects": ["expect/01__diagjson__line_directive_undeclared_identifier_location_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "semantic", "undeclared", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diagjson__nonvoid_return_plain_current_zerozero",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_nonvoid_return_plain_current_zerozero.c",
+      "expects": ["expect/01__diagjson__nonvoid_return_plain_current_zerozero.diagjson"],
+      "tags": ["diagjson", "semantic", "return", "current-threshold", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diagjson__line_directive_macro_nonvoid_return_location_reject",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_macro_nonvoid_return_location_reject.c",
+      "expects": ["expect/01__diagjson__line_directive_macro_nonvoid_return_location_reject.diagjson"],
+      "tags": ["line-directive", "macro", "diagjson", "semantic", "return", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diagjson__line_directive_macro_nonvoid_return_current_zerozero",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_macro_nonvoid_return_current_zerozero.c",
+      "expects": ["expect/01__diagjson__line_directive_macro_nonvoid_return_current_zerozero.diagjson"],
+      "tags": ["line-directive", "macro", "diagjson", "semantic", "return", "current-threshold", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diagjson__line_directive_include_nested_macro_undeclared_identifier_location_strict",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_include_nested_macro_undeclared_identifier_location_strict.c",
+      "expects": ["expect/01__diagjson__line_directive_include_nested_macro_undeclared_identifier_location_strict.diagjson"],
+      "tags": ["line-directive", "include", "macro", "diagjson", "semantic", "undeclared", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__diagjson__line_directive_include_tokenpaste_undeclared_identifier_location_strict",
+      "bucket": "translation-phases",
+      "input": "probes/diagnostics/01__probe_line_directive_include_tokenpaste_undeclared_identifier_location_strict.c",
+      "expects": ["expect/01__diagjson__line_directive_include_tokenpaste_undeclared_identifier_location_strict.diagjson"],
+      "tags": ["line-directive", "include", "macro", "token-paste", "diagjson", "semantic", "undeclared", "strict", "wave10", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

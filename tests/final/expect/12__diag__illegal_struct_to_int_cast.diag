@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6:29): Invalid cast between non-scalar types
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_illegal_struct_to_int_cast.c:6:29

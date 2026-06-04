@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_header_stdio_format_scan_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_stdio_format_scan_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_stdio_format_scan_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "stdio", "format", "scan"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_stdio_file_seek_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_stdio_file_seek_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_stdio_file_seek_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "stdio", "file", "seek"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

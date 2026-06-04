@@ -54,12 +54,14 @@ Scope depth 0
   - function: memset_pattern16
   - function: vfprintf
   - typedef: __darwin_rune_t
+  - function: atomic_fetch_add_explicit
   - function: strndup
   - function: putw
   - variable: __stdinp
   - function: fwrite
   - function: fscanf
   - typedef: __darwin_wctype_t
+  - function: __c11_atomic_fetch_sub
   - function: __builtin_nan
   - function: tempnam
   - function: fputs
@@ -86,7 +88,9 @@ Scope depth 0
   - function: __sprintf_chk
   - function: ctermid_r
   - function: fgets
+  - function: atomic_fetch_and_explicit
   - typedef: __darwin_mode_t
+  - function: __c11_atomic_fetch_and
   - function: __builtin___strncpy_chk
   - function: __builtin___snprintf_chk
   - function: memset_pattern4
@@ -102,6 +106,7 @@ Scope depth 0
   - typedef: rsize_t
   - typedef: FILE
   - typedef: user_time_t
+  - function: __c11_atomic_fetch_xor
   - function: atomic_exchange_explicit
   - function: probe_cpu_reconcile_merge
   - function: vscanf
@@ -111,6 +116,7 @@ Scope depth 0
   - function: strdup
   - function: strncasecmp
   - typedef: max_align_t
+  - function: __c11_atomic_compare_exchange_strong
   - function: fsetpos
   - function: fls
   - function: __swbuf
@@ -120,11 +126,13 @@ Scope depth 0
   - typedef: __int64_t
   - function: __builtin___strncat_chk
   - function: vfscanf
+  - function: atomic_fetch_or_explicit
   - function: strrchr
   - function: getline
   - function: ctermid
   - function: fflush
   - typedef: wchar_t
+  - function: __c11_atomic_fetch_or
   - function: rewind
   - typedef: __darwin_nl_item
   - function: memset
@@ -183,6 +191,7 @@ Scope depth 0
   - function: __builtin_alloca
   - function: bcmp
   - function: fread
+  - function: atomic_compare_exchange_strong_explicit
   - variable: sys_errlist
   - typedef: __darwin_ssize_t
   - typedef: __int16_t
@@ -216,6 +225,7 @@ Scope depth 0
   - typedef: off_t
   - function: freopen
   - function: clearerr
+  - function: __c11_atomic_fetch_add
   - function: flsl
   - function: strcat
   - function: strstr
@@ -241,6 +251,7 @@ Scope depth 0
   - function: __builtin_expect
   - function: getchar
   - function: ffs
+  - function: atomic_fetch_xor_explicit
   - function: fgetln
   - variable: true
   - function: strsep
@@ -278,6 +289,7 @@ Scope depth 0
   - typedef: __darwin_fsfilcnt_t
   - function: flockfile
   - typedef: __darwin_pthread_mutex_t
+  - function: atomic_fetch_sub_explicit
   - function: strlcpy
   - function: setlinebuf
   - function: tmpfile

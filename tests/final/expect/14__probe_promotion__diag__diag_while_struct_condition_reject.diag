@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (7:0): while controlling expression must be scalar
+   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/14__probe_diag_while_struct_condition_reject.c:7:0
