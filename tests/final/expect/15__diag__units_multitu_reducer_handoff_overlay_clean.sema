@@ -69,7 +69,10 @@ Scope depth 0
   - function: fputs
   - typedef: va_list
   - typedef: __darwin_mach_port_t
+  - function: __builtin_isgreaterequal
   - function: gets
+  - function: __fisics_tg_fabs
+  - function: atomic_thread_fence
   - function: probe_reducer_push_motion
   - function: memmove
   - typedef: user_ulong_t
@@ -93,6 +96,7 @@ Scope depth 0
   - function: atomic_fetch_and_explicit
   - typedef: __darwin_mode_t
   - function: __c11_atomic_fetch_and
+  - function: atomic_signal_fence
   - function: __builtin___strncpy_chk
   - function: __builtin___snprintf_chk
   - function: memset_pattern4
@@ -115,6 +119,7 @@ Scope depth 0
   - typedef: __darwin_clock_t
   - typedef: __mbstate_t
   - function: strdup
+  - function: __fisics_tg_sqrt
   - function: strncasecmp
   - typedef: max_align_t
   - function: __c11_atomic_compare_exchange_strong
@@ -171,6 +176,7 @@ Scope depth 0
   - function: __builtin_nanf
   - function: __svfscanf
   - typedef: register_t
+  - function: __builtin_isunordered
   - typedef: errno_t
   - function: fprintf
   - function: exit
@@ -186,6 +192,7 @@ Scope depth 0
   - function: strmode
   - function: sscanf
   - function: __c11_atomic_load
+  - function: __builtin_islessequal
   - function: strncat
   - function: strnstr
   - function: __builtin_alloca
@@ -222,7 +229,9 @@ Scope depth 0
   - function: renamex_np
   - function: renameat
   - function: __builtin_constant_p
+  - function: atomic_compare_exchange_weak_explicit
   - typedef: off_t
+  - function: __c11_atomic_compare_exchange_weak
   - function: freopen
   - function: clearerr
   - function: __c11_atomic_fetch_add
@@ -239,14 +248,17 @@ Scope depth 0
   - typedef: __darwin_intptr_t
   - function: __builtin_bzero
   - function: __builtin_bswap32
+  - function: __c11_atomic_thread_fence
   - typedef: __darwin_uid_t
   - function: strcmp
   - typedef: u_int16_t
   - typedef: __darwin_useconds_t
+  - function: __builtin_isgreater
   - typedef: __darwin_pthread_condattr_t
   - typedef: __uint64_t
   - function: open_memstream
   - function: vsprintf
+  - function: __c11_atomic_signal_fence
   - function: memset_s
   - function: __builtin_expect
   - function: getchar
@@ -274,6 +286,7 @@ Scope depth 0
   - function: pclose
   - function: strtok
   - function: asprintf
+  - function: __builtin_isless
   - function: strpbrk
   - function: rindex
   - function: atomic_store_explicit

@@ -52,7 +52,10 @@ Scope depth 0
   - function: fputs
   - typedef: va_list
   - typedef: __darwin_mach_port_t
+  - function: __builtin_isgreaterequal
   - function: gets
+  - function: __fisics_tg_fabs
+  - function: atomic_thread_fence
   - typedef: user_ulong_t
   - typedef: int8_t
   - function: getw
@@ -70,6 +73,7 @@ Scope depth 0
   - function: atomic_fetch_and_explicit
   - typedef: __darwin_mode_t
   - function: __c11_atomic_fetch_and
+  - function: atomic_signal_fence
   - function: __builtin___strncpy_chk
   - function: __builtin___snprintf_chk
   - function: fclose
@@ -85,6 +89,7 @@ Scope depth 0
   - typedef: __darwin_pthread_once_t
   - typedef: __darwin_clock_t
   - typedef: __mbstate_t
+  - function: __fisics_tg_sqrt
   - typedef: max_align_t
   - function: __c11_atomic_compare_exchange_strong
   - function: fsetpos
@@ -129,6 +134,7 @@ Scope depth 0
   - function: __builtin_nanf
   - function: __svfscanf
   - typedef: register_t
+  - function: __builtin_isunordered
   - function: fprintf
   - function: exit
   - function: funopen
@@ -141,6 +147,7 @@ Scope depth 0
   - function: __builtin_nanl
   - function: sscanf
   - function: __c11_atomic_load
+  - function: __builtin_islessequal
   - function: strncat
   - function: __builtin_alloca
   - function: fread
@@ -169,7 +176,9 @@ Scope depth 0
   - function: renamex_np
   - function: renameat
   - function: __builtin_constant_p
+  - function: atomic_compare_exchange_weak_explicit
   - typedef: off_t
+  - function: __c11_atomic_compare_exchange_weak
   - function: freopen
   - function: clearerr
   - function: __c11_atomic_fetch_add
@@ -184,13 +193,16 @@ Scope depth 0
   - typedef: __darwin_intptr_t
   - function: __builtin_bzero
   - function: __builtin_bswap32
+  - function: __c11_atomic_thread_fence
   - typedef: __darwin_uid_t
   - typedef: u_int16_t
   - typedef: __darwin_useconds_t
+  - function: __builtin_isgreater
   - typedef: __darwin_pthread_condattr_t
   - typedef: __uint64_t
   - function: open_memstream
   - function: vsprintf
+  - function: __c11_atomic_signal_fence
   - function: __builtin_expect
   - function: getchar
   - function: atomic_fetch_xor_explicit
@@ -214,6 +226,7 @@ Scope depth 0
   - function: ftello
   - function: pclose
   - function: asprintf
+  - function: __builtin_isless
   - function: atomic_store_explicit
   - function: __builtin_huge_vall
   - variable: false

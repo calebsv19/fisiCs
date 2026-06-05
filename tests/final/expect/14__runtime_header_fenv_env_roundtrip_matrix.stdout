@@ -1,0 +1,1 @@
+fenv-env round=1/1 invalid=1 inexact=1 divzero=0 cleared=0 restored=3

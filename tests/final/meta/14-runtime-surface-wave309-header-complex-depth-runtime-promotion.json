@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_header_complex_transcendental_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_complex_transcendental_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_complex_transcendental_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "complex", "transcendental"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_complex_power_root_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_complex_power_root_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_complex_power_root_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "complex", "power", "root", "projection"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

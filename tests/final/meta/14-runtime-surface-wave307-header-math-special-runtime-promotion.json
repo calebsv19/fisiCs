@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_header_math_special_relation_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_math_special_relation_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_math_special_relation_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "math", "special-values", "relations"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_math_nextafter_fma_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_math_nextafter_fma_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_math_nextafter_fma_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "math", "nextafter", "fma"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

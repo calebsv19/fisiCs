@@ -13,16 +13,21 @@ Scope depth 0
   - function: atomic_fetch_add_explicit
   - function: __c11_atomic_fetch_sub
   - function: __builtin_nan
+  - function: __builtin_isgreaterequal
+  - function: __fisics_tg_fabs
+  - function: atomic_thread_fence
   - function: __builtin_inff
   - function: __builtin_va_start
   - function: atomic_fetch_and_explicit
   - function: __c11_atomic_fetch_and
+  - function: atomic_signal_fence
   - function: __builtin___strncpy_chk
   - function: __builtin___snprintf_chk
   - variable: __LDBL_MIN__
   - function: __builtin_infl
   - function: __c11_atomic_fetch_xor
   - function: atomic_exchange_explicit
+  - function: __fisics_tg_sqrt
   - typedef: max_align_t
   - function: __c11_atomic_compare_exchange_strong
   - function: __builtin_va_copy
@@ -37,6 +42,7 @@ Scope depth 0
   - typedef: intptr_t
   - function: __builtin_fabsf
   - function: __builtin_nanf
+  - function: __builtin_isunordered
   - function: fprintf
   - function: exit
   - variable: NULL
@@ -45,6 +51,7 @@ Scope depth 0
   - function: stage_energy
   - function: __builtin_nanl
   - function: __c11_atomic_load
+  - function: __builtin_islessequal
   - function: strncat
   - function: __builtin_alloca
   - function: atomic_compare_exchange_strong_explicit
@@ -52,6 +59,8 @@ Scope depth 0
   - typedef: uintptr_t
   - function: __c11_atomic_store
   - function: __builtin_constant_p
+  - function: atomic_compare_exchange_weak_explicit
+  - function: __c11_atomic_compare_exchange_weak
   - function: __c11_atomic_fetch_add
   - function: strcat
   - function: __builtin___memset_chk
@@ -59,6 +68,9 @@ Scope depth 0
   - typedef: wint_t
   - function: __builtin_bzero
   - function: __builtin_bswap32
+  - function: __c11_atomic_thread_fence
+  - function: __builtin_isgreater
+  - function: __c11_atomic_signal_fence
   - function: __builtin_expect
   - function: atomic_fetch_xor_explicit
   - variable: true
@@ -68,6 +80,7 @@ Scope depth 0
   - function: __builtin_va_arg
   - function: main
   - function: __builtin_huge_valf
+  - function: __builtin_isless
   - function: atomic_store_explicit
   - function: __builtin_huge_vall
   - variable: false

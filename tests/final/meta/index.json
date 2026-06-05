@@ -878,6 +878,15 @@
     "14-runtime-surface-wave301-header-wchar-wctype-runtime-promotion.json",
     "14-runtime-surface-wave302-header-fenv-env-runtime-promotion.json",
     "14-runtime-surface-wave303-header-stdatomic-deep-runtime-promotion.json",
-    "14-runtime-surface-wave304-header-stdatomic-compare-fetch-promotion.json"
+    "14-runtime-surface-wave304-header-stdatomic-compare-fetch-promotion.json",
+    "14-runtime-surface-wave305-header-stdio-depth-runtime-promotion.json",
+    "14-runtime-surface-wave306-header-stdlib-depth-runtime-promotion.json",
+    "14-runtime-surface-wave307-header-math-special-runtime-promotion.json",
+    "14-runtime-surface-wave308-header-locale-wchar-depth-runtime-promotion.json",
+    "14-runtime-surface-wave309-header-complex-depth-runtime-promotion.json",
+    "14-runtime-surface-wave310-header-fenv-depth-runtime-promotion.json",
+    "14-runtime-surface-wave311-header-stdio-stdlib-edge-runtime-promotion.json",
+    "14-runtime-surface-wave312-header-stdatomic-bool-uintptr-runtime-promotion.json",
+    "14-runtime-surface-wave313-header-tgmath-depth-runtime-promotion.json"
   ]
 }

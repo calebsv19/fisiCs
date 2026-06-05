@@ -6,7 +6,7 @@
 - Promoted stable coverage: `2145`
 - Intentional probe-only coverage: `214`
 - Missing promotion candidates: `0`
-- Stable final tests scanned: `3703`
+- Stable final tests scanned: `3723`
 
 ### Promoted Match Evidence
 

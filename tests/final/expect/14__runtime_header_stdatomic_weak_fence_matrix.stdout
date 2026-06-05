@@ -1,0 +1,1 @@
+atomic-weak-fence ok=0 expected=5 value=5

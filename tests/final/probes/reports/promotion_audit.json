@@ -1,7 +1,7 @@
 {
   "summary": {
     "total_probes": 2359,
-    "total_final_tests": 3703,
+    "total_final_tests": 3723,
     "promoted": 2145,
     "probe_only": 214,
     "missing_promotion_candidate": 0,

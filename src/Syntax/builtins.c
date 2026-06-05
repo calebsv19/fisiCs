@@ -424,22 +424,30 @@ void seedBuiltins(Scope* globalScope) {
     addVariadicBuiltin(scope, "atomic_store_explicit", voidType());
     addVariadicBuiltin(scope, "atomic_exchange_explicit", longType(true));
     addVariadicBuiltin(scope, "atomic_compare_exchange_strong_explicit", intType());
+    addVariadicBuiltin(scope, "atomic_compare_exchange_weak_explicit", intType());
     addVariadicBuiltin(scope, "atomic_fetch_add_explicit", longType(true));
     addVariadicBuiltin(scope, "atomic_fetch_sub_explicit", longType(true));
     addVariadicBuiltin(scope, "atomic_fetch_or_explicit", longType(true));
     addVariadicBuiltin(scope, "atomic_fetch_xor_explicit", longType(true));
     addVariadicBuiltin(scope, "atomic_fetch_and_explicit", longType(true));
+    addVariadicBuiltin(scope, "atomic_thread_fence", voidType());
+    addVariadicBuiltin(scope, "atomic_signal_fence", voidType());
     addVariadicBuiltin(scope, "atomic_init", voidType());
     addVariadicBuiltin(scope, "__c11_atomic_load", longType(true));
     addVariadicBuiltin(scope, "__c11_atomic_store", voidType());
     addVariadicBuiltin(scope, "__c11_atomic_exchange", longType(true));
     addVariadicBuiltin(scope, "__c11_atomic_compare_exchange_strong", intType());
+    addVariadicBuiltin(scope, "__c11_atomic_compare_exchange_weak", intType());
     addVariadicBuiltin(scope, "__c11_atomic_fetch_add", longType(true));
     addVariadicBuiltin(scope, "__c11_atomic_fetch_sub", longType(true));
     addVariadicBuiltin(scope, "__c11_atomic_fetch_or", longType(true));
     addVariadicBuiltin(scope, "__c11_atomic_fetch_xor", longType(true));
     addVariadicBuiltin(scope, "__c11_atomic_fetch_and", longType(true));
+    addVariadicBuiltin(scope, "__c11_atomic_thread_fence", voidType());
+    addVariadicBuiltin(scope, "__c11_atomic_signal_fence", voidType());
     addVariadicBuiltin(scope, "__c11_atomic_init", voidType());
+    addVariadicBuiltin(scope, "__fisics_tg_sqrt", floatType(true));
+    addVariadicBuiltin(scope, "__fisics_tg_fabs", floatType(true));
 
     // Math-related builtins used in system headers
     ParsedType floatRet = floatType(false);
@@ -468,6 +476,22 @@ void seedBuiltins(Scope* globalScope) {
     mathSyms[8] = makeBuiltinFunc(mathFuncs[8], longDoubleRet, 0, NULL);
     for (size_t i = 0; i < 9; ++i) {
         if (mathSyms[i]) addToScope(scope, mathSyms[i]);
+    }
+    const char* mathRelationFuncs[] = {
+        "__builtin_isunordered",
+        "__builtin_isless",
+        "__builtin_isgreater",
+        "__builtin_islessequal",
+        "__builtin_isgreaterequal"
+    };
+    for (size_t i = 0; i < sizeof(mathRelationFuncs) / sizeof(mathRelationFuncs[0]); ++i) {
+        Symbol* relationSym = makeBuiltin(mathRelationFuncs[i], SYMBOL_FUNCTION, intType(), NULL);
+        if (relationSym) {
+            relationSym->signature.isVariadic = true;
+            relationSym->signature.paramCount = 0;
+            relationSym->signature.hasPrototype = true;
+            addToScope(scope, relationSym);
+        }
     }
 
     // Branch prediction hint

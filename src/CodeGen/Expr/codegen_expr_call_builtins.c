@@ -62,6 +62,13 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
     bool isHugeValfBuiltin = strcmp(calleeName, "__builtin_huge_valf") == 0;
     bool isHugeValBuiltin = strcmp(calleeName, "__builtin_huge_val") == 0;
     bool isHugeVallBuiltin = strcmp(calleeName, "__builtin_huge_vall") == 0;
+    bool isIsunorderedBuiltin = strcmp(calleeName, "__builtin_isunordered") == 0;
+    bool isIslessBuiltin = strcmp(calleeName, "__builtin_isless") == 0;
+    bool isIsgreaterBuiltin = strcmp(calleeName, "__builtin_isgreater") == 0;
+    bool isIslessequalBuiltin = strcmp(calleeName, "__builtin_islessequal") == 0;
+    bool isIsgreaterequalBuiltin = strcmp(calleeName, "__builtin_isgreaterequal") == 0;
+    bool isFisicsTgSqrtBuiltin = strcmp(calleeName, "__fisics_tg_sqrt") == 0;
+    bool isFisicsTgFabsBuiltin = strcmp(calleeName, "__fisics_tg_fabs") == 0;
     bool isSnprintfChkBuiltin = strcmp(calleeName, "__builtin___snprintf_chk") == 0;
     bool isVsnprintfChkBuiltin = strcmp(calleeName, "__builtin___vsnprintf_chk") == 0;
     bool isSprintfChkBuiltin = strcmp(calleeName, "__builtin___sprintf_chk") == 0;
@@ -83,6 +90,9 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
         !isInffBuiltin && !isInfBuiltin && !isInflBuiltin &&
         !isNanfBuiltin && !isNanBuiltin && !isNanlBuiltin &&
         !isHugeValfBuiltin && !isHugeValBuiltin && !isHugeVallBuiltin &&
+        !isIsunorderedBuiltin && !isIslessBuiltin && !isIsgreaterBuiltin &&
+        !isIslessequalBuiltin && !isIsgreaterequalBuiltin &&
+        !isFisicsTgSqrtBuiltin && !isFisicsTgFabsBuiltin &&
         !isSnprintfChkBuiltin && !isVsnprintfChkBuiltin && !isSprintfChkBuiltin &&
         !isMemcpyChkBuiltin && !isMemsetChkBuiltin && !isBzeroBuiltin &&
         !isStrncpyChkBuiltin && !isStrncatChkBuiltin && !isStrcpyChkBuiltin &&
@@ -274,6 +284,157 @@ bool cg_try_codegen_builtin_call(CodegenContext* ctx,
                                                         : (isFabslBuiltin
                                                                ? "fabsl.builtin.lowered"
                                                                : "fabs.builtin.lowered"));
+        free(args);
+        return true;
+    }
+    if (isFisicsTgSqrtBuiltin || isFisicsTgFabsBuiltin) {
+        if (node->functionCall.argumentCount < 1 || !args || !args[0]) {
+            free(args);
+            *resultOut = NULL;
+            return true;
+        }
+        const size_t keepIndices[] = {0};
+        LLVMValueRef value = args[0];
+        LLVMTypeRef valueType = LLVMTypeOf(value);
+        if (cg_llvm_type_is_complex_value(valueType)) {
+            LLVMTypeRef retTy = isFisicsTgSqrtBuiltin
+                ? valueType
+                : LLVMDoubleTypeInContext(ctx->llvmContext);
+            LLVMTypeRef paramTy = valueType;
+            bool promoteFlags[1] = {false};
+            *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                        node,
+                                                        isFisicsTgSqrtBuiltin ? "csqrt" : "cabs",
+                                                        retTy,
+                                                        args,
+                                                        node->functionCall.argumentCount,
+                                                        keepIndices,
+                                                        1,
+                                                        1,
+                                                        &paramTy,
+                                                        promoteFlags,
+                                                        false,
+                                                        isFisicsTgSqrtBuiltin
+                                                            ? "tgmath.csqrt.lowered"
+                                                            : "tgmath.cabs.lowered");
+            free(args);
+            return true;
+        }
+        LLVMTypeRef argTy = LLVMDoubleTypeInContext(ctx->llvmContext);
+        LLVMValueRef realArg = value;
+        if (LLVMTypeOf(realArg) != argTy) {
+            const ParsedType* fromParsed =
+                cg_resolve_expression_type(ctx, node->functionCall.arguments[0]);
+            realArg = cg_cast_value(ctx,
+                                    realArg,
+                                    argTy,
+                                    fromParsed,
+                                    NULL,
+                                    isFisicsTgSqrtBuiltin
+                                        ? "tgmath.sqrt.arg.cast"
+                                        : "tgmath.fabs.arg.cast");
+            if (!realArg) {
+                free(args);
+                *resultOut = NULL;
+                return true;
+            }
+        }
+        LLVMValueRef realArgs[1] = {realArg};
+        bool promoteFlags[1] = {false};
+        *resultOut = cg_emit_rewritten_builtin_call(ctx,
+                                                    node,
+                                                    isFisicsTgSqrtBuiltin ? "sqrt" : "fabs",
+                                                    argTy,
+                                                    realArgs,
+                                                    1,
+                                                    keepIndices,
+                                                    1,
+                                                    1,
+                                                    &argTy,
+                                                    promoteFlags,
+                                                    false,
+                                                    isFisicsTgSqrtBuiltin
+                                                        ? "tgmath.sqrt.lowered"
+                                                        : "tgmath.fabs.lowered");
+        free(args);
+        return true;
+    }
+    if (isIsunorderedBuiltin || isIslessBuiltin || isIsgreaterBuiltin ||
+        isIslessequalBuiltin || isIsgreaterequalBuiltin) {
+        if (node->functionCall.argumentCount < 2 || !args || !args[0] || !args[1]) {
+            free(args);
+            *resultOut = NULL;
+            return true;
+        }
+        LLVMValueRef lhs = args[0];
+        LLVMValueRef rhs = args[1];
+        LLVMTypeRef lhsTy = LLVMTypeOf(lhs);
+        LLVMTypeRef rhsTy = LLVMTypeOf(rhs);
+        if (!cg_is_float_type(lhsTy)) {
+            lhs = cg_cast_value(ctx,
+                                lhs,
+                                LLVMDoubleTypeInContext(ctx->llvmContext),
+                                NULL,
+                                NULL,
+                                "math.rel.lhs.cast");
+            if (!lhs) {
+                free(args);
+                *resultOut = NULL;
+                return true;
+            }
+            lhsTy = LLVMTypeOf(lhs);
+        }
+        if (!cg_is_float_type(rhsTy)) {
+            rhs = cg_cast_value(ctx,
+                                rhs,
+                                LLVMDoubleTypeInContext(ctx->llvmContext),
+                                NULL,
+                                NULL,
+                                "math.rel.rhs.cast");
+            if (!rhs) {
+                free(args);
+                *resultOut = NULL;
+                return true;
+            }
+            rhsTy = LLVMTypeOf(rhs);
+        }
+        LLVMTypeRef cmpTy = cg_select_float_type(lhsTy, rhsTy, ctx->llvmContext);
+        if (!cmpTy) {
+            cmpTy = LLVMDoubleTypeInContext(ctx->llvmContext);
+        }
+        if (LLVMTypeOf(lhs) != cmpTy) {
+            lhs = cg_cast_value(ctx, lhs, cmpTy, NULL, NULL, "math.rel.lhs.promote");
+            if (!lhs) {
+                free(args);
+                *resultOut = NULL;
+                return true;
+            }
+        }
+        if (LLVMTypeOf(rhs) != cmpTy) {
+            rhs = cg_cast_value(ctx, rhs, cmpTy, NULL, NULL, "math.rel.rhs.promote");
+            if (!rhs) {
+                free(args);
+                *resultOut = NULL;
+                return true;
+            }
+        }
+        LLVMRealPredicate pred = LLVMRealUNO;
+        const char* name = "math.rel.unordered";
+        if (isIslessBuiltin) {
+            pred = LLVMRealOLT;
+            name = "math.rel.less";
+        } else if (isIsgreaterBuiltin) {
+            pred = LLVMRealOGT;
+            name = "math.rel.greater";
+        } else if (isIslessequalBuiltin) {
+            pred = LLVMRealOLE;
+            name = "math.rel.lessequal";
+        } else if (isIsgreaterequalBuiltin) {
+            pred = LLVMRealOGE;
+            name = "math.rel.greaterequal";
+        }
+        LLVMValueRef cmp = LLVMBuildFCmp(ctx->builder, pred, lhs, rhs, name);
+        *resultOut = LLVMBuildZExt(ctx->builder, cmp, intType, "math.rel.result");
         free(args);
         return true;
     }

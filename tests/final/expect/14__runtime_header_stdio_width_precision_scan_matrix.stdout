@@ -1,0 +1,1 @@
+stdio-width n1=13 trunc=0000012 n2=17 wide=abc   |+0042|0x1a matched=4 word=alpha hex=42 span=17 used=14 tail=beta

@@ -57,24 +57,30 @@ runtime repros.
   contracts
 - `string.h` memory copy/compare and search/span runtime contracts
 - `ctype.h` classification and case-conversion runtime contracts
-- `stdio.h` formatting/scanning and file-position runtime contracts
-- `stdlib.h` allocation and numeric-conversion runtime contracts
+- `stdio.h` formatting/scanning, width/precision, scan length modifiers, stream
+  state, and file-position runtime contracts
+- `stdlib.h` allocation, numeric-conversion, `strto*` base/end-pointer, and
+  `qsort` / `bsearch` runtime contracts
 - `errno.h` macro/lvalue and libc error-state runtime contracts
 - `assert.h` enabled-assert and `NDEBUG` disabled-assert runtime contracts
 - `float.h` precision and range macro runtime contracts
-- `math.h` finite-classification and rounding runtime contracts
-- `complex.h` absolute-value, argument, projection, and conjugation runtime
-  contracts
+- `math.h` finite-classification, relation-macro, rounding, `nextafter`, and
+  `fma` runtime contracts
+- `complex.h` absolute-value, argument, projection, conjugation, finite
+  transcendental, power, and root runtime contracts
 - `locale.h` / `time.h` C-locale formatting and calendar normalization
   runtime contracts
 - `signal.h` handler sequencing and `sig_atomic_t` state runtime contracts
 - `inttypes.h` base formatting/scanning runtime contracts
-- `wchar.h` / `wctype.h` wide string/span and descriptor/classification
+- `wchar.h` / `wctype.h` wide string/span, C-locale multibyte conversion, and
+  descriptor/classification runtime contracts
+- `fenv.h` environment save/update, roundtrip, exception-flag sequencing, and
+  exception-flag restore runtime contracts
+- `stdatomic.h` `atomic_flag` sequence/array-state, bool/char/uintptr storage,
+  weak compare-exchange/fence, compare-exchange, and fetch read-modify-write
   runtime contracts
-- `fenv.h` environment save/update and exception-flag restore runtime
-  contracts
-- `stdatomic.h` `atomic_flag` sequence/array-state contracts plus
-  compare-exchange and fetch read-modify-write runtime contracts
+- `tgmath.h` real type-generic math dispatch and bounded complex `sqrt` /
+  `fabs` dispatch runtime contracts
 - `offsetof`, fixed-width typedefs, and key macro contracts
 - direct calls, recursion, function pointers, and variadic call surfaces
 - pointer arithmetic, pointer-difference, and array/aggregate access

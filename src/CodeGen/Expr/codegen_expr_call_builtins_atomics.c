@@ -29,10 +29,37 @@ static bool cg_builtin_is_c11_atomic_init(const char* calleeName) {
             strcmp(calleeName, "atomic_init") == 0);
 }
 
-static bool cg_builtin_is_c11_atomic_compare_exchange_strong(const char* calleeName) {
+static bool cg_builtin_is_c11_atomic_compare_exchange(const char* calleeName, bool* isWeakOut) {
+    if (isWeakOut) {
+        *isWeakOut = false;
+    }
+    if (!calleeName) {
+        return false;
+    }
+    if (strcmp(calleeName, "__c11_atomic_compare_exchange_strong") == 0 ||
+        strcmp(calleeName, "atomic_compare_exchange_strong_explicit") == 0) {
+        return true;
+    }
+    if (strcmp(calleeName, "__c11_atomic_compare_exchange_weak") == 0 ||
+        strcmp(calleeName, "atomic_compare_exchange_weak_explicit") == 0) {
+        if (isWeakOut) {
+            *isWeakOut = true;
+        }
+        return true;
+    }
+    return false;
+}
+
+static bool cg_builtin_is_c11_atomic_fence(const char* calleeName, bool* isSignalOut) {
+    if (isSignalOut) {
+        *isSignalOut = false;
+    }
     return calleeName &&
-           (strcmp(calleeName, "__c11_atomic_compare_exchange_strong") == 0 ||
-            strcmp(calleeName, "atomic_compare_exchange_strong_explicit") == 0);
+           (strcmp(calleeName, "__c11_atomic_thread_fence") == 0 ||
+            strcmp(calleeName, "atomic_thread_fence") == 0 ||
+            ((strcmp(calleeName, "__c11_atomic_signal_fence") == 0 ||
+              strcmp(calleeName, "atomic_signal_fence") == 0) &&
+             ((isSignalOut && (*isSignalOut = true)) || true)));
 }
 
 static bool cg_builtin_atomic_fetch_binop(const char* calleeName, LLVMAtomicRMWBinOp* opOut) {
@@ -127,11 +154,15 @@ bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
     bool isStore = cg_builtin_is_c11_atomic_store(calleeName);
     bool isExchange = cg_builtin_is_c11_atomic_exchange(calleeName);
     bool isInit = cg_builtin_is_c11_atomic_init(calleeName);
-    bool isCompareExchange = cg_builtin_is_c11_atomic_compare_exchange_strong(calleeName);
+    bool isWeakCompareExchange = false;
+    bool isCompareExchange =
+        cg_builtin_is_c11_atomic_compare_exchange(calleeName, &isWeakCompareExchange);
+    bool isSignalFence = false;
+    bool isFence = cg_builtin_is_c11_atomic_fence(calleeName, &isSignalFence);
     LLVMAtomicRMWBinOp fetchBinop = LLVMAtomicRMWBinOpAdd;
     bool isFetch = cg_builtin_atomic_fetch_binop(calleeName, &fetchBinop);
 
-    if (!isLoad && !isStore && !isExchange && !isInit && !isCompareExchange && !isFetch) {
+    if (!isLoad && !isStore && !isExchange && !isInit && !isCompareExchange && !isFence && !isFetch) {
         return false;
     }
 
@@ -236,6 +267,27 @@ bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
         return true;
     }
 
+    if (isFence) {
+        LLVMAtomicOrdering ordering = LLVMAtomicOrderingSequentiallyConsistent;
+        if (node->functionCall.argumentCount >= 1 && args && args[0]) {
+            ordering = cg_atomic_order_from_builtin_arg(args[0],
+                                                        LLVMAtomicOrderingSequentiallyConsistent,
+                                                        false,
+                                                        false);
+        }
+        if (ordering != LLVMAtomicOrderingMonotonic &&
+            ordering != LLVMAtomicOrderingNotAtomic &&
+            ordering != LLVMAtomicOrderingUnordered) {
+            (void)LLVMBuildFence(ctx->builder,
+                                 ordering,
+                                 isSignalFence ? 1 : 0,
+                                 isSignalFence ? "atomic.signal.fence" : "atomic.thread.fence");
+        }
+        free(args);
+        *resultOut = NULL;
+        return true;
+    }
+
     if (isCompareExchange) {
         if (node->functionCall.argumentCount < 3 || !args || !args[0] || !args[1] || !args[2]) {
             free(args);
@@ -305,7 +357,7 @@ bool cg_try_codegen_atomic_builtin_call(CodegenContext* ctx,
                                                       successOrdering,
                                                       failureOrdering,
                                                       0);
-        LLVMSetWeak(cmpxchg, 0);
+        LLVMSetWeak(cmpxchg, isWeakCompareExchange ? 1 : 0);
         LLVMValueRef observed = LLVMBuildExtractValue(ctx->builder,
                                                       cmpxchg,
                                                       0,
