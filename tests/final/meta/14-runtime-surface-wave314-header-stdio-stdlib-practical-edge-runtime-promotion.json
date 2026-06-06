@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_header_stdio_zero_trunc_scan_failure_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_stdio_zero_trunc_scan_failure_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_stdio_zero_trunc_scan_failure_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "stdio", "snprintf", "scan", "edge"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_stdlib_strto_overflow_errno_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_stdlib_strto_overflow_errno_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_stdlib_strto_overflow_errno_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "stdlib", "strto", "errno", "overflow"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_header_stdlib_sort_search_edge_matrix",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_header_stdlib_sort_search_edge_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_header_stdlib_sort_search_edge_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "header", "stdlib", "qsort", "bsearch", "edge"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

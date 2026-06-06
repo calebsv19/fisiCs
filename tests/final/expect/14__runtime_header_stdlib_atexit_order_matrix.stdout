@@ -1,0 +1,3 @@
+stdlib-atexit-main state=3 registrations=0/0
+stdlib-atexit-second state=32
+stdlib-atexit-first state=321

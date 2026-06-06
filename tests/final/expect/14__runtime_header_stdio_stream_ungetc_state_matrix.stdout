@@ -1,0 +1,1 @@
+stdio-stream-ungetc chars=abc eof=1 feof=1 clear=0/0 push=Z got=Z next=a pos=1 summary=590
