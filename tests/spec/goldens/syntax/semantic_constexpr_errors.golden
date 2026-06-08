@@ -40,5 +40,6 @@ Error at (2:0): Initializer for static variable 'static_bad' is not a constant e
 Error at (6:5): Enumerator value is not a constant expression
    Hint: BAD
    Spelling: tests/syntax/semantic_constexpr_errors.c:6:5
-Error at (12:0): Case label is not an integer constant expression
+Error at (12:14): Case label is not an integer constant expression
+   Spelling: tests/syntax/semantic_constexpr_errors.c:12:14
 

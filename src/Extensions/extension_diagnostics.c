@@ -24,19 +24,25 @@ static void report_dim_mismatch(CompilerContext* ctx,
                                 const ASTNode* node,
                                 int code,
                                 const char* hint,
+                                const char* context,
                                 const char* fmt,
                                 FisicsDim8 lhsDim,
                                 FisicsDim8 rhsDim) {
     char* lhsText = fisics_dim_to_string(lhsDim);
     char* rhsText = fisics_dim_to_string(rhsDim);
-    compiler_report_diag(ctx,
-                         node_loc(node),
-                         DIAG_ERROR,
-                         code,
-                         hint,
-                         fmt,
-                         lhsText ? lhsText : "<oom>",
-                         rhsText ? rhsText : "<oom>");
+    compiler_report_units_diag_with_details(ctx,
+                                            node_loc(node),
+                                            DIAG_ERROR,
+                                            code,
+                                            hint,
+                                            &lhsDim,
+                                            &rhsDim,
+                                            context,
+                                            NULL,
+                                            NULL,
+                                            fmt,
+                                            lhsText ? lhsText : "<oom>",
+                                            rhsText ? rhsText : "<oom>");
     free(lhsText);
     free(rhsText);
 }
@@ -162,6 +168,7 @@ void fisics_extension_diag_units_assign_dim_mismatch(CompilerContext* ctx,
                         node,
                         CDIAG_EXTENSION_UNITS_ASSIGN_DIM_MISMATCH,
                         "assignment requires identical dimensions on both sides",
+                        "assignment",
                         "units assignment mismatch: lhs is '%s' but rhs is '%s'",
                         lhsDim,
                         rhsDim);
@@ -175,6 +182,7 @@ void fisics_extension_diag_units_add_dim_mismatch(CompilerContext* ctx,
                         node,
                         CDIAG_EXTENSION_UNITS_ADD_DIM_MISMATCH,
                         "addition requires identical dimensions on both sides",
+                        "addition",
                         "units addition mismatch: lhs is '%s' but rhs is '%s'",
                         lhsDim,
                         rhsDim);
@@ -188,6 +196,7 @@ void fisics_extension_diag_units_sub_dim_mismatch(CompilerContext* ctx,
                         node,
                         CDIAG_EXTENSION_UNITS_SUB_DIM_MISMATCH,
                         "subtraction requires identical dimensions on both sides",
+                        "subtraction",
                         "units subtraction mismatch: lhs is '%s' but rhs is '%s'",
                         lhsDim,
                         rhsDim);
@@ -201,6 +210,7 @@ void fisics_extension_diag_units_compare_dim_mismatch(CompilerContext* ctx,
                         node,
                         CDIAG_EXTENSION_UNITS_COMPARE_DIM_MISMATCH,
                         "comparison requires identical dimensions on both sides",
+                        "comparison",
                         "units comparison mismatch: lhs is '%s' but rhs is '%s'",
                         lhsDim,
                         rhsDim);
@@ -240,15 +250,22 @@ void fisics_extension_diag_units_implicit_unit_conversion(CompilerContext* ctx,
                                                           const char* context,
                                                           const FisicsUnitDef* sourceUnit,
                                                           const FisicsUnitDef* targetUnit) {
-    compiler_report_diag(ctx,
-                         node_loc(node),
-                         DIAG_ERROR,
-                         CDIAG_EXTENSION_UNITS_IMPLICIT_CONCRETE_CONVERSION,
-                         "same-dimension concrete unit changes currently require an explicit fisics_convert_unit(...) call",
-                         "implicit concrete unit conversion in %s requires explicit conversion from '%s' to '%s'",
-                         context ? context : "expression",
-                         (sourceUnit && sourceUnit->name) ? sourceUnit->name : "<source>",
-                         (targetUnit && targetUnit->name) ? targetUnit->name : "<target>");
+    FisicsDim8 sourceDim = sourceUnit ? sourceUnit->dim : fisics_dim_zero();
+    FisicsDim8 targetDim = targetUnit ? targetUnit->dim : fisics_dim_zero();
+    compiler_report_units_diag_with_details(ctx,
+                                            node_loc(node),
+                                            DIAG_ERROR,
+                                            CDIAG_EXTENSION_UNITS_IMPLICIT_CONCRETE_CONVERSION,
+                                            "same-dimension concrete unit changes currently require an explicit fisics_convert_unit(...) call",
+                                            sourceUnit ? &sourceDim : NULL,
+                                            targetUnit ? &targetDim : NULL,
+                                            context ? context : "expression",
+                                            sourceUnit,
+                                            targetUnit,
+                                            "implicit concrete unit conversion in %s requires explicit conversion from '%s' to '%s'",
+                                            context ? context : "expression",
+                                            (sourceUnit && sourceUnit->name) ? sourceUnit->name : "<source>",
+                                            (targetUnit && targetUnit->name) ? targetUnit->name : "<target>");
 }
 
 void fisics_extension_diag_units_conversion_invalid_target(CompilerContext* ctx,
@@ -269,14 +286,21 @@ void fisics_extension_diag_units_conversion_incompatible(CompilerContext* ctx,
                                                          const FisicsUnitDef* sourceUnit,
                                                          const FisicsUnitDef* targetUnit,
                                                          const char* detail) {
-    compiler_report_diag(ctx,
-                         node_loc(node),
-                         DIAG_ERROR,
-                         CDIAG_EXTENSION_UNITS_CONVERSION_INCOMPATIBLE,
-                         detail,
-                         "explicit units conversion from '%s' to '%s' is not allowed",
-                         (sourceUnit && sourceUnit->name) ? sourceUnit->name : "<source>",
-                         (targetUnit && targetUnit->name) ? targetUnit->name : "<target>");
+    FisicsDim8 sourceDim = sourceUnit ? sourceUnit->dim : fisics_dim_zero();
+    FisicsDim8 targetDim = targetUnit ? targetUnit->dim : fisics_dim_zero();
+    compiler_report_units_diag_with_details(ctx,
+                                            node_loc(node),
+                                            DIAG_ERROR,
+                                            CDIAG_EXTENSION_UNITS_CONVERSION_INCOMPATIBLE,
+                                            detail,
+                                            sourceUnit ? &sourceDim : NULL,
+                                            targetUnit ? &targetDim : NULL,
+                                            "explicit conversion",
+                                            sourceUnit,
+                                            targetUnit,
+                                            "explicit units conversion from '%s' to '%s' is not allowed",
+                                            (sourceUnit && sourceUnit->name) ? sourceUnit->name : "<source>",
+                                            (targetUnit && targetUnit->name) ? targetUnit->name : "<target>");
 }
 
 void fisics_extension_diag_units_conversion_requires_source_unit(CompilerContext* ctx,

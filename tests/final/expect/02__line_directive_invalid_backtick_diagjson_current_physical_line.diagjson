@@ -2,14 +2,21 @@
   "diag_count": 1,
   "diagnostics": [
     {
+      "category_id": 1,
+      "category_name": "analysis",
       "code": 1,
+      "code_id": 1,
+      "code_name": "generic",
       "column": 9,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
       "length": 1,
-      "line": 981
+      "line": 981,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "unknown"
     }
   ],
   "error_count": 1,

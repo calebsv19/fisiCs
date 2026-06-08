@@ -2,14 +2,21 @@
   "diag_count": 1,
   "diagnostics": [
     {
+      "category_id": 3,
+      "category_name": "semantic",
       "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
       "column": 37,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
       "length": 10,
-      "line": 991
+      "line": 991,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
     }
   ],
   "error_count": 1,

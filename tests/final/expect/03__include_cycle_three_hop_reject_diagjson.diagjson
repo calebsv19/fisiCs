@@ -2,14 +2,51 @@
   "diag_count": 1,
   "diagnostics": [
     {
+      "category_id": 4,
+      "category_name": "preprocessor",
       "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
       "column": 10,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
+      "include_stack": [
+        {
+          "column": 0,
+          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_three_hop_reject.c",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        },
+        {
+          "column": 0,
+          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_three_hop_reject_a.h",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        },
+        {
+          "column": 0,
+          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_three_hop_reject_b.h",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        },
+        {
+          "column": 0,
+          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_three_hop_reject_c.h",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        }
+      ],
       "kind": 0,
       "length": 40,
-      "line": 1
+      "line": 1,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "preprocess"
     }
   ],
   "error_count": 1,

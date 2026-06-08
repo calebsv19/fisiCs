@@ -2,14 +2,78 @@
   "diag_count": 1,
   "diagnostics": [
     {
+      "category_id": 8,
+      "category_name": "extension",
       "code": 4107,
+      "code_id": 4107,
+      "code_name": "extension.units.implicit_concrete_conversion",
       "column": 31,
+      "details": {
+        "context": "argument",
+        "lhs_dim": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "lhs_dim_text": "m",
+        "rhs_dim": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rhs_dim_text": "m",
+        "source_unit": {
+          "dim": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "dim_text": "m",
+          "family": "length",
+          "name": "foot",
+          "symbol": "ft"
+        },
+        "target_unit": {
+          "dim": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "dim_text": "m",
+          "family": "length",
+          "name": "meter",
+          "symbol": "m"
+        }
+      },
       "has_file": true,
       "has_hint": true,
       "has_message": true,
       "kind": 0,
       "length": 11,
-      "line": 18
+      "line": 18,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "extension"
     }
   ],
   "error_count": 1,

@@ -2,24 +2,38 @@
   "diag_count": 2,
   "diagnostics": [
     {
+      "category_id": 3,
+      "category_name": "semantic",
       "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
       "column": 33,
       "has_file": true,
       "has_hint": true,
       "has_message": true,
       "kind": 0,
       "length": 20,
-      "line": 300299
+      "line": 300299,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
     },
     {
+      "category_id": 3,
+      "category_name": "semantic",
       "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
       "column": 33,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
       "length": 20,
-      "line": 300299
+      "line": 300299,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
     }
   ],
   "error_count": 2,

@@ -444,7 +444,7 @@ PROGRAM
               IDENTIFIER __builtin_fabsl
               ARGUMENTS
                 IDENTIFIER __x
-            NUMBER_LITERAL 3.3621031431120935063e-4932L
+            NUMBER_LITERAL 2.2250738585072014e-308L
   FUNCTION DECLARATION
     RETURN TYPE: extern float
     IDENTIFIER acosf

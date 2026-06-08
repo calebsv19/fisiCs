@@ -2,14 +2,37 @@
   "diag_count": 1,
   "diagnostics": [
     {
+      "category_id": 4,
+      "category_name": "preprocessor",
       "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
       "column": 24,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
       "length": 5,
-      "line": 5
+      "line": 5,
+      "macro_trace": [
+        {
+          "column": 24,
+          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_macro_cycle_chain_no_crash_b.h",
+          "line": 5,
+          "macro": "NEED2",
+          "role": "call_site"
+        },
+        {
+          "column": 1,
+          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_macro_cycle_chain_no_crash_a.h",
+          "line": 5,
+          "macro": "NEED2",
+          "role": "definition"
+        }
+      ],
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "preprocess"
     }
   ],
   "error_count": 1,

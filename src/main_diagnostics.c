@@ -9,6 +9,7 @@
 #include <ctype.h>
 
 #include "Compiler/compiler_context.h"
+#include "Compiler/diagnostic_metadata.h"
 #include "Syntax/Decls/analyze_decls_internal.h"
 
 static char* dup_with_indexed_ext(const char* basePath,
@@ -96,12 +97,32 @@ static bool json_write_escaped_string(FILE* fp, const char* text) {
     return true;
 }
 
+static bool main_write_diag_metadata_json(FILE* fp, DiagKind kind, int code) {
+    if (!fp) return false;
+    int severity_id = fisics_diag_severity_id_from_kind(kind);
+    int category_id = fisics_diag_category_id_from_code(code);
+
+    bool ok = true;
+    ok = ok && (fprintf(fp, ",\n      \"severity_id\": %d,\n", severity_id) >= 0);
+    ok = ok && (fputs("      \"severity_name\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, fisics_diag_severity_name(severity_id));
+    ok = ok && (fprintf(fp, ",\n      \"category_id\": %d,\n", category_id) >= 0);
+    ok = ok && (fputs("      \"category_name\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, fisics_diag_category_name(category_id));
+    ok = ok && (fprintf(fp, ",\n      \"code_id\": %d,\n", code) >= 0);
+    ok = ok && (fputs("      \"code_name\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, fisics_diag_code_name(code));
+    ok = ok && (fputs(",\n      \"stage\": ", fp) != EOF);
+    ok = ok && json_write_escaped_string(fp, fisics_diag_stage_name_from_code(code));
+    return ok;
+}
+
 bool main_write_link_stage_diag_json(const char* outPath,
                                      int exitCode,
                                      const char* linkerName,
                                      const char* outputName,
                                      size_t inputCount) {
-    enum { LINK_STAGE_DIAG_CODE = 4001 };
+    enum { LINK_STAGE_DIAG_CODE = FISICS_DIAG_CODE_LINK_STAGE_FAILED };
     if (!outPath || outPath[0] == '\0') return false;
 
     FILE* fp = fopen(outPath, "wb");
@@ -144,7 +165,9 @@ bool main_write_link_stage_diag_json(const char* outPath,
     ok = ok && (fputs("      \"hint\": ", fp) != EOF);
     ok = ok && json_write_escaped_string(fp, hint);
     ok = ok && (fputs(",\n", fp) != EOF);
-    ok = ok && (fputs("      \"has_file\": false\n", fp) != EOF);
+    ok = ok && (fputs("      \"has_file\": false", fp) != EOF);
+    ok = ok && main_write_diag_metadata_json(fp, DIAG_ERROR, LINK_STAGE_DIAG_CODE);
+    ok = ok && (fputs("\n", fp) != EOF);
     ok = ok && (fputs("    }\n", fp) != EOF);
     ok = ok && (fputs("  ]\n", fp) != EOF);
     ok = ok && (fputs("}\n", fp) != EOF);
@@ -833,6 +856,7 @@ bool main_write_semantic_conflict_diag_json(const char* outPath,
     ok = ok && (fputs("      \"has_file\": true,\n", fp) != EOF);
     ok = ok && (fputs("      \"file\": ", fp) != EOF);
     ok = ok && json_write_escaped_string(fp, filePath);
+    ok = ok && main_write_diag_metadata_json(fp, DIAG_ERROR, SEMANTIC_CONFLICT_DIAG_CODE);
     ok = ok && (fputs("\n", fp) != EOF);
     ok = ok && (fputs("    }\n", fp) != EOF);
     ok = ok && (fputs("  ]\n", fp) != EOF);

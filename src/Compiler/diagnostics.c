@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include "Compiler/compiler_context.h"
+#include "Compiler/diagnostic_metadata.h"
 #include "Utils/logging.h"
 
 static CompilerDiagnostics* ctx_buffer(struct CompilerContext* ctx) {
@@ -70,9 +71,40 @@ static bool diag_buffer_reserve(CompilerDiagnostics* buf, size_t extra) {
     while (newCap < need) {
         newCap *= 2;
     }
-    FisicsDiagnostic* grown = (FisicsDiagnostic*)realloc(buf->items, newCap * sizeof(FisicsDiagnostic));
-    if (!grown) return false;
+    FisicsDiagnostic* grown = (FisicsDiagnostic*)calloc(newCap, sizeof(FisicsDiagnostic));
+    FisicsDiagnosticIncludeStack* grownStacks =
+        (FisicsDiagnosticIncludeStack*)calloc(newCap, sizeof(FisicsDiagnosticIncludeStack));
+    FisicsDiagnosticMacroTrace* grownMacroTraces =
+        (FisicsDiagnosticMacroTrace*)calloc(newCap, sizeof(FisicsDiagnosticMacroTrace));
+    FisicsDiagnosticDetails* grownDetails =
+        (FisicsDiagnosticDetails*)calloc(newCap, sizeof(FisicsDiagnosticDetails));
+    if (!grown || !grownStacks || !grownMacroTraces || !grownDetails) {
+        free(grown);
+        free(grownStacks);
+        free(grownMacroTraces);
+        free(grownDetails);
+        return false;
+    }
+    if (buf->count > 0u) {
+        memcpy(grown, buf->items, buf->count * sizeof(FisicsDiagnostic));
+        if (buf->includeStacks) {
+            memcpy(grownStacks, buf->includeStacks, buf->count * sizeof(FisicsDiagnosticIncludeStack));
+        }
+        if (buf->macroTraces) {
+            memcpy(grownMacroTraces, buf->macroTraces, buf->count * sizeof(FisicsDiagnosticMacroTrace));
+        }
+        if (buf->details) {
+            memcpy(grownDetails, buf->details, buf->count * sizeof(FisicsDiagnosticDetails));
+        }
+    }
+    free(buf->items);
+    free(buf->includeStacks);
+    free(buf->macroTraces);
+    free(buf->details);
     buf->items = grown;
+    buf->includeStacks = grownStacks;
+    buf->macroTraces = grownMacroTraces;
+    buf->details = grownDetails;
     buf->capacity = newCap;
     return true;
 }
@@ -110,13 +142,194 @@ static bool diag_matches(const FisicsDiagnostic* d,
     return true;
 }
 
-bool compiler_report_diag(struct CompilerContext* ctx,
-                          SourceRange loc,
-                          DiagKind kind,
-                          int code,
-                          const char* hint,
-                          const char* fmt,
-                          ...) {
+static void diag_include_stack_clear(FisicsDiagnosticIncludeStack* stack) {
+    if (!stack) return;
+    for (size_t i = 0; i < stack->count; ++i) {
+        free(stack->frames[i].file);
+        free(stack->frames[i].origin);
+    }
+    free(stack->frames);
+    stack->frames = NULL;
+    stack->count = 0u;
+}
+
+static void diag_include_stack_copy(FisicsDiagnosticIncludeStack* out,
+                                    const char* const* include_files,
+                                    const char* const* include_origins,
+                                    size_t include_count) {
+    if (!out) return;
+    out->frames = NULL;
+    out->count = 0u;
+    if (!include_files || include_count == 0u) return;
+    out->frames = (FisicsDiagnosticIncludeFrame*)calloc(include_count,
+                                                        sizeof(FisicsDiagnosticIncludeFrame));
+    if (!out->frames) return;
+    for (size_t i = 0; i < include_count; ++i) {
+        out->frames[i].file = include_files[i] ? strdup(include_files[i]) : NULL;
+        out->frames[i].origin =
+            (include_origins && include_origins[i]) ? strdup(include_origins[i]) : strdup("unknown");
+        out->frames[i].resolved = include_files[i] && include_files[i][0];
+        out->frames[i].line = 0;
+        out->frames[i].column = 0;
+        if ((include_files[i] && !out->frames[i].file) ||
+            !out->frames[i].origin) {
+            diag_include_stack_clear(out);
+            return;
+        }
+    }
+    out->count = include_count;
+}
+
+static void diag_macro_trace_clear(FisicsDiagnosticMacroTrace* trace) {
+    if (!trace) return;
+    for (size_t i = 0; i < trace->count; ++i) {
+        free(trace->frames[i].role);
+        free(trace->frames[i].macro);
+        free(trace->frames[i].file);
+    }
+    free(trace->frames);
+    trace->frames = NULL;
+    trace->count = 0u;
+}
+
+static void diag_macro_trace_copy(FisicsDiagnosticMacroTrace* out,
+                                  const char* const* macro_names,
+                                  const char* const* macro_roles,
+                                  const SourceRange* macro_ranges,
+                                  size_t macro_count) {
+    if (!out) return;
+    out->frames = NULL;
+    out->count = 0u;
+    if (!macro_ranges || macro_count == 0u) return;
+    out->frames = (FisicsDiagnosticMacroFrame*)calloc(macro_count,
+                                                      sizeof(FisicsDiagnosticMacroFrame));
+    if (!out->frames) return;
+    for (size_t i = 0; i < macro_count; ++i) {
+        const char* role = (macro_roles && macro_roles[i]) ? macro_roles[i] : "expansion";
+        const char* macro = (macro_names && macro_names[i]) ? macro_names[i] : NULL;
+        const char* file = macro_ranges[i].start.file;
+        out->frames[i].role = strdup(role);
+        out->frames[i].macro = macro ? strdup(macro) : NULL;
+        out->frames[i].file = file ? strdup(file) : NULL;
+        out->frames[i].line = macro_ranges[i].start.line;
+        out->frames[i].column = macro_ranges[i].start.column;
+        if (!out->frames[i].role ||
+            (macro && !out->frames[i].macro) ||
+            (file && !out->frames[i].file)) {
+            diag_macro_trace_clear(out);
+            return;
+        }
+    }
+    out->count = macro_count;
+}
+
+static void diag_unit_detail_clear(FisicsDiagnosticUnitDetail* unit) {
+    if (!unit) return;
+    free(unit->name);
+    free(unit->symbol);
+    free(unit->family);
+    free(unit->dim_text);
+    memset(unit, 0, sizeof(*unit));
+}
+
+static void diag_details_clear(FisicsDiagnosticDetails* details) {
+    if (!details) return;
+    free(details->lhs_dim_text);
+    free(details->rhs_dim_text);
+    free(details->context);
+    diag_unit_detail_clear(&details->source_unit);
+    diag_unit_detail_clear(&details->target_unit);
+    memset(details, 0, sizeof(*details));
+}
+
+static void diag_dim_copy(int out_dim[FISICS_DIM_COUNT], FisicsDim8 dim) {
+    if (!out_dim) return;
+    for (size_t i = 0; i < FISICS_DIM_COUNT; ++i) {
+        out_dim[i] = dim.e[i];
+    }
+}
+
+static bool diag_unit_detail_copy(FisicsDiagnosticUnitDetail* out,
+                                  const FisicsUnitDef* unit) {
+    if (!out || !unit) return true;
+    memset(out, 0, sizeof(*out));
+    out->name = unit->name ? strdup(unit->name) : NULL;
+    out->symbol = unit->symbol ? strdup(unit->symbol) : NULL;
+    out->family = strdup(fisics_dim_family_name(unit->family));
+    out->dim_text = fisics_dim_to_string(unit->dim);
+    diag_dim_copy(out->dim, unit->dim);
+    if ((unit->name && !out->name) ||
+        (unit->symbol && !out->symbol) ||
+        !out->family ||
+        !out->dim_text) {
+        diag_unit_detail_clear(out);
+        return false;
+    }
+    return true;
+}
+
+static bool diag_details_copy(FisicsDiagnosticDetails* out,
+                              const FisicsDim8* lhs_dim,
+                              const FisicsDim8* rhs_dim,
+                              const char* context,
+                              const FisicsUnitDef* source_unit,
+                              const FisicsUnitDef* target_unit) {
+    if (!out) return true;
+    memset(out, 0, sizeof(*out));
+    out->has_details = lhs_dim || rhs_dim || context || source_unit || target_unit;
+    if (!out->has_details) return true;
+    if (lhs_dim) {
+        out->has_lhs_dim = true;
+        out->lhs_dim_text = fisics_dim_to_string(*lhs_dim);
+        diag_dim_copy(out->lhs_dim, *lhs_dim);
+        if (!out->lhs_dim_text) {
+            diag_details_clear(out);
+            return false;
+        }
+    }
+    if (rhs_dim) {
+        out->has_rhs_dim = true;
+        out->rhs_dim_text = fisics_dim_to_string(*rhs_dim);
+        diag_dim_copy(out->rhs_dim, *rhs_dim);
+        if (!out->rhs_dim_text) {
+            diag_details_clear(out);
+            return false;
+        }
+    }
+    if (context) {
+        out->context = strdup(context);
+        if (!out->context) {
+            diag_details_clear(out);
+            return false;
+        }
+    }
+    if (!diag_unit_detail_copy(&out->source_unit, source_unit) ||
+        !diag_unit_detail_copy(&out->target_unit, target_unit)) {
+        diag_details_clear(out);
+        return false;
+    }
+    return true;
+}
+
+static bool compiler_report_diag_v(struct CompilerContext* ctx,
+                                   SourceRange loc,
+                                   DiagKind kind,
+                                   int code,
+                                   const char* hint,
+                                   const char* const* include_files,
+                                   const char* const* include_origins,
+                                   size_t include_count,
+                                   const char* const* macro_names,
+                                   const char* const* macro_roles,
+                                   const SourceRange* macro_ranges,
+                                   size_t macro_count,
+                                   const FisicsDim8* detail_lhs_dim,
+                                   const FisicsDim8* detail_rhs_dim,
+                                   const char* detail_context,
+                                   const FisicsUnitDef* detail_source_unit,
+                                   const FisicsUnitDef* detail_target_unit,
+                                   const char* fmt,
+                                   va_list args) {
     const char* debugEnv = getenv("FISICS_DEBUG_LAYOUT");
     bool debugLayout = debugEnv && debugEnv[0] && debugEnv[0] != '0';
     const char* dl_before = ctx ? ctx->dataLayout : NULL;
@@ -125,10 +338,7 @@ bool compiler_report_diag(struct CompilerContext* ctx,
     CompilerDiagnostics* buf = ctx_buffer(ctx);
     if (!buf || !fmt) return false;
 
-    va_list args;
-    va_start(args, fmt);
     char* message = fmt_message(fmt, args);
-    va_end(args);
     if (!message) return false;
     char* hintCopy = NULL;
     if (hint && hint[0]) {
@@ -154,6 +364,22 @@ bool compiler_report_diag(struct CompilerContext* ctx,
     }
 
     FisicsDiagnostic* d = &buf->items[buf->count++];
+    FisicsDiagnosticIncludeStack* stack = buf->includeStacks ? &buf->includeStacks[buf->count - 1] : NULL;
+    if (stack) {
+        stack->frames = NULL;
+        stack->count = 0u;
+    }
+    FisicsDiagnosticMacroTrace* macroTrace =
+        buf->macroTraces ? &buf->macroTraces[buf->count - 1] : NULL;
+    if (macroTrace) {
+        macroTrace->frames = NULL;
+        macroTrace->count = 0u;
+    }
+    FisicsDiagnosticDetails* details =
+        buf->details ? &buf->details[buf->count - 1] : NULL;
+    if (details) {
+        memset(details, 0, sizeof(*details));
+    }
     if (loc.start.file) {
         d->file_path = strdup(loc.start.file);
         if (!d->file_path) {
@@ -174,6 +400,14 @@ bool compiler_report_diag(struct CompilerContext* ctx,
     d->code_id = code;
     d->message = message;
     d->hint = hintCopy;
+    diag_include_stack_copy(stack, include_files, include_origins, include_count);
+    diag_macro_trace_copy(macroTrace, macro_names, macro_roles, macro_ranges, macro_count);
+    (void)diag_details_copy(details,
+                            detail_lhs_dim,
+                            detail_rhs_dim,
+                            detail_context,
+                            detail_source_unit,
+                            detail_target_unit);
     const char* dl_after = ctx ? ctx->dataLayout : NULL;
     if (debugLayout &&
         ctx &&
@@ -193,6 +427,146 @@ bool compiler_report_diag(struct CompilerContext* ctx,
                  (unsigned long long)ctx->dl_canary_back);
     }
     return true;
+}
+
+bool compiler_report_diag(struct CompilerContext* ctx,
+                          SourceRange loc,
+                          DiagKind kind,
+                          int code,
+                          const char* hint,
+                          const char* fmt,
+                          ...) {
+    va_list args;
+    va_start(args, fmt);
+    bool ok = compiler_report_diag_v(ctx,
+                                     loc,
+                                     kind,
+                                     code,
+                                     hint,
+                                     NULL,
+                                     NULL,
+                                     0u,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     0u,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     fmt,
+                                     args);
+    va_end(args);
+    return ok;
+}
+
+bool compiler_report_diag_with_include_stack(struct CompilerContext* ctx,
+                                             SourceRange loc,
+                                             DiagKind kind,
+                                             int code,
+                                             const char* hint,
+                                             const char* const* include_files,
+                                             const char* const* include_origins,
+                                             size_t include_count,
+                                             const char* fmt,
+                                             ...) {
+    va_list args;
+    va_start(args, fmt);
+    bool ok = compiler_report_diag_v(ctx,
+                                     loc,
+                                     kind,
+                                     code,
+                                     hint,
+                                     include_files,
+                                     include_origins,
+                                     include_count,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     0u,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     fmt,
+                                     args);
+    va_end(args);
+    return ok;
+}
+
+bool compiler_report_diag_with_macro_trace(struct CompilerContext* ctx,
+                                           SourceRange loc,
+                                           DiagKind kind,
+                                           int code,
+                                           const char* hint,
+                                           const char* const* macro_names,
+                                           const char* const* macro_roles,
+                                           const SourceRange* macro_ranges,
+                                           size_t macro_count,
+                                           const char* fmt,
+                                           ...) {
+    va_list args;
+    va_start(args, fmt);
+    bool ok = compiler_report_diag_v(ctx,
+                                     loc,
+                                     kind,
+                                     code,
+                                     hint,
+                                     NULL,
+                                     NULL,
+                                     0u,
+                                     macro_names,
+                                     macro_roles,
+                                     macro_ranges,
+                                     macro_count,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     fmt,
+                                     args);
+    va_end(args);
+    return ok;
+}
+
+bool compiler_report_units_diag_with_details(struct CompilerContext* ctx,
+                                             SourceRange loc,
+                                             DiagKind kind,
+                                             int code,
+                                             const char* hint,
+                                             const FisicsDim8* lhs_dim,
+                                             const FisicsDim8* rhs_dim,
+                                             const char* context,
+                                             const FisicsUnitDef* source_unit,
+                                             const FisicsUnitDef* target_unit,
+                                             const char* fmt,
+                                             ...) {
+    va_list args;
+    va_start(args, fmt);
+    bool ok = compiler_report_diag_v(ctx,
+                                     loc,
+                                     kind,
+                                     code,
+                                     hint,
+                                     NULL,
+                                     NULL,
+                                     0u,
+                                     NULL,
+                                     NULL,
+                                     NULL,
+                                     0u,
+                                     lhs_dim,
+                                     rhs_dim,
+                                     context,
+                                     source_unit,
+                                     target_unit,
+                                     fmt,
+                                     args);
+    va_end(args);
+    return ok;
 }
 
 const FisicsDiagnostic* compiler_diagnostics_data(const struct CompilerContext* ctx, size_t* countOut) {
@@ -253,9 +627,24 @@ void compiler_diagnostics_clear(struct CompilerContext* ctx) {
         free(buf->items[i].hint);
         buf->items[i].hint = NULL;
         buf->items[i].file_path = NULL;
+        if (buf->includeStacks) {
+            diag_include_stack_clear(&buf->includeStacks[i]);
+        }
+        if (buf->macroTraces) {
+            diag_macro_trace_clear(&buf->macroTraces[i]);
+        }
+        if (buf->details) {
+            diag_details_clear(&buf->details[i]);
+        }
     }
     free(buf->items);
+    free(buf->includeStacks);
+    free(buf->macroTraces);
+    free(buf->details);
     buf->items = NULL;
+    buf->includeStacks = NULL;
+    buf->macroTraces = NULL;
+    buf->details = NULL;
     buf->count = 0;
     buf->capacity = 0;
 }
@@ -486,6 +875,49 @@ static bool json_builder_appendf(JsonBuilder* b, const char* fmt, ...) {
     return true;
 }
 
+static bool json_builder_append_escaped_string(JsonBuilder* b, const char* text) {
+    if (!b) return false;
+    if (!json_builder_append(b, "\"")) return false;
+    if (!text) text = "";
+    for (const unsigned char* p = (const unsigned char*)text; *p; ++p) {
+        char escaped[8];
+        switch (*p) {
+            case '\"':
+                if (!json_builder_append(b, "\\\"")) return false;
+                break;
+            case '\\':
+                if (!json_builder_append(b, "\\\\")) return false;
+                break;
+            case '\b':
+                if (!json_builder_append(b, "\\b")) return false;
+                break;
+            case '\f':
+                if (!json_builder_append(b, "\\f")) return false;
+                break;
+            case '\n':
+                if (!json_builder_append(b, "\\n")) return false;
+                break;
+            case '\r':
+                if (!json_builder_append(b, "\\r")) return false;
+                break;
+            case '\t':
+                if (!json_builder_append(b, "\\t")) return false;
+                break;
+            default:
+                if (*p < 0x20u) {
+                    snprintf(escaped, sizeof(escaped), "\\u%04x", (unsigned)*p);
+                    if (!json_builder_append(b, escaped)) return false;
+                } else {
+                    if (!json_builder_reserve(b, 1u)) return false;
+                    b->data[b->len++] = (char)*p;
+                    b->data[b->len] = '\0';
+                }
+                break;
+        }
+    }
+    return json_builder_append(b, "\"");
+}
+
 static const CoreTableColumnTyped* find_typed_column(const CoreDataItem* item, const char* name) {
     uint32_t i;
     if (!item || !name || item->kind != CORE_DATA_TABLE_TYPED) return NULL;
@@ -500,6 +932,231 @@ static int64_t metadata_i64_or_default(const CoreDataset* dataset, const char* k
     const CoreMetadataItem* item = core_dataset_find_metadata(dataset, key);
     if (!item || item->type != CORE_META_I64) return fallback;
     return item->as.i64_value;
+}
+
+static bool diag_path_matches(const char* lhs, const char* rhs) {
+    if (!lhs || !rhs || !lhs[0] || !rhs[0]) return false;
+    if (strcmp(lhs, rhs) == 0) return true;
+    const char* lhs_base = strrchr(lhs, '/');
+    const char* rhs_base = strrchr(rhs, '/');
+    lhs_base = lhs_base ? lhs_base + 1 : lhs;
+    rhs_base = rhs_base ? rhs_base + 1 : rhs;
+    return lhs_base[0] && strcmp(lhs_base, rhs_base) == 0;
+}
+
+static bool diag_include_path_contains(const char* const* path, size_t depth, const char* file) {
+    for (size_t i = 0; i < depth; ++i) {
+        if (diag_path_matches(path[i], file)) return true;
+    }
+    return false;
+}
+
+static bool diag_find_include_stack_dfs(const IncludeGraph* graph,
+                                        const char* current,
+                                        const char* target,
+                                        const char** path,
+                                        size_t depth,
+                                        size_t max_depth,
+                                        size_t* out_depth) {
+    if (!graph || !current || !target || !path || depth >= max_depth) return false;
+    path[depth] = current;
+    depth++;
+    if (diag_path_matches(current, target)) {
+        if (out_depth) *out_depth = depth;
+        return true;
+    }
+    for (size_t i = 0; i < graph->count; ++i) {
+        const IncludeEdge* edge = &graph->edges[i];
+        if (!diag_path_matches(edge->from, current)) continue;
+        if (diag_include_path_contains(path, depth, edge->to)) continue;
+        if (diag_find_include_stack_dfs(graph, edge->to, target, path, depth, max_depth, out_depth)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool diag_find_include_stack(const struct CompilerContext* ctx,
+                                    const char* target,
+                                    const char** path,
+                                    size_t max_depth,
+                                    size_t* out_depth) {
+    if (out_depth) *out_depth = 0u;
+    if (!ctx || !target || !path || max_depth == 0u) return false;
+    const IncludeGraph* graph = cc_get_include_graph(ctx);
+    if (!graph || graph->count == 0u) return false;
+
+    const char* root = cc_get_input_path(ctx);
+    if (root && root[0] &&
+        diag_find_include_stack_dfs(graph, root, target, path, 0u, max_depth, out_depth)) {
+        return out_depth && *out_depth > 1u;
+    }
+
+    for (size_t i = 0; i < graph->count; ++i) {
+        if (diag_find_include_stack_dfs(graph,
+                                        graph->edges[i].from,
+                                        target,
+                                        path,
+                                        0u,
+                                        max_depth,
+                                        out_depth)) {
+            return out_depth && *out_depth > 1u;
+        }
+    }
+    return false;
+}
+
+static bool diag_json_append_include_stack(JsonBuilder* jb,
+                                           const struct CompilerContext* ctx,
+                                           const FisicsDiagnostic* diag,
+                                           size_t diag_index) {
+    enum { DIAG_INCLUDE_STACK_MAX = 32 };
+    const char* path[DIAG_INCLUDE_STACK_MAX];
+    size_t depth = 0u;
+    if (!jb || !diag || !diag->file_path ||
+        diag->category_id != FISICS_DIAG_CATEGORY_PREPROCESSOR) {
+        return true;
+    }
+    if (ctx && ctx->diags.includeStacks && diag_index < ctx->diags.count) {
+        const FisicsDiagnosticIncludeStack* stack = &ctx->diags.includeStacks[diag_index];
+        if (stack->count > 1u) {
+            if (!json_builder_append(jb, ",\"include_stack\":[")) return false;
+            for (size_t i = 0; i < stack->count; ++i) {
+                const FisicsDiagnosticIncludeFrame* frame = &stack->frames[i];
+                if (i > 0u && !json_builder_append(jb, ",")) return false;
+                if (!json_builder_append(jb, "{\"file\":")) return false;
+                if (!json_builder_append_escaped_string(jb, frame->file ? frame->file : "")) return false;
+                if (!json_builder_append(jb, ",\"line\":")) return false;
+                if (!json_builder_appendf(jb, "%d", frame->line > 0 ? frame->line : 0)) return false;
+                if (!json_builder_append(jb, ",\"column\":")) return false;
+                if (!json_builder_appendf(jb, "%d", frame->column > 0 ? frame->column : 0)) return false;
+                if (!json_builder_append(jb, ",\"origin\":")) return false;
+                if (!json_builder_append_escaped_string(jb, frame->origin ? frame->origin : "unknown")) return false;
+                if (!json_builder_append(jb, ",\"resolved\":")) return false;
+                if (!json_builder_append(jb, frame->resolved ? "true}" : "false}")) return false;
+            }
+            return json_builder_append(jb, "]");
+        }
+    }
+    if (!diag_find_include_stack(ctx, diag->file_path, path, DIAG_INCLUDE_STACK_MAX, &depth)) {
+        return true;
+    }
+    if (!json_builder_append(jb, ",\"include_stack\":[")) return false;
+    for (size_t i = 0; i < depth; ++i) {
+        if (i > 0u && !json_builder_append(jb, ",")) return false;
+        if (!json_builder_append(jb, "{\"file\":")) return false;
+        if (!json_builder_append_escaped_string(jb, path[i])) return false;
+        if (!json_builder_append(jb, ",\"line\":0,\"column\":0,\"origin\":\"unknown\",\"resolved\":true}")) {
+            return false;
+        }
+    }
+    return json_builder_append(jb, "]");
+}
+
+static bool diag_json_append_macro_trace(JsonBuilder* jb,
+                                         const struct CompilerContext* ctx,
+                                         const FisicsDiagnostic* diag,
+                                         size_t diag_index) {
+    (void)diag;
+    if (!jb || !ctx || !ctx->diags.macroTraces || diag_index >= ctx->diags.count) {
+        return true;
+    }
+    const FisicsDiagnosticMacroTrace* trace = &ctx->diags.macroTraces[diag_index];
+    if (trace->count == 0u) {
+        return true;
+    }
+    if (!json_builder_append(jb, ",\"macro_trace\":[")) return false;
+    for (size_t i = 0; i < trace->count; ++i) {
+        const FisicsDiagnosticMacroFrame* frame = &trace->frames[i];
+        if (i > 0u && !json_builder_append(jb, ",")) return false;
+        if (!json_builder_append(jb, "{\"role\":")) return false;
+        if (!json_builder_append_escaped_string(jb, frame->role ? frame->role : "expansion")) return false;
+        if (frame->macro && frame->macro[0]) {
+            if (!json_builder_append(jb, ",\"macro\":")) return false;
+            if (!json_builder_append_escaped_string(jb, frame->macro)) return false;
+        }
+        if (frame->file && frame->file[0]) {
+            if (!json_builder_append(jb, ",\"file\":")) return false;
+            if (!json_builder_append_escaped_string(jb, frame->file)) return false;
+        }
+        if (!json_builder_appendf(jb,
+                                  ",\"line\":%d,\"column\":%d}",
+                                  frame->line > 0 ? frame->line : 0,
+                                  frame->column > 0 ? frame->column : 0)) {
+            return false;
+        }
+    }
+    return json_builder_append(jb, "]");
+}
+
+static bool diag_json_append_dim_array(JsonBuilder* jb, const int dim[FISICS_DIM_COUNT]) {
+    if (!json_builder_append(jb, "[")) return false;
+    for (size_t i = 0; i < FISICS_DIM_COUNT; ++i) {
+        if (i > 0u && !json_builder_append(jb, ",")) return false;
+        if (!json_builder_appendf(jb, "%d", dim ? dim[i] : 0)) return false;
+    }
+    return json_builder_append(jb, "]");
+}
+
+static bool diag_json_append_unit_detail(JsonBuilder* jb,
+                                         const char* key,
+                                         const FisicsDiagnosticUnitDetail* unit,
+                                         bool* need_comma) {
+    if (!jb || !key || !unit || !unit->name) return true;
+    if (*need_comma && !json_builder_append(jb, ",")) return false;
+    if (!json_builder_append(jb, "\"")) return false;
+    if (!json_builder_append(jb, key)) return false;
+    if (!json_builder_append(jb, "\":{\"name\":")) return false;
+    if (!json_builder_append_escaped_string(jb, unit->name)) return false;
+    if (!json_builder_append(jb, ",\"symbol\":")) return false;
+    if (!json_builder_append_escaped_string(jb, unit->symbol ? unit->symbol : "")) return false;
+    if (!json_builder_append(jb, ",\"family\":")) return false;
+    if (!json_builder_append_escaped_string(jb, unit->family ? unit->family : "unknown")) return false;
+    if (!json_builder_append(jb, ",\"dim_text\":")) return false;
+    if (!json_builder_append_escaped_string(jb, unit->dim_text ? unit->dim_text : "")) return false;
+    if (!json_builder_append(jb, ",\"dim\":")) return false;
+    if (!diag_json_append_dim_array(jb, unit->dim)) return false;
+    if (!json_builder_append(jb, "}")) return false;
+    *need_comma = true;
+    return true;
+}
+
+static bool diag_json_append_details(JsonBuilder* jb,
+                                     const struct CompilerContext* ctx,
+                                     size_t diag_index) {
+    if (!jb || !ctx || !ctx->diags.details || diag_index >= ctx->diags.count) {
+        return true;
+    }
+    const FisicsDiagnosticDetails* details = &ctx->diags.details[diag_index];
+    if (!details->has_details) {
+        return true;
+    }
+    bool need_comma = false;
+    if (!json_builder_append(jb, ",\"details\":{")) return false;
+    if (details->context && details->context[0]) {
+        if (!json_builder_append(jb, "\"context\":")) return false;
+        if (!json_builder_append_escaped_string(jb, details->context)) return false;
+        need_comma = true;
+    }
+    if (details->has_lhs_dim) {
+        if (need_comma && !json_builder_append(jb, ",")) return false;
+        if (!json_builder_append(jb, "\"lhs_dim_text\":")) return false;
+        if (!json_builder_append_escaped_string(jb, details->lhs_dim_text ? details->lhs_dim_text : "")) return false;
+        if (!json_builder_append(jb, ",\"lhs_dim\":")) return false;
+        if (!diag_json_append_dim_array(jb, details->lhs_dim)) return false;
+        need_comma = true;
+    }
+    if (details->has_rhs_dim) {
+        if (need_comma && !json_builder_append(jb, ",")) return false;
+        if (!json_builder_append(jb, "\"rhs_dim_text\":")) return false;
+        if (!json_builder_append_escaped_string(jb, details->rhs_dim_text ? details->rhs_dim_text : "")) return false;
+        if (!json_builder_append(jb, ",\"rhs_dim\":")) return false;
+        if (!diag_json_append_dim_array(jb, details->rhs_dim)) return false;
+        need_comma = true;
+    }
+    if (!diag_json_append_unit_detail(jb, "source_unit", &details->source_unit, &need_comma)) return false;
+    if (!diag_json_append_unit_detail(jb, "target_unit", &details->target_unit, &need_comma)) return false;
+    return json_builder_append(jb, "}");
 }
 
 CoreResult compiler_diagnostics_write_core_dataset_json(const struct CompilerContext* ctx,
@@ -517,6 +1174,8 @@ CoreResult compiler_diagnostics_write_core_dataset_json(const struct CompilerCon
     const CoreTableColumnTyped* has_hint_col = NULL;
     JsonBuilder jb = {0};
     uint32_t rows = 0u;
+    size_t diag_count = 0u;
+    const FisicsDiagnostic* diag_items = NULL;
 
     if (!ctx || !out_path || out_path[0] == '\0') {
         CoreResult invalid = { CORE_ERR_INVALID_ARG, "invalid argument" };
@@ -548,6 +1207,7 @@ CoreResult compiler_diagnostics_write_core_dataset_json(const struct CompilerCon
         r.message = "diagnostics table schema mismatch";
         return r;
     }
+    diag_items = compiler_diagnostics_data(ctx, &diag_count);
 
     if (!json_builder_append(&jb, "{")) goto oom;
     if (!json_builder_appendf(&jb, "\"profile\":\"fisics_diagnostics_v1\",\"schema_version\":%lld,",
@@ -559,10 +1219,18 @@ CoreResult compiler_diagnostics_write_core_dataset_json(const struct CompilerCon
     if (!json_builder_append(&jb, "\"diagnostics\":[")) goto oom;
 
     for (uint32_t i = 0u; i < rows; ++i) {
+        const FisicsDiagnostic* diag =
+            (diag_items && (size_t)i < diag_count) ? &diag_items[i] : NULL;
+        int kind = (int)kind_col->as.u32_values[i];
+        int code = (int)code_col->as.i64_values[i];
+        int severity_id = diag ? diag->severity_id : fisics_diag_severity_id_from_kind((DiagKind)kind);
+        int code_id = diag ? diag->code_id : code;
+        int category_id = fisics_diag_category_id_from_code(code_id);
         if (i > 0u && !json_builder_append(&jb, ",")) goto oom;
         if (!json_builder_appendf(&jb,
                                   "{\"line\":%u,\"column\":%u,\"length\":%u,\"kind\":%u,\"code\":%lld,"
-                                  "\"has_file\":%s,\"has_message\":%s,\"has_hint\":%s}",
+                                  "\"has_file\":%s,\"has_message\":%s,\"has_hint\":%s,"
+                                  "\"severity_id\":%d,\"severity_name\":",
                                   line_col->as.u32_values[i],
                                   column_col->as.u32_values[i],
                                   length_col->as.u32_values[i],
@@ -570,7 +1238,19 @@ CoreResult compiler_diagnostics_write_core_dataset_json(const struct CompilerCon
                                   (long long)code_col->as.i64_values[i],
                                   has_file_col->as.bool_values[i] ? "true" : "false",
                                   has_message_col->as.bool_values[i] ? "true" : "false",
-                                  has_hint_col->as.bool_values[i] ? "true" : "false")) goto oom;
+                                  has_hint_col->as.bool_values[i] ? "true" : "false",
+                                  severity_id)) goto oom;
+        if (!json_builder_append_escaped_string(&jb, fisics_diag_severity_name(severity_id))) goto oom;
+        if (!json_builder_appendf(&jb, ",\"category_id\":%d,\"category_name\":", category_id)) goto oom;
+        if (!json_builder_append_escaped_string(&jb, fisics_diag_category_name(category_id))) goto oom;
+        if (!json_builder_appendf(&jb, ",\"code_id\":%d,\"code_name\":", code_id)) goto oom;
+        if (!json_builder_append_escaped_string(&jb, fisics_diag_code_name(code_id))) goto oom;
+        if (!json_builder_append(&jb, ",\"stage\":")) goto oom;
+        if (!json_builder_append_escaped_string(&jb, fisics_diag_stage_name_from_code(code_id))) goto oom;
+        if (!diag_json_append_include_stack(&jb, ctx, diag, (size_t)i)) goto oom;
+        if (!diag_json_append_macro_trace(&jb, ctx, diag, (size_t)i)) goto oom;
+        if (!diag_json_append_details(&jb, ctx, (size_t)i)) goto oom;
+        if (!json_builder_append(&jb, "}")) goto oom;
     }
 
     if (!json_builder_append(&jb, "]}\n")) goto oom;

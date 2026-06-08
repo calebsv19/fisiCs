@@ -2,34 +2,55 @@
   "diag_count": 3,
   "diagnostics": [
     {
+      "category_id": 2,
+      "category_name": "parser",
       "code": 1001,
+      "code_id": 1001,
+      "code_name": "parser.expect_semicolon",
       "column": 5,
       "has_file": true,
       "has_hint": true,
       "has_message": true,
       "kind": 0,
       "length": 6,
-      "line": 3
+      "line": 3,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "parse"
     },
     {
+      "category_id": 2,
+      "category_name": "parser",
       "code": 1000,
+      "code_id": 1000,
+      "code_name": "parser.generic",
       "column": 5,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
       "length": 6,
-      "line": 3
+      "line": 3,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "parse"
     },
     {
+      "category_id": 3,
+      "category_name": "semantic",
       "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
       "column": 5,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
       "length": 4,
-      "line": 1
+      "line": 1,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
     }
   ],
   "error_count": 3,

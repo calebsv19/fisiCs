@@ -32,7 +32,8 @@ PROGRAM
 Diagnostics:
 Error at (5:14): Duplicate case label with value 1
    Spelling: tests/syntax/semantic_switch.c:5:14
-Warning at (3:0): Previous case label with same value here
+Warning at (3:14): Previous case label with same value here
+   Spelling: tests/syntax/semantic_switch.c:3:14
 Error at (10:20): Duplicate default label in switch
    Spelling: tests/syntax/semantic_switch.c:10:20
 Warning at (8:0): Previous default label is here

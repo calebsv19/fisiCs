@@ -23,5 +23,6 @@ PROGRAM
 
 
 Diagnostics:
-Error at (4:0): Case label is not an integer constant expression
+Error at (4:11): Case label is not an integer constant expression
+   Spelling: tests/syntax/case_non_ice.c:4:11
 

@@ -7,6 +7,7 @@
 #include "Preprocessor/include_resolver.h"
 #include "Compiler/diagnostics.h"
 #include "Extensions/extension_profile.h"
+#include "Extensions/Units/units_model.h"
 #include "Syntax/target_layout.h"
 
 #ifdef __cplusplus
@@ -59,7 +60,57 @@ typedef struct {
 } CCTagTable;
 
 typedef struct {
+    char* file;
+    char* origin;
+    bool resolved;
+    int line;
+    int column;
+} FisicsDiagnosticIncludeFrame;
+
+typedef struct {
+    FisicsDiagnosticIncludeFrame* frames;
+    size_t count;
+} FisicsDiagnosticIncludeStack;
+
+typedef struct {
+    char* role;
+    char* macro;
+    char* file;
+    int line;
+    int column;
+} FisicsDiagnosticMacroFrame;
+
+typedef struct {
+    FisicsDiagnosticMacroFrame* frames;
+    size_t count;
+} FisicsDiagnosticMacroTrace;
+
+typedef struct {
+    char* name;
+    char* symbol;
+    char* family;
+    char* dim_text;
+    int dim[FISICS_DIM_COUNT];
+} FisicsDiagnosticUnitDetail;
+
+typedef struct {
+    bool has_details;
+    bool has_lhs_dim;
+    bool has_rhs_dim;
+    char* lhs_dim_text;
+    char* rhs_dim_text;
+    int lhs_dim[FISICS_DIM_COUNT];
+    int rhs_dim[FISICS_DIM_COUNT];
+    char* context;
+    FisicsDiagnosticUnitDetail source_unit;
+    FisicsDiagnosticUnitDetail target_unit;
+} FisicsDiagnosticDetails;
+
+typedef struct {
     FisicsDiagnostic* items;
+    FisicsDiagnosticIncludeStack* includeStacks;
+    FisicsDiagnosticMacroTrace* macroTraces;
+    FisicsDiagnosticDetails* details;
     size_t count;
     size_t capacity;
 } CompilerDiagnostics;

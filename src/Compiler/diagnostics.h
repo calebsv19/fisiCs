@@ -7,6 +7,7 @@
 #include <stddef.h>
 
 #include "core_data.h"
+#include "Extensions/Units/units_registry.h"
 #include "Lexer/tokens.h"
 
 #ifdef __cplusplus
@@ -129,6 +130,39 @@ bool compiler_report_diag(struct CompilerContext* ctx,
                           const char* hint,
                           const char* fmt,
                           ...);
+bool compiler_report_diag_with_include_stack(struct CompilerContext* ctx,
+                                             SourceRange loc,
+                                             DiagKind kind,
+                                             int code,
+                                             const char* hint,
+                                             const char* const* include_files,
+                                             const char* const* include_origins,
+                                             size_t include_count,
+                                             const char* fmt,
+                                             ...);
+bool compiler_report_diag_with_macro_trace(struct CompilerContext* ctx,
+                                           SourceRange loc,
+                                           DiagKind kind,
+                                           int code,
+                                           const char* hint,
+                                           const char* const* macro_names,
+                                           const char* const* macro_roles,
+                                           const SourceRange* macro_ranges,
+                                           size_t macro_count,
+                                           const char* fmt,
+                                           ...);
+bool compiler_report_units_diag_with_details(struct CompilerContext* ctx,
+                                             SourceRange loc,
+                                             DiagKind kind,
+                                             int code,
+                                             const char* hint,
+                                             const FisicsDim8* lhs_dim,
+                                             const FisicsDim8* rhs_dim,
+                                             const char* context,
+                                             const FisicsUnitDef* source_unit,
+                                             const FisicsUnitDef* target_unit,
+                                             const char* fmt,
+                                             ...);
 
 // Accessors for consumers/IDE bridge.
 const FisicsDiagnostic* compiler_diagnostics_data(const struct CompilerContext* ctx, size_t* countOut);

@@ -2,14 +2,21 @@
   "diag_count": 1,
   "diagnostics": [
     {
+      "category_id": 4,
+      "category_name": "preprocessor",
       "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
       "column": 9,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 1,
       "length": 4,
-      "line": 444
+      "line": 444,
+      "severity_id": 1,
+      "severity_name": "warning",
+      "stage": "preprocess"
     }
   ],
   "error_count": 0,

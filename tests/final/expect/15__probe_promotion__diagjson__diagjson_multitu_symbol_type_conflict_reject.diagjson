@@ -2,7 +2,11 @@
   "diag_count": 1,
   "diagnostics": [
     {
+      "category_id": 3,
+      "category_name": "semantic",
       "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
       "column": 15,
       "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_multitu_symbol_type_conflict_reject_lib.c",
       "has_file": true,
@@ -12,7 +16,10 @@
       "kind": 0,
       "length": 1,
       "line": 1,
-      "message": "Conflicting types for variable 'conflict_symbol_15' across translation units"
+      "message": "Conflicting types for variable 'conflict_symbol_15' across translation units",
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
     }
   ],
   "error_count": 1,
