@@ -11,6 +11,7 @@
 #include <llvm-c/TargetMachine.h>
 
 #include "Compiler/diagnostics.h"
+#include "Compiler/build_graph.h"
 #include "Compiler/object_emit.h"
 
 static bool env_flag_enabled(const char* name) {
@@ -186,16 +187,7 @@ static bool compile_object_with_clang_fallback(const CompileOptions* options,
 }
 
 static char* derive_object_path(const char* cPath) {
-    if (!cPath) return NULL;
-    size_t len = strlen(cPath);
-    const char* dot = strrchr(cPath, '.');
-    size_t baseLen = (dot && strcmp(dot, ".c") == 0) ? (size_t)(dot - cPath) : len;
-    char* out = (char*)malloc(baseLen + 3u);
-    if (!out) return NULL;
-    memcpy(out, cPath, baseLen);
-    out[baseLen] = '\0';
-    strcat(out, ".o");
-    return out;
+    return fisics_build_graph_derive_object_path(cPath);
 }
 
 static void print_argv(const char* prefix, const StringList* argv) {
@@ -277,11 +269,14 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
             main_derive_diag_json_path(config->diagsJsonPath, i, config->inputCFiles->count);
         char* diagPackPathForInput =
             main_derive_diag_pack_path(config->diagsPackPath, i, config->inputCFiles->count);
+        char* graphPath =
+            main_derive_diag_json_path(config->buildGraphJsonPath, i, config->inputCFiles->count);
         char* objPath = config->outputName ? strdup(config->outputName) : derive_object_path(cPath);
         if (!objPath) {
             fprintf(stderr, "Error: failed to compute output path for %s\n", cPath);
             free(diagPath);
             free(diagPackPathForInput);
+            free(graphPath);
             return 1;
         }
 
@@ -300,12 +295,14 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
                 free(fallbackErr);
                 free(diagPath);
                 free(diagPackPathForInput);
+                free(graphPath);
                 free(objPath);
                 return 1;
             }
             free(fallbackErr);
             free(diagPath);
             free(diagPackPathForInput);
+            free(graphPath);
             free(objPath);
             continue;
         }
@@ -350,10 +347,36 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
                         diagPackPathForInput);
             }
         }
+        if (graphPath && result.compilerCtx) {
+            FisicsBuildGraphSourceOptions graphOptions = {
+                .outputPath = graphPath,
+                .inputPath = cPath,
+                .outputObject = objPath,
+                .targetTriple = config->targetTriple,
+                .dataLayout = config->dataLayout,
+                .includePaths = (const char* const*)config->includePaths->items,
+                .includePathCount = config->includePaths->count,
+                .macroDefines = (const char* const*)config->macroDefines->items,
+                .macroDefineCount = config->macroDefines->count,
+                .forcedIncludes = (const char* const*)config->forcedIncludes->items,
+                .forcedIncludeCount = config->forcedIncludes->count,
+                .dialect = config->dialect,
+                .compatFeatures = config->compatFeatures,
+                .overlayFeatures = config->overlayFeatures,
+                .compileOnly = true,
+                .enableCodegen = config->enableCodegen != 0,
+                .partial = status != 0 || result.semanticErrors > 0 || !result.module,
+                .fatal = false
+            };
+            if (!fisics_build_graph_write_source_json(&graphOptions, result.compilerCtx)) {
+                fprintf(stderr, "Warning: failed to write build graph JSON to %s\n", graphPath);
+            }
+        }
         if (status != 0 || result.semanticErrors > 0 || !result.module) {
             fprintf(stderr, "Error: compilation failed for %s\n", cPath);
             free(diagPath);
             free(diagPackPathForInput);
+            free(graphPath);
             free(objPath);
             compile_result_destroy(&result);
             return 1;
@@ -361,6 +384,7 @@ static int run_compile_only_mode(const MainDriverConfig* config) {
 
         free(diagPath);
         free(diagPackPathForInput);
+        free(graphPath);
 
         if (should_use_clang_backend_fallback(&options, result.module)) {
             fprintf(stderr,

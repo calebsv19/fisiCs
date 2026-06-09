@@ -351,6 +351,24 @@ integration-compile-link: $(BIN)
 integration-diags-pack: $(BIN)
 	@./tests/integration/run_emit_diags_pack.sh ./$(BIN)
 
+integration-diags-json-metadata: $(BIN)
+	@bash ./tests/integration/run_emit_diags_json_metadata.sh ./$(BIN)
+
+integration-direct-diag-json-metadata: $(BIN)
+	@bash ./tests/integration/run_direct_diag_json_metadata.sh ./$(BIN)
+
+integration-include-stack-diag-json: $(BIN)
+	@bash ./tests/integration/run_include_stack_diag_json.sh ./$(BIN)
+
+integration-macro-trace-diag-json: $(BIN)
+	@bash ./tests/integration/run_macro_trace_diag_json.sh ./$(BIN)
+
+integration-diagnostic-explain-cli: $(BIN)
+	@bash ./tests/integration/run_diagnostic_explain_cli.sh ./$(BIN)
+
+integration-units-diag-json-details: $(BIN)
+	@bash ./tests/integration/run_units_diag_json_details.sh ./$(BIN)
+
 integration-std-atomic: $(BIN)
 	@./tests/integration/run_std_atomic.sh ./$(BIN)
 
@@ -366,7 +384,19 @@ integration-overlay-units-scaffold: $(BIN)
 integration-examples-physics-units: $(BIN)
 	@bash ./tests/integration/run_examples_physics_units.sh ./$(BIN)
 
-integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units
+integration-build-graph-source-json: $(BIN)
+	@bash ./tests/integration/run_build_graph_source_json.sh ./$(BIN)
+
+integration-build-manifest-dry-run-json: $(BIN)
+	@bash ./tests/integration/run_build_manifest_dry_run_json.sh ./$(BIN)
+
+integration-build-manifest-compile-db: $(BIN)
+	@bash ./tests/integration/run_build_manifest_compile_db.sh ./$(BIN)
+
+integration-build-manifest-execute: $(BIN)
+	@bash ./tests/integration/run_build_manifest_execute.sh ./$(BIN)
+
+integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
 
 ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
@@ -951,7 +981,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1037,6 +1067,7 @@ FRONTEND_TEST_SRCS := $(wildcard tests/unit/frontend_api*.c)
 FRONTEND_TEST_BINS := $(patsubst tests/unit/%.c,$(BUILD_DIR)/tests/%,$(FRONTEND_TEST_SRCS))
 FRONTEND_CONTRACT_TEST_SRCS := $(wildcard tests/unit/frontend_api_contract_*.c)
 FRONTEND_CONTRACT_TEST_BINS := $(patsubst tests/unit/%.c,$(BUILD_DIR)/tests/%,$(FRONTEND_CONTRACT_TEST_SRCS))
+BUILD_MANIFEST_CONTRACT_TEST := $(BUILD_DIR)/tests/build_manifest_contract
 
 $(BUILD_DIR)/tests/%: tests/unit/%.c $(LIB_FRONTEND)
 	@mkdir -p $(BUILD_DIR)/tests
@@ -1069,6 +1100,10 @@ frontend-contract-test: $(LIB_FRONTEND) $(FRONTEND_CONTRACT_TEST_BINS)
 		rm -f $$out; \
 	done; \
 	echo "Frontend contract bucket: PASS"
+
+build-manifest-contract-test: $(BUILD_MANIFEST_CONTRACT_TEST)
+	@$(BUILD_MANIFEST_CONTRACT_TEST)
+	@echo "Build manifest contract test: PASS"
 
 HARNESS_SRC := tests/harness/frontend_harness.c
 HARNESS_BIN := $(BUILD_DIR)/tests/frontend_harness
@@ -1138,7 +1173,7 @@ tests: test frontend-api-test
         codegen-function-pointer-call codegen-compound-literal-pointer-decay \
         codegen-bitfield \
         statement-expr-enabled statement-expr-default statement-expr-disabled recovery preprocessor-tests frontend-harness \
-        frontend-contract-test \
+        frontend-contract-test build-manifest-contract-test \
         statement-expr-codegen codegen-bitfield semantic-anon-record-flatten \
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \

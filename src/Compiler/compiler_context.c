@@ -800,10 +800,15 @@ bool cc_append_include(CompilerContext* ctx, const FisicsInclude* include) {
     *dst = *include;
     inc->ownershipFlags[inc->count] = 0u;
     dst->name = NULL;
-    dst->resolved_path = include->resolved_path;
+    dst->resolved_path = NULL;
     if (include->name) {
         dst->name = cc_stringset_intern(&inc->namePool, include->name);
         if (!dst->name) return false;
+    }
+    if (include->resolved_path) {
+        dst->resolved_path = cc_strdup(include->resolved_path);
+        if (!dst->resolved_path) return false;
+        inc->ownershipFlags[inc->count] |= CC_INCLUDE_OWN_RESOLVED_PATH;
     }
     inc->count++;
     return true;

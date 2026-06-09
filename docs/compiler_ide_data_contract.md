@@ -178,6 +178,58 @@ Consumer behavior:
 - Consumers may prefer `severity_id`/`category_id`/`code_id` when present.
 - Missing additive taxonomy fields must not be treated as contract failure under major `1`.
 
+Emitted JSON note:
+
+- Compiler-owned `--emit-diags-json` records now include additive metadata
+  fields for `severity_id`, `severity_name`, `category_id`, `category_name`,
+  `code_id`, `code_name`, and `stage`.
+- Existing compact fields remain present for compatibility.
+- Direct driver/link/cross-translation-unit JSON producers also emit the same
+  additive metadata fields for current link-stage and cross-TU conflict
+  diagnostics.
+- Preprocessor diagnostics emitted through compiler-owned `--emit-diags-json`
+  may include an optional `include_stack` array when the diagnostic originates
+  from an included file. Each frame is ordered outermost-to-innermost and may
+  include `file`, `line`, `column`, `origin`, and `resolved`.
+- Preprocessor macro expansion diagnostics may include an optional
+  `macro_trace` array. Each frame is ordered from user-facing context toward
+  source context and may include `role`, `macro`, `file`, `line`, and
+  `column`.
+- Physics-units extension diagnostics may include an optional `details` object
+  for selected mismatch and conversion failures. Current units details may
+  include:
+  - `context` (`assignment`, `addition`, `subtraction`, `comparison`,
+    `explicit conversion`, etc.)
+  - `lhs_dim_text` / `rhs_dim_text`
+  - `lhs_dim` / `rhs_dim` as eight-element integer exponent vectors
+  - `source_unit` / `target_unit` objects with `name`, `symbol`, `family`,
+    `dim_text`, and `dim`
+- Consumers should still tolerate missing additive fields under major `1` for
+  older producers and any diagnostic family not yet migrated.
+
+### Diagnostic Explanation CLI
+
+The compiler also exposes a small explanation surface for terminal and tooling
+consumers that need stable diagnostic-code help outside a compile run:
+
+- `./fisics --explain <diagnostic-code-or-name>`
+  - accepts a numeric code id such as `1001` or a stable code name such as
+    `parser.expect_semicolon`
+  - prints code id/name, category, stage, description, common causes, and next
+    action
+  - fails cleanly for unknown code ids or names
+- `./fisics --list-diagnostics --json`
+  - emits a JSON catalog with `profile`,
+    `schema_version`, and a `diagnostics` array
+  - each diagnostic record includes `code_id`, `code_name`, `category_id`,
+    `category_name`, `stage`, `description`, `common_causes`, and
+    `next_action`
+
+This catalog is explanatory metadata, not a replacement for emitted
+compile-time diagnostics. It starts with the most important parser, semantic,
+preprocessor, link-stage, and units diagnostics and may grow additively under
+contract major `1`.
+
 ### Diagnostic Code Stability
 
 `fisiCs` uses a stable diagnostic code namespace for v1-facing consumers.
@@ -190,6 +242,11 @@ Reserved code ranges:
 - `3000-3999`: preprocessor
 - `4000-4099`: extension framework/bootstrap
 - `4100-4199`: physics-units semantic diagnostics
+- `5000-5099`: lexer-specific emitted diagnostics
+- `6000-6099`: codegen diagnostics
+- `7000-7099`: build/driver diagnostics
+- `7100-7199`: link diagnostics
+- `7200-7299`: manifest/build-graph diagnostics
 
 Extension namespace policy:
 
@@ -199,6 +256,11 @@ Extension namespace policy:
   - invalid `fisics::dim(...)`
   - duplicate declaration annotation
 - `4100-4199` is reserved in advance for Phase 5 units-semantics diagnostics so future algebra checks can ship without renumbering public ids.
+
+Build/link namespace policy:
+
+- `7101` is the current link-stage failure diagnostic emitted by direct
+  driver/link JSON when the host linker exits nonzero.
 
 Reserved physics-units semantic ids:
 

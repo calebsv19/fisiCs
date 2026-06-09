@@ -17,6 +17,10 @@
 #include <llvm-c/ErrorHandling.h>
 
 #include "main_internal.h"
+#include "Compiler/build_graph.h"
+#include "Compiler/build_manifest.h"
+#include "Compiler/diagnostic_metadata.h"
+#include "Compiler/object_emit.h"
 #include "Compiler/pipeline.h"
 #include "Extensions/extension_profile.h"
 #include "Syntax/target_layout.h"
@@ -225,6 +229,78 @@ static int llvm_shutdown_and_return(int code) {
     fflush(NULL);
     _Exit(code);
     return code;
+}
+
+static void main_write_json_string(FILE* out, const char* text) {
+    fputc('"', out);
+    if (text) {
+        for (const unsigned char* p = (const unsigned char*)text; *p; ++p) {
+            switch (*p) {
+                case '"': fputs("\\\"", out); break;
+                case '\\': fputs("\\\\", out); break;
+                case '\b': fputs("\\b", out); break;
+                case '\f': fputs("\\f", out); break;
+                case '\n': fputs("\\n", out); break;
+                case '\r': fputs("\\r", out); break;
+                case '\t': fputs("\\t", out); break;
+                default:
+                    if (*p < 0x20) {
+                        fprintf(out, "\\u%04x", *p);
+                    } else {
+                        fputc((int)*p, out);
+                    }
+                    break;
+            }
+        }
+    }
+    fputc('"', out);
+}
+
+static void main_print_diagnostic_explanation_text(const FisicsDiagnosticExplanation* explanation) {
+    int codeId = explanation->code_id;
+    int categoryId = fisics_diag_category_id_from_code(codeId);
+    printf("Diagnostic %d (%s)\n", codeId, fisics_diag_code_name(codeId));
+    printf("category: %s\n", fisics_diag_category_name(categoryId));
+    printf("stage: %s\n", fisics_diag_stage_name_from_code(codeId));
+    printf("description: %s\n", explanation->description);
+    printf("common causes: %s\n", explanation->common_causes);
+    printf("next action: %s\n", explanation->next_action);
+}
+
+static void main_print_diagnostic_explanation_json_object(FILE* out,
+                                                          const FisicsDiagnosticExplanation* explanation) {
+    int codeId = explanation->code_id;
+    int categoryId = fisics_diag_category_id_from_code(codeId);
+    fputs("{\"code_id\":", out);
+    fprintf(out, "%d", codeId);
+    fputs(",\"code_name\":", out);
+    main_write_json_string(out, fisics_diag_code_name(codeId));
+    fputs(",\"category_id\":", out);
+    fprintf(out, "%d", categoryId);
+    fputs(",\"category_name\":", out);
+    main_write_json_string(out, fisics_diag_category_name(categoryId));
+    fputs(",\"stage\":", out);
+    main_write_json_string(out, fisics_diag_stage_name_from_code(codeId));
+    fputs(",\"description\":", out);
+    main_write_json_string(out, explanation->description);
+    fputs(",\"common_causes\":", out);
+    main_write_json_string(out, explanation->common_causes);
+    fputs(",\"next_action\":", out);
+    main_write_json_string(out, explanation->next_action);
+    fputc('}', out);
+}
+
+static void main_print_diagnostic_explanations_json(FILE* out) {
+    size_t count = 0;
+    const FisicsDiagnosticExplanation* explanations = fisics_diag_explanations(&count);
+    fputs("{\"profile\":\"fisics_diagnostic_explanations\",\"schema_version\":1,\"diagnostics\":[", out);
+    for (size_t i = 0; i < count; ++i) {
+        if (i > 0) {
+            fputc(',', out);
+        }
+        main_print_diagnostic_explanation_json_object(out, &explanations[i]);
+    }
+    fputs("]}\n", out);
 }
 
 static bool dir_exists(const char* path) {
@@ -501,6 +577,343 @@ static bool parse_std_mode(const char* mode, CCDialect* dialect, CCCompatFeature
     return false;
 }
 
+static bool main_path_is_absolute(const char* path) {
+    return path && path[0] == '/';
+}
+
+static char* main_join_path(const char* root, const char* rel) {
+    if (!rel) return NULL;
+    if (main_path_is_absolute(rel)) return strdup(rel);
+    if (strcmp(rel, ".") == 0) return strdup((root && root[0]) ? root : ".");
+    if (strncmp(rel, "./", 2u) == 0) rel += 2;
+    if (!root || !root[0] || strcmp(root, ".") == 0) return strdup(rel);
+    size_t rlen = strlen(root);
+    size_t llen = strlen(rel);
+    bool slash = root[rlen - 1u] != '/';
+    char* out = (char*)malloc(rlen + (slash ? 1u : 0u) + llen + 1u);
+    if (!out) return NULL;
+    memcpy(out, root, rlen);
+    size_t pos = rlen;
+    if (slash) out[pos++] = '/';
+    memcpy(out + pos, rel, llen + 1u);
+    return out;
+}
+
+static bool main_mkdir_parent_recursive(const char* path) {
+    if (!path || !path[0]) return false;
+    char* copy = strdup(path);
+    if (!copy) return false;
+    char* slash = strrchr(copy, '/');
+    if (!slash) {
+        free(copy);
+        return true;
+    }
+    if (slash == copy) {
+        free(copy);
+        return true;
+    }
+    *slash = '\0';
+    for (char* p = copy + 1; *p; ++p) {
+        if (*p != '/') continue;
+        *p = '\0';
+        if (copy[0] && mkdir(copy, 0755) != 0 && errno != EEXIST) {
+            free(copy);
+            return false;
+        }
+        *p = '/';
+    }
+    if (mkdir(copy, 0755) != 0 && errno != EEXIST) {
+        free(copy);
+        return false;
+    }
+    free(copy);
+    return true;
+}
+
+static bool main_string_list_push_joined(StringList* list, const char* root, const char* rel) {
+    char* joined = main_join_path(root, rel);
+    if (!joined) return false;
+    bool ok = string_list_push(list, joined);
+    free(joined);
+    return ok;
+}
+
+static int main_run_link_argv(StringList* argvList) {
+    if (!argvList || argvList->count == 0) return 1;
+    char** execArgv = (char**)calloc(argvList->count + 1u, sizeof(char*));
+    if (!execArgv) {
+        fprintf(stderr, "OOM: manifest linker argv\n");
+        return 1;
+    }
+    for (size_t i = 0; i < argvList->count; ++i) {
+        execArgv[i] = argvList->items[i];
+    }
+    execArgv[argvList->count] = NULL;
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        execvp(execArgv[0], execArgv);
+        perror("execvp");
+        _exit(127);
+    }
+    if (pid < 0) {
+        perror("fork");
+        free(execArgv);
+        return 1;
+    }
+
+    fprintf(stderr, "[manifest-link]");
+    for (size_t i = 0; i < argvList->count; ++i) {
+        fprintf(stderr, " %s", argvList->items[i]);
+    }
+    fprintf(stderr, "\n");
+
+    int statusCode = 0;
+    if (waitpid(pid, &statusCode, 0) == -1) {
+        perror("waitpid");
+        statusCode = 1;
+    } else if (WIFEXITED(statusCode)) {
+        statusCode = WEXITSTATUS(statusCode);
+        if (statusCode != 0) {
+            fprintf(stderr, "Manifest linker exited with status %d\n", statusCode);
+        }
+    } else {
+        fprintf(stderr, "Manifest linker terminated abnormally\n");
+        statusCode = 1;
+    }
+    free(execArgv);
+    return statusCode;
+}
+
+static int main_execute_build_manifest(const FisicsBuildManifest* manifest,
+                                       const StringList* baseIncludePaths,
+                                       const StringList* cliMacroDefines,
+                                       const StringList* forcedIncludes,
+                                       const char* targetTriple,
+                                       const char* dataLayout,
+                                       const char* linkerPath,
+                                       PreprocessMode preprocessMode,
+                                       const char* externalPreprocessCmd,
+                                       const char* externalPreprocessArgs,
+                                       CCDialect baseDialect,
+                                       CCCompatFeatures baseCompatFeatures,
+                                       FisicsOverlayFeatures baseOverlayFeatures,
+                                       bool preservePPNodes,
+                                       bool enableTrigraphs,
+                                       bool warnIgnoredInterop,
+                                       bool errorIgnoredInterop,
+                                       int enableCodegen) {
+    if (!manifest) return 1;
+    if (!enableCodegen) {
+        fprintf(stderr, "Error: codegen disabled (DISABLE_CODEGEN set); cannot execute build manifest\n");
+        return 1;
+    }
+
+    CCDialect dialect = baseDialect;
+    CCCompatFeatures compatFeatures = baseCompatFeatures;
+    if (manifest->defaults.standard && manifest->defaults.standard[0]) {
+        if (!parse_std_mode(manifest->defaults.standard, &dialect, &compatFeatures)) {
+            fprintf(stderr,
+                    "Error: unsupported manifest default standard '%s'\n",
+                    manifest->defaults.standard);
+            return 1;
+        }
+    }
+
+    FisicsOverlayFeatures overlayFeatures = baseOverlayFeatures;
+    if (manifest->defaults.overlays.count > 0) {
+        StringList overlayParts = {0};
+        for (size_t i = 0; i < manifest->defaults.overlays.count; ++i) {
+            if (!string_list_push(&overlayParts, manifest->defaults.overlays.items[i])) {
+                string_list_free(&overlayParts);
+                fprintf(stderr, "OOM: manifest overlay list\n");
+                return 1;
+            }
+        }
+        size_t joinedLen = 0;
+        for (size_t i = 0; i < overlayParts.count; ++i) {
+            joinedLen += strlen(overlayParts.items[i]) + 1u;
+        }
+        char* joined = (char*)malloc(joinedLen + 1u);
+        if (!joined) {
+            string_list_free(&overlayParts);
+            fprintf(stderr, "OOM: manifest overlay mode\n");
+            return 1;
+        }
+        joined[0] = '\0';
+        for (size_t i = 0; i < overlayParts.count; ++i) {
+            if (i) strcat(joined, ",");
+            strcat(joined, overlayParts.items[i]);
+        }
+        FisicsOverlayFeatures manifestOverlays = FISICS_OVERLAY_NONE;
+        bool ok = fisics_parse_overlay_mode(joined, &manifestOverlays);
+        free(joined);
+        string_list_free(&overlayParts);
+        if (!ok) {
+            fprintf(stderr, "Error: unsupported manifest overlay list\n");
+            return 1;
+        }
+        overlayFeatures |= manifestOverlays;
+    }
+
+    StringList includePaths = {0};
+    StringList macroDefines = {0};
+    int statusCode = 0;
+    for (size_t i = 0; i < baseIncludePaths->count; ++i) {
+        if (!string_list_push(&includePaths, baseIncludePaths->items[i])) {
+            statusCode = 1;
+            goto done;
+        }
+    }
+    for (size_t i = 0; i < manifest->defaults.includeDirs.count; ++i) {
+        if (!main_string_list_push_joined(&includePaths,
+                                          manifest->resolvedRoot,
+                                          manifest->defaults.includeDirs.items[i])) {
+            statusCode = 1;
+            goto done;
+        }
+    }
+    for (size_t i = 0; cliMacroDefines && i < cliMacroDefines->count; ++i) {
+        if (!string_list_push(&macroDefines, cliMacroDefines->items[i])) {
+            statusCode = 1;
+            goto done;
+        }
+    }
+    for (size_t i = 0; i < manifest->defaults.defines.count; ++i) {
+        if (!string_list_push(&macroDefines, manifest->defaults.defines.items[i])) {
+            statusCode = 1;
+            goto done;
+        }
+    }
+
+    for (size_t i = 0; i < manifest->translationUnitCount; ++i) {
+        const FisicsBuildManifestTranslationUnit* tu = &manifest->translationUnits[i];
+        if (!main_mkdir_parent_recursive(tu->resolvedObject)) {
+            fprintf(stderr, "Error: failed to create object output directory for %s\n", tu->resolvedObject);
+            statusCode = 1;
+            goto done;
+        }
+        CompileOptions options = {
+            .inputPath = tu->resolvedSource,
+            .preservePPNodes = preservePPNodes,
+            .depsJsonPath = NULL,
+            .targetTriple = targetTriple,
+            .dataLayout = dataLayout,
+            .includePaths = (const char* const*)includePaths.items,
+            .includePathCount = includePaths.count,
+            .macroDefines = (const char* const*)macroDefines.items,
+            .macroDefineCount = macroDefines.count,
+            .forcedIncludes = forcedIncludes ? (const char* const*)forcedIncludes->items : NULL,
+            .forcedIncludeCount = forcedIncludes ? forcedIncludes->count : 0u,
+            .preprocessMode = preprocessMode,
+            .externalPreprocessCmd = externalPreprocessCmd,
+            .externalPreprocessArgs = externalPreprocessArgs,
+            .dialect = dialect,
+            .compatFeatures = compatFeatures,
+            .overlayFeatures = overlayFeatures,
+            .dumpAst = false,
+            .dumpSemantic = false,
+            .dumpIR = false,
+            .dumpTokens = false,
+            .enableCodegen = true,
+            .enableTrigraphs = enableTrigraphs,
+            .warnIgnoredInterop = warnIgnoredInterop,
+            .errorIgnoredInterop = errorIgnoredInterop
+        };
+        CompileResult result;
+        int compileStatus = compile_translation_unit(&options, &result);
+        if (compileStatus != 0 || result.semanticErrors > 0 || !result.module) {
+            fprintf(stderr, "Error: manifest compilation failed for %s\n", tu->resolvedSource);
+            compile_result_destroy(&result);
+            statusCode = 1;
+            goto done;
+        }
+        char* emitErr = NULL;
+        if (!compiler_emit_object_file(result.module,
+                                       targetTriple,
+                                       dataLayout,
+                                       tu->resolvedObject,
+                                       &emitErr)) {
+            fprintf(stderr,
+                    "Error: failed to emit manifest object %s: %s\n",
+                    tu->resolvedObject,
+                    emitErr ? emitErr : "unknown error");
+            free(emitErr);
+            compile_result_destroy(&result);
+            statusCode = 1;
+            goto done;
+        }
+        free(emitErr);
+        compile_result_destroy(&result);
+    }
+
+    if (manifest->link.output && manifest->link.output[0]) {
+        if (!main_mkdir_parent_recursive(manifest->link.resolvedOutput)) {
+            fprintf(stderr,
+                    "Error: failed to create link output directory for %s\n",
+                    manifest->link.resolvedOutput);
+            statusCode = 1;
+            goto done;
+        }
+        StringList argvList = {0};
+        const char* linker = linkerPath ? linkerPath : "clang";
+        bool ok = string_list_push(&argvList, linker);
+        for (size_t i = 0; ok && i < manifest->translationUnitCount; ++i) {
+            ok = string_list_push(&argvList, manifest->translationUnits[i].resolvedObject);
+        }
+        for (size_t i = 0; ok && i < manifest->link.libraryDirs.count; ++i) {
+            char* dirPath = main_join_path(manifest->resolvedRoot, manifest->link.libraryDirs.items[i]);
+            if (!dirPath) {
+                ok = false;
+                break;
+            }
+            size_t len = strlen(dirPath) + 3u;
+            char* flag = (char*)malloc(len);
+            if (!flag) {
+                free(dirPath);
+                ok = false;
+                break;
+            }
+            snprintf(flag, len, "-L%s", dirPath);
+            ok = string_list_push(&argvList, flag);
+            free(flag);
+            free(dirPath);
+        }
+        for (size_t i = 0; ok && i < manifest->link.libraries.count; ++i) {
+            size_t len = strlen(manifest->link.libraries.items[i]) + 3u;
+            char* flag = (char*)malloc(len);
+            if (!flag) {
+                ok = false;
+                break;
+            }
+            snprintf(flag, len, "-l%s", manifest->link.libraries.items[i]);
+            ok = string_list_push(&argvList, flag);
+            free(flag);
+        }
+        for (size_t i = 0; ok && i < manifest->link.args.count; ++i) {
+            ok = string_list_push(&argvList, manifest->link.args.items[i]);
+        }
+        if (ok) {
+            ok = string_list_push(&argvList, "-o") &&
+                 string_list_push(&argvList, manifest->link.resolvedOutput);
+        }
+        if (!ok) {
+            fprintf(stderr, "Error: failed to prepare manifest linker invocation\n");
+            string_list_free(&argvList);
+            statusCode = 1;
+            goto done;
+        }
+        statusCode = main_run_link_argv(&argvList);
+        string_list_free(&argvList);
+        if (statusCode != 0) goto done;
+    }
+
+done:
+    string_list_free(&includePaths);
+    string_list_free(&macroDefines);
+    return statusCode;
+}
+
 int main(int argc, char **argv) {
     const char* progressEnv = getenv("FISICS_DEBUG_PROGRESS");
     bool debugProgress = progressEnv && progressEnv[0] && progressEnv[0] != '0';
@@ -524,11 +937,18 @@ int main(int argc, char **argv) {
     const char *filename = NULL;
     bool preservePPNodes = false;
     const char* depsJsonPath = NULL;
+    const char* buildGraphJsonPath = NULL;
+    const char* buildManifestPath = NULL;
+    const char* compileDbPath = NULL;
     const char* diagsJsonPath = NULL;
     const char* diagsPackPath = NULL;
+    const char* explainDiagnosticQuery = NULL;
     const char* targetTriple = NULL;
     const char* dataLayout = NULL;
     bool compileOnly = false;
+    bool buildManifestDryRun = false;
+    bool buildManifestJson = false;
+    bool listDiagnostics = false;
     const char* outputName = NULL;
     const char* linkerPath = NULL;
     bool dumpAst = false;
@@ -617,6 +1037,24 @@ int main(int argc, char **argv) {
             preservePPNodes = true;
         } else if (strcmp(argv[i], "--emit-deps-json") == 0 && i + 1 < argc) {
             depsJsonPath = argv[++i];
+        } else if (strcmp(argv[i], "--emit-build-graph-json") == 0 && i + 1 < argc) {
+            buildGraphJsonPath = argv[++i];
+        } else if (strcmp(argv[i], "--build-manifest") == 0 && i + 1 < argc) {
+            buildManifestPath = argv[++i];
+        } else if (strcmp(argv[i], "--emit-compile-db") == 0 && i + 1 < argc) {
+            compileDbPath = argv[++i];
+        } else if (strcmp(argv[i], "--dry-run") == 0) {
+            buildManifestDryRun = true;
+        } else if (strcmp(argv[i], "--json") == 0) {
+            buildManifestJson = true;
+        } else if (strcmp(argv[i], "--explain") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "Error: --explain requires a diagnostic code or name\n");
+                goto fail;
+            }
+            explainDiagnosticQuery = argv[++i];
+        } else if (strcmp(argv[i], "--list-diagnostics") == 0) {
+            listDiagnostics = true;
         } else if (strcmp(argv[i], "--emit-diags-json") == 0 && i + 1 < argc) {
             diagsJsonPath = argv[++i];
         } else if (strcmp(argv[i], "--emit-diags-pack") == 0 && i + 1 < argc) {
@@ -768,7 +1206,46 @@ int main(int argc, char **argv) {
             }
         }
     }
-    if (!filename && inputCFiles.count == 0 && inputOFiles.count == 0) {
+    if (explainDiagnosticQuery) {
+        const FisicsDiagnosticExplanation* explanation =
+            fisics_diag_explanation_by_query(explainDiagnosticQuery);
+        if (!explanation) {
+            fprintf(stderr, "Error: unknown diagnostic code or name: %s\n", explainDiagnosticQuery);
+            goto fail;
+        }
+        if (buildManifestJson) {
+            main_print_diagnostic_explanation_json_object(stdout, explanation);
+            fputc('\n', stdout);
+        } else {
+            main_print_diagnostic_explanation_text(explanation);
+        }
+        string_list_free(&includePaths);
+        string_list_free(&macroDefines);
+        string_list_free(&forcedIncludes);
+        string_list_free(&inputCFiles);
+        string_list_free(&inputOFiles);
+        string_list_free(&linkerSearchPaths);
+        string_list_free(&linkerLibs);
+        string_list_free(&linkerFrameworks);
+        return llvm_shutdown_and_return(0);
+    }
+    if (listDiagnostics) {
+        if (!buildManifestJson) {
+            fprintf(stderr, "Error: --list-diagnostics currently requires --json\n");
+            goto fail;
+        }
+        main_print_diagnostic_explanations_json(stdout);
+        string_list_free(&includePaths);
+        string_list_free(&macroDefines);
+        string_list_free(&forcedIncludes);
+        string_list_free(&inputCFiles);
+        string_list_free(&inputOFiles);
+        string_list_free(&linkerSearchPaths);
+        string_list_free(&linkerLibs);
+        string_list_free(&linkerFrameworks);
+        return llvm_shutdown_and_return(0);
+    }
+    if (!buildManifestPath && !filename && inputCFiles.count == 0 && inputOFiles.count == 0) {
         filename = "include/test.txt";
         string_list_push(&inputCFiles, filename);
     }
@@ -844,6 +1321,10 @@ int main(int argc, char **argv) {
     if (!depsJsonPath && depsEnv && depsEnv[0] != '\0') {
         depsJsonPath = depsEnv;
     }
+    const char* graphEnv = getenv("EMIT_BUILD_GRAPH_JSON");
+    if (!buildGraphJsonPath && graphEnv && graphEnv[0] != '\0') {
+        buildGraphJsonPath = graphEnv;
+    }
     const char* diagsEnv = getenv("EMIT_DIAGS_JSON");
     if (!diagsJsonPath && diagsEnv && diagsEnv[0] != '\0') {
         diagsJsonPath = diagsEnv;
@@ -867,6 +1348,79 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    if (buildManifestPath) {
+        if (buildManifestDryRun && !buildManifestJson) {
+            fprintf(stderr, "Error: --build-manifest --dry-run currently requires --json\n");
+            goto fail;
+        }
+        FisicsBuildManifest manifest = {0};
+        FisicsBuildManifestDiagnostic manifestDiag = {0};
+        if (!fisics_build_manifest_load_file(buildManifestPath, &manifest, &manifestDiag)) {
+            fprintf(stderr,
+                    "Error: failed to load build manifest %s: %s\n",
+                    buildManifestPath,
+                    manifestDiag.message[0] ? manifestDiag.message : "unknown error");
+            goto fail;
+        }
+        bool artifactOk = true;
+        if (compileDbPath && compileDbPath[0]) {
+            artifactOk = fisics_build_graph_write_compile_commands_json(compileDbPath, &manifest);
+            if (!artifactOk) {
+                fprintf(stderr, "Error: failed to write compile database to %s\n", compileDbPath);
+            }
+        }
+        if (artifactOk && buildManifestDryRun) {
+            const char* outPath = (buildGraphJsonPath && buildGraphJsonPath[0]) ? buildGraphJsonPath : "-";
+            FisicsBuildGraphManifestOptions graphOptions = {
+                .outputPath = outPath,
+                .manifest = &manifest,
+                .dryRun = true,
+                .partial = false,
+                .fatal = false
+            };
+            artifactOk = fisics_build_graph_write_manifest_dry_run_json(&graphOptions);
+            if (!artifactOk) {
+                fprintf(stderr, "Error: failed to write manifest dry-run build graph JSON\n");
+            }
+        }
+        if (artifactOk && !buildManifestDryRun && (!compileDbPath || !compileDbPath[0])) {
+            int execStatus = main_execute_build_manifest(&manifest,
+                                                         &includePaths,
+                                                         &macroDefines,
+                                                         &forcedIncludes,
+                                                         targetTriple,
+                                                         dataLayout,
+                                                         linkerPath,
+                                                         preprocessMode,
+                                                         externalPreprocessCmd,
+                                                         externalPreprocessArgs,
+                                                         dialect,
+                                                         compatFeatures,
+                                                         overlayFeatures,
+                                                         preservePPNodes,
+                                                         enableTrigraphs,
+                                                         warnIgnoredInterop,
+                                                         errorIgnoredInterop,
+                                                         enableCodegen);
+            if (execStatus != 0) {
+                artifactOk = false;
+            }
+        }
+        fisics_build_manifest_free(&manifest);
+        if (!artifactOk) {
+            goto fail;
+        }
+        string_list_free(&includePaths);
+        string_list_free(&macroDefines);
+        string_list_free(&forcedIncludes);
+        string_list_free(&inputCFiles);
+        string_list_free(&inputOFiles);
+        string_list_free(&linkerSearchPaths);
+        string_list_free(&linkerLibs);
+        string_list_free(&linkerFrameworks);
+        return llvm_shutdown_and_return(0);
+    }
+
     bool driverMode = compileOnly || outputName || inputOFiles.count > 0 ||
                       linkerSearchPaths.count > 0 || linkerLibs.count > 0 ||
                       linkerFrameworks.count > 0 || linkerPath;
@@ -875,6 +1429,7 @@ int main(int argc, char **argv) {
             .compileOnly = compileOnly,
             .preservePPNodes = preservePPNodes,
             .depsJsonPath = depsJsonPath,
+            .buildGraphJsonPath = buildGraphJsonPath,
             .diagsJsonPath = diagsJsonPath,
             .diagsPackPath = diagsPackPath,
             .targetTriple = targetTriple,
@@ -966,6 +1521,32 @@ int main(int argc, char **argv) {
         if (wr.code != CORE_OK) {
             fprintf(stderr, "Warning: failed to write diagnostics pack to %s\n", diagsPackPath);
         }
+    }
+    if (result.compilerCtx && buildGraphJsonPath && buildGraphJsonPath[0] != '\0') {
+        FisicsBuildGraphSourceOptions graphOptions = {
+            .outputPath = buildGraphJsonPath,
+            .inputPath = inputPath,
+            .outputObject = fisics_build_graph_derive_object_path(inputPath),
+            .targetTriple = targetTriple,
+            .dataLayout = dataLayout,
+            .includePaths = (const char* const*)includePaths.items,
+            .includePathCount = includePaths.count,
+            .macroDefines = (const char* const*)macroDefines.items,
+            .macroDefineCount = macroDefines.count,
+            .forcedIncludes = (const char* const*)forcedIncludes.items,
+            .forcedIncludeCount = forcedIncludes.count,
+            .dialect = dialect,
+            .compatFeatures = compatFeatures,
+            .overlayFeatures = overlayFeatures,
+            .compileOnly = false,
+            .enableCodegen = enableCodegen != 0,
+            .partial = status != 0,
+            .fatal = false
+        };
+        if (!fisics_build_graph_write_source_json(&graphOptions, result.compilerCtx)) {
+            fprintf(stderr, "Warning: failed to write build graph JSON to %s\n", buildGraphJsonPath);
+        }
+        free((char*)graphOptions.outputObject);
     }
 
     compile_result_destroy(&result);

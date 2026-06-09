@@ -24,6 +24,7 @@ typedef struct {
     bool compileOnly;
     bool preservePPNodes;
     const char* depsJsonPath;
+    const char* buildGraphJsonPath;
     const char* diagsJsonPath;
     const char* diagsPackPath;
     const char* targetTriple;
