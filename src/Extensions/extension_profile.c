@@ -72,6 +72,10 @@ bool fisics_parse_overlay_mode(const char* mode, FisicsOverlayFeatures* overlayF
                    strcmp(part, "physics-units") == 0 ||
                    strcmp(part, "physics_units") == 0) {
             parsed |= FISICS_OVERLAY_PHYSICS_UNITS;
+        } else if (strcmp(part, "memory-check") == 0 ||
+                   strcmp(part, "memory_check") == 0 ||
+                   strcmp(part, "memcheck") == 0) {
+            parsed |= FISICS_OVERLAY_MEMORY_CHECK;
         } else {
             ok = false;
             break;

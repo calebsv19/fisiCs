@@ -10,7 +10,8 @@ typedef uint64_t FisicsOverlayFeatures;
 enum {
     FISICS_OVERLAY_NONE = 0,
     FISICS_OVERLAY_IDE_METADATA = (1ULL << 0),
-    FISICS_OVERLAY_PHYSICS_UNITS = (1ULL << 1)
+    FISICS_OVERLAY_PHYSICS_UNITS = (1ULL << 1),
+    FISICS_OVERLAY_MEMORY_CHECK = (1ULL << 2)
 };
 
 FisicsOverlayFeatures fisics_all_overlay_features(void);

@@ -145,16 +145,33 @@ def load_json(path):
 
 
 def iter_manifest_files():
+    explicit_manifests = []
+    for token in parse_csv_env("FINAL_MANIFEST"):
+        if not token.endswith(".json"):
+            continue
+        path = META_DIR / token
+        if path.exists():
+            explicit_manifests.append(path)
+
     if META_INDEX_PATH.exists():
         meta_index = load_json(META_INDEX_PATH)
         if isinstance(meta_index, dict):
             manifests = meta_index.get("manifests")
             if manifests:
+                yielded = set()
                 for rel_path in manifests:
-                    yield META_DIR / rel_path
+                    path = META_DIR / rel_path
+                    yielded.add(path.resolve())
+                    yield path
+                for path in explicit_manifests:
+                    if path.resolve() not in yielded:
+                        yield path
                 return
             if "tests" in meta_index:
                 yield META_INDEX_PATH
+                for path in explicit_manifests:
+                    if path.resolve() != META_INDEX_PATH.resolve():
+                        yield path
                 return
 
     for path in sorted(META_DIR.glob("*.json")):
@@ -271,6 +288,7 @@ def main():
         print(str(exc))
         return 1
     bin_path = str(staged_bin.staged_path)
+    memcheck_runtime_lib = REPO_ROOT / "build" / "unsanitized" / "libfisics_memcheck_runtime.a"
     update = os.environ.get("UPDATE_FINAL", "0") == "1" or "--update" in sys.argv
     filt = os.environ.get("FINAL_FILTER", "").strip()
     prefix_filters = parse_csv_env("FINAL_PREFIX")
@@ -400,6 +418,7 @@ def main():
             # The final suite spawns the compiler many times from one parent process.
             # Default the process guard off here unless a caller explicitly overrides it.
             cmd_env.setdefault("FISICS_MAX_PROCS", "0")
+            cmd_env.setdefault("FISICS_MEMCHECK_RUNTIME_LIB", str(memcheck_runtime_lib))
             for key, value in test.get("env", {}).items():
                 cmd_env[str(key)] = str(value)
             if frontend_only_diag:

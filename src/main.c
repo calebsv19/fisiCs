@@ -638,6 +638,12 @@ static bool main_string_list_push_joined(StringList* list, const char* root, con
     return ok;
 }
 
+static const char* main_memory_check_runtime_archive_path(void) {
+    const char* override = getenv("FISICS_MEMCHECK_RUNTIME_LIB");
+    if (override && override[0]) return override;
+    return "build/unsanitized/libfisics_memcheck_runtime.a";
+}
+
 static int main_run_link_argv(StringList* argvList) {
     if (!argvList || argvList->count == 0) return 1;
     char** execArgv = (char**)calloc(argvList->count + 1u, sizeof(char*));
@@ -860,6 +866,9 @@ static int main_execute_build_manifest(const FisicsBuildManifest* manifest,
         bool ok = string_list_push(&argvList, linker);
         for (size_t i = 0; ok && i < manifest->translationUnitCount; ++i) {
             ok = string_list_push(&argvList, manifest->translationUnits[i].resolvedObject);
+        }
+        if (ok && (overlayFeatures & FISICS_OVERLAY_MEMORY_CHECK) != 0) {
+            ok = string_list_push(&argvList, main_memory_check_runtime_archive_path());
         }
         for (size_t i = 0; ok && i < manifest->link.libraryDirs.count; ++i) {
             char* dirPath = main_join_path(manifest->resolvedRoot, manifest->link.libraryDirs.items[i]);

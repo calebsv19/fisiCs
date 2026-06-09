@@ -1,0 +1,3 @@
+[fisics:memory-check] double free
+[fisics:memory-check]   free_site=14__runtime_memory_check_double_free.c:9
+[fisics:memory-check] summary: active=0 leaked_bytes=0 allocs=1 frees=1 double_free=1 unknown_free=0 tracker_failures=0

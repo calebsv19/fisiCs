@@ -287,6 +287,10 @@ bool cc_overlay_physics_units_enabled(const CompilerContext* ctx) {
     return cc_has_overlay_feature(ctx, FISICS_OVERLAY_PHYSICS_UNITS);
 }
 
+bool cc_overlay_memory_check_enabled(const CompilerContext* ctx) {
+    return cc_has_overlay_feature(ctx, FISICS_OVERLAY_MEMORY_CHECK);
+}
+
 long cc_dialect_stdc_version(CCDialect dialect) {
     switch (dialect) {
         case CC_DIALECT_C11: return 201112L;

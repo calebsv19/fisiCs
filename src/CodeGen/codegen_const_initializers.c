@@ -3,6 +3,7 @@
 #include "codegen_private.h"
 
 #include "Syntax/const_eval.h"
+#include "Compiler/compiler_context.h"
 #include "codegen_const_initializers_internal.h"
 #include "codegen_types.h"
 #include "literal_utils.h"
@@ -12,6 +13,62 @@
 #include <string.h>
 
 static int g_const_string_counter = 0;
+
+static LLVMValueRef cg_const_memcheck_allocator_function_value(CodegenContext* ctx,
+                                                               const char* name) {
+    if (!ctx || !name || !ctx->semanticModel) {
+        return NULL;
+    }
+
+    CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+    if (!cc_overlay_memory_check_enabled(cctx)) {
+        return NULL;
+    }
+
+    const char* wrapperName = NULL;
+    LLVMTypeRef i8PtrType = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+    LLVMTypeRef sizeType = cg_get_intptr_type(ctx);
+    if (!sizeType) {
+        sizeType = LLVMInt64TypeInContext(ctx->llvmContext);
+    }
+
+    LLVMTypeRef returnType = NULL;
+    LLVMTypeRef paramTypes[2] = { NULL, NULL };
+    unsigned paramCount = 0;
+
+    if (strcmp(name, "malloc") == 0) {
+        wrapperName = "__fisics_memcheck_malloc";
+        returnType = i8PtrType;
+        paramTypes[0] = sizeType;
+        paramCount = 1;
+    } else if (strcmp(name, "calloc") == 0) {
+        wrapperName = "__fisics_memcheck_calloc";
+        returnType = i8PtrType;
+        paramTypes[0] = sizeType;
+        paramTypes[1] = sizeType;
+        paramCount = 2;
+    } else if (strcmp(name, "realloc") == 0) {
+        wrapperName = "__fisics_memcheck_realloc";
+        returnType = i8PtrType;
+        paramTypes[0] = i8PtrType;
+        paramTypes[1] = sizeType;
+        paramCount = 2;
+    } else if (strcmp(name, "free") == 0) {
+        wrapperName = "__fisics_memcheck_free";
+        returnType = LLVMVoidTypeInContext(ctx->llvmContext);
+        paramTypes[0] = i8PtrType;
+        paramCount = 1;
+    } else {
+        return NULL;
+    }
+
+    LLVMTypeRef fnType = LLVMFunctionType(returnType, paramTypes, paramCount, 0);
+    LLVMValueRef function = LLVMGetNamedFunction(ctx->module, wrapperName);
+    if (!function) {
+        function = LLVMAddFunction(ctx->module, wrapperName, fnType);
+    }
+    return function;
+}
 
 static bool cg_named_type_has_surface_derivations(const ParsedType* type) {
     if (!type || type->kind != TYPE_NAMED) {
@@ -643,6 +700,10 @@ LLVMValueRef cg_build_const_initializer(CodegenContext* ctx,
                     declareFunctionSymbol(ctx, sym);
                     fn = LLVMGetNamedFunction(ctx->module, name);
                 }
+            }
+            LLVMValueRef memcheckFn = cg_const_memcheck_allocator_function_value(ctx, name);
+            if (memcheckFn) {
+                fn = memcheckFn;
             }
             if (fn) {
                 LLVMValueRef casted = LLVMConstPointerCast(fn, targetType);

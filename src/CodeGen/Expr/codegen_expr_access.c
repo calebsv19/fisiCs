@@ -2,9 +2,66 @@
 
 #include "codegen_expr_internal.h"
 
+#include "Compiler/compiler_context.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static LLVMValueRef cg_memcheck_allocator_function_value(CodegenContext* ctx, const char* name) {
+    if (!ctx || !name || !ctx->semanticModel) {
+        return NULL;
+    }
+
+    CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+    if (!cc_overlay_memory_check_enabled(cctx)) {
+        return NULL;
+    }
+
+    const char* wrapperName = NULL;
+    LLVMTypeRef i8PtrType = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+    LLVMTypeRef sizeType = cg_get_intptr_type(ctx);
+    if (!sizeType) {
+        sizeType = LLVMInt64TypeInContext(ctx->llvmContext);
+    }
+
+    LLVMTypeRef returnType = NULL;
+    LLVMTypeRef paramTypes[2] = { NULL, NULL };
+    unsigned paramCount = 0;
+
+    if (strcmp(name, "malloc") == 0) {
+        wrapperName = "__fisics_memcheck_malloc";
+        returnType = i8PtrType;
+        paramTypes[0] = sizeType;
+        paramCount = 1;
+    } else if (strcmp(name, "calloc") == 0) {
+        wrapperName = "__fisics_memcheck_calloc";
+        returnType = i8PtrType;
+        paramTypes[0] = sizeType;
+        paramTypes[1] = sizeType;
+        paramCount = 2;
+    } else if (strcmp(name, "realloc") == 0) {
+        wrapperName = "__fisics_memcheck_realloc";
+        returnType = i8PtrType;
+        paramTypes[0] = i8PtrType;
+        paramTypes[1] = sizeType;
+        paramCount = 2;
+    } else if (strcmp(name, "free") == 0) {
+        wrapperName = "__fisics_memcheck_free";
+        returnType = LLVMVoidTypeInContext(ctx->llvmContext);
+        paramTypes[0] = i8PtrType;
+        paramCount = 1;
+    } else {
+        return NULL;
+    }
+
+    LLVMTypeRef fnType = LLVMFunctionType(returnType, paramTypes, paramCount, 0);
+    LLVMValueRef function = LLVMGetNamedFunction(ctx->module, wrapperName);
+    if (!function) {
+        function = LLVMAddFunction(ctx->module, wrapperName, fnType);
+    }
+    return function;
+}
 
 LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     if (node->type != AST_ARRAY_ACCESS) {
@@ -498,6 +555,11 @@ LLVMValueRef codegenIdentifier(CodegenContext* ctx, ASTNode* node) {
             }
         }
         if (fn) {
+            LLVMValueRef memcheckWrapper =
+                cg_memcheck_allocator_function_value(ctx, node->valueNode.value);
+            if (memcheckWrapper) {
+                return memcheckWrapper;
+            }
             return fn;
         }
         fprintf(stderr, "Error: Undefined variable %s\n", node->valueNode.value);

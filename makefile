@@ -67,6 +67,11 @@ endif
 DEFAULT_INCLUDE_PATHS := $(if $(INCLUDE_PATHS),$(INCLUDE_PATHS),include)
 EXAMPLES_DIR := examples
 EXAMPLES_BUILD_DIR := build/examples
+MEMCHECK_RUNTIME_DIR := runtime/memory_check
+MEMCHECK_RUNTIME_BUILD_DIR := $(BUILD_DIR)/runtime/memory_check
+MEMCHECK_RUNTIME_SRC := $(MEMCHECK_RUNTIME_DIR)/fisics_memcheck_runtime.c
+MEMCHECK_RUNTIME_OBJ := $(MEMCHECK_RUNTIME_BUILD_DIR)/fisics_memcheck_runtime.o
+MEMCHECK_RUNTIME_LIB := $(BUILD_DIR)/libfisics_memcheck_runtime.a
 RELEASE_VERSION_FILE ?= VERSION
 RELEASE_VERSION ?= $(strip $(shell cat "$(RELEASE_VERSION_FILE)" 2>/dev/null))
 ifeq ($(RELEASE_VERSION),)
@@ -127,7 +132,7 @@ FRONTEND_OBJS := $(filter-out $(BUILD_DIR)/main.o $(BUILD_DIR)/Compiler/object_e
 BACKEND_OBJS := $(BUILD_DIR)/Compiler/object_emit.o
 
 # === Default Target ===
-all: $(BIN)
+all: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 
 # Frontend-only targets
 .PHONY: frontend frontend-clean frontend-rebuild frontend-rebuild-local frontend-rebuild-ide \
@@ -183,6 +188,21 @@ $(BUILD_DIR)/core_pack/%.o: $(CORE_PACK_DIR)/src/%.c
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(INCLUDES) -c $< -o $@
+
+$(MEMCHECK_RUNTIME_OBJ): $(MEMCHECK_RUNTIME_SRC) $(MEMCHECK_RUNTIME_DIR)/fisics_memcheck_runtime.h
+	@mkdir -p $(dir $@)
+	@echo "Compiling memory-check runtime support..."
+	$(CC) -Wall -Wextra -Wpedantic $(PROFILE_CFLAGS) $(DEPFLAGS) -I$(MEMCHECK_RUNTIME_DIR) -c $< -o $@
+
+$(MEMCHECK_RUNTIME_LIB): $(MEMCHECK_RUNTIME_OBJ)
+	@echo "Archiving memory-check runtime support..."
+	ar rcs $@ $^
+
+runtime-memory-check: $(MEMCHECK_RUNTIME_LIB)
+
+runtime-clean:
+	@echo "Cleaning runtime support artifacts..."
+	rm -rf "$(BUILD_DIR)/runtime" "$(MEMCHECK_RUNTIME_LIB)"
 
 -include $(DEPS)
 
@@ -381,6 +401,27 @@ integration-compat-routing: $(BIN)
 integration-overlay-units-scaffold: $(BIN)
 	@bash ./tests/integration/run_overlay_units_scaffold.sh ./$(BIN)
 
+integration-overlay-memory-check-contract: $(BIN)
+	@bash ./tests/integration/run_overlay_memory_check_contract.sh ./$(BIN)
+
+integration-memory-check-runtime-skeleton: $(MEMCHECK_RUNTIME_LIB)
+	@bash ./tests/integration/run_memory_check_runtime_skeleton.sh "$(MEMCHECK_RUNTIME_LIB)" "$(MEMCHECK_RUNTIME_DIR)"
+
+integration-memory-check-codegen-direct-calls: $(BIN) $(MEMCHECK_RUNTIME_LIB)
+	@bash ./tests/integration/run_memory_check_codegen_direct_calls.sh ./$(BIN) "$(MEMCHECK_RUNTIME_LIB)"
+
+integration-memory-check-driver-auto-link: $(BIN) $(MEMCHECK_RUNTIME_LIB)
+	@bash ./tests/integration/run_memory_check_driver_auto_link.sh ./$(BIN)
+
+integration-memory-check-canaries: $(BIN) $(MEMCHECK_RUNTIME_LIB)
+	@bash ./tests/integration/run_memory_check_canaries.sh ./$(BIN)
+
+integration-memory-check-json-report: $(BIN) $(MEMCHECK_RUNTIME_LIB)
+	@bash ./tests/integration/run_memory_check_json_report.sh ./$(BIN)
+
+memory-check-test: integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report final-memory-check
+	@echo "memory_check structured validation passed"
+
 integration-examples-physics-units: $(BIN)
 	@bash ./tests/integration/run_examples_physics_units.sh ./$(BIN)
 
@@ -396,55 +437,58 @@ integration-build-manifest-compile-db: $(BIN)
 integration-build-manifest-execute: $(BIN)
 	@bash ./tests/integration/run_build_manifest_execute.sh ./$(BIN)
 
-integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
+integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
 
 ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
 
 # Final C99 behavior suite
-.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-wave final-runtime final-promotion-audit final-monitored final-monitored-smoke final-timing final-timing-refresh-baseline final-timing-sync-db final-timing-rollup final-timing-sync
-final: $(BIN)
+.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-memory-check final-wave final-runtime final-promotion-audit final-monitored final-monitored-smoke final-timing final-timing-refresh-baseline final-timing-sync-db final-timing-rollup final-timing-sync
+final: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@python3 -u tests/final/run_final.py ./$(BIN)
 
-final-update: $(BIN)
+final-update: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@UPDATE_FINAL=1 python3 -u tests/final/run_final.py ./$(BIN)
 
 # Exact-id slice (example: make final-id ID=14__runtime_multitu_mixed_abi_call_chain)
-final-id: $(BIN)
+final-id: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@if [ -z "$(ID)" ]; then echo "ERROR: provide ID=<test_id>"; exit 2; fi
 	@FINAL_FILTER="$(ID)" python3 -u tests/final/run_final.py ./$(BIN)
 
 # Prefix slice (example: make final-prefix PREFIX=14__)
-final-prefix: $(BIN)
+final-prefix: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@if [ -z "$(PREFIX)" ]; then echo "ERROR: provide PREFIX=<id_prefix>"; exit 2; fi
 	@FINAL_PREFIX="$(PREFIX)" python3 -u tests/final/run_final.py ./$(BIN)
 
 # Glob slice (example: make final-glob GLOB='14__runtime_multitu_*')
-final-glob: $(BIN)
+final-glob: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@if [ -z "$(GLOB)" ]; then echo "ERROR: provide GLOB=<fnmatch_pattern>"; exit 2; fi
 	@FINAL_GLOB="$(GLOB)" python3 -u tests/final/run_final.py ./$(BIN)
 
 # Bucket slice by metadata bucket field (example: make final-bucket BUCKET=runtime-surface)
-final-bucket: $(BIN)
+final-bucket: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@if [ -z "$(BUCKET)" ]; then echo "ERROR: provide BUCKET=<bucket_name>"; exit 2; fi
 	@FINAL_BUCKET="$(BUCKET)" python3 -u tests/final/run_final.py ./$(BIN)
 
 # Manifest shard slice (example: make final-manifest MANIFEST=14-runtime-surface-wave43-multitu-abi-stress-promotions.json)
-final-manifest: $(BIN)
+final-manifest: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@if [ -z "$(MANIFEST)" ]; then echo "ERROR: provide MANIFEST=<manifest_name_or_token>"; exit 2; fi
 	@FINAL_MANIFEST="$(MANIFEST)" python3 -u tests/final/run_final.py ./$(BIN)
+
+final-memory-check: $(BIN) $(MEMCHECK_RUNTIME_LIB)
+	@FINAL_MANIFEST="14-runtime-surface-memory-check-overlay-runtime-contract.json" python3 -u tests/final/run_final.py ./$(BIN)
 
 # Wave slice (runtime-focused by default).
 # Examples:
 #   make final-wave WAVE=43
 #   make final-wave WAVE=43 WAVE_BUCKET=14-runtime-surface
 WAVE_BUCKET ?= 14-runtime-surface
-final-wave: $(BIN)
+final-wave: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@if [ -z "$(WAVE)" ]; then echo "ERROR: provide WAVE=<number>"; exit 2; fi
 	@FINAL_MANIFEST_GLOB="$(WAVE_BUCKET)-wave$(WAVE)-*.json" python3 -u tests/final/run_final.py ./$(BIN)
 
 # Runtime convenience slice (all bucket-14 tests)
-final-runtime: $(BIN)
+final-runtime: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@FINAL_PREFIX="14__" python3 -u tests/final/run_final.py ./$(BIN)
 
 # Probe inventory vs promoted stable ownership audit.
@@ -466,7 +510,7 @@ FINAL_TIMING_NOTE ?=
 #   make final-monitored
 #   make final-monitored FINAL_TIMING_TAG=checkpoint
 #   make final-monitored FINAL_TIMING_RUNS=3 FINAL_TIMING_NOTE="after bucket 15 wave update"
-final-monitored: $(BIN)
+final-monitored: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@FINAL_TIMING_RUNS="$(FINAL_TIMING_RUNS)" \
 	  FINAL_TIMING_TAG="$(FINAL_TIMING_TAG)" \
 	  FINAL_TIMING_LOG="$(FINAL_TIMING_LOG)" \
@@ -532,6 +576,11 @@ examples-physics-units: $(BIN)
 	@mkdir -p $(EXAMPLES_BUILD_DIR)
 	@./$(BIN) --overlay=physics-units $(EXAMPLES_DIR)/physics_units/ballistics_valid.c -o $(EXAMPLES_BUILD_DIR)/ballistics_valid
 	@echo "Built $(EXAMPLES_BUILD_DIR)/ballistics_valid"
+
+examples-memory-check: $(BIN) $(MEMCHECK_RUNTIME_LIB)
+	@mkdir -p $(EXAMPLES_BUILD_DIR)/memory_check
+	@./$(BIN) --overlay=memory-check $(EXAMPLES_DIR)/memory_check/leak_demo.c -o $(EXAMPLES_BUILD_DIR)/memory_check/leak_demo
+	@./$(EXAMPLES_BUILD_DIR)/memory_check/leak_demo
 
 union-decl: $(BIN)
 	@./tests/parser/run_union_decl.sh ./$(BIN)
@@ -981,7 +1030,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1178,6 +1227,7 @@ tests: test frontend-api-test
         parser-tests syntax-tests codegen-tests spec-tests test tests semantic-alignas codegen-flex-lvalue codegen-flex-struct-array \
         semantic-static-assert-member-array-size semantic-static-local-float-constexpr \
         test-binary test-binary-smoke test-binary-io test-binary-link test-binary-sdl test-binary-stdio test-binary-math test-binary-fortify test-binary-abi test-binary-corpus test-binary-header test-binary-header-shadow test-binary-diff test-binary-wave test-binary-id binary-regen \
-        integration-diags-pack integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-examples-physics-units ci-guardrails \
+        integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report memory-check-test integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute ci-guardrails \
+        runtime-memory-check runtime-clean examples-memory-check \
         realproj-stage-a realproj-stage-a-self realproj-stage-a-repeat realproj-stage-b realproj-stage-c realproj-stage-d realproj-stage-e realproj-stage-f \
         shim-build-shadow shim-parse-smoke shim-parse-parity shim-parse-parity-quiet shim-language-profile shim-language-profile-negative shim-s6-gate shim-gate

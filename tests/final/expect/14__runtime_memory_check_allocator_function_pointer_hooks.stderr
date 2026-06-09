@@ -1,0 +1,1 @@
+[fisics:memory-check] summary: active=0 leaked_bytes=0 allocs=3 frees=3 double_free=0 unknown_free=0 tracker_failures=0

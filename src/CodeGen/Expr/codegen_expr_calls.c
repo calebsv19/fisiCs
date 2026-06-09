@@ -2,6 +2,8 @@
 
 #include "codegen_expr_internal.h"
 
+#include "Compiler/compiler_context.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +37,166 @@ static LLVMValueRef cg_decay_array_argument_to_pointer(CodegenContext* ctx,
         decayed = LLVMBuildBitCast(ctx->builder, decayed, paramTy, "call.arg.array.decay.cast");
     }
     return decayed;
+}
+
+static const char* cg_memcheck_wrapper_for_callee(const char* calleeName,
+                                                  size_t argCount) {
+    if (!calleeName) return NULL;
+    if (strcmp(calleeName, "malloc") == 0 && argCount == 1) {
+        return "__fisics_memcheck_malloc_site";
+    }
+    if (strcmp(calleeName, "calloc") == 0 && argCount == 2) {
+        return "__fisics_memcheck_calloc_site";
+    }
+    if (strcmp(calleeName, "realloc") == 0 && argCount == 2) {
+        return "__fisics_memcheck_realloc_site";
+    }
+    if (strcmp(calleeName, "free") == 0 && argCount == 1) {
+        return "__fisics_memcheck_free_site";
+    }
+    return NULL;
+}
+
+static bool cg_memory_check_overlay_enabled(CodegenContext* ctx) {
+    if (!ctx || !ctx->semanticModel) return false;
+    CompilerContext* cctx = semanticModelGetContext(ctx->semanticModel);
+    return cc_overlay_memory_check_enabled(cctx);
+}
+
+static LLVMValueRef cg_try_emit_memcheck_allocator_call(CodegenContext* ctx,
+                                                        ASTNode* callNode,
+                                                        const char* calleeName,
+                                                        LLVMValueRef* args,
+                                                        size_t argCount,
+                                                        LLVMTypeRef semanticReturnTy,
+                                                        bool* handledOut) {
+    if (handledOut) *handledOut = false;
+    if (!ctx || !calleeName || !args || !handledOut) return NULL;
+    if (!cg_memory_check_overlay_enabled(ctx)) return NULL;
+
+    const char* wrapperName = cg_memcheck_wrapper_for_callee(calleeName, argCount);
+    if (!wrapperName) return NULL;
+
+    LLVMTypeRef i8PtrType = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvmContext), 0);
+    LLVMTypeRef sizeType = cg_get_intptr_type(ctx);
+    if (!sizeType) {
+        sizeType = LLVMInt64TypeInContext(ctx->llvmContext);
+    }
+    LLVMTypeRef intType = LLVMInt32TypeInContext(ctx->llvmContext);
+
+    LLVMTypeRef returnType = NULL;
+    LLVMTypeRef paramTypes[4] = { NULL, NULL, NULL, NULL };
+    unsigned paramCount = 0;
+
+    if (strcmp(calleeName, "malloc") == 0) {
+        returnType = i8PtrType;
+        paramTypes[0] = sizeType;
+        paramTypes[1] = i8PtrType;
+        paramTypes[2] = intType;
+        paramCount = 3;
+    } else if (strcmp(calleeName, "calloc") == 0) {
+        returnType = i8PtrType;
+        paramTypes[0] = sizeType;
+        paramTypes[1] = sizeType;
+        paramTypes[2] = i8PtrType;
+        paramTypes[3] = intType;
+        paramCount = 4;
+    } else if (strcmp(calleeName, "realloc") == 0) {
+        returnType = i8PtrType;
+        paramTypes[0] = i8PtrType;
+        paramTypes[1] = sizeType;
+        paramTypes[2] = i8PtrType;
+        paramTypes[3] = intType;
+        paramCount = 4;
+    } else if (strcmp(calleeName, "free") == 0) {
+        returnType = LLVMVoidTypeInContext(ctx->llvmContext);
+        paramTypes[0] = i8PtrType;
+        paramTypes[1] = i8PtrType;
+        paramTypes[2] = intType;
+        paramCount = 3;
+    } else {
+        return NULL;
+    }
+
+    unsigned originalParamCount = (unsigned)argCount;
+    LLVMValueRef callArgs[4] = { NULL, NULL, NULL, NULL };
+    for (unsigned i = 0; i < originalParamCount; ++i) {
+        if (!args[i]) return NULL;
+        callArgs[i] = args[i];
+        LLVMTypeRef fromTy = LLVMTypeOf(callArgs[i]);
+        LLVMTypeRef toTy = paramTypes[i];
+        if (!fromTy || !toTy || fromTy == toTy) {
+            continue;
+        }
+        LLVMTypeKind fromKind = LLVMGetTypeKind(fromTy);
+        LLVMTypeKind toKind = LLVMGetTypeKind(toTy);
+        if (fromKind == LLVMPointerTypeKind && toKind == LLVMPointerTypeKind) {
+            callArgs[i] = LLVMBuildBitCast(ctx->builder, callArgs[i], toTy, "memcheck.arg.ptrcast");
+        } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMIntegerTypeKind) {
+            callArgs[i] = LLVMBuildIntCast2(ctx->builder, callArgs[i], toTy, false, "memcheck.arg.intcast");
+        } else if (fromKind == LLVMIntegerTypeKind && toKind == LLVMPointerTypeKind) {
+            callArgs[i] = LLVMBuildIntToPtr(ctx->builder, callArgs[i], toTy, "memcheck.arg.inttoptr");
+        } else if (fromKind == LLVMPointerTypeKind && toKind == LLVMIntegerTypeKind) {
+            callArgs[i] = LLVMBuildPtrToInt(ctx->builder, callArgs[i], toTy, "memcheck.arg.ptrtoint");
+        } else {
+            return NULL;
+        }
+    }
+
+    const char* file = NULL;
+    int line = 0;
+    CompilerContext* cctx = ctx && ctx->semanticModel
+        ? semanticModelGetContext(ctx->semanticModel)
+        : NULL;
+    file = cc_get_input_path(cctx);
+    if (callNode) {
+        if (!file && callNode->location.start.file && callNode->location.start.file[0] != '\0') {
+            file = callNode->location.start.file;
+        }
+        line = callNode->location.start.line > 0 ? callNode->location.start.line : callNode->line;
+    }
+    if (!file) {
+        file = "<unknown>";
+    }
+    if (line <= 0) {
+        line = callNode ? callNode->line : 0;
+    }
+
+    callArgs[originalParamCount] =
+        LLVMBuildGlobalStringPtr(ctx->builder, file, "memcheck.site.file");
+    callArgs[originalParamCount + 1u] =
+        LLVMConstInt(intType, (unsigned long long)(line > 0 ? line : 0), false);
+
+    LLVMTypeRef fnType = LLVMFunctionType(returnType, paramTypes, paramCount, 0);
+    LLVMValueRef function = LLVMGetNamedFunction(ctx->module, wrapperName);
+    if (!function) {
+        function = LLVMAddFunction(ctx->module, wrapperName, fnType);
+    }
+    if (!function) return NULL;
+
+    LLVMValueRef call = LLVMBuildCall2(ctx->builder,
+                                       fnType,
+                                       function,
+                                       callArgs,
+                                       paramCount,
+                                       strcmp(calleeName, "free") == 0 ? "" : "memcheck.call");
+    if (!call && strcmp(calleeName, "free") != 0) {
+        return NULL;
+    }
+
+    *handledOut = true;
+    if (strcmp(calleeName, "free") == 0) {
+        return NULL;
+    }
+    if (call && semanticReturnTy && LLVMTypeOf(call) != semanticReturnTy) {
+        LLVMTypeRef fromTy = LLVMTypeOf(call);
+        LLVMTypeKind fromKind = fromTy ? LLVMGetTypeKind(fromTy) : LLVMVoidTypeKind;
+        LLVMTypeKind toKind = LLVMGetTypeKind(semanticReturnTy);
+        if (fromKind == LLVMPointerTypeKind && toKind == LLVMPointerTypeKind) {
+            call = LLVMBuildBitCast(ctx->builder, call, semanticReturnTy, "memcheck.ret.ptrcast");
+        }
+    }
+    return call;
 }
 
 LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
@@ -613,6 +775,23 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
         } else if (semanticReturnTy && LLVMGetTypeKind(semanticReturnTy) == LLVMArrayTypeKind) {
             semanticReturnTy = LLVMPointerType(semanticReturnTy, 0);
         }
+    }
+
+    bool memcheckHandled = false;
+    LLVMValueRef memcheckCall =
+        cg_try_emit_memcheck_allocator_call(ctx,
+                                            node,
+                                            calleeName,
+                                            finalArgs,
+                                            argCount,
+                                            semanticReturnTy,
+                                            &memcheckHandled);
+    if (memcheckHandled) {
+        if (externalAbiParamTypes) free(externalAbiParamTypes);
+        if (externalAbiArgs) free(externalAbiArgs);
+        if (promotedArgs) free(promotedArgs);
+        free(args);
+        CG_CALL_RETURN(memcheckCall);
     }
 
     bool useCallIndirectSRet = false;

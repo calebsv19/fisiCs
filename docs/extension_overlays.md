@@ -17,13 +17,20 @@ Supported overlay profiles:
 - `none`
 - `ide-metadata`
 - `physics-units`
+- `memory-check`
 - `all`
+
+`all` currently means the public non-instrumenting overlay bundle. It includes
+the existing IDE/physics overlay behavior, but it does not include
+`memory-check` because memory-check rewrites allocator calls and adds a runtime
+support library.
 
 CLI examples:
 
 ```bash
 ./fisics --overlay=physics-units sample.c
 FISICS_OVERLAY=physics-units ./fisics sample.c
+./fisics --overlay=memory-check sample.c -o sample
 ```
 
 Frontend example:
@@ -36,6 +43,203 @@ FisicsFrontendOptions opts = {
 
 If no overlay is enabled, the compiler stays on its normal core-C path and
 overlay diagnostics/results are omitted.
+
+## Memory-Check Overlay
+
+`memory-check` is an opt-in runtime diagnostics overlay for allocation/free
+behavior. It is meant for occasional diagnostic runs when maintainers want to
+inspect whether a program has obvious allocation lifecycle problems without
+changing default C semantics.
+
+Enable it explicitly:
+
+```bash
+./fisics --overlay=memory-check app.c -o app
+./app
+```
+
+The equivalent environment form follows the existing overlay path:
+
+```bash
+FISICS_OVERLAY=memory-check ./fisics app.c -o app
+./app
+```
+
+When enabled, direct calls to the standard allocation family are rewritten to
+the memory-check runtime wrappers:
+
+| Source call | Lowered wrapper |
+| --- | --- |
+| `malloc(...)` | `__fisics_memcheck_malloc_site(...)` |
+| `calloc(...)` | `__fisics_memcheck_calloc_site(...)` |
+| `realloc(...)` | `__fisics_memcheck_realloc_site(...)` |
+| `free(...)` | `__fisics_memcheck_free_site(...)` |
+
+The older non-site wrapper names remain available for manual runtime tests and
+external experiments, but compiler-generated memory-check calls use the
+site-aware wrappers so diagnostics can include source labels.
+
+For final executable builds, the driver auto-links the local runtime archive:
+
+```text
+build/unsanitized/libfisics_memcheck_runtime.a
+```
+
+Set `FISICS_MEMCHECK_RUNTIME_LIB=/path/to/libfisics_memcheck_runtime.a` only
+when a custom runtime archive location is needed. Compile-only mode can emit
+instrumented object code, but it does not auto-link the runtime.
+
+### Reporting
+
+The runtime automatically emits an exit report after the first memory-check
+wrapper is used. If a program calls the report hook manually and no tracked
+memory event happens afterward, the exit hook suppresses a duplicate summary.
+
+```c
+#include <stdlib.h>
+
+void __fisics_memcheck_report(void);
+
+int main(void) {
+    void *p = malloc(32);
+    free(p);
+    __fisics_memcheck_report();
+    return 0;
+}
+```
+
+Example summary shape:
+
+```text
+[fisics:memory-check] summary: active=0 leaked_bytes=0 allocs=1 frees=1 double_free=0 unknown_free=0 tracker_failures=0
+```
+
+Leak reports include source labels for direct compiler-rewritten allocator
+calls:
+
+```text
+[fisics:memory-check] leak: size=21 allocated_at=app.c:4
+```
+
+Report policy can be controlled with `FISICS_MEMCHECK_REPORT`:
+
+| Value | Behavior |
+| --- | --- |
+| `always` / `auto` / unset | report at exit when tracked activity occurred |
+| `errors` | report only double-free, unknown-pointer, or tracker failures |
+| `leaks` | report leaks or errors |
+| `never` / `manual` / `off` | suppress automatic exit reports |
+
+Current diagnostics are written to `stderr` with the
+`[fisics:memory-check]` prefix.
+
+#### JSON report bridge
+
+Memory-check can also write a default-off JSON sidecar report when
+`FISICS_MEMCHECK_REPORT_JSON=/path/to/report.json` is set at runtime. This
+sidecar uses the `memory_check_report_v1` profile and is a runtime report lane,
+not a compiler diagnostic lane. It is not emitted by `--emit-diags-json`,
+`--emit-diags-pack`, or the IDE analysis contract.
+
+The report is written when the normal memory-check report hook emits a summary:
+manual calls to `__fisics_memcheck_report()` use `"trigger": "manual"`, and
+automatic exit reports use `"trigger": "atexit"`. Existing `stderr` output and
+`FISICS_MEMCHECK_REPORT` policy behavior are unchanged.
+
+Example shape:
+
+```json
+{
+  "profile": "memory_check_report_v1",
+  "schema_version": 1,
+  "runtime": "fisics_memory_check",
+  "trigger": "manual",
+  "summary": {
+    "active": 1,
+    "leaked_bytes": 21,
+    "allocs": 1,
+    "frees": 0,
+    "double_free": 0,
+    "unknown_free": 0,
+    "tracker_failures": 0
+  },
+  "leaks": [
+    {
+      "size": 21,
+      "allocated_at": {
+        "file": "app.c",
+        "line": 4
+      }
+    }
+  ]
+}
+```
+
+### Current Checks
+
+The current implementation detects or reports:
+
+- successful `malloc`, `calloc`, and `realloc` allocations
+- successful `free` releases
+- `free(NULL)` as a normal no-op
+- double free at free time
+- unknown-pointer free at free time
+- automatic exit summaries after tracked activity
+- manual summaries through `__fisics_memcheck_report()`
+- duplicate exit-report suppression after an unchanged manual report
+- report policy control through `FISICS_MEMCHECK_REPORT`
+- optional JSON sidecar reports through `FISICS_MEMCHECK_REPORT_JSON`
+- allocation/free source labels for direct compiler-rewritten calls
+- live allocation count and leaked-byte summary
+- deterministic successful `realloc` accounting
+
+### Current Limits
+
+Memory-check is not an AddressSanitizer replacement.
+
+Current limits:
+
+- no default-mode behavior change
+- not included in `--overlay=all`
+- no general use-after-free detection for ordinary reads/writes after `free`
+- no redzones or heap poisoning
+- no bounds checking for `memcpy`, `memmove`, `strcpy`, or similar functions
+- no stack allocation or `alloca` tracking
+- no custom allocator tracking
+- no allocator calls through function pointers
+- no thread-safety guarantee for the runtime tracker
+- no frontend/IDE exported memory diagnostics lane yet
+
+The useful first interpretation is "allocation/free lifecycle diagnostics for
+direct standard allocator calls." Stronger runtime safety work should be added
+as later opt-in behavior, not by changing default C compilation.
+
+### Validation Target
+
+Maintainers touching this overlay should run:
+
+```bash
+make memory-check-test
+```
+
+That structured lane runs overlay parsing, runtime skeleton, direct-call
+rewrite, driver auto-link, behavioral canaries, and the focused final manifest.
+The canaries exercise the public `--overlay=memory-check` driver path and check
+clean allocation/free, `free(NULL)`, leak summaries, automatic exit reports,
+report policy controls, source labels, double-free diagnostics,
+unknown-pointer free diagnostics, and successful `realloc` accounting.
+`final-memory-check` remains available as the focused bucket-14 final manifest
+target. Default examples remain separate:
+
+```bash
+make examples
+```
+
+To see the report shape in a small intentional-leak demo:
+
+```bash
+make examples-memory-check
+```
 
 ## Physics Units Overlay
 

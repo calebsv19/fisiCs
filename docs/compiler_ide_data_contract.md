@@ -24,6 +24,11 @@ Primary consumer lanes:
 - `ide/src/core/Analysis/project_scan.c`
 - `ide/src/core/Analysis/fisics_bridge.c`
 
+Runtime overlay reports, including the memory-check
+`memory_check_report_v1` JSON sidecar, are intentionally outside this compiler
+analysis contract. They are not emitted by `--emit-diags-json`,
+`--emit-diags-pack`, or the IDE frontend bridge.
+
 ### Payload Groups
 
 `FisicsAnalysisResult` contains:

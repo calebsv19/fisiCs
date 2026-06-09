@@ -1,0 +1,2 @@
+[fisics:memory-check] summary: active=1 leaked_bytes=13 allocs=1 frees=0 double_free=0 unknown_free=0 tracker_failures=0
+[fisics:memory-check] leak: size=13 allocated_at=14__runtime_memory_check_leak_report.c:6
