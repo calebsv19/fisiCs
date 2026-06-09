@@ -386,7 +386,10 @@ LLVMTypeRef cg_get_intptr_type(CodegenContext* ctx) {
     if (ctx && ctx->module) {
         LLVMTargetDataRef layout = LLVMGetModuleDataLayout(ctx->module);
         if (layout) {
-            return LLVMIntPtrType(layout);
+            unsigned pointerBytes = LLVMPointerSize(layout);
+            if (pointerBytes == 4u || pointerBytes == 8u || pointerBytes == 16u) {
+                return LLVMIntTypeInContext(ctx->llvmContext, pointerBytes * 8u);
+            }
         }
     }
     LLVMContextRef llvmCtx = cg_context_get_llvm_context(ctx);
@@ -451,6 +454,12 @@ LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
     }
     if (passIndirect && valueType) {
         return LLVMPointerType(valueType, 0);
+    }
+    if (valueType) {
+        LLVMTypeKind kind = LLVMGetTypeKind(valueType);
+        if (kind == LLVMStructTypeKind || kind == LLVMArrayTypeKind) {
+            return cg_coerce_function_return_type(ctx, valueType);
+        }
     }
     return valueType;
 }

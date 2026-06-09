@@ -705,11 +705,26 @@ void pp_report_diag(Preprocessor* pp,
     char buffer[512];
     vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
-    compiler_report_diag(pp->ctx,
-                         loc,
-                         kind,
-                         code,
-                         NULL,
-                         "%s",
-                         buffer);
+    const char* include_files[64];
+    const char* include_origins[64];
+    size_t include_count = 0u;
+    if (pp->includeStack.depth > 1u) {
+        size_t limit = pp->includeStack.depth;
+        if (limit > 64u) limit = 64u;
+        for (size_t i = 0; i < limit; ++i) {
+            include_files[i] = pp->includeStack.frames[i].path;
+            include_origins[i] = "unknown";
+        }
+        include_count = limit;
+    }
+    compiler_report_diag_with_include_stack(pp->ctx,
+                                            loc,
+                                            kind,
+                                            code,
+                                            NULL,
+                                            include_files,
+                                            include_origins,
+                                            include_count,
+                                            "%s",
+                                            buffer);
 }

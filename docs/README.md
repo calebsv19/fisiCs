@@ -2,7 +2,7 @@
 
 This directory is the public documentation lane for `fisiCs`.
 It is intentionally focused on stable user/contributor references.
-Last audited: 2026-05-17.
+Last audited: 2026-06-08.
 
 ## Repository Entry
 
@@ -12,6 +12,15 @@ Last audited: 2026-05-17.
 ## Top Level
 
 - `00_docs_index.md`: primary table of contents for all Markdown docs in `docs/`
+- `supported_feature_matrix.md`: current public support boundary for default C,
+  headers/runtime, compile/link behavior, build-graph/local-manifest dry-run
+  tooling scope, behavior policy, and extension limits
+- `first_user_path.md`: shortest supported path from build to hello world,
+  multi-TU compile/link smoke, physics-units pilot, and minimum smoke gates
+- `release_confidence_checklist.md`: smaller contributor-facing release
+  readiness checklist
+- memory-check validation has a focused structured lane:
+  `make memory-check-test`
 - `public_roadmap.md`: high-level public roadmap and current focus areas
 - `contributor_agent_quickstart.md`: concise operating flow for contributors and automated tooling
 - `compiler_test_system_rearchitecture_context.md`: core constraints and end-state targets for test architecture
@@ -23,17 +32,23 @@ Last audited: 2026-05-17.
 - `compiler_test_workflow_guide.md`: operator guide for bucket-by-bucket validation/fix workflows
 - `validation_workflow.md`: full-project validation workflow for external program compile checks
 - `frontend_api.md`: reusable frontend library API notes
-- `extension_overlays.md`: public reference for opt-in overlay lanes and the
-  current physics-units surface, including canonical unit naming, bounded
-  practical family coverage, explicit conversion-only policy, and the public
-  pilot/helper references for agents and users
+- `extension_overlays.md`: public reference for opt-in overlay lanes, including
+  the physics-units surface and the explicit memory-check runtime diagnostics
+  overlay
 - `compiler_ide_data_contract.md`: versioned compiler-to-IDE communication contract (current: `fisiCs.analysis.contract` `1.7.0`)
+- build graph JSON now carries compact diagnostic summaries while full
+  diagnostic payloads remain in the dedicated diagnostics JSON/pack lanes
 - `cli_release_workflow.md`: CLI release packaging/sign/notarize flow for macOS artifacts
 - `make_final_timing_log.md`: public timing-baseline lane and monitored broad-run policy for `make final`
 
 Public example references live under `examples/`:
 - `examples/README.md`: top-level examples lane
+- `examples/canaries/README.md`: practical public canaries for multi-TU,
+  libc/string parsing, and numeric/math behavior
 - `examples/physics_units/README.md`: first public pilot for the physics-units overlay
+
+Public compile/link smoke fixtures also live under `compilation/`:
+- `compilation/README.md`: single-file and multi-TU public smoke path
 
 Additional public testing references live outside `docs/` under `tests/final/`:
 - bucket scope references (for example `tests/final/11-functions-calls.md`, `tests/final/12-diagnostics-recovery.md`)

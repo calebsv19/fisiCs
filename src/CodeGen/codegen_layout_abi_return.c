@@ -4,8 +4,8 @@
 
 #include <stdlib.h>
 
-static bool cg_abi_return_contains_fp_or_vector(LLVMTypeRef type, unsigned depth) {
-    if (!type || depth > 8u) return false;
+static bool cg_abi_type_is_fp_or_vector(LLVMTypeRef type) {
+    if (!type) return false;
     switch (LLVMGetTypeKind(type)) {
         case LLVMHalfTypeKind:
         case LLVMFloatTypeKind:
@@ -16,8 +16,17 @@ static bool cg_abi_return_contains_fp_or_vector(LLVMTypeRef type, unsigned depth
         case LLVMVectorTypeKind:
         case LLVMScalableVectorTypeKind:
             return true;
+        default:
+            return false;
+    }
+}
+
+static bool cg_abi_aggregate_all_fp_or_vector(LLVMTypeRef type, unsigned depth) {
+    if (!type || depth > 8u) return false;
+    if (cg_abi_type_is_fp_or_vector(type)) return true;
+    switch (LLVMGetTypeKind(type)) {
         case LLVMArrayTypeKind:
-            return cg_abi_return_contains_fp_or_vector(LLVMGetElementType(type), depth + 1u);
+            return cg_abi_aggregate_all_fp_or_vector(LLVMGetElementType(type), depth + 1u);
         case LLVMStructTypeKind: {
             unsigned count = LLVMCountStructElementTypes(type);
             if (count == 0) {
@@ -25,44 +34,53 @@ static bool cg_abi_return_contains_fp_or_vector(LLVMTypeRef type, unsigned depth
             }
             LLVMTypeRef* elems = (LLVMTypeRef*)calloc(count, sizeof(LLVMTypeRef));
             if (!elems) {
-                return true;
+                return false;
             }
             LLVMGetStructElementTypes(type, elems);
-            bool hasFloat = false;
+            bool allFp = true;
             for (unsigned i = 0; i < count; ++i) {
-                if (cg_abi_return_contains_fp_or_vector(elems[i], depth + 1u)) {
-                    hasFloat = true;
+                if (!cg_abi_aggregate_all_fp_or_vector(elems[i], depth + 1u)) {
+                    allFp = false;
                     break;
                 }
             }
             free(elems);
-            return hasFloat;
+            return allFp;
         }
         default:
             return false;
     }
 }
 
+static LLVMTypeRef cg_coerce_small_mixed_aggregate_abi_type(CodegenContext* ctx,
+                                                            LLVMTypeRef aggregateType) {
+    if (!ctx || !aggregateType) return aggregateType;
+    LLVMTypeKind kind = LLVMGetTypeKind(aggregateType);
+    if (kind != LLVMStructTypeKind && kind != LLVMArrayTypeKind) {
+        return aggregateType;
+    }
+    LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+    if (!td || !LLVMTypeIsSized(aggregateType)) {
+        return aggregateType;
+    }
+    uint64_t size = LLVMABISizeOfType(td, aggregateType);
+    if (size == 0 || size > 16) {
+        return aggregateType;
+    }
+    if (cg_abi_aggregate_all_fp_or_vector(aggregateType, 0u)) {
+        return aggregateType;
+    }
+    if (size <= 8) {
+        return LLVMInt64TypeInContext(ctx->llvmContext);
+    }
+    return LLVMArrayType(LLVMInt64TypeInContext(ctx->llvmContext), 2);
+}
+
 LLVMTypeRef cg_coerce_function_return_type(CodegenContext* ctx, LLVMTypeRef returnType) {
     if (!ctx || !returnType) {
         return returnType;
     }
-    LLVMTypeKind kind = LLVMGetTypeKind(returnType);
-    if (kind != LLVMStructTypeKind && kind != LLVMArrayTypeKind) {
-        return returnType;
-    }
-    LLVMTargetDataRef td = ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
-    if (!td || !LLVMTypeIsSized(returnType)) {
-        return returnType;
-    }
-    uint64_t size = LLVMABISizeOfType(td, returnType);
-    if (size == 0 || size > 8) {
-        return returnType;
-    }
-    if (cg_abi_return_contains_fp_or_vector(returnType, 0u)) {
-        return returnType;
-    }
-    return LLVMIntTypeInContext(ctx->llvmContext, (unsigned)(size * 8u));
+    return cg_coerce_small_mixed_aggregate_abi_type(ctx, returnType);
 }
 
 bool cg_should_lower_variadic_sret(CodegenContext* ctx,

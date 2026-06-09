@@ -555,7 +555,7 @@ final-timing-sync: final-monitored final-timing-sync-db final-timing-rollup
 run: src/Lexer/keyword_lookup.c $(BIN)
 	@MallocNanoZone=0 ./$(BIN)
 
-examples: $(BIN) examples-hello examples-sdl examples-physics-units
+examples: $(BIN) examples-hello examples-canaries examples-sdl examples-physics-units
 
 examples-hello: $(BIN)
 	@mkdir -p $(EXAMPLES_BUILD_DIR)
@@ -581,6 +581,16 @@ examples-memory-check: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@mkdir -p $(EXAMPLES_BUILD_DIR)/memory_check
 	@./$(BIN) --overlay=memory-check $(EXAMPLES_DIR)/memory_check/leak_demo.c -o $(EXAMPLES_BUILD_DIR)/memory_check/leak_demo
 	@./$(EXAMPLES_BUILD_DIR)/memory_check/leak_demo
+
+examples-canaries: $(BIN)
+	@mkdir -p $(EXAMPLES_BUILD_DIR)/canaries
+	@./$(BIN) $(EXAMPLES_DIR)/canaries/multitu_app.c $(EXAMPLES_DIR)/canaries/multitu_lib.c -o $(EXAMPLES_BUILD_DIR)/canaries/multitu
+	@./$(EXAMPLES_BUILD_DIR)/canaries/multitu
+	@./$(BIN) $(EXAMPLES_DIR)/canaries/libc_string_parser.c -o $(EXAMPLES_BUILD_DIR)/canaries/libc_string_parser
+	@./$(EXAMPLES_BUILD_DIR)/canaries/libc_string_parser
+	@./$(BIN) $(EXAMPLES_DIR)/canaries/numeric_math.c -lm -o $(EXAMPLES_BUILD_DIR)/canaries/numeric_math
+	@./$(EXAMPLES_BUILD_DIR)/canaries/numeric_math
+	@echo "Built practical canaries under $(EXAMPLES_BUILD_DIR)/canaries"
 
 union-decl: $(BIN)
 	@./tests/parser/run_union_decl.sh ./$(BIN)
@@ -1205,7 +1215,7 @@ realproj-stage-f:
 tests: test frontend-api-test
 
 # === Phony Targets ===
-.PHONY: all clean run examples examples-hello examples-sdl examples-physics-units \
+.PHONY: all clean run examples examples-hello examples-sdl examples-physics-units examples-canaries \
         release-clean release-contract release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
         release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
         release-sign release-notarize release-verify release-pkg release-all \

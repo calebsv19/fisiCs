@@ -266,11 +266,11 @@
     "12-diagnostics-recovery-wave12-line-directive-for-missing-rparen-parity.json",
     "12-diagnostics-recovery-wave13-line-directive-missing-body-recovery-parity.json",
     "12-diagnostics-recovery-wave14-line-directive-switch-do-missing-body-parity.json",
-  "12-diagnostics-recovery-wave15-mixed-followup-diagnostics.json",
-  "12-diagnostics-recovery-wave16-line-directive-mixed-followup-parity.json",
-  "12-diagnostics-recovery-wave17-line-directive-mixed-cascade-followup-parity.json",
-  "12-diagnostics-recovery-wave18-mixed-followup-diagjson.json",
-  "12-diagnostics-recovery-wave19-line-directive-mixed-followup-diagjson.json",
+    "12-diagnostics-recovery-wave15-mixed-followup-diagnostics.json",
+    "12-diagnostics-recovery-wave16-line-directive-mixed-followup-parity.json",
+    "12-diagnostics-recovery-wave17-line-directive-mixed-cascade-followup-parity.json",
+    "12-diagnostics-recovery-wave18-mixed-followup-diagjson.json",
+    "12-diagnostics-recovery-wave19-line-directive-mixed-followup-diagjson.json",
     "12-diagnostics-recovery-wave20-line-directive-mixed-cascade-diagjson.json",
     "12-diagnostics-recovery-wave21-line-directive-mixed-followup-pdiag.json",
     "12-diagnostics-recovery-wave22-line-directive-mixed-cascade-pdiag.json",
@@ -896,6 +896,8 @@
     "14-runtime-surface-wave319-header-stdlib-alloc-exit-runtime-promotion.json",
     "14-runtime-surface-wave320-header-time-fixed-format-runtime-promotion.json",
     "14-runtime-surface-wave321-header-wstdio-format-scan-runtime-promotion.json",
-    "14-runtime-surface-wave322-header-stdlib-env-perror-runtime-promotion.json"
+    "14-runtime-surface-wave322-header-stdlib-env-perror-runtime-promotion.json",
+    "14-runtime-surface-wave323-header-math-loop-edge-runtime-promotion.json",
+    "14-runtime-surface-memory-check-overlay-runtime-contract.json"
   ]
 }

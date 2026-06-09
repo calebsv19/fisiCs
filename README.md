@@ -1,24 +1,39 @@
 # fisiCs Compiler
 
-`fisiCs` is an experimental C compiler project (C99 baseline, trending toward C17) with a layered, fail-closed test system and active external-program validation.
+`fisiCs` is an experimental C compiler project with a C99-oriented baseline,
+active hardening toward broader C17-compatible behavior, a fail-closed test
+system, and real-project validation.
 
-The current priority is compiler correctness, stability, and reproducible behavior on real programs. After core compiler maturity is stronger, the project direction expands toward physics-oriented language metadata and stricter IDE-integrated analysis workflows.
+The current public contract is "default C first, extensions opt-in." The
+project priority is correctness, stability, and reproducible behavior on real
+programs before broader language or tooling ambitions.
+
+## Start Here
+
+- Current support boundary:
+  [`docs/supported_feature_matrix.md`](docs/supported_feature_matrix.md)
+- Shortest successful user path:
+  [`docs/first_user_path.md`](docs/first_user_path.md)
+- Smaller release-ready checkpoint flow:
+  [`docs/release_confidence_checklist.md`](docs/release_confidence_checklist.md)
+- Overlay contract:
+  [`docs/extension_overlays.md`](docs/extension_overlays.md)
 
 ## Current Status
 
 - Active development; not yet a finished production compiler.
-- Core compiler test suite entrypoint: `make final` (manifest/source-of-truth lives under `tests/final/meta/`, indexed by `tests/final/meta/index.json`).
-- Bucketed compiler coverage: lexer, preprocessor, parser, semantics, codegen, runtime, torture/differential
-- Recent stabilization work landed for bucket `10` multitu linkage lanes and bucket `13`/`14` probe+fix lanes, with bucket `15` probe deepening active.
-- Binary validation lane: active and expanded (SDL, ABI, linkage, stdio, math, corpus, clang differential)
-- Real-project validation ladder (`tests/real_projects/`) is active through Stages `A`..`F` with closed lanes for:
-  - `datalab`, `workspace_sandbox`, `mem_console`, `line_drawing`, `ray_tracing`, `physics_sim`, `map_forge`, `ide`
-  - active onboarding lane: `daw` Stage A
-- `Checkpoint Validated Program Lanes` (`2026-04-15`) expanded regression fixtures and added mem_console diagnostic capture/rebuild helpers under `scripts/`
-- Shared subtree adoption is active via `third_party/codework_shared/` with corresponding build/CI lane alignment.
+- Default mode remains ordinary C compilation.
+- Core compiler trust lanes cover lexer, preprocessor, parser, semantics,
+  codegen, runtime, and differential surfaces.
+- Host-available standard-header runtime/header coverage is green through Wave
+  `323` on the current validation host.
+- Real-project validation currently records Stages `A` through `F` closed for
+  the current validated project set, with no active open risk in the saved
+  reports.
 - `clang` remains a baseline reference compiler while `fisiCs` continues hardening.
-- The extension-overlay framework is live behind explicit opt-in flags; the first public lane is physics-units metadata/checking via `[[fisics::dim(...)]]`.
-- A public physics-units pilot example now lives under `examples/physics_units/`.
+- The extension-overlay framework is live behind explicit opt-in flags; the
+  first public lane is physics-units metadata/checking via
+  `[[fisics::dim(...)]]`.
 
 ## Build
 
@@ -41,8 +56,12 @@ This builds:
 ## Limitations and Maturity
 
 - Experimental project: expect rough edges and active behavior changes.
-- Some surfaces are still expanding and may have incomplete diagnostics parity.
-- Development is quality-first and test-driven; broad feature additions are secondary to compiler reliability.
+- Some surfaces are still expanding and do not yet claim full diagnostics
+  parity.
+- The user-facing support boundary is documented in
+  [`docs/supported_feature_matrix.md`](docs/supported_feature_matrix.md).
+- Development is quality-first and test-driven; broad feature additions remain
+  secondary to compiler reliability.
 
 ## Quick Usage
 
@@ -55,7 +74,24 @@ This builds:
 
 # include/lib paths
 ./fisics -Iinclude -L/path/to/lib -lm main.c -o app
+
+# source-level build graph JSON
+./fisics --emit-build-graph-json graph.json -Iinclude main.c
+
+# local manifest dry-run build graph JSON
+./fisics --build-manifest project.json --dry-run --json \
+  --emit-build-graph-json graph.json
+
+# local manifest compile database export
+./fisics --build-manifest project.json --emit-compile-db compile_commands.json
+
+# local manifest build execution
+./fisics --build-manifest project.json
 ```
+
+Build graph JSON includes a compact `diagnostic_summary` object at the graph
+and translation-unit levels. It carries counts and `partial` / `fatal` state;
+full diagnostic payloads stay in `--emit-diags-json` / `--emit-diags-pack`.
 
 Useful flags:
 
@@ -63,16 +99,26 @@ Useful flags:
 - `--dump-sema`
 - `--dump-ir`
 - `--dump-layout`
+- `--emit-build-graph-json <path>`
+- `--build-manifest <path> --dry-run --json`
+- `--emit-compile-db <path>` with `--build-manifest`
 - `--target=<triple>`
 - `--data-layout=<layout>`
 
 Overlay-specific flags:
 
 - `--overlay=physics-units`
+- `--overlay=memory-check`
 - `--overlay=ide-metadata`
 - `--overlay=all`
 
+`memory-check` is explicit opt-in allocation/free lifecycle diagnostics and is
+not included in `--overlay=all`.
+
 The current overlay model is documented in [`docs/extension_overlays.md`](docs/extension_overlays.md).
+
+For the clean-user path from clone to first successful examples, use
+[`docs/first_user_path.md`](docs/first_user_path.md).
 
 ## CLI Release Packaging (macOS)
 
@@ -99,6 +145,7 @@ Primary entrypoints:
 # compiler suite
 make test
 make final
+make memory-check-test
 
 # focused probe lane (outside make final)
 python3 tests/final/probes/run_probes.py
@@ -119,12 +166,17 @@ make realproj-stage-f REAL_PROJECT=<project>
 
 The harness is auto-discovery based, non-destructive by default, and designed to fail closed.
 
+For the smaller release/user-facing checkpoint flow, use
+[`docs/release_confidence_checklist.md`](docs/release_confidence_checklist.md).
+
 ## Repository Layout
 
 - `src/`: compiler implementation (lexer, parser, semantics, codegen, frontend)
 - `include/`: local include fixtures and test-support headers
 - `tests/`: harnesses, suites, final/binary manifests, expectations
-- `examples/`: minimal runnable examples (`hello_world`, SDL loop, physics-units pilot)
+- `examples/`: runnable examples and practical canaries (`hello_world`,
+  multi-TU/libc/math canaries, SDL loop, physics-units pilot, opt-in
+  memory-check leak demo)
 - `docs/`: public project docs and validation references
 - `compilation/`: quick compile/link examples and scripts
 - `makefile`: build and test entrypoints
@@ -133,9 +185,13 @@ The harness is auto-discovery based, non-destructive by default, and designed to
 
 - Compiler/testing docs index: [`docs/00_docs_index.md`](docs/00_docs_index.md)
 - Docs layout guide: [`docs/README.md`](docs/README.md)
+- Supported feature matrix: [`docs/supported_feature_matrix.md`](docs/supported_feature_matrix.md)
+- First user path: [`docs/first_user_path.md`](docs/first_user_path.md)
+- Release confidence checklist: [`docs/release_confidence_checklist.md`](docs/release_confidence_checklist.md)
 - Contributor/agent quickstart: [`docs/contributor_agent_quickstart.md`](docs/contributor_agent_quickstart.md)
 - Public roadmap: [`docs/public_roadmap.md`](docs/public_roadmap.md)
 - Examples quickstart: [`examples/README.md`](examples/README.md)
+- Practical public canaries: [`examples/canaries/README.md`](examples/canaries/README.md)
 - Physics-units pilot example: [`examples/physics_units/README.md`](examples/physics_units/README.md)
 - Test-system re-architecture context: [`docs/compiler_test_system_rearchitecture_context.md`](docs/compiler_test_system_rearchitecture_context.md)
 - Test workflow guide: [`docs/compiler_test_workflow_guide.md`](docs/compiler_test_workflow_guide.md)

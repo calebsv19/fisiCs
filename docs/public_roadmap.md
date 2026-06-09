@@ -1,17 +1,19 @@
 # fisiCs Public Roadmap
 
-Last updated: 2026-05-01.
+Last updated: 2026-06-08.
 
 ## Current Focus
 
 - Maintain compiler correctness and stability on real project workloads.
 - Expand and harden test coverage across parser, semantics, codegen, and runtime behavior.
-- Continue external-program validation while preserving deterministic, reproducible diagnostics.
-- Drive higher-stress validation campaigns across runtime, linkage, ABI, and diagnostics parity surfaces.
+- Continue external-program validation while preserving deterministic,
+  reproducible diagnostics.
+- Prepare the IDE analysis bridge to consume the completed local build graph
+  and diagnostics explainability surfaces.
 
 ## Near-Term Priorities
 
-- Improve diagnostics quality and failure-mode clarity.
+- Keep the additive diagnostics contract stable while expanding consumer usage.
 - Reduce known edge-case gaps identified by regression and probe backlogs.
 - Keep binary validation lanes healthy (`SDL`, `ABI`, `linkage`, `stdio`, `math`, differential).
 - Promote newly validated stress scenarios into stable final-manifest coverage.
@@ -28,6 +30,9 @@ Last updated: 2026-05-01.
 - Extend the new overlay framework through physics-units semantics, broader
   practical unit coverage, and IDE-consumable metadata while keeping those
   features explicitly opt-in.
+- Use build graph diagnostic summaries, diagnostic explanations,
+  include/macro context, units details, and memory-check report sidecars as
+  inputs to the next IDE bridge refresh.
 
 ## Long-Term Direction
 

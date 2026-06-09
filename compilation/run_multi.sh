@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BIN="${1:-./compiler}"
+BIN="${1:-./fisics}"
 OUT_DIR="compilation/out"
 OUT_BIN="$OUT_DIR/multi_bin"
 

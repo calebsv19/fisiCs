@@ -5,15 +5,47 @@ This directory contains minimal runnable examples for `fisiCs`.
 ## Files
 
 - `hello_world.c`: basic stdout example
+- `canaries/`: practical public canaries for multi-TU compile/link,
+  libc/string parsing, and numeric/math behavior
+- `memory_check/`: explicitly opt-in leak demo for the memory-check overlay
 - `sdl_window_loop.c`: SDL window with event loop and animated clear color
 - `physics_units/`: public pilot lane for the physics-units overlay
 
-## Build Both Examples
+## Build Examples And Practical Canaries
 
 ```bash
 cd /Users/calebsv/Desktop/CodeWork/fisiCs
 make examples
 ```
+
+## Run Practical Canaries
+
+```bash
+cd /Users/calebsv/Desktop/CodeWork/fisiCs
+make examples-canaries
+```
+
+Expected output includes:
+
+```text
+canary multitu: base=14 adjusted=17 label=ok
+canary libc-string: fields=3 mass=12 velocity=34 tag=OK42 checksum=256
+canary numeric-math: exp=6 scaled=48 rem=1 quotient=8 sign=1 max=48
+```
+
+For more detail, see [canaries/README.md](./canaries/README.md).
+
+## Run Memory-Check Leak Demo
+
+```bash
+cd /Users/calebsv/Desktop/CodeWork/fisiCs
+make examples-memory-check
+```
+
+This target intentionally leaks one allocation and prints the memory-check
+runtime report. It is opt-in and is not part of default `make examples`.
+
+For more detail, see [memory_check/README.md](./memory_check/README.md).
 
 ## Build And Run: Physics Units Pilot
 
@@ -42,6 +74,23 @@ cd /Users/calebsv/Desktop/CodeWork/fisiCs
 ./build/examples/hello_world
 ```
 
+## Build and Run: Multi-TU Smoke
+
+Use the public compile/link fixtures under `compilation/`:
+
+```bash
+cd /Users/calebsv/Desktop/CodeWork/fisiCs
+./fisics compilation/multi_main.c compilation/multi_helper.c -o compilation/out/multi_bin
+./compilation/out/multi_bin
+```
+
+You can also use:
+
+```bash
+cd /Users/calebsv/Desktop/CodeWork/fisiCs
+./compilation/run_multi.sh ./fisics
+```
+
 ## Build and Run: SDL Window Loop
 
 Requires SDL2 development libraries.
@@ -60,3 +109,5 @@ Press `Esc` or close the window to exit.
 
 - The SDL example uses clang for final linking in this README to keep environment setup straightforward.
 - If your local `fisics` link flow is configured for SDL2, you can also link directly with `fisics`.
+- The clean-user path for these examples is summarized in
+  [../docs/first_user_path.md](../docs/first_user_path.md).

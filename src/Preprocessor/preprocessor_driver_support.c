@@ -78,6 +78,31 @@ bool pp_skip_pragma_operator(const Token* tokens,
     return true;
 }
 
+static void pp_report_macro_trace_diag(Preprocessor* pp,
+                                       SourceRange callSite,
+                                       const char* macroName,
+                                       SourceRange definitionRange,
+                                       const char* message) {
+    const char* macro_names[2] = { macroName, macroName };
+    const char* macro_roles[2] = { "call_site", "definition" };
+    SourceRange macro_ranges[2] = { callSite, definitionRange };
+    size_t macro_count = 1u;
+    if (definitionRange.start.file || definitionRange.start.line > 0 || definitionRange.start.column > 0) {
+        macro_count = 2u;
+    }
+    compiler_report_diag_with_macro_trace(pp->ctx,
+                                          callSite,
+                                          DIAG_ERROR,
+                                          CDIAG_PREPROCESSOR_GENERIC,
+                                          NULL,
+                                          macro_names,
+                                          macro_roles,
+                                          macro_ranges,
+                                          macro_count,
+                                          "%s",
+                                          message ? message : "macro expansion failed");
+}
+
 static bool pp_flush_chunk(Preprocessor* pp,
                            PPTokenBuffer* chunk,
                            PPTokenBuffer* output) {
@@ -97,17 +122,19 @@ static bool pp_flush_chunk(Preprocessor* pp,
             const char* macroName = (expandErr.macro && expandErr.macro->name)
                 ? expandErr.macro->name
                 : "<macro>";
-            Token tmp = {0};
-            tmp.location = expandErr.callSite;
+            char diagMessage[256];
             if (expandErr.variadic) {
-                pp_report_diag(pp,
-                               &tmp,
-                               DIAG_ERROR,
-                               CDIAG_PREPROCESSOR_GENERIC,
-                               "macro '%s' requires at least %zu argument(s), got %zu",
-                               macroName,
-                               expandErr.expectedArgs,
-                               expandErr.providedArgs);
+                snprintf(diagMessage,
+                         sizeof(diagMessage),
+                         "macro '%s' requires at least %zu argument(s), got %zu",
+                         macroName,
+                         expandErr.expectedArgs,
+                         expandErr.providedArgs);
+                pp_report_macro_trace_diag(pp,
+                                           expandErr.callSite,
+                                           macroName,
+                                           expandErr.macro ? expandErr.macro->definitionRange : (SourceRange){0},
+                                           diagMessage);
                 fprintf(stderr, "%s:%d:%d: error: macro '%s' requires at least %zu argument(s), got %zu\n",
                         expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
                         expandErr.callSite.start.line,
@@ -116,14 +143,17 @@ static bool pp_flush_chunk(Preprocessor* pp,
                         expandErr.expectedArgs,
                         expandErr.providedArgs);
             } else {
-                pp_report_diag(pp,
-                               &tmp,
-                               DIAG_ERROR,
-                               CDIAG_PREPROCESSOR_GENERIC,
-                               "macro '%s' requires %zu argument(s), got %zu",
-                               macroName,
-                               expandErr.expectedArgs,
-                               expandErr.providedArgs);
+                snprintf(diagMessage,
+                         sizeof(diagMessage),
+                         "macro '%s' requires %zu argument(s), got %zu",
+                         macroName,
+                         expandErr.expectedArgs,
+                         expandErr.providedArgs);
+                pp_report_macro_trace_diag(pp,
+                                           expandErr.callSite,
+                                           macroName,
+                                           expandErr.macro ? expandErr.macro->definitionRange : (SourceRange){0},
+                                           diagMessage);
                 fprintf(stderr, "%s:%d:%d: error: macro '%s' requires %zu argument(s), got %zu\n",
                         expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
                         expandErr.callSite.start.line,
@@ -136,13 +166,14 @@ static bool pp_flush_chunk(Preprocessor* pp,
             return false;
         }
         if (expandErr.kind == ME_ERR_UNSUPPORTED_GNU_COMMA_VA_ARGS) {
-            Token tmp = {0};
-            tmp.location = expandErr.callSite;
-            pp_report_diag(pp,
-                           &tmp,
-                           DIAG_ERROR,
-                           CDIAG_PREPROCESSOR_GENERIC,
-                           "GNU ', ##__VA_ARGS__' extension is not supported");
+            const char* macroName = (expandErr.macro && expandErr.macro->name)
+                ? expandErr.macro->name
+                : "<macro>";
+            pp_report_macro_trace_diag(pp,
+                                       expandErr.callSite,
+                                       macroName,
+                                       expandErr.macro ? expandErr.macro->definitionRange : (SourceRange){0},
+                                       "GNU ', ##__VA_ARGS__' extension is not supported");
             fprintf(stderr, "%s:%d:%d: error: GNU ', ##__VA_ARGS__' extension is not supported\n",
                     expandErr.callSite.start.file ? expandErr.callSite.start.file : "<unknown>",
                     expandErr.callSite.start.line,
@@ -155,8 +186,6 @@ static bool pp_flush_chunk(Preprocessor* pp,
         if (err == MT_ERR_RECURSION || err == MT_ERR_DEPTH || err == MT_ERR_NONE) {
             const char* macroName = (top && top->macro && top->macro->name) ? top->macro->name : "<macro>";
             SourceRange loc = top ? top->callSiteRange : (SourceRange){0};
-            Token tmp = {0};
-            tmp.location = loc;
             const char* msg = "macro recursion detected while expanding '%s'";
             if (err == MT_ERR_DEPTH) {
                 msg = "macro expansion depth exceeded (possible recursion) for '%s'";
@@ -165,12 +194,20 @@ static bool pp_flush_chunk(Preprocessor* pp,
             }
             char buf[256];
             snprintf(buf, sizeof(buf), msg, macroName);
-            pp_report_diag(pp,
-                           top ? &tmp : NULL,
-                           DIAG_ERROR,
-                           CDIAG_PREPROCESSOR_GENERIC,
-                           "%s",
-                           buf);
+            if (top) {
+                pp_report_macro_trace_diag(pp,
+                                           loc,
+                                           macroName,
+                                           top->macro ? top->macro->definitionRange : (SourceRange){0},
+                                           buf);
+            } else {
+                pp_report_diag(pp,
+                               NULL,
+                               DIAG_ERROR,
+                               CDIAG_PREPROCESSOR_GENERIC,
+                               "%s",
+                               buf);
+            }
             const char* path = loc.start.file ? loc.start.file : "<unknown>";
             fprintf(stderr, "%s:%d:%d: error: %s\n",
                     path,

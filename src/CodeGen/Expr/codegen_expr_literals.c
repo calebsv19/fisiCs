@@ -269,6 +269,11 @@ LLVMValueRef codegenSizeof(CodegenContext* ctx, ASTNode* node) {
         }
     }
 
+    LLVMTargetDataRef tdata = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+    if (tdata && LLVMTypeIsSized(type)) {
+        unsigned long long abiSize = LLVMABISizeOfType(tdata, type);
+        return LLVMConstInt(intptrTy, abiSize, 0);
+    }
     return LLVMSizeOf(type);
 }
 

@@ -1,15 +1,19 @@
 # Docs Index
 
 This is the table of contents for the public `docs/` tree in `fisiCs`.
-Last audited: 2026-05-12.
+Last audited: 2026-06-08.
 
 ## Start Here
 
 1. `README.md`
-2. `docs/contributor_agent_quickstart.md`
-3. `docs/public_roadmap.md`
-4. `examples/README.md`
-5. `examples/physics_units/README.md`
+2. `docs/supported_feature_matrix.md`
+3. `docs/first_user_path.md`
+4. `docs/release_confidence_checklist.md`
+5. `docs/contributor_agent_quickstart.md`
+6. `docs/public_roadmap.md`
+7. `examples/README.md`
+8. `examples/canaries/README.md`
+9. `examples/physics_units/README.md`
 
 ## Public Docs In `docs/`
 
@@ -20,6 +24,23 @@ Primary table of contents for the public docs lane.
 ### `docs/README.md`
 
 Public docs layout summary and private-boundary policy.
+
+### `docs/supported_feature_matrix.md`
+
+Current public support boundary for baseline C, header/runtime scope,
+compile/link behavior, build-graph/local-manifest dry-run tooling scope,
+behavior policy, and opt-in extension boundaries.
+
+### `docs/first_user_path.md`
+
+Shortest supported user path from build through hello world, multi-TU smoke,
+physics-units pilot, and minimum smoke validation.
+
+### `docs/release_confidence_checklist.md`
+
+Smaller contributor-facing release-readiness command ladder.
+Memory-check overlay changes use `make memory-check-test` before broader
+runtime-surface gates.
 
 ### `docs/contributor_agent_quickstart.md`
 
@@ -69,12 +90,15 @@ Reference notes for the reusable frontend API/library flow.
 ### `docs/extension_overlays.md`
 
 Public reference for the opt-in extension framework and the current
-physics-units overlay surface, including canonical unit naming, explicit
-conversion boundaries, and the widened family coverage.
+physics-units and memory-check overlay surfaces, including canonical unit
+naming, explicit conversion boundaries, memory-check runtime diagnostics
+limits, and widened unit-family coverage.
 
 ### `docs/compiler_ide_data_contract.md`
 
-Versioned compiler-to-IDE communication contract (schema, stability, compatibility).
+Versioned compiler-to-IDE communication contract (schema, stability,
+compatibility), including current additive diagnostics metadata and explanation
+surfaces.
 
 ### `docs/cli_release_workflow.md`
 

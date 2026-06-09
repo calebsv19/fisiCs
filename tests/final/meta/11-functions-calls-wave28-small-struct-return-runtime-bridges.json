@@ -36,6 +36,25 @@
       "tags": ["aggregate-return", "small-struct", "multitu", "include", "runtime", "wave28", "probe-promotion"],
       "requires": [],
       "status": "ok"
+    },
+    {
+      "id": "11__include_mixed_small_aggregate_abi_bridge_runtime",
+      "bucket": "functions-calls",
+      "input": "cases/11__include_mixed_small_aggregate_abi_bridge_runtime_lib.c",
+      "inputs": [
+        "cases/11__include_mixed_small_aggregate_abi_bridge_runtime_lib.c"
+      ],
+      "mixed_clang_inputs": [
+        "cases/11__include_mixed_small_aggregate_abi_bridge_runtime_main.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["aggregate-return", "aggregate-param", "small-struct", "mixed-clang", "include", "runtime", "wave28"],
+      "requires": [],
+      "status": "ok"
     }
   ]
 }
