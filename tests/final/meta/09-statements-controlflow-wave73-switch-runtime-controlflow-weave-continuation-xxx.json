@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_outer_default_inner_continue_bridge_xv",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_outer_default_inner_continue_bridge_xv.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_outer_default_inner_continue_bridge_xv.stdout",
+      "expected_stderr": "expect/09__runtime__switch_outer_default_inner_continue_bridge_xv.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "continue", "fallthrough", "nested", "wave73"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_inner_default_break_outer_fallthrough_weave_xvi",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_inner_default_break_outer_fallthrough_weave_xvi.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_inner_default_break_outer_fallthrough_weave_xvi.stdout",
+      "expected_stderr": "expect/09__runtime__switch_inner_default_break_outer_fallthrough_weave_xvi.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "break", "fallthrough", "continue", "wave73"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_default_case_continue_skip_mesh_xvii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_default_case_continue_skip_mesh_xvii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_default_case_continue_skip_mesh_xvii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_default_case_continue_skip_mesh_xvii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "continue", "fallthrough", "mesh", "wave73"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

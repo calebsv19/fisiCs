@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_file_scope_union_string_bitfield_current_sparse_pass",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_file_scope_union_string_bitfield_current_sparse_pass.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_file_scope_union_string_bitfield_current_sparse_pass.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "initializer",
+        "runtime",
+        "probe-promotion",
+        "file-scope",
+        "union",
+        "string",
+        "bitfield",
+        "current-sparse",
+        "pass",
+        "wave70"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

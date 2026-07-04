@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__depth_line_directive_agg_dot_scalar_base_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_agg_dot_scalar_base_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_agg_dot_scalar_base_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave67",
+        "current-sparse",
+        "depth",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__depth_line_directive_include_agg_dot_scalar_base_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_agg_dot_scalar_base_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_agg_dot_scalar_base_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave67",
+        "current-sparse",
+        "depth",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__depth_line_directive_agg_arrow_ptr_to_scalar_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_agg_arrow_ptr_to_scalar_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_agg_arrow_ptr_to_scalar_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "line-directive",
+        "diagjson",
+        "wave67",
+        "current-sparse",
+        "depth",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__depth_line_directive_include_agg_arrow_ptr_to_scalar_diagjson_current_sparse",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_line_directive_include_agg_arrow_ptr_to_scalar_rich_presence.c",
+      "expects": [
+        "expect/07__line_directive_include_agg_arrow_ptr_to_scalar_diagjson_current_sparse.diagjson"
+      ],
+      "tags": [
+        "semantic",
+        "aggregate",
+        "member-access",
+        "negative",
+        "include",
+        "line-directive",
+        "diagjson",
+        "wave67",
+        "current-sparse",
+        "depth",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

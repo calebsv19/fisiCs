@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__line_directive_include_stringize_remap",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_include_stringize_remap.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__line_directive_include_stringize_remap.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "stringize", "wave11", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__line_directive_include_nested_stringize_depth",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_include_nested_stringize_depth.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__line_directive_include_nested_stringize_depth.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "stringize", "rescan", "depth", "wave11", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__line_directive_include_tokenpaste_depth",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_include_tokenpaste_depth.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__line_directive_include_tokenpaste_depth.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "token-paste", "depth", "wave11", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+Diagnostics:
+Error at (10001:7): Conflicting types for variable 'wave10_mt_probe_inc_text_shared' across translation units

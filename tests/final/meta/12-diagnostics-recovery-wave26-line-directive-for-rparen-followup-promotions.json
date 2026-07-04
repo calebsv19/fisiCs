@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__line_directive_mixed_for_missing_rparen_then_undeclared_promotions",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_mixed_for_missing_rparen_then_undeclared_diag_text_semantic_followup.c",
+      "expects": [
+        "expect/12__line_directive_mixed_for_missing_rparen_then_undeclared_diag_text_semantic_followup.diag",
+        "expect/12__line_directive_mixed_for_missing_rparen_then_undeclared_diagjson_semantic_followup.diagjson",
+        "expect/12__line_directive_mixed_for_missing_rparen_then_undeclared_pdiag_semantic_followup.pdiag"
+      ],
+      "tags": ["line-directive", "diag", "diagjson", "pdiag", "parser-recovery", "mixed", "semantic-followup", "for", "wave26", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__line_directive_include_mixed_for_missing_rparen_then_undeclared_promotions",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_include_mixed_for_missing_rparen_then_undeclared_diag_text_semantic_followup.c",
+      "expects": [
+        "expect/12__line_directive_include_mixed_for_missing_rparen_then_undeclared_diag_text_semantic_followup.diag",
+        "expect/12__line_directive_include_mixed_for_missing_rparen_then_undeclared_diagjson_semantic_followup.diagjson",
+        "expect/12__line_directive_include_mixed_for_missing_rparen_then_undeclared_pdiag_semantic_followup.pdiag"
+      ],
+      "tags": ["line-directive", "include", "diag", "diagjson", "pdiag", "parser-recovery", "mixed", "semantic-followup", "for", "wave26", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

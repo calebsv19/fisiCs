@@ -360,6 +360,26 @@ RUNTIME_PROBES = [
         ],
     ),
     RuntimeProbe(
+        probe_id='10__probe_multitu_include_extern_scalar_linkorder_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_linkorder_runtime_main.c',
+        note='header-declared extern scalar objects should preserve runtime behavior when sibling helper translation units are linked in canonical order',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_linkorder_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_linkorder_runtime_liba.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_linkorder_runtime_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_extern_scalar_linkorder_runtime_permuted',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_linkorder_runtime_main.c',
+        note='header-declared extern scalar objects should preserve runtime behavior when sibling helper translation units are linked in permuted order',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_linkorder_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_linkorder_runtime_libb.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_scalar_linkorder_runtime_liba.c',
+        ],
+    ),
+    RuntimeProbe(
         probe_id='10__probe_multitu_tentative_array_current_strong_def_runtime',
         source=PROBE_DIR / 'runtime/10__probe_multitu_tentative_array_current_strong_def_runtime_main.c',
         note='tentative array declarations should resolve cleanly against one strong definition across sibling translation units at runtime',

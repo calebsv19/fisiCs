@@ -1,0 +1,43 @@
+{
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "category_id": 4,
+      "category_name": "preprocessor",
+      "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
+      "column": 1,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "include_stack": [
+        {
+          "column": 0,
+          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__line_directive_include_warning_diagjson_filename_current_physical.c",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        },
+        {
+          "column": 0,
+          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__line_directive_include_warning_diagjson_filename_current_physical.h",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        }
+      ],
+      "kind": 1,
+      "length": 8,
+      "line": 616,
+      "severity_id": 1,
+      "severity_name": "warning",
+      "stage": "preprocess"
+    }
+  ],
+  "error_count": 0,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 1
+}

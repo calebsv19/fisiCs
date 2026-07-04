@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__probe_promotion__runtime__struct_return_phi_copy_mesh_runtime",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_struct_return_phi_copy_mesh_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__probe_promotion__runtime__struct_return_phi_copy_mesh_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["ir", "runtime", "probe-promotion", "wave38", "aggregate-return", "phi", "copy"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__probe_promotion__runtime__ptr_stride_call_lowering_mesh_runtime",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_ptr_stride_call_lowering_mesh_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__probe_promotion__runtime__ptr_stride_call_lowering_mesh_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["ir", "runtime", "probe-promotion", "wave38", "pointer", "stride", "call-lowering"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

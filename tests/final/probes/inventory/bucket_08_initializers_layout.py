@@ -312,6 +312,16 @@ RUNTIME_PROBES = [
         note='file-scope pointer plane reset ladders should preserve whole-plane resets and later sparse pointer reseeds across nested aggregates',
     ),
     RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_union_string_bitfield_feedback_mesh',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_union_string_bitfield_feedback_mesh.c',
+        note='strict frontier: file-scope nested initializers should preserve string-byte overrides, whole-union rewrites, sparse zero-fill, and later separate bitfield-field writes',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_file_scope_union_string_bitfield_current_sparse_pass',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_file_scope_union_string_bitfield_current_sparse_pass.c',
+        note='reduced threshold: file-scope nested initializers should preserve string-byte overrides, whole-union rewrites, sparse zero-fill, and whole-bitfield-subobject layout',
+    ),
+    RuntimeProbe(
         probe_id='08__probe_runtime_nested_union_string_member_multireset_cube',
         source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_string_member_multireset_cube.c',
         note='nested union string multireset cubes should preserve repeated active-member switching and later char overrides in reused cells',
@@ -340,6 +350,21 @@ RUNTIME_PROBES = [
         probe_id='08__probe_runtime_designator_overlap_union_struct_plane_ladder',
         source=PROBE_DIR / 'runtime/08__probe_runtime_designator_overlap_union_struct_plane_ladder.c',
         note='union-bearing overlap plane ladders should preserve dominance of later rewrites across row, plane, and cell-level updates',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_zero_fill_ladder_wave71',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_zero_fill_ladder_wave71.c',
+        note='nested aggregate sparse designators should preserve recursive zero-fill across omitted sibling subobjects',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_union_string_continuation_ladder_wave71',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_union_string_continuation_ladder_wave71.c',
+        note='union string initializers with later byte continuations should preserve active-member bytes and zero-filled tail storage',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_union_bitfield_continuation_grid_wave71',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_union_bitfield_continuation_grid_wave71.c',
+        note='union payload plus bitfield subobject continuations should preserve mixed sparse writes and zero-fill in reused aggregate cells',
     ),
 ]
 

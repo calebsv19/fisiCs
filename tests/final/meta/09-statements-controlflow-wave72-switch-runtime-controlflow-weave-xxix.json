@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_default_continue_outer_loop_weave_xii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_default_continue_outer_loop_weave_xii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_default_continue_outer_loop_weave_xii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_default_continue_outer_loop_weave_xii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "continue", "outer-loop", "wave72"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_inner_break_outer_fallthrough_chain_xiii",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_inner_break_outer_fallthrough_chain_xiii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_inner_break_outer_fallthrough_chain_xiii.stdout",
+      "expected_stderr": "expect/09__runtime__switch_inner_break_outer_fallthrough_chain_xiii.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "break", "fallthrough", "outer-chain", "wave72"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_default_fallthrough_continue_break_mesh_xiv",
+      "bucket": "statements-controlflow",
+      "input": "cases/09__runtime__switch_default_fallthrough_continue_break_mesh_xiv.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_default_fallthrough_continue_break_mesh_xiv.stdout",
+      "expected_stderr": "expect/09__runtime__switch_default_fallthrough_continue_break_mesh_xiv.stderr",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "fallthrough", "continue", "break", "wave72", "fix-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -186,14 +186,14 @@ DIAG_JSON_PROBES = [
         probe_id='14__probe_diagjson_multitu_duplicate_external_definition_reject',
         source=PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_main.c',
         note='diagnostics JSON should be exported for multi-TU duplicate external definition link failures',
-        expected_codes=[4001],
+        expected_codes=[7101],
         inputs=[PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_main.c', PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_external_definition_reject_lib.c'],
     ),
     DiagnosticJsonProbe(
         probe_id='14__probe_diagjson_multitu_extern_type_mismatch_reject',
         source=PROBE_DIR / 'diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_main.c',
         note='diagnostics JSON should be exported for multi-TU extern-type mismatch link failures',
-        expected_codes=[4001],
+        expected_codes=[7101],
         inputs=[PROBE_DIR / 'diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_main.c', PROBE_DIR / 'diagnostics/14__probe_diag_multitu_extern_type_mismatch_reject_lib.c'],
     ),
     DiagnosticJsonProbe(
@@ -207,7 +207,7 @@ DIAG_JSON_PROBES = [
         probe_id='14__probe_diagjson_multitu_duplicate_function_definition_reject',
         source=PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_main.c',
         note='diagnostics JSON should be exported for multi-TU duplicate function definition link failures',
-        expected_codes=[4001],
+        expected_codes=[7101],
         inputs=[PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_main.c', PROBE_DIR / 'diagnostics/14__probe_diag_multitu_duplicate_function_definition_reject_lib.c'],
     ),
     DiagnosticJsonProbe(

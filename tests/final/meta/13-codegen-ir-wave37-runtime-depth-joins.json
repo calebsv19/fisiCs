@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__probe_promotion__runtime__fnptr_struct_return_select_runtime",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_fnptr_struct_return_select_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__probe_promotion__runtime__fnptr_struct_return_select_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["ir", "runtime", "probe-promotion", "wave37", "fnptr", "ternary", "aggregate-return"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__probe_promotion__runtime__global_zero_fill_ptr_stride_runtime",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_global_zero_fill_ptr_stride_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__probe_promotion__runtime__global_zero_fill_ptr_stride_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["ir", "runtime", "probe-promotion", "wave37", "global-init", "zero-fill", "ptr-stride", "control-edge"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

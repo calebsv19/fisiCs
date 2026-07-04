@@ -482,6 +482,41 @@ RUNTIME_PROBES = [
         source=CASE_DIR / '09__runtime__switch_nested_default_break_continue_fallthrough_braid_xi.c',
         note='nested switch default-break-continue-fallthrough braid xi should match clang runtime behavior',
     ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_default_continue_outer_loop_weave_xii',
+        source=CASE_DIR / '09__runtime__switch_default_continue_outer_loop_weave_xii.c',
+        note='switch default plus inner continue should continue the enclosing loop and skip trailing post-switch work',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_inner_break_outer_fallthrough_chain_xiii',
+        source=CASE_DIR / '09__runtime__switch_inner_break_outer_fallthrough_chain_xiii.c',
+        note='inner switch break should not stop outer-case fallthrough into later outer switch arms',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_default_fallthrough_continue_break_mesh_xiv',
+        source=CASE_DIR / '09__runtime__switch_default_fallthrough_continue_break_mesh_xiv.c',
+        note='strict frontier: default-before-case fallthrough with continue and break should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_default_fallthrough_continue_break_mesh_xiv_current_sparse_pass',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_default_fallthrough_continue_break_mesh_xiv_current_sparse_pass.c',
+        note='reduced threshold: adjacent continue/break mesh without default-before-case fallthrough should still match clang',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_outer_default_inner_continue_bridge_xv',
+        source=CASE_DIR / '09__runtime__switch_outer_default_inner_continue_bridge_xv.c',
+        note='outer default plus inner default fallthrough should still route continue to the enclosing loop and skip post-switch work',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_inner_default_break_outer_fallthrough_weave_xvi',
+        source=CASE_DIR / '09__runtime__switch_inner_default_break_outer_fallthrough_weave_xvi.c',
+        note='inner default break should not stop outer-case fallthrough, and later continue should still target the loop',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_default_case_continue_skip_mesh_xvii',
+        source=CASE_DIR / '09__runtime__switch_default_case_continue_skip_mesh_xvii.c',
+        note='default-before-case continue mesh should skip trailing per-iteration work while preserving adjacent break arms',
+    ),
 ]
 
 DIAG_PROBES = [

@@ -2,16 +2,16 @@
 
 ## Summary
 
-- Total resolved probe inventory audited: `2359`
-- Promoted stable coverage: `2145`
-- Intentional probe-only coverage: `214`
+- Total resolved probe inventory audited: `2456`
+- Promoted stable coverage: `2252`
+- Intentional probe-only coverage: `204`
 - Missing promotion candidates: `0`
-- Stable final tests scanned: `3746`
+- Stable final tests scanned: `3858`
 
 ### Promoted Match Evidence
 
-- `id`: `986`
-- `path`: `1137`
+- `id`: `1007`
+- `path`: `1223`
 - `stem`: `22`
 
 ### Explicit Probe-Only Reasons
@@ -22,29 +22,28 @@
 - `1`: explicit probe-only note prefix: axis3 wave19 reduced
 - `7`: explicit probe-only note prefix: control lane
 - `8`: explicit probe-only note prefix: current threshold
-- `8`: explicit probe-only note prefix: frontier lane
-- `56`: explicit probe-only note prefix: reduced threshold
-- `4`: explicit probe-only note prefix: regression guard
-- `102`: explicit probe-only note prefix: strict frontier
+- `6`: explicit probe-only note prefix: frontier lane
+- `55`: explicit probe-only note prefix: reduced threshold
+- `99`: explicit probe-only note prefix: strict frontier
 - `4`: explicit probe-only note prefix: text parity guard
 
 ### Bucket Breakdown
 
-- Bucket `01`: promoted `19`, probe-only `0`, missing `0`
-- Bucket `02`: promoted `45`, probe-only `0`, missing `0`
-- Bucket `03`: promoted `41`, probe-only `0`, missing `0`
-- Bucket `04`: promoted `85`, probe-only `2`, missing `0`
-- Bucket `05`: promoted `58`, probe-only `8`, missing `0`
-- Bucket `06`: promoted `12`, probe-only `44`, missing `0`
-- Bucket `07`: promoted `210`, probe-only `0`, missing `0`
-- Bucket `08`: promoted `124`, probe-only `40`, missing `0`
-- Bucket `09`: promoted `219`, probe-only `20`, missing `0`
-- Bucket `10`: promoted `50`, probe-only `33`, missing `0`
-- Bucket `11`: promoted `59`, probe-only `42`, missing `0`
-- Bucket `12`: promoted `123`, probe-only `0`, missing `0`
-- Bucket `13`: promoted `109`, probe-only `0`, missing `0`
-- Bucket `14`: promoted `516`, probe-only `1`, missing `0`
-- Bucket `15`: promoted `475`, probe-only `24`, missing `0`
+- Bucket `01`: promoted `25`, probe-only `0`, missing `0`
+- Bucket `02`: promoted `50`, probe-only `0`, missing `0`
+- Bucket `03`: promoted `50`, probe-only `0`, missing `0`
+- Bucket `04`: promoted `91`, probe-only `2`, missing `0`
+- Bucket `05`: promoted `67`, probe-only `8`, missing `0`
+- Bucket `06`: promoted `28`, probe-only `36`, missing `0`
+- Bucket `07`: promoted `218`, probe-only `0`, missing `0`
+- Bucket `08`: promoted `128`, probe-only `41`, missing `0`
+- Bucket `09`: promoted `225`, probe-only `21`, missing `0`
+- Bucket `10`: promoted `60`, probe-only `25`, missing `0`
+- Bucket `11`: promoted `59`, probe-only `46`, missing `0`
+- Bucket `12`: promoted `136`, probe-only `0`, missing `0`
+- Bucket `13`: promoted `113`, probe-only `0`, missing `0`
+- Bucket `14`: promoted `521`, probe-only `1`, missing `0`
+- Bucket `15`: promoted `481`, probe-only `24`, missing `0`
 
 ## Missing Promotion Candidates
 
@@ -99,14 +98,6 @@
 
 ### explicit probe-only note prefix: reduced threshold
 
-- `06__probe_line_directive_compound_assign_const_lvalue_current_sparse_pass` (`diagnostic`) from `probes/diagnostics/06__probe_line_directive_compound_assign_const_lvalue_spelling_reject.c` - reduced threshold: const-lvalue compound-assignment diagnostics should emit nonmodifiable-lvalue rejection
-
-### explicit probe-only note prefix: strict frontier
-
-- `06__probe_line_directive_compound_assign_const_lvalue_spelling_reject` (`diagnostic`) from `probes/diagnostics/06__probe_line_directive_compound_assign_const_lvalue_spelling_reject.c` - strict frontier: const-lvalue compound-assignment diagnostics should preserve #line virtual spelling filename
-
-### explicit probe-only note prefix: reduced threshold
-
 - `06__probe_line_directive_compound_assign_pointer_plus_pointer_current_sparse_pass` (`diagnostic`) from `probes/diagnostics/06__probe_line_directive_compound_assign_pointer_plus_pointer_spelling_reject.c` - reduced threshold: pointer-plus-pointer compound-assignment diagnostics should emit pointer-arithmetic rejection
 
 ### explicit probe-only note prefix: strict frontier
@@ -122,14 +113,6 @@
 ### explicit probe-only note prefix: strict frontier
 
 - `06__probe_line_directive_include_bitfield_address_spelling_reject` (`diagnostic`) from `probes/diagnostics/06__probe_line_directive_include_bitfield_address_spelling_reject.c` - strict frontier: include-header bitfield address-of diagnostics should preserve #line virtual spelling filename
-
-### explicit probe-only note prefix: reduced threshold
-
-- `06__probe_line_directive_include_compound_assign_const_lvalue_current_sparse_pass` (`diagnostic`) from `probes/diagnostics/06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject.c` - reduced threshold: include-header const-lvalue compound-assignment diagnostics should emit nonmodifiable-lvalue rejection
-
-### explicit probe-only note prefix: strict frontier
-
-- `06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject` (`diagnostic`) from `probes/diagnostics/06__probe_line_directive_include_compound_assign_const_lvalue_spelling_reject.c` - strict frontier: include-header const-lvalue compound-assignment diagnostics should preserve #line virtual spelling filename
 
 ### explicit probe-only note prefix: reduced threshold
 
@@ -169,14 +152,6 @@
 
 ### explicit probe-only note prefix: reduced threshold
 
-- `06__probe_diagjson_line_directive_compound_assign_const_lvalue_current_sparse_pass` (`diagnostic-json`) from `probes/diagnostics/06__probe_diagjson_line_directive_compound_assign_const_lvalue_file_presence_reject.c` - reduced threshold: const-lvalue compound-assignment diagnostics JSON under #line remap emits diagnostic payload
-
-### explicit probe-only note prefix: strict frontier
-
-- `06__probe_diagjson_line_directive_compound_assign_const_lvalue_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/06__probe_diagjson_line_directive_compound_assign_const_lvalue_file_presence_reject.c` - strict frontier: const-lvalue compound-assignment diagnostics JSON should include has_file under #line remap
-
-### explicit probe-only note prefix: reduced threshold
-
 - `06__probe_diagjson_line_directive_compound_assign_pointer_plus_pointer_current_sparse_pass` (`diagnostic-json`) from `probes/diagnostics/06__probe_diagjson_line_directive_compound_assign_pointer_plus_pointer_file_presence_reject.c` - reduced threshold: pointer-plus-pointer compound-assignment diagnostics JSON under #line remap emits diagnostic payload
 
 ### explicit probe-only note prefix: strict frontier
@@ -192,14 +167,6 @@
 ### explicit probe-only note prefix: strict frontier
 
 - `06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/06__probe_diagjson_line_directive_include_bitfield_address_file_presence_reject.c` - strict frontier: include-header bitfield address-of diagnostics JSON should include has_file under #line remap
-
-### explicit probe-only note prefix: reduced threshold
-
-- `06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_current_sparse_pass` (`diagnostic-json`) from `probes/diagnostics/06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject.c` - reduced threshold: include-header const-lvalue compound-assignment diagnostics JSON under #line remap emits diagnostic payload
-
-### explicit probe-only note prefix: strict frontier
-
-- `06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/06__probe_diagjson_line_directive_include_compound_assign_const_lvalue_file_presence_reject.c` - strict frontier: include-header const-lvalue compound-assignment diagnostics JSON should include has_file under #line remap
 
 ### explicit probe-only note prefix: reduced threshold
 
@@ -386,6 +353,7 @@
 ### explicit probe-only note prefix: strict frontier
 
 - `08__probe_diagjson_line_directive_union_flex_member_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/08__probe_diagjson_line_directive_union_flex_member_rich_presence.c` - strict frontier: union flexible-member diagnostics JSON under #line remap should include file presence
+- `08__probe_runtime_file_scope_union_string_bitfield_feedback_mesh` (`runtime`) from `probes/runtime/08__probe_runtime_file_scope_union_string_bitfield_feedback_mesh.c` - strict frontier: file-scope nested initializers should preserve string-byte overrides, whole-union rewrites, sparse zero-fill, and later separate bitfield-field writes
 
 ### explicit probe-only note prefix: reduced threshold
 
@@ -466,6 +434,13 @@
 ### explicit probe-only note prefix: strict frontier
 
 - `09__probe_diagjson_line_directive_include_continue_outside_loop_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/09__probe_diagjson_line_directive_include_continue_outside_loop_rich_presence.c` - strict frontier: include-header continue-outside-loop diagnostics JSON under #line remap should include file presence
+
+### explicit probe-only note prefix: reduced threshold
+
+- `09__probe_runtime_switch_default_fallthrough_continue_break_mesh_xiv_current_sparse_pass` (`runtime`) from `probes/runtime/09__probe_runtime_switch_default_fallthrough_continue_break_mesh_xiv_current_sparse_pass.c` - reduced threshold: adjacent continue/break mesh without default-before-case fallthrough should still match clang
+
+### explicit probe-only note prefix: strict frontier
+
 - `10__probe_diag_line_directive_extern_array_def_mismatch_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_extern_array_def_mismatch_spelling_strict.c` - strict frontier: extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap
 - `10__probe_diag_line_directive_extern_array_mismatch_first_decl_line_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_extern_array_mismatch_first_decl_line_spelling_strict.c` - strict frontier: extern-array mismatch with first declaration remapped by #line should emit conflict diagnostics
 - `10__probe_diag_line_directive_extern_array_mismatch_second_decl_line_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_extern_array_mismatch_second_decl_line_spelling_strict.c` - strict frontier: extern-array mismatch with second declaration remapped by #line should emit conflict diagnostics
@@ -480,23 +455,7 @@
 - `10__probe_diag_line_directive_include_extern_array_def_mismatch_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_include_extern_array_def_mismatch_spelling_strict.c` - strict frontier: include extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap
 - `10__probe_diag_line_directive_include_extern_array_mismatch_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_include_extern_array_mismatch_spelling_strict.c` - strict frontier: include extern-array mismatch should emit linkage conflict diagnostics under #line remap
 - `10__probe_diag_line_directive_multitu_extern_array_def_mismatch_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_multitu_extern_array_def_mismatch_spelling_strict_main.c` - strict frontier: multi-TU extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap
-
-### explicit probe-only note prefix: regression guard
-
-- `10__probe_diag_line_directive_multitu_extern_type_conflict_current_linkstage_pass` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c` - regression guard: multi-TU extern type-conflict should keep semantic spelling under #line
-
-### explicit probe-only note prefix: strict frontier
-
-- `10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c` - strict frontier: multi-TU extern type-conflict should preserve source spelling under #line
 - `10__probe_diag_line_directive_multitu_include_extern_array_def_mismatch_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_multitu_include_extern_array_def_mismatch_spelling_strict_main.c` - strict frontier: multi-TU include extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap
-
-### explicit probe-only note prefix: regression guard
-
-- `10__probe_diag_line_directive_multitu_include_extern_type_conflict_current_linkstage_pass` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c` - regression guard: multi-TU include extern type-conflict should keep semantic spelling under #line
-
-### explicit probe-only note prefix: strict frontier
-
-- `10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict` (`diagnostic`) from `probes/diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c` - strict frontier: multi-TU include extern type-conflict should preserve source spelling under #line
 
 ### explicit probe-only note prefix: frontier lane
 
@@ -539,22 +498,6 @@
 ### explicit probe-only note prefix: frontier lane
 
 - `10__probe_diagjson_line_directive_include_tentative_static_conflict_rich_strict` (`diagnostic-json`) from `probes/diagnostics/10__probe_diagjson_line_directive_include_tentative_static_conflict_rich_strict.c` - frontier lane: include-header tentative/static linkage-conflict diagnostics JSON should carry remapped line/file/hint under #line
-
-### explicit probe-only note prefix: regression guard
-
-- `10__probe_diagjson_line_directive_multitu_extern_type_conflict_current_linkstage_pass` (`diagnostic-json`) from `probes/diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c` - regression guard: multi-TU extern type-conflict should keep semantic remapped location richness under #line
-
-### explicit probe-only note prefix: frontier lane
-
-- `10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict` (`diagnostic-json`) from `probes/diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c` - frontier lane: multi-TU extern type-conflict diagnostics JSON should preserve remapped location richness under #line
-
-### explicit probe-only note prefix: regression guard
-
-- `10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_current_linkstage_pass` (`diagnostic-json`) from `probes/diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c` - regression guard: multi-TU include extern type-conflict should keep semantic remapped location richness under #line
-
-### explicit probe-only note prefix: frontier lane
-
-- `10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict` (`diagnostic-json`) from `probes/diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c` - frontier lane: multi-TU include extern type-conflict diagnostics JSON should preserve remapped location richness under #line
 - `10__probe_diagjson_line_directive_tentative_static_conflict_rich_strict` (`diagnostic-json`) from `probes/diagnostics/10__probe_diagjson_line_directive_tentative_static_conflict_rich_strict.c` - frontier lane: tentative/static linkage-conflict diagnostics JSON should carry remapped line/file/hint under #line
 
 ### explicit probe-only note prefix: text parity guard
@@ -634,9 +577,25 @@
 - `11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence_reject` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c` - strict frontier: multi-TU include #line parser-declarator recovery should preserve parser diagjson presence
 - `11__probe_diagjson_line_directive_multitu_include_return_type_mismatch_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_return_type_mismatch_file_presence.c` - strict frontier: multi-TU include #line return-type-mismatch diagjson should preserve remapped line and file presence
 - `11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence.c` - strict frontier: multi-TU include #line too-many-args diagjson should preserve remapped line and file presence
+
+### explicit probe-only note prefix: reduced threshold
+
+- `11__probe_diagjson_line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_current_threshold_pass` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_current_threshold.c` - reduced threshold: multi-TU include typedef-wrapped function-pointer call arg-mismatch preserves the remapped line in diagjson
+
+### explicit probe-only note prefix: strict frontier
+
+- `11__probe_diagjson_line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_file_presence.c` - strict frontier: multi-TU include typedef-wrapped function-pointer call arg-mismatch diagjson should preserve remapped line and file presence
 - `11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence_reject` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c` - strict frontier: multi-TU #line parser-declarator recovery should preserve parser diagjson presence
 - `11__probe_diagjson_line_directive_multitu_return_type_mismatch_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_return_type_mismatch_file_presence.c` - strict frontier: multi-TU #line return-type-mismatch diagjson should preserve remapped line and file presence
 - `11__probe_diagjson_line_directive_multitu_too_many_args_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence.c` - strict frontier: multi-TU #line too-many-args diagjson should preserve remapped line and file presence
+
+### explicit probe-only note prefix: reduced threshold
+
+- `11__probe_diagjson_line_directive_multitu_typedef_fnptr_argument_type_mismatch_current_threshold_pass` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_typedef_fnptr_argument_type_mismatch_current_threshold.c` - reduced threshold: multi-TU typedef-wrapped function-pointer call arg-mismatch preserves the remapped line in diagjson
+
+### explicit probe-only note prefix: strict frontier
+
+- `11__probe_diagjson_line_directive_multitu_typedef_fnptr_argument_type_mismatch_file_presence_reject` (`diagnostic-json`) from `probes/diagnostics/11__probe_diagjson_line_directive_multitu_typedef_fnptr_argument_type_mismatch_file_presence.c` - strict frontier: multi-TU typedef-wrapped function-pointer call arg-mismatch diagjson should preserve remapped line and file presence
 
 ### explicit probe-only note prefix: reduced threshold
 
@@ -753,24 +712,24 @@
 - `01__probe_diagjson_line_directive_nonvoid_return_location_reject` via `path` -> 01__diag__line_directive_virtual_line_nonvoid_return_location_reject, 01__diagjson__line_directive_nonvoid_return_location_reject
 - `01__probe_diagjson_line_directive_undeclared_identifier_location_strict` via `path` -> 01__diagjson__line_directive_undeclared_identifier_location_strict
 - `01__probe_diagjson_nonvoid_return_plain_current_zerozero` via `path` -> 01__diag__nonvoid_return_plain_current_zerozero, 01__diagjson__nonvoid_return_plain_current_zerozero
+- `01__probe_runtime_include_file_line_bridge` via `path` -> 01__runtime__line_directive_include_file_line_bridge
+- `01__probe_runtime_include_nested_stringize_depth` via `path` -> 01__runtime__line_directive_include_nested_stringize_depth
+- `01__probe_runtime_include_stringize_remap` via `path` -> 01__runtime__line_directive_include_stringize_remap
+- `01__probe_runtime_include_tokenpaste_depth` via `path` -> 01__runtime__line_directive_include_tokenpaste_depth
+- `01__probe_runtime_include_tokenpaste_stringize_bridge` via `path` -> 01__runtime__line_directive_include_tokenpaste_stringize_bridge
+- `01__probe_runtime_nested_include_provenance_bridge` via `path` -> 01__runtime__line_directive_nested_include_provenance_bridge
 - `02__probe_lexer_line_directive_char_invalid_hex_escape_current_physical_line` via `id` -> 02__diag__lexer_line_directive_char_invalid_hex_escape_current_physical_line, 02__diagjson__lexer_line_directive_char_invalid_hex_escape_current_physical_line
 - `02__probe_lexer_line_directive_char_invalid_hex_escape_location_reject` via `id` -> 02__diag__lexer_line_directive_char_invalid_hex_escape_location_reject, 02__diagjson__lexer_line_directive_char_invalid_hex_escape_location_reject
+- `02__probe_lexer_line_directive_float_hex_no_exponent_current_physical_line` via `path` -> 02__line_directive_float_hex_no_exponent_diag_current_physical_line, 02__line_directive_float_hex_no_exponent_diagjson_current_physical_line
 - `02__probe_lexer_line_directive_include_char_invalid_hex_escape_current_physical_line` via `path` -> 02__line_directive_include_char_invalid_hex_escape_diagjson_current_physical_line
 - `02__probe_lexer_line_directive_include_invalid_at_current_physical_line` via `path` -> 02__line_directive_include_invalid_at_diagjson_current_physical_line
 - `02__probe_lexer_line_directive_include_invalid_backtick_current_physical_line` via `path` -> 02__line_directive_include_invalid_backtick_diagjson_current_physical_line
 - `02__probe_lexer_line_directive_include_invalid_dollar_current_physical_line` via `path` -> 02__line_directive_include_invalid_dollar_diagjson_current_physical_line
 - `02__probe_lexer_line_directive_include_string_invalid_escape_current_physical_line` via `path` -> 02__line_directive_include_string_invalid_escape_diagjson_current_physical_line
-- `02__probe_lexer_line_directive_include_ucn_identifier_unsupported_current_physical_line` via `path` -> 02__line_directive_include_ucn_identifier_unsupported_diagjson_current_parser_only
+- `02__probe_lexer_line_directive_include_ucn_identifier_unsupported_current_physical_line` via `path` -> 02__line_directive_include_ucn_identifier_unsupported_diag_current_physical_line, 02__line_directive_include_ucn_identifier_unsupported_diagjson_current_parser_only
 - `02__probe_lexer_line_directive_include_unterminated_char_current_physical_line` via `path` -> 02__line_directive_include_unterminated_char_diagjson_current_physical_line
 - `02__probe_lexer_line_directive_include_unterminated_string_current_physical_line` via `path` -> 02__line_directive_include_unterminated_string_diagjson_current_physical_line
 - `02__probe_lexer_line_directive_invalid_at_current_physical_line` via `id` -> 02__diag__lexer_line_directive_invalid_at_current_physical_line, 02__diagjson__lexer_line_directive_invalid_at_current_physical_line
 - `02__probe_lexer_line_directive_invalid_at_location_reject` via `id` -> 02__diag__lexer_line_directive_invalid_at_location_reject, 02__diagjson__lexer_line_directive_invalid_at_location_reject
 - `02__probe_lexer_line_directive_invalid_backtick_current_physical_line` via `id` -> 02__diag__lexer_line_directive_invalid_backtick_current_physical_line, 02__diagjson__lexer_line_directive_invalid_backtick_current_physical_line
 - `02__probe_lexer_line_directive_invalid_backtick_location_reject` via `id` -> 02__diag__lexer_line_directive_invalid_backtick_location_reject, 02__diagjson__lexer_line_directive_invalid_backtick_location_reject
-- `02__probe_lexer_line_directive_invalid_dollar_current_physical_line` via `id` -> 02__diag__lexer_line_directive_invalid_dollar_current_physical_line, 02__diagjson__lexer_line_directive_invalid_dollar_current_physical_line
-- `02__probe_lexer_line_directive_invalid_dollar_location_reject` via `id` -> 02__diag__lexer_line_directive_invalid_dollar_location_reject, 02__diagjson__lexer_line_directive_invalid_dollar_location_reject
-- `02__probe_lexer_line_directive_string_invalid_escape_current_physical_line` via `id` -> 02__diag__lexer_line_directive_string_invalid_escape_current_physical_line, 02__diagjson__lexer_line_directive_string_invalid_escape_current_physical_line
-- `02__probe_lexer_line_directive_string_invalid_escape_location_reject` via `id` -> 02__diag__lexer_line_directive_string_invalid_escape_location_reject, 02__diagjson__lexer_line_directive_string_invalid_escape_location_reject
-- `02__probe_lexer_line_directive_ucn_identifier_unsupported_current_physical_line` via `path` -> 02__line_directive_ucn_identifier_unsupported_diagjson_current_empty
-- `02__probe_lexer_line_directive_unterminated_char_current_physical_line` via `id` -> 02__diag__lexer_line_directive_unterminated_char_current_physical_line, 02__diagjson__lexer_line_directive_unterminated_char_current_physical_line
-- `02__probe_lexer_line_directive_unterminated_char_location_reject` via `id` -> 02__diag__lexer_line_directive_unterminated_char_location_reject, 02__diagjson__lexer_line_directive_unterminated_char_location_reject

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__line_directive_include_file_line_bridge",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_include_file_line_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__line_directive_include_file_line_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "source-provenance", "wave12", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__line_directive_nested_include_provenance_bridge",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_nested_include_provenance_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__line_directive_nested_include_provenance_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "nested-include", "source-provenance", "wave12", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__line_directive_include_tokenpaste_stringize_bridge",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_include_tokenpaste_stringize_bridge.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__line_directive_include_tokenpaste_stringize_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "token-paste", "stringize", "wave12", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

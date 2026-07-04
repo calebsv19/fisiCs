@@ -402,6 +402,31 @@ RUNTIME_PROBES = [
         note='NULL/sizeof/ptrdiff header bridge should match clang runtime behavior',
     ),
     RuntimeProbe(
+        probe_id='14__probe_header_string_tokenize_tail_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_header_string_tokenize_tail_matrix.c',
+        note='string.h tokenization and tail-search behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_header_wchar_tokenize_tail_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_header_wchar_tokenize_tail_matrix.c',
+        note='wchar.h tokenization and tail-search behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_header_string_span_copy_window_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_header_string_span_copy_window_matrix.c',
+        note='string.h copy/search/span window behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_header_stdlib_div_abs_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_header_stdlib_div_abs_matrix.c',
+        note='stdlib abs/div family behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_header_stdio_snprintf_n_scan_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_header_stdio_snprintf_n_scan_matrix.c',
+        note='stdio snprintf/sscanf/%n behavior should match clang runtime behavior',
+    ),
+    RuntimeProbe(
         probe_id='14__probe_struct_bitfield_mixed_pass_return',
         source=PROBE_DIR / 'runtime/14__probe_struct_bitfield_mixed_pass_return.c',
         note='mixed-width bitfield struct pass/return paths should match clang runtime behavior',

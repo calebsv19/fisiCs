@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__line_directive_mixed_nested_while_missing_lparen_then_undeclared_promotions",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/12__line_directive_mixed_nested_while_missing_lparen_then_undeclared_diag_text_semantic_followup.c",
+      "expects": [
+        "expect/12__line_directive_mixed_nested_while_missing_lparen_then_undeclared_diag_text_semantic_followup.diag",
+        "expect/12__line_directive_mixed_nested_while_missing_lparen_then_undeclared_diagjson_semantic_followup.diagjson",
+        "expect/12__line_directive_mixed_nested_while_missing_lparen_then_undeclared_pdiag_semantic_followup.pdiag"
+      ],
+      "tags": ["line-directive", "diag", "diagjson", "pdiag", "parser-recovery", "mixed", "semantic-followup", "nested", "while", "wave28", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

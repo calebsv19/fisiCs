@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__include_next_elif_defined_macro_state_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_elif_defined_macro_state_clean.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_ord_p1",
+        "-Itests/final/cases/pp_inext_ord_p2",
+        "-Itests/final/cases/pp_inext_ord_p3",
+        "-Itests/final/cases/pp_inext_ord_p4"
+      ],
+      "expects": [
+        "expect/03__include_next_elif_defined_macro_state_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "defined-condition",
+        "macro-state",
+        "elif-convergence",
+        "clean-path",
+        "wave28",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__include_next_defined_mixed_chain_recheck_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__include_next_defined_mixed_chain_recheck_clean.c",
+      "args": [
+        "-Itests/final/cases/pp_inext_mix_p1",
+        "-Itests/final/cases/pp_inext_mix_p2",
+        "-Itests/final/cases/pp_inext_mix_p3",
+        "-Itests/final/cases/pp_inext_mix_p4"
+      ],
+      "expects": [
+        "expect/03__include_next_defined_mixed_chain_recheck_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "include-next",
+        "defined-condition",
+        "mixed-delimiters",
+        "macro-state",
+        "clean-path",
+        "wave28",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__defined_include_nested_reentry_macro_state_clean",
+      "bucket": "preprocessor",
+      "input": "cases/03__defined_include_nested_reentry_macro_state_clean.c",
+      "expects": [
+        "expect/03__defined_include_nested_reentry_macro_state_clean.diag"
+      ],
+      "tags": [
+        "preprocessor",
+        "defined",
+        "undef",
+        "include-graph",
+        "macro-state",
+        "conditional-convergence",
+        "clean-path",
+        "wave28",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

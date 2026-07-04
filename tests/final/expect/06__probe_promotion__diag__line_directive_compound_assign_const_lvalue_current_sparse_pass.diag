@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (2264:5): Left operand of '+=' must be a modifiable lvalue
+   Spelling: virtual_lv_compound_assign_const_lvalue_diag_probe.c:2264:5

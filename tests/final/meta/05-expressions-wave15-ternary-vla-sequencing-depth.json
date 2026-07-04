@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__runtime__ternary_true_vla_sizeof_eval_runtime",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_ternary_true_vla_sizeof_eval_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__ternary_true_vla_sizeof_eval_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "ternary", "sizeof", "vla", "sequencing", "wave15", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__ternary_false_vla_sizeof_skip_runtime",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_ternary_false_vla_sizeof_skip_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__ternary_false_vla_sizeof_skip_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "ternary", "sizeof", "vla", "short-circuit", "wave15", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__ternary_condition_vla_sizeof_gate_runtime",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_ternary_condition_vla_sizeof_gate_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__ternary_condition_vla_sizeof_gate_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "ternary", "condition", "sizeof", "vla", "comma", "sequencing", "wave15", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

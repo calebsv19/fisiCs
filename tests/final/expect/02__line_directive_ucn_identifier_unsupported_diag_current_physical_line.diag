@@ -1,0 +1,2 @@
+Diagnostics:
+Error: universal character names in identifiers are not supported yet at tests/final/cases/02__line_directive_ucn_identifier_unsupported_current_physical_line.c:2 (got '\u0061')

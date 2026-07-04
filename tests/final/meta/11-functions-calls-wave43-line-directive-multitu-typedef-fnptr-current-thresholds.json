@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__line_directive_multitu_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold_main.c",
+        "cases/11__line_directive_multitu_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave43-multitu-typedef-fnptr-arg-mismatch-current-threshold.diagjson", "-o", "tests/final/.wave43-multitu-typedef-fnptr-arg-mismatch-current-threshold.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "typedef", "function-pointer", "call", "argument-mismatch", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold",
+      "bucket": "functions-calls",
+      "input": "cases/11__line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold_main.c",
+      "inputs": [
+        "cases/11__line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold_main.c",
+        "cases/11__line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold_lib.c"
+      ],
+      "args": ["--emit-diags-json", "tests/final/.wave43-multitu-include-typedef-fnptr-arg-mismatch-current-threshold.diagjson", "-o", "tests/final/.wave43-multitu-include-typedef-fnptr-arg-mismatch-current-threshold.out"],
+      "expects": [
+        "expect/11__line_directive_multitu_include_typedef_fnptr_argument_type_mismatch_diagjson_current_threshold.diagjson"
+      ],
+      "tags": ["line-directive", "diagjson", "multitu", "include", "typedef", "function-pointer", "call", "argument-mismatch", "current-threshold", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

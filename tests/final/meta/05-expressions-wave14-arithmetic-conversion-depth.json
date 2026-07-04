@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__runtime__signed_wider_arith_conv_runtime",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_signed_wider_arith_conv_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__signed_wider_arith_conv_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "arithmetic-conversion", "signed-wider", "wave14", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__conditional_signed_wider_runtime",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_conditional_signed_wider_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__conditional_signed_wider_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "conditional", "arithmetic-conversion", "comma", "signed-wider", "wave14", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

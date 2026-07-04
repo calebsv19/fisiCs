@@ -5,7 +5,38 @@ from lib.models import DiagnosticJsonProbe, DiagnosticProbe, RuntimeProbe
 
 PROBE_DIR = Path(__file__).resolve().parent.parent
 
-RUNTIME_PROBES = []
+RUNTIME_PROBES = [
+    RuntimeProbe(
+        probe_id='01__probe_runtime_include_stringize_remap',
+        source=PROBE_DIR / 'runtime/01__probe_runtime_include_stringize_remap.c',
+        note='single-include #line stringize lane should preserve remapped __FILE__ and stable __LINE__ at runtime',
+    ),
+    RuntimeProbe(
+        probe_id='01__probe_runtime_include_nested_stringize_depth',
+        source=PROBE_DIR / 'runtime/01__probe_runtime_include_nested_stringize_depth.c',
+        note='nested include + stringize rescan lane should preserve inner and outer remapped source coordinates at runtime',
+    ),
+    RuntimeProbe(
+        probe_id='01__probe_runtime_include_tokenpaste_depth',
+        source=PROBE_DIR / 'runtime/01__probe_runtime_include_tokenpaste_depth.c',
+        note='include-header token-paste lane should preserve remapped source coordinates for token-formed identifiers at runtime',
+    ),
+    RuntimeProbe(
+        probe_id='01__probe_runtime_include_file_line_bridge',
+        source=PROBE_DIR / 'runtime/01__probe_runtime_include_file_line_bridge.c',
+        note='single-include #line provenance lane should preserve remapped __LINE__ through a clean runtime bridge',
+    ),
+    RuntimeProbe(
+        probe_id='01__probe_runtime_nested_include_provenance_bridge',
+        source=PROBE_DIR / 'runtime/01__probe_runtime_nested_include_provenance_bridge.c',
+        note='nested include provenance lane should preserve inner remapped lines while outer mapping resumes after the include',
+    ),
+    RuntimeProbe(
+        probe_id='01__probe_runtime_include_tokenpaste_stringize_bridge',
+        source=PROBE_DIR / 'runtime/01__probe_runtime_include_tokenpaste_stringize_bridge.c',
+        note='clean token-paste plus stringize lane should preserve remapped line values for token-built runtime values',
+    ),
+]
 
 DIAG_PROBES = [
     DiagnosticProbe(

@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__line_directive_ucn_identifier_unsupported_diag_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_ucn_identifier_unsupported_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_ucn_identifier_unsupported_diag_current_physical_line.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "lexer",
+        "ucn",
+        "identifier",
+        "unsupported",
+        "line-directive",
+        "diag",
+        "current-threshold",
+        "wave10"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_include_ucn_identifier_unsupported_diag_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_include_ucn_identifier_unsupported_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_include_ucn_identifier_unsupported_diag_current_physical_line.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "lexer",
+        "ucn",
+        "identifier",
+        "unsupported",
+        "include",
+        "line-directive",
+        "diag",
+        "current-threshold",
+        "wave10"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

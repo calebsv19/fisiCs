@@ -247,6 +247,22 @@ RUNTIME_PROBES = [
         inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_cross_tu_watermark_shadow_lattice_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_cross_tu_watermark_shadow_lattice_matrix_lib.c'],
     ),
     RuntimeProbe(
+        probe_id='15__probe_axis5_wave15_reducer_checkpoint_frontier_shadow_stability_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_checkpoint_frontier_shadow_stability_matrix.c',
+        note='axis5 wave15: reducer checkpoint-frontier-shadow stability matrix should preserve signatures when checkpoint winners are rebuilt through frontier and shadow staging passes',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave15_reducer_watermark_epoch_tie_fold_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_watermark_epoch_tie_fold_matrix.c',
+        note='axis5 wave15: reducer watermark-epoch tie-fold matrix should preserve signatures when equivalent watermark and epoch rows are pre-folded before absorb',
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_axis5_wave15_reducer_cross_tu_checkpoint_epoch_shadow_mesh_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_cross_tu_checkpoint_epoch_shadow_mesh_matrix_main.c',
+        note='axis5 wave15: reducer cross-TU checkpoint-epoch-shadow mesh matrix should preserve signatures when replayed shard snapshots collapse through latest checkpoint, shadow, and epoch rules',
+        inputs=[PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_cross_tu_checkpoint_epoch_shadow_mesh_matrix_main.c', PROBE_DIR / 'runtime/15__probe_axis5_wave15_reducer_cross_tu_checkpoint_epoch_shadow_mesh_matrix_lib.c'],
+    ),
+    RuntimeProbe(
         probe_id='15__probe_axis5_wave16_reducer_checkpoint_epoch_lattice_matrix',
         source=PROBE_DIR / 'runtime/15__probe_axis5_wave16_reducer_checkpoint_epoch_lattice_matrix.c',
         note='axis5 wave16: reducer checkpoint-epoch lattice matrix should preserve signatures when checkpoint winners are reconstructed through descending checkpoint and ascending epoch passes',

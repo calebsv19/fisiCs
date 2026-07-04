@@ -232,6 +232,20 @@ RUNTIME_PROBES = [
         ],
     ),
     RuntimeProbe(
+        probe_id='04__probe_param_vla_pointer_chain_adjust_runtime',
+        source=PROBE_DIR / 'runtime/04__probe_param_vla_pointer_chain_adjust_runtime.c',
+        note='same-scope array-of-pointer-to-VLA parameters should adjust cleanly to pointer-to-pointer-to-VLA definitions',
+    ),
+    RuntimeProbe(
+        probe_id='04__probe_multitu_include_param_vla_pointer_chain_adjust_bridge',
+        source=PROBE_DIR / 'runtime/04__probe_multitu_include_param_vla_pointer_chain_adjust_bridge_main.c',
+        note='include-boundary array-of-pointer-to-VLA parameters should stay compatible with pointer-to-pointer-to-VLA definitions across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/04__probe_multitu_include_param_vla_pointer_chain_adjust_bridge_main.c',
+            PROBE_DIR / 'runtime/04__probe_multitu_include_param_vla_pointer_chain_adjust_bridge_lib.c',
+        ],
+    ),
+    RuntimeProbe(
         probe_id='04__probe_param_vla_static_pointer_adjust_runtime',
         source=PROBE_DIR / 'runtime/04__probe_param_vla_static_pointer_adjust_runtime.c',
         note='same-scope static VLA parameters should adjust cleanly to pointer-to-VLA definitions',
@@ -271,6 +285,34 @@ RUNTIME_PROBES = [
         inputs=[
             PROBE_DIR / 'runtime/04__probe_multitu_include_param_vla_static_restrict_adjust_bridge_main.c',
             PROBE_DIR / 'runtime/04__probe_multitu_include_param_vla_static_restrict_adjust_bridge_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='04__probe_param_array_typedef_adjust_runtime',
+        source=PROBE_DIR / 'runtime/04__probe_param_array_typedef_adjust_runtime.c',
+        note='same-scope typedef-backed array parameters should adjust cleanly to pointer definitions',
+    ),
+    RuntimeProbe(
+        probe_id='04__probe_multitu_param_array_typedef_adjust_bridge',
+        source=PROBE_DIR / 'runtime/04__probe_multitu_param_array_typedef_adjust_bridge_main.c',
+        note='multi-TU typedef-backed array parameters should adjust cleanly despite declaration-side array extent differences',
+        inputs=[
+            PROBE_DIR / 'runtime/04__probe_multitu_param_array_typedef_adjust_bridge_main.c',
+            PROBE_DIR / 'runtime/04__probe_multitu_param_array_typedef_adjust_bridge_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='04__probe_fnptr_typedef_array_param_runtime',
+        source=PROBE_DIR / 'runtime/04__probe_fnptr_typedef_array_param_runtime.c',
+        note='function-pointer typedef arrays used as parameters should adjust cleanly to pointer-to-callback definitions',
+    ),
+    RuntimeProbe(
+        probe_id='04__probe_multitu_fnptr_typedef_array_param_bridge',
+        source=PROBE_DIR / 'runtime/04__probe_multitu_fnptr_typedef_array_param_bridge_main.c',
+        note='multi-TU function-pointer typedef arrays used as parameters should stay compatible after adjustment',
+        inputs=[
+            PROBE_DIR / 'runtime/04__probe_multitu_fnptr_typedef_array_param_bridge_main.c',
+            PROBE_DIR / 'runtime/04__probe_multitu_fnptr_typedef_array_param_bridge_lib.c',
         ],
     ),
 ]

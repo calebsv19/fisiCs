@@ -503,12 +503,24 @@ DIAG_JSON_PROBES = [
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
+        probe_id='07__probe_diagjson_line_directive_fnptr_nested_const_qualifier_loss_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_fnptr_nested_const_qualifier_loss.c',
+        note='reduced threshold: function-pointer nested const qualifier-loss diagnostics JSON under #line remap should retain the semantic error code',
+        expected_codes=[2000],
+    ),
+    DiagnosticJsonProbe(
         probe_id='07__probe_diagjson_line_directive_fnptr_nested_volatile_qualifier_loss_strict',
         source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_fnptr_nested_volatile_qualifier_loss.c',
         note='strict parity: function-pointer nested volatile qualifier-loss diagnostics JSON under #line remap should preserve remapped line and file presence',
         expected_codes=[2000],
         expected_line=2809,
         expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='07__probe_diagjson_line_directive_fnptr_nested_volatile_qualifier_loss_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_fnptr_nested_volatile_qualifier_loss.c',
+        note='reduced threshold: function-pointer nested volatile qualifier-loss diagnostics JSON under #line remap should retain the semantic error code',
+        expected_codes=[2000],
     ),
     DiagnosticJsonProbe(
         probe_id='07__probe_diagjson_line_directive_fnptr_deep_const_qualifier_loss_strict',
@@ -527,12 +539,24 @@ DIAG_JSON_PROBES = [
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
+        probe_id='07__probe_diagjson_line_directive_include_fnptr_nested_const_qualifier_loss_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_include_fnptr_nested_const_qualifier_loss.c',
+        note='reduced threshold: include-header function-pointer nested const qualifier-loss diagnostics JSON under #line remap should retain the semantic error code',
+        expected_codes=[2000],
+    ),
+    DiagnosticJsonProbe(
         probe_id='07__probe_diagjson_line_directive_include_fnptr_nested_volatile_qualifier_loss_strict',
         source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_include_fnptr_nested_volatile_qualifier_loss.c',
         note='strict parity: include-header function-pointer nested volatile qualifier-loss diagnostics JSON under #line remap should preserve remapped line and file presence',
         expected_codes=[2000],
         expected_line=3209,
         expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='07__probe_diagjson_line_directive_include_fnptr_nested_volatile_qualifier_loss_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_include_fnptr_nested_volatile_qualifier_loss.c',
+        note='reduced threshold: include-header function-pointer nested volatile qualifier-loss diagnostics JSON under #line remap should retain the semantic error code',
+        expected_codes=[2000],
     ),
     DiagnosticJsonProbe(
         probe_id='07__probe_diagjson_line_directive_include_fnptr_deep_const_qualifier_loss_strict',
@@ -671,12 +695,26 @@ DIAG_JSON_PROBES = [
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
+        probe_id='07__probe_diagjson_line_directive_agg_dot_scalar_base_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_agg_dot_scalar_base_rich_presence.c',
+        note='current threshold: dot-on-scalar member-access diagnostics JSON under #line remap preserves the remapped virtual line',
+        expected_codes=[2000],
+        expected_line=4307,
+    ),
+    DiagnosticJsonProbe(
         probe_id='07__probe_diagjson_line_directive_include_agg_dot_scalar_base_file_presence_reject',
         source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_include_agg_dot_scalar_base_rich_presence.c',
         note='strict frontier: include-header dot-on-scalar member-access diagnostics JSON under #line remap should include file presence',
         expected_codes=[2000],
         expected_line=4507,
         expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='07__probe_diagjson_line_directive_include_agg_dot_scalar_base_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_include_agg_dot_scalar_base_rich_presence.c',
+        note='current threshold: include-header dot-on-scalar member-access diagnostics JSON under #line remap preserves the remapped virtual line',
+        expected_codes=[2000],
+        expected_line=4507,
     ),
     DiagnosticJsonProbe(
         probe_id='07__probe_diagjson_line_directive_agg_arrow_ptr_to_scalar_file_presence_reject',
@@ -687,12 +725,26 @@ DIAG_JSON_PROBES = [
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
+        probe_id='07__probe_diagjson_line_directive_agg_arrow_ptr_to_scalar_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_agg_arrow_ptr_to_scalar_rich_presence.c',
+        note='current threshold: arrow-on-pointer-to-scalar member-access diagnostics JSON under #line remap preserves the remapped virtual line',
+        expected_codes=[2000],
+        expected_line=4604,
+    ),
+    DiagnosticJsonProbe(
         probe_id='07__probe_diagjson_line_directive_include_agg_arrow_ptr_to_scalar_file_presence_reject',
         source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_include_agg_arrow_ptr_to_scalar_rich_presence.c',
         note='strict frontier: include-header arrow-on-pointer-to-scalar member-access diagnostics JSON under #line remap should include file presence',
         expected_codes=[2000],
         expected_line=4704,
         expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='07__probe_diagjson_line_directive_include_agg_arrow_ptr_to_scalar_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/07__probe_diagjson_line_directive_include_agg_arrow_ptr_to_scalar_rich_presence.c',
+        note='current threshold: include-header arrow-on-pointer-to-scalar member-access diagnostics JSON under #line remap preserves the remapped virtual line',
+        expected_codes=[2000],
+        expected_line=4704,
     ),
     DiagnosticJsonProbe(
         probe_id='07__probe_diagjson_line_directive_agg_dot_array_base_file_presence_reject',

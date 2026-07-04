@@ -1,0 +1,30 @@
+{
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "category_id": 3,
+      "category_name": "semantic",
+      "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
+      "column": 14,
+      "file": "virtual_scope_multitu_extern_type_conflict_probe_lib_diagjson.c",
+      "has_file": true,
+      "has_hint": true,
+      "has_message": true,
+      "hint": "Previous definition at virtual_scope_multitu_extern_type_conflict_probe_main_diagjson.c:9401:5",
+      "kind": 0,
+      "length": 1,
+      "line": 9501,
+      "message": "Conflicting types for variable 'wave9_mt_probe_shared' across translation units",
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
+    }
+  ],
+  "error_count": 1,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

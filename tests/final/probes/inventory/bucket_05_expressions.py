@@ -22,6 +22,16 @@ RUNTIME_PROBES = [
         note='usual arithmetic conversions for signed/unsigned mix should match clang',
     ),
     RuntimeProbe(
+        probe_id='05__probe_signed_wider_arith_conv_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_signed_wider_arith_conv_runtime.c',
+        note='usual arithmetic conversions should prefer a wider signed type when it can represent the unsigned operand',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_conditional_signed_wider_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_conditional_signed_wider_runtime.c',
+        note='conditional operator common type should prefer a wider signed type and preserve comma-conditioned branch selection',
+    ),
+    RuntimeProbe(
         probe_id='05__probe_nested_ternary_runtime',
         source=PROBE_DIR / 'runtime/05__probe_nested_ternary_runtime.c',
         note='nested ternary associativity/runtime behavior should match clang',
@@ -130,6 +140,41 @@ RUNTIME_PROBES = [
         probe_id='05__probe_logical_or_vla_sizeof_skip_runtime',
         source=PROBE_DIR / 'runtime/05__probe_logical_or_vla_sizeof_skip_runtime.c',
         note='logical OR should skip VLA sizeof rhs side effects on truthy lhs and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_ternary_true_vla_sizeof_eval_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_ternary_true_vla_sizeof_eval_runtime.c',
+        note='ternary true branch should evaluate VLA sizeof side effects only on the selected arm and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_ternary_false_vla_sizeof_skip_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_ternary_false_vla_sizeof_skip_runtime.c',
+        note='ternary false branch should skip VLA sizeof side effects on the inactive arm and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_ternary_condition_vla_sizeof_gate_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_ternary_condition_vla_sizeof_gate_runtime.c',
+        note='ternary condition comma chain should evaluate VLA sizeof side effects before branch selection and match clang',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_comma_statement_sequence_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_comma_statement_sequence_runtime.c',
+        note='comma operator sequencing in statement-form assignment should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_short_circuit_or_trace_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_short_circuit_or_trace_runtime.c',
+        note='logical OR should preserve chosen-arm short-circuit side effects and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_ternary_false_arm_sequence_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_ternary_false_arm_sequence_runtime.c',
+        note='ternary false-arm sequencing should evaluate only the chosen arm and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_compound_literal_cast_sum_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_compound_literal_cast_sum_runtime.c',
+        note='compound literal element reads plus explicit unsigned casts should match clang runtime',
     ),
 ]
 

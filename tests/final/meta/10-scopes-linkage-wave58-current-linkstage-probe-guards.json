@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__probe_promotion__diag__line_directive_multitu_extern_type_conflict_current_linkstage_pass",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_main.c",
+        "probes/diagnostics/10__probe_diag_line_directive_multitu_extern_type_conflict_spelling_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave58-current-linkstage-text.out"],
+      "expects": [
+        "expect/10__probe_multitu_extern_type_conflict_diag_text_current_linkstage.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "multitu",
+        "extern",
+        "type-mismatch",
+        "current-threshold",
+        "wave58"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diag__line_directive_multitu_include_extern_type_conflict_current_linkstage_pass",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_main.c",
+        "probes/diagnostics/10__probe_diag_line_directive_multitu_include_extern_type_conflict_spelling_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave58-current-linkstage-text.out"],
+      "expects": [
+        "expect/10__probe_multitu_include_extern_type_conflict_diag_text_current_linkstage.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "probe-promotion",
+        "line-directive",
+        "multitu",
+        "include",
+        "extern",
+        "type-mismatch",
+        "current-threshold",
+        "wave58"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diagjson__line_directive_multitu_extern_type_conflict_current_linkstage_pass",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_main.c",
+        "probes/diagnostics/10__probe_diagjson_line_directive_multitu_extern_type_conflict_rich_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave58-current-linkstage-diagjson.out"],
+      "expects": [
+        "expect/10__probe_multitu_extern_type_conflict_diagjson_current_linkstage.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diagjson",
+        "probe-promotion",
+        "line-directive",
+        "multitu",
+        "extern",
+        "type-mismatch",
+        "current-threshold",
+        "wave58"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__probe_promotion__diagjson__line_directive_multitu_include_extern_type_conflict_current_linkstage_pass",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c",
+      "inputs": [
+        "probes/diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_main.c",
+        "probes/diagnostics/10__probe_diagjson_line_directive_multitu_include_extern_type_conflict_rich_strict_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave58-current-linkstage-diagjson.out"],
+      "expects": [
+        "expect/10__probe_multitu_include_extern_type_conflict_diagjson_current_linkstage.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diagjson",
+        "probe-promotion",
+        "line-directive",
+        "multitu",
+        "include",
+        "extern",
+        "type-mismatch",
+        "current-threshold",
+        "wave58"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

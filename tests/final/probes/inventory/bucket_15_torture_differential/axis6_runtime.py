@@ -55,4 +55,7 @@ RUNTIME_PROBES = [
     _probe("15__probe_axis6_wave12_scheduler_checkpoint_window_fold_matrix", "15__probe_axis6_wave12_scheduler_checkpoint_window_fold_matrix.c"),
     _probe("15__probe_axis6_wave12_scheduler_resume_window_shadow_dedup_matrix", "15__probe_axis6_wave12_scheduler_resume_window_shadow_dedup_matrix.c"),
     _probe("15__probe_axis6_wave12_scheduler_cross_tu_checkpoint_window_matrix", "15__probe_axis6_wave12_scheduler_cross_tu_checkpoint_window_matrix_main.c", "15__probe_axis6_wave12_scheduler_cross_tu_checkpoint_window_matrix_lib.c"),
+    _probe("15__probe_axis6_wave13_scheduler_shard_order_canonicalization_matrix", "15__probe_axis6_wave13_scheduler_shard_order_canonicalization_matrix.c"),
+    _probe("15__probe_axis6_wave13_scheduler_replay_checkpoint_watermark_collapse_matrix", "15__probe_axis6_wave13_scheduler_replay_checkpoint_watermark_collapse_matrix.c"),
+    _probe("15__probe_axis6_wave13_scheduler_cross_tu_shard_watermark_collapse_matrix", "15__probe_axis6_wave13_scheduler_cross_tu_shard_watermark_collapse_matrix_main.c", "15__probe_axis6_wave13_scheduler_cross_tu_shard_watermark_collapse_matrix_lib.c"),
 ]

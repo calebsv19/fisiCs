@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__line_directive_malformed_float_diag_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_malformed_float_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_malformed_float_diag_current_physical_line.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "lexer",
+        "line-directive",
+        "float",
+        "malformed-exponent",
+        "diag",
+        "current-threshold",
+        "wave11"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_malformed_float_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_malformed_float_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_malformed_float_diagjson_current_physical_line.diagjson"
+      ],
+      "capture_frontend_diag_json": true,
+      "tags": [
+        "lexer",
+        "line-directive",
+        "float",
+        "malformed-exponent",
+        "diagjson",
+        "current-threshold",
+        "wave11"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_float_hex_no_exponent_diag_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_float_hex_no_exponent_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_float_hex_no_exponent_diag_current_physical_line.diag"
+      ],
+      "capture_frontend_diag": true,
+      "tags": [
+        "lexer",
+        "line-directive",
+        "float",
+        "hex-no-exponent",
+        "diag",
+        "current-threshold",
+        "wave11"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_directive_float_hex_no_exponent_diagjson_current_physical_line",
+      "bucket": "lexer",
+      "input": "cases/02__line_directive_float_hex_no_exponent_current_physical_line.c",
+      "expects": [
+        "expect/02__line_directive_float_hex_no_exponent_diagjson_current_physical_line.diagjson"
+      ],
+      "capture_frontend_diag_json": true,
+      "tags": [
+        "lexer",
+        "line-directive",
+        "float",
+        "hex-no-exponent",
+        "diagjson",
+        "current-threshold",
+        "wave11"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

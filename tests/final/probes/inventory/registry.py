@@ -16,6 +16,7 @@ from . import bucket_12_diagnostics_recovery
 
 
 RUNTIME_PROBES = (
+    bucket_01_translation_phases.RUNTIME_PROBES +
     bucket_04_declarations.RUNTIME_PROBES +
     bucket_07_types_conversions.RUNTIME_PROBES +
     bucket_08_initializers_layout.RUNTIME_PROBES +

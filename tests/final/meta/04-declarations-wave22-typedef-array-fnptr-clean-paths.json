@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__param_array_typedef_adjust",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_param_array_typedef_adjust_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__param_array_typedef_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "array-param", "adjustment", "clean-path", "wave22", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_param_array_typedef_adjust_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_param_array_typedef_adjust_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_param_array_typedef_adjust_bridge_main.c",
+        "probes/runtime/04__probe_multitu_param_array_typedef_adjust_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_param_array_typedef_adjust_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "typedef", "array-param", "adjustment", "clean-path", "wave22", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__fnptr_typedef_array_param",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_fnptr_typedef_array_param_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__fnptr_typedef_array_param.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "function-pointer", "typedef", "array-param", "declarator", "clean-path", "wave22", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__multitu_fnptr_typedef_array_param_bridge",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_multitu_fnptr_typedef_array_param_bridge_main.c",
+      "inputs": [
+        "probes/runtime/04__probe_multitu_fnptr_typedef_array_param_bridge_main.c",
+        "probes/runtime/04__probe_multitu_fnptr_typedef_array_param_bridge_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__multitu_fnptr_typedef_array_param_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "multitu", "function-pointer", "typedef", "array-param", "declarator", "clean-path", "wave22", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

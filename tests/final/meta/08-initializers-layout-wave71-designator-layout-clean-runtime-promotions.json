@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_nested_zero_fill_ladder_wave71",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_nested_zero_fill_ladder_wave71.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_zero_fill_ladder_wave71.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "nested", "zero-fill", "wave71"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_union_string_continuation_ladder_wave71",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_union_string_continuation_ladder_wave71.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_union_string_continuation_ladder_wave71.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "string", "continuation", "wave71"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_union_bitfield_continuation_grid_wave71",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_union_bitfield_continuation_grid_wave71.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_union_bitfield_continuation_grid_wave71.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "bitfield", "continuation", "wave71"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (9907:12): Undeclared identifier
+   Hint: y
+   Spelling: virtual_diagrec_mixed_nested_while_followup.c:9907:12

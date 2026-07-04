@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Malformed floating literal exponent at virtual_lexer_malformed_float_case.c:2210:12 (got '1e+')

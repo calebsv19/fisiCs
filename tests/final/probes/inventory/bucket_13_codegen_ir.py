@@ -36,6 +36,26 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/13__probe_fnptr_ternary_decay_runtime.c',
         note='function designators in ternary should decay to compatible function pointers',
     ),
+    RuntimeProbe(
+        probe_id='13__probe_fnptr_struct_return_select_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_fnptr_struct_return_select_runtime.c',
+        note='ternary-selected function designators returning structs should preserve by-value call lowering and copy updates',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_global_zero_fill_ptr_stride_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_global_zero_fill_ptr_stride_runtime.c',
+        note='partial global initializers should zero-fill while pointer-difference and indexed loads remain stable across control edges',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_struct_return_phi_copy_mesh_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_struct_return_phi_copy_mesh_runtime.c',
+        note='struct-return selection and aggregate copy across loop-carried merges should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_ptr_stride_call_lowering_mesh_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_ptr_stride_call_lowering_mesh_runtime.c',
+        note='pointer-stride helper calls should preserve by-reference lowering and scaled row indexing',
+    ),
 ]
 
 DIAG_PROBES = [
