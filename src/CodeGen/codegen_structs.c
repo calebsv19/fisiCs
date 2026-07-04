@@ -418,14 +418,16 @@ bool codegenLValue(CodegenContext* ctx,
                     *outParsedType = &tmp;
                 } else if (elemParsed && cg_structs_has_pointer_layer(elemParsed)) {
                     ParsedType pointed = parsedTypePointerTargetType(elemParsed);
-                    if (pointed.kind != TYPE_INVALID && parsedTypeIsDirectArray(&pointed)) {
+                    const ParsedType* pointedResolved = cg_resolve_typedef_parsed_type(ctx, &pointed);
+                    if (pointedResolved &&
+                        pointedResolved->kind != TYPE_INVALID &&
+                        parsedTypeIsDirectArray(pointedResolved)) {
                         static ParsedType tmp;
                         parsedTypeFree(&tmp);
-                        tmp = pointed;
+                        tmp = parsedTypeClone(pointedResolved);
                         *outParsedType = &tmp;
-                    } else {
-                        parsedTypeFree(&pointed);
                     }
+                    parsedTypeFree(&pointed);
                 }
                 if (!*outParsedType) {
                     /*

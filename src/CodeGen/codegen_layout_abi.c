@@ -606,16 +606,7 @@ LLVMTypeRef cg_element_type_hint_from_parsed(CodegenContext* ctx, const ParsedTy
     if (!surfaceParsed) {
         surfaceParsed = parsedType;
     }
-    const SemanticModel* model = cg_context_get_semantic_model(ctx);
-    if (model &&
-        surfaceParsed->kind == TYPE_NAMED &&
-        surfaceParsed->userTypeName &&
-        !cg_named_type_has_surface_derivations(surfaceParsed)) {
-        const Symbol* aliasSym = semanticModelLookupGlobal(model, surfaceParsed->userTypeName);
-        if (aliasSym && aliasSym->kind == SYMBOL_TYPEDEF) {
-            surfaceParsed = &aliasSym->type;
-        }
-    }
+    surfaceParsed = cg_resolve_typedef_parsed_type(ctx, surfaceParsed);
 
     LLVMTypeRef hint = NULL;
     if (parsedTypeIsDirectArray(surfaceParsed)) {
@@ -715,9 +706,10 @@ LLVMValueRef cg_build_pointer_offset(CodegenContext* ctx,
 
         LLVMTypeRef elementType = cg_element_type_from_pointer(ctx, elemParsed, ptrType);
         ParsedType targetParsed = parsedTypePointerTargetType(elemParsed);
+        const ParsedType* targetResolved = cg_resolve_typedef_parsed_type(ctx, &targetParsed);
         const ParsedType* sizeParsed = elemParsed;
         if (targetParsed.kind != TYPE_INVALID) {
-            sizeParsed = &targetParsed;
+            sizeParsed = targetResolved ? targetResolved : &targetParsed;
         }
         uint64_t elemSize = 0;
         uint32_t elemAlign = 0;
@@ -792,22 +784,23 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
         lhsTarget = (parsedTypeIsDirectArray(lhsParsed) && !cg_parsed_type_has_pointer_layer(lhsParsed))
                         ? parsedTypeArrayElementType(lhsParsed)
                         : parsedTypePointerTargetType(lhsParsed);
-        if (lhsTarget.kind != TYPE_INVALID) {
-            lhsCharPtr = (lhsTarget.kind == TYPE_PRIMITIVE &&
-                          lhsTarget.primitiveType == TOKEN_CHAR &&
-                          lhsTarget.pointerDepth == 0 &&
-                          !parsedTypeIsDirectArray(&lhsTarget));
-            if (parsedTypeIsDirectArray(&lhsTarget) && parsedTypeHasVLA(&lhsTarget)) {
-                dynamicElemSize = cg_build_vla_array_size_bytes(ctx, &lhsTarget);
+        const ParsedType* lhsResolved = cg_resolve_typedef_parsed_type(ctx, &lhsTarget);
+        if (lhsResolved && lhsResolved->kind != TYPE_INVALID) {
+            lhsCharPtr = (lhsResolved->kind == TYPE_PRIMITIVE &&
+                          lhsResolved->primitiveType == TOKEN_CHAR &&
+                          lhsResolved->pointerDepth == 0 &&
+                          !parsedTypeIsDirectArray(lhsResolved));
+            if (parsedTypeIsDirectArray(lhsResolved) && parsedTypeHasVLA(lhsResolved)) {
+                dynamicElemSize = cg_build_vla_array_size_bytes(ctx, lhsResolved);
                 haveLhsElem = dynamicElemSize != NULL;
-            } else if (parsedTypeIsDirectArray(&lhsTarget)) {
+            } else if (parsedTypeIsDirectArray(lhsResolved)) {
                 uint32_t al = 0;
-                haveLhsElem = cg_size_align_of_parsed(ctx, &lhsTarget, &lhsElemBytes, &al) && lhsElemBytes > 0;
+                haveLhsElem = cg_size_align_of_parsed(ctx, lhsResolved, &lhsElemBytes, &al) && lhsElemBytes > 0;
             }
             if (!haveLhsElem) {
-                LLVMTypeRef hint = cg_type_from_parsed(ctx, &lhsTarget);
+                LLVMTypeRef hint = cg_type_from_parsed(ctx, lhsResolved);
                 uint32_t al = 0;
-                haveLhsElem = cg_pointer_elem_size(ctx, &lhsTarget, hint, &lhsElemBytes, &al) && lhsElemBytes > 0;
+                haveLhsElem = cg_pointer_elem_size(ctx, lhsResolved, hint, &lhsElemBytes, &al) && lhsElemBytes > 0;
             }
         }
         parsedTypeFree(&lhsTarget);
@@ -819,22 +812,23 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
         rhsTarget = (parsedTypeIsDirectArray(rhsParsed) && !cg_parsed_type_has_pointer_layer(rhsParsed))
                         ? parsedTypeArrayElementType(rhsParsed)
                         : parsedTypePointerTargetType(rhsParsed);
-        if (rhsTarget.kind != TYPE_INVALID) {
-            rhsCharPtr = (rhsTarget.kind == TYPE_PRIMITIVE &&
-                          rhsTarget.primitiveType == TOKEN_CHAR &&
-                          rhsTarget.pointerDepth == 0 &&
-                          !parsedTypeIsDirectArray(&rhsTarget));
-            if (!dynamicElemSize && parsedTypeIsDirectArray(&rhsTarget) && parsedTypeHasVLA(&rhsTarget)) {
-                dynamicElemSize = cg_build_vla_array_size_bytes(ctx, &rhsTarget);
+        const ParsedType* rhsResolved = cg_resolve_typedef_parsed_type(ctx, &rhsTarget);
+        if (rhsResolved && rhsResolved->kind != TYPE_INVALID) {
+            rhsCharPtr = (rhsResolved->kind == TYPE_PRIMITIVE &&
+                          rhsResolved->primitiveType == TOKEN_CHAR &&
+                          rhsResolved->pointerDepth == 0 &&
+                          !parsedTypeIsDirectArray(rhsResolved));
+            if (!dynamicElemSize && parsedTypeIsDirectArray(rhsResolved) && parsedTypeHasVLA(rhsResolved)) {
+                dynamicElemSize = cg_build_vla_array_size_bytes(ctx, rhsResolved);
                 haveRhsElem = dynamicElemSize != NULL;
-            } else if (parsedTypeIsDirectArray(&rhsTarget)) {
+            } else if (parsedTypeIsDirectArray(rhsResolved)) {
                 uint32_t al = 0;
-                haveRhsElem = cg_size_align_of_parsed(ctx, &rhsTarget, &rhsElemBytes, &al) && rhsElemBytes > 0;
+                haveRhsElem = cg_size_align_of_parsed(ctx, rhsResolved, &rhsElemBytes, &al) && rhsElemBytes > 0;
             }
             if (!haveRhsElem) {
-                LLVMTypeRef hint = cg_type_from_parsed(ctx, &rhsTarget);
+                LLVMTypeRef hint = cg_type_from_parsed(ctx, rhsResolved);
                 uint32_t al = 0;
-                haveRhsElem = cg_pointer_elem_size(ctx, &rhsTarget, hint, &rhsElemBytes, &al) && rhsElemBytes > 0;
+                haveRhsElem = cg_pointer_elem_size(ctx, rhsResolved, hint, &rhsElemBytes, &al) && rhsElemBytes > 0;
             }
         }
         parsedTypeFree(&rhsTarget);

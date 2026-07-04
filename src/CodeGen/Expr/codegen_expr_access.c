@@ -208,17 +208,19 @@ LLVMValueRef codegenArrayAccess(CodegenContext* ctx, ASTNode* node) {
     }
     if (arrayParsed && cg_parsed_type_is_pointerish(arrayParsed)) {
         ParsedType pointed = parsedTypePointerTargetType(arrayParsed);
+        const ParsedType* pointedResolved = cg_resolve_typedef_parsed_type(ctx, &pointed);
         bool pointerToVLAArray =
-            pointed.kind != TYPE_INVALID &&
-            parsedTypeIsDirectArray(&pointed) &&
-            parsedTypeHasVLA(&pointed);
+            pointedResolved &&
+            pointedResolved->kind != TYPE_INVALID &&
+            parsedTypeIsDirectArray(pointedResolved) &&
+            parsedTypeHasVLA(pointedResolved);
         if (getenv("DEBUG_RUN")) {
             fprintf(stderr,
                     "[CG] ptr-array access pointerToVLA=%d basePtrDepth=%d baseDerivs=%zu pointedDerivs=%zu\n",
                     pointerToVLAArray ? 1 : 0,
                     arrayParsed->pointerDepth,
                     arrayParsed->derivationCount,
-                    pointed.derivationCount);
+                    pointedResolved ? pointedResolved->derivationCount : 0);
         }
         parsedTypeFree(&pointed);
         if (pointerToVLAArray) {

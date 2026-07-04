@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__local_vla_typedef_pointer_view",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_local_vla_typedef_pointer_view_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__local_vla_typedef_pointer_view.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "block-scope", "pointer-to-vla", "metadata", "wave23", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

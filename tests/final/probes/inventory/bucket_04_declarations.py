@@ -315,6 +315,11 @@ RUNTIME_PROBES = [
             PROBE_DIR / 'runtime/04__probe_multitu_fnptr_typedef_array_param_bridge_lib.c',
         ],
     ),
+    RuntimeProbe(
+        probe_id='04__probe_local_vla_typedef_pointer_view_runtime',
+        source=PROBE_DIR / 'runtime/04__probe_local_vla_typedef_pointer_view_runtime.c',
+        note='block-scope VLA typedef pointer views should preserve runtime row stride metadata through nested indexing',
+    ),
 ]
 
 DIAG_PROBES = [

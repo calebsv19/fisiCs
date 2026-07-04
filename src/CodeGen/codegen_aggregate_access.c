@@ -311,11 +311,13 @@ LLVMValueRef buildArrayElementPointer(CodegenContext* ctx,
 
     if (baseParsedHint && cg_parsed_type_has_pointer_layer(baseParsedHint)) {
         ParsedType pointed = parsedTypePointerTargetType(baseParsedHint);
-        if (pointed.kind != TYPE_INVALID &&
-            parsedTypeIsDirectArray(&pointed) &&
-            parsedTypeHasVLA(&pointed)) {
+        const ParsedType* pointedResolved = cg_resolve_typedef_parsed_type(ctx, &pointed);
+        if (pointedResolved &&
+            pointedResolved->kind != TYPE_INVALID &&
+            parsedTypeIsDirectArray(pointedResolved) &&
+            parsedTypeHasVLA(pointedResolved)) {
             LLVMValueRef stepped = cg_build_pointer_offset(ctx, basePtr, idx64, baseParsedHint, NULL, false);
-            LLVMTypeRef elem = cg_innermost_array_element_type(ctx, &pointed);
+            LLVMTypeRef elem = cg_innermost_array_element_type(ctx, pointedResolved);
             parsedTypeFree(&pointed);
             if (!stepped) {
                 return NULL;

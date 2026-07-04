@@ -1,13 +1,13 @@
 {
   "summary": {
-    "total_probes": 2456,
-    "total_final_tests": 3858,
-    "promoted": 2252,
+    "total_probes": 2457,
+    "total_final_tests": 3859,
+    "promoted": 2253,
     "probe_only": 204,
     "missing_promotion_candidate": 0,
     "promoted_match_kinds": {
       "id": 1007,
-      "path": 1223,
+      "path": 1224,
       "stem": 22
     },
     "probe_only_reasons": {
@@ -43,7 +43,7 @@
       },
       {
         "bucket": "04",
-        "promoted": 91,
+        "promoted": 92,
         "probe_only": 2,
         "missing_promotion_candidate": 0
       },
@@ -129,7 +129,7 @@
       },
       {
         "family": "runtime",
-        "promoted": 1133,
+        "promoted": 1134,
         "probe_only": 5,
         "missing_promotion_candidate": 0
       }
@@ -9300,6 +9300,37 @@
             "declarator",
             "clean-path",
             "wave22",
+            "probe-promotion"
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "family": "runtime",
+      "probe_id": "04__probe_local_vla_typedef_pointer_view_runtime",
+      "bucket": "04",
+      "source": "probes/runtime/04__probe_local_vla_typedef_pointer_view_runtime.c",
+      "inputs": [],
+      "note": "block-scope VLA typedef pointer views should preserve runtime row stride metadata through nested indexing",
+      "classification": "promoted",
+      "reason": "stable final inventory match via path",
+      "match_kind": "path",
+      "matched_final_tests": [
+        {
+          "id": "04__runtime__local_vla_typedef_pointer_view",
+          "manifest": "04-declarations-wave23-local-vla-typedef-metadata.json",
+          "input": "probes/runtime/04__probe_local_vla_typedef_pointer_view_runtime.c",
+          "inputs": [],
+          "tags": [
+            "declarations",
+            "runtime",
+            "typedef",
+            "vla",
+            "block-scope",
+            "pointer-to-vla",
+            "metadata",
+            "wave23",
             "probe-promotion"
           ],
           "status": "ok"

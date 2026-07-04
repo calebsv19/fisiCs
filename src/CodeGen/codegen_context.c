@@ -2,6 +2,8 @@
 
 #include "codegen_private.h"
 
+#include "Syntax/symbol_table.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -189,6 +191,11 @@ static void cg_scope_destroy(CGScope* scope) {
         free(scope->entries[i].name);
     }
     free(scope->entries);
+    for (size_t i = 0; i < scope->typedefCount; ++i) {
+        free(scope->typedefs[i].name);
+        parsedTypeFree(&scope->typedefs[i].parsedType);
+    }
+    free(scope->typedefs);
     free(scope);
 }
 
@@ -257,6 +264,79 @@ NamedValue* cg_scope_lookup(CGScope* scope, const char* name) {
         }
     }
     return NULL;
+}
+
+void cg_scope_insert_typedef(CGScope* scope, const char* name, const ParsedType* parsedType) {
+    if (!scope || !name || !parsedType) return;
+    for (size_t i = 0; i < scope->typedefCount; ++i) {
+        if (scope->typedefs[i].name && strcmp(scope->typedefs[i].name, name) == 0) {
+            parsedTypeFree(&scope->typedefs[i].parsedType);
+            scope->typedefs[i].parsedType = parsedTypeClone(parsedType);
+            return;
+        }
+    }
+
+    if (scope->typedefCount == scope->typedefCapacity) {
+        size_t newCap = scope->typedefCapacity ? scope->typedefCapacity * 2 : 4;
+        CGTypedefBinding* resized =
+            (CGTypedefBinding*)realloc(scope->typedefs, newCap * sizeof(CGTypedefBinding));
+        if (!resized) return;
+        scope->typedefs = resized;
+        scope->typedefCapacity = newCap;
+    }
+
+    CGTypedefBinding* binding = &scope->typedefs[scope->typedefCount++];
+    binding->name = strdup(name);
+    binding->parsedType = parsedTypeClone(parsedType);
+}
+
+const ParsedType* cg_scope_lookup_typedef(CGScope* scope, const char* name) {
+    if (!name) return NULL;
+    for (CGScope* iter = scope; iter; iter = iter->parent) {
+        for (size_t i = 0; i < iter->typedefCount; ++i) {
+            if (iter->typedefs[i].name && strcmp(iter->typedefs[i].name, name) == 0) {
+                return &iter->typedefs[i].parsedType;
+            }
+        }
+    }
+    return NULL;
+}
+
+static bool cg_type_is_bare_named_typedef_ref(const ParsedType* type) {
+    return type &&
+           type->kind == TYPE_NAMED &&
+           type->userTypeName &&
+           type->derivationCount == 0 &&
+           type->pointerDepth == 0 &&
+           !type->isFunctionPointer;
+}
+
+const ParsedType* cg_resolve_typedef_parsed_type(CodegenContext* ctx, const ParsedType* type) {
+    if (!ctx || !cg_type_is_bare_named_typedef_ref(type)) {
+        return type;
+    }
+
+    const ParsedType* scoped = cg_scope_lookup_typedef(ctx->currentScope, type->userTypeName);
+    if (scoped) {
+        return scoped;
+    }
+
+    CGTypeCache* cache = cg_context_get_type_cache(ctx);
+    if (cache) {
+        CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, type->userTypeName);
+        if (info) {
+            return &info->parsedType;
+        }
+    }
+
+    if (ctx->semanticModel) {
+        const Symbol* sym = semanticModelLookupGlobal(ctx->semanticModel, type->userTypeName);
+        if (sym && sym->kind == SYMBOL_TYPEDEF) {
+            return &sym->type;
+        }
+    }
+
+    return type;
 }
 
 void cg_loop_push(CodegenContext* ctx, LLVMBasicBlockRef breakBB, LLVMBasicBlockRef continueBB) {

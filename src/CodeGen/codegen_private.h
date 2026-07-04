@@ -50,10 +50,18 @@ typedef struct NamedValue {
     bool addressOnly;
 } NamedValue;
 
+typedef struct CGTypedefBinding {
+    char* name;
+    ParsedType parsedType;
+} CGTypedefBinding;
+
 typedef struct CGScope {
     NamedValue* entries;
     size_t count;
     size_t capacity;
+    CGTypedefBinding* typedefs;
+    size_t typedefCount;
+    size_t typedefCapacity;
     struct CGScope* parent;
 } CGScope;
 
@@ -160,6 +168,8 @@ void cg_scope_insert(CGScope* scope,
                      LLVMTypeRef elementType,
                      const ParsedType* parsedType);
 NamedValue* cg_scope_lookup(CGScope* scope, const char* name);
+void cg_scope_insert_typedef(CGScope* scope, const char* name, const ParsedType* parsedType);
+const ParsedType* cg_scope_lookup_typedef(CGScope* scope, const char* name);
 
 void cg_loop_push(CodegenContext* ctx, LLVMBasicBlockRef breakBB, LLVMBasicBlockRef continueBB);
 void cg_loop_pop(CodegenContext* ctx);
@@ -187,6 +197,7 @@ LLVMValueRef cg_build_pointer_difference(CodegenContext* ctx,
                                          const ParsedType* rhsParsed);
 const ParsedType* cg_resolve_expression_type(CodegenContext* ctx, ASTNode* node);
 const ParsedType* cg_refine_function_call_result_type(CodegenContext* ctx, ASTNode* callNode);
+const ParsedType* cg_resolve_typedef_parsed_type(CodegenContext* ctx, const ParsedType* type);
 LLVMTypeRef cg_element_type_from_pointer_parsed(CodegenContext* ctx, const ParsedType* parsed);
 bool cg_is_volatile_object(const ParsedType* parsed);
 LLVMValueRef cg_build_load(CodegenContext* ctx, LLVMTypeRef type, LLVMValueRef ptr, const char* name, const ParsedType* parsed);

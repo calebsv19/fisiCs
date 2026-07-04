@@ -683,6 +683,8 @@ LLVMValueRef codegenTypedef(CodegenContext* ctx, ASTNode* node) {
         return NULL;
     }
 
+    cg_scope_insert_typedef(ctx->currentScope, aliasName, &node->typedefStmt.baseType);
+
     if (cg_context_get_type_cache(ctx)) {
         return NULL; /* semantic model already contributed this typedef */
     }

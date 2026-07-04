@@ -666,6 +666,7 @@
     "04-declarations-wave20-probe-promotion-audit-closure.json",
     "04-declarations-wave21-nested-vla-pointer-chain-depth.json",
     "04-declarations-wave22-typedef-array-fnptr-clean-paths.json",
+    "04-declarations-wave23-local-vla-typedef-metadata.json",
     "14-runtime-surface-wave130-generation-replay-collapse-followup.json",
     "14-runtime-surface-wave131-reserve-reclaim-collapse-followup.json",
     "14-runtime-surface-wave132-generation-import-order-followup.json",

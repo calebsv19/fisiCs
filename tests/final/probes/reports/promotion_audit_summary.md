@@ -2,16 +2,16 @@
 
 ## Summary
 
-- Total resolved probe inventory audited: `2456`
-- Promoted stable coverage: `2252`
+- Total resolved probe inventory audited: `2457`
+- Promoted stable coverage: `2253`
 - Intentional probe-only coverage: `204`
 - Missing promotion candidates: `0`
-- Stable final tests scanned: `3858`
+- Stable final tests scanned: `3859`
 
 ### Promoted Match Evidence
 
 - `id`: `1007`
-- `path`: `1223`
+- `path`: `1224`
 - `stem`: `22`
 
 ### Explicit Probe-Only Reasons
@@ -32,7 +32,7 @@
 - Bucket `01`: promoted `25`, probe-only `0`, missing `0`
 - Bucket `02`: promoted `50`, probe-only `0`, missing `0`
 - Bucket `03`: promoted `50`, probe-only `0`, missing `0`
-- Bucket `04`: promoted `91`, probe-only `2`, missing `0`
+- Bucket `04`: promoted `92`, probe-only `2`, missing `0`
 - Bucket `05`: promoted `67`, probe-only `8`, missing `0`
 - Bucket `06`: promoted `28`, probe-only `36`, missing `0`
 - Bucket `07`: promoted `218`, probe-only `0`, missing `0`

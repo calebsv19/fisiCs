@@ -579,6 +579,15 @@ static LLVMTypeRef namedAliasType(CodegenContext* ctx, const ParsedType* type) {
         return vaListTy;
     }
 
+    const ParsedType* scopedAlias = cg_resolve_typedef_parsed_type(ctx, type);
+    if (scopedAlias && scopedAlias != type) {
+        LLVMTypeRef resolved = cg_type_from_parsed(ctx, scopedAlias);
+        if (resolved) {
+            CG_TRACE("[TRACE] namedAliasType scoped typedef resolved=%p\n", (void*)resolved);
+            return resolved;
+        }
+    }
+
     CGTypeCache* cache = cg_context_get_type_cache(ctx);
     if (cache) {
         CGNamedLLVMType* info = cg_type_cache_get_typedef_info(cache, aliasName);
