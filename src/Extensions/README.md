@@ -74,6 +74,9 @@ Current debug visibility contract:
 - Phase 7 Slice 4 freezes that public concrete-unit lane before conversions:
   - frontend contract `1.7.0` adds optional `unit_source_text` so IDE/agent consumers can preserve the original source spelling beside the canonical unit name
   - canonical scale/offset and other conversion mechanics remain intentionally internal until Phase 8
+- IDE bridge local-units export widens the declaration attachment metadata:
+  - frontend contract `1.8.0` adds `has_symbol_stable_id` and source file/range fields so local declarations can navigate without exported stable symbol ids
+  - the attachment lane still contains only compiler-known declaration-side annotations; expression-result browsing and suffix heuristics remain out of contract
 - Phase 8 Slice 3 adds the first explicit conversion helper lane without widening the public contract:
   - `fisics_convert_unit(value, "target_unit")` and `__builtin_fisics_convert_unit(...)` now form the explicit-only concrete-unit conversion path
   - conversion requires a resolved source unit, a valid target registry unit, matching canonical `Dim8`, and a conversion-supported family

@@ -289,6 +289,14 @@ def main():
         return 1
     bin_path = str(staged_bin.staged_path)
     memcheck_runtime_lib = REPO_ROOT / "build" / "unsanitized" / "libfisics_memcheck_runtime.a"
+    memcheck_runtime_tmp = None
+    if memcheck_runtime_lib.exists():
+        memcheck_runtime_tmp = tempfile.TemporaryDirectory(prefix="final-memcheck-runtime-")
+        staged_memcheck_runtime_lib = (
+            Path(memcheck_runtime_tmp.name) / memcheck_runtime_lib.name
+        )
+        shutil.copy2(memcheck_runtime_lib, staged_memcheck_runtime_lib)
+        memcheck_runtime_lib = staged_memcheck_runtime_lib
     update = os.environ.get("UPDATE_FINAL", "0") == "1" or "--update" in sys.argv
     filt = os.environ.get("FINAL_FILTER", "").strip()
     prefix_filters = parse_csv_env("FINAL_PREFIX")
@@ -943,6 +951,8 @@ def main():
             print(f"\n0 failing, {skipped} skipped")
         return 0
     finally:
+        if memcheck_runtime_tmp is not None:
+            memcheck_runtime_tmp.cleanup()
         staged_bin.cleanup()
 
 

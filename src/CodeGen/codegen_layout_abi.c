@@ -150,6 +150,31 @@ static void cg_adjust_parameter_type_for_lowering(ParsedType* type) {
     type->directlyDeclaresFunction = false;
 }
 
+bool cg_prepare_parameter_type_for_lowering(CodegenContext* ctx,
+                                            const ParsedType* parsed,
+                                            ParsedType* outAdjusted) {
+    if (!outAdjusted) {
+        return false;
+    }
+    memset(outAdjusted, 0, sizeof(*outAdjusted));
+    outAdjusted->kind = TYPE_INVALID;
+    if (!parsed) {
+        return false;
+    }
+
+    const ParsedType* surface = parsed;
+    if (ctx && parsed->kind == TYPE_NAMED && !cg_named_type_has_surface_derivations(parsed)) {
+        const ParsedType* resolved = cg_resolve_typedef_chain(ctx, parsed);
+        if (resolved) {
+            surface = resolved;
+        }
+    }
+
+    *outAdjusted = parsedTypeClone(surface);
+    cg_adjust_parameter_type_for_lowering(outAdjusted);
+    return true;
+}
+
 static bool cg_pointer_elem_size(CodegenContext* ctx,
                                  const ParsedType* parsed,
                                  LLVMTypeRef llvmHint,
@@ -419,8 +444,10 @@ LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
         return NULL;
     }
 
-    ParsedType adjusted = parsedTypeClone(parsed);
-    cg_adjust_parameter_type_for_lowering(&adjusted);
+    ParsedType adjusted;
+    if (!cg_prepare_parameter_type_for_lowering(ctx, parsed, &adjusted)) {
+        return NULL;
+    }
 
     LLVMTypeRef valueType = cg_type_from_parsed(ctx, &adjusted);
     bool passIndirect = false;

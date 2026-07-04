@@ -214,6 +214,8 @@ typedef struct {
     long long value;
     LLVMValueRef constVal;
     ASTNode* caseNode;
+    size_t sourceIndex;
+    LLVMBasicBlockRef bodyBB;
 } CGCaseEntry;
 
 static bool cg_const_int_from_value(LLVMValueRef v, long long* out) {
@@ -237,7 +239,7 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
 
     LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
     LLVMBasicBlockRef switchEnd = LLVMAppendBasicBlock(func, "switch.end");
-    LLVMBasicBlockRef defaultBB = LLVMAppendBasicBlock(func, "switch.default");
+    LLVMBasicBlockRef defaultBB = NULL;
     LLVMTypeRef conditionType = LLVMTypeOf(condition);
     bool conditionIsInteger = LLVMGetTypeKind(conditionType) == LLVMIntegerTypeKind;
     if (!conditionIsInteger) {
@@ -253,12 +255,10 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
     size_t caseCount = node->switchStmt.caseListSize;
     CGCaseEntry* entries = calloc(caseCount, sizeof(CGCaseEntry));
     size_t realCases = 0;
-    ASTNode* defaultCase = NULL;
     for (size_t i = 0; i < caseCount; ++i) {
         ASTNode* caseNode = node->switchStmt.caseList[i];
         if (!caseNode || caseNode->type != AST_CASE) continue;
         if (!caseNode->caseStmt.caseValue) {
-            defaultCase = caseNode;
             continue;
         }
         LLVMValueRef caseValue = codegenNode(ctx, caseNode->caseStmt.caseValue);
@@ -271,6 +271,7 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
         entries[realCases].value = val;
         entries[realCases].constVal = caseValue;
         entries[realCases].caseNode = caseNode;
+        entries[realCases].sourceIndex = i;
         realCases++;
     }
 
@@ -289,93 +290,85 @@ LLVMValueRef codegenSwitch(CodegenContext* ctx, ASTNode* node) {
         dense = conditionIsInteger && span > 0 && span <= (long long)(realCases * 2);
     }
 
+    LLVMBasicBlockRef* sourceBlocks = calloc(caseCount, sizeof(LLVMBasicBlockRef));
+    if (caseCount > 0 && !sourceBlocks) {
+        free(entries);
+        return NULL;
+    }
+    for (size_t i = 0; i < realCases; ++i) {
+        entries[i].bodyBB = LLVMAppendBasicBlock(func, "switch.case");
+        sourceBlocks[entries[i].sourceIndex] = entries[i].bodyBB;
+    }
+    for (size_t i = 0; i < caseCount; ++i) {
+        ASTNode* caseNode = node->switchStmt.caseList[i];
+        if (!caseNode || caseNode->type != AST_CASE || caseNode->caseStmt.caseValue) {
+            continue;
+        }
+        defaultBB = LLVMAppendBasicBlock(func, "switch.default");
+        sourceBlocks[i] = defaultBB;
+        break;
+    }
+
     cg_loop_push(ctx, switchEnd, NULL);
     LLVMBasicBlockRef pendingFallthrough = NULL;
 
     if (dense) {
         LLVMValueRef switchInst = LLVMBuildSwitch(ctx->builder,
                                                   condition,
-                                                  defaultBB,
+                                                  defaultBB ? defaultBB : switchEnd,
                                                   (unsigned)realCases);
         for (size_t i = 0; i < realCases; ++i) {
-            ASTNode* caseNode = entries[i].caseNode;
-            LLVMBasicBlockRef caseBB = LLVMAppendBasicBlock(func, "switch.case");
-            LLVMAddCase(switchInst, entries[i].constVal, caseBB);
-            if (pendingFallthrough) {
-                LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
-                LLVMBuildBr(ctx->builder, caseBB);
-                pendingFallthrough = NULL;
-            }
-            LLVMPositionBuilderAtEnd(ctx->builder, caseBB);
-            for (size_t stmtIdx = 0; stmtIdx < caseNode->caseStmt.caseBodySize; ++stmtIdx) {
-                ASTNode* stmt = caseNode->caseStmt.caseBody[stmtIdx];
-                if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
-                    continue;
-                }
-                codegenNode(ctx, stmt);
-            }
-            LLVMBasicBlockRef currentBB = LLVMGetInsertBlock(ctx->builder);
-            if (currentBB && !LLVMGetBasicBlockTerminator(currentBB)) {
-                pendingFallthrough = currentBB;
-            }
+            LLVMAddCase(switchInst, entries[i].constVal, entries[i].bodyBB);
         }
     } else {
         LLVMBasicBlockRef nextTest = LLVMGetInsertBlock(ctx->builder);
         for (size_t i = 0; i < realCases; ++i) {
-            ASTNode* caseNode = entries[i].caseNode;
-            LLVMBasicBlockRef caseBB = LLVMAppendBasicBlock(func, "switch.case");
             LLVMBasicBlockRef contBB = LLVMAppendBasicBlock(func, "switch.next");
-            if (pendingFallthrough) {
-                LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
-                LLVMBuildBr(ctx->builder, caseBB);
-                pendingFallthrough = NULL;
-            }
             LLVMPositionBuilderAtEnd(ctx->builder, nextTest);
             LLVMValueRef cmp = LLVMBuildICmp(ctx->builder,
                                              LLVMIntEQ,
                                              condition,
                                              entries[i].constVal,
                                              "switch.cmp");
-            LLVMBuildCondBr(ctx->builder, cmp, caseBB, contBB);
-
-            LLVMPositionBuilderAtEnd(ctx->builder, caseBB);
-            for (size_t stmtIdx = 0; stmtIdx < caseNode->caseStmt.caseBodySize; ++stmtIdx) {
-                ASTNode* stmt = caseNode->caseStmt.caseBody[stmtIdx];
-                if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
-                    continue;
-                }
-                codegenNode(ctx, stmt);
-            }
-            LLVMBasicBlockRef currentBB = LLVMGetInsertBlock(ctx->builder);
-            if (currentBB && !LLVMGetBasicBlockTerminator(currentBB)) {
-                pendingFallthrough = currentBB;
-            }
+            LLVMBuildCondBr(ctx->builder, cmp, entries[i].bodyBB, contBB);
             nextTest = contBB;
         }
         LLVMPositionBuilderAtEnd(ctx->builder, nextTest);
-        LLVMBuildBr(ctx->builder, defaultBB);
+        LLVMBuildBr(ctx->builder, defaultBB ? defaultBB : switchEnd);
     }
 
-    free(entries);
-
-    if (pendingFallthrough) {
-        LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
-        LLVMBuildBr(ctx->builder, defaultCase ? defaultBB : switchEnd);
-        pendingFallthrough = NULL;
-    }
-
-    LLVMPositionBuilderAtEnd(ctx->builder, defaultBB);
-    if (defaultCase) {
-        for (size_t stmtIdx = 0; stmtIdx < defaultCase->caseStmt.caseBodySize; ++stmtIdx) {
-            ASTNode* stmt = defaultCase->caseStmt.caseBody[stmtIdx];
+    for (size_t i = 0; i < caseCount; ++i) {
+        ASTNode* caseNode = node->switchStmt.caseList[i];
+        LLVMBasicBlockRef caseBB = sourceBlocks[i];
+        if (!caseNode || caseNode->type != AST_CASE || !caseBB) {
+            continue;
+        }
+        if (pendingFallthrough) {
+            LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
+            LLVMBuildBr(ctx->builder, caseBB);
+            pendingFallthrough = NULL;
+        }
+        LLVMPositionBuilderAtEnd(ctx->builder, caseBB);
+        for (size_t stmtIdx = 0; stmtIdx < caseNode->caseStmt.caseBodySize; ++stmtIdx) {
+            ASTNode* stmt = caseNode->caseStmt.caseBody[stmtIdx];
             if (!cg_should_emit_statement_in_current_block(ctx, stmt)) {
                 continue;
             }
             codegenNode(ctx, stmt);
         }
+        LLVMBasicBlockRef currentBB = LLVMGetInsertBlock(ctx->builder);
+        if (currentBB && !LLVMGetBasicBlockTerminator(currentBB)) {
+            pendingFallthrough = currentBB;
+        }
     }
-    if (!LLVMGetBasicBlockTerminator(defaultBB)) {
+
+    free(sourceBlocks);
+    free(entries);
+
+    if (pendingFallthrough) {
+        LLVMPositionBuilderAtEnd(ctx->builder, pendingFallthrough);
         LLVMBuildBr(ctx->builder, switchEnd);
+        pendingFallthrough = NULL;
     }
 
     cg_loop_pop(ctx);

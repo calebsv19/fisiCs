@@ -7,6 +7,7 @@
 
 #include "AST/ast_node.h"
 #include "Extensions/extension_hooks.h"
+#include "Extensions/extension_units_view.h"
 
 typedef struct {
     FisicsUnitsAttachment* items;
@@ -14,6 +15,7 @@ typedef struct {
     size_t capacity;
     const FisicsSymbol* symbols;
     size_t symbol_count;
+    const char* fallback_file_path;
     bool ok;
 } UnitsAttachmentBuffer;
 
@@ -71,8 +73,10 @@ static const FisicsSymbol* find_exported_symbol_match(const Symbol* sym,
 
 static bool append_units_attachment(UnitsAttachmentBuffer* buf,
                                     const FisicsSymbol* symbol,
+                                    const char* symbol_name,
+                                    SourceRange range,
                                     const FisicsUnitsAnnotation* ann) {
-    if (!buf || !symbol || !ann) return false;
+    if (!buf || !symbol_name || !ann) return false;
     if (buf->count == buf->capacity) {
         size_t new_cap = buf->capacity ? buf->capacity * 2 : 4;
         FisicsUnitsAttachment* grown = (FisicsUnitsAttachment*)realloc(
@@ -85,15 +89,30 @@ static bool append_units_attachment(UnitsAttachmentBuffer* buf,
 
     FisicsUnitsAttachment* dst = &buf->items[buf->count];
     memset(dst, 0, sizeof(*dst));
-    dst->symbol_stable_id = symbol->stable_id;
-    dst->symbol_name = dup_cstr(symbol->name);
+    if (symbol && symbol->stable_id != 0) {
+        dst->symbol_stable_id = symbol->stable_id;
+        dst->has_symbol_stable_id = true;
+    }
+    dst->symbol_name = dup_cstr(symbol_name);
     if (!dst->symbol_name) return false;
+    dst->source_file_path = dup_cstr(range.start.file);
+    dst->start_line = range.start.line;
+    dst->start_col = range.start.column;
+    dst->end_line = range.end.line;
+    dst->end_col = range.end.column;
+    if (range.start.file && !dst->source_file_path) {
+        free((void*)dst->symbol_name);
+        dst->symbol_name = NULL;
+        return false;
+    }
 
     const char* dim_text = ann->canonicalText ? ann->canonicalText : ann->dimExprText;
     dst->dim_text = dup_cstr(dim_text);
     if (!dst->dim_text) {
         free((void*)dst->symbol_name);
+        free((void*)dst->source_file_path);
         dst->symbol_name = NULL;
+        dst->source_file_path = NULL;
         return false;
     }
 
@@ -106,6 +125,7 @@ static bool append_units_attachment(UnitsAttachmentBuffer* buf,
         dst->unit_family = dup_cstr(fisics_dim_family_name(ann->unitDef->family));
         if (!dst->unit_source_text || !dst->unit_name || !dst->unit_symbol || !dst->unit_family) {
             free((void*)dst->symbol_name);
+            free((void*)dst->source_file_path);
             free((void*)dst->dim_text);
             free((void*)dst->unit_source_text);
             free((void*)dst->unit_name);
@@ -124,6 +144,7 @@ static void free_units_attachment_buffer(UnitsAttachmentBuffer* buf) {
     if (!buf || !buf->items) return;
     for (size_t i = 0; i < buf->count; ++i) {
         free((void*)buf->items[i].symbol_name);
+        free((void*)buf->items[i].source_file_path);
         free((void*)buf->items[i].dim_text);
         free((void*)buf->items[i].unit_source_text);
         free((void*)buf->items[i].unit_name);
@@ -146,28 +167,71 @@ static void collect_units_symbol_cb(const Symbol* sym, void* user_data) {
     const FisicsSymbol* exported = find_exported_symbol_match(sym, buf->symbols, buf->symbol_count);
     if (!exported || exported->stable_id == 0) return;
 
-    if (!append_units_attachment(buf, exported, ann)) {
+    SourceRange range = sym->definition ? sym->definition->location : (SourceRange){0};
+    if (!range.start.file || !range.start.file[0]) range.start.file = buf->fallback_file_path;
+    if (!range.end.file || !range.end.file[0]) range.end.file = range.start.file;
+    if (!append_units_attachment(buf, exported, exported->name, range, ann)) {
         buf->ok = false;
+    }
+}
+
+static void collect_units_annotation_cb(const FisicsUnitsAnnotation* ann, void* user_data) {
+    UnitsAttachmentBuffer* buf = (UnitsAttachmentBuffer*)user_data;
+    if (!buf || !buf->ok || !ann || !ann->node || !ann->resolved) return;
+    ASTNode* node = ann->node;
+    if (node->type != AST_VARIABLE_DECLARATION) return;
+
+    for (size_t i = 0; i < node->varDecl.varCount; ++i) {
+        ASTNode* ident = node->varDecl.varNames ? node->varDecl.varNames[i] : NULL;
+        const char* name = (ident && ident->type == AST_IDENTIFIER) ? ident->valueNode.value : NULL;
+        if (!name || !name[0]) continue;
+
+        SourceRange range = ident ? ident->location : node->location;
+        if (!range.start.file || !range.start.file[0]) range.start.file = node->location.start.file;
+        if (!range.start.file || !range.start.file[0]) range.start.file = buf->fallback_file_path;
+        if (!range.end.file || !range.end.file[0]) range.end.file = range.start.file;
+        const FisicsSymbol* exported = NULL;
+        if (buf->symbols && buf->symbol_count > 0) {
+            Symbol transient = {0};
+            transient.name = (char*)name;
+            transient.kind = SYMBOL_VARIABLE;
+            transient.definition = node;
+            exported = find_exported_symbol_match(&transient, buf->symbols, buf->symbol_count);
+        }
+        if (!append_units_attachment(buf, exported, name, range, ann)) {
+            buf->ok = false;
+            return;
+        }
     }
 }
 
 bool pipeline_collect_units_attachments(const SemanticModel* model,
                                         const FisicsSymbol* symbols,
                                         size_t symbol_count,
+                                        const char* fallback_file_path,
                                         FisicsUnitsAttachment** out_attachments,
                                         size_t* out_count) {
     if (out_attachments) *out_attachments = NULL;
     if (out_count) *out_count = 0;
-    if (!model || !out_attachments || !out_count || !symbols || symbol_count == 0) {
+    if (!model || !out_attachments || !out_count) {
         return true;
     }
 
     UnitsAttachmentBuffer buf = {
         .symbols = symbols,
         .symbol_count = symbol_count,
+        .fallback_file_path = fallback_file_path,
         .ok = true
     };
-    semanticModelForEachGlobal(model, collect_units_symbol_cb, &buf);
+    CompilerContext* ctx = semanticModelGetContext(model);
+    if (!buf.fallback_file_path) {
+        buf.fallback_file_path = cc_get_input_path(ctx);
+    }
+    if (ctx && ctx->extensionState) {
+        fisics_extension_for_each_units_annotation(ctx, collect_units_annotation_cb, &buf);
+    } else if (symbols && symbol_count > 0) {
+        semanticModelForEachGlobal(model, collect_units_symbol_cb, &buf);
+    }
     if (!buf.ok) {
         free_units_attachment_buffer(&buf);
         return false;

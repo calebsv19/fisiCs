@@ -53,7 +53,13 @@ typedef struct {
 
 typedef struct {
     uint64_t symbol_stable_id;
+    bool has_symbol_stable_id;
     const char* symbol_name;
+    const char* source_file_path;
+    int start_line;
+    int start_col;
+    int end_line;
+    int end_col;
     const char* dim_text;
     int8_t dim[FISICS_UNITS_DIM_SLOTS];
     bool resolved;

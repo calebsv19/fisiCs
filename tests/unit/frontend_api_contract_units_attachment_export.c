@@ -64,6 +64,20 @@ int main(void) {
         fisics_free_analysis_result(&res);
         return 1;
     }
+    if (!att->has_symbol_stable_id) {
+        fprintf(stderr, "expected stable id presence flag for global attachment\n");
+        fisics_free_analysis_result(&res);
+        return 1;
+    }
+    if (!att->source_file_path || strstr(att->source_file_path, "contract_units_export.c") == NULL ||
+        att->start_line != 1 || att->start_col <= 0) {
+        fprintf(stderr, "unexpected global attachment source range: %s %d:%d\n",
+                att->source_file_path ? att->source_file_path : "<null>",
+                att->start_line,
+                att->start_col);
+        fisics_free_analysis_result(&res);
+        return 1;
+    }
     if (!att->symbol_name || strcmp(att->symbol_name, "distance") != 0) {
         fprintf(stderr, "unexpected attachment symbol name: %s\n",
                 att->symbol_name ? att->symbol_name : "<null>");

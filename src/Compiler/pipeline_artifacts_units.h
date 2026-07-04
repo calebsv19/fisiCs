@@ -11,5 +11,6 @@
 bool pipeline_collect_units_attachments(const SemanticModel* model,
                                         const FisicsSymbol* symbols,
                                         size_t symbol_count,
+                                        const char* fallback_file_path,
                                         FisicsUnitsAttachment** out_attachments,
                                         size_t* out_count);

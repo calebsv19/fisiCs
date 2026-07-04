@@ -18,7 +18,7 @@
 
 #define FISICS_CONTRACT_ID "fisiCs.analysis.contract"
 #define FISICS_CONTRACT_MAJOR 1
-#define FISICS_CONTRACT_MINOR 7
+#define FISICS_CONTRACT_MINOR 8
 #define FISICS_CONTRACT_PATCH 0
 #define FISICS_CONTRACT_PRODUCER "fisiCs"
 #define FISICS_CONTRACT_PRODUCER_VERSION "0.1.0"
@@ -692,16 +692,19 @@ static bool copy_includes(const CompilerContext* ctx, FisicsAnalysisResult* out)
     return true;
 }
 
-static bool copy_units_attachments(const SemanticModel* model, FisicsAnalysisResult* out) {
+static bool copy_units_attachments(const SemanticModel* model,
+                                   const char* fallback_file_path,
+                                   FisicsAnalysisResult* out) {
     if (!out) return false;
     out->units_attachments = NULL;
     out->units_attachment_count = 0;
-    if (!model || !out->symbols || out->symbol_count == 0) {
+    if (!model) {
         return true;
     }
     return pipeline_collect_units_attachments(model,
                                               out->symbols,
                                               out->symbol_count,
+                                              fallback_file_path,
                                               &out->units_attachments,
                                               &out->units_attachment_count);
 }
@@ -795,7 +798,7 @@ bool fisics_analyze_buffer(const char* file_path,
                  copy_tokens(ctx, out) &&
                  copy_symbols(ctx, out) &&
                  copy_includes(ctx, out) &&
-                 copy_units_attachments(model, out);
+                 copy_units_attachments(model, contract_file_path, out);
     } else {
         // IDE lenient path: even if the pipeline failed (e.g., missing headers or parse
         // errors), return whatever diagnostics/includes we captured so the IDE can show them.
@@ -803,7 +806,7 @@ bool fisics_analyze_buffer(const char* file_path,
                  copy_tokens(ctx, out) &&
                  copy_symbols(ctx, out) &&
                  copy_includes(ctx, out) &&
-                 copy_units_attachments(model, out);
+                 copy_units_attachments(model, contract_file_path, out);
     }
     init_contract(out, source, length, lenient, ok);
     if (out->units_attachment_count > 0) {
@@ -865,6 +868,7 @@ void fisics_free_analysis_result(FisicsAnalysisResult* result) {
     if (result->units_attachments) {
         for (size_t i = 0; i < result->units_attachment_count; ++i) {
             safe_free_ptr((void*)result->units_attachments[i].symbol_name);
+            safe_free_ptr((void*)result->units_attachments[i].source_file_path);
             safe_free_ptr((void*)result->units_attachments[i].dim_text);
             safe_free_ptr((void*)result->units_attachments[i].unit_source_text);
             safe_free_ptr((void*)result->units_attachments[i].unit_name);

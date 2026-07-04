@@ -16,9 +16,85 @@ static bool cg_find_field_in_definition(const ASTNode* def,
                                         const char* fieldName,
                                         unsigned* outIndex,
                                         const ParsedType** outParsed);
+const CCTagFieldLayout* cg_init_lookup_field_layout(CodegenContext* ctx,
+                                                    LLVMTypeRef aggregateType,
+                                                    const ParsedType* aggregateParsed,
+                                                    const char* fieldName);
 
 static LLVMValueRef cg_zero_const(LLVMTypeRef type) {
     return type ? LLVMConstNull(type) : NULL;
+}
+
+static LLVMValueRef cg_const_bitfield_mask(LLVMTypeRef storageTy, unsigned width) {
+    unsigned storageBits = LLVMGetIntTypeWidth(storageTy);
+    if (width == 0) {
+        return LLVMConstInt(storageTy, 0, 0);
+    }
+    if (width >= storageBits) {
+        return LLVMConstAllOnes(storageTy);
+    }
+    uint64_t mask = (width >= 64) ? ~0ULL : ((1ULL << width) - 1ULL);
+    return LLVMConstInt(storageTy, mask, 0);
+}
+
+static LLVMValueRef cg_merge_const_bitfield(CodegenContext* ctx,
+                                            LLVMValueRef baseConst,
+                                            const CCTagFieldLayout* lay,
+                                            ASTNode* expr,
+                                            LLVMTypeRef fieldType,
+                                            const ParsedType* fieldParsed) {
+    if (!ctx || !lay || !lay->isBitfield || lay->widthBits == 0 || !expr) {
+        return NULL;
+    }
+
+    unsigned storageBits = (unsigned)(lay->storageUnitBytes ? lay->storageUnitBytes * 8 : 32);
+    LLVMTypeRef storageTy = LLVMIntTypeInContext(ctx->llvmContext, storageBits);
+    if (!storageTy) {
+        return NULL;
+    }
+
+    LLVMValueRef oldConst = baseConst;
+    if (!oldConst || LLVMTypeOf(oldConst) != storageTy) {
+        oldConst = cg_zero_const(storageTy);
+    }
+    if (!oldConst || LLVMGetTypeKind(LLVMTypeOf(oldConst)) != LLVMIntegerTypeKind) {
+        return NULL;
+    }
+
+    LLVMValueRef valueConst = cg_build_const_initializer(ctx, expr, fieldType, fieldParsed);
+    if (!valueConst || LLVMGetTypeKind(LLVMTypeOf(valueConst)) != LLVMIntegerTypeKind) {
+        return NULL;
+    }
+
+    uint64_t oldValue = LLVMConstIntGetZExtValue(oldConst);
+    uint64_t newValue = LLVMConstIntGetZExtValue(valueConst);
+    unsigned bitOffset = (unsigned)lay->bitOffset;
+    uint64_t fieldMask = LLVMConstIntGetZExtValue(cg_const_bitfield_mask(storageTy, (unsigned)lay->widthBits));
+    uint64_t shiftedMask = (bitOffset >= 64) ? 0ULL : (fieldMask << bitOffset);
+    uint64_t shiftedValue = (bitOffset >= 64) ? 0ULL : ((newValue & fieldMask) << bitOffset);
+    uint64_t combined = (oldValue & ~shiftedMask) | shiftedValue;
+    return LLVMConstInt(storageTy, combined, 0);
+}
+
+static unsigned cg_const_bitfield_storage_index(CodegenContext* ctx,
+                                                LLVMTypeRef structType,
+                                                const CCTagFieldLayout* lay,
+                                                unsigned fallbackIndex) {
+    if (!ctx || !structType || !lay || LLVMGetTypeKind(structType) != LLVMStructTypeKind) {
+        return fallbackIndex;
+    }
+    LLVMModuleRef module = cg_context_get_module(ctx);
+    LLVMTargetDataRef td = module ? LLVMGetModuleDataLayout(module) : NULL;
+    if (!td) {
+        return fallbackIndex;
+    }
+    unsigned fieldCount = LLVMCountStructElementTypes(structType);
+    for (unsigned i = 0; i < fieldCount; ++i) {
+        if (LLVMOffsetOfElement(td, structType, i) == lay->byteOffset) {
+            return i;
+        }
+    }
+    return fallbackIndex;
 }
 
 static CGStructLLVMInfo* cg_find_struct_info(CodegenContext* ctx,
@@ -272,6 +348,25 @@ static LLVMValueRef cg_merge_const_struct(CodegenContext* ctx,
         size_t mergedLast = i;
         DesignatedInit** mergedEntries = NULL;
         size_t mergedCount = 0;
+        const CCTagFieldLayout* lay =
+            cg_init_lookup_field_layout(ctx, structType, lookupType, targetFieldName);
+        if (lay && lay->isBitfield && lay->widthBits > 0) {
+            unsigned storageIndex =
+                cg_const_bitfield_storage_index(ctx, structType, lay, targetIndex);
+            LLVMTypeRef storageType = LLVMStructGetTypeAtIndex(structType, storageIndex);
+            fieldConst = cg_merge_const_bitfield(ctx,
+                                                 fields[storageIndex],
+                                                 lay,
+                                                 entry->expression,
+                                                 storageType,
+                                                 fieldParsed);
+            if (!fieldConst) {
+                free(fields);
+                return NULL;
+            }
+            fields[storageIndex] = fieldConst;
+            continue;
+        }
         if (!entry->resetSubobjectBeforeStore &&
             targetFieldName &&
             entry->expression->type == AST_COMPOUND_LITERAL &&
@@ -690,6 +785,7 @@ LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
 
         unsigned targetIndex = implicitIndex;
         const ParsedType* fieldParsed = NULL;
+        const char* targetFieldName = entry->fieldName;
 
         bool matchedField = false;
         if (entry->fieldName && info && info->fieldCount > 0) {
@@ -697,6 +793,7 @@ LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
                 if (info->fields[f].name && strcmp(info->fields[f].name, entry->fieldName) == 0) {
                     targetIndex = info->fields[f].index;
                     fieldParsed = &info->fields[f].parsedType;
+                    targetFieldName = info->fields[f].name;
                     matchedField = true;
                     break;
                 }
@@ -715,6 +812,9 @@ LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
                 matchedField = cg_find_field_in_definition(def, entry->fieldName, &targetIndex, &fieldParsed);
             }
         }
+        if (!targetFieldName && info && targetIndex < info->fieldCount) {
+            targetFieldName = info->fields[targetIndex].name;
+        }
         implicitIndex = targetIndex + 1;
 
         if (targetIndex >= fieldCount) {
@@ -723,6 +823,25 @@ LLVMValueRef cg_build_const_struct(CodegenContext* ctx,
 
         LLVMTypeRef fieldType = LLVMStructGetTypeAtIndex(structType, targetIndex);
         LLVMValueRef baseFieldConst = fields[targetIndex];
+        const CCTagFieldLayout* lay =
+            cg_init_lookup_field_layout(ctx, structType, lookupType, targetFieldName);
+        if (lay && lay->isBitfield && lay->widthBits > 0) {
+            unsigned storageIndex =
+                cg_const_bitfield_storage_index(ctx, structType, lay, targetIndex);
+            LLVMTypeRef storageType = LLVMStructGetTypeAtIndex(structType, storageIndex);
+            LLVMValueRef fieldConst = cg_merge_const_bitfield(ctx,
+                                                              fields[storageIndex],
+                                                              lay,
+                                                              entry->expression,
+                                                              storageType,
+                                                              fieldParsed);
+            if (!fieldConst) {
+                free(fields);
+                return NULL;
+            }
+            fields[storageIndex] = fieldConst;
+            continue;
+        }
         if (entry->resetSubobjectBeforeStore &&
             entry->expression->type == AST_COMPOUND_LITERAL) {
             baseFieldConst = cg_zero_const(fieldType);

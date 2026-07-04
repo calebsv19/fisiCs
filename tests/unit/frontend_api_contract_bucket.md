@@ -31,6 +31,7 @@ make frontend-contract-test
 | `frontend_api_contract_units_attachment_invalid_gated` | Validate malformed `fisics::dim(...)` input stays diagnostics-only and does not leak capability/payload export | pass |
 | `frontend_api_contract_units_attachment_export` | Validate resolved `[[fisics::dim(...)]]` attachments export through the public lane and advertise the capability bit | pass |
 | `frontend_api_contract_units_attachment_concrete_export` | Validate resolved `[[fisics::unit(...)]]` metadata exports canonical unit identity plus preserved source spelling through the public units lane and advertises the concrete-unit capability bit | pass |
+| `frontend_api_contract_units_attachment_local_export` | Validate resolved local/parameter declaration unit attachments export with source range navigation and no fake stable symbol ids | pass |
 | `frontend_api_contract_units_registry_model` | Validate the Phase 7 unit-registry contract exposes family-grouped concrete units while `dim(...)` still treats them as deferred words | pass |
 | `frontend_api_contract_units_registry_validation` | Validate the Step 4 registry audit catches duplicate-name, duplicate-symbol, alias-collision, family/dimension mismatch, scale, and offset errors in injected tables while the built-in registry remains clean | pass |
 

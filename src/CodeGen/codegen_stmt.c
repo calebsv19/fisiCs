@@ -367,7 +367,9 @@ LLVMValueRef codegenFunctionDefinition(CodegenContext* ctx, ASTNode* node) {
             }
             for (size_t i = 0; i < paramCount; i++) {
                 const ParsedType* paramType = paramInfos[i].parsedType;
-                adjustedParamTypes[i] = parsedTypeClone(paramType);
+                if (!cg_prepare_parameter_type_for_lowering(ctx, paramType, &adjustedParamTypes[i])) {
+                    adjustedParamTypes[i] = parsedTypeClone(paramType);
+                }
                 bool passIndirect = false;
                 LLVMTypeRef valueType = NULL;
                 LLVMTypeRef inferred = cg_lower_parameter_type(ctx,

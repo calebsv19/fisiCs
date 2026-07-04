@@ -207,6 +207,9 @@ LLVMTypeRef cg_lower_parameter_type(CodegenContext* ctx,
                                     const ParsedType* parsed,
                                     bool* outIndirect,
                                     LLVMTypeRef* outValueType);
+bool cg_prepare_parameter_type_for_lowering(CodegenContext* ctx,
+                                            const ParsedType* parsed,
+                                            ParsedType* outAdjusted);
 bool cg_size_align_of_parsed(CodegenContext* ctx,
                              const ParsedType* parsed,
                              uint64_t* outSize,
