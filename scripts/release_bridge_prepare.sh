@@ -19,6 +19,7 @@ RELEASE_ARTIFACT_ZIP="${RELEASE_ARTIFACT_ZIP:?RELEASE_ARTIFACT_ZIP is required}"
 RELEASE_ARTIFACT_TGZ="${RELEASE_ARTIFACT_TGZ:?RELEASE_ARTIFACT_TGZ is required}"
 RELEASE_MANIFEST="${RELEASE_MANIFEST:?RELEASE_MANIFEST is required}"
 RELEASE_SHA256="${RELEASE_SHA256:?RELEASE_SHA256 is required}"
+RELEASE_TGZ_SHA256="${RELEASE_TGZ_SHA256:?RELEASE_TGZ_SHA256 is required}"
 RELEASE_NOTARY_LOG="${RELEASE_NOTARY_LOG:-}"
 
 RELEASE_PUBLIC_BASE_URL="${RELEASE_PUBLIC_BASE_URL:-https://downloads.example.com/fisiCs}"
@@ -31,6 +32,7 @@ require_file "$RELEASE_ARTIFACT_ZIP"
 require_file "$RELEASE_ARTIFACT_TGZ"
 require_file "$RELEASE_MANIFEST"
 require_file "$RELEASE_SHA256"
+require_file "$RELEASE_TGZ_SHA256"
 if [ -n "$RELEASE_NOTARY_LOG" ] && [ ! -f "$RELEASE_NOTARY_LOG" ]; then
   echo "release-bridge warning: notary log missing at $RELEASE_NOTARY_LOG; continuing"
 fi
@@ -47,6 +49,7 @@ cp -f "$RELEASE_ARTIFACT_ZIP" "$ARTIFACT_DIR/"
 cp -f "$RELEASE_ARTIFACT_TGZ" "$ARTIFACT_DIR/"
 cp -f "$RELEASE_MANIFEST" "$ARTIFACT_DIR/"
 cp -f "$RELEASE_SHA256" "$ARTIFACT_DIR/"
+cp -f "$RELEASE_TGZ_SHA256" "$ARTIFACT_DIR/"
 if [ -n "$RELEASE_NOTARY_LOG" ] && [ -f "$RELEASE_NOTARY_LOG" ]; then
   cp -f "$RELEASE_NOTARY_LOG" "$ARTIFACT_DIR/"
 fi
@@ -58,6 +61,7 @@ ZIP_NAME="$(basename "$RELEASE_ARTIFACT_ZIP")"
 TGZ_NAME="$(basename "$RELEASE_ARTIFACT_TGZ")"
 MANIFEST_NAME="$(basename "$RELEASE_MANIFEST")"
 SHA_NAME="$(basename "$RELEASE_SHA256")"
+TGZ_SHA_NAME="$(basename "$RELEASE_TGZ_SHA256")"
 
 cat > "$BRIDGE_DIR/release_index.json" <<EOF
 {
@@ -85,6 +89,10 @@ cat > "$BRIDGE_DIR/release_index.json" <<EOF
     "sha256_file": {
       "file": "$SHA_NAME",
       "url": "$VERSION_URL/$SHA_NAME"
+    },
+    "tar_gz_sha256_file": {
+      "file": "$TGZ_SHA_NAME",
+      "url": "$VERSION_URL/$TGZ_SHA_NAME"
     }
   }
 }

@@ -1,0 +1,23 @@
+{
+  "schema": "fisiCs.project",
+  "version": 0,
+  "name": "population_competition",
+  "root": ".",
+  "build_dir": "build/fisics",
+  "defaults": {
+    "standard": "c99",
+    "include_dirs": ["src"],
+    "defines": [],
+    "overlays": []
+  },
+  "translation_units": [
+    {"source": "src/main.c", "object": "build/fisics/main.o"},
+    {"source": "src/population_competition.c", "object": "build/fisics/population_competition.o"}
+  ],
+  "link": {
+    "output": "build/fisics/population_competition",
+    "libraries": [],
+    "library_dirs": [],
+    "args": []
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "fisiCs.project",
+  "version": 0,
+  "name": "memory_pool_lifecycle",
+  "root": ".",
+  "build_dir": "build/fisics",
+  "defaults": {
+    "standard": "c99",
+    "include_dirs": ["src"],
+    "defines": [],
+    "overlays": ["memory-check"]
+  },
+  "translation_units": [
+    {"source": "src/main.c", "object": "build/fisics/main.o"},
+    {"source": "src/memory_pool_lifecycle.c", "object": "build/fisics/memory_pool_lifecycle.o"}
+  ],
+  "link": {
+    "output": "build/fisics/memory_pool_lifecycle",
+    "libraries": [],
+    "library_dirs": [],
+    "args": []
+  }
+}

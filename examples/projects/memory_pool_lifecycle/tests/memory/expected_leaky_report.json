@@ -1,0 +1,18 @@
+{
+  "trigger": "manual",
+  "summary": {
+    "active": 1,
+    "leaked_bytes": 24,
+    "allocs": 2,
+    "frees": 1,
+    "double_free": 0,
+    "unknown_free": 0,
+    "tracker_failures": 0
+  },
+  "leaks": [
+    {
+      "size": 24,
+      "allocated_file": "memory_pool_lifecycle.c"
+    }
+  ]
+}

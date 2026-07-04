@@ -1,0 +1,23 @@
+{
+  "schema": "fisiCs.project",
+  "version": 0,
+  "name": "collision_1d",
+  "root": ".",
+  "build_dir": "build/fisics",
+  "defaults": {
+    "standard": "c99",
+    "include_dirs": ["src"],
+    "defines": [],
+    "overlays": ["physics-units"]
+  },
+  "translation_units": [
+    {"source": "src/main.c", "object": "build/fisics/main.o"},
+    {"source": "src/collision_1d.c", "object": "build/fisics/collision_1d.o"}
+  ],
+  "link": {
+    "output": "build/fisics/collision_1d",
+    "libraries": [],
+    "library_dirs": [],
+    "args": []
+  }
+}

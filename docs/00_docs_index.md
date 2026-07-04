@@ -6,14 +6,16 @@ Last audited: 2026-06-08.
 ## Start Here
 
 1. `README.md`
-2. `docs/supported_feature_matrix.md`
-3. `docs/first_user_path.md`
-4. `docs/release_confidence_checklist.md`
-5. `docs/contributor_agent_quickstart.md`
-6. `docs/public_roadmap.md`
-7. `examples/README.md`
-8. `examples/canaries/README.md`
-9. `examples/physics_units/README.md`
+2. `AGENTS.md`
+3. `docs/supported_feature_matrix.md`
+4. `docs/first_user_path.md`
+5. `docs/release_confidence_checklist.md`
+6. `docs/contributor_agent_quickstart.md`
+7. `docs/public_roadmap.md`
+8. `examples/README.md`
+9. `examples/release_example_pack.md`
+10. `examples/canaries/README.md`
+11. `examples/physics_units/README.md`
 
 ## Public Docs In `docs/`
 

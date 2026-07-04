@@ -1,0 +1,23 @@
+{
+  "schema": "fisiCs.project",
+  "version": 0,
+  "name": "compound_growth",
+  "root": ".",
+  "build_dir": "build/fisics",
+  "defaults": {
+    "standard": "c99",
+    "include_dirs": ["src"],
+    "defines": [],
+    "overlays": []
+  },
+  "translation_units": [
+    {"source": "src/main.c", "object": "build/fisics/main.o"},
+    {"source": "src/compound_growth.c", "object": "build/fisics/compound_growth.o"}
+  ],
+  "link": {
+    "output": "build/fisics/compound_growth",
+    "libraries": [],
+    "library_dirs": [],
+    "args": []
+  }
+}

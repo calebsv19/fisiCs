@@ -14,6 +14,8 @@ programs before broader language or tooling ambitions.
   [`docs/supported_feature_matrix.md`](docs/supported_feature_matrix.md)
 - Shortest successful user path:
   [`docs/first_user_path.md`](docs/first_user_path.md)
+- Agent operating guide:
+  [`AGENTS.md`](AGENTS.md)
 - Smaller release-ready checkpoint flow:
   [`docs/release_confidence_checklist.md`](docs/release_confidence_checklist.md)
 - Overlay contract:
@@ -188,9 +190,11 @@ For the smaller release/user-facing checkpoint flow, use
 - Supported feature matrix: [`docs/supported_feature_matrix.md`](docs/supported_feature_matrix.md)
 - First user path: [`docs/first_user_path.md`](docs/first_user_path.md)
 - Release confidence checklist: [`docs/release_confidence_checklist.md`](docs/release_confidence_checklist.md)
+- Agent operating guide: [`AGENTS.md`](AGENTS.md)
 - Contributor/agent quickstart: [`docs/contributor_agent_quickstart.md`](docs/contributor_agent_quickstart.md)
 - Public roadmap: [`docs/public_roadmap.md`](docs/public_roadmap.md)
 - Examples quickstart: [`examples/README.md`](examples/README.md)
+- Release example pack: [`examples/release_example_pack.md`](examples/release_example_pack.md)
 - Practical public canaries: [`examples/canaries/README.md`](examples/canaries/README.md)
 - Physics-units pilot example: [`examples/physics_units/README.md`](examples/physics_units/README.md)
 - Test-system re-architecture context: [`docs/compiler_test_system_rearchitecture_context.md`](docs/compiler_test_system_rearchitecture_context.md)

@@ -7,6 +7,8 @@ Last audited: 2026-06-08.
 ## Repository Entry
 
 - Root `README.md` is the canonical GitHub-facing project summary and quickstart.
+- Root `AGENTS.md` is the concise operating contract for automated tooling and
+  fresh AI agents.
 - `TOP_README.md` is now a legacy compatibility pointer to root `README.md`.
 
 ## Top Level

@@ -67,6 +67,9 @@ endif
 DEFAULT_INCLUDE_PATHS := $(if $(INCLUDE_PATHS),$(INCLUDE_PATHS),include)
 EXAMPLES_DIR := examples
 EXAMPLES_BUILD_DIR := build/examples
+EXAMPLES_PROJECTS_DIR := $(EXAMPLES_DIR)/projects
+EXAMPLE_PROJECT ?= $(NAME)
+EXAMPLE_CASE ?= $(CASE)
 MEMCHECK_RUNTIME_DIR := runtime/memory_check
 MEMCHECK_RUNTIME_BUILD_DIR := $(BUILD_DIR)/runtime/memory_check
 MEMCHECK_RUNTIME_SRC := $(MEMCHECK_RUNTIME_DIR)/fisics_memcheck_runtime.c
@@ -89,6 +92,7 @@ RELEASE_ARTIFACT_ZIP := $(RELEASE_ROOT)/$(RELEASE_BASENAME).zip
 RELEASE_ARTIFACT_TGZ := $(RELEASE_ROOT)/$(RELEASE_BASENAME).tar.gz
 RELEASE_MANIFEST := $(RELEASE_ROOT)/$(RELEASE_BASENAME).manifest.txt
 RELEASE_SHA256 := $(RELEASE_ROOT)/$(RELEASE_BASENAME).sha256
+RELEASE_TGZ_SHA256 := $(RELEASE_ARTIFACT_TGZ).sha256
 RELEASE_NOTARY_LOG := $(RELEASE_ROOT)/$(RELEASE_BASENAME).notary.json
 RELEASE_PKG_ROOT := $(RELEASE_ROOT)/pkgroot
 RELEASE_PKG := $(RELEASE_ROOT)/$(RELEASE_BASENAME).pkg
@@ -272,6 +276,7 @@ release-archive-tgz-from-stage: release-manifest-from-stage
 	@mkdir -p "$(RELEASE_ROOT)"
 	@rm -f "$(RELEASE_ARTIFACT_TGZ)"
 	@COPYFILE_DISABLE=1 tar -C "$(RELEASE_STAGE_ROOT)" -czf "$(RELEASE_ARTIFACT_TGZ)" "$(RELEASE_BASENAME)"
+	@shasum -a 256 "$(RELEASE_ARTIFACT_TGZ)" > "$(RELEASE_TGZ_SHA256)"
 	@echo "Created $(RELEASE_ARTIFACT_TGZ)"
 
 release-archive-tgz: release-stage release-archive-tgz-from-stage
@@ -305,6 +310,7 @@ release-verify: release-archive
 	@spctl --assess --type execute --verbose=4 "$(RELEASE_BIN)" || \
 		echo "note: spctl may reject raw CLI binaries as non-app; use notarization status + codesign verification for release gate."
 	@shasum -a 256 -c "$(RELEASE_SHA256)"
+	@shasum -a 256 -c "$(RELEASE_TGZ_SHA256)"
 	@echo "release-verify complete."
 
 release-pkg: release-sign
@@ -339,6 +345,7 @@ release-bridge-prepare: release-verify
 	RELEASE_ARTIFACT_TGZ="$(RELEASE_ARTIFACT_TGZ)" \
 	RELEASE_MANIFEST="$(RELEASE_MANIFEST)" \
 	RELEASE_SHA256="$(RELEASE_SHA256)" \
+	RELEASE_TGZ_SHA256="$(RELEASE_TGZ_SHA256)" \
 	RELEASE_NOTARY_LOG="$(RELEASE_NOTARY_LOG)" \
 	RELEASE_PUBLIC_BASE_URL="$(RELEASE_PUBLIC_BASE_URL)" \
 	RELEASE_TAP_REPO="$(RELEASE_TAP_REPO)" \
@@ -357,6 +364,7 @@ release-bridge-verify:
 	@test -f "$(RELEASE_BRIDGE_DIR)/artifacts/$(RELEASE_BASENAME).tar.gz"
 	@test -f "$(RELEASE_BRIDGE_DIR)/artifacts/$(RELEASE_BASENAME).manifest.txt"
 	@test -f "$(RELEASE_BRIDGE_DIR)/artifacts/$(RELEASE_BASENAME).sha256"
+	@test -f "$(RELEASE_BRIDGE_DIR)/artifacts/$(RELEASE_BASENAME).tar.gz.sha256"
 	@echo "release-bridge-verify complete."
 
 release-bridge: release-bridge-prepare release-bridge-verify
@@ -591,6 +599,21 @@ examples-canaries: $(BIN)
 	@./$(BIN) $(EXAMPLES_DIR)/canaries/numeric_math.c -lm -o $(EXAMPLES_BUILD_DIR)/canaries/numeric_math
 	@./$(EXAMPLES_BUILD_DIR)/canaries/numeric_math
 	@echo "Built practical canaries under $(EXAMPLES_BUILD_DIR)/canaries"
+
+examples-project: $(BIN)
+	@sh $(EXAMPLES_PROJECTS_DIR)/run_project.sh run "$(EXAMPLE_PROJECT)" ./$(BIN)
+
+examples-project-invalid: $(BIN)
+	@sh $(EXAMPLES_PROJECTS_DIR)/run_project.sh invalid "$(EXAMPLE_PROJECT)" ./$(BIN) "$(EXAMPLE_CASE)"
+
+examples-project-artifacts: $(BIN)
+	@sh $(EXAMPLES_PROJECTS_DIR)/run_project.sh artifacts "$(EXAMPLE_PROJECT)" ./$(BIN)
+
+examples-project-memory: $(BIN) $(MEMCHECK_RUNTIME_LIB)
+	@sh $(EXAMPLES_PROJECTS_DIR)/run_project.sh memory "$(EXAMPLE_PROJECT)" ./$(BIN)
+
+examples-project-video-prep: $(BIN) $(MEMCHECK_RUNTIME_LIB)
+	@sh $(EXAMPLES_PROJECTS_DIR)/run_project.sh video-prep "$(EXAMPLE_PROJECT)" ./$(BIN)
 
 union-decl: $(BIN)
 	@./tests/parser/run_union_decl.sh ./$(BIN)
@@ -1215,7 +1238,7 @@ realproj-stage-f:
 tests: test frontend-api-test
 
 # === Phony Targets ===
-.PHONY: all clean run examples examples-hello examples-sdl examples-physics-units examples-canaries \
+.PHONY: all clean run examples examples-hello examples-sdl examples-physics-units examples-canaries examples-project examples-project-invalid examples-project-artifacts examples-project-memory examples-project-video-prep \
         release-clean release-contract release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
         release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
         release-sign release-notarize release-verify release-pkg release-all \

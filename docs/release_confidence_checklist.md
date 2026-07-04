@@ -6,11 +6,14 @@ It is intentionally narrower than the full internal validation matrix. Use it
 to decide whether a user-facing compiler checkpoint is coherent enough to
 package, document, or hand to a contributor.
 
-Run all commands from:
+Run all commands from the repository root:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 ```
+
+Agents should read `AGENTS.md` first for safe command boundaries and
+maintainer-only release gates.
 
 ## 1. Build Gate
 

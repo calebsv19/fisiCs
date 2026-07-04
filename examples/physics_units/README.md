@@ -40,7 +40,7 @@ The declarations use readable physics-oriented overlay annotations:
 ## Build The Valid Example
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 make examples-physics-units
 ./build/examples/ballistics_valid
 ```
@@ -48,7 +48,7 @@ make examples-physics-units
 ## Inspect Semantic Units Data
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 ./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_valid.c -o build/examples/ballistics_valid.o
 ```
 
@@ -65,7 +65,7 @@ Useful things to look for in the dump:
 Invalid assignment:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 ./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_invalid_assignment.c -o /tmp/ballistics_invalid_assignment.o
 ```
 
@@ -79,7 +79,7 @@ Expected outcome:
 Invalid comparison:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 ./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_invalid_compare.c -o /tmp/ballistics_invalid_compare.o
 ```
 
@@ -93,7 +93,7 @@ Expected outcome:
 Invalid position update:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 ./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_invalid_position_update.c -o /tmp/ballistics_invalid_position_update.o
 ```
 
@@ -107,7 +107,7 @@ Expected outcome:
 Invalid nested formula chain:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 ./fisics --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_invalid_formula_chain.c -o /tmp/ballistics_invalid_formula_chain.o
 ```
 

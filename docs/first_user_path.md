@@ -5,7 +5,7 @@ This is the shortest supported path for a new `fisiCs` user.
 Run all commands from:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 ```
 
 ## 1. Build From Source
@@ -142,6 +142,20 @@ If you want the broad checkpoint lane:
 ```bash
 make final-monitored
 ```
+
+## 7. Optional: Run The Release Example Pack
+
+For the smallest public demo story that also includes a curated agent task,
+use:
+
+```bash
+make examples-project NAME=kinematics_stepper
+make examples-project-invalid NAME=kinematics_stepper
+make examples-project-artifacts NAME=kinematics_stepper
+```
+
+The full release example pack is documented in
+[../examples/release_example_pack.md](../examples/release_example_pack.md).
 
 ## Notes
 

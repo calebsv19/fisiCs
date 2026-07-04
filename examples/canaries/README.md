@@ -6,7 +6,7 @@ behavior without requiring the internal final-suite or real-project ladder.
 Run all commands from the repository root:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 ```
 
 ## Run All Practical Canaries

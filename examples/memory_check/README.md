@@ -7,7 +7,7 @@ can see the runtime report shape.
 Run it with:
 
 ```bash
-cd /Users/calebsv/Desktop/CodeWork/fisiCs
+cd /path/to/fisiCs
 make examples-memory-check
 ```
 

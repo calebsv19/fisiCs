@@ -1,6 +1,6 @@
 # fisiCs Public Roadmap
 
-Last updated: 2026-06-08.
+Last updated: 2026-06-09.
 
 ## Current Focus
 
@@ -8,8 +8,9 @@ Last updated: 2026-06-08.
 - Expand and harden test coverage across parser, semantics, codegen, and runtime behavior.
 - Continue external-program validation while preserving deterministic,
   reproducible diagnostics.
-- Prepare the IDE analysis bridge to consume the completed local build graph
-  and diagnostics explainability surfaces.
+- Keep the completed IDE analysis bridge ingestion/publication boundary stable
+  while IDE UI work plans how to surface the new diagnostics, units, build
+  graph, include graph, and memory-report data.
 
 ## Near-Term Priorities
 
@@ -32,7 +33,7 @@ Last updated: 2026-06-08.
   features explicitly opt-in.
 - Use build graph diagnostic summaries, diagnostic explanations,
   include/macro context, units details, and memory-check report sidecars as
-  inputs to the next IDE bridge refresh.
+  inputs to IDE UI/presentation work rather than expanding the compiler ABI.
 
 ## Long-Term Direction
 

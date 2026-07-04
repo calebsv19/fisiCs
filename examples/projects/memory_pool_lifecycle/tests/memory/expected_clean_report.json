@@ -1,0 +1,13 @@
+{
+  "trigger": "manual",
+  "summary": {
+    "active": 0,
+    "leaked_bytes": 0,
+    "allocs": 2,
+    "frees": 2,
+    "double_free": 0,
+    "unknown_free": 0,
+    "tracker_failures": 0
+  },
+  "leaks": []
+}
