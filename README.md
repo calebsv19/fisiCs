@@ -81,10 +81,11 @@ This builds:
 ./fisics --help
 
 # compile-only
-./fisics -c hello.c -o hello.o
+./fisics -c examples/hello_world.c -o /tmp/fisics_hello_world.o
 
 # compile + link
-./fisics main.c util.c -o app
+./fisics compilation/multi_main.c compilation/multi_helper.c -o /tmp/fisics_multi_bin
+/tmp/fisics_multi_bin
 
 # include/lib paths
 ./fisics -Iinclude -L/path/to/lib -lm main.c -o app

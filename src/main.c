@@ -47,8 +47,10 @@ static void print_cli_usage(FILE* out, const char* argv0) {
             "Common commands:\n"
             "  %s --help                 Show this help text.\n"
             "  %s --version              Print compiler version.\n"
-            "  %s -c hello.c -o hello.o  Compile one C source to an object file.\n"
-            "  %s main.c util.c -o app   Compile and link C sources into an executable.\n"
+            "  %s -c examples/hello_world.c -o /tmp/fisics_hello_world.o\n"
+            "                             Compile one C source to an object file.\n"
+            "  %s compilation/multi_main.c compilation/multi_helper.c -o /tmp/fisics_multi_bin\n"
+            "                             Compile and link C sources into an executable.\n"
             "\n"
             "Common options:\n"
             "  -I<dir>, -I <dir>          Add include search path.\n"
@@ -67,8 +69,9 @@ static void print_cli_usage(FILE* out, const char* argv0) {
             "  --explain <code-or-name>   Explain one diagnostic.\n"
             "\n"
             "Examples:\n"
-            "  %s examples/hello_world.c -o build/examples/hello_world\n"
-            "  %s --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_valid.c -o build/examples/ballistics_valid.o\n",
+            "  %s examples/hello_world.c -o /tmp/fisics_hello_world\n"
+            "  /tmp/fisics_hello_world\n"
+            "  %s --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_valid.c -o /tmp/fisics_ballistics_valid.o\n",
             program,
             program,
             program,
