@@ -1,14 +1,60 @@
 # First User Path
 
-This is the shortest supported path for a new `fisiCs` user.
+This is the shortest supported path for a new `fisiCs` user. You can either
+download the current packaged compiler or build from source.
 
-Run all commands from:
+## 1. Use The Packaged Compiler
+
+The current public package is listed on the Ecosystem program page:
+
+- human page:
+  <https://ecosystem.calebsv.tech/suite/program/?repo=fisiCs>
+- agent entrypoint:
+  <https://ecosystem.calebsv.tech/agents/START_HERE.md>
+- direct manifest:
+  <https://ecosystem.calebsv.tech/agents/programs/fisics.json>
+
+For a fresh macOS Apple Silicon package check, fetch the manifest, download the
+current archive, verify the listed SHA-256, unpack it, and run `bin/fisics`:
 
 ```bash
-cd /path/to/fisiCs
+workdir="$(mktemp -d)"
+curl -fsSL https://ecosystem.calebsv.tech/agents/programs/fisics.json \
+  -o "$workdir/fisics.json"
+curl -fL \
+  https://ecosystem.calebsv.tech/downloads/fisiCs/current/fisiCs-0.2.1-macOS-arm64-stable.tar.gz \
+  -o "$workdir/fisiCs.tar.gz"
+shasum -a 256 "$workdir/fisiCs.tar.gz"
+tar -xzf "$workdir/fisiCs.tar.gz" -C "$workdir"
 ```
 
-## 1. Build From Source
+The SHA-256 should match the value in the manifest. Then compile a minimal
+program:
+
+```bash
+cat > "$workdir/hello.c" <<'C'
+int main(void) { return 0; }
+C
+"$workdir"/fisiCs-0.2.1-macOS-arm64-stable/bin/fisics \
+  "$workdir/hello.c" -o "$workdir/hello"
+"$workdir/hello"
+```
+
+Expected result:
+
+- semantic analysis reports no issues
+- an executable is produced
+- the executable exits with status `0`
+
+## 2. Build From Source
+
+Use this path when you want the full repository, examples, and validation
+commands:
+
+```bash
+git clone https://github.com/calebsv19/fisiCs.git
+cd fisiCs
+```
 
 Requirements:
 
@@ -27,7 +73,7 @@ Expected result:
 - `./fisics` exists
 - `libfisics_frontend.a` exists
 
-## 2. Compile Hello World
+## 3. Compile Hello World
 
 ```bash
 ./fisics examples/hello_world.c -o build/examples/hello_world
@@ -40,7 +86,7 @@ Expected output:
 Hello from fisiCs.
 ```
 
-## 3. Compile And Link A Small Multi-TU Program
+## 4. Compile And Link A Small Multi-TU Program
 
 Use the public smoke fixtures under `compilation/`:
 
@@ -61,7 +107,7 @@ You can also use the convenience script:
 ./compilation/run_multi.sh ./fisics
 ```
 
-## 4. Run The Physics-Units Pilot
+## 5. Run The Physics-Units Pilot
 
 ```bash
 make examples-physics-units
@@ -76,7 +122,7 @@ To inspect overlay semantic data:
 
 The overlay remains opt-in. Normal C mode is still the default compiler path.
 
-## 5. Optional: Run Memory-Check Diagnostics
+## 6. Optional: Run Memory-Check Diagnostics
 
 `memory-check` is an opt-in runtime diagnostics overlay for direct
 `malloc`/`calloc`/`realloc`/`free` calls. It is useful for occasional
@@ -114,7 +160,7 @@ To see a known leak report without writing a file:
 make examples-memory-check
 ```
 
-## 6. Run The Minimum Smoke Suite
+## 7. Run The Minimum Smoke Suite
 
 ```bash
 make examples
@@ -143,7 +189,7 @@ If you want the broad checkpoint lane:
 make final-monitored
 ```
 
-## 7. Optional: Run The Release Example Pack
+## 8. Optional: Run The Release Example Pack
 
 For the smallest public demo story that also includes a curated agent task,
 use:

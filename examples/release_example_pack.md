@@ -6,6 +6,13 @@ coherent as a CLI compiler release and as an agent-operable repository.
 Run all commands from the repository root:
 
 ```bash
+git clone https://github.com/calebsv19/fisiCs.git
+cd fisiCs
+```
+
+If you already have a source checkout, run from that checkout:
+
+```bash
 cd /path/to/fisiCs
 ```
 

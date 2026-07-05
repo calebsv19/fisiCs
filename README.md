@@ -10,6 +10,10 @@ programs before broader language or tooling ambitions.
 
 ## Start Here
 
+- Download the current packaged compiler:
+  [`ecosystem.calebsv.tech/suite/program/?repo=fisiCs`](https://ecosystem.calebsv.tech/suite/program/?repo=fisiCs)
+- Agent-discoverable release entrypoint:
+  [`ecosystem.calebsv.tech/agents/START_HERE.md`](https://ecosystem.calebsv.tech/agents/START_HERE.md)
 - Current support boundary:
   [`docs/supported_feature_matrix.md`](docs/supported_feature_matrix.md)
 - Shortest successful user path:
@@ -38,6 +42,10 @@ programs before broader language or tooling ambitions.
   `[[fisics::dim(...)]]`.
 
 ## Build
+
+Use this path when you want to build the compiler from source. If you only
+want to try the current macOS Apple Silicon package, use the download link in
+the Start Here section and follow `docs/first_user_path.md`.
 
 Requirements:
 

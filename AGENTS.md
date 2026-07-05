@@ -17,14 +17,16 @@ public operating surface is intentionally CLI-first:
 
 ## Start Here
 
-1. Read `README.md`.
-2. Read `docs/first_user_path.md`.
-3. Read `docs/release_confidence_checklist.md`.
-4. Read `docs/contributor_agent_quickstart.md`.
-5. Use `docs/compiler_test_confidence_tiers.md` to choose validation scope.
-6. Use `docs/cli_release_workflow.md` only when release packaging is in scope.
-7. Use `examples/release_example_pack.md` for the smallest public demo path.
-8. Use `examples/README.md` to choose broader example or curated-project workflows.
+1. For public package discovery, start at
+   `https://ecosystem.calebsv.tech/agents/START_HERE.md`.
+2. Read `README.md`.
+3. Read `docs/first_user_path.md`.
+4. Read `docs/release_confidence_checklist.md`.
+5. Read `docs/contributor_agent_quickstart.md`.
+6. Use `docs/compiler_test_confidence_tiers.md` to choose validation scope.
+7. Use `docs/cli_release_workflow.md` only when release packaging is in scope.
+8. Use `examples/release_example_pack.md` for the smallest public demo path.
+9. Use `examples/README.md` to choose broader example or curated-project workflows.
 
 ## Safe Routine Commands
 

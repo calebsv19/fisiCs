@@ -237,10 +237,11 @@ release-build:
 release-stage: release-build
 	@echo "Staging release tree..."
 	@rm -rf "$(RELEASE_STAGE_DIR)"
-	@mkdir -p "$(RELEASE_STAGE_DIR)/bin" "$(RELEASE_STAGE_DIR)/docs"
+	@mkdir -p "$(RELEASE_STAGE_DIR)/bin"
 	@cp -f "./$(BIN)" "$(RELEASE_BIN)"
-	@cp -f README.md LICENSE "$(RELEASE_STAGE_DIR)/"
-	@cp -f docs/00_docs_index.md docs/README.md "$(RELEASE_STAGE_DIR)/docs/"
+	@cp -f README.md AGENTS.md LICENSE "$(RELEASE_STAGE_DIR)/"
+	@cp -R docs examples compilation "$(RELEASE_STAGE_DIR)/"
+	@rm -rf "$(RELEASE_STAGE_DIR)/compilation/out"
 	@printf "name=fisiCs\nversion=%s\nchannel=%s\nplatform=%s\narch=%s\n" \
 		"$(RELEASE_VERSION)" "$(RELEASE_CHANNEL)" "$(RELEASE_PLATFORM)" "$(RELEASE_ARCH)" \
 		> "$(RELEASE_STAGE_DIR)/release_metadata.env"
