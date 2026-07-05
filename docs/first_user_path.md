@@ -28,8 +28,15 @@ shasum -a 256 "$workdir/fisiCs.tar.gz"
 tar -xzf "$workdir/fisiCs.tar.gz" -C "$workdir"
 ```
 
-The SHA-256 should match the value in the manifest. Then compile a minimal
-program:
+The SHA-256 should match the value in the manifest. First confirm the compiler
+reports normal CLI metadata:
+
+```bash
+"$workdir"/fisiCs-0.2.1-macOS-arm64-stable/bin/fisics --version
+"$workdir"/fisiCs-0.2.1-macOS-arm64-stable/bin/fisics --help
+```
+
+Then compile a minimal program:
 
 ```bash
 cat > "$workdir/hello.c" <<'C'
@@ -66,12 +73,16 @@ Build:
 
 ```bash
 make
+./fisics --version
+./fisics --help
 ```
 
 Expected result:
 
 - `./fisics` exists
 - `libfisics_frontend.a` exists
+- `./fisics --version` prints the compiler version
+- `./fisics --help` prints usage without compiling a source file
 
 ## 3. Compile Hello World
 

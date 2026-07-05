@@ -76,6 +76,10 @@ This builds:
 ## Quick Usage
 
 ```bash
+# metadata
+./fisics --version
+./fisics --help
+
 # compile-only
 ./fisics -c hello.c -o hello.o
 
@@ -105,6 +109,8 @@ full diagnostic payloads stay in `--emit-diags-json` / `--emit-diags-pack`.
 
 Useful flags:
 
+- `--version`
+- `--help`
 - `--dump-ast`
 - `--dump-sema`
 - `--dump-ir`
@@ -156,6 +162,12 @@ Primary entrypoints:
 make test
 make final
 make memory-check-test
+
+# public CLI metadata contract
+make integration-cli-metadata
+
+# explicit local historical fixture smoke
+make dev-smoke
 
 # focused probe lane (outside make final)
 python3 tests/final/probes/run_probes.py

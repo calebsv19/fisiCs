@@ -27,9 +27,62 @@
 #include "Utils/profiler.h"
 #include "Utils/utils.h"
 
+#ifndef FISICS_VERSION
+#define FISICS_VERSION "unknown"
+#endif
+
 static char g_proc_guard_path[PATH_MAX] = {0};
 static pid_t g_proc_guard_group_pid = 0;
 static int g_proc_guard_timeout_sec = 0;
+
+static void print_cli_version(FILE* out) {
+    fprintf(out, "fisiCs %s\n", FISICS_VERSION);
+}
+
+static void print_cli_usage(FILE* out, const char* argv0) {
+    const char* program = (argv0 && argv0[0]) ? argv0 : "fisics";
+    fprintf(out,
+            "Usage: %s [options] <input.c> [more-inputs...] [-o output]\n"
+            "\n"
+            "Common commands:\n"
+            "  %s --help                 Show this help text.\n"
+            "  %s --version              Print compiler version.\n"
+            "  %s -c hello.c -o hello.o  Compile one C source to an object file.\n"
+            "  %s main.c util.c -o app   Compile and link C sources into an executable.\n"
+            "\n"
+            "Common options:\n"
+            "  -I<dir>, -I <dir>          Add include search path.\n"
+            "  -D<name>[=value]           Define a preprocessor macro.\n"
+            "  -L<dir>, -l<name>          Forward library search/name to the linker.\n"
+            "  -c                         Compile only; do not link.\n"
+            "  -o <path>                  Write output to path.\n"
+            "  --dump-ast                 Print parsed AST.\n"
+            "  --dump-sema                Print semantic analysis output.\n"
+            "  --dump-ir                  Print LLVM IR.\n"
+            "  --emit-build-graph-json <path>\n"
+            "                             Write source or manifest build graph JSON.\n"
+            "  --build-manifest <path>    Load local build manifest.\n"
+            "  --overlay=<name>           Enable opt-in overlay, e.g. physics-units.\n"
+            "  --list-diagnostics --json  Print diagnostic explanation catalog.\n"
+            "  --explain <code-or-name>   Explain one diagnostic.\n"
+            "\n"
+            "Examples:\n"
+            "  %s examples/hello_world.c -o build/examples/hello_world\n"
+            "  %s --overlay=physics-units --dump-sema -c examples/physics_units/ballistics_valid.c -o build/examples/ballistics_valid.o\n",
+            program,
+            program,
+            program,
+            program,
+            program,
+            program,
+            program);
+}
+
+static bool is_historical_dev_fixture(const char* path) {
+    return path &&
+           (strcmp(path, "include/test.txt") == 0 ||
+            strcmp(path, "./include/test.txt") == 0);
+}
 
 static void fisics_proc_guard_cleanup(void) {
     if (g_proc_guard_path[0] != '\0') {
@@ -936,6 +989,17 @@ int main(int argc, char **argv) {
         setenv("MallocNanoZone", "0", 0);
     }
 
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+            print_cli_usage(stdout, argv[0]);
+            return 0;
+        }
+        if (strcmp(argv[i], "--version") == 0) {
+            print_cli_version(stdout);
+            return 0;
+        }
+    }
+
     if (!fisics_proc_guard_enter()) {
         return 1;
     }
@@ -1192,7 +1256,7 @@ int main(int argc, char **argv) {
             externalPreprocessArgs = argv[i] + 18;
         } else if (argv[i][0] != '-' && !filename) {
             filename = argv[i];
-            if (has_extension(filename, ".c")) {
+            if (has_extension(filename, ".c") || is_historical_dev_fixture(filename)) {
                 string_list_push(&inputCFiles, filename);
             } else if (has_extension(filename, ".o") ||
                        has_extension(filename, ".a") ||
@@ -1203,7 +1267,7 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "Warning: unrecognized input extension for %s\n", filename);
             }
         } else if (argv[i][0] != '-') {
-            if (has_extension(argv[i], ".c")) {
+            if (has_extension(argv[i], ".c") || is_historical_dev_fixture(argv[i])) {
                 string_list_push(&inputCFiles, argv[i]);
             } else if (has_extension(argv[i], ".o") ||
                        has_extension(argv[i], ".a") ||
@@ -1213,6 +1277,10 @@ int main(int argc, char **argv) {
             } else {
                 fprintf(stderr, "Warning: unrecognized input extension for %s\n", argv[i]);
             }
+        } else {
+            fprintf(stderr, "Error: unknown option '%s'\n", argv[i]);
+            fprintf(stderr, "Run '%s --help' for usage.\n", argv[0] && argv[0][0] ? argv[0] : "fisics");
+            goto fail;
         }
     }
     if (explainDiagnosticQuery) {
@@ -1255,8 +1323,9 @@ int main(int argc, char **argv) {
         return llvm_shutdown_and_return(0);
     }
     if (!buildManifestPath && !filename && inputCFiles.count == 0 && inputOFiles.count == 0) {
-        filename = "include/test.txt";
-        string_list_push(&inputCFiles, filename);
+        fprintf(stderr, "Error: no input files.\n");
+        print_cli_usage(stderr, argv[0]);
+        goto fail;
     }
 
     int enableCodegen = ENABLE_CODEGEN;

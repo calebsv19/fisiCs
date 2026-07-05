@@ -37,7 +37,7 @@ ifeq ($(PARSER_DEBUG),1)
 PARSER_DEFS += -DPARSER_DEBUG
 endif
 
-BASE_CFLAGS = -Wall -Wextra -Wpedantic $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS) -DDEFAULT_INCLUDE_PATHS=\"$(DEFAULT_INCLUDE_PATHS)\"
+BASE_CFLAGS = -Wall -Wextra -Wpedantic $(LLVM_CFLAGS) $(CODEGEN_DEFS) $(PARSER_DEFS) -DDEFAULT_INCLUDE_PATHS=\"$(DEFAULT_INCLUDE_PATHS)\" -DFISICS_VERSION=\"$(RELEASE_VERSION)\"
 BASE_LDFLAGS := $(LLVM_LDFLAGS) $(LLVM_LIBS)
 
 ifeq ($(BUILD_PROFILE),sanitized)
@@ -446,7 +446,14 @@ integration-build-manifest-compile-db: $(BIN)
 integration-build-manifest-execute: $(BIN)
 	@bash ./tests/integration/run_build_manifest_execute.sh ./$(BIN)
 
-integration: integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
+integration-cli-metadata: $(BIN)
+	@bash ./tests/integration/run_cli_metadata.sh ./$(BIN)
+
+dev-smoke: $(BIN)
+	@mkdir -p build/examples
+	@FISICS_MAX_PROCS=0 ./$(BIN) -c include/test.txt -o build/examples/include_test_smoke.o
+
+integration: integration-cli-metadata integration-compile-only integration-compile-link integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute
 
 ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
@@ -1064,7 +1071,7 @@ binary-regen: $(BIN)
 	@if [ "$(CONFIRM)" != "YES" ]; then echo "ERROR: set CONFIRM=YES"; exit 2; fi
 	@UPDATE_BINARY=1 BINARY_FILTER="$(TEST)" python3 tests/binary/run_binary.py ./$(BIN)
 
-test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
+test: spec-tests parser-tests syntax-tests codegen-tests preprocessor-tests integration-cli-metadata integration-diags-pack integration-diags-json-metadata integration-direct-diag-json-metadata integration-include-stack-diag-json integration-macro-trace-diag-json integration-diagnostic-explain-cli integration-units-diag-json-details integration-std-atomic integration-std-atomic-link integration-compat-routing integration-overlay-units-scaffold integration-overlay-memory-check-contract integration-memory-check-runtime-skeleton integration-memory-check-codegen-direct-calls integration-memory-check-driver-auto-link integration-memory-check-canaries integration-memory-check-json-report integration-examples-physics-units integration-build-graph-source-json integration-build-manifest-dry-run-json integration-build-manifest-compile-db integration-build-manifest-execute build-manifest-contract-test
 preprocessor-tests: $(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_stringify_paste.sh ./$(BIN)
 	@MallocNanoZone=0 ./tests/preprocessor/run_pp_variadic.sh ./$(BIN)
@@ -1239,7 +1246,7 @@ realproj-stage-f:
 tests: test frontend-api-test
 
 # === Phony Targets ===
-.PHONY: all clean run examples examples-hello examples-sdl examples-physics-units examples-canaries examples-project examples-project-invalid examples-project-artifacts examples-project-memory examples-project-video-prep \
+.PHONY: all clean run dev-smoke examples examples-hello examples-sdl examples-physics-units examples-canaries examples-project examples-project-invalid examples-project-artifacts examples-project-memory examples-project-video-prep \
         release-clean release-contract release-build release-stage release-manifest release-archive release-archive-zip release-archive-tgz \
         release-manifest-from-stage release-archive-zip-from-stage release-archive-tgz-from-stage \
         release-sign release-notarize release-verify release-pkg release-all \

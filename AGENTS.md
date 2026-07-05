@@ -34,6 +34,8 @@ Run from the repository root.
 
 ```bash
 make
+./fisics --version
+./fisics --help
 make test
 make frontend-contract-test
 make examples
@@ -45,6 +47,7 @@ make examples-canaries
 Use focused checks for changed compiler behavior:
 
 ```bash
+make integration-cli-metadata
 make final-id ID=<test_id>
 make final-bucket BUCKET=<bucket>
 make final-manifest MANIFEST=<manifest>.json
