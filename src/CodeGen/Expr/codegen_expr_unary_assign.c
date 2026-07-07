@@ -329,6 +329,38 @@ LLVMValueRef codegenAssignment(CodegenContext* ctx, ASTNode* node) {
         }
 
         if (!codegenLValue(ctx, node->assignment.value, &srcPtr, &srcType, &srcParsed, NULL)) {
+            const ParsedType* callReturnParsed =
+                node->assignment.value ? cg_resolve_expression_type(ctx, node->assignment.value) : NULL;
+            LLVMTypeRef callReturnType = callReturnParsed ? cg_type_from_parsed(ctx, callReturnParsed) : NULL;
+            if (callReturnType && LLVMGetTypeKind(callReturnType) == LLVMFunctionTypeKind) {
+                callReturnType = LLVMPointerType(callReturnType, 0);
+            } else if (callReturnType && LLVMGetTypeKind(callReturnType) == LLVMArrayTypeKind) {
+                callReturnType = LLVMPointerType(callReturnType, 0);
+            }
+            if (node->assignment.value &&
+                node->assignment.value->type == AST_FUNCTION_CALL &&
+                callReturnType &&
+                callReturnType == targetType &&
+                cg_should_lower_indirect_aggregate_return(ctx, callReturnType) &&
+                cg_aggregate_type_contains_union(ctx, callReturnParsed, callReturnType)) {
+                LLVMValueRef previousDestPtr = ctx->aggregateCallResultDestPtr;
+                LLVMTypeRef previousDestType = ctx->aggregateCallResultDestType;
+                ASTNode* previousDestCall = ctx->aggregateCallResultDestCall;
+                ctx->aggregateCallResultDestPtr = targetPtr;
+                ctx->aggregateCallResultDestType = targetType;
+                ctx->aggregateCallResultDestCall = node->assignment.value;
+                value = codegenNode(ctx, node->assignment.value);
+                ctx->aggregateCallResultDestPtr = previousDestPtr;
+                ctx->aggregateCallResultDestType = previousDestType;
+                ctx->aggregateCallResultDestCall = previousDestCall;
+                if (!value) {
+                    fprintf(stderr, "Error: Assignment value failed to generate\n");
+                    return NULL;
+                }
+                if (value == targetPtr) {
+                    return targetPtr;
+                }
+            }
             if (!value) {
                 value = codegenNode(ctx, node->assignment.value);
                 if (!value) {

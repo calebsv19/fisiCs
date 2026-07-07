@@ -39,6 +39,11 @@ static bool pipeline_path_list_push(const char*** items,
                                     size_t* capacity,
                                     const char* value) {
     if (!items || !count || !capacity || !value || !value[0]) return false;
+    for (size_t i = 0; i < *count; ++i) {
+        if ((*items)[i] && strcmp((*items)[i], value) == 0) {
+            return true;
+        }
+    }
     if (*count == *capacity) {
         size_t newCap = (*capacity == 0) ? 8 : (*capacity * 2);
         const char** grown = (const char**)realloc((void*)(*items), newCap * sizeof(const char*));

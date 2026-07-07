@@ -793,6 +793,101 @@ LLVMValueRef codegenReturn(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (node->returnStmt.returnValue) {
+        if (ctx->currentFunctionUsesVariadicSRet &&
+            ctx->currentFunctionVariadicSRetPtr &&
+            node->returnStmt.returnValue->type == AST_FUNCTION_CALL &&
+            declaredReturnLLVM &&
+            (LLVMGetTypeKind(declaredReturnLLVM) == LLVMStructTypeKind ||
+             LLVMGetTypeKind(declaredReturnLLVM) == LLVMArrayTypeKind) &&
+            cg_should_lower_indirect_aggregate_return(ctx, declaredReturnLLVM) &&
+            cg_aggregate_type_contains_union(ctx,
+                                             ctx->currentFunctionReturnType,
+                                             declaredReturnLLVM)) {
+            LLVMValueRef sretPtr = ctx->currentFunctionVariadicSRetPtr;
+            LLVMTypeRef expectedPtrTy = LLVMPointerType(declaredReturnLLVM, 0);
+            if (LLVMTypeOf(sretPtr) != expectedPtrTy) {
+                sretPtr = LLVMBuildBitCast(ctx->builder,
+                                           sretPtr,
+                                           expectedPtrTy,
+                                           "return.sret.cast");
+            }
+
+            LLVMValueRef previousDestPtr = ctx->aggregateCallResultDestPtr;
+            LLVMTypeRef previousDestType = ctx->aggregateCallResultDestType;
+            ASTNode* previousDestCall = ctx->aggregateCallResultDestCall;
+            ctx->aggregateCallResultDestPtr = sretPtr;
+            ctx->aggregateCallResultDestType = declaredReturnLLVM;
+            ctx->aggregateCallResultDestCall = node->returnStmt.returnValue;
+            LLVMValueRef directResult = codegenNode(ctx, node->returnStmt.returnValue);
+            ctx->aggregateCallResultDestPtr = previousDestPtr;
+            ctx->aggregateCallResultDestType = previousDestType;
+            ctx->aggregateCallResultDestCall = previousDestCall;
+            if (!directResult) {
+                fprintf(stderr, "Error: Failed to generate aggregate return call\n");
+                return NULL;
+            }
+            if (directResult == sretPtr) {
+                CG_DEBUG("[CG] Return emitting direct aggregate sret call\n");
+                return LLVMBuildRetVoid(ctx->builder);
+            }
+        }
+
+        if (ctx->currentFunctionUsesVariadicSRet &&
+            ctx->currentFunctionVariadicSRetPtr &&
+            declaredReturnLLVM &&
+            (LLVMGetTypeKind(declaredReturnLLVM) == LLVMStructTypeKind ||
+             LLVMGetTypeKind(declaredReturnLLVM) == LLVMArrayTypeKind) &&
+            cg_aggregate_type_contains_union(ctx,
+                                             ctx->currentFunctionReturnType,
+                                             declaredReturnLLVM)) {
+            LLVMValueRef srcPtr = NULL;
+            LLVMTypeRef srcType = NULL;
+            const ParsedType* srcParsed = NULL;
+            if (codegenLValue(ctx, node->returnStmt.returnValue, &srcPtr, &srcType, &srcParsed, NULL) &&
+                srcPtr) {
+                LLVMValueRef sretPtr = ctx->currentFunctionVariadicSRetPtr;
+                LLVMTypeRef expectedPtrTy = LLVMPointerType(declaredReturnLLVM, 0);
+                if (LLVMTypeOf(sretPtr) != expectedPtrTy) {
+                    sretPtr = LLVMBuildBitCast(ctx->builder,
+                                               sretPtr,
+                                               expectedPtrTy,
+                                               "return.sret.cast");
+                }
+
+                uint64_t bytes = 0;
+                uint32_t align = 0;
+                if (!cg_size_align_for_type(ctx,
+                                            ctx->currentFunctionReturnType,
+                                            declaredReturnLLVM,
+                                            &bytes,
+                                            &align) ||
+                    bytes == 0) {
+                    LLVMTargetDataRef td = ctx && ctx->module ? LLVMGetModuleDataLayout(ctx->module) : NULL;
+                    if (td) {
+                        bytes = LLVMABISizeOfType(td, declaredReturnLLVM);
+                        align = (uint32_t)LLVMABIAlignmentOfType(td, declaredReturnLLVM);
+                    }
+                }
+                if (bytes == 0) {
+                    fprintf(stderr, "Error: Unable to size aggregate return value\n");
+                    return NULL;
+                }
+                if (align == 0) {
+                    align = 1;
+                }
+                LLVMValueRef sizeVal =
+                    LLVMConstInt(cg_get_intptr_type(ctx), (unsigned long long)bytes, 0);
+                LLVMBuildMemCpy(ctx->builder,
+                                sretPtr,
+                                align,
+                                srcPtr,
+                                align,
+                                sizeVal);
+                CG_DEBUG("[CG] Return emitting aggregate sret memcpy\n");
+                return LLVMBuildRetVoid(ctx->builder);
+            }
+        }
+
         LLVMValueRef value = codegenNode(ctx, node->returnStmt.returnValue);
         if (!value) {
             fprintf(stderr, "Error: Failed to generate return value\n");

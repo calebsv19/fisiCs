@@ -814,11 +814,19 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
     }
 
     if (needsIndirectAggregateReturn) {
-        callIndirectSRetSlot = cg_build_entry_alloca(ctx, semanticReturnTy, "call.indirect.sret.slot");
+        if (ctx->aggregateCallResultDestPtr &&
+            ctx->aggregateCallResultDestType == semanticReturnTy &&
+            ctx->aggregateCallResultDestCall == node) {
+            callIndirectSRetSlot = ctx->aggregateCallResultDestPtr;
+        } else {
+            callIndirectSRetSlot = cg_build_entry_alloca(ctx, semanticReturnTy, "call.indirect.sret.slot");
+        }
         if (callIndirectSRetSlot) {
-            LLVMBuildStore(ctx->builder,
-                           LLVMConstNull(semanticReturnTy),
-                           callIndirectSRetSlot);
+            if (callIndirectSRetSlot != ctx->aggregateCallResultDestPtr) {
+                LLVMBuildStore(ctx->builder,
+                               LLVMConstNull(semanticReturnTy),
+                               callIndirectSRetSlot);
+            }
             if (calleeAlreadyUsesIndirectSRet) {
                 callIndirectSRetArgs = (LLVMValueRef*)calloc(argCount + 1u, sizeof(LLVMValueRef));
                 if (callIndirectSRetArgs) {
@@ -920,6 +928,9 @@ LLVMValueRef codegenFunctionCall(CodegenContext* ctx, ASTNode* node) {
 
     LLVMValueRef result = call;
     if (useCallIndirectSRet && callIndirectSRetSlot && semanticReturnTy) {
+        if (callIndirectSRetSlot == ctx->aggregateCallResultDestPtr) {
+            CG_CALL_RETURN(callIndirectSRetSlot);
+        }
         result = LLVMBuildLoad2(ctx->builder,
                                 semanticReturnTy,
                                 callIndirectSRetSlot,

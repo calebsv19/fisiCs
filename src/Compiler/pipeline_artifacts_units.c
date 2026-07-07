@@ -140,6 +140,28 @@ static bool append_units_attachment(UnitsAttachmentBuffer* buf,
     return true;
 }
 
+static void normalize_units_attachment_range(UnitsAttachmentBuffer* buf,
+                                             SourceRange* range,
+                                             const SourceRange* fallback_range) {
+    if (!range) return;
+    const char* fallback_file = NULL;
+    if (fallback_range && fallback_range->start.file && fallback_range->start.file[0]) {
+        fallback_file = fallback_range->start.file;
+    } else if (buf && buf->fallback_file_path && buf->fallback_file_path[0]) {
+        fallback_file = buf->fallback_file_path;
+    }
+    if (!fallback_file) return;
+
+    if (!range->start.file || !range->start.file[0] ||
+        strcmp(range->start.file, fallback_file) != 0) {
+        range->start.file = fallback_file;
+    }
+    if (!range->end.file || !range->end.file[0] ||
+        strcmp(range->end.file, fallback_file) != 0) {
+        range->end.file = fallback_file;
+    }
+}
+
 static void free_units_attachment_buffer(UnitsAttachmentBuffer* buf) {
     if (!buf || !buf->items) return;
     for (size_t i = 0; i < buf->count; ++i) {
@@ -170,6 +192,7 @@ static void collect_units_symbol_cb(const Symbol* sym, void* user_data) {
     SourceRange range = sym->definition ? sym->definition->location : (SourceRange){0};
     if (!range.start.file || !range.start.file[0]) range.start.file = buf->fallback_file_path;
     if (!range.end.file || !range.end.file[0]) range.end.file = range.start.file;
+    normalize_units_attachment_range(buf, &range, sym->definition ? &sym->definition->location : NULL);
     if (!append_units_attachment(buf, exported, exported->name, range, ann)) {
         buf->ok = false;
     }
@@ -190,6 +213,7 @@ static void collect_units_annotation_cb(const FisicsUnitsAnnotation* ann, void* 
         if (!range.start.file || !range.start.file[0]) range.start.file = node->location.start.file;
         if (!range.start.file || !range.start.file[0]) range.start.file = buf->fallback_file_path;
         if (!range.end.file || !range.end.file[0]) range.end.file = range.start.file;
+        normalize_units_attachment_range(buf, &range, &node->location);
         const FisicsSymbol* exported = NULL;
         if (buf->symbols && buf->symbol_count > 0) {
             Symbol transient = {0};

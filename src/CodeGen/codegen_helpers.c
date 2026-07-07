@@ -222,6 +222,88 @@ static const ParsedType* cg_resolve_call_surface_type(CodegenContext* ctx, const
     return cg_resolve_typedef_chain(ctx, type);
 }
 
+static bool cg_aggregate_type_contains_union_inner(CodegenContext* ctx,
+                                                   const ParsedType* parsed,
+                                                   LLVMTypeRef llvmType,
+                                                   unsigned depth) {
+    if (!ctx || depth > 32) {
+        return false;
+    }
+
+    const ParsedType* resolved = parsed ? cg_resolve_typedef_chain(ctx, parsed) : NULL;
+    if (resolved) {
+        if (resolved->pointerDepth > 0 || resolved->isFunctionPointer) {
+            return false;
+        }
+        if (resolved->kind == TYPE_UNION || resolved->tag == TAG_UNION) {
+            return true;
+        }
+        if (resolved->inlineStructOrUnionDef) {
+            ASTNode* def = resolved->inlineStructOrUnionDef;
+            if (def->type == AST_UNION_DEFINITION) {
+                return true;
+            }
+            if (def->type == AST_STRUCT_DEFINITION) {
+                for (size_t f = 0; f < def->structDef.fieldCount; ++f) {
+                    ASTNode* fieldDecl = def->structDef.fields ? def->structDef.fields[f] : NULL;
+                    if (!fieldDecl || fieldDecl->type != AST_VARIABLE_DECLARATION) {
+                        continue;
+                    }
+                    for (size_t v = 0; v < fieldDecl->varDecl.varCount; ++v) {
+                        const ParsedType* fieldParsed = astVarDeclTypeAt(fieldDecl, v);
+                        if (cg_aggregate_type_contains_union_inner(ctx,
+                                                                   fieldParsed,
+                                                                   NULL,
+                                                                   depth + 1u)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        if (!llvmType &&
+            (resolved->kind == TYPE_STRUCT || resolved->kind == TYPE_UNION ||
+             resolved->tag == TAG_STRUCT || resolved->tag == TAG_UNION)) {
+            llvmType = cg_type_from_parsed(ctx, resolved);
+        }
+    }
+
+    for (size_t i = 0; i < ctx->structInfoCount; ++i) {
+        const StructInfo* info = &ctx->structInfos[i];
+        bool matches = false;
+        if (llvmType && info->llvmType == llvmType) {
+            matches = true;
+        } else if (resolved && resolved->userTypeName && info->name &&
+                   strcmp(resolved->userTypeName, info->name) == 0) {
+            matches = true;
+        }
+        if (!matches) {
+            continue;
+        }
+        if (info->isUnion) {
+            return true;
+        }
+        for (size_t f = 0; f < info->fieldCount; ++f) {
+            const StructFieldInfo* field = &info->fields[f];
+            if (cg_aggregate_type_contains_union_inner(ctx,
+                                                       &field->parsedType,
+                                                       field->type,
+                                                       depth + 1u)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    return false;
+}
+
+bool cg_aggregate_type_contains_union(CodegenContext* ctx,
+                                      const ParsedType* parsed,
+                                      LLVMTypeRef llvmType) {
+    return cg_aggregate_type_contains_union_inner(ctx, parsed, llvmType, 0u);
+}
+
 static const ParsedType* cg_lookup_function_symbol_return_type(CodegenContext* ctx, ASTNode* callee) {
     if (!ctx || !callee || callee->type != AST_IDENTIFIER) {
         if (!ctx || !callee) {

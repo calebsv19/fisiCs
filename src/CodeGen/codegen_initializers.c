@@ -86,6 +86,37 @@ bool cg_store_initializer_expression(CodegenContext* ctx,
     }
 
     if (isAggregateStore) {
+        const ParsedType* callReturnParsed = cg_resolve_expression_type(ctx, expr);
+        LLVMTypeRef callReturnType = callReturnParsed ? cg_type_from_parsed(ctx, callReturnParsed) : NULL;
+        if (callReturnType && LLVMGetTypeKind(callReturnType) == LLVMFunctionTypeKind) {
+            callReturnType = LLVMPointerType(callReturnType, 0);
+        } else if (callReturnType && LLVMGetTypeKind(callReturnType) == LLVMArrayTypeKind) {
+            callReturnType = LLVMPointerType(callReturnType, 0);
+        }
+        if (expr->type == AST_FUNCTION_CALL &&
+            callReturnType &&
+            callReturnType == storeType &&
+            cg_should_lower_indirect_aggregate_return(ctx, callReturnType) &&
+            cg_aggregate_type_contains_union(ctx, callReturnParsed, callReturnType)) {
+            LLVMValueRef previousDestPtr = ctx->aggregateCallResultDestPtr;
+            LLVMTypeRef previousDestType = ctx->aggregateCallResultDestType;
+            ASTNode* previousDestCall = ctx->aggregateCallResultDestCall;
+            ctx->aggregateCallResultDestPtr = destPtr;
+            ctx->aggregateCallResultDestType = storeType;
+            ctx->aggregateCallResultDestCall = expr;
+            LLVMValueRef directResult = codegenNode(ctx, expr);
+            ctx->aggregateCallResultDestPtr = previousDestPtr;
+            ctx->aggregateCallResultDestType = previousDestType;
+            ctx->aggregateCallResultDestCall = previousDestCall;
+            if (directResult == destPtr) {
+                CG_STORE_INIT_RETURN(true);
+            }
+            if (!directResult) {
+                fprintf(stderr, "Error: Failed to evaluate aggregate initializer call\n");
+                CG_STORE_INIT_RETURN(false);
+            }
+        }
+
         LLVMValueRef srcPtr = NULL;
         LLVMTypeRef srcType = NULL;
         const ParsedType* srcParsed = NULL;

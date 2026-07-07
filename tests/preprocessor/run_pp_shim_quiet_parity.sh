@@ -22,7 +22,7 @@ run_case() {
   local use_shadow_env="$4"
 
   if [ "$use_shadow_env" = "1" ]; then
-    DISABLE_CODEGEN=1 SYSTEM_INCLUDE_PATHS="$SHIM_OVERLAY:$SHIM_INCLUDE:${SYSTEM_INCLUDE_PATHS:-}" "$bin" "$src" >"$out_file" 2>&1
+    DISABLE_CODEGEN=1 "$bin" "$src" >"$out_file" 2>&1
   else
     DISABLE_CODEGEN=1 "$bin" "$src" >"$out_file" 2>&1
   fi

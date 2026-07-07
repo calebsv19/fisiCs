@@ -267,6 +267,16 @@ RUNTIME_PROBES = [
         note='struct+union by-value roundtrip chains should match clang runtime behavior',
     ),
     RuntimeProbe(
+        probe_id='14__probe_compound_scene_descriptor_nested_access',
+        source=PROBE_DIR / 'runtime/14__probe_compound_scene_descriptor_nested_access.c',
+        note='compound scene descriptor nested struct-array and by-value shape-copy path should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_struct_return_nested_union_box_shape',
+        source=PROBE_DIR / 'runtime/14__probe_struct_return_nested_union_box_shape.c',
+        note='large struct return with nested union box payload should preserve both double fields',
+    ),
+    RuntimeProbe(
         probe_id='14__probe_fnptr_return_struct_pipeline',
         source=PROBE_DIR / 'runtime/14__probe_fnptr_return_struct_pipeline.c',
         note='function-pointer selected struct-return pipelines should match clang runtime behavior',

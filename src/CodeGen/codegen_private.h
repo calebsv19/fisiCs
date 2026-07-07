@@ -144,6 +144,9 @@ struct CodegenContext {
     bool currentFunctionUsesVariadicSRet;
     LLVMValueRef currentFunctionVariadicSRetPtr;
     LLVMTypeRef currentFunctionVariadicSRetType;
+    LLVMValueRef aggregateCallResultDestPtr;
+    LLVMTypeRef aggregateCallResultDestType;
+    ASTNode* aggregateCallResultDestCall;
     bool verifyFunctions;
 };
 
@@ -204,6 +207,9 @@ LLVMValueRef cg_build_load(CodegenContext* ctx, LLVMTypeRef type, LLVMValueRef p
 LLVMValueRef cg_build_store(CodegenContext* ctx, LLVMValueRef value, LLVMValueRef ptr, const ParsedType* parsed);
 bool cg_expression_is_unsigned(CodegenContext* ctx, ASTNode* node);
 LLVMIntPredicate cg_select_int_predicate(const char* op, bool preferUnsigned);
+bool cg_aggregate_type_contains_union(CodegenContext* ctx,
+                                      const ParsedType* parsed,
+                                      LLVMTypeRef llvmType);
 
 LLVMValueRef cg_build_truthy(CodegenContext* ctx,
                              LLVMValueRef value,

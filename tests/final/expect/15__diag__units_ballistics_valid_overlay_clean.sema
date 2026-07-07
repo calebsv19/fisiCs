@@ -27,6 +27,7 @@ Scope depth 0
   - function: __builtin_object_size
   - function: sprintf
   - typedef: int64_t
+  - function: shim_fputs_line
   - function: fgetc
   - typedef: __darwin_pthread_rwlockattr_t
   - typedef: __uint8_t
@@ -268,7 +269,12 @@ Extension Units Annotations: 7
   - line 8: m/s^2 [resolved, unit=meter_per_second_squared, unit-resolved]
   - line 9: kg [resolved, unit=kilogram, unit-resolved]
   - line 10: m^2*kg/s^2 [resolved, unit=joule, unit-resolved]
-Extension Units Expr Results: 38
+Extension Units Expr Results: 43
+  - line 204: number-literal [dim=1, resolved]
+  - line 204: unary-expression(-) [dim=1, resolved]
+  - line 204: number-literal [dim=1, resolved]
+  - line 204: unary-expression(-) [dim=1, resolved]
+  - line 15: char-literal [dim=1, resolved]
   - line 4: number-literal [dim=m, resolved, unit=meter]
   - line 5: number-literal [dim=m/s, resolved, unit=meter_per_second]
   - line 6: number-literal [dim=m/s^2, resolved, unit=meter_per_second_squared]
