@@ -21,9 +21,24 @@ current archive, verify the listed SHA-256, unpack it, and run `bin/fisics`:
 workdir="$(mktemp -d)"
 curl -fsSL https://ecosystem.calebsv.tech/agents/programs/fisics.json \
   -o "$workdir/fisics.json"
-curl -fL \
-  https://ecosystem.calebsv.tech/downloads/fisiCs/current/fisiCs-0.2.1-macOS-arm64-stable.tar.gz \
-  -o "$workdir/fisiCs.tar.gz"
+python3 - "$workdir/fisics.json" "$workdir/package.env" <<'PY'
+import json
+import sys
+
+manifest_path, env_path = sys.argv[1:]
+manifest = json.load(open(manifest_path, encoding="utf-8"))
+for item in manifest["release"]["downloads"]:
+    if item["format"] == "tar.gz" and item["platform"] == "macOS" and item["arch"] == "arm64":
+        with open(env_path, "w", encoding="utf-8") as f:
+            f.write(f"PACKAGE_URL={item['url']}\n")
+            f.write(f"PACKAGE_SHA256={item['sha256']}\n")
+            f.write(f"PACKAGE_DIR=fisiCs-{manifest['release']['version']}-macOS-arm64-stable\n")
+        break
+else:
+    raise SystemExit("no macOS arm64 tar.gz package in manifest")
+PY
+. "$workdir/package.env"
+curl -fL "$PACKAGE_URL" -o "$workdir/fisiCs.tar.gz"
 shasum -a 256 "$workdir/fisiCs.tar.gz"
 tar -xzf "$workdir/fisiCs.tar.gz" -C "$workdir"
 ```
@@ -32,8 +47,8 @@ The SHA-256 should match the value in the manifest. First confirm the compiler
 reports normal CLI metadata:
 
 ```bash
-"$workdir"/fisiCs-0.2.1-macOS-arm64-stable/bin/fisics --version
-"$workdir"/fisiCs-0.2.1-macOS-arm64-stable/bin/fisics --help
+"$workdir/$PACKAGE_DIR"/bin/fisics --version
+"$workdir/$PACKAGE_DIR"/bin/fisics --help
 ```
 
 Then compile a minimal program:
@@ -42,7 +57,7 @@ Then compile a minimal program:
 cat > "$workdir/hello.c" <<'C'
 int main(void) { return 0; }
 C
-"$workdir"/fisiCs-0.2.1-macOS-arm64-stable/bin/fisics \
+"$workdir/$PACKAGE_DIR"/bin/fisics \
   "$workdir/hello.c" -o "$workdir/hello"
 "$workdir/hello"
 ```
