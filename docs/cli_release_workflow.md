@@ -62,9 +62,10 @@ make release-all RELEASE_PLATFORM=linux RELEASE_ARCH=x86_64 RELEASE_CHANNEL=stab
 ```
 
 The zip archive target uses `scripts/create_release_zip.sh`, which selects
-`ditto`, `zip`, or `python3` in that order. This keeps macOS resource-fork
-preservation when `ditto` is available while allowing Linux builders to produce
-the same release artifact set without macOS-only tools.
+Python's byte-preserving `zipfile` implementation before the system `zip` or
+`ditto` fallbacks. The CLI package does not need macOS resource forks, and the
+preferred path preserves the embedded Developer ID signature in source and
+archive bytes.
 
 ## Verification Expectations
 

@@ -17,16 +17,6 @@ fi
 
 mkdir -p "$(dirname "$artifact_zip")"
 
-if command -v ditto >/dev/null 2>&1; then
-  (cd "$stage_root" && ditto -c -k --sequesterRsrc --keepParent "$release_basename" "$artifact_zip")
-  exit 0
-fi
-
-if command -v zip >/dev/null 2>&1; then
-  (cd "$stage_root" && zip -qr "$artifact_zip" "$release_basename")
-  exit 0
-fi
-
 if command -v python3 >/dev/null 2>&1; then
   python3 - "$stage_root" "$release_basename" "$artifact_zip" <<'PY'
 import os
@@ -50,5 +40,15 @@ PY
   exit 0
 fi
 
-echo "release zip error: need one of ditto, zip, or python3" >&2
+if command -v zip >/dev/null 2>&1; then
+  (cd "$stage_root" && zip -qr "$artifact_zip" "$release_basename")
+  exit 0
+fi
+
+if command -v ditto >/dev/null 2>&1; then
+  (cd "$stage_root" && ditto -c -k --keepParent "$release_basename" "$artifact_zip")
+  exit 0
+fi
+
+echo "release zip error: need one of python3, zip, or ditto" >&2
 exit 1
