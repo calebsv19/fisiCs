@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-USER_HOME_RE = re.compile(r"/Users/[^/\s]+/")
+USER_HOME_RE = re.compile(r"/" r"Users/[^/\s]+/")
 EXCLUDED_PREFIXES = (
     "tests/final/expect/",
     "third_party/",

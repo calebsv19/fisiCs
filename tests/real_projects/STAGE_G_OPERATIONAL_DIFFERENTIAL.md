@@ -50,22 +50,22 @@ artifacts rather than byte-level semantic oracles.
   `tests/real_projects/reports/{latest,history}/`
 - artifacts:
   `tests/real_projects/artifacts/{latest,history}/`
-- completed execution records:
-  `/Users/calebsv/Desktop/CodeWork/docs/private_program_docs/fisiCs/active/drawing_program_operational_differential_bites_plan.md`
+- completed execution records (paths relative to the CodeWork root):
+  `docs/private_program_docs/fisiCs/active/drawing_program_operational_differential_bites_plan.md`
   and
-  `/Users/calebsv/Desktop/CodeWork/docs/private_program_docs/fisiCs/active/map_forge_operational_differential_bites_plan.md`
+  `docs/private_program_docs/fisiCs/active/map_forge_operational_differential_bites_plan.md`
   and
-  `/Users/calebsv/Desktop/CodeWork/docs/private_program_docs/fisiCs/active/datalab_operational_differential_bites_plan.md`
+  `docs/private_program_docs/fisiCs/active/datalab_operational_differential_bites_plan.md`
   and
-  `/Users/calebsv/Desktop/CodeWork/docs/private_program_docs/fisiCs/active/workspace_sandbox_operational_differential_bites_plan.md`
+  `docs/private_program_docs/fisiCs/active/workspace_sandbox_operational_differential_bites_plan.md`
   and
-  `/Users/calebsv/Desktop/CodeWork/docs/private_program_docs/fisiCs/active/line_drawing_operational_differential_bites_plan.md`
+  `docs/private_program_docs/fisiCs/active/line_drawing_operational_differential_bites_plan.md`
   and
-  `/Users/calebsv/Desktop/CodeWork/docs/private_program_docs/fisiCs/active/ray_tracing_operational_differential_bites_plan.md`
+  `docs/private_program_docs/fisiCs/active/ray_tracing_operational_differential_bites_plan.md`
   and
-  `/Users/calebsv/Desktop/CodeWork/docs/private_program_docs/fisiCs/active/physics_sim_operational_differential_bites_plan.md`
+  `docs/private_program_docs/fisiCs/active/physics_sim_operational_differential_bites_plan.md`
   and
-  `/Users/calebsv/Desktop/CodeWork/docs/private_program_docs/fisiCs/active/mem_console_operational_differential_bites_plan.md`
+  `docs/private_program_docs/fisiCs/active/mem_console_operational_differential_bites_plan.md`
 
 RayTracing's in-repository executable contract is also fully represented by
 its four manifest targets and the fixtures under
