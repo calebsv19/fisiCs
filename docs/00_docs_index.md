@@ -9,13 +9,14 @@ Last audited: 2026-06-08.
 2. `AGENTS.md`
 3. `docs/supported_feature_matrix.md`
 4. `docs/first_user_path.md`
-5. `docs/release_confidence_checklist.md`
-6. `docs/contributor_agent_quickstart.md`
-7. `docs/public_roadmap.md`
-8. `examples/README.md`
-9. `examples/release_example_pack.md`
-10. `examples/canaries/README.md`
-11. `examples/physics_units/README.md`
+5. `docs/build_week_judge_guide.md`
+6. `docs/release_confidence_checklist.md`
+7. `docs/contributor_agent_quickstart.md`
+8. `docs/public_roadmap.md`
+9. `examples/README.md`
+10. `examples/release_example_pack.md`
+11. `examples/canaries/README.md`
+12. `examples/physics_units/README.md`
 
 ## Public Docs In `docs/`
 
@@ -37,6 +38,11 @@ behavior policy, and opt-in extension boundaries.
 
 Shortest supported user path from build through hello world, multi-TU smoke,
 physics-units pilot, and minimum smoke validation.
+
+### `docs/build_week_judge_guide.md`
+
+OpenAI Build Week installation, supported-platform, no-rebuild testing,
+submission evidence, and `/feedback` Session ID reference.
 
 ### `docs/release_confidence_checklist.md`
 

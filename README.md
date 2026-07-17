@@ -18,6 +18,8 @@ programs before broader language or tooling ambitions.
   [`docs/supported_feature_matrix.md`](docs/supported_feature_matrix.md)
 - Shortest successful user path:
   [`docs/first_user_path.md`](docs/first_user_path.md)
+- OpenAI Build Week judge install and test path:
+  [`docs/build_week_judge_guide.md`](docs/build_week_judge_guide.md)
 - Agent operating guide:
   [`AGENTS.md`](AGENTS.md)
 - Smaller release-ready checkpoint flow:
@@ -57,10 +59,11 @@ into a judge-testable developer tool:
   builds, physics-units diagnostics, and build-graph output
 - a clean install, package verification, and short public test path
 
-The final eligible commit range, packaged version, and Codex `/feedback`
-Session ID will be recorded here when the submission candidate is frozen. Until
-then, this section describes an active candidate rather than a completed
-release.
+The submission candidate is version `0.3.0`. Its eligible work begins after
+the frozen baseline above and ends at the `v0.3.0` release tag. The principal
+Codex `/feedback` Session ID is
+`019f6486-6fc5-79b2-91dd-4ecab0b34118`, covering the GPT-5.6 Stage-G
+operational differential flow, monitored final suite, and promotion audit.
 
 ### How Codex and GPT-5.6 contributed
 
@@ -72,7 +75,8 @@ product direction, compatibility boundaries, extension policy, acceptance
 criteria, and which generated changes were kept or rejected.
 
 For the shortest judge-facing path, use the
-[release example pack](examples/release_example_pack.md). It demonstrates the
+[Build Week judge guide](docs/build_week_judge_guide.md), followed by the
+[release example pack](examples/release_example_pack.md). They demonstrate the
 compiler without requiring the full internal validation suite.
 
 ## Build
@@ -244,6 +248,7 @@ For the smaller release/user-facing checkpoint flow, use
 - Docs layout guide: [`docs/README.md`](docs/README.md)
 - Supported feature matrix: [`docs/supported_feature_matrix.md`](docs/supported_feature_matrix.md)
 - First user path: [`docs/first_user_path.md`](docs/first_user_path.md)
+- Build Week judge guide: [`docs/build_week_judge_guide.md`](docs/build_week_judge_guide.md)
 - Release confidence checklist: [`docs/release_confidence_checklist.md`](docs/release_confidence_checklist.md)
 - Agent operating guide: [`AGENTS.md`](AGENTS.md)
 - Contributor/agent quickstart: [`docs/contributor_agent_quickstart.md`](docs/contributor_agent_quickstart.md)

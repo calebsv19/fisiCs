@@ -70,6 +70,9 @@ the same release artifact set without macOS-only tools.
 
 - `release-verify` checks:
   - staged binary exists and is executable
+  - the macOS binary has no Homebrew- or machine-local dynamic-library paths;
+    LLVM is linked into the release binary and only system-relative dynamic
+    dependencies are accepted
   - `codesign --verify` (passes once signed)
   - `spctl --assess` is informational for CLI binaries and may report non-app rejection even when signing/notarization are correct
   - archive checksum matches recorded `.sha256`

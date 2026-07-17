@@ -83,6 +83,15 @@ endif
 RELEASE_CHANNEL ?= stable
 RELEASE_PLATFORM ?= macOS
 RELEASE_ARCH ?= arm64
+ifeq ($(RELEASE_PLATFORM),macOS)
+RELEASE_LLVM_LIBS_RAW := $(shell $(LLVM_CONFIG) --link-static --libs core native nativecodegen passes --system-libs)
+RELEASE_ZSTD_STATIC := $(shell brew --prefix zstd 2>/dev/null)/lib/libzstd.a
+RELEASE_LLVM_LIBS := $(subst -lzstd,$(RELEASE_ZSTD_STATIC),$(RELEASE_LLVM_LIBS_RAW))
+RELEASE_LINK_FLAGS := -lc++ -Wl,-dead_strip_dylibs
+else
+RELEASE_LLVM_LIBS := $(LLVM_LIBS)
+RELEASE_LINK_FLAGS :=
+endif
 RELEASE_BASENAME := fisiCs-$(RELEASE_VERSION)-$(RELEASE_PLATFORM)-$(RELEASE_ARCH)-$(RELEASE_CHANNEL)
 RELEASE_ROOT := build/release
 RELEASE_STAGE_ROOT := $(RELEASE_ROOT)/stage
@@ -232,7 +241,9 @@ release-contract:
 	@echo "  notary log:   $(RELEASE_NOTARY_LOG)"
 
 release-build:
-	@$(MAKE) BUILD_PROFILE=unsanitized SHIM_MODE=off all
+	@$(MAKE) BUILD_PROFILE=unsanitized SHIM_MODE=off \
+		LLVM_LIBS='$(RELEASE_LLVM_LIBS)' \
+		PROFILE_LDFLAGS='$(RELEASE_LINK_FLAGS)' all
 
 release-stage: release-build
 	@echo "Staging release tree..."
@@ -306,6 +317,7 @@ release-notarize: release-sign
 release-verify: release-archive
 	@echo "Verifying release bundle..."
 	@test -x "$(RELEASE_BIN)"
+	@bash scripts/verify_release_portability.sh "$(RELEASE_BIN)" "$(RELEASE_PLATFORM)"
 	@codesign --verify --verbose=2 "$(RELEASE_BIN)" || true
 	@spctl --assess --type execute --verbose=4 "$(RELEASE_BIN)" || \
 		echo "note: spctl may reject raw CLI binaries as non-app; use notarization status + codesign verification for release gate."
