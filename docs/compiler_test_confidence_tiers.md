@@ -84,6 +84,26 @@ Use it when:
 
 Once the oracle is deterministic, move back to the owning stable lane.
 
+### Treat Compiler Exit Status As Part Of The Oracle
+
+Stable reject tests must assert the compiler status as well as diagnostic
+text or JSON. A completed compilation with no errors exits `0`; any emitted
+parser or semantic error exits `1`, including recovered parser errors and
+multi-translation-unit runs. Parser recovery may continue far enough to
+collect ordered diagnostics, but it must not proceed to code generation or
+linking after an error.
+
+Legacy AST goldens can opt into an exact status oracle with a sibling
+`<golden>.exit` file containing `0` or `1`. Final manifests should use their
+explicit compile-exit field. Do not use `|| true` or an arbitrary-nonzero
+check around a compiler invocation when the fixture has a deterministic
+status contract.
+
+For multi-translation-unit diagnostic tests, validate both input orders when
+order matters. Structured expectations should retain each translation unit's
+rich payload, including include-stack and macro-trace details, after the
+individual frontend context has been destroyed.
+
 ## Common Work Patterns
 
 ### Pattern A: Stable Bucket Fix
@@ -112,7 +132,9 @@ project work.
 1. rerun the failing canary stage
 2. follow `docs/compiler_test_regression_intake.md`
 3. reduce into `tests/final/probes/` only if the repro is still unstable
-4. promote into `tests/final/` or `tests/binary/` once stable
+4. assign explicit ownership in `tests/final/` or `tests/binary/` once stable;
+   source files may remain under the probe tree when the stable manifest owns
+   the exact reduced fixture
 5. rerun the source canary stage
 
 ### Pattern D: Maintainer Checkpoint

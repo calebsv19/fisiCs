@@ -14,6 +14,7 @@ if str(FINAL_ROOT) not in sys.path:
 from bin_resolver import stage_bin_copy
 
 from .exec import run_binary, run_cmd
+from .models import DiagnosticExpectation
 from .selection import parse_probe_filters, probe_selected
 from .taxonomy import emit_probe_blocked_classification
 
@@ -22,6 +23,155 @@ PROBE_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = PROBE_DIR.parent.parent.parent
 COMPILE_TIMEOUT_SEC = 20
 RUN_TIMEOUT_SEC = 8
+
+_STABLE_ORACLE_INDEX = None
+
+
+def stable_oracle_index():
+    global _STABLE_ORACLE_INDEX
+    if _STABLE_ORACLE_INDEX is not None:
+        return _STABLE_ORACLE_INDEX
+
+    index_path = FINAL_ROOT / "meta" / "index.json"
+    mapping = {}
+    if not index_path.is_file():
+        _STABLE_ORACLE_INDEX = mapping
+        return mapping
+    manifest_index = json.loads(index_path.read_text(encoding="utf-8"))
+    for manifest_name in manifest_index.get("manifests", []):
+        manifest_path = FINAL_ROOT / "meta" / manifest_name
+        if not manifest_path.is_file():
+            continue
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        for test in manifest.get("tests", []):
+            inputs = [test.get("input", ""), *(test.get("inputs") or [])]
+            for expectation_path in test.get("expects", []):
+                suffix = Path(expectation_path).suffix
+                if suffix not in (".diag", ".diagjson", ".pdiag"):
+                    continue
+                mapping.setdefault(("__id__", test.get("id", ""), suffix), set()).add(
+                    expectation_path
+                )
+                for input_path in inputs:
+                    if input_path:
+                        mapping.setdefault((input_path, suffix), set()).add(expectation_path)
+    _STABLE_ORACLE_INDEX = mapping
+    return mapping
+
+
+def stable_oracle_path_for_source(source, suffix):
+    try:
+        relative_source = str(source.resolve().relative_to(FINAL_ROOT.resolve()))
+    except ValueError:
+        return None
+    candidates = stable_oracle_index().get((relative_source, suffix), set())
+    if len(candidates) != 1:
+        return None
+    path = FINAL_ROOT / next(iter(candidates))
+    return path if path.is_file() else None
+
+
+def stable_probe_id_variants(probe_id, family):
+    variants = {probe_id}
+    if "__probe_" not in probe_id:
+        return variants
+    bucket, tail = probe_id.split("__probe_", 1)
+    variants.add(probe_id.replace("__probe_", "__", 1))
+    if family == "diagnostic":
+        variants.add(f"{bucket}__diag__{tail}")
+    elif family == "diagnostic-json":
+        variants.add(f"{bucket}__diagjson__{tail}")
+        if tail.startswith("diagjson_"):
+            semantic_tail = tail[len("diagjson_"):]
+            variants.add(f"{bucket}__diagjson__{semantic_tail}")
+            variants.add(f"{bucket}__line_directive_{semantic_tail}")
+    return variants
+
+
+def stable_oracle_path_for_probe(probe_id, family, source, suffix):
+    # A unique source owner is stronger than heuristic probe-id variants. Some
+    # older case and probe-promotion lanes intentionally share normalized ID
+    # tails while retaining different source locations and columns.
+    source_path = stable_oracle_path_for_source(source, suffix)
+    if source_path is not None:
+        return source_path
+    index = stable_oracle_index()
+    id_candidates = set()
+    for variant in stable_probe_id_variants(probe_id, family):
+        id_candidates.update(index.get(("__id__", variant, suffix), set()))
+    if len(id_candidates) == 1:
+        path = FINAL_ROOT / next(iter(id_candidates))
+        if path.is_file():
+            return path
+    return None
+
+
+def stable_text_identity_markers(probe_id, source):
+    path = stable_oracle_path_for_probe(probe_id, "diagnostic", source, ".diag")
+    if not path:
+        return ()
+    markers = []
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if line.startswith(("Error at (", "Warning at (")) and "): " in line:
+            marker = line.split("): ", 1)[1].strip()
+        elif line.startswith(("Error: ", "Warning: ")):
+            marker = line.split(": ", 1)[1].strip()
+            # Stable text expectations use checkout-relative source paths, while
+            # probe inventory paths are absolute. Keep the diagnostic identity
+            # but discard that non-semantic path suffix.
+            if " at tests/final/" in marker:
+                marker = marker.split(" at tests/final/", 1)[0].rstrip()
+        else:
+            continue
+        if marker and marker not in markers:
+            markers.append(marker)
+    if markers:
+        return tuple(markers)
+    parser_path = stable_oracle_path_for_probe(
+        probe_id, "diagnostic", source, ".pdiag"
+    )
+    if parser_path:
+        for raw_line in parser_path.read_text(encoding="utf-8").splitlines():
+            fields = dict(
+                field.split("=", 1)
+                for field in raw_line.split()
+                if "=" in field
+            )
+            line = fields.get("line")
+            if line:
+                # Parser-only stable oracles expose code/location rather than
+                # the human message. Match the path-independent source line in
+                # the legacy text stream.
+                marker = f"@diagnostic-line:{line}"
+                if marker not in markers:
+                    markers.append(marker)
+    return tuple(markers)
+
+
+def stable_json_identity_expectations(probe_id, source):
+    path = stable_oracle_path_for_probe(
+        probe_id, "diagnostic-json", source, ".diagjson"
+    )
+    if not path:
+        return ()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    expectations = []
+    for item in payload.get("diagnostics", []):
+        expectations.append(
+            DiagnosticExpectation(
+                code=int(item["code"]) if "code" in item else None,
+                line=int(item["line"]) if "line" in item else None,
+                column=int(item["column"]) if "column" in item else None,
+                has_file=bool(item.get("has_file", False)),
+                file=str(item["file"]) if "file" in item else None,
+                severity=str(item["severity_name"]) if "severity_name" in item else None,
+                stage=str(item["stage"]) if "stage" in item else None,
+                message_substrings=(str(item["message"]),) if "message" in item else (),
+                macro_trace=tuple(item["macro_trace"]) if "macro_trace" in item else None,
+            )
+        )
+    return tuple(expectations)
 
 
 def compile_env(overrides):
@@ -37,6 +187,14 @@ def compile_output_substrings(out, required_substrings=None, forbidden_substring
     lowered = out.lower()
     if required_substrings:
         for needle in required_substrings:
+            if needle.startswith("@diagnostic-line:"):
+                line = needle.split(":", 1)[1]
+                if not any(
+                    candidate.lower() in lowered
+                    for candidate in (f":{line} (", f"at line {line}", f"({line}:")
+                ):
+                    return False, f"expected diagnostic source line missing ({line})"
+                continue
             if needle.lower() not in lowered:
                 return False, f"expected output substring missing ({needle})"
     if forbidden_substrings:
@@ -46,6 +204,77 @@ def compile_output_substrings(out, required_substrings=None, forbidden_substring
     return True, ""
 
 
+def missing_probe_inputs(sources):
+    return [source for source in sources if not source.is_file()]
+
+
+def compile_exit_allowed(exit_code, allowed_exit_codes):
+    return exit_code in tuple(allowed_exit_codes or ())
+
+
+def diagnostic_record_matches(item, expectation):
+    if expectation.code is not None and int(item.get("code", -1)) != expectation.code:
+        return False
+    if expectation.line is not None and int(item.get("line", -1)) != expectation.line:
+        return False
+    if expectation.column is not None and int(item.get("column", -1)) != expectation.column:
+        return False
+    if expectation.has_file is not None and bool(item.get("has_file", False)) != expectation.has_file:
+        return False
+    if expectation.file is not None:
+        actual_file = str(item.get("file", ""))
+        if actual_file != expectation.file and not actual_file.endswith(expectation.file):
+            return False
+    if expectation.severity is not None:
+        actual_severity = str(item.get("severity_name", item.get("severity", "")))
+        if actual_severity != expectation.severity:
+            return False
+    if expectation.stage is not None and str(item.get("stage", "")) != expectation.stage:
+        return False
+    message = str(item.get("message", ""))
+    if not all(marker in message for marker in expectation.message_substrings):
+        return False
+    if expectation.macro_trace is not None:
+        actual_trace = item.get("macro_trace")
+        if not isinstance(actual_trace, list) or len(actual_trace) != len(expectation.macro_trace):
+            return False
+        for actual_frame, expected_frame in zip(actual_trace, expectation.macro_trace):
+            if not isinstance(actual_frame, dict):
+                return False
+            for key, expected_value in expected_frame.items():
+                actual_value = actual_frame.get(key)
+                if key == "file":
+                    actual_file = str(actual_value or "")
+                    expected_file = str(expected_value)
+                    if actual_file != expected_file and not actual_file.endswith(expected_file):
+                        return False
+                elif actual_value != expected_value:
+                    return False
+    return True
+
+
+def match_expected_diagnostics(diagnostics, expectations):
+    unmatched = set(range(len(diagnostics)))
+    for expectation in expectations:
+        match_index = next(
+            (
+                index
+                for index in sorted(unmatched)
+                if diagnostic_record_matches(diagnostics[index], expectation)
+            ),
+            None,
+        )
+        if match_index is None:
+            return False
+        unmatched.remove(match_index)
+    return True
+
+
+def mixed_object_path(directory, source, ordinal):
+    """Return a per-input object path even when source basenames collide."""
+    return Path(directory) / f"{ordinal:03d}_{Path(source).stem}.clang.o"
+
+
 def run_runtime_probe(probe, clang_path, fisics_bin):
     with tempfile.TemporaryDirectory(prefix=f"probe-{probe.probe_id}-") as tmp:
         tmp_dir = Path(tmp)
@@ -53,14 +282,21 @@ def run_runtime_probe(probe, clang_path, fisics_bin):
         clang_exe = tmp_dir / "clang.out"
         sources = list(probe.inputs) if probe.inputs else [probe.source]
         mixed_clang_inputs = list(probe.mixed_clang_inputs) if probe.mixed_clang_inputs else []
+        missing_inputs = missing_probe_inputs(sources + mixed_clang_inputs)
+        if missing_inputs:
+            return (
+                "BLOCKED",
+                "probe input missing",
+                ", ".join(str(path) for path in missing_inputs),
+            )
         fisics_cmd = [str(fisics_bin)] + [str(arg) for arg in (probe.fisics_args or [])]
         fisics_env = compile_env(probe.fisics_env)
         clang_cmd = [clang_path or "clang", "-std=c99", "-O0"] + [str(arg) for arg in (probe.clang_args or [])]
         clang_env = compile_env(probe.clang_env)
 
         mixed_clang_objects = []
-        for src in mixed_clang_inputs:
-            obj_path = tmp_dir / f"{src.stem}.clang.o"
+        for mixed_index, src in enumerate(mixed_clang_inputs):
+            obj_path = mixed_object_path(tmp_dir, src, mixed_index)
             clang_obj_exit, clang_obj_out, clang_obj_timeout = run_cmd(
                 clang_cmd + ["-c", str(src), "-o", str(obj_path)],
                 COMPILE_TIMEOUT_SEC,
@@ -227,6 +463,13 @@ def run_runtime_probe(probe, clang_path, fisics_bin):
 
 def run_diag_probe(probe, fisics_bin):
     sources = list(probe.inputs) if probe.inputs else [probe.source]
+    missing_inputs = missing_probe_inputs(sources)
+    if missing_inputs:
+        return (
+            "BLOCKED",
+            "probe input missing",
+            ", ".join(str(path) for path in missing_inputs),
+        )
     with tempfile.TemporaryDirectory(prefix=f"probe-diag-{probe.probe_id}-") as tmp:
         cmd = [str(fisics_bin)] + [str(arg) for arg in (probe.fisics_args or [])] + [str(src) for src in sources]
         env = compile_env(probe.fisics_env)
@@ -234,10 +477,17 @@ def run_diag_probe(probe, fisics_bin):
         if len(sources) > 1 and not disable_codegen:
             # Force full multi-input compilation/linking path for cross-TU diagnostics.
             cmd += ["-o", str(Path(tmp) / "diag.out")]
-        _, out, _ = run_cmd(cmd, COMPILE_TIMEOUT_SEC, env=env)
+        exit_code, out, timed_out = run_cmd(cmd, COMPILE_TIMEOUT_SEC, env=env)
+    if timed_out:
+        return ("BLOCKED", f"compile timeout ({COMPILE_TIMEOUT_SEC}s)", out.strip())
+    if not compile_exit_allowed(exit_code, probe.allowed_exit_codes):
+        return ("BLOCKED", f"unexpected compile exit {exit_code}", out.strip())
+    required_substrings = probe.required_substrings
+    if probe.expect_any_diagnostic and not required_substrings:
+        required_substrings = stable_text_identity_markers(probe.probe_id, probe.source)
     substring_ok, substring_detail = compile_output_substrings(
         out,
-        required_substrings=probe.required_substrings,
+        required_substrings=required_substrings,
         forbidden_substrings=probe.forbidden_substrings,
     )
     if not substring_ok:
@@ -252,11 +502,15 @@ def run_diag_probe(probe, fisics_bin):
         ": warning:" in out
     )
     if probe.expect_any_diagnostic:
+        if not required_substrings:
+            return ("BLOCKED", "positive diagnostic probe lacks identity markers", "")
         if has_diag:
-            if probe.required_substrings:
+            if required_substrings:
                 return ("RESOLVED", "diagnostic now emitted with required output markers", "")
             return ("RESOLVED", "diagnostic now emitted", "")
         return ("BLOCKED", "diagnostic missing", "")
+    if exit_code != 0:
+        return ("BLOCKED", f"unexpected compile exit {exit_code}", out.strip())
     if has_diag:
         return ("BLOCKED", "unexpected diagnostic emitted", "")
     if probe.required_substrings:
@@ -268,6 +522,13 @@ def run_diag_json_probe(probe, fisics_bin):
     with tempfile.TemporaryDirectory(prefix=f"probe-diagjson-{probe.probe_id}-") as tmp:
         json_path = Path(tmp) / "diags.json"
         sources = list(probe.inputs) if probe.inputs else [probe.source]
+        missing_inputs = missing_probe_inputs(sources)
+        if missing_inputs:
+            return (
+                "BLOCKED",
+                "probe input missing",
+                ", ".join(str(path) for path in missing_inputs),
+            )
         cmd = [str(fisics_bin)] + [str(arg) for arg in (probe.fisics_args or [])] + ["--emit-diags-json", str(json_path)] + [str(src) for src in sources]
         env = compile_env(probe.fisics_env)
         disable_codegen = str(env.get("DISABLE_CODEGEN", "")).strip() not in ("", "0")
@@ -281,6 +542,8 @@ def run_diag_json_probe(probe, fisics_bin):
         )
         if timed_out:
             return ("BLOCKED", f"compile timeout ({COMPILE_TIMEOUT_SEC}s)", "")
+        if not compile_exit_allowed(exit_code, probe.allowed_exit_codes):
+            return ("BLOCKED", f"unexpected compile exit {exit_code}", out.strip())
         if not json_path.exists():
             if exit_code != 0:
                 return ("BLOCKED", f"compile exited {exit_code}", out.strip())
@@ -292,34 +555,57 @@ def run_diag_json_probe(probe, fisics_bin):
         diagnostics = data.get("diagnostics", [])
         if probe.require_any_diagnostic:
             if diagnostics:
-                if probe.expected_codes:
+                expected_diagnostics = probe.expected_diagnostics
+                if not expected_diagnostics and not probe.expected_codes:
+                    expected_diagnostics = stable_json_identity_expectations(
+                        probe.probe_id, probe.source
+                    )
+                if expected_diagnostics:
+                    if not match_expected_diagnostics(diagnostics, expected_diagnostics):
+                        return ("BLOCKED", "diagnostics JSON missing atomic expected record(s)", "")
+                elif probe.expected_codes:
                     actual_codes = [int(item.get("code", -1)) for item in diagnostics]
-                    missing_codes = [code for code in probe.expected_codes if code not in actual_codes]
-                    if missing_codes:
-                        return ("BLOCKED", f"diagnostics JSON missing expected code(s): {missing_codes}", "")
-                if probe.expected_line is not None:
-                    actual_lines = [int(item.get("line", -1)) for item in diagnostics]
-                    if probe.expected_line not in actual_lines:
-                        return ("BLOCKED", f"diagnostics JSON missing expected line {probe.expected_line}", "")
-                if probe.expected_column is not None:
-                    actual_columns = [int(item.get("column", -1)) for item in diagnostics]
-                    if probe.expected_column not in actual_columns:
-                        return (
-                            "BLOCKED",
-                            f"diagnostics JSON missing expected column {probe.expected_column}",
-                            "",
+                    remaining_codes = list(actual_codes)
+                    for code in probe.expected_codes:
+                        if code not in remaining_codes:
+                            return ("BLOCKED", f"diagnostics JSON missing expected code {code}", "")
+                        remaining_codes.remove(code)
+                    matching_records = [
+                        item for item in diagnostics if int(item.get("code", -1)) in probe.expected_codes
+                    ]
+                    if probe.expected_line is not None:
+                        matching_records = [
+                            item for item in matching_records
+                            if int(item.get("line", -1)) == probe.expected_line
+                        ]
+                    if probe.expected_column is not None:
+                        matching_records = [
+                            item for item in matching_records
+                            if int(item.get("column", -1)) == probe.expected_column
+                        ]
+                    if probe.expected_has_file is not None:
+                        matching_records = [
+                            item for item in matching_records
+                            if bool(item.get("has_file", False)) == probe.expected_has_file
+                        ]
+                    if any(
+                        value is not None
+                        for value in (
+                            probe.expected_line,
+                            probe.expected_column,
+                            probe.expected_has_file,
                         )
-                if probe.expected_has_file is not None:
-                    actual_has_file = [bool(item.get("has_file", False)) for item in diagnostics]
-                    if probe.expected_has_file not in actual_has_file:
-                        return (
-                            "BLOCKED",
-                            f"diagnostics JSON missing expected has_file={probe.expected_has_file}",
-                            "",
-                        )
+                    ) and not matching_records:
+                        return ("BLOCKED", "diagnostics JSON fields do not match one expected-code record", "")
+                else:
+                    return ("BLOCKED", "positive diagnostics JSON probe lacks identity expectations", "")
                 return ("RESOLVED", f"diagnostics JSON has {len(diagnostics)} item(s)", "")
             return ("BLOCKED", "diagnostics JSON unexpectedly empty", "")
-        return ("RESOLVED", "diagnostics JSON exported", "")
+        if exit_code != 0:
+            return ("BLOCKED", f"unexpected compile exit {exit_code}", out.strip())
+        if diagnostics:
+            return ("BLOCKED", f"diagnostics JSON unexpectedly has {len(diagnostics)} item(s)", "")
+        return ("RESOLVED", "diagnostics JSON exported empty", "")
 
 
 def main():
@@ -417,6 +703,6 @@ def main():
 
         print("")
         print(f"Summary: blocked={blocked}, resolved={resolved}, skipped={skipped}")
-        return 0
+        return 1 if blocked else 0
     finally:
         staged_bin.cleanup()

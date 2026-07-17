@@ -38,7 +38,8 @@ Required sequence:
 3. minimize it into the smallest stable repro
 4. assign the owning stable lane or bucket
 5. keep it probe-only until the oracle is deterministic
-6. promote it into `tests/final/` or `tests/binary/` once stable
+6. assign it an explicit stable owner in `tests/final/` or `tests/binary/` once
+   stable; reuse the reduced probe source when that avoids duplicate fixtures
 7. re-run the original canary only if it still adds integration value
 
 The full contract lives in `docs/compiler_test_regression_intake.md`.

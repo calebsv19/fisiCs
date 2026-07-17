@@ -133,9 +133,11 @@ The test system separates stable validation from exploratory repro collection.
 | Probe lane | used to collect blockers, explore fragile surfaces, or keep hard repros alive before promotion |
 | Canary lane | validates whole-program readiness at a higher integration level |
 
-Probe fixtures under `tests/final/probes/` are intentionally not part of
-`make final`. They exist to preserve hard repros, accelerate focused debug
-cycles, and support promotion into stable manifests once the oracle is reliable.
+Source location does not by itself determine lane ownership. Fixtures under
+`tests/final/probes/` may remain convenient shared repro sources after a stable
+manifest explicitly owns them. A record is probe-only only when the promotion
+inventory classifies it that way and no stable owner is registered. This lets
+`make final` reuse an exact reduced fixture without duplicating its source.
 
 ## Promotion Lifecycle
 
@@ -144,7 +146,8 @@ The intended lifecycle for new coverage is:
 1. discover a gap or regression
 2. add a focused repro in the right lane
 3. keep it probe-only if behavior is still unstable or blocked
-4. promote it into `tests/final/` or `tests/binary/` once it has a stable oracle
+4. give it explicit stable ownership in `tests/final/` or `tests/binary/` once
+   it has a stable oracle; the reduced source may be reused in place
 5. keep a real-project canary only when the higher-level case still adds value
 
 This keeps the stable suite clean without losing difficult repros.

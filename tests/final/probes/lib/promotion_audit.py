@@ -60,6 +60,11 @@ def _probe_rows():
     ):
         for probe in probes:
             inputs = [_display_path(path) for path in (probe.inputs or ())]
+            mixed_inputs = [
+                _display_path(path)
+                for path in (getattr(probe, "mixed_clang_inputs", None) or ())
+            ]
+            all_paths = [probe.source, *(probe.inputs or ()), *(getattr(probe, "mixed_clang_inputs", None) or ())]
             rows.append(
                 {
                     "family": family,
@@ -67,7 +72,12 @@ def _probe_rows():
                     "bucket": probe.probe_id.split("__", 1)[0],
                     "source": _display_path(probe.source),
                     "inputs": inputs,
+                    "mixed_inputs": mixed_inputs,
+                    "missing_inputs": [
+                        _display_path(path) for path in all_paths if not path.is_file()
+                    ],
                     "note": probe.note,
+                    "promoted_test_id": getattr(probe, "promoted_test_id", None),
                 }
             )
     return rows
@@ -78,6 +88,7 @@ def _final_rows():
     for manifest_path in iter_manifest_files():
         manifest = load_json(manifest_path)
         for test in manifest.get("tests", []):
+            rel_inputs = [test.get("input", ""), *(test.get("inputs") or [])]
             rows.append(
                 {
                     "id": test["id"],
@@ -87,6 +98,35 @@ def _final_rows():
                     "inputs": list(test.get("inputs") or []),
                     "tags": list(test.get("tags") or []),
                     "status": test.get("status", ""),
+                    "run": bool(test.get("run", False)),
+                    "missing_inputs": [
+                        rel_path
+                        for rel_path in rel_inputs
+                        if rel_path and not (FINAL_ROOT / rel_path).is_file()
+                    ],
+                    "shape_key": json.dumps(
+                        {
+                            key: test.get(key)
+                            for key in (
+                                "input",
+                                "inputs",
+                                "expects",
+                                "run",
+                                "expected_stdout",
+                                "expected_stderr",
+                                "expect_exit",
+                                "expect_compile_exit",
+                                "args",
+                                "env",
+                                "standard",
+                                "differential",
+                                "differential_compiler",
+                                "mixed_clang_inputs",
+                                "mixed_clang_compiler",
+                            )
+                        },
+                        sort_keys=True,
+                    ),
                 }
             )
     return rows
@@ -105,6 +145,20 @@ def _family_id_variants(probe_id, family):
         variants.add(f"{bucket}__diag__{tail}")
     else:
         variants.add(f"{bucket}__diagjson__{tail}")
+        if tail.startswith("diagjson_"):
+            semantic_tail = tail[len("diagjson_"):]
+            variants.add(f"{bucket}__diagjson__{semantic_tail}")
+            variants.add(f"{bucket}__line_directive_{semantic_tail}")
+            if semantic_tail.endswith("_strict"):
+                variants.add(
+                    f"{bucket}__line_directive_"
+                    f"{semantic_tail[:-len('_strict')]}_diagjson_strict"
+                )
+            if semantic_tail.endswith("_current_empty"):
+                variants.add(
+                    f"{bucket}__line_directive_"
+                    f"{semantic_tail[:-len('_current_empty')]}_diagjson_current_empty"
+                )
     return variants
 
 
@@ -143,6 +197,25 @@ def _build_final_indexes(final_rows):
 
 
 def _match_promoted_final(probe_row, by_id, by_path, by_stem):
+    promoted_test_id = probe_row.get("promoted_test_id")
+    if promoted_test_id:
+        row = by_id.get(promoted_test_id)
+        if not row:
+            return None
+        return {
+            "match_kind": "explicit-id",
+            "final_tests": [
+                {
+                    "id": row["id"],
+                    "manifest": row["manifest"],
+                    "input": row["input"],
+                    "inputs": row["inputs"],
+                    "tags": row["tags"],
+                    "status": row["status"],
+                }
+            ],
+        }
+
     matches = []
     seen = set()
 
@@ -170,6 +243,8 @@ def _match_promoted_final(probe_row, by_id, by_path, by_stem):
 
     kind_rank = {"id": 0, "path": 1, "stem": 2}
     matches.sort(key=lambda item: (kind_rank[item[1]], item[0]["manifest"], item[0]["id"]))
+    best_rank = kind_rank[matches[0][1]]
+    matches = [item for item in matches if kind_rank[item[1]] == best_rank]
     return {
         "match_kind": matches[0][1],
         "final_tests": [
@@ -245,8 +320,139 @@ def build_audit():
         )
 
     records.sort(key=lambda row: (row["classification"], row["bucket"], row["family"], row["probe_id"]))
+    probe_id_counts = Counter(row["probe_id"] for row in probe_rows)
+    final_id_counts = Counter(row["id"] for row in final_rows)
+    missing_probe_inputs = [
+        {
+            "probe_id": row["probe_id"],
+            "family": row["family"],
+            "paths": row["missing_inputs"],
+        }
+        for row in probe_rows
+        if row["missing_inputs"]
+    ]
+    missing_final_inputs = [
+        {
+            "id": row["id"],
+            "manifest": row["manifest"],
+            "paths": row["missing_inputs"],
+        }
+        for row in final_rows
+        if row["missing_inputs"]
+    ]
+    missing_explicit_promotions = [
+        {
+            "probe_id": row["probe_id"],
+            "promoted_test_id": row["promoted_test_id"],
+        }
+        for row in probe_rows
+        if row.get("promoted_test_id") and row["promoted_test_id"] not in by_id
+    ]
+    promoted_non_ok = []
+    ambiguous_stem_matches = []
+    ambiguous_best_rank_matches = []
+    for row in records:
+        if row["classification"] != "promoted":
+            continue
+        non_ok = [test for test in row["matched_final_tests"] if test["status"] != "ok"]
+        if non_ok:
+            promoted_non_ok.append(
+                {
+                    "probe_id": row["probe_id"],
+                    "matches": non_ok,
+                }
+            )
+        if row["match_kind"] == "stem" and len(row["matched_final_tests"]) > 1:
+            ambiguous_stem_matches.append(
+                {
+                    "probe_id": row["probe_id"],
+                    "matches": row["matched_final_tests"],
+                }
+            )
+        if len(row["matched_final_tests"]) > 1:
+            ambiguous_best_rank_matches.append(
+                {
+                    "probe_id": row["probe_id"],
+                    "match_kind": row["match_kind"],
+                    "matches": row["matched_final_tests"],
+                }
+            )
+
+    shape_groups = defaultdict(list)
+    for row in final_rows:
+        shape_key = row.get("shape_key")
+        if shape_key:
+            shape_groups[shape_key].append(
+                {"id": row["id"], "manifest": row["manifest"]}
+            )
+    duplicate_final_shapes = [
+        {"shape_key": shape_key, "tests": tests}
+        for shape_key, tests in sorted(shape_groups.items())
+        if len(tests) > 1
+    ]
+
+    probe_paths = set()
+    for row in probe_rows:
+        probe_paths.update(
+            path for path in [row["source"], *row["inputs"], *row["mixed_inputs"]]
+            if path.startswith("probes/")
+        )
+    final_paths = set()
+    for row in final_rows:
+        final_paths.update(
+            path for path in [row["input"], *row["inputs"]]
+            if path.startswith("probes/")
+        )
+    disk_probe_paths = {
+        str(path.relative_to(FINAL_ROOT))
+        for path in (FINAL_ROOT / "probes").rglob("*.c")
+    }
+    orphan_probe_assets = []
+    for path in sorted(disk_probe_paths):
+        in_probe = path in probe_paths
+        in_final = path in final_paths
+        if in_probe and in_final:
+            continue
+        if in_probe:
+            classification = "inventory-only"
+        elif in_final:
+            classification = "stable-only"
+        else:
+            classification = "unowned"
+        orphan_probe_assets.append(
+            {"path": path, "classification": classification}
+        )
+    integrity = {
+        "duplicate_probe_ids": sorted(
+            probe_id for probe_id, count in probe_id_counts.items() if count > 1
+        ),
+        "duplicate_final_ids": sorted(
+            test_id for test_id, count in final_id_counts.items() if count > 1
+        ),
+        "missing_probe_inputs": missing_probe_inputs,
+        "missing_final_inputs": missing_final_inputs,
+        "missing_explicit_promotions": missing_explicit_promotions,
+        "promoted_non_ok": promoted_non_ok,
+        "ambiguous_stem_matches": ambiguous_stem_matches,
+        "ambiguous_best_rank_matches": ambiguous_best_rank_matches,
+        "duplicate_final_shapes": duplicate_final_shapes,
+        "orphan_probe_assets": orphan_probe_assets,
+    }
+    integrity["critical_error_count"] = sum(
+        len(integrity[key])
+        for key in (
+            "duplicate_probe_ids",
+            "duplicate_final_ids",
+            "missing_probe_inputs",
+            "missing_final_inputs",
+            "missing_explicit_promotions",
+            "promoted_non_ok",
+            "ambiguous_stem_matches",
+        )
+    )
     return {
         "summary": _build_summary(records, final_rows),
+        "integrity": integrity,
         "records": records,
     }
 
@@ -311,6 +517,7 @@ def _write_json(path, audit):
 def _write_markdown(path, audit):
     summary = audit["summary"]
     records = audit["records"]
+    integrity = audit["integrity"]
 
     promoted = [row for row in records if row["classification"] == "promoted"]
     probe_only = [row for row in records if row["classification"] == "probe-only"]
@@ -326,10 +533,49 @@ def _write_markdown(path, audit):
         f"- Intentional probe-only coverage: `{summary['probe_only']}`",
         f"- Missing promotion candidates: `{summary['missing_promotion_candidate']}`",
         f"- Stable final tests scanned: `{summary['total_final_tests']}`",
+        f"- Critical integrity errors: `{integrity['critical_error_count']}`",
+        f"- Ambiguous stem matches: `{len(integrity['ambiguous_stem_matches'])}`",
+        f"- Multi-owner best-rank matches: `{len(integrity['ambiguous_best_rank_matches'])}`",
+        f"- Duplicate stable semantic shapes: `{len(integrity['duplicate_final_shapes'])}`",
+        f"- Probe assets outside both lanes: `{sum(1 for row in integrity['orphan_probe_assets'] if row['classification'] == 'unowned')}`",
+        "",
+        "## Integrity",
+        "",
+    ]
+
+    for label, key in (
+        ("Duplicate probe IDs", "duplicate_probe_ids"),
+        ("Duplicate final IDs", "duplicate_final_ids"),
+        ("Missing probe inputs", "missing_probe_inputs"),
+        ("Missing final inputs", "missing_final_inputs"),
+        ("Missing explicit promotion owners", "missing_explicit_promotions"),
+        ("Promoted non-ok matches", "promoted_non_ok"),
+    ):
+        lines.append(f"- {label}: `{len(integrity[key])}`")
+    lines.append(
+        "- Ambiguous stem ownership requiring review: "
+        f"`{len(integrity['ambiguous_stem_matches'])}`"
+    )
+    lines.append(
+        "- Multi-owner best-rank matches requiring explicit-owner migration: "
+        f"`{len(integrity['ambiguous_best_rank_matches'])}`"
+    )
+    lines.append(
+        "- Duplicate stable semantic shapes: "
+        f"`{len(integrity['duplicate_final_shapes'])}`"
+    )
+    for classification in ("stable-only", "inventory-only", "unowned"):
+        count = sum(
+            1 for row in integrity["orphan_probe_assets"]
+            if row["classification"] == classification
+        )
+        lines.append(f"- Probe assets `{classification}`: `{count}`")
+
+    lines.extend([
         "",
         "### Promoted Match Evidence",
         "",
-    ]
+    ])
 
     for kind, count in summary["promoted_match_kinds"].items():
         lines.append(f"- `{kind}`: `{count}`")
@@ -404,9 +650,14 @@ def main(argv=None):
         f" probe_only={summary['probe_only']}"
         f" missing={summary['missing_promotion_candidate']}"
     )
+    print(
+        "promotion-integrity:"
+        f" critical={audit['integrity']['critical_error_count']}"
+        f" ambiguous_stem={len(audit['integrity']['ambiguous_stem_matches'])}"
+    )
     print(f"json={args.json_out}")
     print(f"markdown={args.md_out}")
-    return 0
+    return 1 if audit["integrity"]["critical_error_count"] else 0
 
 
 if __name__ == "__main__":

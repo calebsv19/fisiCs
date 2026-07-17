@@ -1,6 +1,7 @@
-# CLI Release Workflow (macOS)
+# CLI Release Workflow
 
-This doc defines the `fisiCs` CLI release lane for macOS without `.app` packaging.
+This doc defines the `fisiCs` CLI release lane for portable CLI archives and
+macOS signing/notarization.
 
 ## Release Targets
 
@@ -20,12 +21,12 @@ Optional installer lane:
 
 All release artifacts are written under `build/release/`.
 
-- Stage tree: `build/release/stage/fisiCs-<version>-macOS-<arch>-<channel>/`
-- Zip archive: `build/release/fisiCs-<version>-macOS-<arch>-<channel>.zip`
-- Tarball: `build/release/fisiCs-<version>-macOS-<arch>-<channel>.tar.gz`
-- Checksums: `build/release/fisiCs-<version>-macOS-<arch>-<channel>.sha256`
-- Manifest: `build/release/fisiCs-<version>-macOS-<arch>-<channel>.manifest.txt`
-- Notary response JSON: `build/release/fisiCs-<version>-macOS-<arch>-<channel>.notary.json`
+- Stage tree: `build/release/stage/fisiCs-<version>-<platform>-<arch>-<channel>/`
+- Zip archive: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.zip`
+- Tarball: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.tar.gz`
+- Checksums: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.sha256`
+- Manifest: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.manifest.txt`
+- Notary response JSON: `build/release/fisiCs-<version>-<platform>-<arch>-<channel>.notary.json`
 
 ## Required Variables
 
@@ -53,6 +54,17 @@ Override example:
 ```bash
 make release-archive RELEASE_VERSION=0.1.1 RELEASE_CHANNEL=beta
 ```
+
+Linux x86_64 example:
+
+```bash
+make release-all RELEASE_PLATFORM=linux RELEASE_ARCH=x86_64 RELEASE_CHANNEL=stable
+```
+
+The zip archive target uses `scripts/create_release_zip.sh`, which selects
+`ditto`, `zip`, or `python3` in that order. This keeps macOS resource-fork
+preservation when `ditto` is available while allowing Linux builders to produce
+the same release artifact set without macOS-only tools.
 
 ## Verification Expectations
 

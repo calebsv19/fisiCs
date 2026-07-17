@@ -42,7 +42,9 @@ Promotion audit support:
   diff against the stable `tests/final/meta/` inventory and emits:
   - `tests/final/probes/reports/promotion_audit.json`
   - `tests/final/probes/reports/promotion_audit_summary.md`
-- `make final-promotion-audit` is the matching convenience entrypoint
+- `make final-probe-contract-test` runs the fail-closed runner and promotion
+  integrity canaries
+- `make final-promotion-audit` runs those canaries before writing the audit
 - classification contract:
   - `promoted`: a stable final manifest owns the resolved probe by exact id,
     exact promoted input path, or canonical stem variant
@@ -50,6 +52,11 @@ Promotion audit support:
     frontier/current-threshold/exploratory surface
   - `missing-promotion-candidate`: the probe resolves green, lacks promoted
     final ownership, and has no explicit probe-only marker
+- exact test-id ownership outranks path ownership, which outranks canonical
+  stem ownership; lower-confidence candidates are discarded once a stronger
+  owner exists, and multiple stem-only owners are a critical integrity error
+- inventories may set `promoted_test_id` when a probe intentionally maps to a
+  differently named stable test; missing explicit owners fail the audit
 - the audit is intentionally inventory-driven; it does not claim a fake 1:1
   filename match when the promoted stable inventory does not provide one
 

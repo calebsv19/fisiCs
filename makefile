@@ -265,8 +265,7 @@ release-archive-zip-from-stage: release-manifest-from-stage
 	@echo "Creating zip artifact..."
 	@mkdir -p "$(RELEASE_ROOT)"
 	@rm -f "$(RELEASE_ARTIFACT_ZIP)"
-	@(cd "$(RELEASE_STAGE_ROOT)" && \
-		ditto -c -k --sequesterRsrc --keepParent "$(RELEASE_BASENAME)" "$(abspath $(RELEASE_ARTIFACT_ZIP))")
+	@bash scripts/create_release_zip.sh "$(RELEASE_STAGE_ROOT)" "$(RELEASE_BASENAME)" "$(abspath $(RELEASE_ARTIFACT_ZIP))"
 	@shasum -a 256 "$(RELEASE_ARTIFACT_ZIP)" > "$(RELEASE_SHA256)"
 	@echo "Created $(RELEASE_ARTIFACT_ZIP)"
 
@@ -459,7 +458,7 @@ ci-guardrails:
 	@./tests/integration/run_ci_guardrails.sh
 
 # Final C99 behavior suite
-.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-memory-check final-wave final-runtime final-promotion-audit final-monitored final-monitored-smoke final-timing final-timing-refresh-baseline final-timing-sync-db final-timing-rollup final-timing-sync
+.PHONY: final final-update final-id final-prefix final-glob final-bucket final-manifest final-memory-check final-wave final-runtime final-harness-contract-test final-probe-contract-test path-portability-contract-test final-promotion-audit final-monitored final-monitored-smoke final-timing final-timing-refresh-baseline final-timing-sync-db final-timing-rollup final-timing-sync
 final: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@python3 -u tests/final/run_final.py ./$(BIN)
 
@@ -507,8 +506,19 @@ final-wave: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 final-runtime: $(BIN) $(MEMCHECK_RUNTIME_LIB)
 	@FINAL_PREFIX="14__" python3 -u tests/final/run_final.py ./$(BIN)
 
+# Fail-closed contracts for probe execution and promotion integrity.
+final-harness-contract-test:
+	@python3 -u tests/final/test_run_final_contract.py
+
+final-probe-contract-test:
+	@python3 -u tests/final/probes/test_runner_contract.py
+	@python3 -u tests/final/probes/test_promotion_audit_contract.py
+
+path-portability-contract-test:
+	@python3 -u tests/integration/test_path_portability.py
+
 # Probe inventory vs promoted stable ownership audit.
-final-promotion-audit:
+final-promotion-audit: final-harness-contract-test final-probe-contract-test path-portability-contract-test
 	@python3 -u tests/final/probes/run_promotion_audit.py
 
 FINAL_TIMING_RUNS ?= 1
@@ -974,6 +984,7 @@ statement-expr-disabled: $(BIN)
 	@./tests/parser/run_statement_expr_disabled.sh ./$(BIN)
 
 spec-tests: $(BIN)
+	@./tests/spec/test_run_ast_golden_contract.sh ./$(BIN)
 	@MallocNanoZone=0 DISABLE_CODEGEN=1 ./tests/spec/run_ast_golden.sh ./$(BIN)
 
 parser-tests: union-decl initializer-expr typedef-chain designated-init control-flow \

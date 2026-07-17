@@ -27,6 +27,9 @@ Each test case uses a stable id that starts with the bucket number:
 ## Metadata Schema (`meta/index.json` + bucket manifests)
 `meta/index.json` is the manifest registry. It can either contain tests directly
 (legacy mode) or list shard files under `meta/` (current mode).
+The harness contract requires every on-disk `meta/*.json` test manifest to
+appear exactly once in this registry, so an otherwise valid shard cannot be
+silently left out of normal suite runs.
 
 Current preferred layout:
 ```
@@ -54,6 +57,8 @@ Each shard file uses the per-test schema below:
       "args": ["-Itests/final/cases/headers"],
       "env": {"FISICS_MACRO_EXP_LIMIT": "2"},
       "expects": ["expect/01__macro_line_directives.ast"],
+      "ir_contains": ["declare extern_weak i32 @optional_hook"],
+      "ir_forbids": ["declare i32 @optional_hook"],
       "tags": ["macro", "line-mapping"],
       "capture_frontend_diag": false,
       "allow_nonzero_exit": false,
@@ -80,6 +85,22 @@ Each shard file uses the per-test schema below:
 - `make final` runs the suite against `tests/final/meta/index.json`, which now
   acts as a registry for one or more manifest shard files.
 - `make final-update` regenerates `.ast`, `.diag`, and `.sema` expectations from current output.
+- `UPDATE_FINAL_IR_ONLY=1` refreshes only `.ir` expectations for the selected
+  final-suite slice; it implies update mode and leaves AST, diagnostics,
+  semantic dumps, and runtime expectations untouched.
+- Expectation updates are transactional: files are written only after the
+  selected run has no failures. When multiple tests share one golden, update
+  mode also requires their actual output to be identical before writing it.
+- `make final-harness-contract-test` rejects registered `.ir` expectations that
+  contain only the `IR:` marker. Each IR golden must contain an LLVM module or
+  the explicit semantic-error code-generation skip record. It also rejects
+  `.sema` goldens that accidentally contain LLVM module output.
+- Text-diagnostic tests that terminate before semantic analysis automatically
+  capture frontend `Error`/`Warning` lines. Empty `.diag` goldens are accepted
+  only when the test declares `"allow_empty_diag": true` as an intentional
+  clean-path or current-gap assertion. Diagnostic text, diagnostics JSON, and
+  token-stream paths under `tests/final/` are stored relative to the repository
+  root so expectations remain valid across checkout locations.
 - `make final-id ID=01__line_directive_diag_location` runs one exact id.
 - `make final-prefix PREFIX=14__` runs an id-prefix slice (for example, all runtime ids).
 - `make final-glob GLOB='14__runtime_multitu_*'` runs a fnmatch-glob slice.
@@ -97,6 +118,8 @@ Each shard file uses the per-test schema below:
   - `FINAL_MANIFEST=<token>[,<token>...]`
   - `FINAL_MANIFEST_GLOB=<pattern>[,<pattern>...]`
   - `FINAL_TAG=<tag>[,<tag>...]`
+  - `FINAL_EXPECT_EXT=<extension>[,<extension>...]` (for example, `diag` or
+    `.diag,.diagjson`; runtime `.stdout` and `.stderr` oracles are included)
 - Selector safety: if a selector is provided and matches zero tests, the run
   fails closed.
 - Failure reporting: failing paths now emit canonical taxonomy labels directly
@@ -109,13 +132,43 @@ Each shard file uses the per-test schema below:
 - Token expectations use `--dump-tokens` on the compiler when needed.
 - Semantic dump expectations use `--dump-sema` on the compiler when needed.
 - IR expectations use `--dump-ir` on the compiler when needed.
+- The compiler flushes the `LLVM Code Generation:` marker before LLVM writes
+  the module dump, keeping merged stdout/stderr capture ordered and making
+  full `.ir` goldens meaningful.
+- `ir_contains` and `ir_forbids` provide fail-closed substring oracles over the
+  raw `--dump-ir` output. Use them for focused linkage/attribute assertions
+  whose signal would be obscured by full-module snapshot churn.
+- Every registered test must have at least one effective oracle: a supported
+  `expects` file, an `ir_contains` / `ir_forbids` marker, or `run: true` (whose
+  default runtime exit oracle is zero). Unsupported expectation suffixes and
+  runtime-only fields without `run: true` are harness errors, not skips.
+- `.diagjson` expectation suffixes are authoritative for diagnostics JSON
+  capture. Obsolete `capture_diag_json` and `capture_frontend_diag_json` fields
+  are rejected so metadata cannot appear to enable behavior the runner ignores.
+- A zero-item `.diagjson` golden that still claims a negative, rejection, or
+  strict diagnostic lane must declare `allow_empty_diag_json: true` unless it
+  is clearly tagged as a clean/current control. This keeps current gaps visible
+  instead of letting an empty JSON file masquerade as a rejection oracle.
 - `capture_frontend_diag: true` records early `Error:` / `Warning:` lines that
   appear before the semantic section, including `path:line:col: error:` style
   front-end diagnostics.
 - `allow_nonzero_exit: true` permits token/diag oracle checks to proceed even if
   later phases intentionally fail the compile.
+- `expect_compile_exit: <code>` asserts the exact compiler-driver exit for a
+  non-runtime test. Add `link: true` to force a temporary linked output; this
+  is required for multi-translation-unit link-failure diagnostics and avoids
+  treating `allow_nonzero_exit` as if it required a failure.
 - `args: [...]` passes per-test compiler flags before input files (for example,
   explicit layered `-I` include path tests).
+- `inputs: [...]` is the complete ordered compiler input list for multi-source
+  tests. When both `input` and `inputs` are present, the primary `input` must
+  appear in that list; included headers are dependencies, not compiler inputs.
+- Compiler input paths must be relative and resolve inside the repository;
+  repo-owned examples may therefore use `../../examples/...`. Expectation
+  paths must be relative and remain inside `tests/final/`.
+- Stable manifests accept only recognized runner fields, `status: "ok"`, and
+  known `requires` tokens. ABI-sensitive cases use the selectable
+  `abi-sensitive` tag instead of inert one-off metadata.
 - `env: {...}` sets per-test environment variables (for example macro-expansion
   limit stress checks).
 - `run: true` compiles and links a temporary executable with `fisics -o ...`

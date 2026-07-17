@@ -3,6 +3,7 @@ import difflib
 import fnmatch
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -15,6 +16,61 @@ ROOT = Path(__file__).resolve().parent
 REPO_ROOT = ROOT.parent.parent
 META_DIR = ROOT / "meta"
 META_INDEX_PATH = META_DIR / "index.json"
+SUPPORTED_EXPECTATION_EXTENSIONS = frozenset(
+    {".ast", ".diag", ".diagjson", ".ir", ".pdiag", ".sema", ".tokens"}
+)
+RUNTIME_EXPECTATION_FIELDS = {
+    "expected_stdout": ".stdout",
+    "expected_stderr": ".stderr",
+}
+SUPPORTED_TEST_FIELDS = frozenset(
+    {
+        "__manifest",
+        "allow_empty_diag",
+        "allow_empty_diag_json",
+        "allow_nonzero_exit",
+        "args",
+        "bucket",
+        "capture_frontend_diag",
+        "clang_args",
+        "differential",
+        "differential_compiler",
+        "env",
+        "expect_exit",
+        "expected_stderr",
+        "expected_stdout",
+        "expects",
+        "expect_compile_exit",
+        "id",
+        "impl_defined",
+        "input",
+        "inputs",
+        "ir_contains",
+        "ir_forbids",
+        "link",
+        "mixed_clang_args",
+        "mixed_clang_compiler",
+        "mixed_clang_inputs",
+        "reference_args",
+        "requires",
+        "run",
+        "run_args",
+        "run_env",
+        "run_stdin",
+        "standard",
+        "status",
+        "tags",
+        "ub",
+    }
+)
+SUPPORTED_REQUIREMENTS = frozenset({"token-dump"})
+FINAL_SUITE_ABSOLUTE_PATH_RE = re.compile(
+    r"(?:/[^\s:/\"']+)+/tests/final/"
+)
+FINAL_COMPILE_TIMEOUT_SEC = int(os.environ.get("FISICS_FINAL_COMPILE_TIMEOUT_SEC", "120"))
+FINAL_RUNTIME_TIMEOUT_SEC = int(os.environ.get("FISICS_FINAL_RUNTIME_TIMEOUT_SEC", "30"))
+FINAL_TIMEOUT_EXIT = 124
+FINAL_TIMEOUT_MARKER = "[fisics-final-harness-timeout]"
 
 
 def configure_stdio():
@@ -23,6 +79,283 @@ def configure_stdio():
         reconfigure = getattr(stream, "reconfigure", None)
         if callable(reconfigure):
             reconfigure(line_buffering=True, write_through=True)
+
+
+def mixed_object_path(directory, source, ordinal):
+    """Return a per-input object path even when source basenames collide."""
+    return Path(directory) / f"{ordinal:03d}_{Path(source).stem}.clang.o"
+
+
+def should_update_expectation(update_ir_only, extension):
+    return not update_ir_only or extension == ".ir"
+
+
+def stage_expectation_update(pending_updates, path, actual, test_id):
+    key = path.resolve()
+    previous = pending_updates.get(key)
+    if previous is not None and previous[0] != actual:
+        return previous[1]
+    if previous is None:
+        pending_updates[key] = (actual, test_id)
+    return None
+
+
+def expected_diag_frontend_capture(expects):
+    saw_existing_diag = False
+    for path in expects:
+        if path.suffix != ".diag" or not path.exists():
+            continue
+        saw_existing_diag = True
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if (line.startswith("Error:") or line.startswith("Warning:") or
+                    ": error:" in line or ": warning:" in line):
+                return True
+    return False if saw_existing_diag else None
+
+
+def expected_compile_exit_from_diagnostics(expects):
+    for path in expects:
+        if path.suffix not in (".diag", ".diagjson", ".pdiag") or not path.exists():
+            continue
+        if path.suffix == ".pdiag":
+            continue
+        text = path.read_text(encoding="utf-8")
+        if path.suffix == ".diag":
+            if any(line.startswith("Error at") for line in text.splitlines()):
+                return 1
+        elif path.suffix == ".diagjson":
+            try:
+                payload = json.loads(text)
+            except json.JSONDecodeError:
+                continue
+            diagnostics = payload.get("diagnostics", [])
+            if any(
+                item.get("severity_name") == "error"
+                and item.get("category_name") != "parser"
+                for item in diagnostics
+                if isinstance(item, dict)
+            ):
+                return 1
+    return None
+
+
+def should_capture_frontend_diagnostics(
+    explicit_capture,
+    allow_empty_diag,
+    has_diag_text,
+    only_frontend,
+    exit_code,
+    expected_capture=None,
+):
+    if explicit_capture:
+        return True
+    if expected_capture is not None:
+        return expected_capture
+    return explicit_capture or (
+        not allow_empty_diag
+        and has_diag_text
+        and only_frontend
+        and exit_code != 0
+    )
+
+
+def normalize_final_suite_paths(text):
+    repo_prefix = str(REPO_ROOT.resolve()) + os.sep
+    text = text.replace(repo_prefix, "")
+    return FINAL_SUITE_ABSOLUTE_PATH_RE.sub("tests/final/", text)
+
+
+def is_meaningful_ir_expectation(text):
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    if not lines or lines[0] != "IR:":
+        return False
+    return any(
+        line.startswith("; ModuleID =")
+        or line == "Skipping LLVM code generation due to semantic errors."
+        for line in lines[1:]
+    )
+
+
+def test_oracle_extensions(test):
+    extensions = {
+        Path(path).suffix
+        for path in test.get("expects", [])
+        if isinstance(path, str)
+    }
+    for field in RUNTIME_EXPECTATION_FIELDS:
+        path = test.get(field)
+        if isinstance(path, str) and path:
+            extensions.add(Path(path).suffix)
+    return extensions
+
+
+def is_confined_relative_path(path, resolution_base, boundary):
+    if not isinstance(path, str) or not path:
+        return False
+    relative = Path(path)
+    if relative.is_absolute():
+        return False
+    try:
+        (resolution_base / relative).resolve().relative_to(boundary.resolve())
+    except ValueError:
+        return False
+    return True
+
+
+def validate_test_definition(test):
+    errors = []
+    unknown_fields = sorted(set(test) - SUPPORTED_TEST_FIELDS)
+    if unknown_fields:
+        errors.append("unknown manifest field(s): " + ", ".join(unknown_fields))
+
+    if "status" in test and test["status"] != "ok":
+        errors.append("registered stable tests must use status=ok")
+
+    requires = test.get("requires", [])
+    if not isinstance(requires, list) or any(
+        not isinstance(requirement, str) or not requirement
+        for requirement in requires
+    ):
+        errors.append("requires must be a list of non-empty strings")
+    else:
+        unknown_requirements = sorted(set(requires) - SUPPORTED_REQUIREMENTS)
+        if unknown_requirements:
+            errors.append(
+                "unknown requirement(s): " + ", ".join(unknown_requirements)
+            )
+
+    expects = test.get("expects", [])
+    if not isinstance(expects, list):
+        return ["expects must be a list"]
+
+    unsupported = sorted(
+        {
+            Path(path).suffix
+            for path in expects
+            if isinstance(path, str)
+            and Path(path).suffix not in SUPPORTED_EXPECTATION_EXTENSIONS
+        }
+    )
+    if any(not isinstance(path, str) or not path for path in expects):
+        errors.append("expects entries must be non-empty strings")
+    elif any(
+        not is_confined_relative_path(path, ROOT, ROOT) for path in expects
+    ):
+        errors.append("expects entries must remain inside the final suite")
+    if unsupported:
+        errors.append(
+            "unsupported expectation extension(s): " + ", ".join(unsupported)
+        )
+
+    has_ir_markers = bool(test.get("ir_contains") or test.get("ir_forbids"))
+    has_compile_exit_oracle = "expect_compile_exit" in test
+    if (
+        not expects
+        and not has_ir_markers
+        and not bool(test.get("run", False))
+        and not has_compile_exit_oracle
+    ):
+        errors.append("test has no file, IR-marker, compile-exit, or runtime oracle")
+
+    run_enabled = bool(test.get("run", False))
+    ignored_runtime_fields = [
+        field
+        for field in (
+            "expect_exit",
+            "expected_stdout",
+            "expected_stderr",
+            "run_args",
+            "run_env",
+            "run_stdin",
+        )
+        if field in test and not run_enabled
+    ]
+    if ignored_runtime_fields:
+        errors.append(
+            "runtime field(s) require run=true: " + ", ".join(ignored_runtime_fields)
+        )
+    if test.get("differential", False) and not run_enabled:
+        errors.append("differential=true requires run=true")
+
+    link_enabled = bool(test.get("link", False))
+    if link_enabled and run_enabled:
+        errors.append("link=true cannot be combined with run=true")
+    if link_enabled and not has_compile_exit_oracle:
+        errors.append("link=true requires expect_compile_exit")
+    if has_compile_exit_oracle:
+        try:
+            int(test["expect_compile_exit"])
+        except (TypeError, ValueError):
+            errors.append("expect_compile_exit must be an integer")
+        if test.get("allow_nonzero_exit", False):
+            errors.append(
+                "expect_compile_exit cannot be combined with allow_nonzero_exit"
+            )
+
+    primary_input = test.get("input")
+    if primary_input is not None:
+        if not isinstance(primary_input, str) or not primary_input:
+            errors.append("input must be a non-empty string")
+        elif not is_confined_relative_path(
+            primary_input, ROOT, REPO_ROOT
+        ):
+            errors.append("input must remain inside the repository")
+
+    for field in ("inputs", "mixed_clang_inputs"):
+        paths = test.get(field)
+        if paths is None:
+            continue
+        if not isinstance(paths, list) or any(
+            not isinstance(path, str) or not path for path in paths
+        ):
+            errors.append(f"{field} must be a list of non-empty strings")
+            continue
+        if len(paths) != len(set(paths)):
+            errors.append(f"{field} entries must be unique")
+        if any(
+            not is_confined_relative_path(path, ROOT, REPO_ROOT)
+            for path in paths
+        ):
+            errors.append(f"{field} entries must remain inside the repository")
+
+    inputs = test.get("inputs")
+    if (
+        isinstance(inputs, list)
+        and isinstance(primary_input, str)
+        and primary_input
+        and primary_input not in inputs
+    ):
+        errors.append("input must be present in the complete inputs list")
+
+    for field, required_extension in RUNTIME_EXPECTATION_FIELDS.items():
+        path = test.get(field)
+        if path is None:
+            continue
+        if not isinstance(path, str) or not path:
+            errors.append(f"{field} must be a non-empty string")
+        elif Path(path).suffix != required_extension:
+            errors.append(f"{field} must use the {required_extension} extension")
+        elif not is_confined_relative_path(path, ROOT, ROOT):
+            errors.append(f"{field} must remain inside the final suite")
+
+    legacy_json_capture_fields = [
+        field
+        for field in ("capture_diag_json", "capture_frontend_diag_json")
+        if field in test
+    ]
+    if legacy_json_capture_fields:
+        errors.append(
+            "obsolete diagnostic JSON capture field(s): "
+            + ", ".join(legacy_json_capture_fields)
+            + "; use a .diagjson expectation"
+        )
+
+    if test.get("allow_empty_diag_json", False) and not any(
+        isinstance(path, str) and path.endswith(".diagjson") for path in expects
+    ):
+        errors.append("allow_empty_diag_json requires a .diagjson expectation")
+
+    return errors
 
 
 def extract_sections(text, capture_frontend_diag=False):
@@ -112,30 +445,49 @@ def extract_sections(text, capture_frontend_diag=False):
     return ast_text, diag_text, token_text, sema_text, ir_text
 
 
-def run_cmd(cmd, env=None):
-    proc = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=env,
-    )
+def timeout_output(exc):
+    output = exc.stdout or ""
+    if isinstance(output, bytes):
+        output = output.decode("utf-8", errors="replace")
+    return f"{output}{FINAL_TIMEOUT_MARKER} after {exc.timeout}s\n"
+
+
+def command_timed_out(output):
+    return FINAL_TIMEOUT_MARKER in (output or "")
+
+
+def run_cmd(cmd, env=None, timeout_sec=FINAL_COMPILE_TIMEOUT_SEC):
+    try:
+        proc = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=env,
+            timeout=timeout_sec,
+        )
+    except subprocess.TimeoutExpired as exc:
+        return FINAL_TIMEOUT_EXIT, timeout_output(exc)
     return proc.returncode, proc.stdout
 
 
-def run_program(cmd, env=None, stdin_text=None):
-    proc = subprocess.run(
-        cmd,
-        input=stdin_text,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=env,
-    )
+def run_program(cmd, env=None, stdin_text=None, timeout_sec=FINAL_RUNTIME_TIMEOUT_SEC):
+    try:
+        proc = subprocess.run(
+            cmd,
+            input=stdin_text,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=env,
+            timeout=timeout_sec,
+        )
+    except subprocess.TimeoutExpired as exc:
+        return FINAL_TIMEOUT_EXIT, "", timeout_output(exc)
     return proc.returncode, proc.stdout, proc.stderr
 
 
@@ -297,7 +649,12 @@ def main():
         )
         shutil.copy2(memcheck_runtime_lib, staged_memcheck_runtime_lib)
         memcheck_runtime_lib = staged_memcheck_runtime_lib
-    update = os.environ.get("UPDATE_FINAL", "0") == "1" or "--update" in sys.argv
+    update_ir_only = os.environ.get("UPDATE_FINAL_IR_ONLY", "0") == "1"
+    update = (
+        os.environ.get("UPDATE_FINAL", "0") == "1" or
+        update_ir_only or
+        "--update" in sys.argv
+    )
     filt = os.environ.get("FINAL_FILTER", "").strip()
     prefix_filters = parse_csv_env("FINAL_PREFIX")
     glob_filters = parse_csv_env("FINAL_GLOB")
@@ -305,6 +662,10 @@ def main():
     tag_filters = parse_csv_env("FINAL_TAG")
     manifest_filters = parse_csv_env("FINAL_MANIFEST")
     manifest_glob_filters = parse_csv_env("FINAL_MANIFEST_GLOB")
+    expectation_extension_filters = {
+        token if token.startswith(".") else f".{token}"
+        for token in parse_csv_env("FINAL_EXPECT_EXT")
+    }
     has_selector = any(
         [
             filt,
@@ -314,6 +675,7 @@ def main():
             tag_filters,
             manifest_filters,
             manifest_glob_filters,
+            expectation_extension_filters,
         ]
     )
     enable_token_dump = os.environ.get("ENABLE_TOKEN_DUMP", "1") == "1"
@@ -325,12 +687,14 @@ def main():
         failures = 0
         skipped = 0
         selected = 0
+        pending_expectation_updates = {}
 
         for test in tests:
             test_id = test["id"]
             test_manifest = str(test.get("__manifest", ""))
             test_bucket = str(test.get("bucket", ""))
             tags = {str(tag) for tag in test.get("tags", [])}
+            expectation_extensions = test_oracle_extensions(test)
 
             if filt and test_id != filt:
                 continue
@@ -351,8 +715,28 @@ def main():
                 fnmatch.fnmatch(test_manifest, pattern) for pattern in manifest_glob_filters
             ):
                 continue
+            if expectation_extension_filters and not (
+                expectation_extensions & expectation_extension_filters
+            ):
+                continue
 
             selected += 1
+
+            definition_errors = validate_test_definition(test)
+            if definition_errors:
+                for definition_error in definition_errors:
+                    emit_final_failure(
+                        definition_error,
+                        failure_kind="harness_error",
+                        severity="medium",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=len(test.get("inputs", [])) or 1,
+                        run_enabled=bool(test.get("run", False)),
+                        differential=bool(test.get("differential", False)),
+                    )
+                    failures += 1
+                continue
 
             requires = set(test.get("requires", []))
             if "token-dump" in requires and not enable_token_dump:
@@ -370,15 +754,31 @@ def main():
             expects = [ROOT / p for p in test.get("expects", [])]
 
             has_ast = any(p.suffix == ".ast" for p in expects)
+            has_diag_text = any(p.suffix == ".diag" for p in expects)
             has_diag_json = any(p.suffix == ".diagjson" for p in expects)
             has_parser_diag = any(p.suffix == ".pdiag" for p in expects)
             has_sema = any(p.suffix == ".sema" for p in expects)
             only_frontend = all(p.suffix in (".diag", ".diagjson", ".pdiag", ".sema") for p in expects)
             has_tokens = any(p.suffix == ".tokens" for p in expects)
-            has_ir = any(p.suffix == ".ir" for p in expects)
+            ir_contains = [str(marker) for marker in test.get("ir_contains", [])]
+            ir_forbids = [str(marker) for marker in test.get("ir_forbids", [])]
+            has_ir = (
+                any(p.suffix == ".ir" for p in expects) or
+                bool(ir_contains) or
+                bool(ir_forbids)
+            )
             capture_frontend_diag = test.get("capture_frontend_diag", False)
+            allow_empty_diag = test.get("allow_empty_diag", False)
             allow_nonzero_exit = test.get("allow_nonzero_exit", False)
             run_enabled = bool(test.get("run", False))
+            link_enabled = bool(test.get("link", False))
+            expected_compile_exit = (
+                int(test["expect_compile_exit"])
+                if "expect_compile_exit" in test
+                else None
+            )
+            if expected_compile_exit is None and not allow_nonzero_exit:
+                expected_compile_exit = expected_compile_exit_from_diagnostics(expects)
             differential = bool(test.get("differential", False))
             ub = bool(test.get("ub", False))
             impl_defined = bool(test.get("impl_defined", False))
@@ -421,7 +821,13 @@ def main():
                 cmd.append("--dump-sema")
             if has_ir:
                 cmd.append("--dump-ir")
-            frontend_only_diag = only_frontend and input_count == 1 and not run_enabled and not has_ir
+            frontend_only_diag = (
+                only_frontend
+                and input_count == 1
+                and not run_enabled
+                and not link_enabled
+                and not has_ir
+            )
             cmd_env = os.environ.copy()
             # The final suite spawns the compiler many times from one parent process.
             # Default the process guard off here unless a caller explicitly overrides it.
@@ -436,6 +842,7 @@ def main():
             mixed_clang_object_paths = []
             runtime_tmp = None
             runtime_exec_path = None
+            link_tmp = None
             diag_json_tmp = None
             diag_json_path = None
             diag_json_raw = None
@@ -467,8 +874,10 @@ def main():
                     str(a)
                     for a in test.get("mixed_clang_args", test.get("reference_args", test.get("clang_args", [])))
                 ]
-                for mixed_input in mixed_clang_input_paths:
-                    mixed_object = Path(mixed_clang_tmp.name) / f"{mixed_input.stem}.clang.o"
+                for mixed_index, mixed_input in enumerate(mixed_clang_input_paths):
+                    mixed_object = mixed_object_path(
+                        Path(mixed_clang_tmp.name), mixed_input, mixed_index
+                    )
                     mixed_cmd = [
                         mixed_compiler,
                         f"-std={standard}",
@@ -480,6 +889,21 @@ def main():
                         str(mixed_object),
                     ]
                     mixed_exit, mixed_output = run_cmd(mixed_cmd)
+                    if command_timed_out(mixed_output):
+                        emit_final_failure(
+                            "mixed compiler input compile timed out",
+                            failure_kind="harness_error",
+                            severity="high",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
+                        print(mixed_output)
+                        failures += 1
+                        mixed_clang_failed = True
+                        break
                     if mixed_exit != 0:
                         emit_final_failure(
                             f"mixed clang input compile exited {mixed_exit}",
@@ -517,13 +941,33 @@ def main():
                 runtime_tmp = tempfile.TemporaryDirectory(prefix=f"final-{test_id}-")
                 runtime_exec_path = Path(runtime_tmp.name) / "a.out"
                 cmd = cmd + [str(p) for p in mixed_clang_object_paths] + ["-o", str(runtime_exec_path)]
+            elif link_enabled:
+                link_tmp = tempfile.TemporaryDirectory(prefix=f"final-link-{test_id}-")
+                link_output_path = Path(link_tmp.name) / "a.out"
+                cmd = cmd + ["-o", str(link_output_path)]
             if has_diag_json or has_parser_diag:
                 diag_json_tmp = tempfile.TemporaryDirectory(prefix=f"final-diag-{test_id}-")
                 diag_json_path = Path(diag_json_tmp.name) / "diagnostics.json"
                 cmd = cmd + ["--emit-diags-json", str(diag_json_path)]
 
+            test_failed = False
             try:
                 exit_code, output = run_cmd(cmd, env=cmd_env)
+
+                if command_timed_out(output):
+                    emit_final_failure(
+                        "compiler timed out",
+                        failure_kind="harness_error",
+                        severity="high",
+                        test_id=test_id,
+                        test_bucket=test_bucket,
+                        input_count=input_count,
+                        run_enabled=run_enabled,
+                        differential=differential,
+                    )
+                    print(output)
+                    failures += 1
+                    continue
 
                 if run_enabled:
                     if exit_code != 0:
@@ -541,7 +985,27 @@ def main():
                         failures += 1
                         continue
                 else:
-                    if has_ast and exit_code != 0:
+                    if (
+                        expected_compile_exit is not None
+                        and exit_code != expected_compile_exit
+                    ):
+                        emit_final_failure(
+                            f"compiler exit mismatch (expected {expected_compile_exit}, "
+                            f"got {exit_code})",
+                            failure_kind="harness_error",
+                            severity="high",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
+                        print(output)
+                        failures += 1
+                        test_failed = True
+                    elif expected_compile_exit is not None:
+                        pass
+                    elif has_ast and exit_code != 0:
                         emit_final_failure(
                             f"compiler exited {exit_code}",
                             failure_kind="parser_fail",
@@ -555,7 +1019,9 @@ def main():
                         print(output)
                         failures += 1
                         continue
-                    if not has_ast and not only_frontend and exit_code != 0 and not allow_nonzero_exit:
+                    if (expected_compile_exit is None and
+                            not has_ast and not only_frontend and
+                            exit_code != 0 and not allow_nonzero_exit):
                         emit_final_failure(
                             f"compiler exited {exit_code}",
                             failure_kind="ir_or_codegen_fail",
@@ -570,13 +1036,51 @@ def main():
                         failures += 1
                         continue
 
-                ast_text, diag_text, token_text, sema_text, ir_text = extract_sections(
-                    output, capture_frontend_diag=capture_frontend_diag
+                effective_frontend_diag_capture = should_capture_frontend_diagnostics(
+                    capture_frontend_diag,
+                    allow_empty_diag,
+                    has_diag_text,
+                    only_frontend,
+                    exit_code,
+                    expected_diag_frontend_capture(expects),
                 )
+                ast_text, diag_text, token_text, sema_text, ir_text = extract_sections(
+                    output,
+                    capture_frontend_diag=effective_frontend_diag_capture,
+                )
+                diag_text = normalize_final_suite_paths(diag_text)
+                token_text = normalize_final_suite_paths(token_text)
                 if diag_json_path is not None and diag_json_path.exists():
                     diag_json_raw = diag_json_path.read_text(encoding="utf-8")
 
-                test_failed = False
+                for marker in ir_contains:
+                    if marker not in output:
+                        emit_final_failure(
+                            f"missing required IR marker {marker!r}",
+                            failure_kind="ir_or_codegen_fail",
+                            severity="high",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
+                        failures += 1
+                        test_failed = True
+                for marker in ir_forbids:
+                    if marker in output:
+                        emit_final_failure(
+                            f"forbidden IR marker present {marker!r}",
+                            failure_kind="ir_or_codegen_fail",
+                            severity="high",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
+                        failures += 1
+                        test_failed = True
                 for expect_path in expects:
                     ext = expect_path.suffix
                     if ext == ".ast":
@@ -606,7 +1110,9 @@ def main():
                             test_failed = True
                             continue
                         try:
-                            actual = normalize_diag_json_text(diag_json_raw)
+                            actual = normalize_final_suite_paths(
+                                normalize_diag_json_text(diag_json_raw)
+                            )
                         except json.JSONDecodeError as exc:
                             emit_final_failure(
                                 f"invalid diagnostics JSON ({exc})",
@@ -661,9 +1167,28 @@ def main():
                         continue
 
                     if update:
-                        expect_path.parent.mkdir(parents=True, exist_ok=True)
-                        with open(expect_path, "w", encoding="utf-8") as f:
-                            f.write(actual)
+                        if not should_update_expectation(update_ir_only, ext):
+                            continue
+                        conflicting_test_id = stage_expectation_update(
+                            pending_expectation_updates,
+                            expect_path,
+                            actual,
+                            test_id,
+                        )
+                        if conflicting_test_id is not None:
+                            emit_final_failure(
+                                f"shared expectation {expect_path} differs from "
+                                f"{conflicting_test_id} during update",
+                                failure_kind="harness_error",
+                                severity="medium",
+                                test_id=test_id,
+                                test_bucket=test_bucket,
+                                input_count=input_count,
+                                run_enabled=run_enabled,
+                                differential=differential,
+                            )
+                            failures += 1
+                            test_failed = True
                         continue
 
                     if not expect_path.exists():
@@ -714,6 +1239,20 @@ def main():
                         stdin_text=run_stdin,
                     )
 
+                    if command_timed_out(run_stderr):
+                        emit_final_failure(
+                            "runtime timed out",
+                            failure_kind="harness_error",
+                            severity="high",
+                            test_id=test_id,
+                            test_bucket=test_bucket,
+                            input_count=input_count,
+                            run_enabled=run_enabled,
+                            differential=differential,
+                        )
+                        failures += 1
+                        test_failed = True
+
                     expect_exit = test.get("expect_exit", 0)
                     try:
                         expect_exit = int(expect_exit)
@@ -747,9 +1286,29 @@ def main():
                         test_failed = True
 
                     if expected_stdout_path:
-                        if update:
-                            expected_stdout_path.parent.mkdir(parents=True, exist_ok=True)
-                            expected_stdout_path.write_text(run_stdout, encoding="utf-8")
+                        if update and should_update_expectation(
+                            update_ir_only, expected_stdout_path.suffix
+                        ):
+                            conflicting_test_id = stage_expectation_update(
+                                pending_expectation_updates,
+                                expected_stdout_path,
+                                run_stdout,
+                                test_id,
+                            )
+                            if conflicting_test_id is not None:
+                                emit_final_failure(
+                                    f"shared expectation {expected_stdout_path} differs from "
+                                    f"{conflicting_test_id} during update",
+                                    failure_kind="harness_error",
+                                    severity="medium",
+                                    test_id=test_id,
+                                    test_bucket=test_bucket,
+                                    input_count=input_count,
+                                    run_enabled=run_enabled,
+                                    differential=differential,
+                                )
+                                failures += 1
+                                test_failed = True
                         else:
                             if not expected_stdout_path.exists():
                                 emit_final_failure(
@@ -782,9 +1341,29 @@ def main():
                                     test_failed = True
 
                     if expected_stderr_path:
-                        if update:
-                            expected_stderr_path.parent.mkdir(parents=True, exist_ok=True)
-                            expected_stderr_path.write_text(run_stderr, encoding="utf-8")
+                        if update and should_update_expectation(
+                            update_ir_only, expected_stderr_path.suffix
+                        ):
+                            conflicting_test_id = stage_expectation_update(
+                                pending_expectation_updates,
+                                expected_stderr_path,
+                                run_stderr,
+                                test_id,
+                            )
+                            if conflicting_test_id is not None:
+                                emit_final_failure(
+                                    f"shared expectation {expected_stderr_path} differs from "
+                                    f"{conflicting_test_id} during update",
+                                    failure_kind="harness_error",
+                                    severity="medium",
+                                    test_id=test_id,
+                                    test_bucket=test_bucket,
+                                    input_count=input_count,
+                                    run_enabled=run_enabled,
+                                    differential=differential,
+                                )
+                                failures += 1
+                                test_failed = True
                         else:
                             if not expected_stderr_path.exists():
                                 emit_final_failure(
@@ -849,7 +1428,21 @@ def main():
                                         str(reference_exec),
                                     ]
                                     reference_compile_exit, reference_compile_output = run_cmd(reference_cmd)
-                                    if reference_compile_exit != 0:
+                                    if command_timed_out(reference_compile_output):
+                                        emit_final_failure(
+                                            f"{reference_compiler_name} compile timed out",
+                                            failure_kind="harness_error",
+                                            severity="high",
+                                            test_id=test_id,
+                                            test_bucket=test_bucket,
+                                            input_count=input_count,
+                                            run_enabled=run_enabled,
+                                            differential=differential,
+                                        )
+                                        print(reference_compile_output)
+                                        failures += 1
+                                        test_failed = True
+                                    elif reference_compile_exit != 0:
                                         emit_final_failure(
                                             f"{reference_compiler_name} compile failed "
                                             f"({reference_compile_exit})",
@@ -870,6 +1463,19 @@ def main():
                                             env=runtime_env,
                                             stdin_text=run_stdin,
                                         )
+                                        if command_timed_out(reference_stderr):
+                                            emit_final_failure(
+                                                f"{reference_compiler_name} runtime timed out",
+                                                failure_kind="harness_error",
+                                                severity="high",
+                                                test_id=test_id,
+                                                test_bucket=test_bucket,
+                                                input_count=input_count,
+                                                run_enabled=run_enabled,
+                                                differential=differential,
+                                            )
+                                            failures += 1
+                                            test_failed = True
                                         if reference_exit != run_exit:
                                             emit_final_failure(
                                                 f"differential exit mismatch "
@@ -930,6 +1536,8 @@ def main():
             finally:
                 if runtime_tmp is not None:
                     runtime_tmp.cleanup()
+                if link_tmp is not None:
+                    link_tmp.cleanup()
                 if mixed_clang_tmp is not None:
                     mixed_clang_tmp.cleanup()
                 if diag_json_tmp is not None:
@@ -942,11 +1550,16 @@ def main():
             emit_final_failure(
                 "selector matched 0 tests "
                 "(FINAL_FILTER / FINAL_PREFIX / FINAL_GLOB / FINAL_BUCKET / "
-                "FINAL_TAG / FINAL_MANIFEST / FINAL_MANIFEST_GLOB)",
+                "FINAL_TAG / FINAL_MANIFEST / FINAL_MANIFEST_GLOB / "
+                "FINAL_EXPECT_EXT)",
                 failure_kind="harness_error",
                 severity="medium",
             )
             return 1
+        if update:
+            for path, (actual, _) in pending_expectation_updates.items():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(actual, encoding="utf-8")
         if skipped:
             print(f"\n0 failing, {skipped} skipped")
         return 0

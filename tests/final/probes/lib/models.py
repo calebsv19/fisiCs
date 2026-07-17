@@ -15,6 +15,7 @@ class RuntimeProbe:
     fisics_env: Mapping[str, str] | None = None
     clang_args: Sequence[str] | None = None
     clang_env: Mapping[str, str] | None = None
+    promoted_test_id: str | None = None
 
 
 @dataclass
@@ -28,6 +29,21 @@ class DiagnosticProbe:
     inputs: Sequence[Path] | None = None
     fisics_args: Sequence[str] | None = None
     fisics_env: Mapping[str, str] | None = None
+    promoted_test_id: str | None = None
+    allowed_exit_codes: Sequence[int] = (0, 1)
+
+
+@dataclass(frozen=True)
+class DiagnosticExpectation:
+    code: int | None = None
+    line: int | None = None
+    column: int | None = None
+    has_file: bool | None = None
+    file: str | None = None
+    severity: str | None = None
+    stage: str | None = None
+    message_substrings: Sequence[str] = ()
+    macro_trace: Sequence[Mapping[str, object]] | None = None
 
 
 @dataclass
@@ -43,3 +59,6 @@ class DiagnosticJsonProbe:
     inputs: Sequence[Path] | None = None
     fisics_args: Sequence[str] | None = None
     fisics_env: Mapping[str, str] | None = None
+    promoted_test_id: str | None = None
+    expected_diagnostics: Sequence[DiagnosticExpectation] | None = None
+    allowed_exit_codes: Sequence[int] = (0, 1)
