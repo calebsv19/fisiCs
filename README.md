@@ -41,6 +41,40 @@ programs before broader language or tooling ambitions.
   first public lane is physics-units metadata/checking via
   `[[fisics::dim(...)]]`.
 
+## OpenAI Build Week 2026
+
+`fisiCs` is a pre-existing project being meaningfully extended during the
+OpenAI Build Week submission period (July 13-21, 2026). The frozen pre-period
+baseline is commit
+[`aa4b3268ce552fd3ead88fa9b6bd8df52842b3df`](https://github.com/calebsv19/fisiCs/commit/aa4b3268ce552fd3ead88fa9b6bd8df52842b3df).
+
+The Build Week candidate focuses on turning the compiler's existing breadth
+into a judge-testable developer tool:
+
+- production-shaped differential validation against real CodeWork programs
+- compiler fixes found through those real-project workflows
+- deterministic example projects covering normal compilation, multi-file
+  builds, physics-units diagnostics, and build-graph output
+- a clean install, package verification, and short public test path
+
+The final eligible commit range, packaged version, and Codex `/feedback`
+Session ID will be recorded here when the submission candidate is frozen. Until
+then, this section describes an active candidate rather than a completed
+release.
+
+### How Codex and GPT-5.6 contributed
+
+The project was developed iteratively with Codex and GPT-5.6. Codex accelerated
+repository inspection, focused compiler fixes, regression-test generation,
+Clang-versus-`fisiCs` differential runs, real-project validation, release
+planning, and documentation reconciliation. The maintainer selected the
+product direction, compatibility boundaries, extension policy, acceptance
+criteria, and which generated changes were kept or rejected.
+
+For the shortest judge-facing path, use the
+[release example pack](examples/release_example_pack.md). It demonstrates the
+compiler without requiring the full internal validation suite.
+
 ## Build
 
 Use this path when you want to build the compiler from source. If you only

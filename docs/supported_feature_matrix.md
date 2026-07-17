@@ -23,7 +23,7 @@ compiler-usability pass.
 | Single translation unit compile | supported and routinely exercised |
 | Multi-translation-unit compile and link | supported and routinely exercised |
 | Core lexer / preprocessor / parser / semantics / codegen | covered by the final test system and active real-project validation |
-| Host-available standard-header runtime coverage | green through Wave `323` for the current host-available bucket-14 scope |
+| Host-available standard-header runtime coverage | green across the current registered bucket-14 stable suite; the release checklist retains a smaller named public confidence shard |
 | Real-project validation | current validated project set records Stages `A` through `F` closed with no active open risk |
 | Clang parity role | `clang` remains the reference control compiler while `fisiCs` hardens |
 | Public practical canaries | `examples/canaries/` covers multi-TU compile/link, libc/string parsing, and finite numeric/math behavior |
