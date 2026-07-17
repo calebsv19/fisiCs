@@ -241,6 +241,7 @@ release-contract:
 	@echo "  notary log:   $(RELEASE_NOTARY_LOG)"
 
 release-build:
+	@$(MAKE) clean
 	@$(MAKE) BUILD_PROFILE=unsanitized SHIM_MODE=off \
 		LLVM_LIBS='$(RELEASE_LLVM_LIBS)' \
 		PROFILE_LDFLAGS='$(RELEASE_LINK_FLAGS)' all
