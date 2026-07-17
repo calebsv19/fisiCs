@@ -254,6 +254,7 @@ release-stage: release-build
 	@cp -f README.md AGENTS.md LICENSE "$(RELEASE_STAGE_DIR)/"
 	@cp -R docs examples compilation "$(RELEASE_STAGE_DIR)/"
 	@rm -rf "$(RELEASE_STAGE_DIR)/compilation/out"
+	@find "$(RELEASE_STAGE_DIR)/examples" -type d -name build -prune -exec rm -rf {} +
 	@printf "name=fisiCs\nversion=%s\nchannel=%s\nplatform=%s\narch=%s\n" \
 		"$(RELEASE_VERSION)" "$(RELEASE_CHANNEL)" "$(RELEASE_PLATFORM)" "$(RELEASE_ARCH)" \
 		> "$(RELEASE_STAGE_DIR)/release_metadata.env"
@@ -313,6 +314,7 @@ release-notarize: release-sign
 	fi
 	@echo "Submitting archive for notarization..."
 	@xcrun notarytool submit "$(RELEASE_ARTIFACT_ZIP)" --keychain-profile "$(APPLE_NOTARY_PROFILE)" --wait --output-format json > "$(RELEASE_NOTARY_LOG)"
+	@python3 scripts/verify_notary_response.py "$(RELEASE_NOTARY_LOG)"
 	@echo "Notarization response saved to $(RELEASE_NOTARY_LOG)"
 
 release-verify: release-archive

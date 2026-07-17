@@ -76,6 +76,11 @@ the same release artifact set without macOS-only tools.
   - `codesign --verify` (passes once signed)
   - `spctl --assess` is informational for CLI binaries and may report non-app rejection even when signing/notarization are correct
   - archive checksum matches recorded `.sha256`
+- `release-notarize` fails closed unless Apple's JSON response reports
+  `Accepted`; a completed submission with `Invalid` status is not a successful
+  release gate
+- generated `examples/**/build/` outputs are pruned from the release stage so
+  stale unsigned demo binaries cannot enter the notarized archive
 
 ## CI Guardrail Lane
 
