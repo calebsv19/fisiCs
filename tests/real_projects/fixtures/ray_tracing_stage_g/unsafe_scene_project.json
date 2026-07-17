@@ -1,0 +1,6 @@
+{
+  "schema_version": "scene_project_v1",
+  "active": {
+    "render_request": "../escaped/render_request.json"
+  }
+}

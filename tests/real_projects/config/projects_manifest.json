@@ -918,9 +918,11 @@
       "third_party/codework_shared/kit/kit_viz/include",
       "third_party/codework_shared/kit/kit_graph_timeseries/include",
       "third_party/codework_shared/kit/kit_render/include",
-      "third_party/codework_shared/kit/kit_workspace_authoring/include",
-      "third_party/codework_shared/core/core_theme/include",
-      "third_party/codework_shared/core/core_font/include"
+        "third_party/codework_shared/kit/kit_workspace_authoring/include",
+        "third_party/codework_shared/kit/kit_ui/include",
+        "third_party/codework_shared/core/core_theme/include",
+        "third_party/codework_shared/core/core_font/include",
+        "third_party/codework_shared/core/core_layout/include"
     ],
       "defines": [],
       "platform_overrides": {
@@ -977,8 +979,9 @@
             {
               "id": "datalab_pack_loader_subset",
               "inputs": [
-                "../fisiCs/tests/real_projects/fixtures/datalab_pack_loader_subset_driver.c",
-                "src/data/pack_loader.c",
+            "../fisiCs/tests/real_projects/fixtures/datalab_pack_loader_subset_driver.c",
+            "src/data/pack_loader.c",
+            "src/data/pack_loader_sketch.c",
                 "third_party/codework_shared/core/core_pack/src/core_pack.c",
                 "third_party/codework_shared/core/core_io/src/core_io.c",
                 "third_party/codework_shared/core/core_base/src/core_base.c"
@@ -988,8 +991,9 @@
               "id": "datalab_data_combo_subset",
               "inputs": [
                 "tests/datalab_smoke_test.c",
-                "src/data/dataset_builders.c",
-                "src/data/pack_loader.c",
+            "src/data/dataset_builders.c",
+            "src/data/pack_loader.c",
+            "src/data/pack_loader_sketch.c",
                 "third_party/codework_shared/core/core_pack/src/core_pack.c",
                 "third_party/codework_shared/core/core_io/src/core_io.c",
                 "third_party/codework_shared/core/core_data/src/core_data.c",
@@ -1012,32 +1016,32 @@
             "-L/opt/homebrew/lib",
             "-lm",
             "-lSDL2",
-            "-lSDL2_ttf"
+            "-lSDL2_ttf",
+            "-lpng"
           ],
           "targets": [
             {
               "id": "datalab_full_default",
               "inputs": [
-                "src/app/app_state.c",
-                "src/app/datalab_app_main.c",
-                "src/app/datalab_runtime_pack.c",
-                "src/app/datalab_runtime_prefs.c",
-                "src/data/dataset_builders.c",
-                "src/data/pack_loader.c",
-                "src/main.c",
-                "src/render/render_view.c",
-                "src/render/render_view_input.c",
-                "src/render/render_view_picker.c",
-                "src/render/render_view_profiles_loops.c",
-                "src/render/render_view_profiles_ui.c",
-                "src/ui/input.c",
-                "third_party/codework_shared/core/core_pack/src/core_pack.c",
-                "third_party/codework_shared/core/core_io/src/core_io.c",
-                "third_party/codework_shared/core/core_base/src/core_base.c",
-                "third_party/codework_shared/core/core_data/src/core_data.c",
-                "third_party/codework_shared/core/core_font/src/core_font.c",
-                "third_party/codework_shared/kit/kit_viz/src/kit_viz.c",
-                "third_party/codework_shared/kit/kit_graph_timeseries/src/kit_graph_timeseries_math.c"
+                "third_party/codework_shared/kit/kit_ui/src/kit_ui_sdl.c"
+              ],
+              "input_globs": [
+                "src/**/*.c"
+              ],
+              "link_inputs": [
+                "../shared/kit/kit_graph_timeseries/build/libkit_graph_timeseries.a",
+                "../shared/kit/kit_workspace_authoring/build/libkit_workspace_authoring.a",
+                "../shared/kit/kit_ui/build/libkit_ui.a",
+                "../shared/kit/kit_viz/build/libkit_viz.a",
+                "../shared/kit/kit_render/build/default/libkit_render.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_data/build/libcore_data.a",
+                "../shared/core/core_theme/build/libcore_theme.a",
+                "../shared/core/core_font/build/libcore_font.a",
+                "../shared/core/core_base/build/libcore_base.a"
               ]
             }
           ]
@@ -1046,7 +1050,7 @@
           "enabled": true,
           "timeout_sec": 120,
           "run_timeout_sec": 8,
-          "expected_exit_code": 1,
+          "expected_exit_code": 0,
           "fisics_extra_args": [],
           "clang_extra_args": [
             "-std=c11",
@@ -1058,7 +1062,8 @@
             "-L/opt/homebrew/lib",
             "-lm",
             "-lSDL2",
-            "-lSDL2_ttf"
+            "-lSDL2_ttf",
+            "-lpng"
           ],
           "targets": [
             {
@@ -1088,7 +1093,8 @@
             "-L/opt/homebrew/lib",
             "-lm",
             "-lSDL2",
-            "-lSDL2_ttf"
+            "-lSDL2_ttf",
+            "-lpng"
           ],
           "targets": [
             {
@@ -1127,6 +1133,237 @@
           "ratio_warn": 20.0,
           "binary_candidates": [
             "datalab"
+          ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 20,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lm",
+            "-lSDL2",
+            "-lpng"
+          ],
+          "scrub_env_prefixes": [
+            "DATALAB_"
+          ],
+          "targets": [
+            {
+              "id": "datalab_bite_1_load_inspect_dataset",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/datalab_stage_g/datalab_stage_g_bite1_driver.c",
+                "src/data/dataset_builders.c",
+                "src/data/input_file_loader.c",
+                "src/data/pack_inspector.c",
+                "src/data/pack_loader.c",
+                "src/data/pack_loader_sketch.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_data/build/libcore_data.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "run_env": {
+                "DATALAB_STAGEG_PACK_INPUT": "{fixture_root}/fixtures/physics_v1_sample.pack",
+                "DATALAB_STAGEG_INVALID_INPUT": "{fixture_root}/fixtures/invalid_input.txt"
+              },
+              "runtime_fixtures": [
+                {
+                  "source": "third_party/codework_shared/core/core_pack/tests/fixtures/physics_v1_sample.pack",
+                  "path": "fixtures/physics_v1_sample.pack"
+                },
+                {
+                  "source": "../fisiCs/tests/real_projects/fixtures/datalab_stage_g/invalid_input.txt",
+                  "path": "fixtures/invalid_input.txt"
+                }
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_classified",
+                "b1_loaded",
+                "b1_inspected",
+                "b1_dataset",
+                "b1_bounds",
+                "b1_invalid",
+                "b1_canonical",
+                "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "load.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "datalab_bite_2_preferences_round_trip",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/datalab_stage_g/datalab_stage_g_bite2_driver.c",
+                "src/app/app_state.c",
+                "src/app/datalab_runtime_prefs.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_prepared",
+                "b2_saved",
+                "b2_destroyed",
+                "b2_reloaded",
+                "b2_compared",
+                "b2_canonical",
+                "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "data/runtime/text_zoom_step.txt", "compare": "sha256"},
+                {"path": "data/runtime/input_root.txt", "compare": "sha256"},
+                {"path": "data/runtime/recent_input_roots_v1.txt", "compare": "sha256"},
+                {"path": "data/runtime/recent_input_files_v1.txt", "compare": "sha256"},
+                {"path": "data/runtime/pinned_input_files_v1.txt", "compare": "sha256"},
+                {"path": "data/runtime/theme_preset_id.txt", "compare": "sha256"},
+                {"path": "data/runtime/custom_theme_v1.txt", "compare": "sha256"},
+                {"path": "data/runtime/custom_theme_slots_v1.txt", "compare": "sha256"},
+                {"path": "data/runtime/custom_theme_slot_names_v1.txt", "compare": "sha256"},
+                {"path": "data/runtime/custom_theme_active_slot.txt", "compare": "sha256"},
+                {"path": "prefs.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "datalab_bite_3_interaction_state",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/datalab_stage_g/datalab_stage_g_bite3_driver.c",
+                "src/app/app_state.c",
+                "src/app/datalab_runtime_prefs.c",
+                "src/render/render_view_panel_policy.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_authoring_begin",
+                "b3_authoring_apply",
+                "b3_authoring_cancel",
+                "b3_viewport_fit",
+                "b3_viewport_free",
+                "b3_viewport_reset",
+                "b3_panel_select",
+                "b3_playback",
+                "b3_invalid",
+                "b3_canonical",
+                "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "interaction.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "datalab_bite_4_top_level_headless_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/datalab_stage_g/datalab_stage_g_bite4_driver.c",
+                "src/app/app_state.c",
+                "src/app/datalab_app_lifecycle.c",
+                "src/app/datalab_app_main.c",
+                "src/app/datalab_app_runtime_loop.c",
+                "src/app/datalab_app_runtime_state_sync.c",
+                "src/app/datalab_runtime_pack.c",
+                "src/app/datalab_runtime_prefs.c",
+                "src/data/dataset_builders.c",
+                "src/data/input_file_loader.c",
+                "src/data/pack_inspector.c",
+                "src/data/pack_loader.c",
+                "src/data/pack_loader_sketch.c",
+                "src/platform/datalab_folder_picker.c",
+                "src/render/render_view.c",
+                "src/render/render_view_authoring_adapter.c",
+                "src/render/render_view_authoring_overlay.c",
+                "src/render/render_view_authoring_overlay_font_theme.c",
+                "src/render/render_view_authoring_overlay_input.c",
+                "src/render/render_view_authoring_overlay_theme.c",
+                "src/render/render_view_daw.c",
+                "src/render/render_view_geometry.c",
+                "src/render/render_view_input.c",
+                "src/render/render_view_library_preview.c",
+                "src/render/render_view_loop_diag.c",
+                "src/render/render_view_loop_policy.c",
+                "src/render/render_view_loop_runtime.c",
+                "src/render/render_view_panel_policy.c",
+                "src/render/render_view_picker.c",
+                "src/render/render_view_picker_panes.c",
+                "src/render/render_view_picker_support.c",
+                "src/render/render_view_playback_hud.c",
+                "src/render/render_view_profiles_loops.c",
+                "src/render/render_view_profiles_ui.c",
+                "src/render/render_view_raster_tiles.c",
+                "src/render/render_view_raster_viewport.c",
+                "src/render/render_view_session.c",
+                "src/render/render_view_session_controls.c",
+                "src/render/render_view_supported_files.c",
+                "src/render/render_view_text.c",
+                "src/render/render_view_trace_graph_bridge.c",
+                "src/ui/input.c",
+                "third_party/codework_shared/kit/kit_ui/src/kit_ui_sdl.c"
+              ],
+              "link_inputs": [
+                "../shared/kit/kit_graph_timeseries/build/libkit_graph_timeseries.a",
+                "../shared/kit/kit_workspace_authoring/build/libkit_workspace_authoring.a",
+                "../shared/kit/kit_ui/build/libkit_ui.a",
+                "../shared/kit/kit_viz/build/libkit_viz.a",
+                "../shared/kit/kit_render/build/default/libkit_render.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_data/build/libcore_data.a",
+                "../shared/core/core_theme/build/libcore_theme.a",
+                "../shared/core/core_font/build/libcore_font.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-lSDL2_ttf"
+              ],
+              "run_env": {
+                "DATALAB_STAGEG_PACK_INPUT": "{fixture_root}/fixtures/physics_v1_sample.pack"
+              },
+              "runtime_fixtures": [
+                {
+                  "source": "third_party/codework_shared/core/core_pack/tests/fixtures/physics_v1_sample.pack",
+                  "path": "fixtures/physics_v1_sample.pack"
+                }
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_config",
+                "b4_loaded",
+                "b4_dispatched",
+                "b4_persisted",
+                "b4_canonical",
+                "b4_destroyed",
+                "b4_reloaded",
+                "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "lifecycle.summary.txt", "compare": "exists"},
+                {"path": "workflow.canonical", "compare": "sha256"},
+                {"path": "data/runtime/text_zoom_step.txt", "compare": "sha256"},
+                {"path": "data/runtime/input_root.txt", "compare": "sha256"},
+                {"path": "data/runtime/recent_input_roots_v1.txt", "compare": "sha256"},
+                {"path": "data/runtime/theme_preset_id.txt", "compare": "sha256"}
+              ]
+            }
           ]
         }
       }
@@ -1242,10 +1479,11 @@
           "targets": [
             {
               "id": "workspace_sandbox_full_headless",
-              "inputs": [
-                "src/app/workspace_sandbox_app_headless_main.c",
-                "src/app/workspace_sandbox_app_main.c",
-                "src/runtime/action/workspace_sandbox_runtime_action_dispatch.c",
+            "inputs": [
+              "src/app/workspace_sandbox_app_headless_main.c",
+              "src/app/workspace_sandbox_app_main.c",
+              "src/app/workspace_sandbox_app_mode_contract.c",
+              "src/runtime/action/workspace_sandbox_runtime_action_dispatch.c",
                 "src/runtime/action/workspace_sandbox_runtime_action_registry.c",
                 "src/runtime/core/workspace_sandbox_runtime_core.c",
                 "src/runtime/data/workspace_sandbox_runtime_data_paths.c",
@@ -1317,7 +1555,7 @@
               "id": "workspace_sandbox_golden_headless_behavior",
               "build_target": "workspace_sandbox_full_headless",
               "run_args": [],
-              "expected_stdout_sha256": "3215b2fa9be8fa875591ecc4e0fc9830c1f52196e1b76c249feca85a570b3f19",
+              "expected_stdout_sha256": "3af72d53fc04fef001ccd132b85c01f1d1a519dd73f62e9cd925cb65af387054",
               "expected_stderr_sha256": "2c0c9481785eac06f133c752e743c91025c0f015cbcdce557efa4ad09038c3d5",
               "expected_stdout_contains": [
                 "workspace_sandbox runtime skeleton OK"
@@ -1344,6 +1582,266 @@
           "ratio_warn": 20.0,
           "binary_candidates": [
             "workspace_sandbox"
+          ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 30,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "scrub_env_prefixes": [
+            "WORKSPACE_SANDBOX_"
+          ],
+          "run_env": {
+            "WORKSPACE_SANDBOX_RUNTIME_DIR": "runtime"
+          },
+          "targets": [
+            {
+              "id": "workspace_sandbox_bite_1_layout_transaction_history",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/workspace_sandbox_stage_g/workspace_sandbox_stage_g_bite1_driver.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_dispatch.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_registry.c",
+                "src/runtime/core/workspace_sandbox_runtime_core.c",
+                "src/runtime/data/workspace_sandbox_runtime_data_paths.c",
+                "src/runtime/geometry/workspace_sandbox_runtime_geometry.c",
+                "src/runtime/history/workspace_sandbox_runtime_history.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_authoring_ops.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_helpers.c",
+                "src/runtime/pane/workspace_sandbox_runtime_pane_ops.c",
+                "src/runtime/preset/workspace_sandbox_runtime_preset_io.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_bridge.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_json.c",
+                "src/runtime/state/workspace_sandbox_runtime_module_state.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_pane_snapshot/build/libcore_pane_snapshot.a",
+                "../shared/core/core_pane_module/build/libcore_pane_module.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_config/build/libcore_config.a",
+                "../shared/core/core_layout/build/libcore_layout.a",
+                "../shared/core/core_action/build/libcore_action.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "run_args": [],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_initialized",
+                "b1_authoring",
+                "b1_split",
+                "b1_modules",
+                "b1_swapped",
+                "b1_undo",
+                "b1_redo",
+                "b1_applied",
+                "b1_invalid",
+                "b1_canonical",
+                "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "layout.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "workspace_sandbox_bite_2_preset_snapshot_round_trip",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/workspace_sandbox_stage_g/workspace_sandbox_stage_g_bite2_driver.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_dispatch.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_registry.c",
+                "src/runtime/core/workspace_sandbox_runtime_core.c",
+                "src/runtime/data/workspace_sandbox_runtime_data_paths.c",
+                "src/runtime/geometry/workspace_sandbox_runtime_geometry.c",
+                "src/runtime/history/workspace_sandbox_runtime_history.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_authoring_ops.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_helpers.c",
+                "src/runtime/pane/workspace_sandbox_runtime_pane_ops.c",
+                "src/runtime/preset/workspace_sandbox_runtime_preset_io.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_bridge.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_json.c",
+                "src/runtime/state/workspace_sandbox_runtime_module_state.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_pane_snapshot/build/libcore_pane_snapshot.a",
+                "../shared/core/core_pane_module/build/libcore_pane_module.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_config/build/libcore_config.a",
+                "../shared/core/core_layout/build/libcore_layout.a",
+                "../shared/core/core_action/build/libcore_action.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "run_args": [],
+              "run_env": {
+                "WORKSPACE_SANDBOX_STAGEG_INVALID_SNAPSHOT": "{fixture_root}/fixtures/malformed_snapshot.json"
+              },
+              "runtime_fixtures": [
+                {
+                  "source": "../fisiCs/tests/real_projects/fixtures/workspace_sandbox_stage_g/malformed_snapshot.json",
+                  "path": "fixtures/malformed_snapshot.json"
+                }
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_prepared",
+                "b2_saved",
+                "b2_preset_reloaded",
+                "b2_snapshot_reloaded",
+                "b2_invalid",
+                "b2_canonical",
+                "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "workspace.pack",
+                  "compare": "exists"
+                },
+                {
+                  "path": "snapshot.json",
+                  "compare": "sha256"
+                },
+                {
+                  "path": "persistence.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "workspace_sandbox_bite_3_interaction_actions_paths",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/workspace_sandbox_stage_g/workspace_sandbox_stage_g_bite3_driver.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_dispatch.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_registry.c",
+                "src/runtime/core/workspace_sandbox_runtime_core.c",
+                "src/runtime/data/workspace_sandbox_runtime_data_paths.c",
+                "src/runtime/geometry/workspace_sandbox_runtime_geometry.c",
+                "src/runtime/history/workspace_sandbox_runtime_history.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_authoring_ops.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_helpers.c",
+                "src/runtime/pane/workspace_sandbox_runtime_pane_ops.c",
+                "src/runtime/preset/workspace_sandbox_runtime_preset_io.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_bridge.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_json.c",
+                "src/runtime/state/workspace_sandbox_runtime_module_state.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_pane_snapshot/build/libcore_pane_snapshot.a",
+                "../shared/core/core_pane_module/build/libcore_pane_module.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_config/build/libcore_config.a",
+                "../shared/core/core_layout/build/libcore_layout.a",
+                "../shared/core/core_action/build/libcore_action.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "run_args": [],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_initialized",
+                "b3_actions",
+                "b3_splitter",
+                "b3_clamped",
+                "b3_reversed",
+                "b3_history",
+                "b3_module",
+                "b3_applied",
+                "b3_paths_saved",
+                "b3_paths_loaded",
+                "b3_normalized",
+                "b3_canonical",
+                "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "runtime/data/data_paths.cfg",
+                  "compare": "sha256"
+                },
+                {
+                  "path": "interaction.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "workspace_sandbox_bite_4_top_level_headless_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/workspace_sandbox_stage_g/workspace_sandbox_stage_g_bite4_driver.c",
+                "src/app/workspace_sandbox_app_main.c",
+                "src/app/workspace_sandbox_app_mode_contract.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_dispatch.c",
+                "src/runtime/action/workspace_sandbox_runtime_action_registry.c",
+                "src/runtime/core/workspace_sandbox_runtime_core.c",
+                "src/runtime/data/workspace_sandbox_runtime_data_paths.c",
+                "src/runtime/geometry/workspace_sandbox_runtime_geometry.c",
+                "src/runtime/history/workspace_sandbox_runtime_history.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_authoring_ops.c",
+                "src/runtime/layout/workspace_sandbox_runtime_layout_helpers.c",
+                "src/runtime/pane/workspace_sandbox_runtime_pane_ops.c",
+                "src/runtime/preset/workspace_sandbox_runtime_preset_io.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_bridge.c",
+                "src/runtime/snapshot/workspace_sandbox_runtime_snapshot_json.c",
+                "src/runtime/state/workspace_sandbox_runtime_module_state.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_pane_snapshot/build/libcore_pane_snapshot.a",
+                "../shared/core/core_pane_module/build/libcore_pane_module.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_config/build/libcore_config.a",
+                "../shared/core/core_layout/build/libcore_layout.a",
+                "../shared/core/core_action/build/libcore_action.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "run_args": [],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_seeded",
+                "b4_authoring",
+                "b4_started",
+                "b4_loop",
+                "b4_exported",
+                "b4_shutdown",
+                "b4_reloaded",
+                "b4_invalid",
+                "b4_canonical",
+                "b4_complete"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "workflow.pack",
+                  "compare": "exists"
+                },
+                {
+                  "path": "workflow.json",
+                  "compare": "sha256"
+                },
+                {
+                  "path": "workflow_reload.json",
+                  "compare": "sha256"
+                },
+                {
+                  "path": "lifecycle.log",
+                  "compare": "sha256"
+                },
+                {
+                  "path": "workflow.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            }
           ]
         }
       }
@@ -1373,6 +1871,7 @@
         "third_party/codework_shared/core/core_pane/include",
         "third_party/codework_shared/kit/kit_ui/include",
         "third_party/codework_shared/kit/kit_graph_struct/include",
+        "third_party/codework_shared/kit/kit_workspace_authoring/include",
         "third_party/codework_shared/kit/kit_render/include",
         "third_party/codework_shared/vk_renderer/include",
         "third_party/codework_shared/core/core_base/include",
@@ -1422,17 +1921,21 @@
             {
               "id": "mem_console_graph_filters_subset",
               "inputs": [
-                "../fisiCs/tests/real_projects/fixtures/mem_console_graph_filters_subset_driver.c",
-                "src/runtime/mem_console_state_graph_filters.c",
-                "src/runtime/mem_console_state_project_filters.c"
+            "../fisiCs/tests/real_projects/fixtures/mem_console_graph_filters_subset_driver.c",
+            "src/runtime/mem_console_state_graph_filters.c",
+            "src/runtime/mem_console_state_project_filters.c",
+            "../fisiCs/tests/real_projects/fixtures/mem_console_graph_render_link_stubs.c",
+            "third_party/codework_shared/kit/kit_graph_struct/src/kit_graph_struct.c"
               ]
             },
             {
               "id": "mem_console_graph_filters_boundary_subset",
               "inputs": [
-                "../fisiCs/tests/real_projects/fixtures/mem_console_graph_filters_boundary_subset_driver.c",
-                "src/runtime/mem_console_state_graph_filters.c",
-                "src/runtime/mem_console_state_project_filters.c"
+            "../fisiCs/tests/real_projects/fixtures/mem_console_graph_filters_boundary_subset_driver.c",
+            "src/runtime/mem_console_state_graph_filters.c",
+            "src/runtime/mem_console_state_project_filters.c",
+            "../fisiCs/tests/real_projects/fixtures/mem_console_graph_render_link_stubs.c",
+            "third_party/codework_shared/kit/kit_graph_struct/src/kit_graph_struct.c"
               ]
             },
             {
@@ -1484,53 +1987,72 @@
             {
               "id": "mem_console_full_default",
               "inputs": [
-                "src/app/mem_console.c",
-                "src/app/mem_console_app_main.c",
-                "src/app/mem_console_app_actions.c",
-                "src/app/mem_console_app_db_switch.c",
-                "src/app/mem_console_app_events.c",
-                "src/app/mem_console_app_loop.c",
-                "src/app/mem_console_app_theme.c",
-                "src/app/mem_console_kernel_bridge.c",
-                "src/db/mem_console_db.c",
-                "src/db/mem_console_db_graph_sort.c",
-                "src/db/mem_console_db_filters.c",
-                "src/db/mem_console_db_mutations.c",
-                "src/db/mem_console_db_reads.c",
-                "src/runtime/mem_console_prefs.c",
-                "src/runtime/mem_console_prefs_app_io.c",
-                "src/runtime/mem_console_runtime.c",
-                "src/runtime/mem_console_state.c",
-                "src/runtime/mem_console_state_core.c",
-                "src/runtime/mem_console_state_graph_filters.c",
-                "src/runtime/mem_console_state_paths.c",
-                "src/runtime/mem_console_state_project_filters.c",
+            "src/app/mem_console.c",
+            "src/app/mem_console_action_roles.c",
+            "src/app/mem_console_app_main.c",
+            "src/app/mem_console_app_actions.c",
+            "src/app/mem_console_app_db_switch.c",
+            "src/app/mem_console_app_events.c",
+            "src/app/mem_console_app_loop.c",
+            "src/app/mem_console_app_loop_input.c",
+            "src/app/mem_console_app_status.c",
+            "src/app/mem_console_app_theme.c",
+            "src/app/mem_console_kernel_bridge.c",
+            "src/app/mem_console_workspace_authoring_host.c",
+            "src/db/mem_console_db.c",
+            "src/db/mem_console_db_graph_load.c",
+            "src/db/mem_console_db_graph_sort.c",
+            "src/db/mem_console_db_filters.c",
+            "src/db/mem_console_db_mutations.c",
+            "src/db/mem_console_db_reads.c",
+            "src/db/mem_console_db_relationship_mutations.c",
+            "src/runtime/mem_console_prefs.c",
+            "src/runtime/mem_console_prefs_app_io.c",
+            "src/runtime/mem_console_prefs_versions.c",
+            "src/runtime/mem_console_runtime.c",
+            "src/runtime/mem_console_runtime_refresh.c",
+            "src/runtime/mem_console_state.c",
+            "src/runtime/mem_console_state_core.c",
+            "src/runtime/mem_console_state_db_picker.c",
+            "src/runtime/mem_console_state_graph_filters.c",
+            "src/runtime/mem_console_state_paths.c",
+            "src/runtime/mem_console_state_project_filters.c",
+            "src/runtime/mem_console_state_roles.c",
                 "src/layout/mem_console_layout_config.c",
                 "src/layout/mem_console_pane_layout.c",
                 "src/ui/mem_console_ui.c",
                 "src/ui/mem_console_ui_chrome.c",
-                "src/ui/mem_console_ui_common.c",
-                "src/ui/mem_console_ui_detail_panel.c",
-                "src/ui/mem_console_ui_detail_section.c",
-                "src/ui/mem_console_ui_hud.c",
-                "src/ui/mem_console_ui_left_panel.c",
-                "src/ui/mem_console_ui_left_section.c",
+            "src/ui/mem_console_ui_common.c",
+            "src/ui/mem_console_ui_detail_panel.c",
+            "src/ui/mem_console_ui_detail_references.c",
+            "src/ui/mem_console_ui_detail_relationships.c",
+            "src/ui/mem_console_ui_detail_section.c",
+            "src/ui/mem_console_ui_hud.c",
+            "src/ui/mem_console_ui_left_browse_filters.c",
+            "src/ui/mem_console_ui_left_panel.c",
+            "src/ui/mem_console_ui_left_section.c",
+            "src/ui/mem_console_visual_artifact.c",
+            "src/ui/mem_console_workspace_authoring_overlay.c",
                 "src/ui/graph/mem_console_ui_graph.c",
                 "src/ui/graph/mem_console_ui_graph_camera.c",
                 "src/ui/graph/mem_console_ui_graph_controls.c",
                 "src/ui/graph/mem_console_ui_graph_draw.c",
                 "src/ui/graph/mem_console_ui_graph_geometry.c",
                 "src/ui/graph/mem_console_ui_graph_hud.c",
-                "src/ui/graph/mem_console_ui_graph_layout.c",
-                "src/ui/graph/mem_console_ui_graph_layout_focus_helpers.c",
-                "src/ui/graph/mem_console_ui_graph_overlay.c",
-                "src/ui/graph/mem_console_ui_graph_project_pods.c",
-                "src/ui/graph/mem_console_ui_graph_types.c",
+            "src/ui/graph/mem_console_ui_graph_layout.c",
+            "src/ui/graph/mem_console_ui_graph_layout_focus_helpers.c",
+            "src/ui/graph/mem_console_ui_graph_layout_web.c",
+            "src/ui/graph/mem_console_ui_graph_mode_policy.c",
+            "src/ui/graph/mem_console_ui_graph_overlay.c",
+            "src/ui/graph/mem_console_ui_graph_project_pods.c",
+            "src/ui/graph/mem_console_ui_graph_status.c",
+            "src/ui/graph/mem_console_ui_graph_types.c",
                 "src/ui/graph/mem_console_ui_graph_panel.c"
               ],
               "link_inputs": [
-                "third_party/codework_shared/kit/kit_graph_struct/build/libkit_graph_struct.a",
-                "third_party/codework_shared/kit/kit_ui/build/libkit_ui.a",
+            "third_party/codework_shared/kit/kit_graph_struct/build/libkit_graph_struct.a",
+            "third_party/codework_shared/kit/kit_workspace_authoring/build/libkit_workspace_authoring.a",
+            "third_party/codework_shared/kit/kit_ui/build/libkit_ui.a",
                 "third_party/codework_shared/kit/kit_render/build/vk/libkit_render.a",
                 "third_party/codework_shared/vk_renderer/build/lib/libvkrenderer.a",
                 "third_party/codework_shared/core/core_memdb/build/libcore_memdb.a",
@@ -1652,6 +2174,186 @@
             "build/mem_console",
             "dist/eCho.app/Contents/MacOS/mem-console-bin"
           ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 20,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-L/opt/homebrew/lib",
+            "-lm"
+          ],
+          "scrub_env_prefixes": [
+            "MEM_CONSOLE_"
+          ],
+          "targets": [
+            {
+              "id": "mem_console_bite_1_state_transfer",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/mem_console_stage_g/mem_console_stage_g_bite1_driver.c",
+                "src/runtime/mem_console_state_graph_filters.c",
+                "src/runtime/mem_console_state_project_filters.c",
+                "../fisiCs/tests/real_projects/fixtures/mem_console_graph_render_link_stubs.c",
+                "third_party/codework_shared/kit/kit_graph_struct/src/kit_graph_struct.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_seeded",
+                "b1_edge_filters",
+                "b1_node_filters",
+                "b1_project_scope",
+                "b1_view_selection",
+                "b1_canonical",
+                "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "state_transfer.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "mem_console_bite_2_preferences_round_trip",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/mem_console_stage_g/mem_console_stage_g_bite2_driver.c",
+                "src/runtime/mem_console_prefs.c",
+                "src/runtime/mem_console_prefs_app_io.c",
+                "src/runtime/mem_console_prefs_versions.c",
+                "src/runtime/mem_console_state.c",
+                "src/runtime/mem_console_state_core.c",
+                "src/runtime/mem_console_state_graph_filters.c",
+                "src/runtime/mem_console_state_paths.c",
+                "src/layout/mem_console_layout_config.c",
+                "src/layout/mem_console_pane_layout.c",
+                "../fisiCs/tests/real_projects/fixtures/mem_console_graph_render_link_stubs.c",
+                "third_party/codework_shared/kit/kit_graph_struct/src/kit_graph_struct.c"
+              ],
+              "link_inputs": [
+                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
+                "third_party/codework_shared/core/core_pane/build/libcore_pane.a",
+                "third_party/codework_shared/core/core_theme/build/libcore_theme.a",
+                "third_party/codework_shared/core/core_font/build/libcore_font.a",
+                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+              ],
+              "expected_exit_code": 0,
+              "link_args": [
+                "-lSDL2"
+              ],
+              "expected_checkpoints": [
+                "b2_prepared",
+                "b2_saved",
+                "b2_destroyed",
+                "b2_reloaded",
+                "b2_compared",
+                "b2_canonical",
+                "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "runtime/ui.pack",
+                  "compare": "exists"
+                },
+                {
+                  "path": "runtime/app.pack",
+                  "compare": "exists"
+                },
+                {
+                  "path": "persistence.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "mem_console_bite_3_interaction_boundaries",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/mem_console_stage_g/mem_console_stage_g_bite3_driver.c",
+                "src/layout/mem_console_layout_config.c",
+                "src/layout/mem_console_pane_layout.c",
+                "src/runtime/mem_console_state_graph_filters.c",
+                "src/ui/graph/mem_console_ui_graph_camera.c",
+                "src/ui/graph/mem_console_ui_graph_geometry.c",
+                "src/ui/graph/mem_console_ui_graph_mode_policy.c",
+                "../fisiCs/tests/real_projects/fixtures/mem_console_graph_render_link_stubs.c",
+                "../fisiCs/tests/real_projects/fixtures/mem_console_stage_g/mem_console_pane_prefs_link_stub.c",
+                "third_party/codework_shared/kit/kit_graph_struct/src/kit_graph_struct.c"
+              ],
+              "link_inputs": [
+                "third_party/codework_shared/core/core_pane/build/libcore_pane.a",
+                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_layout",
+                "b3_drag_begin",
+                "b3_drag_update",
+                "b3_drag_reverse",
+                "b3_graph_zoom",
+                "b3_graph_pan",
+                "b3_invalid",
+                "b3_canonical",
+                "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "interaction.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "mem_console_bite_4_scripted_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/mem_console_stage_g/mem_console_stage_g_bite4_driver.c",
+                "src/db/mem_console_db_mutations.c",
+                "src/db/mem_console_db_relationship_mutations.c",
+                "src/runtime/mem_console_prefs_app_io.c",
+                "src/runtime/mem_console_state_paths.c"
+              ],
+              "link_inputs": [
+                "third_party/codework_shared/core/core_memdb/build/libcore_memdb.a",
+                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
+                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-lSDL2",
+                "-lsqlite3"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_seeded",
+                "b4_mutated",
+                "b4_related",
+                "b4_saved_destroyed",
+                "b4_reloaded",
+                "b4_invalid",
+                "b4_canonical",
+                "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "workflow.sqlite",
+                  "compare": "exists"
+                },
+                {
+                  "path": "workflow.app.pack",
+                  "compare": "exists"
+                },
+                {
+                  "path": "workflow.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            }
+          ]
         }
       }
     },
@@ -1676,10 +2378,16 @@
         "../shared/core/core_base/include",
         "../shared/core/core_io/include",
         "../shared/core/core_data/include",
-        "../shared/core/core_math/include",
-        "../shared/core/core_time/include",
-        "../shared/core/core_scene/include",
-        "../shared/core/core_object/include",
+      "../shared/core/core_math/include",
+      "../shared/core/core_time/include",
+      "../shared/core/core_mesh_asset/include",
+      "../shared/core/core_mesh_compile/include",
+      "../shared/core/core_mesh_preview/include",
+      "../shared/core/core_scene/include",
+      "../shared/core/core_scene_view/include",
+      "../shared/core/core_viewport3d/include",
+      "../shared/core/core_scene_compile/include",
+      "../shared/core/core_object/include",
         "../shared/core/core_units/include",
         "../shared/core/core_layout/include",
         "../shared/core/core_pane/include",
@@ -1690,6 +2398,7 @@
       "../shared/core/core_font/include",
       "../shared/kit/kit_render/include",
       "../shared/kit/kit_pane/include",
+      "../shared/kit/kit_viewport3d/include",
       "../shared/kit/kit_workspace_authoring/include",
       "../shared/timer_hud/include"
     ],
@@ -1760,26 +2469,25 @@
               "inputs": [
                 "../fisiCs/tests/real_projects/fixtures/line_drawing_scene3d_subset_driver.c",
                 "src/Layout/scene/layout_scene3d.c",
+                "src/Layout/scene/layout_object_store.c",
+                "src/Tools/global_state_stub.c",
+                "src/Core/data_paths.c",
+                "../shared/core/core_object/src/core_object.c",
                 "../shared/core/core_math/src/core_math.c"
               ]
             }
           ]
         },
-        "C_full_build": {
-          "enabled": true,
-          "timeout_sec": 120,
-          "fisics_extra_args": [
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
-          ],
-          "clang_extra_args": [
-            "-std=c11",
-            "-Wall",
-            "-Wextra",
-            "-Wpedantic",
-            "-include",
-            "../shared/vk_renderer/include/vk_renderer_sdl.h"
-          ],
+            "C_full_build": {
+              "enabled": true,
+              "timeout_sec": 120,
+              "fisics_extra_args": [],
+              "clang_extra_args": [
+                "-std=c11",
+                "-Wall",
+                "-Wextra",
+                "-Wpedantic"
+              ],
           "link_args": [
             "-lm"
           ],
@@ -1863,6 +2571,163 @@
           "binary_candidates": [
             "line_drawing"
           ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 20,
+          "fisics_extra_args": [],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "scrub_env_prefixes": [
+            "LINE_DRAWING_STAGEG_"
+          ],
+          "targets": [
+            {
+              "id": "line_drawing_bite_1_scene_path_state",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/line_drawing_stage_g/line_drawing_stage_g_bite1_driver.c",
+                "src/Layout/scene/layout_scene_authoring.c",
+                "src/Layout/scene/layout_scene_camera_authoring.c",
+                "src/Layout/scene/layout_scene_light_authoring.c",
+                "src/Layout/scene/layout_scene_path_geometry.c",
+                "src/Layout/scene/layout_scene_path_traversal.c",
+                "../shared/core/core_math/src/core_math.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_initialized",
+                "b1_mutated",
+                "b1_geometry",
+                "b1_traversal",
+                "b1_playback",
+                "b1_bound_actors",
+                "b1_invalid",
+                "b1_canonical",
+                "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "scene_state.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "line_drawing_bite_2_authoring_round_trip",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/line_drawing_stage_g/line_drawing_stage_g_bite2_driver.c",
+                "src/Layout/scene/layout_scene_authoring.c",
+                "src/Layout/scene/layout_scene_camera_authoring.c",
+                "src/Layout/scene/layout_scene_light_authoring.c",
+                "src/Layout/scene/layout_scene_path_edit.c",
+                "src/Layout/scene/layout_scene_path_geometry.c",
+                "src/Layout/scene/layout_scene_path_traversal.c",
+                "src/Tools/canonical_scene_export_authoring.c",
+                "src/Tools/scene_authoring_import.c",
+                "../shared/core/core_math/src/core_math.c"
+              ],
+              "link_inputs": [
+                "external/cjson/cJSON.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_mutated",
+                "b2_saved",
+                "b2_destroyed",
+                "b2_reloaded",
+                "b2_compared",
+                "b2_undo",
+                "b2_redo",
+                "b2_canonical",
+                "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "scene_authoring.json", "compare": "exists"},
+                {"path": "roundtrip.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "line_drawing_bite_3_path_authoring_interaction",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/line_drawing_stage_g/line_drawing_stage_g_bite3_driver.c",
+                "src/Layout/scene/layout_scene_authoring.c",
+                "src/Layout/scene/layout_scene_camera_authoring.c",
+                "src/Layout/scene/layout_scene_light_authoring.c",
+                "src/Layout/scene/layout_scene_path_edit.c",
+                "src/Layout/scene/layout_scene_path_geometry.c",
+                "src/Layout/scene/layout_scene_path_traversal.c",
+                "../shared/core/core_math/src/core_math.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_begin",
+                "b3_handle_move",
+                "b3_split",
+                "b3_reverse",
+                "b3_undo",
+                "b3_redo",
+                "b3_invalid",
+                "b3_delete",
+                "b3_canonical",
+                "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "interaction.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "line_drawing_bite_4_top_level_scene_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/line_drawing_stage_g/line_drawing_stage_g_bite4_driver.c",
+                "src/Layout/scene/layout_scene_authoring.c",
+                "src/Layout/scene/layout_scene_camera_authoring.c",
+                "src/Layout/scene/layout_scene_light_authoring.c",
+                "src/Layout/scene/layout_scene_path_edit.c",
+                "src/Layout/scene/layout_scene_path_geometry.c",
+                "src/Layout/scene/layout_scene_path_traversal.c",
+                "src/Tools/canonical_scene_export_authoring.c",
+                "src/Tools/scene_authoring_import.c",
+                "src/Tools/scene_project_export.c",
+                "../shared/core/core_math/src/core_math.c"
+              ],
+              "link_inputs": [
+                "external/cjson/cJSON.c"
+              ],
+              "link_args": [
+                "../shared/core/core_mesh_asset/build/libcore_mesh_asset.a",
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_units/build/libcore_units.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_project",
+                "b4_author",
+                "b4_edit",
+                "b4_traverse",
+                "b4_undo",
+                "b4_redo",
+                "b4_save",
+                "b4_reload",
+                "b4_export",
+                "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "scene_project.json", "compare": "sha256"},
+                {"path": "object_manifest.json", "compare": "sha256"},
+                {"path": "line_drawing/notes.md", "compare": "sha256"},
+                {"path": "scene_authoring.json", "compare": "exists"},
+                {"path": "scene_runtime.json", "compare": "exists"},
+                {"path": "workflow.canonical", "compare": "sha256"}
+              ]
+            }
+          ]
         }
       }
     },
@@ -1878,6 +2743,7 @@
       "include_dirs": [
         "include",
         "src",
+        "src/io/session",
         "../shared/core/core_base/include",
         "../shared/core/core_theme/include",
         "../shared/core/core_font/include",
@@ -1885,6 +2751,13 @@
         "../shared/core/core_pane/include",
         "../shared/core/core_layout/include",
         "../shared/core/core_pane_module/include",
+        "../shared/core/core_authored_texture/include",
+        "../shared/core/core_object/include",
+        "../shared/core/core_scene/include",
+        "../shared/core/core_units/include",
+        "../shared/core/core_viewport2d/include",
+        "../shared/kit/kit_pane/include",
+        "../shared/kit/kit_render/include",
         "third_party/codework_shared/core/core_base/include",
         "third_party/codework_shared/core/core_theme/include",
         "third_party/codework_shared/core/core_font/include",
@@ -1892,6 +2765,13 @@
         "third_party/codework_shared/core/core_pane/include",
         "third_party/codework_shared/core/core_layout/include",
         "third_party/codework_shared/core/core_pane_module/include",
+        "third_party/codework_shared/core/core_authored_texture/include",
+        "third_party/codework_shared/core/core_object/include",
+        "third_party/codework_shared/core/core_scene/include",
+        "third_party/codework_shared/core/core_units/include",
+        "third_party/codework_shared/core/core_viewport2d/include",
+        "third_party/codework_shared/kit/kit_pane/include",
+        "third_party/codework_shared/kit/kit_render/include",
         "/usr/local/include"
       ],
       "defines": [],
@@ -1991,7 +2871,6 @@
                 "../fisiCs/tests/real_projects/fixtures/drawing_program_stagec_full_wrapper_driver.c",
                 "src/domain/drawing_program_color_model.c",
                 "src/domain/drawing_program_document.c",
-                "src/domain/drawing_program_editor_state.c",
                 "src/domain/drawing_program_history.c",
                 "src/domain/drawing_program_layer_raster.c",
                 "src/domain/drawing_program_selection.c",
@@ -2097,6 +2976,244 @@
             "build/bin/drawing-program-headless",
             "build/bin/drawing-program-bin",
             "dist/sketCh.app/Contents/MacOS/drawing-program-bin"
+          ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 30,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "targets": [
+            {
+              "id": "drawing_program_bite1_bulk_canvas_state_transfer",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/drawing_program_stageg_operational_driver.c",
+                "src/domain/drawing_program_color_model.c",
+                "src/domain/drawing_program_document.c",
+                "src/domain/drawing_program_layer_raster.c",
+                "src/domain/drawing_program_history.c",
+                "src/domain/drawing_program_history_raster_deltas.c",
+                "src/domain/drawing_program_history_object_commands.c",
+                "src/domain/drawing_program_object_store.c",
+                "src/domain/drawing_program_object_geometry.c",
+                "src/domain/drawing_program_object_store_path_hit_test.c",
+                "src/domain/drawing_program_object_selection.c",
+                "src/domain/drawing_program_selection.c",
+                "src/domain/drawing_program_selection_edit_ops.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "run_args": ["--bite", "1", "--seed", "1701"],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_init",
+                "b1_small_seed",
+                "b1_small_move",
+                "b1_cut_paste",
+                "b1_pressure_capture",
+                "b1_flush_boundary",
+                "b1_undo",
+                "b1_redo"
+              ]
+            },
+            {
+              "id": "drawing_program_bite2_persistence_round_trip",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/drawing_program_stageg_persistence_driver.c",
+                "src/domain/drawing_program_color_model.c",
+                "src/domain/drawing_program_document.c",
+                "src/domain/drawing_program_editor_state.c",
+                "src/domain/drawing_program_viewport.c",
+                "src/domain/drawing_program_layer_raster.c",
+                "src/domain/drawing_program_history.c",
+                "src/domain/drawing_program_history_raster_deltas.c",
+                "src/domain/drawing_program_history_object_commands.c",
+                "src/domain/drawing_program_object_store.c",
+                "src/domain/drawing_program_object_geometry.c",
+                "src/domain/drawing_program_object_store_path_hit_test.c",
+                "src/domain/drawing_program_object_selection.c",
+                "src/domain/drawing_program_selection.c",
+                "src/domain/drawing_program_selection_edit_ops.c",
+                "src/runtime/canvas/drawing_program_reflection_state.c",
+                "src/app/drawing_program_ui_color_state.c",
+                "src/io/session/drawing_program_snapshot_shell.c",
+                "src/io/session/drawing_program_snapshot_history_raster_delta_chunk.c",
+                "src/io/session/drawing_program_snapshot_layer_chunk.c",
+                "src/io/session/drawing_program_snapshot_object_chunk.c",
+                "src/io/session/drawing_program_snapshot_ui_settings.c",
+                "src/io/session/drawing_program_snapshot_ui_settings_load.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_theme/build/libcore_theme.a",
+                "../shared/core/core_font/build/libcore_font.a",
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "run_args": ["--bite", "2", "--seed", "1701"],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_mutated",
+                "b2_saved",
+                "b2_reloaded",
+                "b2_undo",
+                "b2_redo"
+              ],
+              "expected_artifacts": [
+                {"path": "snapshot.pack", "compare": "exists"},
+                {"path": "snapshot.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "drawing_program_bite3_canvas_move_resize",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/drawing_program_stageg_canvas_transform_driver.c",
+                "src/domain/drawing_program_color_model.c",
+                "src/domain/drawing_program_document.c",
+                "src/domain/drawing_program_editor_state.c",
+                "src/domain/drawing_program_viewport.c",
+                "src/domain/drawing_program_layer_raster.c",
+                "src/domain/drawing_program_history.c",
+                "src/domain/drawing_program_history_raster_deltas.c",
+                "src/domain/drawing_program_history_object_commands.c",
+                "src/domain/drawing_program_object_store.c",
+                "src/domain/drawing_program_object_geometry.c",
+                "src/domain/drawing_program_object_store_path_hit_test.c",
+                "src/domain/drawing_program_object_selection.c",
+                "src/domain/drawing_program_selection.c",
+                "src/domain/drawing_program_texture_layer_material_intent.c",
+                "src/domain/drawing_program_texture_layer_role.c",
+                "src/domain/drawing_program_texture_net.c",
+                "src/domain/drawing_program_texture_project.c",
+                "src/domain/drawing_program_texture_workspace.c",
+                "src/runtime/canvas/drawing_program_reflection_state.c",
+                "src/runtime/canvas/drawing_program_canvas_reflection.c",
+                "src/runtime/render/drawing_program_render_revision.c",
+                "src/runtime/render/drawing_program_render_runtime_state.c",
+                "src/ui/layers/drawing_program_visual_layer_opacity.c",
+                "src/app/drawing_program_app_post_load.c",
+                "src/io/session/drawing_program_texture_project_session.c",
+                "src/input/canvas/drawing_program_texture_canvas_move.c",
+                "src/input/canvas/drawing_program_texture_canvas_resize.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "run_args": ["--bite", "3", "--seed", "1701"],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_init",
+                "b3_move_begin",
+                "b3_move_forward",
+                "b3_move_reverse",
+                "b3_move_active_change",
+                "b3_move_end",
+                "b3_move_invalid",
+                "b3_resize_begin",
+                "b3_resize_grow",
+                "b3_resize_clamp",
+                "b3_resize_reverse",
+                "b3_resize_active_change",
+                "b3_resize_invalid",
+                "b3_resize_end"
+              ]
+            },
+            {
+              "id": "drawing_program_bite4_top_level_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/drawing_program_stageg_workflow_driver.c",
+                "src/domain/drawing_program_object_rasterize.c",
+                "src/runtime/render/drawing_program_render_composed_source.c",
+                "src/runtime/render/drawing_program_render_composed_source_dirty_rect.c",
+                "src/runtime/render/drawing_program_render_composed_source_plan.c",
+                "src/runtime/render/drawing_program_render_domain.c",
+                "src/domain/drawing_program_color_model.c",
+                "src/domain/drawing_program_document.c",
+                "src/domain/drawing_program_editor_state.c",
+                "src/domain/drawing_program_viewport.c",
+                "src/domain/drawing_program_layer_raster.c",
+                "src/domain/drawing_program_history.c",
+                "src/domain/drawing_program_history_raster_deltas.c",
+                "src/domain/drawing_program_history_object_commands.c",
+                "src/domain/drawing_program_object_store.c",
+                "src/domain/drawing_program_object_geometry.c",
+                "src/domain/drawing_program_object_store_path_hit_test.c",
+                "src/domain/drawing_program_object_selection.c",
+                "src/domain/drawing_program_selection.c",
+                "src/domain/drawing_program_selection_edit_ops.c",
+                "src/domain/drawing_program_texture_export_intent.c",
+                "src/domain/drawing_program_texture_layer_material_intent.c",
+                "src/domain/drawing_program_texture_layer_role.c",
+                "src/domain/drawing_program_texture_net.c",
+                "src/domain/drawing_program_texture_overlay_material_intent.c",
+                "src/domain/drawing_program_texture_project.c",
+                "src/runtime/canvas/drawing_program_reflection_state.c",
+                "src/runtime/canvas/drawing_program_canvas_reflection.c",
+                "src/runtime/render/drawing_program_render_revision.c",
+                "src/runtime/render/drawing_program_render_runtime_state.c",
+                "src/ui/layers/drawing_program_visual_layer_opacity.c",
+                "src/app/drawing_program_app_post_load.c",
+                "src/app/drawing_program_ui_color_state.c",
+                "src/io/session/drawing_program_texture_project_session.c",
+                "src/io/session/drawing_program_snapshot_shell.c",
+                "src/io/session/drawing_program_snapshot_history_raster_delta_chunk.c",
+                "src/io/session/drawing_program_snapshot_layer_chunk.c",
+                "src/io/session/drawing_program_snapshot_object_chunk.c",
+                "src/io/session/drawing_program_snapshot_ui_settings.c",
+                "src/io/session/drawing_program_snapshot_ui_settings_load.c",
+                "src/io/export/drawing_program_export_image.c",
+                "src/io/export/drawing_program_texture_export.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_authored_texture/build/libcore_authored_texture.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_theme/build/libcore_theme.a",
+                "../shared/core/core_font/build/libcore_font.a",
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-L/opt/homebrew/lib",
+                "-ljson-c",
+                "-lpng",
+                "-lz"
+              ],
+              "run_args": ["--bite", "4", "--seed", "1701"],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_project",
+                "b4_draw",
+                "b4_select",
+                "b4_move",
+                "b4_resize",
+                "b4_undo",
+                "b4_redo",
+                "b4_saved",
+                "b4_reloaded",
+                "b4_exported",
+                "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "workflow.pack", "compare": "exists"},
+                {"path": "workflow.canonical", "compare": "sha256"},
+                {"path": "export/stage_g_workflow_surface_01.png", "compare": "sha256"},
+                {"path": "export/stage_g_workflow_texture_manifest.json", "compare": "sha256"}
+              ]
+            }
           ]
         }
       }
@@ -2579,6 +3696,13 @@
       "exclude_globs": [
         "src/tools/cli/*.c",
         "src/tools/cli/**/*.c",
+        "src/app/atmospheric/atmospheric_field.c",
+        "src/app/scene_core_sim_runtime_step.c",
+        "src/app/scene_state.c",
+        "src/app/sim_runtime_backend_3d_scaffold.c",
+        "src/app/structural/structural_controller_runtime.c",
+        "src/import/runtime_scene_solver_projection_emitters.c",
+        "src/physics/structural/structural_solver.c",
         "src/render/TimerHUD/*.c",
         "src/render/TimerHUD/**/*.c",
         "src/render/TimerHUD_legacy_backup/*.c",
@@ -2596,14 +3720,22 @@
         "../shared/core/core_pane/include",
         "../shared/core/core_scene/include",
         "../shared/core/core_scene_compile/include",
+        "../shared/core/core_scene_view/include",
+        "../shared/core/core_mesh_asset/include",
+        "../shared/core/core_mesh_preview/include",
+        "../shared/shape/external",
         "../shared/core/core_sim/include",
         "../shared/core/core_object/include",
         "../shared/core/core_units/include",
+        "../shared/core/core_viewport2d/include",
+        "../shared/core/core_screen_pick/include",
         "../shared/core/core_trace/include",
         "../shared/core/core_theme/include",
         "../shared/core/core_font/include",
+        "../shared/core/core_headless_job/include",
         "../shared/kit/kit_render/include",
         "../shared/kit/kit_pane/include",
+        "../shared/kit/kit_ui/include",
         "../shared/kit/kit_viz/include",
         "../shared/kit/kit_workspace_authoring/include",
         "../shared/timer_hud/include",
@@ -2634,7 +3766,8 @@
           "enabled": true,
           "timeout_sec": 120,
           "fisics_extra_args": [
-            "--extensions=gnu"
+            "--extensions=gnu",
+            "--overlay=physics-units"
           ],
           "clang_extra_args": [
             "-std=c11",
@@ -2647,7 +3780,8 @@
           "enabled": true,
           "timeout_sec": 120,
           "fisics_extra_args": [
-            "--extensions=gnu"
+            "--extensions=gnu",
+            "--overlay=physics-units"
           ],
           "clang_extra_args": [
             "-std=c11",
@@ -2679,7 +3813,8 @@
           "enabled": true,
           "timeout_sec": 120,
           "fisics_extra_args": [
-            "--extensions=gnu"
+            "--extensions=gnu",
+            "--overlay=physics-units"
           ],
           "clang_extra_args": [
             "-std=c11",
@@ -2707,7 +3842,8 @@
           "run_timeout_sec": 8,
           "expected_exit_code": 1,
           "fisics_extra_args": [
-            "--extensions=gnu"
+            "--extensions=gnu",
+            "--overlay=physics-units"
           ],
           "clang_extra_args": [
             "-std=c11",
@@ -2733,7 +3869,8 @@
           "run_timeout_sec": 8,
           "expected_exit_code": 1,
           "fisics_extra_args": [
-            "--extensions=gnu"
+            "--extensions=gnu",
+            "--overlay=physics-units"
           ],
           "clang_extra_args": [
             "-std=c11",
@@ -2778,6 +3915,133 @@
           "binary_candidates": [
             "physics_sim"
           ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 20,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "--overlay=physics-units"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "scrub_env_prefixes": [
+            "PHYSICS_SIM_"
+          ],
+          "targets": [
+            {
+              "id": "physics_sim_bite_1_runtime_state_transfer",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/physics_sim_stage_g/physics_sim_stage_g_bite1_driver.c",
+                "src/app/sim_runtime_3d_domain.c",
+                "src/app/sim_runtime_3d_space.c",
+                "src/app/sim_runtime_emitter.c",
+                "src/app/sim_runtime_obstacle.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_domain",
+                "b1_emitter",
+                "b1_obstacle",
+                "b1_volume_mutated",
+                "b1_volume_cleared",
+                "b1_canonical",
+                "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "runtime_state.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "physics_sim_bite_2_retained_scene_persistence",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/physics_sim_stage_g/physics_sim_stage_g_bite2_driver.c",
+                "src/app/editor/scene_editor_retained_document.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_mutated",
+                "b2_saved",
+                "b2_destroyed",
+                "b2_reloaded",
+                "b2_compared",
+                "b2_canonical",
+                "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "retained_scene.canonical", "compare": "sha256"},
+                {"path": "persistence.canonical", "compare": "sha256"},
+                {"path": "runtime_scenes/source_scene/scene_runtime.json", "compare": "sha256"},
+                {"path": "runtime_scenes/source_scene/scene_authoring.json", "compare": "sha256"},
+                {"path": "runtime_scenes/source_scene_copy/scene_runtime.json", "compare": "sha256"},
+                {"path": "runtime_scenes/source_scene_copy/scene_authoring.json", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "physics_sim_bite_3_interaction_boundaries",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/physics_sim_stage_g/physics_sim_stage_g_bite3_driver.c",
+                "src/app/sim_runtime_3d_domain.c",
+                "src/app/sim_runtime_3d_space.c",
+                "src/app/sim_runtime_emitter.c",
+                "src/app/sim_runtime_obstacle.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_begin",
+                "b3_update",
+                "b3_reverse",
+                "b3_clamped",
+                "b3_invalid",
+                "b3_canonical",
+                "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "interaction.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "physics_sim_bite_4_scripted_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/physics_sim_stage_g/physics_sim_stage_g_bite4_driver.c",
+                "src/app/editor/scene_editor_retained_document.c",
+                "src/app/scene_project_cache_output.c",
+                "src/app/physics_sim_json_helpers.c",
+                "src/app/sim_runtime_3d_domain.c",
+                "src/app/sim_runtime_3d_space.c",
+                "src/app/sim_runtime_emitter.c",
+                "src/app/sim_runtime_obstacle.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_runtime",
+                "b4_select_move_resize",
+                "b4_undo_redo",
+                "b4_save_reload",
+                "b4_export",
+                "b4_canonical",
+                "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "workflow.canonical", "compare": "sha256"},
+                {"path": "export.scene_runtime.json", "compare": "sha256"},
+                {"path": "workflow_project/scene_project.json", "compare": "sha256"},
+                {"path": "workflow_project/scene_authoring.json", "compare": "sha256"},
+                {"path": "workflow_project/scene_runtime.json", "compare": "sha256"},
+                {"path": "workflow_project_copy/scene_runtime.json", "compare": "sha256"},
+                {"path": "workflow_project_copy/scene_authoring.json", "compare": "sha256"}
+              ]
+            }
+          ]
         }
       }
     },
@@ -2798,6 +4062,7 @@
       "third_party/codework_shared/core/core_viewport2d/include",
       "third_party/codework_shared/core/core_io/include",
       "third_party/codework_shared/core/core_data/include",
+        "third_party/codework_shared/core/core_headless_job/include",
         "third_party/codework_shared/core/core_pack/include",
         "third_party/codework_shared/core/core_time/include",
         "third_party/codework_shared/core/core_queue/include",
@@ -2886,7 +4151,10 @@
                 "src/map/tile_math.c",
                 "src/map/mercator.c",
                 "src/camera/camera.c",
-                "third_party/codework_shared/core/core_space/src/core_space.c"
+                "src/camera/camera_viewport_bridge.c",
+                "third_party/codework_shared/core/core_space/src/core_space.c",
+                "third_party/codework_shared/core/core_viewport2d/src/core_viewport2d.c",
+                "third_party/codework_shared/core/core_base/src/core_base.c"
               ]
             }
           ]
@@ -2944,23 +4212,25 @@
                 "third_party/codework_shared/vk_renderer/src/*.c"
               ],
               "link_inputs": [
-                "third_party/codework_shared/core/core_trace/build/libcore_trace.a",
-                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
-                "third_party/codework_shared/core/core_kernel/build/libcore_kernel.a",
-                "third_party/codework_shared/core/core_wake/build/libcore_wake.a",
-                "third_party/codework_shared/core/core_workers/build/libcore_workers.a",
-                "third_party/codework_shared/core/core_jobs/build/libcore_jobs.a",
-                "third_party/codework_shared/core/core_sched/build/libcore_sched.a",
-                "third_party/codework_shared/core/core_queue/build/libcore_queue.a",
-                "third_party/codework_shared/core/core_time/build/libcore_time.a",
-                "third_party/codework_shared/core/core_theme/build/libcore_theme.a",
-                "third_party/codework_shared/core/core_font/build/libcore_font.a",
-                "third_party/codework_shared/core/core_viewport2d/build/libcore_viewport2d.a",
-                "third_party/codework_shared/kit/kit_runtime_diag/build/libkit_runtime_diag.a",
-                "third_party/codework_shared/core/core_space/build/libcore_space.a",
-                "third_party/codework_shared/core/core_io/build/libcore_io.a",
-                "third_party/codework_shared/core/core_data/build/libcore_data.a",
-                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+                "../shared/core/core_trace/build/libcore_trace.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_kernel/build/libcore_kernel.a",
+                "../shared/core/core_wake/build/libcore_wake.a",
+                "../shared/core/core_workers/build/libcore_workers.a",
+                "../shared/core/core_jobs/build/libcore_jobs.a",
+                "../shared/core/core_sched/build/libcore_sched.a",
+                "../shared/core/core_queue/build/libcore_queue.a",
+                "../shared/core/core_time/build/libcore_time.a",
+                "../shared/core/core_headless_job/build/libcore_headless_job.a",
+                "../shared/core/core_theme/build/libcore_theme.a",
+                "../shared/core/core_font/build/libcore_font.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/kit/kit_runtime_diag/build/libkit_runtime_diag.a",
+                "../shared/core/core_space/build/libcore_space.a",
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_data/build/libcore_data.a",
+                "../shared/core/core_base/build/libcore_base.a"
               ],
               "link_args": [
                 "-pthread",
@@ -3024,23 +4294,25 @@
                 "third_party/codework_shared/vk_renderer/src/*.c"
               ],
               "link_inputs": [
-                "third_party/codework_shared/core/core_trace/build/libcore_trace.a",
-                "third_party/codework_shared/core/core_pack/build/libcore_pack.a",
-                "third_party/codework_shared/core/core_kernel/build/libcore_kernel.a",
-                "third_party/codework_shared/core/core_wake/build/libcore_wake.a",
-                "third_party/codework_shared/core/core_workers/build/libcore_workers.a",
-                "third_party/codework_shared/core/core_jobs/build/libcore_jobs.a",
-                "third_party/codework_shared/core/core_sched/build/libcore_sched.a",
-                "third_party/codework_shared/core/core_queue/build/libcore_queue.a",
-                "third_party/codework_shared/core/core_time/build/libcore_time.a",
-                "third_party/codework_shared/core/core_theme/build/libcore_theme.a",
-                "third_party/codework_shared/core/core_font/build/libcore_font.a",
-                "third_party/codework_shared/core/core_viewport2d/build/libcore_viewport2d.a",
-                "third_party/codework_shared/kit/kit_runtime_diag/build/libkit_runtime_diag.a",
-                "third_party/codework_shared/core/core_space/build/libcore_space.a",
-                "third_party/codework_shared/core/core_io/build/libcore_io.a",
-                "third_party/codework_shared/core/core_data/build/libcore_data.a",
-                "third_party/codework_shared/core/core_base/build/libcore_base.a"
+                "../shared/core/core_trace/build/libcore_trace.a",
+                "../shared/core/core_pack/build/libcore_pack.a",
+                "../shared/core/core_kernel/build/libcore_kernel.a",
+                "../shared/core/core_wake/build/libcore_wake.a",
+                "../shared/core/core_workers/build/libcore_workers.a",
+                "../shared/core/core_jobs/build/libcore_jobs.a",
+                "../shared/core/core_sched/build/libcore_sched.a",
+                "../shared/core/core_queue/build/libcore_queue.a",
+                "../shared/core/core_time/build/libcore_time.a",
+                "../shared/core/core_headless_job/build/libcore_headless_job.a",
+                "../shared/core/core_theme/build/libcore_theme.a",
+                "../shared/core/core_font/build/libcore_font.a",
+                "../shared/core/core_pane/build/libcore_pane.a",
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/kit/kit_runtime_diag/build/libkit_runtime_diag.a",
+                "../shared/core/core_space/build/libcore_space.a",
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_data/build/libcore_data.a",
+                "../shared/core/core_base/build/libcore_base.a"
               ],
               "link_args": [
                 "-pthread",
@@ -3100,6 +4372,277 @@
           "binary_candidates": [
             "map_forge"
           ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 240,
+          "run_timeout_sec": 30,
+          "fisics_extra_args": [
+            "--extensions=gnu"
+          ],
+          "clang_extra_args": [
+            "-std=c99",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "scrub_env_prefixes": [
+            "MAPFORGE_"
+          ],
+          "targets": [
+            {
+              "id": "map_forge_bite_1_saved_pin_persistence",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/map_forge_stage_g/map_forge_stage_g_driver.c",
+                "src/app/pins/app_pins.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-L/opt/homebrew/lib",
+                "-ljson-c"
+              ],
+              "run_args": [
+                "--bite",
+                "1"
+              ],
+              "run_env": {
+                "MAPFORGE_RUNTIME_DIR": "{run_root}/runtime",
+                "MAPFORGE_STAGEG_PINS_INPUT": "{fixture_root}/fixtures/demo.seattle.pins.json",
+                "MAPFORGE_STAGEG_MALFORMED_INPUT": "{fixture_root}/fixtures/malformed.pins.json"
+              },
+              "runtime_fixtures": [
+                {
+                  "source": "data/pins/examples/demo.seattle.pins.json",
+                  "path": "fixtures/demo.seattle.pins.json"
+                },
+                {
+                  "source": "data/pins/examples/demo.seattle.pins.json",
+                  "path": "data/pins/private/seattle.pins.local.json"
+                },
+                {
+                  "source": "../fisiCs/tests/real_projects/fixtures/map_forge_stage_g/malformed.pins.json",
+                  "path": "fixtures/malformed.pins.json"
+                }
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_loaded",
+                "b1_lookup",
+                "b1_upserted",
+                "b1_reordered",
+                "b1_saved",
+                "b1_reloaded",
+                "b1_removed",
+                "b1_fallback",
+                "b1_invalid",
+                "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "pins.saved.json",
+                  "compare": "exists"
+                },
+                {
+                  "path": "pins.removed.json",
+                  "compare": "exists"
+                },
+                {
+                  "path": "pins.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "map_forge_bite_2_route_preview_playback",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/map_forge_stage_g/map_forge_stage_g_bite2_driver.c",
+                "src/app/pins/app_pins.c",
+                "src/app/route/app_route_service.c",
+                "src/app/route/app_route_selection.c",
+                "src/app/route/app_route_preview.c",
+                "src/app/headless/app_headless_playback.c",
+                "src/route/astar.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-L/opt/homebrew/lib",
+                "-ljson-c"
+              ],
+              "run_args": [],
+              "run_env": {
+                "MAPFORGE_STAGEG_PINS_INPUT": "{fixture_root}/fixtures/demo.seattle.pins.json"
+              },
+              "runtime_fixtures": [
+                {
+                  "source": "data/pins/examples/demo.seattle.pins.json",
+                  "path": "fixtures/demo.seattle.pins.json"
+                }
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_bound",
+                "b2_routed",
+                "b2_start",
+                "b2_midpoint",
+                "b2_turn",
+                "b2_paused",
+                "b2_heading_up",
+                "b2_north_up",
+                "b2_reversed",
+                "b2_invalid",
+                "b2_reset",
+                "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {
+                  "path": "route.canonical",
+                  "compare": "sha256"
+                }
+              ]
+            },
+            {
+              "id": "map_forge_bite_3_viewport_headless_artifacts",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/map_forge_stage_g/map_forge_stage_g_bite3_driver.c",
+                "../fisiCs/tests/real_projects/fixtures/map_forge_stage_g/map_forge_stage_g_sdl_renderer_bridge.c",
+                "src/app/app_map_viewport.c",
+                "src/app/headless/app_headless_job.c",
+                "src/app/headless/app_headless_job_bundle.c",
+                "src/app/headless/app_headless_playback.c",
+                "src/app/headless/app_headless_render.c",
+                "src/app/headless/app_headless_run_outputs.c",
+                "src/app/headless/app_headless_util.c",
+                "src/camera/camera.c",
+                "src/camera/camera_viewport_bridge.c",
+                "src/map/mercator.c",
+                "src/route/route_render.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_headless_job/build/libcore_headless_job.a",
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-L/opt/homebrew/lib",
+                "-lSDL2",
+                "-ljson-c"
+              ],
+              "run_args": [],
+              "run_env": {
+                "SDL_VIDEODRIVER": "dummy",
+                "SDL_RENDER_DRIVER": "software"
+              },
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_viewport",
+                "b3_roundtrip",
+                "b3_zoom",
+                "b3_pan",
+                "b3_resize",
+                "b3_heading_up",
+                "b3_north_up",
+                "b3_job",
+                "b3_trace",
+                "b3_preview",
+                "b3_frames",
+                "b3_invalid",
+                "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "preview.bmp", "compare": "sha256"},
+                {"path": "frames/frame_000001.bmp", "compare": "sha256"},
+                {"path": "frames/frame_000002.bmp", "compare": "sha256"},
+                {"path": "job.request.canonical.json", "compare": "sha256"},
+                {"path": "command.txt", "compare": "exists"},
+                {"path": "job.resolved.json", "compare": "exists"},
+                {"path": "playback_trace.json", "compare": "sha256"},
+                {"path": "manifest.json", "compare": "exists"},
+                {"path": "summary.md", "compare": "exists"},
+                {"path": "headless.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "map_forge_bite_4_top_level_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/map_forge_stage_g/map_forge_stage_g_bite4_driver.c",
+                "../fisiCs/tests/real_projects/fixtures/map_forge_stage_g/map_forge_stage_g_sdl_renderer_bridge.c",
+                "src/app/pins/app_pins.c",
+                "src/app/route/app_route_service.c",
+                "src/app/headless/app_headless_job.c",
+                "src/app/headless/app_headless_job_bundle.c",
+                "src/app/headless/app_headless_playback.c",
+                "src/app/headless/app_headless_render.c",
+                "src/app/headless/app_headless_run_outputs.c",
+                "src/app/headless/app_headless_util.c",
+                "src/camera/camera.c",
+                "src/camera/camera_viewport_bridge.c",
+                "src/map/mercator.c",
+                "src/route/astar.c",
+                "src/route/route_render.c"
+              ],
+              "link_inputs": [
+                "../shared/core/core_headless_job/build/libcore_headless_job.a",
+                "../shared/core/core_viewport2d/build/libcore_viewport2d.a",
+                "../shared/core/core_io/build/libcore_io.a",
+                "../shared/core/core_base/build/libcore_base.a"
+              ],
+              "link_args": [
+                "-L/opt/homebrew/lib",
+                "-lSDL2",
+                "-ljson-c"
+              ],
+              "run_args": [],
+              "run_env": {
+                "SDL_VIDEODRIVER": "dummy",
+                "SDL_RENDER_DRIVER": "software",
+                "MAPFORGE_STAGEG_PINS_INPUT": "{fixture_root}/fixtures/demo.seattle.pins.json"
+              },
+              "runtime_fixtures": [
+                {
+                  "source": "data/pins/examples/demo.seattle.pins.json",
+                  "path": "fixtures/demo.seattle.pins.json"
+                }
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_region",
+                "b4_pins",
+                "b4_endpoints",
+                "b4_route",
+                "b4_viewport",
+                "b4_playback",
+                "b4_orientation",
+                "b4_exported",
+                "b4_canonicalized",
+                "b4_destroyed",
+                "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "preview.bmp", "compare": "sha256"},
+                {"path": "frames/frame_000001.bmp", "compare": "sha256"},
+                {"path": "frames/frame_000002.bmp", "compare": "sha256"},
+                {"path": "workflow.job.json", "compare": "sha256"},
+                {"path": "workflow.pins.json", "compare": "sha256"},
+                {"path": "workflow.canonical", "compare": "sha256"},
+                {"path": "command.txt", "compare": "exists"},
+                {"path": "job.resolved.json", "compare": "exists"},
+                {"path": "playback_trace.json", "compare": "sha256"},
+                {"path": "manifest.json", "compare": "exists"},
+                {"path": "summary.md", "compare": "exists"}
+              ]
+            }
+          ]
         }
       }
     },
@@ -3128,10 +4671,19 @@
         "../shared/core/core_io/include",
         "../shared/core/core_data/include",
         "../shared/core/core_pack/include",
+        "../shared/core/core_queue/include",
         "../shared/core/core_time/include",
+        "../shared/core/core_workers/include",
         "../shared/core/core_pane/include",
+        "../shared/core/core_pane_module/include",
         "../shared/core/core_scene/include",
+        "../shared/core/core_scene_view/include",
+        "../shared/core/core_viewport3d/include",
+        "../shared/core/core_authored_texture/include",
         "../shared/core/core_scene_compile/include",
+        "../shared/core/core_mesh_asset/include",
+        "../shared/core/core_mesh_preview/include",
+        "../shared/shape/external",
         "../shared/core/core_sim/include",
         "../shared/core/core_object/include",
         "../shared/core/core_units/include",
@@ -3144,6 +4696,8 @@
         "../shared/kit/kit_viz/include",
         "../shared/kit/kit_workspace_authoring/include",
         "../shared/kit/kit_runtime_diag/include",
+        "../shared/kit/kit_viewport3d/include",
+        "../shared/core/core_headless_job/include",
         "../shared/timer_hud/include",
         "../shared/timer_hud/external"
       ],
@@ -3173,6 +4727,7 @@
           "timeout_sec": 90,
           "fisics_extra_args": [
             "--extensions=gnu",
+            "--overlay=physics-units",
             "-include",
             "../shared/vk_renderer/include/vk_renderer_sdl.h"
           ],
@@ -3190,6 +4745,7 @@
           "timeout_sec": 90,
           "fisics_extra_args": [
             "--extensions=gnu",
+            "--overlay=physics-units",
             "-include",
             "../shared/vk_renderer/include/vk_renderer_sdl.h"
           ],
@@ -3237,6 +4793,7 @@
           "timeout_sec": 120,
           "fisics_extra_args": [
             "--extensions=gnu",
+            "--overlay=physics-units",
             "-include",
             "../shared/vk_renderer/include/vk_renderer_sdl.h"
           ],
@@ -3315,15 +4872,11 @@
               "run_args": [],
               "expected_exit_code": 0,
               "expected_stdout_sha256": "c753dd202643cc232727b3598c448164a59a2959fda227ad1c8ecf9bda9dee5e",
-              "expected_stderr_sha256": "bb20d9b80325673d31a0f6a02a539a4436f2c0e0f693216336189e1d121fa021",
+              "expected_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
               "expected_stdout_contains": [
                 "stage_d_smoke_rc=0"
               ],
-              "expected_stderr_contains": [
-                "ray_tracing: wrapper exit stage=7 exit_code=0",
-                "dispatch_count=1 dispatch_ok=1 last_dispatch_exit=0",
-                "wrapper_error=0"
-              ]
+              "expected_stderr_contains": []
             }
           ]
         },
@@ -3342,6 +4895,160 @@
           "ratio_warn": 20.0,
           "binary_candidates": [
             "ray_tracing"
+          ]
+        },
+        "G_operational_differential": {
+          "enabled": true,
+          "timeout_sec": 180,
+          "run_timeout_sec": 20,
+          "fisics_extra_args": [
+            "--extensions=gnu",
+            "--overlay=physics-units"
+          ],
+          "clang_extra_args": [
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic"
+          ],
+          "link_args": [
+            "-lm"
+          ],
+          "scrub_env_prefixes": [
+            "RAY_TRACING_STAGEG_"
+          ],
+          "targets": [
+            {
+              "id": "ray_tracing_bite_1_render_request_snapshot",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/ray_tracing_stage_g_bite1_driver.c",
+                "src/render/runtime_native_3d_render_request_snapshot.c"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b1_initialized",
+                "b1_built",
+                "b1_dimensions",
+                "b1_scene_state",
+                "b1_handoff",
+                "b1_destinations",
+                "b1_invalid",
+                "b1_canonical",
+                "b1_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "snapshot.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "ray_tracing_bite_2_scene_project_request_round_trip",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/ray_tracing_stage_g_bite2_driver.c",
+                "src/app/scene_project_render_request.c"
+              ],
+              "link_args": [
+                "-L/opt/homebrew/lib",
+                "-ljson-c"
+              ],
+              "runtime_fixtures": [
+                {"source": "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/scene_runtime.json", "path": "project/scene_runtime.json"},
+                {"source": "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/scene_project.json", "path": "project/scene_project.json"},
+                {"source": "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/render_request.json", "path": "project/ray_tracing/render_request.json"},
+                {"source": "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/scene_runtime.json", "path": "unsafe/scene_runtime.json"},
+                {"source": "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/unsafe_scene_project.json", "path": "unsafe/scene_project.json"}
+              ],
+              "run_env": {
+                "RAY_TRACING_STAGEG_PROJECT_ROOT": "{run_root}/project",
+                "RAY_TRACING_STAGEG_UNSAFE_RUNTIME": "{run_root}/unsafe/scene_runtime.json"
+              },
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b2_resolved",
+                "b2_saved",
+                "b2_preserved",
+                "b2_destroyed",
+                "b2_reloaded",
+                "b2_compared",
+                "b2_invalid",
+                "b2_canonical",
+                "b2_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "render_request.json", "compare": "sha256"},
+                {"path": "roundtrip.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "ray_tracing_bite_3_async_render_handoff",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/ray_tracing_stage_g_bite3_driver.c",
+                "src/render/runtime_native_3d_render_request_snapshot.c",
+                "src/render/runtime_native_3d_async_render_bridge.c"
+              ],
+              "link_args": [
+                "-lpthread"
+              ],
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b3_invalid",
+                "b3_identity",
+                "b3_scene",
+                "b3_dynamic",
+                "b3_ready",
+                "b3_published",
+                "b3_copied",
+                "b3_stale",
+                "b3_reset",
+                "b3_canonical",
+                "b3_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "progress.abgr", "compare": "sha256"},
+                {"path": "interaction.canonical", "compare": "sha256"}
+              ]
+            },
+            {
+              "id": "ray_tracing_bite_4_top_level_render_workflow",
+              "inputs": [
+                "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/ray_tracing_stage_g_bite4_driver.c",
+                "src/app/ray_tracing_app_main.c",
+                "src/app/scene_project_render_request.c",
+                "src/render/runtime_native_3d_render_request_snapshot.c",
+                "src/render/runtime_native_3d_async_render_bridge.c"
+              ],
+              "link_args": [
+                "-L/opt/homebrew/lib",
+                "-ljson-c",
+                "-lpthread"
+              ],
+              "runtime_fixtures": [
+                {"source": "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/scene_runtime.json", "path": "project/scene_runtime.json"},
+                {"source": "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/scene_project.json", "path": "project/scene_project.json"},
+                {"source": "../fisiCs/tests/real_projects/fixtures/ray_tracing_stage_g/render_request.json", "path": "project/ray_tracing/render_request.json"}
+              ],
+              "run_env": {
+                "RAY_TRACING_STAGEG_PROJECT_ROOT": "{run_root}/project"
+              },
+              "expected_exit_code": 0,
+              "expected_checkpoints": [
+                "b4_bootstrap",
+                "b4_project",
+                "b4_saved",
+                "b4_reloaded",
+                "b4_snapshot",
+                "b4_events",
+                "b4_update",
+                "b4_route",
+                "b4_submit",
+                "b4_run_loop",
+                "b4_export",
+                "b4_shutdown"
+              ],
+              "expected_artifacts": [
+                {"path": "render.abgr", "compare": "sha256"},
+                {"path": "workflow.canonical", "compare": "sha256"}
+              ]
+            }
           ]
         }
       }

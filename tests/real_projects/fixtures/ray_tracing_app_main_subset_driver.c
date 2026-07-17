@@ -5,6 +5,8 @@
 #include <string.h>
 
 static int g_legacy_calls = 0;
+static int g_launch_argc = 0;
+static char **g_launch_argv = NULL;
 
 static int ray_tracing_legacy_entry_stub(int argc, char **argv) {
     g_legacy_calls++;
@@ -12,6 +14,18 @@ static int ray_tracing_legacy_entry_stub(int argc, char **argv) {
         return 0;
     }
     return 3;
+}
+
+void AnimationParseArgs(int argc, char *argv[]) {
+    g_launch_argc = argc;
+    g_launch_argv = argv;
+}
+
+void AnimationLoadRuntimeDefaults(void) {
+}
+
+int AnimationRunAppSession(void) {
+    return ray_tracing_legacy_entry_stub(g_launch_argc, g_launch_argv);
 }
 
 static bool ray_tracing_true_callback(void *user_data) {
@@ -50,7 +64,6 @@ int main(void) {
         ray_tracing_true_callback, &submit_post_shutdown_calls};
     RayTracingRenderSubmitOutcome submit_post_shutdown_out = {0};
 
-    ray_tracing_app_set_legacy_entry(ray_tracing_legacy_entry_stub);
     if (!ray_tracing_app_bootstrap()) ok = 0;
     if (!ray_tracing_app_config_load()) ok = 0;
     if (!ray_tracing_app_state_seed()) ok = 0;
@@ -75,7 +88,6 @@ int main(void) {
     if (ray_tracing_app_render_submit(&submit_post_shutdown_req, &submit_post_shutdown_out)) ok = 0;
     if (submit_post_shutdown_out.accepted_by_wrapper || submit_post_shutdown_out.submitted) ok = 0;
 
-    ray_tracing_app_set_legacy_entry(ray_tracing_legacy_entry_stub);
     if (ray_tracing_app_main(2, argv) != 0) ok = 0;
 
     printf("legacy_calls=%d callbacks=%d,%d,%d,%d post_loop=%d post_shutdown=%d ok=%d\n",

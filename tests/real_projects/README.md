@@ -9,10 +9,19 @@ Current scope in this scaffold:
 - Stage `D_runtime_smoke` (headless runtime smoke parity)
 - Stage `E_golden_behavior` (deterministic output hash/marker parity)
 - Stage `F_perf_telemetry` (timing + commit + binary snapshot telemetry)
-- validated projects: `datalab`, `workspace_sandbox`, `mem_console`, `line_drawing`, `ray_tracing`, `physics_sim`, `map_forge`, `ide`, and `daw` (Stages A-F closed in the latest saved reports)
+- Stage `G_operational_differential` (deterministic production-shaped workflow,
+  semantic trace, exit, artifact, and repeat parity; completed programs:
+  `drawing_program`, `map_forge`, `datalab`, `workspace_sandbox`,
+  `line_drawing`, `ray_tracing`, `physics_sim`, and `mem_console`)
+- projects with A-F scaffold coverage: `datalab`, `workspace_sandbox`,
+  `mem_console`, `line_drawing`, `ray_tracing`, `physics_sim`, `map_forge`,
+  `ide`, and `daw`; treat each latest report as dated evidence and refresh the
+  required stages before claiming current closure
 - self-host compiler canary: `fisiCs` (Stage A clean; Stage B widened to utility + frontend contract subsets; two Stage C CLI lanes closed; twenty-one Stage D runtime-smoke targets closed; nineteen Stage E golden-behavior targets closed; refreshed Stage F telemetry snapshot closed)
-- active open real-project risk: none
+- active compiler-owned real-project blocker ledger: none
   - `map_forge` now uses the real headless viewport canary and the old strict-pure `app_run_legacy` compiler mitigation has been removed after the native strict-pure build path reclosed
+  - MapForge's refreshed Stage E has a symmetric sandbox/oracle failure after
+    both lanes compile, link, run, and exit `0`; it is not a fisiCs blocker
 
 ## Layout
 
@@ -30,6 +39,12 @@ Current scope in this scaffold:
   - Stage-E runner (build/runtime parity + strict golden stdout/stderr hash checks)
 - `runners/run_project_perf_telemetry_tests.py`
   - Stage-F runner (non-gating telemetry snapshots and trend warnings)
+- `runners/run_project_operational_differential_tests.py`
+  - Stage-G runner (fail-closed ordered checkpoints, semantic trace parity,
+    exact exits, declared artifacts, and repeat determinism)
+- `STAGE_G_OPERATIONAL_DIFFERENTIAL.md`
+  - reusable Stage-G onboarding, trace/artifact, runtime-isolation,
+    probe/fix-mode, replay, and closure contract
 - `reports/latest/`
   - canonical full-stage closure JSON per project/stage
 - `reports/latest/noncanonical/`
@@ -69,6 +84,74 @@ Interpretation:
   the current stage-truth artifact
 - `canonical_stage_closure=false` means the report is still useful evidence, but
   it must not be treated as full project/stage closure
+
+## Stage-G Usage
+
+Stage G is opt-in per project and uses targets declared under
+`stages.G_operational_differential` in `config/projects_manifest.json`.
+Targets that need disk inputs may declare `runtime_fixtures`, `run_env`, and
+`scrub_env_prefixes`; the runner copies fixtures independently per
+compiler/repeat, expands `{project_root}` / `{run_root}` / `{fixture_root}` in
+environment values, and saves fixture/environment provenance.
+Each target supplies one deterministic driver/source set, exact checkpoint
+names, expected exit, and any allowed artifacts. The same configured scenario,
+arguments, and seed are compiled and run in the Clang and fisiCs lanes.
+
+From `fisiCs/`:
+
+```bash
+# canonical full-project closure with two determinism repeats
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project drawing_program --repeat 2
+
+# second completed onboarding, including isolated runtime fixtures/environment
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project map_forge --repeat 2
+
+# third completed onboarding: load/inspect, persistence, interaction, lifecycle
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project datalab --repeat 2
+
+# fourth completed onboarding: layout/history, snapshots, actions/paths, lifecycle
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project workspace_sandbox --repeat 2
+
+# fifth completed onboarding: scene/path state, persistence, authoring, project workflow
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project line_drawing --repeat 2
+
+# sixth completed onboarding: request snapshot, project persistence, async handoff, lifecycle
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project ray_tracing --repeat 2
+
+# seventh completed onboarding: runtime state, retained-scene persistence, interaction, workflow
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project physics_sim --repeat 2
+
+# eighth completed onboarding: state transfer, preferences, graph/pane interaction, DB workflow
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project mem_console --repeat 2
+
+# filtered investigation; writes only to the noncanonical report/artifact lane
+python3 tests/real_projects/runners/run_project_operational_differential_tests.py \
+  --project drawing_program \
+  --target drawing_program_bite4_top_level_workflow \
+  --repeat 2
+```
+
+The runner fails closed on zero selection, build or runtime failure, timeout,
+wrong exit, missing/malformed/duplicate/out-of-order checkpoints, unexpected
+or missing artifacts, repeat nondeterminism, or Clang/fisiCs semantic mismatch.
+Artifact comparison is explicitly configured: canonical logical outputs may
+use SHA-256 parity, while binary containers containing padding or unrelated
+metadata may be required to exist without becoming raw-byte oracles.
+
+Canonical reports and artifacts follow the same full-selection rule as Stages
+A-F:
+
+- `reports/latest/<project>_G_operational_differential_latest.json`
+- `artifacts/latest/<project>/G_operational_differential/`
+- filtered targets are kept under the corresponding `noncanonical/` lanes
 
 ## Stage-A Usage
 

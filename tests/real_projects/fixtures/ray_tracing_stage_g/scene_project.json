@@ -1,0 +1,10 @@
+{
+  "schema_version": "scene_project_v1",
+  "active": {
+    "render_request": "ray_tracing/render_request.json",
+    "physics_cache": "physics_sim/active_cache_manifest.json"
+  },
+  "ray_tracing": {
+    "preserve_stage_g_marker": "unknown-field-survives"
+  }
+}

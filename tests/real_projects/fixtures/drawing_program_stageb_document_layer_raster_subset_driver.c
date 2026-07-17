@@ -21,7 +21,7 @@ int main(void) {
     DrawingProgramLayerRasterStore store;
     CoreResult result;
     uint32_t layer_id = 0u;
-    uint8_t prev = 0u;
+    DrawingProgramRasterSample prev = 0u;
     uint8_t value = 0u;
     int rc = 1;
 
