@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6811:5): Undeclared identifier
+   Hint: wave68_missing_target
+   Spelling: virtual_wave68_undeclared_compound_target.c:6811:5

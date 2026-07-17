@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (2:5): goto jumps into scope of initialized variable
+   Hint: wave84_after_array
+   Spelling: tests/final/probes/diagnostics/09__probe_wave84_goto_bypasses_const_object_vla_reject.c:2:5
+Warning at (4:0): Unreachable statement

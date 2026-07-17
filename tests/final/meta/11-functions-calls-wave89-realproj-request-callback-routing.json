@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__probe_wave89_realproj_request_callback_routing_runtime",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave89_realproj_request_callback_routing_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave89_realproj_request_callback_routing_main.c",
+        "probes/runtime/11__probe_wave89_realproj_request_callback_routing_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__probe_wave89_realproj_request_callback_routing.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "functions-calls",
+        "realproj-extraction",
+        "ray-tracing-derived",
+        "callback-typedef",
+        "function-pointer-field",
+        "request-struct",
+        "void-user-data",
+        "wrapper-routing",
+        "multitu",
+        "runtime",
+        "strict-regression",
+        "wave89"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

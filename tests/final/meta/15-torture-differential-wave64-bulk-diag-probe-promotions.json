@@ -291,6 +291,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave1_multitu_duplicate_definition_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -317,6 +319,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave2_multitu_duplicate_weak_strong_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [

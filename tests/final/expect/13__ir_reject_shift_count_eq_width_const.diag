@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (3:13): Invalid shift width 32 for 32-bit operand
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_shift_count_eq_width_const.c:3:13
+Warning at (3:13): Invalid shift width 32 for 32-bit operand
+   Spelling: tests/final/cases/13__ir_reject_shift_count_eq_width_const.c:3:13
+Semantic analysis: no issues found.

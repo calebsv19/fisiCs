@@ -1,0 +1,10 @@
+Diagnostics:
+Error: Expected type name at virtual_wave36_macro_declarator_order.c:12822 (got '*')
+Error: Invalid function parameter list at virtual_wave36_macro_declarator_order.c:12822 (got '*')
+Error: Invalid function parameter list at virtual_wave36_macro_declarator_order.c:12822 (got '*')
+Error: invalid declarator at virtual_wave36_macro_declarator_order.c:12822 (got '*')
+Error: Expected identifier in declarator at virtual_wave36_macro_declarator_order.c:12822 (got ')')
+Error: invalid declarator at virtual_wave36_macro_declarator_order.c:12822 (got ')')
+Error at (12825:20): Undeclared identifier
+   Hint: wave36_macro_declarator_missing
+   Spelling: virtual_wave36_macro_declarator_order.c:12825:20

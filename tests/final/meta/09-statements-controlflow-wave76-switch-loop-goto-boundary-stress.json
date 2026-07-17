@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_fallthrough_loop_continue_wave76_xxiii",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_switch_fallthrough_loop_continue_wave76_xxiii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_fallthrough_loop_continue_wave76_xxiii.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "fallthrough", "loop", "continue", "wave76"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_goto_vla_exit_wave76_xxiv",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_switch_goto_vla_exit_wave76_xxiv.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_goto_vla_exit_wave76_xxiv.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "goto", "vla", "fallthrough", "wave76"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_break_continue_wave76_xxv",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_switch_nested_break_continue_wave76_xxv.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_break_continue_wave76_xxv.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested-loop", "break", "continue", "fallthrough", "wave76"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_goto_into_vla_case_diag_wave76_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diag_switch_goto_into_vla_case_wave76.c",
+      "expects": ["expect/09__switch_goto_into_vla_case_diag_wave76_current_sparse.diag"],
+      "tags": ["diag", "switch", "goto", "vla", "current-threshold", "wave76"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_goto_into_vla_case_diagjson_wave76_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diag_switch_goto_into_vla_case_wave76.c",
+      "expects": ["expect/09__switch_goto_into_vla_case_diagjson_wave76_current_sparse.diagjson"],
+      "tags": ["diagjson", "switch", "goto", "vla", "current-threshold", "wave76"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

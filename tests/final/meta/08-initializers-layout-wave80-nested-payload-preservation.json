@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave80_nested_union_array_ir_payload_current",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave80_nested_union_array_ir_payload_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave80_nested_union_array_ir_payload_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "nested-union-array", "payload", "codegen-ir-seed", "current-threshold", "wave80"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave80_block_scope_compound_literal_return_payload",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave80_block_scope_compound_literal_return_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave80_block_scope_compound_literal_return_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "block-scope", "compound-literal", "aggregate-copy", "payload", "wave80"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave80_designated_whole_subobject_union_array",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave80_designated_whole_subobject_union_array.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave80_designated_whole_subobject_union_array.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "whole-subobject", "union-array", "payload", "wave80"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave80_bitfield_payload_checksum_ir_seed_current",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave80_bitfield_payload_checksum_ir_seed_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave80_bitfield_payload_checksum_ir_seed_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "bitfield", "payload", "checksum-current", "codegen-ir-seed", "wave80"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

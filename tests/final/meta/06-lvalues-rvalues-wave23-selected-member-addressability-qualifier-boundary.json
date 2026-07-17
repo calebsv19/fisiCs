@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime_wave23_addressed_member_compound",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave23_addressed_member_compound_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave23_addressed_member_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave23", "selected-member", "addressability", "compound-assign", "volatile", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave23_qualified_member_address",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave23_qualified_member_address_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave23_qualified_member_address.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave23", "qualified-member", "addressability", "volatile", "const-read", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave23_selected_bitfield_address_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave23_selected_bitfield_address_reject.c",
+      "expects": [
+        "expect/06__diag__wave23_selected_bitfield_address_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave23", "selected-member", "bitfield", "addressability", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave23_const_selected_member_postinc_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave23_const_selected_member_postinc_reject.c",
+      "expects": [
+        "expect/06__diag__wave23_const_selected_member_postinc_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave23", "qualified-member", "postincrement", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

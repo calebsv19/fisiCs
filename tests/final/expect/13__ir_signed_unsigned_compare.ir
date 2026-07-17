@@ -1,1 +1,34 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @main() {
+entry:
+  %b = alloca i32, align 4
+  %a = alloca i32, align 4
+  %s = alloca i32, align 4
+  %u = alloca i32, align 4
+  store i32 1, ptr %u, align 4
+  store i32 -1, ptr %s, align 4
+  %u1 = load i32, ptr %u, align 4
+  %s2 = load i32, ptr %s, align 4
+  %cmptmp = icmp ult i32 %u1, %s2
+  %cmp.int = zext i1 %cmptmp to i32
+  store i32 %cmp.int, ptr %a, align 4
+  %s3 = load i32, ptr %s, align 4
+  %u4 = load i32, ptr %u, align 4
+  %cmptmp5 = icmp ult i32 %s3, %u4
+  %cmp.int6 = zext i1 %cmptmp5 to i32
+  store i32 %cmp.int6, ptr %b, align 4
+  %a7 = load i32, ptr %a, align 4
+  %multmp = mul i32 %a7, 10
+  %b8 = load i32, ptr %b, align 4
+  %addtmp = add i32 %multmp, %b8
+  ret i32 %addtmp
+}

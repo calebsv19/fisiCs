@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave41_multitu_parser_semantic_bad.c:14143 (got ')')
+Error: compilation failed for tests/final/probes/diagnostics/12__probe_wave41_multitu_parser_semantic_bad.c
+Error at (14143:9): Operator '+' requires arithmetic operands
+Error at (14146:15): Undeclared identifier

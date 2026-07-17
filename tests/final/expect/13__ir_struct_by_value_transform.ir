@@ -1,1 +1,71 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+%Pair = type { i32, i64 }
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define internal [2 x i64] @tweak([2 x i64] %0, i32 %1) {
+entry:
+  %d = alloca i32, align 4
+  %ret.abi.unpack.slot = alloca %Pair, align 16
+  %p = alloca %Pair, align 16
+  store %Pair zeroinitializer, ptr %ret.abi.unpack.slot, align 8
+  store [2 x i64] %0, ptr %ret.abi.unpack.slot, align 8
+  %param.abi.unpack = load %Pair, ptr %ret.abi.unpack.slot, align 8
+  store %Pair %param.abi.unpack, ptr %p, align 8
+  store i32 %1, ptr %d, align 4
+  %fieldPtr = getelementptr inbounds nuw %Pair, ptr %p, i32 0, i32 0
+  %d1 = load i32, ptr %d, align 4
+  %compound.load = load i32, ptr %fieldPtr, align 4
+  %compound.add = add i32 %compound.load, %d1
+  store i32 %compound.add, ptr %fieldPtr, align 4
+  %fieldPtr2 = getelementptr inbounds nuw %Pair, ptr %p, i32 0, i32 1
+  %d3 = load i32, ptr %d, align 4
+  %casttmp = sext i32 %d3 to i64
+  %multmp = mul i64 %casttmp, 10
+  %compound.load4 = load i64, ptr %fieldPtr2, align 8
+  %compound.add5 = add i64 %compound.load4, %multmp
+  store i64 %compound.add5, ptr %fieldPtr2, align 8
+  %p6 = load [2 x i64], ptr %p, align 8
+  ret [2 x i64] %p6
+}
+
+define i32 @main() {
+entry:
+  %ret.abi.unpack.slot = alloca %Pair, align 16
+  %call.extabi.pack.slot = alloca [2 x i64], align 8
+  %q = alloca %Pair, align 8
+  %p = alloca %Pair, align 8
+  call void @llvm.memset.p0.i64(ptr align 8 %p, i8 0, i64 16, i1 false)
+  %fieldPtr = getelementptr inbounds nuw %Pair, ptr %p, i32 0, i32 0
+  store i32 2, ptr %fieldPtr, align 4
+  %fieldPtr1 = getelementptr inbounds nuw %Pair, ptr %p, i32 0, i32 1
+  store i64 5, ptr %fieldPtr1, align 8
+  %p2 = load %Pair, ptr %p, align 8
+  store [2 x i64] zeroinitializer, ptr %call.extabi.pack.slot, align 8
+  store %Pair %p2, ptr %call.extabi.pack.slot, align 8
+  %call.arg.pack = load [2 x i64], ptr %call.extabi.pack.slot, align 8
+  %calltmp = call [2 x i64] @tweak([2 x i64] %call.arg.pack, i32 3)
+  store %Pair zeroinitializer, ptr %ret.abi.unpack.slot, align 8
+  store [2 x i64] %calltmp, ptr %ret.abi.unpack.slot, align 8
+  %call.abi.unpack = load %Pair, ptr %ret.abi.unpack.slot, align 8
+  store %Pair %call.abi.unpack, ptr %q, align 8
+  %fieldPtr3 = getelementptr inbounds nuw %Pair, ptr %q, i32 0, i32 0
+  %dot_field = load i32, ptr %fieldPtr3, align 4
+  %fieldPtr4 = getelementptr inbounds nuw %Pair, ptr %q, i32 0, i32 1
+  %dot_field5 = load i64, ptr %fieldPtr4, align 8
+  %casttmp = trunc i64 %dot_field5 to i32
+  %addtmp = add i32 %dot_field, %casttmp
+  ret i32 %addtmp
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

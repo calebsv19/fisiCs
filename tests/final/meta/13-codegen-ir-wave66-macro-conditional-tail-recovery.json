@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__wave66_macro_include_conditional_strict",
+      "bucket": "codegen-ir",
+      "input": "cases/13__wave66_macro_include_conditional_no_tail_lowering.c",
+      "expects": [
+        "expect/13__wave66_macro_include_conditional_strict.diag",
+        "expect/13__wave66_macro_include_conditional.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave66_tail_global = global",
+        "define i32 @wave66_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "negative", "macro-expansion", "include", "conditional", "assignment", "semantic-cascade", "clang-strict", "no-tail-lowering", "compile-only", "wave66"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__wave66_macro_include_conditional_current_threshold",
+      "bucket": "codegen-ir",
+      "input": "cases/13__wave66_macro_include_conditional_no_tail_lowering.c",
+      "expects": [
+        "expect/13__wave66_macro_include_conditional_current.diag",
+        "expect/13__wave66_macro_include_conditional.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave66_tail_global = global",
+        "define i32 @wave66_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "negative", "macro-expansion", "include", "conditional", "assignment", "semantic-cascade", "current-threshold", "no-tail-lowering", "compile-only", "wave66"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__wave66_macro_include_conditional_repaired_tail_lowering",
+      "bucket": "codegen-ir",
+      "input": "cases/13__wave66_macro_include_conditional_repaired_tail_lowering.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "ir_contains": [
+        "@wave66_repaired_tail_global = global i32 667",
+        "define i32 @wave66_repaired_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "macro-expansion", "include", "conditional", "assignment", "no-tail-lowering", "non-vacuous-control", "compile-only", "wave66"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

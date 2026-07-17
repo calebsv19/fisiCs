@@ -14,14 +14,14 @@
       "include_stack": [
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__line_directive_include_warning_diagjson_filename_current_physical.c",
+          "file": "tests/final/cases/03__line_directive_include_warning_diagjson_filename_current_physical.c",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__line_directive_include_warning_diagjson_filename_current_physical.h",
+          "file": "tests/final/cases/03__line_directive_include_warning_diagjson_filename_current_physical.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true

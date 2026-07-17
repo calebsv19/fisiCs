@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave49_phi_switch_nested_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave49_phi_switch_nested_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave49_phi_switch_nested_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "phi-like", "switch", "nested-aggregate", "runtime", "wave49"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave49_compound_literal_copy_layout",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave49_compound_literal_copy_layout_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave49_compound_literal_copy_layout.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "compound-literal", "layout", "aggregate-copy", "runtime", "wave49"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave49_pointer_member_conversion_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave49_pointer_member_conversion_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave49_pointer_member_conversion_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "pointer-member", "conversion", "aggregate-copy", "runtime", "wave49"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave49_return_slot_loop_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave49_return_slot_loop_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave49_return_slot_loop_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "return-slot", "loop", "union", "runtime", "wave49"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

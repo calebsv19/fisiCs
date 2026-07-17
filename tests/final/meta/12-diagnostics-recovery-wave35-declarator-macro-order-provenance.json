@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__diag__wave35_nested_declarator_then_undeclared_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave35_nested_declarator_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diag__wave35_nested_declarator_then_undeclared_followup_current.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "diag", "parser-recovery", "declarator", "semantic-followup", "wave35", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave35_nested_declarator_then_undeclared_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave35_nested_declarator_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave35_nested_declarator_then_undeclared_followup_current.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["line-directive", "diagjson", "parser-recovery", "declarator", "semantic-followup", "wave35", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave35_macro_bad_statement_then_undeclared_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave35_macro_bad_statement_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diag__wave35_macro_bad_statement_then_undeclared_followup_current.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "macro", "diag", "parser-recovery", "statement", "semantic-followup", "wave35", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave35_macro_bad_statement_then_undeclared_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave35_macro_bad_statement_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave35_macro_bad_statement_then_undeclared_followup_current.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["line-directive", "macro", "diagjson", "parser-recovery", "statement", "semantic-followup", "wave35", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave35_multi_error_order_then_type_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave35_multi_error_order_then_type_followup.c",
+      "expects": [
+        "expect/12__diag__wave35_multi_error_order_then_type_followup_current.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "diag", "multi-error", "ordering", "semantic-followup", "wave35", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave35_multi_error_order_then_type_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave35_multi_error_order_then_type_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave35_multi_error_order_then_type_followup_current.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["line-directive", "diagjson", "multi-error", "ordering", "semantic-followup", "wave35", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave35_include_line_declarator_then_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave35_include_line_declarator_then_followup.c",
+      "expects": [
+        "expect/12__diag__wave35_include_line_declarator_then_followup_current.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "include", "diag", "parser-recovery", "declarator", "semantic-followup", "wave35", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave35_include_line_declarator_then_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave35_include_line_declarator_then_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave35_include_line_declarator_then_followup_current.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["line-directive", "include", "diagjson", "parser-recovery", "declarator", "semantic-followup", "wave35", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 Diagnostics:
 Error at (2:16): Block-scope extern declaration cannot have an initializer
    Hint: x
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_block_extern_initializer_reject.c:2:16
+   Spelling: tests/final/probes/diagnostics/04__probe_block_extern_initializer_reject.c:2:16
 Error at (3:12): Undeclared identifier
    Hint: x
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_block_extern_initializer_reject.c:3:12
+   Spelling: tests/final/probes/diagnostics/04__probe_block_extern_initializer_reject.c:3:12

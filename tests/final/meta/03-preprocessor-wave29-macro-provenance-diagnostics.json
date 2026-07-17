@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__macro_callsite_line_remap_arity_strict",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_macro_callsite_line_remap_arity_strict.c",
+      "expects": [
+        "expect/03__macro_callsite_line_remap_arity_strict.diag",
+        "expect/03__macro_callsite_line_remap_arity_strict.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "macro-provenance",
+        "line-directive",
+        "arity-diagnostic",
+        "diagjson",
+        "wave29",
+        "probe-current"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_include_reentry_arity_bridge_strict",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_macro_include_reentry_arity_bridge.c",
+      "expects": [
+        "expect/03__macro_include_reentry_arity_bridge_strict.diag",
+        "expect/03__macro_include_reentry_arity_bridge_strict.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "macro-provenance",
+        "include-reentry",
+        "line-directive",
+        "arity-diagnostic",
+        "diagjson",
+        "wave29",
+        "probe-current"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_gnu_comma_line_remap_strict",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_macro_gnu_comma_line_remap_current.c",
+      "expects": [
+        "expect/03__macro_gnu_comma_line_remap_strict.diag",
+        "expect/03__macro_gnu_comma_line_remap_strict.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "macro-provenance",
+        "gnu-comma-vaargs",
+        "line-directive",
+        "diagjson",
+        "wave29",
+        "probe-current"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__macro_token_paste_line_remap_current",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_macro_token_paste_line_remap_current.c",
+      "expects": [
+        "expect/03__macro_token_paste_line_remap_current.diag",
+        "expect/03__macro_token_paste_line_remap_current.diagjson"
+      ],
+      "tags": [
+        "preprocessor",
+        "macro-provenance",
+        "token-paste",
+        "line-directive",
+        "diagjson",
+        "current-threshold",
+        "wave29",
+        "probe-current"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

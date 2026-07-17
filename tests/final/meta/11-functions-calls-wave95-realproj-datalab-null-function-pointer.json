@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__realproj_datalab_void_null_function_pointer_argument",
+      "bucket": "functions-calls",
+      "input": "cases/11__realproj_datalab_void_null_function_pointer_argument.c",
+      "expects": [
+        "expect/11__realproj_datalab_void_null_function_pointer_argument.diag"
+      ],
+      "tags": [
+        "realproj-regression",
+        "datalab",
+        "function-pointer",
+        "null-pointer-constant",
+        "argument-conversion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

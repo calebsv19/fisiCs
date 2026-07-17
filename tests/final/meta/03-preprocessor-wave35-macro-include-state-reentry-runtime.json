@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave35_include_state_reentry_diag_boundary",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave35_include_state_reentry_diag_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave35_include_state_reentry_diag_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include", "macro-state", "inactive-diagnostic", "line-directive", "runtime", "wave35"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave35_line_stack_reentry_value",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave35_line_stack_reentry_value.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave35_line_stack_reentry_value.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include", "line-directive", "line-map", "runtime", "wave35"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave35_macro_rebind_line_diag_boundary",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave35_macro_rebind_line_diag_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave35_macro_rebind_line_diag_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "macro-state", "inactive-diagnostic", "token-paste", "stringize", "line-directive", "runtime", "wave35"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

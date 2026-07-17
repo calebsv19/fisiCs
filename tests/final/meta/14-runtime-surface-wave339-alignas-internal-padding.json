@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_wave339_alignas_internal_gap_automatic",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_wave339_alignas_internal_gap_automatic.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave339_alignas_internal_gap_automatic.stdout",
+      "differential": true,
+      "standard": "c11",
+      "tags": ["runtime", "alignment", "internal-padding", "automatic-initializer"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave339_alignas_internal_gap_static_array",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_wave339_alignas_internal_gap_static_array.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave339_alignas_internal_gap_static_array.stdout",
+      "differential": true,
+      "standard": "c11",
+      "tags": ["runtime", "alignment", "internal-padding", "constant-initializer", "array-stride"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave339_alignas_internal_gap_nested",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_wave339_alignas_internal_gap_nested.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave339_alignas_internal_gap_nested.stdout",
+      "differential": true,
+      "standard": "c11",
+      "tags": ["runtime", "alignment", "internal-padding", "nested-aggregate", "array-stride"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

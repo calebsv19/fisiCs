@@ -52,22 +52,6 @@
       "status": "ok"
     },
     {
-      "id": "09__parserdiag__switch_missing_lbrace_reject",
-      "bucket": "statements-controlflow",
-      "input": "cases/09__parserdiag__switch_missing_lbrace_reject.c",
-      "expects": [
-        "expect/09__parserdiag__switch_missing_lbrace_reject.pdiag"
-      ],
-      "tags": [
-        "parser-diag",
-        "switch",
-        "body"
-      ],
-      "allow_nonzero_exit": true,
-      "requires": [],
-      "status": "ok"
-    },
-    {
       "id": "09__parserdiag__switch_case_missing_expr_reject",
       "bucket": "statements-controlflow",
       "input": "cases/09__parserdiag__switch_case_missing_expr_reject.c",

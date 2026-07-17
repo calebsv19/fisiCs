@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__wave69_nested_extern_no_prototype_double",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave69_nested_extern_no_prototype_double_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["scopes-linkage", "parameter-shadow", "nested-block", "extern", "function", "no-prototype", "double", "default-promotions", "runtime", "wave69", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__diag__wave69_nested_extern_no_prototype_float_conflict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_wave69_nested_extern_no_prototype_float_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["scopes-linkage", "parameter-shadow", "nested-block", "extern", "function", "no-prototype", "float", "default-promotions", "negative", "line-directive", "wave69", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave69_nested_extern_exact_prototype_control",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave69_nested_extern_exact_prototype_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["scopes-linkage", "parameter-shadow", "nested-block", "extern", "function", "prototype", "double", "runtime", "alpha-control", "wave69", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

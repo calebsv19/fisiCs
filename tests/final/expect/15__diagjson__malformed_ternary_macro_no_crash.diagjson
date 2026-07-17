@@ -17,14 +17,14 @@
       "macro_trace": [
         {
           "column": 17,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diagjson__malformed_ternary_macro_no_crash.c",
+          "file": "tests/final/cases/15__diagjson__malformed_ternary_macro_no_crash.c",
           "line": 5,
           "macro": "CHOOSE",
           "role": "call_site"
         },
         {
           "column": 1,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__diagjson__malformed_ternary_macro_no_crash.c",
+          "file": "tests/final/cases/15__diagjson__malformed_ternary_macro_no_crash.c",
           "line": 1,
           "macro": "CHOOSE",
           "role": "definition"

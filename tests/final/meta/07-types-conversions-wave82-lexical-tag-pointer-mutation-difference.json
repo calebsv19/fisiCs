@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_wave82_lexical_tag_pointer_mutation_same_name",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_wave82_lexical_tag_pointer_mutation_same_name.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_wave82_lexical_tag_pointer_mutation_difference.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "conversion", "pointer", "aggregate-identity", "lexical-scope", "same-name-shadow", "increment", "decrement", "ptrdiff", "wave82"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_wave82_lexical_tag_pointer_mutation_unique_name",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_wave82_lexical_tag_pointer_mutation_unique_name.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_wave82_lexical_tag_pointer_mutation_difference.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "conversion", "pointer", "aggregate-identity", "lexical-scope", "alpha-control", "increment", "decrement", "ptrdiff", "wave82"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

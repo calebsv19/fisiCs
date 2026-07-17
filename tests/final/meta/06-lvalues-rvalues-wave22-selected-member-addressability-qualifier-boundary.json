@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime_wave22_conditional_member_address_chain",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave22_conditional_member_address_chain_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave22_conditional_member_address_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave22", "conditional-pointer", "selected-member", "addressability", "compound-assign", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave22_nested_member_array_compound",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave22_nested_member_array_compound_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave22_nested_member_array_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave22", "nested-member-array", "compound-assign", "volatile", "const-read", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave22_conditional_selected_member_assign_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave22_conditional_selected_member_assign_reject.c",
+      "expects": [
+        "expect/06__diag__wave22_conditional_selected_member_assign_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave22", "conditional", "selected-member", "assignment", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave22_const_selected_member_compound_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave22_const_selected_member_compound_reject.c",
+      "expects": [
+        "expect/06__diag__wave22_const_selected_member_compound_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave22", "const-member", "selected-member", "compound-assign", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

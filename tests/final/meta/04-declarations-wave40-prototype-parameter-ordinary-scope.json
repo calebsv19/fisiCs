@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__diag__wave40_prototype_param_hides_typedef_later",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave40_prototype_param_hides_typedef_later.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "prototype-scope", "parameter-name", "typedef-shadow", "negative", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave40_fnptr_param_name_hides_typedef_later",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave40_fnptr_param_name_hides_typedef_later.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "prototype-scope", "parameter-name", "typedef-shadow", "function-pointer", "negative", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave40_prototype_param_hides_typedef_nested_fnptr",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave40_prototype_param_hides_typedef_nested_fnptr.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "prototype-scope", "parameter-name", "typedef-shadow", "nested-function-pointer", "negative", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave40_prototype_scope_pop_typedef_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave40_prototype_scope_pop_typedef_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "expected_stdout": "expect/04__runtime__wave40_prototype_scope_pop_typedef_control.stdout",
+      "standard": "c99",
+      "tags": ["declarations", "prototype-scope", "scope-pop", "typedef", "runtime", "alpha-control", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave40_definition_param_hides_typedef_body",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave40_definition_param_hides_typedef_body.c",
+      "expects": [],
+      "link": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "function-definition", "parameter-name", "typedef-shadow", "negative", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -44,15 +44,15 @@ should route through the canonical `tests/final/` bucket commands above.
 
 ## Promotion Audit Closure
 
-As of 2026-06-02, bucket `07` is closed against the resolved-probe promotion
-audit. The stable final inventory contains `239` bucket tests, including the
+As of 2026-07-14, bucket `07` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `335` bucket tests, including the
 probe-backed closure shard
 `tests/final/meta/07-types-conversions-wave65-probe-promotion-audit-closure.json`.
 
 That shard promotes the remaining `21` probe ownership cases for this bucket:
 `8` text diagnostics and `13` diagnostics JSON cases covering aggregate-member
 rejections, conversion rejections, and constant-expression legality checks. The
-refreshed audit reports bucket `07` at `promoted=210`, `probe_only=0`, and
+refreshed audit reports bucket `07` at `promoted=300`, `probe_only=0`, and
 `missing_promotion_candidate=0`.
 
 ## Boundary With Neighbor Buckets

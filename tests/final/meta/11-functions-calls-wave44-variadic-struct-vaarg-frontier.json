@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave44_variadic_struct_double_fnptr",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave44_variadic_struct_double_fnptr_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave44_variadic_struct_double_fnptr_runtime_main.c",
+        "probes/runtime/11__probe_wave44_variadic_struct_double_fnptr_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave44_variadic_struct_double_fnptr.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "struct", "double", "long-long", "fnptr", "runtime", "strict-regression", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave44_variadic_struct_va_arg_min",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave44_variadic_struct_va_arg_min_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave44_variadic_struct_va_arg_min_runtime_main.c",
+        "probes/runtime/11__probe_wave44_variadic_struct_va_arg_min_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave44_variadic_struct_va_arg_min.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "struct", "va_arg", "runtime", "strict-regression", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave44_variadic_struct_va_arg_single",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave44_variadic_struct_va_arg_single_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave44_variadic_struct_va_arg_single.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "struct", "va_arg", "single-tu", "runtime", "strict-regression", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave44_variadic_scalar_fnptr_current",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave44_variadic_scalar_fnptr_current_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave44_variadic_scalar_fnptr_current_runtime_main.c",
+        "probes/runtime/11__probe_wave44_variadic_scalar_fnptr_current_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave44_variadic_scalar_fnptr_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "double", "long-long", "fnptr", "runtime", "current-threshold", "blocker-companion", "wave44"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

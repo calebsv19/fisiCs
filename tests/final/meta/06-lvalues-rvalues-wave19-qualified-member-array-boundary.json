@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime_wave19_nested_array_pointer_compound",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_runtime_wave19_nested_array_pointer_compound.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave19_nested_array_pointer_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave19", "array-pointer", "member", "compound-assign", "increment", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave19_conditional_pointer_member_inc",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_runtime_wave19_conditional_pointer_member_inc.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave19_conditional_pointer_member_inc.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave19", "conditional-pointer", "member", "postincrement", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave19_conditional_array_member_postinc_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave19_conditional_array_member_postinc_reject.c",
+      "expects": [
+        "expect/06__diag__wave19_conditional_array_member_postinc_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave19", "conditional", "array", "member", "postincrement", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave19_const_selected_member_preinc_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave19_const_selected_member_preinc_reject.c",
+      "expects": [
+        "expect/06__diag__wave19_const_selected_member_preinc_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave19", "const", "selected-member", "preincrement", "fixed-baseline"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave19_selected_bitfield_address_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave19_selected_bitfield_address_reject.c",
+      "expects": [
+        "expect/06__diag__wave19_selected_bitfield_address_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave19", "bitfield", "address-of", "selected-member", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave25_nested_typedef_vla_array",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave25_nested_typedef_vla_array_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave25_nested_typedef_vla_array.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "array", "sizeof", "initializer", "strict", "wave25", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave25_nested_typedef_vla_array_current",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave25_nested_typedef_vla_array_current_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave25_nested_typedef_vla_array_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "array", "sizeof", "initializer", "current-threshold", "wave25", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave25_fnptr_vla_typedef_dispatch",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave25_fnptr_vla_typedef_dispatch_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave25_fnptr_vla_typedef_dispatch.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "function-pointer", "typedef", "vla", "declarator", "initializer", "wave25", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave25_scoped_decl_initializer",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave25_scoped_decl_initializer_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave25_scoped_decl_initializer.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "block-scope", "initializer", "shadowing", "wave25", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

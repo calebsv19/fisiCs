@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__runtime_wave22_direct_ucn_nonbasic_identifier_strict",
+      "bucket": "lexer",
+      "input": "probes/runtime/02__probe_wave22_direct_ucn_nonbasic_identifier_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/02__runtime_wave22_direct_ucn_nonbasic_identifier_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lexer", "ucn", "identifier", "c99", "runtime", "clang-differential", "strict", "wave22"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave22_direct_ucn_incomplete_short_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave22_direct_ucn_incomplete_short_diagjson_current.c",
+      "expects": ["expect/02__wave22_direct_ucn_incomplete_short_diagjson_current.diagjson"],
+      "tags": ["lexer", "ucn", "incomplete-ucn", "line-directive", "provenance", "diagjson", "current-threshold", "wave22"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave22_direct_ucn_surrogate_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave22_direct_ucn_surrogate_diagjson_current.c",
+      "expects": ["expect/02__wave22_direct_ucn_surrogate_diagjson_current.diagjson"],
+      "tags": ["lexer", "ucn", "invalid-scalar", "line-directive", "provenance", "diagjson", "current-threshold", "wave22"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

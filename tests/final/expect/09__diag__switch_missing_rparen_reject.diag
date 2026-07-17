@@ -1,7 +1,4 @@
 Diagnostics:
-Error: ')' at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/09__probe_switch_missing_rparen_reject.c:3 (got '{')
-Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/09__probe_switch_missing_rparen_reject.c:3 (got '{')
-Error: Failed to parse expression at line 3
-Error: invalid statement inside block at line 3
+Error: expected ')' after switch condition at tests/final/probes/diagnostics/09__probe_switch_missing_rparen_reject.c:3 (got '{')
 Error at (1:5): Control reaches end of non-void function 'main'
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/09__probe_switch_missing_rparen_reject.c:1:5
+   Spelling: tests/final/probes/diagnostics/09__probe_switch_missing_rparen_reject.c:1:5

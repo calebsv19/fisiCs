@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave44_short_circuit_aggregate_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave44_short_circuit_aggregate_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave44_short_circuit_aggregate_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "short-circuit", "branch", "union", "runtime", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave44_loop_return_slot_copy",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave44_loop_return_slot_copy_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave44_loop_return_slot_copy.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "loop", "return-slot", "copy", "phi", "union", "runtime", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave44_switch_short_circuit_union_array",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave44_switch_short_circuit_union_array_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave44_switch_short_circuit_union_array.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "switch", "short-circuit", "continue", "nested-union", "array", "runtime", "wave44"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

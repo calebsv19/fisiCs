@@ -832,6 +832,94 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/14__probe_complex_layout_union_overlay_roundtrip.c',
         note='union overlay roundtrip through struct/flat complex views should match clang runtime behavior',
     ),
+    RuntimeProbe(
+        probe_id='14__probe_aggregate_payload_nested_union_assign_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_aggregate_payload_nested_union_assign_checksum.c',
+        note='nested anonymous-union payload bytes should survive aggregate assignment plus typed and unsigned-char checksum reads',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_aggregate_payload_nested_union_return_sret_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_aggregate_payload_nested_union_return_sret_checksum.c',
+        note='nested anonymous-union payload bytes should survive aggregate return/SRet-style value flow and checksum reads',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_aggregate_payload_nested_union_array_slot_direct',
+        source=PROBE_DIR / 'runtime/14__probe_aggregate_payload_nested_union_array_slot_direct.c',
+        note='nested anonymous-union payload bytes should survive direct destination writes into aggregate array slots and nested fields',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_units_runtime_surface_aggregate_return_designated',
+        source=PROBE_DIR / 'runtime/14__probe_units_runtime_surface_aggregate_return_designated.c',
+        note='physics-units aggregate struct returns and designated init should preserve explicitly converted storage under overlay mode',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_units_runtime_surface_aggregate_array_slots',
+        source=PROBE_DIR / 'runtime/14__probe_units_runtime_surface_aggregate_array_slots.c',
+        note='physics-units aggregate array-slot assignment should preserve explicitly converted length, force, and charge storage under overlay mode',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_units_runtime_surface_aggregate_compound_literal',
+        source=PROBE_DIR / 'runtime/14__probe_units_runtime_surface_aggregate_compound_literal.c',
+        note='physics-units aggregate compound literals should preserve explicitly converted speed, time, and energy storage under overlay mode',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave329_nested_union_array_table_dispatch_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave329_nested_union_array_table_dispatch_checksum.c',
+        note='wave329: nested union payload bytes should survive aggregate array copies through function-pointer table dispatch',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave329_returned_bundle_callback_payload_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave329_returned_bundle_callback_payload_checksum.c',
+        note='wave329: returned aggregate bundles should preserve nested union byte payloads through callback-selected transforms',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave329_return_slot_payload_dispatch_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave329_return_slot_payload_dispatch_checksum.c',
+        note='wave329: table-dispatched returned payloads should preserve nested union bytes when assigned into aggregate slots',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave330_nested_union_array_payload_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave330_nested_union_array_payload_checksum.c',
+        note='wave330: nested union payload bytes should survive two-dimensional aggregate array assignment and checksum reads',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave330_assignment_return_slot_payload_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave330_assignment_return_slot_payload_checksum.c',
+        note='wave330: returned aggregate payloads should preserve union byte lanes through slot assignment and word rewrites',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave330_callback_selected_transform_payload_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave330_callback_selected_transform_payload_checksum.c',
+        note='wave330: callback-selected aggregate transforms should preserve nested union byte payloads',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave330_table_dispatch_return_slot_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave330_table_dispatch_return_slot_checksum.c',
+        note='wave330: table-dispatched returned cells should preserve union payload bytes through aggregate return slots',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave331_header_memcpy_nested_union_payload_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave331_header_memcpy_nested_union_payload_checksum.c',
+        note='wave331: standard-header memcpy/offsetof paths should preserve nested union payload bytes through aggregate copies',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave331_callback_union_array_payload_dispatch_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_wave331_callback_union_array_payload_dispatch_checksum.c',
+        note='wave331: callback-dispatched nested union array transforms should preserve aggregate payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave331_return_slot_nested_array_payload_chain',
+        source=PROBE_DIR / 'runtime/14__probe_wave331_return_slot_nested_array_payload_chain.c',
+        note='wave331: chained aggregate returns and return-slot assignment should preserve nested union array payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_wave331_uintptr_callback_return_slot_payload',
+        source=PROBE_DIR / 'runtime/14__probe_wave331_uintptr_callback_return_slot_payload.c',
+        note='wave331: stdint uintptr callback-selected return slots should preserve union payload bytes',
+    ),
 ]
 
 DIAG_PROBES = []

@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_loop_goto_vla_fallthrough_xxi",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_switch_loop_goto_vla_fallthrough_xxi.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_loop_goto_vla_fallthrough_xxi.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "goto", "vla", "fallthrough", "continue", "wave75"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_continue_break_ladder_xxii",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_switch_continue_break_ladder_xxii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_continue_break_ladder_xxii.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "loop", "continue", "break", "fallthrough", "wave75"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_continue_not_loop_diag_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diag_switch_continue_not_loop_parity.c",
+      "expects": ["expect/09__switch_continue_not_loop_diag_current_sparse.diag"],
+      "tags": ["diag", "switch", "continue", "current-threshold", "wave75"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_continue_not_loop_diagjson_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_diag_switch_continue_not_loop_parity.c",
+      "expects": ["expect/09__switch_continue_not_loop_diagjson_current_sparse.diagjson"],
+      "tags": ["diagjson", "switch", "continue", "current-threshold", "wave75"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__wave83_nested_loop_label_declaration_exit",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave83_nested_loop_label_declaration_exit.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave83_nested_loop_label_declaration_exit.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "loop", "label", "goto", "declaration", "scope", "wave83"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave83_do_switch_declaration_fallthrough",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave83_do_switch_declaration_fallthrough.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave83_do_switch_declaration_fallthrough.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "do-while", "switch", "fallthrough", "declaration", "scope", "wave83"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave83_case_block_reentry_scope",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave83_case_block_reentry_scope.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave83_case_block_reentry_scope.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "case", "declaration", "scope", "reentry", "wave83"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

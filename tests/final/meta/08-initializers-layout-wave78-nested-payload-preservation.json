@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave78_nested_aggregate_override_payload",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave78_nested_aggregate_override_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave78_nested_aggregate_override_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "nested-aggregate", "override", "layout", "zero-fill", "wave78"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave78_union_array_string_bitfield_payload",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave78_union_array_string_bitfield_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave78_union_array_string_bitfield_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "array", "string", "bitfield", "payload", "wave78"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave78_designated_override_boundary_checksum",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave78_designated_override_boundary_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave78_designated_override_boundary_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "override-boundary", "union", "layout", "wave78"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave78_string_bitfield_nested_zero_fill",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave78_string_bitfield_nested_zero_fill.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave78_string_bitfield_nested_zero_fill.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "string", "bitfield", "nested-array", "zero-fill", "wave78"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

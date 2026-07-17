@@ -271,14 +271,16 @@ Declarators, type qualifiers, aggregates, and C99 declaration features.
 
 ## Promotion Audit Closure
 - Current declarations metadata lives across `tests/final/meta/04-declarations*.json`.
-- Current active declarations bucket cases: 203
+- Current active declarations bucket cases: 301
 - Current active declarations bucket result: passing
-- Bucket `04` is closed in the probe-promotion audit at `promoted=85`,
-  `probe_only=2`, and `missing=0`.
+- Bucket `04` is closed in the 2026-07-14 promotion audit at `promoted=185`,
+  `probe_only=0`, and `missing=0`.
 - The final closure shard
   `tests/final/meta/04-declarations-wave20-probe-promotion-audit-closure.json`
   promotes the remaining declaration diagnostics and runtime probe fixtures
   into stable `make final` coverage.
+- Later stable manifests and explicit owner mappings complete the bucket's
+  remaining strict/frontier ownership without duplicating equivalent sources.
 
 ## Probe Backlog
 - Current 04 probe sweep (`PROBE_FILTER=04__probe_`) result:

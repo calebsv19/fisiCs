@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_nested_union_array_payload_wave73",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_nested_union_array_payload_wave73.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_nested_union_array_payload_wave73.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "array", "layout", "offsetof", "zero-fill", "wave73"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_anonymous_union_layout_current_wave73",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_anonymous_union_layout_current_wave73.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_anonymous_union_layout_current_wave73.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "anonymous-union", "anonymous-struct", "layout", "offsetof", "zero-fill", "wave73"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_union_row_reseed_byte_offsets_wave73",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_union_row_reseed_byte_offsets_wave73.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_union_row_reseed_byte_offsets_wave73.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "array", "string", "layout", "offsetof", "zero-fill", "wave73"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

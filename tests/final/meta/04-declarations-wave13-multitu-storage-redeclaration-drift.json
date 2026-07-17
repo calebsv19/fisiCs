@@ -30,10 +30,9 @@
         "probes/diagnostics/04__probe_diag_line_directive_multitu_include_fnptr_param_conflict_spelling_strict_lib.c"
       ],
       "expects": ["expect/04__diag__line_directive_multitu_include_fnptr_param_conflict_spelling_strict.diag"],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
-      "env": {
-        "DISABLE_CODEGEN": "1"
-      },
       "standard": "c99",
       "tags": ["declarations", "diag", "multitu", "include", "line-directive", "fnptr", "redeclaration", "drift", "wave13", "probe-promotion"],
       "requires": [],
@@ -63,9 +62,8 @@
         "probes/diagnostics/04__probe_diag_line_directive_multitu_fnptr_param_conflict_spelling_strict_main.c"
       ],
       "expects": ["expect/04__diagjson__line_directive_multitu_fnptr_param_conflict_rich_strict.diagjson"],
-      "env": {
-        "DISABLE_CODEGEN": "1"
-      },
+      "link": true,
+      "expect_compile_exit": 1,
       "standard": "c99",
       "tags": ["declarations", "diagjson", "multitu", "line-directive", "fnptr", "redeclaration", "drift", "wave13", "probe-promotion"],
       "requires": [],
@@ -80,9 +78,8 @@
         "probes/diagnostics/04__probe_diag_line_directive_multitu_include_fnptr_param_conflict_spelling_strict_lib.c"
       ],
       "expects": ["expect/04__diagjson__line_directive_multitu_include_fnptr_param_conflict_rich_strict.diagjson"],
-      "env": {
-        "DISABLE_CODEGEN": "1"
-      },
+      "link": true,
+      "expect_compile_exit": 1,
       "standard": "c99",
       "tags": ["declarations", "diagjson", "multitu", "include", "line-directive", "fnptr", "redeclaration", "drift", "wave13", "probe-promotion"],
       "requires": [],
@@ -97,6 +94,8 @@
         "probes/diagnostics/04__probe_diag_line_directive_multitu_ptr_array_conflict_spelling_strict_lib.c"
       ],
       "expects": ["expect/04__diagjson__line_directive_multitu_ptr_array_conflict_rich_strict.diagjson"],
+      "link": true,
+      "expect_compile_exit": 1,
       "standard": "c99",
       "tags": ["declarations", "diagjson", "multitu", "line-directive", "pointer-array", "redeclaration", "drift", "wave13", "probe-promotion"],
       "requires": [],

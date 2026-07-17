@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__wave87_no_prototype_complex_float_array_compatible_diagjson",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave87_no_prototype_complex_float_array_compatible.c",
+      "expects": ["expect/08__wave87_no_prototype_complex_array_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "old-style", "prototype", "default-argument-promotion", "float-complex", "bidirectional", "line-directive", "diagjson", "wave87", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave87_no_prototype_complex_float_nested_array_compatible_diagjson",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave87_no_prototype_complex_float_nested_array_compatible.c",
+      "expects": ["expect/08__wave87_no_prototype_complex_array_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "nested-aggregate", "array-member", "function-pointer", "old-style", "prototype", "default-argument-promotion", "float-complex", "bidirectional", "line-directive", "diagjson", "wave87", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave87_no_prototype_real_float_array_diagjson_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave87_no_prototype_real_float_array_strict.c",
+      "expects": ["expect/08__wave87_no_prototype_real_float_array_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "old-style", "prototype", "default-argument-promotion", "real-float", "bidirectional", "line-directive", "diagjson", "wave87", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave87_no_prototype_real_float_nested_array_diagjson_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave87_no_prototype_real_float_nested_array_strict.c",
+      "expects": ["expect/08__wave87_no_prototype_real_float_nested_array_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "nested-aggregate", "array-member", "function-pointer", "old-style", "prototype", "default-argument-promotion", "real-float", "bidirectional", "line-directive", "diagjson", "wave87", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave87_no_prototype_complex_double_array_compatible_diagjson",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave87_no_prototype_complex_double_array_compatible.c",
+      "expects": ["expect/08__wave87_no_prototype_complex_array_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "old-style", "prototype", "default-argument-promotion", "double-complex", "bidirectional", "line-directive", "diagjson", "wave87", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave87_no_prototype_complex_double_nested_array_compatible_diagjson",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave87_no_prototype_complex_double_nested_array_compatible.c",
+      "expects": ["expect/08__wave87_no_prototype_complex_array_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "nested-aggregate", "array-member", "function-pointer", "old-style", "prototype", "default-argument-promotion", "double-complex", "bidirectional", "line-directive", "diagjson", "wave87", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

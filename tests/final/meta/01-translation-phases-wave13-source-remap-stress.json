@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave13_adjacent_string_file_remap",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave13_adjacent_string_file_remap.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave13_adjacent_string_file_remap.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "adjacent-string", "source-provenance", "wave13", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave13_tokenpaste_line_stringize",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave13_tokenpaste_line_stringize.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave13_tokenpaste_line_stringize.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "token-paste", "stringize", "source-provenance", "wave13", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave13_spliced_macro_include_provenance",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave13_spliced_macro_include_provenance.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave13_spliced_macro_include_provenance.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "line-splice", "adjacent-string", "comment", "source-provenance", "wave13", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

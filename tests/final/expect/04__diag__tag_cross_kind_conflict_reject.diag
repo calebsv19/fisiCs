@@ -1,10 +1,8 @@
 Diagnostics:
 Error at (1:8): Conflicting tag name for struct 'TagCollision'
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_cross_kind_conflict_reject.c:1:8
+   Spelling: tests/final/probes/diagnostics/04__probe_tag_cross_kind_conflict_reject.c:1:8
 Error at (5:6): Conflicting tag name for enum 'TagCollision'
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_cross_kind_conflict_reject.c:5:6
+   Spelling: tests/final/probes/diagnostics/04__probe_tag_cross_kind_conflict_reject.c:5:6
 Error at (10:12): Undeclared identifier
    Hint: TAG_VALUE
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_cross_kind_conflict_reject.c:10:12
-Error at (10:12): Operator '-' requires arithmetic operands
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_tag_cross_kind_conflict_reject.c:10:12
+   Spelling: tests/final/probes/diagnostics/04__probe_tag_cross_kind_conflict_reject.c:10:12

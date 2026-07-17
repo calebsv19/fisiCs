@@ -1,0 +1,8 @@
+Diagnostics:
+Error: expected ']' after array size at line 13481
+Error: expected ']' after array size at line 13481
+Error at (13482:17): Undeclared identifier
+   Hint: wave39_array_declarator_missing
+   Spelling: virtual_wave39_array_declarator_recovery.c:13482:17
+Error at (13483:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave39_array_declarator_recovery.c:13483:16

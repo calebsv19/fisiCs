@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave17_multi_include_resumption",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave17_multi_include_resumption.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave17_multi_include_resumption.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "nested-include", "source-resumption", "source-provenance", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave17_spliced_macro_comment_source",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave17_spliced_macro_comment_source.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave17_spliced_macro_comment_source.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "line-splice", "comment", "token-paste", "stringize", "source-provenance", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave17_macro_file_paste_line",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave17_macro_file_paste_line.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave17_macro_file_paste_line.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "macro-filename", "token-paste", "stringize", "__FILE__", "__LINE__", "source-provenance", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave17_adjacent_string_include_line",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave17_adjacent_string_include_line.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave17_adjacent_string_include_line.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "adjacent-string", "__FILE__", "__LINE__", "source-provenance", "wave17", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

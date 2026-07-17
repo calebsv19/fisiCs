@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave82_file_scope_array_subobject_addresses",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave82_file_scope_array_subobject_addresses.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave82_file_scope_array_subobject_addresses.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "file-scope", "address-constant", "array-subobject", "nested-aggregate", "wave82"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave82_static_nested_union_array_overwrite",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave82_static_nested_union_array_overwrite.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave82_static_nested_union_array_overwrite.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "static", "nested-union-array", "designator", "overwrite", "wave82"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave82_file_scope_array_subobject_addresses_current",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave82_file_scope_array_subobject_addresses_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave82_file_scope_array_subobject_addresses_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "file-scope", "address-constant", "array-subobject", "current-threshold", "wave82"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave82_nested_layout_offset_alignment",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave82_nested_layout_offset_alignment.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave82_nested_layout_offset_alignment.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "layout", "offsetof", "alignment", "nested-union", "wave82"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__diag__wave38_direct_for_header_then_semantic_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave38_direct_for_header_then_semantic_followup.c",
+      "expects": ["expect/12__diag__wave38_direct_for_header_then_semantic_followup_current.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "diag", "parser-recovery", "for", "semantic-followup", "wave38", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave38_macro_while_then_semantic_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave38_macro_while_then_semantic_followup.c",
+      "expects": ["expect/12__diag__wave38_macro_while_then_semantic_followup_current.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "macro", "diag", "parser-recovery", "while", "semantic-followup", "wave38", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave38_include_if_then_semantic_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave38_include_if_then_semantic_followup.c",
+      "expects": ["expect/12__diag__wave38_include_if_then_semantic_followup_current.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "include", "macro", "diag", "parser-recovery", "if", "semantic-followup", "wave38", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave38_include_switch_then_semantic_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave38_include_switch_then_semantic_followup.c",
+      "expects": ["expect/12__diag__wave38_include_switch_then_semantic_followup_current.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "include", "diag", "parser-recovery", "switch", "semantic-followup", "wave38", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave38_direct_for_header_then_semantic_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave38_direct_for_header_then_semantic_followup.c",
+      "expects": ["expect/12__diagjson__wave38_direct_for_header_then_semantic_followup_current.diagjson"],
+      "standard": "c99",
+      "tags": ["line-directive", "diagjson", "parser-recovery", "for", "semantic-followup", "wave38", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave38_macro_while_then_semantic_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave38_macro_while_then_semantic_followup.c",
+      "expects": ["expect/12__diagjson__wave38_macro_while_then_semantic_followup_current.diagjson"],
+      "standard": "c99",
+      "tags": ["line-directive", "macro", "diagjson", "parser-recovery", "while", "semantic-followup", "wave38", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave38_include_if_then_semantic_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave38_include_if_then_semantic_followup.c",
+      "expects": ["expect/12__diagjson__wave38_include_if_then_semantic_followup_current.diagjson"],
+      "standard": "c99",
+      "tags": ["line-directive", "include", "macro", "diagjson", "parser-recovery", "if", "semantic-followup", "wave38", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave38_include_switch_then_semantic_followup_current",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave38_include_switch_then_semantic_followup.c",
+      "expects": ["expect/12__diagjson__wave38_include_switch_then_semantic_followup_current.diagjson"],
+      "standard": "c99",
+      "tags": ["line-directive", "include", "diagjson", "parser-recovery", "switch", "semantic-followup", "wave38", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6301:15): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave63_for_increment_incomplete_binary.c:6301:15

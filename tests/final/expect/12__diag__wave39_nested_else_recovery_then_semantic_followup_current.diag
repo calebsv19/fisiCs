@@ -1,0 +1,9 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave39_nested_else_recovery.c:13403 (got ')')
+Error at (13403:13): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave39_nested_else_recovery.c:13403:13
+Error at (13411:17): Undeclared identifier
+   Hint: wave39_nested_else_missing
+   Spelling: virtual_wave39_nested_else_recovery.c:13411:17
+Error at (13412:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave39_nested_else_recovery.c:13412:16

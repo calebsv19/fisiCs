@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__wave86_no_prototype_complex_float_initializer_compatible_diagjson",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave86_no_prototype_complex_float_compatible.c",
+      "expects": ["expect/07__wave86_no_prototype_complex_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "initializer", "old-style", "prototype", "default-argument-promotion", "float-complex", "bidirectional", "line-directive", "diagjson", "wave86", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave86_no_prototype_complex_float_assignment_compatible_diagjson",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave86_no_prototype_complex_float_assignment_compatible.c",
+      "expects": ["expect/07__wave86_no_prototype_complex_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "assignment", "old-style", "prototype", "default-argument-promotion", "float-complex", "bidirectional", "line-directive", "diagjson", "wave86", "control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave86_no_prototype_real_float_initializer_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave86_no_prototype_real_float_initializer_strict.c",
+      "expects": ["expect/07__wave86_no_prototype_real_float_initializer_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "initializer", "old-style", "prototype", "default-argument-promotion", "real-float", "bidirectional", "line-directive", "diagjson", "wave86", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave86_no_prototype_real_float_assignment_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave86_no_prototype_real_float_assignment_strict.c",
+      "expects": ["expect/07__wave86_no_prototype_real_float_assignment_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "assignment", "old-style", "prototype", "default-argument-promotion", "real-float", "bidirectional", "line-directive", "diagjson", "wave86", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave86_no_prototype_complex_double_compatible_diagjson",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave86_no_prototype_complex_double_compatible.c",
+      "expects": ["expect/07__wave86_no_prototype_complex_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "initializer", "assignment", "old-style", "prototype", "default-argument-promotion", "double-complex", "bidirectional", "line-directive", "diagjson", "wave86", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

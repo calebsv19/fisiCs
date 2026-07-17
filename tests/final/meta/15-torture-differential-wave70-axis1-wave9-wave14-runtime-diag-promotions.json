@@ -54,6 +54,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave9_multitu_function_object_alias_ring_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": ["diagjson", "probe-promotion", "axis1", "wave9", "multitu", "promotion"],
@@ -111,6 +113,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave10_multitu_function_object_alias_checkpoint_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": ["diagjson", "probe-promotion", "axis1", "wave10", "multitu", "promotion"],
@@ -168,6 +172,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave11_multitu_function_object_alias_ptrtable_rebase_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": ["diagjson", "probe-promotion", "axis1", "wave11", "multitu", "promotion"],
@@ -225,6 +231,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave12_multitu_function_object_alias_linkorder_checkpoint_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": ["diagjson", "probe-promotion", "axis1", "wave12", "multitu", "promotion"],
@@ -282,6 +290,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave13_multitu_function_object_alias_four_level_checkpoint_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": ["diagjson", "probe-promotion", "axis1", "wave13", "multitu", "promotion"],
@@ -339,6 +349,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave14_multitu_function_object_alias_relocation_order_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": ["diagjson", "probe-promotion", "axis1", "wave14", "multitu", "promotion"],

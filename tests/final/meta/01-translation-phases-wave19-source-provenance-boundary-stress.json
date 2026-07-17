@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave19_include_resumption_runtime_boundary",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave19_include_resumption_runtime_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave19_include_resumption_runtime_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "source-resumption", "source-provenance", "__FILE__", "__LINE__", "wave19", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave19_splice_adjacent_source_provenance",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave19_splice_adjacent_source_provenance.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave19_splice_adjacent_source_provenance.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "line-splice", "comment", "adjacent-string", "token-paste", "stringize", "source-provenance", "wave19", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave19_include_tokenpaste_adjacent_boundary",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave19_include_tokenpaste_adjacent_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave19_include_tokenpaste_adjacent_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "token-paste", "stringize", "adjacent-string", "source-provenance", "__FILE__", "__LINE__", "wave19", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

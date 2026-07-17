@@ -326,15 +326,6 @@ PROGRAM
   TYPEDEF
         TYPE: __darwin_wint_t
         Alias:     IDENTIFIER wint_t
-  TYPEDEF
-        TYPE: size_t
-        Alias:     IDENTIFIER shim_size_t
-  TYPEDEF
-        TYPE: ptrdiff_t
-        Alias:     IDENTIFIER shim_ptrdiff_t
-  TYPEDEF
-        TYPE: max_align_t
-        Alias:     IDENTIFIER shim_max_align_t
   FUNCTION DEFINITION
     RETURN TYPE: int
     IDENTIFIER main

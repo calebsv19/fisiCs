@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime__wave27_typedef_function_parameter_rebind",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave27_typedef_function_parameter_rebind_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave27_typedef_function_parameter_rebind.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave27", "typedef", "function-type", "parameter-adjustment", "assignment", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime__wave27_typedef_array_parameter_rebind",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave27_typedef_array_parameter_rebind_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave27_typedef_array_parameter_rebind.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave27", "typedef", "array-type", "parameter-adjustment", "assignment", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime__wave27_element_const_array_parameter_rebind_control",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave27_element_const_array_parameter_rebind_control_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave27_element_const_array_parameter_rebind_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave27", "array-parameter", "element-const", "assignment", "qualifier-control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave27_bracket_const_array_parameter_rebind_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave27_bracket_const_array_parameter_rebind_reject.c",
+      "expects": ["expect/06__diag__wave27_bracket_const_array_parameter_rebind_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave27", "array-parameter", "bracket-const", "assignment", "negative-control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

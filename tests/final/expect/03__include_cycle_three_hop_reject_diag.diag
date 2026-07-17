@@ -1,0 +1,4 @@
+Diagnostics:
+Error: preprocessing failed
+tests/final/cases/03__include_cycle_three_hop_reject_c.h:1:10: error: detected recursive include of 'tests/final/cases/03__include_cycle_three_hop_reject_a.h'
+tests/final/cases/03__include_cycle_three_hop_reject_c.h:1:10: error: detected recursive include of 'tests/final/cases/03__include_cycle_three_hop_reject_a.h'

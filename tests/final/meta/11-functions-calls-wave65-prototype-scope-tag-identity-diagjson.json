@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__wave65_prototype_scope_tag_same_name_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave65_diagjson_prototype_scope_tag_same_name.c",
+      "expects": ["expect/11__wave65_prototype_scope_tag_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "function-redeclaration", "prototype-scope", "parameter-type", "aggregate-identity", "same-name", "line-directive", "diagjson", "strict-regression", "wave65"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave65_prototype_scope_tag_alpha_name_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave65_diagjson_prototype_scope_tag_alpha_name.c",
+      "expects": ["expect/11__wave65_prototype_scope_tag_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "function-redeclaration", "prototype-scope", "parameter-type", "aggregate-identity", "alpha-control", "line-directive", "diagjson", "strict-regression", "wave65"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave65_visible_forward_tag_diagjson_clean",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave65_diagjson_visible_forward_tag_control.c",
+      "expects": ["expect/11__wave65_visible_forward_tag_diagjson_clean.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "function-redeclaration", "file-scope-forward-tag", "parameter-type", "aggregate-identity", "clean-control", "line-directive", "diagjson", "wave65"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

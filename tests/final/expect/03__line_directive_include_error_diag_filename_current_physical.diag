@@ -1,0 +1,3 @@
+Diagnostics:
+virtual_pp_include_error_header_case.h:615:1: error: bucket03 include filename threshold error
+Error at (615:1): bucket03 include filename threshold error

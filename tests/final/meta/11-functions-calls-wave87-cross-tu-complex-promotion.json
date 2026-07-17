@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave87_multitu_no_prototype_float_complex",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave87_multitu_no_prototype_float_complex_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave87_multitu_no_prototype_float_complex_runtime_main.c",
+        "probes/runtime/11__probe_wave87_multitu_no_prototype_float_complex_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave87_multitu_no_prototype_float_complex.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "multitu", "no-prototype", "prototype", "float-complex", "default-argument-promotion", "abi", "runtime", "strict-regression", "wave87"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave87_multitu_no_prototype_real_float_conflict_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave87_diagjson_multitu_no_prototype_real_float_main.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_wave87_diagjson_multitu_no_prototype_real_float_main.c",
+        "probes/diagnostics/11__probe_wave87_diagjson_multitu_no_prototype_real_float_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave87-multitu-real-float-conflict.out"],
+      "expects": ["expect/11__wave87_multitu_no_prototype_real_float_conflict.diagjson"],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "multitu", "no-prototype", "prototype", "real-float", "default-argument-promotion", "cross-tu-conflict", "line-directive", "diagjson", "strict-regression", "wave87"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

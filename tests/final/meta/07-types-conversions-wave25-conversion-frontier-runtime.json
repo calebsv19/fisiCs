@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave25_conditional_qualified_null",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave25_conditional_qualified_null_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave25_conditional_qualified_null.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "conditional",
+        "null-pointer",
+        "qualifier",
+        "runtime",
+        "strict",
+        "wave25",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave25_array_function_decay",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave25_array_function_decay_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave25_array_function_decay.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "array-decay",
+        "function-pointer",
+        "conditional",
+        "runtime",
+        "strict",
+        "wave25",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave25_promotions_casts",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave25_promotions_casts_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave25_promotions_casts.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "integer-promotion",
+        "usual-arithmetic-conversion",
+        "cast",
+        "runtime",
+        "strict",
+        "wave25",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

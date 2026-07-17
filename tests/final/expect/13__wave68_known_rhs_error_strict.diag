@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6832:24): Undeclared identifier
+   Hint: wave68_missing_leaf
+   Spelling: virtual_wave68_known_rhs_error.c:6832:24

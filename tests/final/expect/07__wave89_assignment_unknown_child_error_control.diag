@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (4:21): Undeclared identifier
+   Hint: wave89_missing_unknown
+   Spelling: tests/final/probes/diagnostics/07__probe_wave89_assignment_unknown_child_error_control.c:4:21

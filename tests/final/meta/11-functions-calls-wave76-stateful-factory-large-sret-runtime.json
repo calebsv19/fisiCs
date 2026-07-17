@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave76_stateful_factory_large_sret",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave76_stateful_factory_large_sret_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave76_stateful_factory_large_sret.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "function-pointer-factory", "stateful-callback", "mixed-register-aggregate", "large-sret", "runtime", "strict-regression", "wave76"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

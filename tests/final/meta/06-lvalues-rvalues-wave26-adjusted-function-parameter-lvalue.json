@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime__wave26_adjusted_function_parameter_reassign",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave26_adjusted_function_parameter_reassign_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave26_adjusted_function_parameter_reassign.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave26", "function-parameter", "adjusted-type", "function-pointer", "assignment", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime__wave26_function_pointer_object_assignment_control",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave26_function_pointer_object_assignment_control_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave26_function_pointer_object_assignment_control.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave26", "function-pointer-object", "assignment", "control", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave26_file_scope_function_designator_assignment_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave26_file_scope_function_designator_assignment_reject.c",
+      "expects": ["expect/06__diag__wave26_file_scope_function_designator_assignment_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave26", "line-directive", "function-designator", "assignment", "negative-control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

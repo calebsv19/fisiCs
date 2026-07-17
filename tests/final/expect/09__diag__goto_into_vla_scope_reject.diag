@@ -1,5 +1,5 @@
 Diagnostics:
 Error at (2:5): goto jumps into scope of initialized variable
    Hint: after_vla
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/09__diag__goto_into_vla_scope_reject.c:2:5
+   Spelling: tests/final/cases/09__diag__goto_into_vla_scope_reject.c:2:5
 Warning at (3:0): Unreachable statement

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__wave85_no_prototype_float_complex_diagjson_clean",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave85_diagjson_no_prototype_float_complex_control.c",
+      "expects": ["expect/11__wave85_no_prototype_complex_controls.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "no-prototype", "prototype", "default-argument-promotion", "float-complex", "line-directive", "diagjson", "clean-control", "wave85"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave85_no_prototype_double_complex_diagjson_clean",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave85_diagjson_no_prototype_double_complex_control.c",
+      "expects": ["expect/11__wave85_no_prototype_complex_controls.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "no-prototype", "prototype", "default-argument-promotion", "double-complex", "line-directive", "diagjson", "clean-control", "wave85"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave85_no_prototype_real_float_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave85_diagjson_no_prototype_real_float_strict.c",
+      "expects": ["expect/11__wave85_no_prototype_real_float_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "no-prototype", "prototype", "default-argument-promotion", "real-float", "line-directive", "diagjson", "strict-regression", "wave85"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

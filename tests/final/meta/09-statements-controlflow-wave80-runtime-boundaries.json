@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__wave80_switch_default_scope_fallthrough",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave80_switch_default_scope_fallthrough.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave80_switch_default_scope_fallthrough.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "fallthrough", "scope", "goto", "wave80"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave80_nested_switch_goto_loop_latch",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave80_nested_switch_goto_loop_latch.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave80_nested_switch_goto_loop_latch.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested-switch", "goto", "loop", "wave80"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave80_switch_loop_control_interactions",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave80_switch_loop_control_interactions.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave80_switch_loop_control_interactions.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "loop", "continue", "break", "wave80"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave80_label_default_continue_boundary",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave80_label_default_continue_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave80_label_default_continue_boundary.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "label", "continue", "wave80"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

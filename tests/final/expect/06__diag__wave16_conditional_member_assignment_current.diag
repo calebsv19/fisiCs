@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (4111:6): Left operand of '=' must be a modifiable lvalue
+   Spelling: virtual_lv_wave16_conditional_member_assignment.c:4111:6

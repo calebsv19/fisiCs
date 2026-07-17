@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave37_include_rebind_tail_state",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave37_include_rebind_tail_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave37_include_rebind_tail_state.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include", "macro-rebind", "macro-state", "runtime", "wave37"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave37_nested_tail_reentry_state",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave37_nested_tail_reentry_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave37_nested_tail_reentry_state.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include-guard", "nested-include", "macro-state", "inactive-diagnostic", "runtime", "wave37"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave37_inactive_noise_token_provenance",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave37_inactive_noise_token_provenance.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave37_inactive_noise_token_provenance.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "inactive-conditional", "token-paste", "stringize", "line-map", "runtime", "wave37"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave37_line_macro_callsite_provenance",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave37_line_macro_callsite_provenance.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave37_line_macro_callsite_provenance.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro-provenance", "line-map", "runtime", "wave37"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

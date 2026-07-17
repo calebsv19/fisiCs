@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__diag__wave43_function_typedef_nested_shadow_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave43_function_typedef_nested_shadow_reject.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "prototype-scope", "typedef-shadow", "nested-function-parameter", "negative", "wave43", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__compile__wave43_function_typedef_nested_unwind_adjust_strict",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave43_function_typedef_nested_unwind_adjust_compile.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "prototype-scope", "scope-unwind", "function-parameter-adjustment", "array-parameter-adjustment", "multidimensional-array", "redeclaration-compatibility", "compile-only", "strict", "wave43", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__compile__wave43_function_typedef_nested_unwind_direct_row_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave43_function_typedef_nested_unwind_direct_row_control.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "prototype-scope", "scope-unwind", "function-parameter-adjustment", "array-parameter-adjustment", "redeclaration-compatibility", "compile-only", "current-threshold", "wave43", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

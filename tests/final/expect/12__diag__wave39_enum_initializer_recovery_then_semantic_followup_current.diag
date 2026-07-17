@@ -1,0 +1,14 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave39_enum_initializer_recovery.c:13521 (got ',')
+Error: Invalid value expression in enum at virtual_wave39_enum_initializer_recovery.c:13521 (got ',')
+Error: Unexpected token at start of expression at virtual_wave39_enum_initializer_recovery.c:13521 (got ',')
+Error: invalid statement at line 13521 (token=,)
+Error: Failed to parse expression at line 13521
+Error at (13526:17): Undeclared identifier
+   Hint: wave39_enum_initializer_missing
+   Spelling: virtual_wave39_enum_initializer_recovery.c:13526:17
+Error at (13527:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave39_enum_initializer_recovery.c:13527:16
+Error at (13528:12): Undeclared identifier
+   Hint: WAVE39_SECOND
+   Spelling: virtual_wave39_enum_initializer_recovery.c:13528:12

@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave34_guard_call_boundary.h:12581 (got ')')
+Error at (12581:18): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave34_guard_call_boundary.h:12581:18
+Error at (12582:20): Undeclared identifier
+   Hint: wave34_guard_call_boundary_missing
+   Spelling: virtual_wave34_guard_call_boundary.h:12582:20

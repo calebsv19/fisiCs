@@ -1,1 +1,37 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define internal i32 @fact(i32 %0) {
+entry:
+  %n = alloca i32, align 4
+  store i32 %0, ptr %n, align 4
+  %n1 = load i32, ptr %n, align 4
+  %cmptmp = icmp sle i32 %n1, 1
+  %cmp.int = zext i1 %cmptmp to i32
+  %ifcond = icmp ne i32 %cmp.int, 0
+  br i1 %ifcond, label %then, label %ifcont
+
+then:                                             ; preds = %entry
+  ret i32 1
+
+ifcont:                                           ; preds = %entry
+  %n2 = load i32, ptr %n, align 4
+  %n3 = load i32, ptr %n, align 4
+  %subtmp = sub i32 %n3, 1
+  %calltmp = call i32 @fact(i32 %subtmp)
+  %multmp = mul i32 %n2, %calltmp
+  ret i32 %multmp
+}
+
+define i32 @main() {
+entry:
+  %calltmp = call i32 @fact(i32 5)
+  ret i32 %calltmp
+}

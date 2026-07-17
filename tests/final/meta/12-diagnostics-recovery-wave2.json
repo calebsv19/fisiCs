@@ -5,6 +5,7 @@
   "tests": [
     {
       "id": "12__diag_incompatible_ptr",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_incompatible_ptr.c",
       "expects": [
@@ -21,6 +22,7 @@
     },
     {
       "id": "12__diag_illegal_cast",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_illegal_cast.c",
       "expects": [
@@ -37,6 +39,7 @@
     },
     {
       "id": "12__recovery__if_missing_rparen_then_followup_stmt",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__recovery__if_missing_rparen_then_followup_stmt.c",
       "expects": [
@@ -54,6 +57,7 @@
     },
     {
       "id": "12__recovery__while_missing_lparen_then_followup_stmt",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__recovery__while_missing_lparen_then_followup_stmt.c",
       "expects": [
@@ -71,6 +75,7 @@
     },
     {
       "id": "12__recovery__for_header_missing_semicolon_then_followup_decl",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__recovery__for_header_missing_semicolon_then_followup_decl.c",
       "expects": [
@@ -87,6 +92,7 @@
     },
     {
       "id": "12__recovery__do_while_missing_semicolon_then_followup_stmt",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__recovery__do_while_missing_semicolon_then_followup_stmt.c",
       "expects": [
@@ -104,6 +110,7 @@
     },
     {
       "id": "12__recovery__switch_case_missing_colon_then_followup_case",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__recovery__switch_case_missing_colon_then_followup_case.c",
       "expects": [
@@ -120,6 +127,7 @@
     },
     {
       "id": "12__recovery__switch_bad_case_expr_then_default",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__recovery__switch_bad_case_expr_then_default.c",
       "expects": [
@@ -136,6 +144,7 @@
     },
     {
       "id": "12__recovery__goto_missing_label_token_then_followup_label",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__recovery__goto_missing_label_token_then_followup_label.c",
       "expects": [
@@ -153,6 +162,7 @@
     },
     {
       "id": "12__recovery__case_outside_switch_then_next_stmt_ok",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__recovery__case_outside_switch_then_next_stmt_ok.c",
       "expects": [

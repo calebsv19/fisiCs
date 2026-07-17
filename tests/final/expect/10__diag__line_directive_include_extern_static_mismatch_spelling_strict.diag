@@ -1,5 +1,5 @@
 Diagnostics:
-Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/10__probe_diag_line_directive_include_extern_static_mismatch_spelling_strict.h
+Warning: unrecognized input extension for tests/final/probes/diagnostics/10__probe_diag_line_directive_include_extern_static_mismatch_spelling_strict.h
 Error at (7402:12): Conflicting linkage for variable
    Hint: linkage_inc_es_probe_diag
    Spelling: virtual_scope_include_extern_static_mismatch_probe_diag_text.h:7402:12

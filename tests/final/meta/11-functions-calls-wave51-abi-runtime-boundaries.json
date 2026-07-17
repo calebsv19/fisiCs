@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave51_returned_fnptr_aggregate_callback",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave51_returned_fnptr_aggregate_callback_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave51_returned_fnptr_aggregate_callback_runtime_main.c",
+        "probes/runtime/11__probe_wave51_returned_fnptr_aggregate_callback_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave51_returned_fnptr_aggregate_callback.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr-return", "aggregate-argument", "callback", "aggregate-return", "runtime", "strict-regression", "wave51"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave51_sret_byval_callback_chain",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave51_sret_byval_callback_chain_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave51_sret_byval_callback_chain_runtime_main.c",
+        "probes/runtime/11__probe_wave51_sret_byval_callback_chain_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave51_sret_byval_callback_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "large-sret", "by-value-aggregate", "callback", "runtime", "strict-regression", "wave51"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave51_variadic_nested_callback_pack",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave51_variadic_nested_callback_pack_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave51_variadic_nested_callback_pack_runtime_main.c",
+        "probes/runtime/11__probe_wave51_variadic_nested_callback_pack_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave51_variadic_nested_callback_pack.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "aggregate-argument", "callback", "runtime", "strict-regression", "wave51"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave51_variadic_nested_callback_pack_current",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave51_variadic_nested_callback_pack_current_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave51_variadic_nested_callback_pack_current_runtime_main.c",
+        "probes/runtime/11__probe_wave51_variadic_nested_callback_pack_current_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave51_variadic_nested_callback_pack_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "aggregate-argument", "callback", "runtime", "current-threshold", "wave51"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave51_small_return_slot_depth",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave51_small_return_slot_depth_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave51_small_return_slot_depth_runtime_main.c",
+        "probes/runtime/11__probe_wave51_small_return_slot_depth_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave51_small_return_slot_depth.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr-return", "small-aggregate-return", "slot-depth", "runtime", "strict-regression", "wave51"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

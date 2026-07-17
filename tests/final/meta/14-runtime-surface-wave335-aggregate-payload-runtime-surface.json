@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_wave335_nested_union_return_slot_payload",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave335_nested_union_return_slot_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave335_nested_union_return_slot_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "nested-union", "return-slot", "payload-preservation", "wave335"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave335_stdlib_qsort_nested_payload",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave335_stdlib_qsort_nested_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave335_stdlib_qsort_nested_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "stdlib", "qsort", "payload-preservation", "wave335"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave335_header_memcpy_bsearch_payload",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave335_header_memcpy_bsearch_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave335_header_memcpy_bsearch_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "string", "stdlib", "bsearch", "payload-preservation", "wave335"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave335_physics_units_aggregate_matrix",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave335_physics_units_aggregate_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave335_physics_units_aggregate_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["runtime", "aggregate", "physics", "units", "overlay", "struct-return", "payload-preservation", "wave335"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

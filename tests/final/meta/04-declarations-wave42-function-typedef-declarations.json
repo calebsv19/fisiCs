@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__compile__wave42_function_typedef_declaration",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave42_function_typedef_declaration_compile.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "function-declaration", "compile-only", "fail-closed", "wave42", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave42_function_typedef_array_parameter_definition",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave42_function_typedef_array_parameter_definition_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "function-declaration", "array-parameter", "parameter-adjustment", "prototype-compatibility", "runtime", "wave42", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave42_function_typedef_function_parameter_definition",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave42_function_typedef_function_parameter_definition_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "function-declaration", "function-parameter", "parameter-adjustment", "prototype-compatibility", "runtime", "wave42", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave42_function_typedef_incompatible_definition",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave42_function_typedef_incompatible_definition.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "function-declaration", "function-parameter", "prototype-compatibility", "conflicting-types", "negative", "wave42", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave42_function_typedef_block_scope_redeclaration",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave42_function_typedef_block_scope_redeclaration_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "function-declaration", "block-scope", "linkage", "runtime", "wave42", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave42_function_typedef_block_static_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave42_function_typedef_block_static_reject.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "function-declaration", "block-scope", "storage-class", "negative", "wave42", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave42_function_typedef_linkage_conflict_reject",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave42_function_typedef_linkage_conflict_reject.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-type", "function-declaration", "linkage", "negative", "wave42", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

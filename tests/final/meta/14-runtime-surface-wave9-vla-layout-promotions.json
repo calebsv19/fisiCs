@@ -34,12 +34,12 @@
       "expected_stderr": "expect/14__runtime_alignment_long_double_struct.stderr",
       "differential": true,
       "standard": "c99",
-      "abi_sensitive": true,
       "tags": [
         "runtime",
         "memory",
         "struct-layout",
-        "alignment"
+        "alignment",
+        "abi-sensitive"
       ],
       "requires": [],
       "status": "ok"
@@ -55,12 +55,12 @@
       "expected_stderr": "expect/14__runtime_struct_array_byte_stride.stderr",
       "differential": true,
       "standard": "c99",
-      "abi_sensitive": true,
       "tags": [
         "runtime",
         "memory",
         "struct-layout",
-        "stride"
+        "stride",
+        "abi-sensitive"
       ],
       "requires": [],
       "status": "ok"
@@ -76,12 +76,12 @@
       "expected_stderr": "expect/14__runtime_union_embedded_alignment.stderr",
       "differential": true,
       "standard": "c99",
-      "abi_sensitive": true,
       "tags": [
         "runtime",
         "memory",
         "union",
-        "alignment"
+        "alignment",
+        "abi-sensitive"
       ],
       "requires": [],
       "status": "ok"

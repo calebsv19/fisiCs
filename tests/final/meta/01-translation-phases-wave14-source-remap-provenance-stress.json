@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave14_nested_include_adjacent_source",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave14_nested_include_adjacent_source.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave14_nested_include_adjacent_source.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "nested-include", "adjacent-string", "source-provenance", "wave14", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave14_tokenpaste_stringize_adjacent",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave14_tokenpaste_stringize_adjacent.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave14_tokenpaste_stringize_adjacent.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "token-paste", "stringize", "adjacent-string", "source-provenance", "wave14", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave14_spliced_nested_macro_file_line",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave14_spliced_nested_macro_file_line.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave14_spliced_nested_macro_file_line.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "line-splice", "token-paste", "adjacent-string", "source-provenance", "wave14", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

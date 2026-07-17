@@ -14,14 +14,14 @@
       "include_stack": [
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_next_missing.c",
+          "file": "tests/final/cases/03__include_next_missing.c",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/pp_include_next_missing.h",
+          "file": "tests/final/cases/pp_include_next_missing.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true

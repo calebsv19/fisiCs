@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__wave79_switch_loop_goto_continue_mesh",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave79_switch_loop_goto_continue_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave79_switch_loop_goto_continue_mesh.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "goto", "loop", "continue", "wave79"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave79_switch_default_label_fallthrough_weave_current",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave79_switch_default_label_fallthrough_weave_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave79_switch_default_label_fallthrough_weave_current.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "fallthrough", "current-threshold", "wave79"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave79_switch_default_label_fallthrough_weave",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave79_switch_default_label_fallthrough_weave.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave79_switch_default_label_fallthrough_weave.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default", "fallthrough", "label", "goto", "wave79", "fixed"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave79_switch_do_while_goto_break_latch",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave79_switch_do_while_goto_break_latch.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave79_switch_do_while_goto_break_latch.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "do-while", "goto", "break", "wave79"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave79_nested_loop_label_continue_matrix",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave79_nested_loop_label_continue_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave79_nested_loop_label_continue_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested-loop", "label", "continue", "wave79"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

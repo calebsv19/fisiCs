@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave46_nested_fnptr_aggregate_arg",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave46_nested_fnptr_aggregate_arg_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave46_nested_fnptr_aggregate_arg_runtime_main.c",
+        "probes/runtime/11__probe_wave46_nested_fnptr_aggregate_arg_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave46_nested_fnptr_aggregate_arg.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr", "aggregate-argument", "aggregate-return", "callback", "runtime", "strict-regression", "wave46"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave46_aggregate_return_fnptr_matrix",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave46_aggregate_return_fnptr_matrix_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave46_aggregate_return_fnptr_matrix_runtime_main.c",
+        "probes/runtime/11__probe_wave46_aggregate_return_fnptr_matrix_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave46_aggregate_return_fnptr_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr-return", "aggregate-return", "array-member", "runtime", "strict-regression", "wave46"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave46_large_sret_callback_payload",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave46_large_sret_callback_payload_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave46_large_sret_callback_payload_runtime_main.c",
+        "probes/runtime/11__probe_wave46_large_sret_callback_payload_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave46_large_sret_callback_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr", "callback", "aggregate-argument", "large-sret", "aggregate-return", "runtime", "strict-regression", "wave46"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

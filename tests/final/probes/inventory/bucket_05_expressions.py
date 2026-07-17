@@ -176,6 +176,219 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/05__probe_compound_literal_cast_sum_runtime.c',
         note='compound literal element reads plus explicit unsigned casts should match clang runtime',
     ),
+    RuntimeProbe(
+        probe_id='05__probe_conditional_pointer_member_call_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_conditional_pointer_member_call_runtime.c',
+        note='conditional pointer selection followed by member function-pointer call should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_sizeof_conditional_member_unevaluated_strict_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_sizeof_conditional_member_unevaluated_strict_runtime.c',
+        note='sizeof over conditional pointer/member expressions should keep non-VLA operands unevaluated and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_sizeof_conditional_member_current_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_sizeof_conditional_member_current_runtime.c',
+        note='current-threshold companion: sizeof over conditional member access without operand side effects should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_nested_conditional_function_pointer_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_nested_conditional_function_pointer_runtime.c',
+        note='nested conditional function-pointer call selection and post-increment sequencing should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave18_sizeof_comma_call_unevaluated_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave18_sizeof_comma_call_unevaluated_runtime.c',
+        note='sizeof over a comma/call expression should keep non-VLA operand side effects unevaluated and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave18_conditional_member_fnptr_path_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave18_conditional_member_fnptr_path_runtime.c',
+        note='conditional member function-pointer path selection with side effects should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave18_conditional_inactive_call_side_effect_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave18_conditional_inactive_call_side_effect_runtime.c',
+        note='conditional inactive arms containing calls and side effects should remain unevaluated and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave19_sizeof_conditional_comma_unevaluated_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave19_sizeof_conditional_comma_unevaluated_runtime.c',
+        note='sizeof over conditional/comma expressions should keep non-VLA side effects unevaluated and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave19_member_fnptr_selected_call_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave19_member_fnptr_selected_call_runtime.c',
+        note='conditional member function-pointer selection and call side effects should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave19_selected_side_effect_lattice_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave19_selected_side_effect_lattice_runtime.c',
+        note='selected conditional/logical/comma side-effect paths should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave20_sizeof_conditional_fnptr_unevaluated_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave20_sizeof_conditional_fnptr_unevaluated_runtime.c',
+        note='sizeof over conditional function-pointer calls should keep non-VLA side effects unevaluated and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave20_selected_member_fnptr_table_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave20_selected_member_fnptr_table_runtime.c',
+        note='conditional member function-pointer table selection and calls should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave20_nested_conditional_pointer_lvalue_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave20_nested_conditional_pointer_lvalue_runtime.c',
+        note='nested conditional pointer-selected lvalue and rvalue paths should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave20_conditional_struct_fnptr_call_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave20_conditional_struct_fnptr_call_runtime.c',
+        note='conditional struct selection followed by function-pointer calls should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave21_sizeof_address_cast_comma_unevaluated_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave21_sizeof_address_cast_comma_unevaluated_runtime.c',
+        note='sizeof over address/cast/comma expressions should keep non-VLA operands unevaluated and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave21_conditional_cast_address_lattice_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave21_conditional_cast_address_lattice_runtime.c',
+        note='conditional selected address/cast lattice with comma side effects should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave21_comma_conditional_cast_sizeof_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave21_comma_conditional_cast_sizeof_runtime.c',
+        note='comma, conditional, cast, and non-VLA sizeof side effects should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave21_addressed_conditional_lvalue_current_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave21_addressed_conditional_lvalue_current_runtime.c',
+        note='current-threshold companion: pointer-selected addressed lvalue updates across conditional/cast/sizeof boundaries should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave22_sizeof_conditional_member_call_unevaluated',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave22_sizeof_conditional_member_call_unevaluated.c',
+        note='sizeof over conditional member function-pointer calls should keep non-VLA operands unevaluated and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave22_comma_conditional_address_member_sequence',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave22_comma_conditional_address_member_sequence.c',
+        note='comma sequenced conditional address/member lvalue updates should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave22_nested_conditional_member_call_current',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave22_nested_conditional_member_call_current.c',
+        note='current-threshold companion: nested conditional member-call selection should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave22_cast_sizeof_address_lvalue_matrix',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave22_cast_sizeof_address_lvalue_matrix.c',
+        note='cast, sizeof, address, and selected lvalue sequencing should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave23_sizeof_conditional_comma_cast_member_unevaluated',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave23_sizeof_conditional_comma_cast_member_unevaluated.c',
+        note='sizeof over conditional comma/cast/member expressions should keep non-VLA side effects unevaluated and match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave23_conditional_address_member_fnptr_sequence',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave23_conditional_address_member_fnptr_sequence.c',
+        note='conditional address-selected member function-pointer calls with comma sequencing should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave23_comma_cast_member_lvalue_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave23_comma_cast_member_lvalue_runtime.c',
+        note='comma/cast/address-selected member lvalue updates should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave23_nested_fnptr_member_current',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave23_nested_fnptr_member_current.c',
+        note='current-threshold companion: nested conditional member function-pointer selection without sizeof unevaluated side effects should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave24_nested_conditional_fnptr_expr',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave24_nested_conditional_fnptr_expr.c',
+        note='nested conditional member function-pointer expression selection should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave24_comma_short_circuit_trace',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave24_comma_short_circuit_trace.c',
+        note='comma and short-circuit side-effect trace boundaries should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave24_compound_literal_ternary_pair',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave24_compound_literal_ternary_pair.c',
+        note='compound literals selected through ternary aggregate expressions should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave24_sizeof_cast_conditional_vla',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave24_sizeof_cast_conditional_vla.c',
+        note='sizeof, cast, conditional VLA, and selected member access should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave25_conditional_aggregate_payload',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave25_conditional_aggregate_payload.c',
+        note='conditional aggregate payload selection and copy preservation should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave25_member_fnptr_call_sequence',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave25_member_fnptr_call_sequence.c',
+        note='conditional member function-pointer call and argument sequencing should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave25_short_circuit_pointer_member_call',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave25_short_circuit_pointer_member_call.c',
+        note='short-circuit pointer/member call sequencing should match clang runtime',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave25_sizeof_conditional_aggregate_payload',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave25_sizeof_conditional_aggregate_payload.c',
+        note='sizeof over conditional aggregate expressions should preserve VLA side effects and keep non-VLA payloads unevaluated',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave26_nested_member_compound_assignment',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave26_nested_member_compound_assignment.c',
+        note='compound assignment through selected nested aggregate members should update only the selected storage',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave26_compound_target_single_evaluation',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave26_compound_target_single_evaluation.c',
+        note='compound assignment target expressions should be evaluated once across aggregate member selection',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_runtime_wave26_vla_sizeof_fnptr_evaluation',
+        source=PROBE_DIR / 'runtime/05__probe_runtime_wave26_vla_sizeof_fnptr_evaluation.c',
+        note='VLA sizeof bounds should evaluate function-pointer calls while non-VLA sizeof function calls remain unevaluated',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave33_conditional_inactive_comma_ice_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave33_conditional_inactive_comma_ice_runtime.c',
+        note='wave33 strict C99 ICE: a comma operator in the discarded conditional arm remains admissible and matches clang',
+        clang_args=['-pedantic-errors'],
+        promoted_test_id='05__runtime_wave33_conditional_inactive_comma_ice',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave33_logical_or_inactive_comma_case_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave33_logical_or_inactive_comma_case_runtime.c',
+        note='wave33 strict C99 ICE: a comma operator in a short-circuited logical-OR case label remains admissible',
+        clang_args=['-pedantic-errors'],
+        promoted_test_id='05__runtime_wave33_logical_or_inactive_comma_case',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave33_logical_and_inactive_comma_ice_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave33_logical_and_inactive_comma_ice_runtime.c',
+        note='wave33 strict C99 ICE: a comma operator in a short-circuited logical-AND operand remains admissible',
+        clang_args=['-pedantic-errors'],
+        promoted_test_id='05__runtime_wave33_logical_and_inactive_comma_ice',
+    ),
+    RuntimeProbe(
+        probe_id='05__probe_wave33_immediate_float_integer_cast_ice_runtime',
+        source=PROBE_DIR / 'runtime/05__probe_wave33_immediate_float_integer_cast_ice_runtime.c',
+        note='wave33 strict C99 ICE: a floating constant used immediately under an integer cast is admissible',
+        clang_args=['-pedantic-errors'],
+        promoted_test_id='05__runtime_wave33_immediate_float_integer_cast_ice',
+    ),
 ]
 
 DIAG_PROBES = [
@@ -322,6 +535,7 @@ DIAG_PROBES = [
         source=PROBE_DIR / 'diagnostics/05__probe_line_directive_unary_minus_ptr_reduced_location_pass.c',
         note='reduced threshold: single-line unary-minus-pointer lane preserves remapped #line boundary',
         required_substrings=['Error at (841:74):'],
+        promoted_test_id='05__line_directive_unary_minus_ptr_diag_line_map',
     ),
 ]
 
@@ -346,6 +560,7 @@ DIAG_JSON_PROBES = [
         note='reduced threshold: single-line _Alignof-expression lane preserves remapped #line boundary in diagnostics JSON',
         expected_codes=[2000],
         expected_line=861,
+        promoted_test_id='05__line_directive_alignof_expr_diagjson_line_map',
     ),
     DiagnosticJsonProbe(
         probe_id='05__probe_diagjson_line_directive_shift_width_file_presence_reject',
@@ -354,6 +569,7 @@ DIAG_JSON_PROBES = [
         expected_codes=[2000],
         expected_line=871,
         expected_has_file=True,
+        promoted_test_id='05__diagjson__line_directive_shift_width_current_sparse_pass',
     ),
     DiagnosticJsonProbe(
         probe_id='05__probe_diagjson_line_directive_shift_width_current_sparse_pass',
@@ -370,6 +586,7 @@ DIAG_JSON_PROBES = [
         expected_codes=[2000],
         expected_line=881,
         expected_has_file=True,
+        promoted_test_id='05__diagjson__line_directive_alignof_expr_current_sparse_pass',
     ),
     DiagnosticJsonProbe(
         probe_id='05__probe_diagjson_line_directive_alignof_expr_current_sparse_pass',
@@ -387,6 +604,7 @@ DIAG_JSON_PROBES = [
         expected_line=901,
         expected_column=37,
         expected_has_file=True,
+        promoted_test_id='05__line_directive_macro_add_diagjson_rich_location',
     ),
     DiagnosticJsonProbe(
         probe_id='05__probe_diagjson_line_directive_include_shift_width_file_presence_reject',
@@ -395,6 +613,7 @@ DIAG_JSON_PROBES = [
         expected_codes=[2000],
         expected_line=1361,
         expected_has_file=True,
+        promoted_test_id='05__diagjson__line_directive_include_shift_width_current_sparse_pass',
     ),
     DiagnosticJsonProbe(
         probe_id='05__probe_diagjson_line_directive_include_shift_width_current_sparse_pass',
@@ -411,6 +630,7 @@ DIAG_JSON_PROBES = [
         expected_codes=[2000],
         expected_line=1381,
         expected_has_file=True,
+        promoted_test_id='05__diagjson__line_directive_include_alignof_expr_current_sparse_pass',
     ),
     DiagnosticJsonProbe(
         probe_id='05__probe_diagjson_line_directive_include_alignof_expr_current_sparse_pass',
@@ -428,5 +648,52 @@ DIAG_JSON_PROBES = [
         expected_line=1411,
         expected_column=47,
         expected_has_file=True,
+        promoted_test_id='05__line_directive_include_macro_add_diagjson_rich_location',
+    ),
+    DiagnosticJsonProbe(
+        probe_id='05__probe_wave27_diagjson_nested_factory_equality_same_name',
+        source=PROBE_DIR / 'diagnostics/05__probe_wave27_diagjson_nested_factory_equality_same_name.c',
+        note='wave27 strict: equality between nested factory pointers whose callback payload tags are lexically distinct despite matching spellings must be rejected',
+        expected_codes=[2000],
+        expected_line=19018,
+        expected_column=16,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='05__probe_wave27_diagjson_nested_factory_inequality_alpha_name',
+        source=PROBE_DIR / 'diagnostics/05__probe_wave27_diagjson_nested_factory_inequality_alpha_name.c',
+        note='wave27 alpha control: renaming the inner aggregate tag preserves nested factory-pointer inequality incompatibility',
+        expected_codes=[2000],
+        expected_line=19118,
+        expected_column=16,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='05__probe_wave27_diagjson_nested_factory_comparison_shared_tag',
+        source=PROBE_DIR / 'diagnostics/05__probe_wave27_diagjson_nested_factory_comparison_shared_tag.c',
+        note='wave27 compatible control: aliases of one shared nested factory-pointer type remain valid for equality and inequality',
+        require_any_diagnostic=False,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='05__probe_wave33_selected_comma_ice_reject',
+        source=PROBE_DIR / 'diagnostics/05__probe_wave33_selected_comma_ice_reject.c',
+        note='wave33 strict C99 ICE control: a comma operator in the selected conditional arm is not an integer constant expression',
+        expected_codes=[2000],
+        expected_line=33005,
+        expected_column=8,
+        expected_has_file=True,
+        fisics_env={'DISABLE_CODEGEN': '1'},
+        promoted_test_id='05__wave33_selected_comma_ice_diagjson',
+    ),
+    DiagnosticJsonProbe(
+        probe_id='05__probe_wave33_pointer_integer_cast_ice_reject',
+        source=PROBE_DIR / 'diagnostics/05__probe_wave33_pointer_integer_cast_ice_reject.c',
+        note='wave33 strict C99 ICE control: casting a null pointer value to integer does not form an integer constant expression',
+        expected_codes=[2000],
+        expected_line=33006,
+        expected_column=8,
+        expected_has_file=True,
+        fisics_env={'DISABLE_CODEGEN': '1'},
+        promoted_test_id='05__wave33_pointer_integer_cast_ice_diagjson',
     ),
 ]

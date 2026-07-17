@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__wave42_sizeof_type_missing_rparen_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave42_sizeof_type_missing_rparen_then_semantic_followup.c",
+      "expects": [
+        "expect/12__diag__wave42_sizeof_type_missing_rparen_strict.diag",
+        "expect/12__pdiag__wave42_sizeof_type_missing_rparen_strict.pdiag",
+        "expect/12__diagjson__wave42_sizeof_type_missing_rparen_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": [
+        "diagnostics-recovery",
+        "sizeof-type",
+        "parser-recovery",
+        "semantic-followup",
+        "line-directive",
+        "strict-clang-parity",
+        "probe-frontier",
+        "wave42"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

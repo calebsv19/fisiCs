@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave76_aggregate_enum_member_promotion_grid",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_policy_strict_wave76_aggregate_enum_member_promotion_grid.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave76_aggregate_enum_member_promotion_grid.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "aggregate",
+        "enum",
+        "integer-promotion",
+        "member-access",
+        "runtime",
+        "strict",
+        "wave76",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave76_pointer_member_decay_stride",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_policy_strict_wave76_pointer_member_decay_stride.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave76_pointer_member_decay_stride.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "array-decay",
+        "member-access",
+        "void-pointer",
+        "runtime",
+        "strict",
+        "wave76",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave76_callback_fnptr_member_dispatch",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_policy_strict_wave76_callback_fnptr_member_dispatch.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave76_callback_fnptr_member_dispatch.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "function-pointer",
+        "callback",
+        "enum",
+        "runtime",
+        "strict",
+        "wave76",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave76_aggregate_callback_payload_chain",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_policy_strict_wave76_aggregate_callback_payload_chain.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave76_aggregate_callback_payload_chain.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "aggregate",
+        "callback",
+        "function-pointer",
+        "member-access",
+        "runtime",
+        "strict",
+        "wave76",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

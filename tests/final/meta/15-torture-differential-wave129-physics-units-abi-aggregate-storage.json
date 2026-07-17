@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_units_wave129_struct_return_slot_ring",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_wave129_struct_return_slot_ring.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_wave129_struct_return_slot_ring.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "aggregate-storage",
+        "aggregate-return",
+        "wave129"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_wave129_nested_payload_callback",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_wave129_nested_payload_callback_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_units_runtime_wave129_nested_payload_callback_main.c",
+        "probes/runtime/15__probe_units_runtime_wave129_nested_payload_callback_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_wave129_nested_payload_callback.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "multitu",
+        "callback",
+        "aggregate-return",
+        "wave129"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_abi_wave129_units_tagged_payload_preservation",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_abi_wave129_units_tagged_payload_preservation_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_abi_wave129_units_tagged_payload_preservation_main.c",
+        "probes/runtime/15__probe_abi_wave129_units_tagged_payload_preservation_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_abi_wave129_units_tagged_payload_preservation.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "abi",
+        "physics",
+        "units",
+        "aggregate",
+        "nested-payload",
+        "wave129"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_abi_wave129_nested_callback_ring",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_abi_wave129_nested_callback_ring_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_abi_wave129_nested_callback_ring_main.c",
+        "probes/runtime/15__probe_abi_wave129_nested_callback_ring_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_abi_wave129_nested_callback_ring.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "abi",
+        "aggregate",
+        "nested-payload",
+        "callback",
+        "wave129"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

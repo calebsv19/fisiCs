@@ -1,0 +1,20 @@
+#ifndef FISICS_PROBE_RUNTIME_WAVE36_INCLUDE_RETURN_REDEFINE_STATE_H
+#define FISICS_PROBE_RUNTIME_WAVE36_INCLUDE_RETURN_REDEFINE_STATE_H
+
+#define W36_REDEF_CAT2(a, b) a##b
+#define W36_REDEF_CAT(a, b) W36_REDEF_CAT2(a, b)
+#define W36_REDEF_STR2(x) #x
+#define W36_REDEF_STR(x) W36_REDEF_STR2(x)
+#define W36_REDEF_DECL(slot, value) enum { W36_REDEF_CAT(w36_redef_, slot) = (value) + W36_REDEF_BONUS }
+
+#endif
+
+#ifndef W36_REDEF_BONUS
+#define W36_REDEF_BONUS 0
+#endif
+
+#line 4150 "virtual_wave36_redefine_header.h"
+W36_REDEF_DECL(W36_REDEF_SLOT, W36_REDEF_VALUE);
+
+#undef W36_REDEF_BONUS
+#define W36_REDEF_BONUS 3

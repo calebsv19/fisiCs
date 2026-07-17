@@ -13,18 +13,18 @@
       "has_message": true,
       "kind": 0,
       "length": 17,
-      "line": 9,
+      "line": 544105,
       "macro_trace": [
         {
           "column": 12,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash_a.h",
-          "line": 9,
+          "file": "axis4_wave10_winner_layer_a.h",
+          "line": 544105,
           "macro": "AX4_W10_JOIN_CALL",
           "role": "call_site"
         },
         {
           "column": 1,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash_f.h",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_axis4_wave10_branch_convergence_winner_arity_fail_no_crash_f.h",
           "line": 10,
           "macro": "AX4_W10_JOIN_CALL",
           "role": "definition"

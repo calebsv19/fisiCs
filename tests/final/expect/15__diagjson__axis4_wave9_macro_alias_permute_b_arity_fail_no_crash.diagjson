@@ -7,24 +7,24 @@
       "code": 3000,
       "code_id": 3000,
       "code_name": "preprocessor.generic",
-      "column": 28,
+      "column": 12,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
-      "length": 19,
-      "line": 543203,
+      "length": 18,
+      "line": 543105,
       "macro_trace": [
         {
-          "column": 28,
-          "file": "axis4_wave9_perm_b_layer_b.h",
-          "line": 543203,
+          "column": 12,
+          "file": "axis4_wave9_perm_b_layer_a.h",
+          "line": 543105,
           "macro": "AX4_W9_PERM_B_FINAL",
           "role": "call_site"
         },
         {
           "column": 1,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash_c.h",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_axis4_wave9_macro_alias_permute_b_arity_fail_no_crash_c.h",
           "line": 7,
           "macro": "AX4_W9_PERM_B_FINAL",
           "role": "definition"

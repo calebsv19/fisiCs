@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave52_union_selected_conversion",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave52_union_selected_conversion_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave52_union_selected_conversion.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "union", "selected-member", "conversion", "runtime", "wave52"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave52_member_lvalue_aggregate_return",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave52_member_lvalue_aggregate_return_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave52_member_lvalue_aggregate_return.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "pointer-member", "lvalue", "aggregate-return", "runtime", "wave52"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

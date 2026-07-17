@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (3:12): Invalid shift width -1 for 32-bit operand
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__diag_invalid_shift_width.c:3:12
+Warning at (3:12): Invalid shift width -1 for 32-bit operand
+   Spelling: tests/final/cases/12__diag_invalid_shift_width.c:3:12
+Semantic analysis: no issues found.

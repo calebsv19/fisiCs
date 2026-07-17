@@ -110,11 +110,11 @@
       "expected_stderr": "expect/15__torture__large_struct.stderr",
       "differential": true,
       "standard": "c99",
-      "abi_sensitive": true,
       "tags": [
         "torture",
         "runtime",
-        "struct-layout"
+        "struct-layout",
+        "abi-sensitive"
       ],
       "requires": [],
       "status": "ok"

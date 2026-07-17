@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_named_union_struct_layout_checksum_wave72",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_named_union_struct_layout_checksum_wave72.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_named_union_struct_layout_checksum_wave72.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "layout", "offsetof", "zero-fill", "wave72"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_array_union_zero_fill_checksum_wave72",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_array_union_zero_fill_checksum_wave72.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_array_union_zero_fill_checksum_wave72.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "array", "union", "layout", "offsetof", "zero-fill", "wave72"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_anonymous_union_struct_layout_checksum_wave72",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_anonymous_union_struct_layout_checksum_wave72.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_anonymous_union_struct_layout_checksum_wave72.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "anonymous-union", "anonymous-struct", "layout", "offsetof", "zero-fill", "wave72"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

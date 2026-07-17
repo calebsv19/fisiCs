@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave52_variadic_callback_payload",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave52_variadic_callback_payload_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave52_variadic_callback_payload_runtime_main.c",
+        "probes/runtime/11__probe_wave52_variadic_callback_payload_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave52_variadic_callback_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "aggregate-argument", "callback", "runtime", "strict-regression", "wave52"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave52_callback_sret_payload",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave52_callback_sret_payload_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave52_callback_sret_payload_runtime_main.c",
+        "probes/runtime/11__probe_wave52_callback_sret_payload_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave52_callback_sret_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "callback", "large-sret", "aggregate-return", "runtime", "strict-regression", "wave52"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave52_returned_fnptr_aggregate_handoff",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave52_returned_fnptr_aggregate_handoff_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave52_returned_fnptr_aggregate_handoff_runtime_main.c",
+        "probes/runtime/11__probe_wave52_returned_fnptr_aggregate_handoff_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave52_returned_fnptr_aggregate_handoff.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr-return", "aggregate-argument", "callback", "aggregate-return", "runtime", "strict-regression", "wave52"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

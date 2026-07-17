@@ -1,7 +1,2 @@
 Diagnostics:
-Error: ')' at virtual_diagrec_switch_missing_rparen_case.c:8903 (got '{')
-Error: Unexpected token at start of expression at virtual_diagrec_switch_missing_rparen_case.c:8903 (got '{')
-Error: Failed to parse expression at line 8903
-Error: invalid statement inside block at line 8903
-Error at (8901:5): Control reaches end of non-void function 'main'
-   Spelling: virtual_diagrec_switch_missing_rparen_case.c:8901:5
+Error: expected ')' after switch condition at virtual_diagrec_switch_missing_rparen_case.c:8903 (got '{')

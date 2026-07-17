@@ -2,8 +2,6 @@ Diagnostics:
 Error at (9305:17): Undeclared identifier
    Hint: missing
    Spelling: virtual_diagrec_mixed_switch_followup.c:9305:17
-Error at (9305:13): Incompatible assignment operands
-   Spelling: virtual_diagrec_mixed_switch_followup.c:9305:13
 Error at (9306:13): Break statement not within loop or switch
    Spelling: virtual_diagrec_mixed_switch_followup.c:9306:13
 Error at (9309:13): Break statement not within loop or switch
@@ -12,5 +10,3 @@ Error at (9311:12): Undeclared identifier
    Hint: x
    Spelling: virtual_diagrec_mixed_switch_followup.c:9311:12
 Warning at (9309:0): Unreachable statement
-Error at (9301:5): Control reaches end of non-void function 'main'
-   Spelling: virtual_diagrec_mixed_switch_followup.c:9301:5

@@ -1,0 +1,17 @@
+Diagnostics:
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_compound_initializer_then_undeclared_followup.c:2 (got ',')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_compound_initializer_then_undeclared_followup.c:2 (got ',')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_compound_initializer_then_undeclared_followup.c:4 (got '}')
+Error: invalid statement at line 4 (token=})
+Error: Invalid positional initializer at line 2
+Error: Failed to parse expression at line 2
+Error: invalid statement inside block at line 2
+Error: Failed to parse expression at line 4
+Error at (3:12): Undeclared identifier
+   Hint: values
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_compound_initializer_then_undeclared_followup.c:3:12
+Error at (3:24): Undeclared identifier
+   Hint: follow_on_after_bad_compound_initializer
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_compound_initializer_then_undeclared_followup.c:3:24
+Error at (1:5): Control reaches end of non-void function 'main'
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_compound_initializer_then_undeclared_followup.c:1:5

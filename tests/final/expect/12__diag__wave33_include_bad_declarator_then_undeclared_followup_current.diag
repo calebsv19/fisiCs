@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected identifier at virtual_wave33_bad_declarator_followup.h:12410 (got ')')
+Error at (4:12): Undeclared identifier
+   Hint: wave33_bad_declarator_followup_missing
+   Spelling: tests/final/probes/diagnostics/12__probe_wave33_include_bad_declarator_then_undeclared_followup.c:4:12

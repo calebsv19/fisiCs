@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__diag__wave32_bad_enum_member_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave32_bad_enum_member_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diag__wave32_bad_enum_member_then_undeclared_followup.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diag", "parser-recovery", "declaration", "semantic-followup", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave32_bad_enum_member_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave32_bad_enum_member_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave32_bad_enum_member_then_undeclared_followup.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["diagjson", "parser-recovery", "declaration", "semantic-followup", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave32_bad_struct_declarator_then_type_mismatch_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave32_bad_struct_declarator_then_type_mismatch_followup.c",
+      "expects": [
+        "expect/12__diag__wave32_bad_struct_declarator_then_type_mismatch_followup.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diag", "parser-recovery", "declaration", "semantic-followup", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave32_bad_struct_declarator_then_type_mismatch_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave32_bad_struct_declarator_then_type_mismatch_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave32_bad_struct_declarator_then_type_mismatch_followup.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["diagjson", "parser-recovery", "declaration", "semantic-followup", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave32_bad_function_declarator_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave32_bad_function_declarator_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diag__wave32_bad_function_declarator_then_undeclared_followup.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diag", "parser-recovery", "declarator", "semantic-followup", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave32_bad_function_declarator_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave32_bad_function_declarator_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave32_bad_function_declarator_then_undeclared_followup.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["diagjson", "parser-recovery", "declarator", "semantic-followup", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave32_bad_designated_initializer_then_type_mismatch_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave32_bad_designated_initializer_then_type_mismatch_followup.c",
+      "expects": [
+        "expect/12__diag__wave32_bad_designated_initializer_then_type_mismatch_followup.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diag", "parser-recovery", "initializer", "semantic-followup", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave32_bad_designated_initializer_then_type_mismatch_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave32_bad_designated_initializer_then_type_mismatch_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave32_bad_designated_initializer_then_type_mismatch_followup.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["diagjson", "parser-recovery", "initializer", "semantic-followup", "wave32"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

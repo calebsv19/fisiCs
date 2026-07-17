@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (4135:21): Operator '&' requires non-bitfield lvalue operand
+   Spelling: virtual_lv_wave16_nested_conditional_bitfield_address.c:4135:21

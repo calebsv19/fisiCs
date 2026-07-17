@@ -2,8 +2,6 @@ Diagnostics:
 Error at (8402:20): Undeclared identifier
    Hint: i
    Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8402:20
-Error at (8402:20): Operator '<' requires comparable operands
-   Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8402:20
 Error at (8402:29): Undeclared identifier
    Hint: i
    Spelling: virtual_diagrec_for_missing_semicolon_diag_text_parity.c:8402:29

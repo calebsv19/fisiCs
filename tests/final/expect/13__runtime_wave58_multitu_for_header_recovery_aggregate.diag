@@ -1,0 +1,3 @@
+Diagnostics:
+Error: compilation failed for tests/final/probes/runtime/13__probe_wave58_for_header_recovery_aggregate_lib.c
+Error: expected ';' after for-loop initializer at line 6

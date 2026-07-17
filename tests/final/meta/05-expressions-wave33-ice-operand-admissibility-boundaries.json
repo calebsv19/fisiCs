@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__runtime_wave33_conditional_inactive_comma_ice",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave33_conditional_inactive_comma_ice_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime_wave33_conditional_inactive_comma_ice.stdout",
+      "differential": true,
+      "standard": "c99",
+      "clang_args": ["-pedantic-errors"],
+      "tags": ["expressions", "integer-constant-expression", "conditional", "discarded-comma", "runtime", "differential", "clang-pedantic-oracle", "wave33", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime_wave33_logical_or_inactive_comma_case",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave33_logical_or_inactive_comma_case_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime_wave33_logical_or_inactive_comma_case.stdout",
+      "differential": true,
+      "standard": "c99",
+      "clang_args": ["-pedantic-errors"],
+      "tags": ["expressions", "integer-constant-expression", "case-label", "logical-or", "discarded-comma", "runtime", "differential", "clang-pedantic-oracle", "wave33", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime_wave33_logical_and_inactive_comma_ice",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave33_logical_and_inactive_comma_ice_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime_wave33_logical_and_inactive_comma_ice.stdout",
+      "differential": true,
+      "standard": "c99",
+      "clang_args": ["-pedantic-errors"],
+      "tags": ["expressions", "integer-constant-expression", "logical-and", "discarded-comma", "runtime", "differential", "clang-pedantic-oracle", "wave33", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime_wave33_immediate_float_integer_cast_ice",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave33_immediate_float_integer_cast_ice_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime_wave33_immediate_float_integer_cast_ice.stdout",
+      "differential": true,
+      "standard": "c99",
+      "clang_args": ["-pedantic-errors"],
+      "tags": ["expressions", "integer-constant-expression", "floating-constant", "integer-cast", "runtime", "differential", "clang-pedantic-oracle", "wave33", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave33_selected_comma_ice_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave33_selected_comma_ice_reject.c",
+      "expects": ["expect/05__wave33_selected_comma_ice.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "integer-constant-expression", "conditional", "selected-comma", "diagnostic", "diagjson", "clang-pedantic-oracle", "wave33", "negative-control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave33_pointer_integer_cast_ice_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave33_pointer_integer_cast_ice_reject.c",
+      "expects": ["expect/05__wave33_pointer_integer_cast_ice.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "integer-constant-expression", "pointer", "integer-cast", "diagnostic", "diagjson", "clang-pedantic-oracle", "wave33", "negative-control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

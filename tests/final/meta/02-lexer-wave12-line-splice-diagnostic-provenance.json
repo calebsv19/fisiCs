@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__line_splice_comment_invalid_at_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_splice_comment_invalid_at.c",
+      "expects": [
+        "expect/02__line_splice_comment_invalid_at_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "comment-boundary",
+        "invalid-character",
+        "diagjson",
+        "strict",
+        "clang-line",
+        "wave12"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__line_splice_hex_float_no_exponent_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_lexer_line_splice_hex_float_no_exponent.c",
+      "expects": [
+        "expect/02__line_splice_hex_float_no_exponent_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "float",
+        "hex-no-exponent",
+        "diagjson",
+        "strict",
+        "clang-line",
+        "wave12"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

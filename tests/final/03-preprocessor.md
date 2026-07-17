@@ -345,7 +345,7 @@ Macro expansion rules, #if evaluation, and include handling.
   stores the full test list inline.
 
 ## Current Baseline
-- Current active preprocessor bucket cases: 198
+- Current active preprocessor bucket cases: 249
 - Current active preprocessor bucket result: passing
 - This is now a broad stable bucket with the line-directive remap promotion
   audit closure absorbed into canonical coverage.

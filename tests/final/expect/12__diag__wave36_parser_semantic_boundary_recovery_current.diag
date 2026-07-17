@@ -1,0 +1,10 @@
+Diagnostics:
+Error: Expected type name at virtual_wave36_parser_semantic_boundary.c:12960 (got '*')
+Error: Invalid function parameter list at virtual_wave36_parser_semantic_boundary.c:12960 (got '*')
+Error: Invalid function parameter list at virtual_wave36_parser_semantic_boundary.c:12960 (got '*')
+Error: invalid declarator at virtual_wave36_parser_semantic_boundary.c:12960 (got '*')
+Error at (12963:17): Undeclared identifier
+   Hint: wave36_boundary_missing
+   Spelling: virtual_wave36_parser_semantic_boundary.c:12963:17
+Error at (12964:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave36_parser_semantic_boundary.c:12964:16

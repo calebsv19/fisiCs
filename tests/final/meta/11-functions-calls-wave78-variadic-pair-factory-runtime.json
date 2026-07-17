@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave78_variadic_pair_factory_all_fisics",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave78_variadic_pair_factory_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave78_variadic_pair_factory_runtime_main.c",
+        "probes/runtime/11__probe_wave78_variadic_pair_factory_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave78_variadic_pair_factory.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "function-pointer-factory", "variadic-callback", "aggregate-vararg", "multitu", "runtime", "strict-regression", "wave78"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave78_variadic_pair_factory_mixed_clang_callee",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave78_variadic_pair_factory_runtime_main.c",
+      "inputs": ["probes/runtime/11__probe_wave78_variadic_pair_factory_runtime_main.c"],
+      "mixed_clang_inputs": ["probes/runtime/11__probe_wave78_variadic_pair_factory_runtime_lib.c"],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave78_variadic_pair_factory.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "function-pointer-factory", "variadic-callback", "aggregate-vararg", "mixed-clang", "runtime", "strict-regression", "wave78"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

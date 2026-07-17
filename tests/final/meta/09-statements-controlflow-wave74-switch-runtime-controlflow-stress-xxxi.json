@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__switch_goto_vla_exit_weave_xviii",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_switch_goto_vla_exit_weave_xviii.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_goto_vla_exit_weave_xviii.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "goto", "vla", "fallthrough", "wave74"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_label_fallthrough_loop_continue_xix",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_switch_label_fallthrough_loop_continue_xix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_label_fallthrough_loop_continue_xix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "goto", "label", "fallthrough", "continue", "wave74"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__switch_nested_loop_continue_fallthrough_xx",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_switch_nested_loop_continue_fallthrough_xx.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__switch_nested_loop_continue_fallthrough_xx.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested-loop", "continue", "fallthrough", "wave74"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

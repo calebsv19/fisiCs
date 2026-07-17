@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected '=' after initializer designator at virtual_wave44_nested_macro_forward_callsite.c:14481 (got '9')
+Error at (14482:12): Undeclared identifier
+   Hint: wave44_nested_macro_tail_missing
+   Spelling: virtual_wave44_nested_macro_forward_callsite.c:14482:12

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave47_aggregate_return_fnptr_table",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave47_aggregate_return_fnptr_table_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave47_aggregate_return_fnptr_table_runtime_main.c",
+        "probes/runtime/11__probe_wave47_aggregate_return_fnptr_table_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave47_aggregate_return_fnptr_table.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr", "aggregate-return", "table-dispatch", "runtime", "strict-regression", "wave47"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave47_nested_aggregate_argument_callback",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave47_nested_aggregate_argument_callback_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave47_nested_aggregate_argument_callback_runtime_main.c",
+        "probes/runtime/11__probe_wave47_nested_aggregate_argument_callback_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave47_nested_aggregate_argument_callback.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "callback", "aggregate-argument", "nested-aggregate", "runtime", "strict-regression", "wave47"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave47_callback_returned_payload_chain",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave47_callback_returned_payload_chain_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave47_callback_returned_payload_chain_runtime_main.c",
+        "probes/runtime/11__probe_wave47_callback_returned_payload_chain_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave47_callback_returned_payload_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "callback", "aggregate-return", "array-member", "runtime", "strict-regression", "wave47"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave47_sret_fnptr_multitu_boundary",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave47_sret_fnptr_multitu_boundary_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave47_sret_fnptr_multitu_boundary_runtime_main.c",
+        "probes/runtime/11__probe_wave47_sret_fnptr_multitu_boundary_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave47_sret_fnptr_multitu_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr", "large-sret", "aggregate-return", "multi-tu", "runtime", "strict-regression", "wave47"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

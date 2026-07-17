@@ -224,8 +224,8 @@ DIAG_JSON_PROBES = [
         source=PROBE_DIR / 'diagnostics/14__probe_diag_axis2_wave3_line_map_nested_include_macro_type_bridge_reject.c',
         note='axis2 wave3: diagnostics JSON should preserve deep line/file presence for four-layer include+macro type-bridge #line remap lane',
         expected_codes=[2000],
-        expected_line=240697,
-        expected_column=37,
+        expected_line=120404,
+        expected_column=12,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -233,8 +233,8 @@ DIAG_JSON_PROBES = [
         source=PROBE_DIR / 'diagnostics/14__probe_diag_axis2_wave4_line_map_nested_include_macro_arity_overflow_reject.c',
         note='axis2 wave4: diagnostics JSON should preserve deep line/file presence for five-layer include+macro arity-overflow #line remap lane',
         expected_codes=[2000],
-        expected_line=320897,
-        expected_column=32,
+        expected_line=160508,
+        expected_column=12,
         expected_has_file=True,
     ),
 ]

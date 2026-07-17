@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__probe_wave85_goto_bypasses_scalar_initializer_same_block",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_wave85_goto_bypasses_scalar_initializer_same_block.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__probe_wave85_goto_bypasses_scalar_initializer_same_block.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": [
+        "-pedantic-errors"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "goto",
+        "ordinary-initializer",
+        "same-block",
+        "strict-c99",
+        "wave85"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave85_goto_bypasses_scalar_initializer_descendant_scope",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_wave85_goto_bypasses_scalar_initializer_descendant_scope.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__probe_wave85_goto_bypasses_scalar_initializer_descendant_scope.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": [
+        "-pedantic-errors"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "goto",
+        "ordinary-initializer",
+        "descendant-scope",
+        "strict-c99",
+        "wave85"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

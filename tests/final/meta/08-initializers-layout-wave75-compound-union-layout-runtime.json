@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave75_compound_literal_union_grid",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave75_compound_literal_union_grid.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave75_compound_literal_union_grid.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "union", "array", "layout", "zero-fill", "current-threshold", "wave75"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave75_union_row_override_zero_fill",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave75_union_row_override_zero_fill.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave75_union_row_override_zero_fill.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "union", "array", "member-override", "zero-fill", "wave75"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave75_nested_array_designator_reseed",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave75_nested_array_designator_reseed.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave75_nested_array_designator_reseed.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "union", "nested-array", "layout", "reseed", "wave75"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave75_compound_literal_current_zero_fill",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave75_compound_literal_current_zero_fill.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave75_compound_literal_current_zero_fill.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "compound-literal", "union", "zero-fill", "current-threshold", "wave75"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave75_compound_literal_nested_designator_fixed",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave75_compound_literal_nested_designator_fixed.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave75_compound_literal_nested_designator_fixed.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "compound-literal", "designator", "union", "nested-array", "fixed-baseline", "wave75"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

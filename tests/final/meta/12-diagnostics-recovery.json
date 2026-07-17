@@ -5,6 +5,7 @@
   "tests": [
     {
       "id": "12__missing_semicolon",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__missing_semicolon.c",
       "expects": [
@@ -21,6 +22,7 @@
     },
     {
       "id": "12__bad_paren_expr",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__bad_paren_expr.c",
       "expects": [
@@ -37,6 +39,7 @@
     },
     {
       "id": "12__bad_decl_recovery",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__bad_decl_recovery.c",
       "expects": [
@@ -53,6 +56,7 @@
     },
     {
       "id": "12__bad_stmt_recovery",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__bad_stmt_recovery.c",
       "expects": [
@@ -68,6 +72,7 @@
     },
     {
       "id": "12__extra_paren_recovery",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__extra_paren_recovery.c",
       "expects": [
@@ -83,6 +88,7 @@
     },
     {
       "id": "12__missing_rbrace_recovery",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__missing_rbrace_recovery.c",
       "expects": [
@@ -98,6 +104,7 @@
     },
     {
       "id": "12__cascading_errors",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__cascading_errors.c",
       "expects": [
@@ -113,6 +120,7 @@
     },
     {
       "id": "12__typedef_recovery",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__typedef_recovery.c",
       "expects": [
@@ -129,6 +137,7 @@
     },
     {
       "id": "12__stray_else_recovery",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__stray_else_recovery.c",
       "expects": [
@@ -144,6 +153,7 @@
     },
     {
       "id": "12__for_missing_paren",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__for_missing_paren.c",
       "expects": [
@@ -159,6 +169,7 @@
     },
     {
       "id": "12__decl_init_recovery",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__decl_init_recovery.c",
       "expects": [
@@ -176,6 +187,7 @@
     },
     {
       "id": "12__macro_callsite_dedup",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__macro_callsite_dedup.c",
       "expects": [
@@ -192,6 +204,7 @@
     },
     {
       "id": "12__diag_type_mismatch",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_type_mismatch.c",
       "expects": [
@@ -207,6 +220,7 @@
     },
     {
       "id": "12__diag_undeclared_identifier",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_undeclared_identifier.c",
       "expects": [
@@ -222,6 +236,7 @@
     },
     {
       "id": "12__diag_redeclaration_conflict",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_redeclaration_conflict.c",
       "expects": [
@@ -237,6 +252,7 @@
     },
     {
       "id": "12__diag_invalid_storage_class",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_invalid_storage_class.c",
       "expects": [
@@ -252,6 +268,7 @@
     },
     {
       "id": "12__diag_invalid_initializer",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_invalid_initializer.c",
       "expects": [

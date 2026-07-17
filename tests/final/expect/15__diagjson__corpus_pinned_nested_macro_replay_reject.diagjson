@@ -14,21 +14,21 @@
       "include_stack": [
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject.c",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject.c",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_a.h",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_a.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_b.h",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_corpus_pinned_nested_macro_replay_reject_b.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true

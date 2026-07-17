@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected '=' after initializer designator at virtual_wave43_compound_unclosed_bracket.c:14341 (got 'value')
+Error at (14342:12): Undeclared identifier
+   Hint: wave43_bracket_tail_missing
+   Spelling: virtual_wave43_compound_unclosed_bracket.c:14342:12

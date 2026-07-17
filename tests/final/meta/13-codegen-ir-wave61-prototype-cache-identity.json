@@ -1,0 +1,58 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_wave61_proto_cache_mixed_order",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave61_proto_cache_mixed_order_runtime.c",
+      "expects": [],
+      "ir_contains": [
+        "define i32 @wave61_empty_first()",
+        "define i32 @wave61_void_first()",
+        "define internal i32 @wave61_call_unspecified(ptr %0)",
+        "define internal i32 @wave61_call_void(ptr %0)",
+        "%calltmp = call i32 %fn1()",
+        "store ptr @wave61_void_first, ptr %unspecified_void",
+        "store ptr @wave61_empty_first, ptr %void_empty",
+        "call i32 @wave61_empty_first()",
+        "call i32 @wave61_void_first()"
+      ],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__probe_wave61_proto_cache_mixed_order.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["codegen-ir", "prototype", "no-prototype", "function-pointer", "runtime", "differential", "wave61"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_wave61_proto_cache_alpha_order_control",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave61_proto_cache_alpha_order_control_runtime.c",
+      "expects": [],
+      "ir_contains": [
+        "define i32 @wave61_control_void_first()",
+        "define i32 @wave61_control_empty_first()",
+        "define internal i32 @wave61_control_call_void(ptr %0)",
+        "define internal i32 @wave61_control_call_unspecified(ptr %0)",
+        "%calltmp = call i32 %fn1()",
+        "store ptr @wave61_control_empty_first, ptr %void_empty",
+        "store ptr @wave61_control_void_first, ptr %unspecified_void",
+        "call i32 @wave61_control_void_first()",
+        "call i32 @wave61_control_empty_first()"
+      ],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__probe_wave61_proto_cache_alpha_order_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["codegen-ir", "prototype", "no-prototype", "function-pointer", "alpha-control", "runtime", "differential", "wave61"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

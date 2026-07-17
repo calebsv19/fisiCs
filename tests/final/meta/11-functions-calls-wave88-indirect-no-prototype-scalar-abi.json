@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__probe_wave88_indirect_no_proto_scalar_promotions_runtime",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave88_indirect_no_proto_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave88_indirect_no_proto_runtime_main.c",
+        "probes/runtime/11__probe_wave88_indirect_no_proto_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__probe_wave88_indirect_no_proto_scalar.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "function-pointer", "factory", "no-prototype", "default-argument-promotion", "float-to-double", "integer-promotion", "multitu", "abi", "runtime", "strict-regression", "wave88"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__probe_wave88_indirect_no_proto_double_int_control_runtime",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave88_indirect_no_proto_control_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__probe_wave88_indirect_no_proto_scalar.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "function-pointer", "factory", "no-prototype", "double", "int", "abi", "runtime", "control", "wave88"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

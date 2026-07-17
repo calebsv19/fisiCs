@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__wave67_macro_include_compound_strict",
+      "bucket": "codegen-ir",
+      "input": "cases/13__wave67_macro_include_compound_no_tail_lowering.c",
+      "expects": [
+        "expect/13__wave67_macro_include_compound_strict.diag",
+        "expect/13__wave67_macro_include_compound.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave67_tail_global = global",
+        "define i32 @wave67_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "negative", "macro-expansion", "include", "compound-assignment", "semantic-cascade", "clang-strict", "no-tail-lowering", "compile-only", "wave67"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__wave67_macro_include_compound_repaired_tail_lowering",
+      "bucket": "codegen-ir",
+      "input": "cases/13__wave67_macro_include_compound_repaired_tail_lowering.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "ir_contains": [
+        "@wave67_repaired_tail_global = global i32 677",
+        "define i32 @wave67_repaired_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "macro-expansion", "include", "compound-assignment", "no-tail-lowering", "non-vacuous-control", "compile-only", "wave67"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

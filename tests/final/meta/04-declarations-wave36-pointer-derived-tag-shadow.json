@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave36_pointer_derived_tag_shadow_same_name",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave36_pointer_derived_tag_shadow_same_name.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave36_pointer_derived_tag_shadow.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "tag-shadow", "pointer-derived-type", "member-access", "pointer-arithmetic", "same-name", "wave36", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave36_pointer_derived_tag_shadow_unique_name_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave36_pointer_derived_tag_shadow_unique_name_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave36_pointer_derived_tag_shadow.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "tag-shadow", "pointer-derived-type", "member-access", "pointer-arithmetic", "unique-name-control", "wave36", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

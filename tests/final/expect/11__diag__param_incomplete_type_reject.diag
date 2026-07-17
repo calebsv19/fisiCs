@@ -1,4 +1,4 @@
 Diagnostics:
 Error at (3:27): Function parameter has incomplete type
    Hint: value
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/11__probe_param_incomplete_type_reject.c:3:27
+   Spelling: tests/final/probes/diagnostics/11__probe_param_incomplete_type_reject.c:3:27

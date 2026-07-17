@@ -1,1 +1,37 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @main() {
+entry:
+  %diff = alloca i32, align 4
+  %p = alloca ptr, align 8
+  %arr = alloca [3 x i32], align 4
+  call void @llvm.memset.p0.i64(ptr align 4 %arr, i8 0, i64 12, i1 false)
+  %init.elem = getelementptr [3 x i32], ptr %arr, i32 0, i32 0
+  call void @llvm.memset.p0.i64(ptr align 4 %init.elem, i8 0, i64 4, i1 false)
+  store ptr %arr, ptr %p, align 8
+  %p1 = load ptr, ptr %p, align 8
+  %ptr.arith = getelementptr i8, ptr %p1, i64 8
+  %p2 = load ptr, ptr %p, align 8
+  %0 = ptrtoint ptr %ptr.arith to i64
+  %1 = ptrtoint ptr %p2 to i64
+  %2 = sub i64 %0, %1
+  %ptr.diff.bytes = sdiv exact i64 %2, ptrtoint (ptr getelementptr (i8, ptr null, i32 1) to i64)
+  %ptr.diff = sdiv i64 %ptr.diff.bytes, 4
+  %casttmp = trunc i64 %ptr.diff to i32
+  store i32 %casttmp, ptr %diff, align 4
+  %diff3 = load i32, ptr %diff, align 4
+  ret i32 %diff3
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

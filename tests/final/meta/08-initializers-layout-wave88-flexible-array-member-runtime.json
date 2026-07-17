@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave88_fam_allocated_tail_indexing_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave88_fam_allocated_tail_indexing_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave88_fam_allocated_tail_indexing.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["flexible-array-member", "sizeof", "offsetof", "allocated-tail", "runtime", "differential", "wave88", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave88_fam_nested_alignment_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave88_fam_nested_alignment_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave88_fam_nested_alignment.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["flexible-array-member", "nested-aggregate", "alignment", "stride", "allocated-tail", "runtime", "differential", "wave88", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave88_fixed_nested_array_control",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave88_fixed_nested_array_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave88_fixed_nested_array_control.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["fixed-array-control", "nested-aggregate", "alignment", "stride", "runtime", "differential", "wave88", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

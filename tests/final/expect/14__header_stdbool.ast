@@ -3,9 +3,6 @@ PROGRAM
   TYPEDEF
         TYPE: _Bool
         Alias:     IDENTIFIER bool
-  TYPEDEF
-        TYPE: bool
-        Alias:     IDENTIFIER shim_bool_t
   FUNCTION DEFINITION
     RETURN TYPE: int
     IDENTIFIER main

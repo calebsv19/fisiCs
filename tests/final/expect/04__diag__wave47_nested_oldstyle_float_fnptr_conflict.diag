@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (38021:5): Conflicting types for function
+   Hint: probe_dispatch_float
+   Spelling: virtual_decl_wave38_oldstyle_float_conflict.c:38021:5

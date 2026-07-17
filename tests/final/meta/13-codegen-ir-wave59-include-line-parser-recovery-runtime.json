@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave59_include_line_parser_recovery",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave59_include_line_parser_recovery_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave59_include_line_parser_recovery.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "codegen-ir",
+        "parser-recovery",
+        "include",
+        "line-directive",
+        "diagnostic-provenance",
+        "aggregate-return",
+        "aggregate-copy",
+        "runtime",
+        "differential",
+        "wave59"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__diag_wave59_include_line_parser_recovery_exact_exit",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave59_include_line_parser_recovery_runtime.c",
+      "expects": [
+        "expect/13__runtime_wave59_include_line_parser_recovery.diag",
+        "expect/13__runtime_wave59_include_line_parser_recovery.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "args": ["-DWAVE59_MALFORMED=1"],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["codegen-ir", "parser-recovery", "include", "line-directive", "exact-exit", "no-lowering", "wave59"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave91_fam_assignment_prefix_only_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave91_fam_assignment_prefix_only_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave91_fam_assignment_prefix_only.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["flexible-array-member", "struct-assignment", "copy-width", "allocated-tail", "runtime", "differential", "wave91", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave91_fam_struct_element_assignment_prefix_only_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave91_fam_struct_element_assignment_prefix_only_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave91_fam_struct_element_assignment_prefix_only.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["flexible-array-member", "struct-element", "struct-assignment", "copy-width", "allocated-tail", "runtime", "differential", "wave91", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave91_fixed_array_assignment_full_copy_control",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave91_fixed_array_assignment_full_copy_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave91_fixed_array_assignment_full_copy.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["fixed-array-control", "struct-assignment", "copy-width", "runtime", "differential", "wave91", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

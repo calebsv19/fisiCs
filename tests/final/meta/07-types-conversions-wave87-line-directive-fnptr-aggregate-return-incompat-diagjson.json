@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__wave87_line_directive_fnptr_aggregate_return_initializer_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave87_line_directive_fnptr_aggregate_return_initializer_strict.c",
+      "expects": ["expect/07__wave87_line_directive_fnptr_aggregate_return_initializer_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "aggregate-return", "scalar-return", "initializer", "abi-class", "line-directive", "diagjson", "wave87", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave87_line_directive_fnptr_aggregate_return_assignment_reverse_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave87_line_directive_fnptr_aggregate_return_assignment_reverse_strict.c",
+      "expects": ["expect/07__wave87_line_directive_fnptr_aggregate_return_assignment_reverse_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "aggregate-return", "scalar-return", "assignment", "reverse-direction", "abi-class", "line-directive", "diagjson", "wave87", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave87_line_directive_include_fnptr_aggregate_return_initializer_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave87_line_directive_include_fnptr_aggregate_return_initializer_strict.c",
+      "expects": ["expect/07__wave87_line_directive_include_fnptr_aggregate_return_initializer_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "aggregate-return", "scalar-return", "initializer", "abi-class", "include", "line-directive", "diagjson", "wave87", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave87_line_directive_include_fnptr_aggregate_return_assignment_reverse_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave87_line_directive_include_fnptr_aggregate_return_assignment_reverse_strict.c",
+      "expects": ["expect/07__wave87_line_directive_include_fnptr_aggregate_return_assignment_reverse_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "aggregate-return", "scalar-return", "assignment", "reverse-direction", "abi-class", "include", "line-directive", "diagjson", "wave87", "strict"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

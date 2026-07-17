@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (8101:6): Left operand of '+=' must be a modifiable lvalue
+   Spelling: virtual_lv_wave20_conditional_selected_member_compound.c:8101:6

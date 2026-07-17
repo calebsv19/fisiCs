@@ -13,18 +13,18 @@
       "has_message": true,
       "kind": 0,
       "length": 9,
-      "line": 9,
+      "line": 490105,
       "macro_trace": [
         {
           "column": 12,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash_a.h",
-          "line": 9,
+          "file": "axis4_wave3_gnu_layer_a.h",
+          "line": 490105,
           "macro": "AX4_W3_L2",
           "role": "call_site"
         },
         {
           "column": 1,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash_c.h",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_axis4_wave3_malformed_include_gnu_comma_vaargs_reentry_no_crash_c.h",
           "line": 5,
           "macro": "AX4_W3_L2",
           "role": "definition"

@@ -1,0 +1,8 @@
+Diagnostics:
+Error: Expected type name at virtual_wave35_include_declarator_boundary.h:12740 (got '*')
+Error: Invalid function parameter list at virtual_wave35_include_declarator_boundary.h:12740 (got '*')
+Error: Invalid function parameter list at virtual_wave35_include_declarator_boundary.h:12740 (got '*')
+Error: invalid declarator at virtual_wave35_include_declarator_boundary.h:12740 (got '*')
+Error at (4:16): Undeclared identifier
+   Hint: wave35_include_line_followup_missing
+   Spelling: tests/final/probes/diagnostics/12__probe_wave35_include_line_declarator_then_followup.c:4:16

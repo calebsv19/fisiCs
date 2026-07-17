@@ -5,7 +5,162 @@ from lib.models import DiagnosticJsonProbe, DiagnosticProbe, RuntimeProbe
 
 PROBE_DIR = Path(__file__).resolve().parent.parent
 
-RUNTIME_PROBES = []
+RUNTIME_PROBES = [
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave40_object_replacement_tail_call_strict',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave40_object_replacement_tail_call_strict.c',
+        note='strict frontier: an object-like replacement with prefix tokens must rescan its trailing function-like macro together with the caller-supplied argument list',
+        promoted_test_id='03__runtime_wave40_object_replacement_tail_call_strict',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave40_function_replacement_tail_call_strict',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave40_function_replacement_tail_call_strict.c',
+        note='strict frontier: a function-like replacement with prefix tokens must rescan its trailing function-like macro together with the next caller-supplied argument list',
+        promoted_test_id='03__runtime_wave40_function_replacement_tail_call_strict',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave40_replacement_tail_provenance_strict',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave40_replacement_tail_provenance_strict.c',
+        note='strict frontier: replacement-tail function rescanning must preserve remapped __FILE__ and __LINE__ provenance across the caller boundary',
+        promoted_test_id='03__runtime_wave40_replacement_tail_provenance_strict',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave40_mutual_function_disable_rescan_strict',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave40_mutual_function_disable_rescan_strict.c',
+        note='strict frontier: chained mutually recursive function macros must rescan caller argument lists while preserving the standard disable and re-enable boundary',
+        promoted_test_id='03__runtime_wave40_mutual_function_disable_rescan_strict',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave38_guard_collision_state',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave38_guard_collision_state.c',
+        note='wave38 guard collision: a shared guard macro should suppress the second header body without perturbing the first header state',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave38_guard_reopen_state',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave38_guard_reopen_state.c',
+        note='wave38 guard reopen: clearing a header guard should permit a macro-rebound second include to emit a distinct declaration',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave38_pragma_once_nested_state',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave38_pragma_once_nested_state.c',
+        note='wave38 pragma-once conditional state: nested active and inactive conditional includes should retain a single pragma-once header definition',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave37_include_rebind_tail_state',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave37_include_rebind_tail_state.c',
+        note='wave37 macro/include state reentry: repeated header tail should replay under caller macro rebinds while guarded helpers remain stable',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave37_nested_tail_reentry_state',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave37_nested_tail_reentry_state.c',
+        note='wave37 nested include reentry: guarded inner helper state should survive repeat includes while unguarded macro-dependent tails replay',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave37_inactive_noise_token_provenance',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave37_inactive_noise_token_provenance.c',
+        note='wave37 macro provenance: inactive include noise should stay inert while token paste, stringize, and line-map runtime values remain stable',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave37_line_macro_callsite_provenance',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave37_line_macro_callsite_provenance.c',
+        note='wave37 macro provenance: header-defined macros should report #line-remapped call-site file and line at runtime',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave36_nested_guard_reentry_state',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave36_nested_guard_reentry_state.c',
+        note='wave36 macro/include state reentry: nested guarded helper state should survive repeat includes while inactive branch macro noise stays inert',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave36_include_return_redefine_state',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave36_include_return_redefine_state.c',
+        note='wave36 macro/include state reentry: macro undef/redefine across include return should feed the next include without losing caller-visible tail state',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave36_token_paste_stringize_line_map',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave36_token_paste_stringize_line_map.c',
+        note='wave36 macro provenance: token paste and stringize should honor #line remapped macro expansion and runtime call-site provenance',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave36_inactive_conditional_macro_noise',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave36_inactive_conditional_macro_noise.c',
+        note='wave36 macro/include state reentry: inactive conditional macro undef/redefine and missing include noise should not perturb active state',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave35_include_state_reentry_diag_boundary',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave35_include_state_reentry_diag_boundary.c',
+        note='wave35 macro/include state reentry: guarded helper plus unguarded macro-dependent tail should replay across caller rebinds while inactive diagnostic noise stays inert',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave35_line_stack_reentry_value',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave35_line_stack_reentry_value.c',
+        note='wave35 line-map runtime boundary: repeated include tail should evaluate __LINE__ at the virtual header line while runtime resumes at the remapped main call site',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave35_macro_rebind_line_diag_boundary',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave35_macro_rebind_line_diag_boundary.c',
+        note='wave35 macro state reentry: function-like macro rebind after inactive malformed preprocessor branch should preserve token paste, stringize, and runtime #line values',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave34_inactive_branch_macro_state_rebind',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave34_inactive_branch_macro_state_rebind.c',
+        note='wave34 macro provenance: inactive branch include/macro noise should not perturb active token paste, stringize, macro state rebind, or #line runtime values',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave34_include_macro_state_current',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave34_include_macro_state_current.c',
+        note='wave34 current threshold: caller-controlled macro state should feed an included header slot once and preserve pasted enum spelling plus remapped runtime call-site location',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave34_nested_include_line_value',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave34_nested_include_line_value.c',
+        note='wave34 nested include remap: inner-header #line should feed __LINE__ into pasted constants while runtime __FILE__/__LINE__ follows the main remap',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave34_include_reentry_slot_rebind',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave34_include_reentry_slot_rebind.c',
+        note='fixed baseline: guarded helper headers with unguarded macro-dependent tails should replay repeat includes under caller macro rebinds',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave33_token_paste_stringize_provenance',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave33_token_paste_stringize_provenance.c',
+        note='wave33 macro provenance: token paste and two-level stringize should preserve #line-adjusted runtime call-site file and line',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave33_nested_macro_callsite_remap',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave33_nested_macro_callsite_remap.c',
+        note='wave33 macro provenance: nested macro call chains should evaluate __FILE__/__LINE__ at the remapped outer call site',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave33_include_reentry_macro_state',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave33_include_reentry_macro_state.c',
+        note='wave33 include provenance: guarded include reentry should preserve macro arity, token paste, stringize, and call-site remap at runtime',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave33_nested_include_line_remap',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave33_nested_include_line_remap.c',
+        note='wave33 include provenance: nested included helpers should preserve header-defined token paste while runtime __LINE__ follows the remapped main call site',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave30_macro_line_stringize_paste',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave30_macro_line_stringize_paste.c',
+        note='macro expansion should preserve token paste, two-level stringize, function-like invocation, and #line-adjusted __LINE__ at runtime',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave31_include_line_stringize_paste',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave31_include_line_stringize_paste.c',
+        note='wave31 macro/include provenance: included-header token paste, stringize, and #line-adjusted __LINE__ should match clang at runtime',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave32_include_guard_reentry_line',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave32_include_guard_reentry_line.c',
+        note='wave32 macro/include provenance: include guard reentry should preserve token paste, stringize, call-site __FILE__/__LINE__, and runtime parity',
+    ),
+    RuntimeProbe(
+        probe_id='03__probe_runtime_wave32_inactive_conditional_macro_noise',
+        source=PROBE_DIR / 'runtime/03__probe_runtime_wave32_inactive_conditional_macro_noise.c',
+        note='wave32 macro provenance: inactive conditional include/macro noise should not perturb active token paste, stringize, or #line runtime values',
+    ),
+]
 
 DIAG_PROBES = [
     DiagnosticProbe(
@@ -294,6 +449,48 @@ DIAG_PROBES = [
         note='clean-path parity: nested include defined/undef convergence should preserve the final visible macro set across a guarded reentry-style post-check',
         expect_any_diagnostic=False,
     ),
+    DiagnosticProbe(
+        probe_id='03__probe_macro_callsite_line_remap_arity_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_macro_callsite_line_remap_arity_strict.c',
+        note='strict macro provenance: #line-remapped macro call-site arity diagnostics should report virtual call-site file and line',
+        required_substrings=['virtual_macro_callsite_arity.c:312:39', "requires 2 argument(s), got 1"],
+    ),
+    DiagnosticProbe(
+        probe_id='03__probe_macro_include_reentry_arity_bridge_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_macro_include_reentry_arity_bridge.c',
+        note='strict macro provenance: include reentry with #line-remapped header should report the virtual header call-site for arity diagnostics',
+        required_substrings=['virtual_macro_reentry_header.h:430:42', "requires 3 argument(s), got 2"],
+    ),
+    DiagnosticProbe(
+        probe_id='03__probe_macro_gnu_comma_line_remap_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_macro_gnu_comma_line_remap_current.c',
+        note='strict macro provenance: GNU comma vaargs rejection should report the #line-remapped macro call site',
+        required_substrings=['virtual_macro_gnu_comma.c:531:34', "GNU ', ##__VA_ARGS__' extension is not supported"],
+    ),
+    DiagnosticProbe(
+        probe_id='03__probe_macro_token_paste_line_remap_current',
+        source=PROBE_DIR / 'diagnostics/03__probe_macro_token_paste_line_remap_current.c',
+        note='current threshold: token-paste hex-literal failure should at least preserve the #line-remapped call-site spelling',
+        required_substrings=['virtual_macro_token_paste.c:641:50', 'Hex literal requires at least one hex digit'],
+    ),
+    DiagnosticProbe(
+        probe_id='03__probe_wave31_include_line_tokenpaste_diag_current',
+        source=PROBE_DIR / 'diagnostics/03__probe_wave31_include_line_tokenpaste_diag.c',
+        note='current threshold: include-wrapped token-paste failure should still emit text diagnostics for the paste failure and macro expansion failure',
+        required_substrings=['Hex literal requires at least one hex digit', 'macro expansion failed'],
+    ),
+    DiagnosticProbe(
+        probe_id='03__probe_wave31_diagjson_text_parity_stringize_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_wave31_diagjson_text_parity_stringize.c',
+        note='strict wave31 macro provenance: stringize companion plus arity failure should report the #line-remapped virtual call-site in text diagnostics',
+        required_substrings=['virtual_wave31_diagjson_text_parity.c:1331:41', "requires 2 argument(s), got 1"],
+    ),
+    DiagnosticProbe(
+        probe_id='03__probe_wave32_include_guard_macro_arity_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_wave32_include_guard_macro_arity_diag.c',
+        note='strict wave32 macro provenance: guarded include header with inactive macro noise should report #line-remapped header call-site for arity diagnostics',
+        required_substrings=["requires 2 argument(s), got 1"],
+    ),
 ]
 
 DIAG_JSON_PROBES = [
@@ -400,6 +597,69 @@ DIAG_JSON_PROBES = [
         expected_codes=[3000],
         expected_line=617,
         expected_column=9,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_macro_callsite_line_remap_arity_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_macro_callsite_line_remap_arity_strict.c',
+        note='strict macro provenance: diagnostics JSON should preserve #line-remapped macro call-site arity location',
+        expected_codes=[3000],
+        expected_line=312,
+        expected_column=39,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_macro_include_reentry_arity_bridge_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_macro_include_reentry_arity_bridge.c',
+        note='strict macro provenance: diagnostics JSON should preserve #line-remapped include-reentry arity location',
+        expected_codes=[3000],
+        expected_line=430,
+        expected_column=42,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_macro_gnu_comma_line_remap_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_macro_gnu_comma_line_remap_current.c',
+        note='strict macro provenance: diagnostics JSON should preserve #line-remapped GNU comma vaargs call-site location',
+        expected_codes=[3000],
+        expected_line=531,
+        expected_column=34,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_macro_token_paste_line_remap_current',
+        source=PROBE_DIR / 'diagnostics/03__probe_macro_token_paste_line_remap_current.c',
+        note='current threshold: diagnostics JSON should at least preserve #line-remapped token-paste failure location',
+        expected_codes=[1],
+        expected_line=641,
+        expected_column=50,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_wave31_include_line_tokenpaste_diag_current',
+        source=PROBE_DIR / 'diagnostics/03__probe_wave31_include_line_tokenpaste_diag.c',
+        note='current threshold: include-wrapped token-paste failure should export diagnostics JSON even though virtual provenance is not preserved for the paste failure',
+        expected_codes=[3000],
+        expected_line=0,
+        expected_column=0,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_wave31_diagjson_text_parity_stringize_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_wave31_diagjson_text_parity_stringize.c',
+        note='strict wave31 macro provenance: diagnostics JSON should match text location for the #line-remapped arity failure',
+        expected_codes=[3000],
+        expected_line=1331,
+        expected_column=41,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='03__probe_diagjson_wave32_include_guard_macro_arity_strict',
+        source=PROBE_DIR / 'diagnostics/03__probe_wave32_include_guard_macro_arity_diag.c',
+        note='strict wave32 macro provenance: diagnostics JSON should preserve #line-remapped guarded include arity location',
+        expected_codes=[3000],
+        expected_line=2041,
+        expected_column=30,
         expected_has_file=True,
     ),
 ]

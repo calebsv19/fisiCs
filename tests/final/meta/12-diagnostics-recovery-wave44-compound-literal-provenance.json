@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__wave44_macro_compound_designator_missing_equal_provenance_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave44_macro_compound_designator_missing_equal_then_semantic_followup.c",
+      "expects": [
+        "expect/12__diag__wave44_macro_compound_designator_missing_equal_provenance_strict.diag",
+        "expect/12__diagjson__wave44_macro_compound_designator_missing_equal_provenance_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "compound-literal", "initializer-designator", "macro-callsite", "line-directive", "semantic-followup", "strict-clang-parity", "probe-frontier", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__wave44_include_compound_designator_unclosed_bracket_provenance_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave44_include_compound_designator_unclosed_bracket_then_semantic_followup.c",
+      "expects": [
+        "expect/12__diag__wave44_include_compound_designator_unclosed_bracket_provenance_strict.diag",
+        "expect/12__diagjson__wave44_include_compound_designator_unclosed_bracket_provenance_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "compound-literal", "initializer-designator", "include", "unmatched-bracket", "line-directive", "semantic-followup", "strict-clang-parity", "probe-frontier", "wave44"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__wave44_nested_macro_forward_compound_designator_missing_equal_provenance_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave44_nested_macro_forward_compound_designator_missing_equal_then_semantic_followup.c",
+      "expects": [
+        "expect/12__diag__wave44_nested_macro_forward_compound_designator_missing_equal_provenance_strict.diag",
+        "expect/12__diagjson__wave44_nested_macro_forward_compound_designator_missing_equal_provenance_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "compound-literal", "initializer-designator", "macro-callsite", "nested-macro", "argument-forwarding", "line-directive", "semantic-followup", "strict-clang-parity", "probe-frontier", "wave44"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

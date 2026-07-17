@@ -7,6 +7,24 @@ PROBE_DIR = Path(__file__).resolve().parent.parent.parent
 
 RUNTIME_PROBES = [
     RuntimeProbe(
+        probe_id='14__probe_runtime_wave337_multitu_rand_state_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave337_multitu_rand_state_payload_main.c',
+        note='wave337 multi-TU rand state should remain shared while aggregate payload crosses the boundary',
+        inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave337_multitu_rand_state_payload_main.c',
+            PROBE_DIR / 'runtime/14__probe_runtime_wave337_multitu_rand_state_payload_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave336_multitu_static_callback_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave336_multitu_static_callback_payload_main.c',
+        note='wave336 multi-TU static callback ownership should preserve aggregate payload state',
+        inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave336_multitu_static_callback_payload_main.c',
+            PROBE_DIR / 'runtime/14__probe_runtime_wave336_multitu_static_callback_payload_lib.c',
+        ],
+    ),
+    RuntimeProbe(
         probe_id='14__probe_multitu_static_init_visibility_bridge',
         source=PROBE_DIR / 'runtime/14__probe_multitu_static_init_visibility_bridge_main.c',
         note='multi-TU static local + file-static visibility bridge should match clang runtime behavior',

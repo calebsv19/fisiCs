@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (20815:12): Invalid cast between non-scalar types
+   Spelling: virtual_wave88_typedef_union_to_nested_struct_cast.c:20815:12

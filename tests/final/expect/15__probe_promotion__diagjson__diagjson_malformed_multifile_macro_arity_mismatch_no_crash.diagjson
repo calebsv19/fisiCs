@@ -17,14 +17,14 @@
       "macro_trace": [
         {
           "column": 12,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash.c",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash.c",
           "line": 4,
           "macro": "NEED2",
           "role": "call_site"
         },
         {
           "column": 1,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash.h",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_malformed_multifile_macro_arity_mismatch_no_crash.h",
           "line": 4,
           "macro": "NEED2",
           "role": "definition"

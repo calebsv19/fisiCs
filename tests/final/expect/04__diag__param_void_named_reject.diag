@@ -1,7 +1,7 @@
 Diagnostics:
 Error at (1:17): Parameter declared with type void must not have a name
    Hint: value
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_param_void_named_reject.c:1:17
+   Spelling: tests/final/probes/diagnostics/04__probe_param_void_named_reject.c:1:17
 Error at (6:12): Undeclared identifier
    Hint: accept
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_param_void_named_reject.c:6:12
+   Spelling: tests/final/probes/diagnostics/04__probe_param_void_named_reject.c:6:12

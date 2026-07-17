@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__wave20_splice_comment_ucn_invalid_order_recovery_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave20_splice_comment_ucn_invalid_order_recovery_diagjson_current.c",
+      "expects": [
+        "expect/02__wave20_splice_comment_ucn_invalid_order_recovery_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "ucn",
+        "invalid-token",
+        "recovery",
+        "diagjson",
+        "current-threshold",
+        "wave20"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave20_adjacent_string_invalid_token_tail_recovery_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave20_adjacent_string_invalid_token_tail_recovery_diagjson_current.c",
+      "expects": [
+        "expect/02__wave20_adjacent_string_invalid_token_tail_recovery_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "string-literal",
+        "adjacent-string",
+        "invalid-token",
+        "invalid-escape",
+        "recovery",
+        "diagjson",
+        "current-threshold",
+        "wave20"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave20_numeric_suffix_escape_pair_recovery_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave20_numeric_suffix_escape_pair_recovery_diagjson_current.c",
+      "expects": [
+        "expect/02__wave20_numeric_suffix_escape_pair_recovery_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-directive",
+        "numeric-token",
+        "invalid-escape",
+        "recovery",
+        "diagjson",
+        "current-threshold",
+        "wave20"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave20_line_remap_provenance_escape_invalid_token_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave20_line_remap_provenance_escape_invalid_token_diagjson_current.c",
+      "expects": [
+        "expect/02__wave20_line_remap_provenance_escape_invalid_token_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "numeric-token",
+        "invalid-escape",
+        "invalid-token",
+        "provenance",
+        "diagjson",
+        "current-threshold",
+        "wave20"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

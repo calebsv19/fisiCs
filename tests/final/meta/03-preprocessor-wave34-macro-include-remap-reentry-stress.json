@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave34_inactive_branch_macro_state_rebind",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave34_inactive_branch_macro_state_rebind.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave34_inactive_branch_macro_state_rebind.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "inactive-branch", "token-paste", "stringize", "line-directive", "runtime", "wave34"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave34_include_macro_state_current",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave34_include_macro_state_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave34_include_macro_state_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include", "macro-state", "token-paste", "stringize", "line-directive", "runtime", "current-threshold", "wave34"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave34_nested_include_line_value",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave34_nested_include_line_value.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave34_nested_include_line_value.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "nested-include", "macro", "token-paste", "stringize", "line-directive", "runtime", "wave34"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave34_include_reentry_slot_rebind",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave34_include_reentry_slot_rebind.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave34_include_reentry_slot_rebind.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include", "macro-state", "token-paste", "stringize", "line-directive", "runtime", "fixed-baseline", "wave34"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

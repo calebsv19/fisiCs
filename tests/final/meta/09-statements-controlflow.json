@@ -100,7 +100,8 @@
       ],
       "tags": [
         "goto",
-        "init"
+        "ordinary-init",
+        "legal"
       ],
       "requires": [],
       "status": "ok"

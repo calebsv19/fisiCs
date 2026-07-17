@@ -1,0 +1,18 @@
+Diagnostics:
+Error: expected ';' after for-loop initializer at line 13202
+Error at (13202:20): Undeclared identifier
+   Hint: i
+   Spelling: virtual_wave38_direct_for_header.c:13202:20
+Error at (13202:29): Undeclared identifier
+   Hint: i
+   Spelling: virtual_wave38_direct_for_header.c:13202:29
+Error at (13202:27): Operator '++' requires modifiable lvalue operand
+   Spelling: virtual_wave38_direct_for_header.c:13202:27
+Error at (13203:18): Undeclared identifier
+   Hint: i
+   Spelling: virtual_wave38_direct_for_header.c:13203:18
+Error at (13205:17): Undeclared identifier
+   Hint: wave38_direct_for_missing
+   Spelling: virtual_wave38_direct_for_header.c:13205:17
+Error at (13206:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave38_direct_for_header.c:13206:16

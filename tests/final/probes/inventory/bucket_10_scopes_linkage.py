@@ -399,9 +399,314 @@ RUNTIME_PROBES = [
             PROBE_DIR / 'runtime/10__probe_multitu_include_tentative_header_array_current_strong_def_runtime_lib.c',
         ],
     ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_extern_array_static_local_shadow_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_static_local_shadow_runtime_main.c',
+        note='multi-TU include extern-array bridge should tolerate static-local and block-local same-name shadowing',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_static_local_shadow_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_static_local_shadow_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_multitu_include_extern_array_static_local_shadow_current_runtime',
+        source=PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_static_local_shadow_current_runtime_main.c',
+        note='current-threshold companion: extern-array multi-TU bridge with static locals and non-conflicting shadow names',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_static_local_shadow_current_runtime_main.c',
+            PROBE_DIR / 'runtime/10__probe_multitu_include_extern_array_static_local_shadow_current_runtime_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave60_block_extern_static_local_shadow',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave60_block_extern_static_local_shadow.c',
+        note='strict frontier: block-scope extern declarations should still bind the file-scope object while same-name static locals persist separately',
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave60_block_extern_static_local_shadow_current',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave60_block_extern_static_local_shadow_current.c',
+        note='current-threshold companion: file-scope storage and static-local shadowing work when block-scope extern redeclarations are avoided',
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave60_tentative_extern_array_completion',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave60_tentative_extern_array_completion_main.c',
+        note='strict frontier: extern incomplete array declarations should resolve against one completed definition across translation units with local shadowing',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave60_tentative_extern_array_completion_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave60_tentative_extern_array_completion_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave60_tentative_extern_array_completion_current',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave60_tentative_extern_array_completion_current_main.c',
+        note='current-threshold companion: extern incomplete array resolves against a completed definition without block-scope extern redeclarations',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave60_tentative_extern_array_completion_current_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave60_tentative_extern_array_completion_current_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave60_multitu_static_local_persistence',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave60_multitu_static_local_persistence_main.c',
+        note='strict frontier: same-name static locals in sibling routines should persist independently from the external object across translation units',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave60_multitu_static_local_persistence_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave60_multitu_static_local_persistence_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave60_multitu_static_local_persistence_current',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave60_multitu_static_local_persistence_current_main.c',
+        note='current-threshold companion: static locals persist independently from an external object when block-scope extern redeclarations are avoided',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave60_multitu_static_local_persistence_current_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave60_multitu_static_local_persistence_current_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave61_multitu_extern_array_nested_shadow',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave61_multitu_extern_array_nested_shadow_main.c',
+        note='multi-TU extern array completion should survive nested block shadowing and same-name static local helpers',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave61_multitu_extern_array_nested_shadow_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave61_multitu_extern_array_nested_shadow_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave61_static_local_helper_persistence',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave61_static_local_helper_persistence_main.c',
+        note='same-name static locals in main and helper calls should persist independently from the external object',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave61_static_local_helper_persistence_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave61_static_local_helper_persistence_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave61_block_extern_array_completion_shadow',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave61_block_extern_array_completion_shadow.c',
+        note='block-scope extern incomplete array should bind file-scope completed storage while nested automatic arrays shadow locally',
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave62_multitu_tentative_block_extern_shadow',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave62_multitu_tentative_block_extern_shadow_main.c',
+        note='multi-TU tentative shared object should survive block-scope extern rebinding and nested automatic/static shadowing',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave62_multitu_tentative_block_extern_shadow_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave62_multitu_tentative_block_extern_shadow_lib.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave62_multitu_tentative_block_extern_shadow_aux.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave62_internal_external_partition_block_extern',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave62_internal_external_partition_block_extern_main.c',
+        note='same-spelling internal and external objects should stay partitioned while block-scope extern reaches the external object',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave62_internal_external_partition_block_extern_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave62_internal_external_partition_block_extern_lib.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave62_internal_external_partition_block_extern_aux.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave63_linkorder_tentative_block_extern',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave63_linkorder_tentative_block_extern_main.c',
+        note='multi-TU tentative storage should stay shared across block-scope extern rebinding and automatic shadowing in canonical TU order',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave63_linkorder_tentative_block_extern_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave63_linkorder_tentative_block_extern_liba.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave63_linkorder_tentative_block_extern_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave63_linkorder_tentative_block_extern_permuted',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave63_linkorder_tentative_block_extern_main.c',
+        note='multi-TU tentative storage should preserve output when sibling TU link order is permuted',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave63_linkorder_tentative_block_extern_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave63_linkorder_tentative_block_extern_libb.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave63_linkorder_tentative_block_extern_liba.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave64_block_extern_tentative_alias_linkorder',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_main.c',
+        note='multi-TU tentative storage should survive block-scope extern rebinding, local shadowing, and canonical sibling TU order',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_liba.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_permuted',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_main.c',
+        note='multi-TU tentative storage should preserve runtime output when sibling TU order is permuted across block-scope extern and shadowing boundaries',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_libb.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_block_extern_tentative_alias_linkorder_liba.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave64_static_internal_alias_shadow',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave64_static_internal_alias_shadow_main.c',
+        note='same-spelling static internal aliases in sibling TUs should remain partitioned from an external object through nested shadowing',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_static_internal_alias_shadow_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_static_internal_alias_shadow_liba.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_static_internal_alias_shadow_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave64_nested_extern_function_shadow',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave64_nested_extern_function_shadow_main.c',
+        note='block-scope extern function declarations should bind across TUs while nested ordinary identifiers shadow only locally',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_nested_extern_function_shadow_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_nested_extern_function_shadow_lib.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_nested_extern_function_shadow_aux.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave64_nested_extern_function_shadow_current',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave64_nested_extern_function_shadow_current_main.c',
+        note='current-threshold companion: multi-TU function calls and nested ordinary-identifier shadowing work when declarations stay at file scope',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_nested_extern_function_shadow_current_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_nested_extern_function_shadow_current_lib.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave64_nested_extern_function_shadow_current_aux.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave65_tentative_struct_block_extern_linkorder',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_main.c',
+        note='multi-TU tentative struct storage should survive block-scope extern rebinding, local shadowing, and canonical sibling TU order',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_liba.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_permuted',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_main.c',
+        note='multi-TU tentative struct storage should preserve output when sibling TU order is permuted across block-scope extern and shadowing boundaries',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_libb.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_liba.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave65_nested_block_extern_function_linkage',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave65_nested_block_extern_function_linkage_main.c',
+        note='nested block-scope extern function declarations should bind across TUs while same-spelling ordinary identifiers shadow only locally',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_nested_block_extern_function_linkage_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_nested_block_extern_function_linkage_lib.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_nested_block_extern_function_linkage_aux.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave65_internal_external_array_alias_linkorder',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave65_internal_external_array_alias_linkorder_main.c',
+        note='same-spelling static local arrays and file-local helper arrays should stay partitioned from an external array across TU boundaries',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_internal_external_array_alias_linkorder_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_internal_external_array_alias_linkorder_liba.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave65_internal_external_array_alias_linkorder_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave66_include_extern_static_shadow',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave66_include_extern_static_shadow_main.c',
+        note='include-routed extern object declarations should stay partitioned from per-TU static locals and block-scope shadows',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_include_extern_static_shadow_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_include_extern_static_shadow_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave66_tentative_union_block_extern_linkorder',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave66_tentative_union_block_extern_linkorder_main.c',
+        note='multi-TU tentative union storage should survive block-scope extern rebinding, local shadowing, and canonical sibling TU order',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_tentative_union_block_extern_linkorder_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_tentative_union_block_extern_linkorder_liba.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_tentative_union_block_extern_linkorder_libb.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave66_tentative_union_block_extern_linkorder_permuted',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave66_tentative_union_block_extern_linkorder_main.c',
+        note='multi-TU tentative union storage should preserve output when sibling TU order is permuted across block-scope extern boundaries',
+        clang_args=['-fcommon'],
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_tentative_union_block_extern_linkorder_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_tentative_union_block_extern_linkorder_libb.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_tentative_union_block_extern_linkorder_liba.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_runtime_wave66_include_function_symbol_shadow',
+        source=PROBE_DIR / 'runtime/10__probe_runtime_wave66_include_function_symbol_shadow_main.c',
+        note='include-routed extern function declarations should bind across TUs while same-spelling block locals shadow only locally',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_include_function_symbol_shadow_main.c',
+            PROBE_DIR / 'runtime/10__probe_runtime_wave66_include_function_symbol_shadow_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_wave68_parameter_nested_extern_object_rebind',
+        source=PROBE_DIR / 'runtime/10__probe_wave68_parameter_nested_extern_object_main.c',
+        note='wave68 control: one additional nested block may hide a parameter with an extern object declaration that rebinds external storage across translation units',
+        promoted_test_id='10__runtime__wave68_parameter_nested_extern_object_rebind',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_wave68_parameter_nested_extern_object_main.c',
+            PROBE_DIR / 'runtime/10__probe_wave68_parameter_nested_extern_object_provider.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='10__probe_wave68_parameter_nested_extern_function_rebind',
+        source=PROBE_DIR / 'runtime/10__probe_wave68_parameter_nested_extern_function_main.c',
+        note='wave68 strict runtime: one additional nested block may hide a parameter with an extern function declaration and call the external definition across translation units',
+        promoted_test_id='10__runtime__wave68_parameter_nested_extern_function_rebind',
+        inputs=[
+            PROBE_DIR / 'runtime/10__probe_wave68_parameter_nested_extern_function_main.c',
+            PROBE_DIR / 'runtime/10__probe_wave68_parameter_nested_extern_function_provider.c',
+        ],
+    ),
 ]
 
 DIAG_PROBES = [
+    DiagnosticProbe(
+        probe_id='10__probe_wave68_parameter_outer_auto_redeclaration',
+        source=PROBE_DIR / 'diagnostics/10__probe_wave68_parameter_outer_auto_redeclaration.c',
+        note='wave68 strict: an automatic declaration in the outermost function body must not redeclare a parameter from the same C scope',
+        required_substrings=['wave68_value'],
+        promoted_test_id='10__diag__wave68_parameter_outer_auto_redeclaration',
+    ),
+    DiagnosticProbe(
+        probe_id='10__probe_wave68_parameter_outer_extern_object_conflict',
+        source=PROBE_DIR / 'diagnostics/10__probe_wave68_parameter_outer_extern_object_conflict.c',
+        note='wave68 strict: an outermost-body extern object declaration must conflict with a same-spelled parameter in the shared function-body scope',
+        required_substrings=['wave68_shared_object'],
+        promoted_test_id='10__diag__wave68_parameter_outer_extern_object_conflict',
+    ),
+    DiagnosticProbe(
+        probe_id='10__probe_wave68_parameter_outer_extern_function_conflict',
+        source=PROBE_DIR / 'diagnostics/10__probe_wave68_parameter_outer_extern_function_conflict.c',
+        note='wave68 strict: an outermost-body extern function declaration must conflict with a same-spelled object parameter in the ordinary namespace',
+        required_substrings=['wave68_route'],
+        promoted_test_id='10__diag__wave68_parameter_outer_extern_function_conflict',
+    ),
     DiagnosticProbe(
         probe_id='10__probe_block_extern_different_type_reject',
         source=PROBE_DIR / 'diagnostics/10__probe_block_extern_different_type_reject.c',
@@ -550,6 +855,18 @@ DIAG_PROBES = [
         note='strict frontier: multi-TU include extern-array declaration/definition extent mismatch should emit conflict diagnostics under #line remap',
         required_substrings=['Conflicting types for variable'],
         inputs=[PROBE_DIR / 'diagnostics/10__probe_diag_line_directive_multitu_include_extern_array_def_mismatch_spelling_strict_main.c', PROBE_DIR / 'diagnostics/10__probe_diag_line_directive_multitu_include_extern_array_def_mismatch_spelling_strict_lib.c'],
+    ),
+    DiagnosticProbe(
+        probe_id='10__probe_block_auto_shadow_extern_array_strict',
+        source=PROBE_DIR / 'diagnostics/10__probe_block_auto_shadow_extern_array_strict.c',
+        note='strict frontier: block-scope extern array should reject same-name auto array shadowing before falling back to file scope',
+        required_substrings=['Error'],
+    ),
+    DiagnosticProbe(
+        probe_id='10__probe_wave61_block_auto_shadow_extern_array_strict',
+        source=PROBE_DIR / 'diagnostics/10__probe_wave61_block_auto_shadow_extern_array_strict.c',
+        note='strict frontier: block-scope extern array should reject extent mismatch across automatic shadowing before falling back to file scope',
+        required_substrings=['Error'],
     ),
 ]
 
@@ -737,5 +1054,51 @@ DIAG_JSON_PROBES = [
         expected_line=15201,
         expected_column=12,
         expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='10__probe_diagjson_wave67_block_extern_array_extent_strict',
+        source=PROBE_DIR / 'diagnostics/10__probe_diagjson_wave67_block_extern_array_extent_strict.c',
+        note='block-scope extern array extent conflict should preserve remapped #line diagnostic JSON',
+        expected_codes=[2000],
+        expected_line=16704,
+        expected_column=16,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='10__probe_diagjson_wave67_include_block_extern_function_object_strict',
+        source=PROBE_DIR / 'diagnostics/10__probe_diagjson_wave67_include_block_extern_function_object_strict.c',
+        note='strict frontier: include-routed block extern function/object conflict should emit remapped diagnostic JSON',
+        expected_codes=[2000],
+        expected_line=16804,
+        expected_column=16,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='10__probe_diagjson_wave67_include_block_extern_function_object_current_empty',
+        source=PROBE_DIR / 'diagnostics/10__probe_diagjson_wave67_include_block_extern_function_object_strict.c',
+        note='post-fix threshold: include-routed block extern function/object conflict exports remapped diagnostic JSON',
+        expected_codes=[2000],
+        expected_line=16804,
+        expected_column=16,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='10__probe_diagjson_wave67_variadic_redecl_strict',
+        source=PROBE_DIR / 'diagnostics/10__probe_diagjson_wave67_variadic_redecl_strict.c',
+        note='variadic and non-variadic function redeclaration conflict should preserve remapped diagnostic JSON',
+        expected_codes=[2000],
+        expected_line=16902,
+        expected_column=5,
+        expected_has_file=True,
+    ),
+    DiagnosticJsonProbe(
+        probe_id='10__probe_diagjson_wave67_multitu_include_extern_array_scalar_strict',
+        source=PROBE_DIR / 'diagnostics/10__probe_diagjson_wave67_multitu_include_extern_array_scalar_strict_main.c',
+        note='multi-TU include extern array/scalar conflict should preserve remapped diagnostic JSON',
+        expected_codes=[2000],
+        expected_line=17101,
+        expected_column=12,
+        expected_has_file=True,
+        inputs=[PROBE_DIR / 'diagnostics/10__probe_diagjson_wave67_multitu_include_extern_array_scalar_strict_main.c', PROBE_DIR / 'diagnostics/10__probe_diagjson_wave67_multitu_include_extern_array_scalar_strict_lib.c'],
     ),
 ]

@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (12925:17): Undeclared identifier
+   Hint: wave36_order_first_missing
+   Spelling: virtual_wave36_followup_error_order.c:12925:17
+Error at (12927:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave36_followup_error_order.c:12927:16

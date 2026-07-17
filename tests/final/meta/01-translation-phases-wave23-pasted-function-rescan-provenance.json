@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave23_object_rescan_stringize_control",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave23_object_rescan_stringize_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave23_object_rescan_stringize_control.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "macro", "token-paste", "object-like-rescan", "stringize", "control", "wave23", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave23_pasted_function_rescan_strict",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave23_pasted_function_rescan_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave23_pasted_function_rescan_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "macro", "token-paste", "function-like-rescan", "strict", "wave23", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave23_pasted_function_provenance_strict",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave23_pasted_function_provenance_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave23_pasted_function_provenance_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "macro", "token-paste", "function-like-rescan", "line-directive", "source-provenance", "metamorphic", "strict", "wave23", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

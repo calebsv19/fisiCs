@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__wave82_no_prototype_float_boundary_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave82_diagjson_no_prototype_float_boundary_strict.c",
+      "expects": ["expect/11__wave82_no_prototype_float_boundary.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "old-style", "prototype", "default-argument-promotion", "float", "line-directive", "diagjson", "wave82", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave82_no_prototype_char_boundary_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave82_diagjson_no_prototype_char_boundary_strict.c",
+      "expects": ["expect/11__wave82_no_prototype_char_boundary.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "old-style", "prototype", "default-argument-promotion", "integer-promotion", "char", "line-directive", "diagjson", "wave82", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave82_no_prototype_unsigned_short_boundary_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave82_diagjson_no_prototype_unsigned_short_boundary_strict.c",
+      "expects": ["expect/11__wave82_no_prototype_unsigned_short_boundary.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "old-style", "prototype", "default-argument-promotion", "integer-promotion", "unsigned-short", "line-directive", "diagjson", "wave82", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave82_no_prototype_double_control_diagjson",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave82_diagjson_no_prototype_double_control.c",
+      "expects": ["expect/11__wave82_no_prototype_double_control.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "old-style", "prototype", "default-argument-promotion", "double", "line-directive", "diagjson", "wave82", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

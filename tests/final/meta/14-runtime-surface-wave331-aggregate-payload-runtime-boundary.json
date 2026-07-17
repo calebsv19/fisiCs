@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_wave331_header_memcpy_nested_union_payload_checksum",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_wave331_header_memcpy_nested_union_payload_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave331_header_memcpy_nested_union_payload_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "standard-header", "memcpy", "offsetof", "byte-preservation", "wave331"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave331_callback_union_array_payload_dispatch_checksum",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_wave331_callback_union_array_payload_dispatch_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave331_callback_union_array_payload_dispatch_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "nested-array", "callback", "dispatch", "byte-preservation", "wave331"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave331_return_slot_nested_array_payload_chain",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_wave331_return_slot_nested_array_payload_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave331_return_slot_nested_array_payload_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "struct-return", "return-slot", "array-slot", "byte-preservation", "wave331"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave331_uintptr_callback_return_slot_payload",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_wave331_uintptr_callback_return_slot_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave331_uintptr_callback_return_slot_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "standard-header", "stdint", "callback", "return-slot", "byte-preservation", "wave331"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

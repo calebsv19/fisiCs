@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__wave77_switch_fallthrough_nested_loops",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave77_switch_fallthrough_nested_loops.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave77_switch_fallthrough_nested_loops.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "fallthrough", "nested-loop", "continue", "wave77"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave77_switch_goto_out_vla_chain",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave77_switch_goto_out_vla_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave77_switch_goto_out_vla_chain.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "goto", "vla", "fallthrough", "wave77"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave77_switch_default_case_order_mesh",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave77_switch_default_case_order_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave77_switch_default_case_order_mesh.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "default-order", "case-order", "continue", "wave77"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave77_switch_label_scoped_decl_loop",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave77_switch_label_scoped_decl_loop.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave77_switch_label_scoped_decl_loop.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "goto", "label", "scoped-decl", "wave77"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_goto_into_vla_case_diag_wave77_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave77_goto_into_vla_case_scope.c",
+      "expects": ["expect/09__switch_goto_into_vla_case_diag_wave77_current_sparse.diag"],
+      "tags": ["diag", "switch", "goto", "vla", "current-threshold", "wave77"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__switch_goto_into_vla_case_diagjson_wave77_current_sparse",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave77_goto_into_vla_case_scope.c",
+      "expects": ["expect/09__switch_goto_into_vla_case_diagjson_wave77_current_sparse.diagjson"],
+      "tags": ["diagjson", "switch", "goto", "vla", "current-threshold", "wave77"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

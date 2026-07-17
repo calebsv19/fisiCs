@@ -27,10 +27,10 @@
       "expects": [
         "expect/15__diagjson__pathological_decl.diagjson"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 0,
       "tags": [
         "torture",
-        "negative",
+        "clean-control",
         "compile-surface",
         "pathological",
         "diagjson"
@@ -45,10 +45,10 @@
       "expects": [
         "expect/15__diagjson__pathological_decl_graph_surface.diagjson"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 0,
       "tags": [
         "torture",
-        "negative",
+        "clean-control",
         "compile-surface",
         "pathological",
         "diagjson"
@@ -63,10 +63,10 @@
       "expects": [
         "expect/15__diagjson__pathological_type_graph.diagjson"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 0,
       "tags": [
         "torture",
-        "negative",
+        "clean-control",
         "compile-surface",
         "pathological",
         "diagjson"

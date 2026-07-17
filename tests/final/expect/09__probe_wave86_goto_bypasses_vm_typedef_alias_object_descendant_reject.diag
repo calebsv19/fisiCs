@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (4:5): goto jumps into scope of initialized variable
+   Hint: wave86_descendant_done
+   Spelling: tests/final/probes/diagnostics/09__probe_wave86_goto_bypasses_vm_typedef_alias_object_descendant_reject.c:4:5
+Warning at (6:0): Unreachable statement

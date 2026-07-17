@@ -1,1 +1,56 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @main() {
+entry:
+  %out = alloca i32, align 4
+  %x = alloca i32, align 4
+  store i32 -3, ptr %x, align 4
+  call void @llvm.memset.p0.i64(ptr align 4 %out, i8 0, i64 4, i1 false)
+  %x1 = load i32, ptr %x, align 4
+  %switch.cmp = icmp eq i32 %x1, -5
+  br i1 %switch.cmp, label %switch.case, label %switch.next
+
+switch.end:                                       ; preds = %switch.default, %switch.case3, %switch.case2, %switch.case
+  %out8 = load i32, ptr %out, align 4
+  ret i32 %out8
+
+switch.case:                                      ; preds = %entry
+  store i32 50, ptr %out, align 4
+  br label %switch.end
+
+switch.case2:                                     ; preds = %switch.next
+  store i32 30, ptr %out, align 4
+  br label %switch.end
+
+switch.case3:                                     ; preds = %switch.next4
+  store i32 2, ptr %out, align 4
+  br label %switch.end
+
+switch.default:                                   ; preds = %switch.next6
+  store i32 9, ptr %out, align 4
+  br label %switch.end
+
+switch.next:                                      ; preds = %entry
+  %switch.cmp5 = icmp eq i32 %x1, -3
+  br i1 %switch.cmp5, label %switch.case2, label %switch.next4
+
+switch.next4:                                     ; preds = %switch.next
+  %switch.cmp7 = icmp eq i32 %x1, 2
+  br i1 %switch.cmp7, label %switch.case3, label %switch.next6
+
+switch.next6:                                     ; preds = %switch.next4
+  br label %switch.default
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

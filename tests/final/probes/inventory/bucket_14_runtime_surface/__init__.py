@@ -1,11 +1,20 @@
-from . import axis_runtime, diagnostics, diagjson, late_multitu_runtime, multitu_runtime, runtime_core
+from . import (
+    axis_runtime,
+    diagnostics,
+    diagjson,
+    late_multitu_runtime,
+    multitu_runtime,
+    runtime_core,
+    wave354_compound_identity,
+)
 
 
 RUNTIME_PROBES = (
     runtime_core.RUNTIME_PROBES +
     multitu_runtime.RUNTIME_PROBES +
     late_multitu_runtime.RUNTIME_PROBES +
-    axis_runtime.RUNTIME_PROBES
+    axis_runtime.RUNTIME_PROBES +
+    wave354_compound_identity.RUNTIME_PROBES
 )
 
 DIAG_PROBES = diagnostics.DIAG_PROBES

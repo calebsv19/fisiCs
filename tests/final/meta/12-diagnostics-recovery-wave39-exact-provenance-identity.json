@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__diagjson_wave39_macro_trace_identity_collision_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_collision_strict.c",
+      "expects": [
+        "expect/12__diagjson_wave39_macro_trace_identity_collision_strict.diag",
+        "expect/12__diagjson_wave39_macro_trace_identity_collision_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diagnostics", "diagjson", "provenance", "macro-trace", "identity-collision", "strict", "wave39"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson_wave39_macro_trace_identity_collision_peer_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_collision_peer_strict.c",
+      "expects": [
+        "expect/12__diagjson_wave39_macro_trace_identity_collision_peer_strict.diag",
+        "expect/12__diagjson_wave39_macro_trace_identity_collision_peer_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diagnostics", "diagjson", "provenance", "macro-trace", "identity-collision", "strict", "wave39"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson_wave39_macro_trace_identity_control",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_control.c",
+      "expects": [
+        "expect/12__diagjson_wave39_macro_trace_identity_control.diag",
+        "expect/12__diagjson_wave39_macro_trace_identity_control.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diagnostics", "diagjson", "provenance", "macro-trace", "direct-control", "wave39"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

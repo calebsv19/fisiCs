@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__wave83_prototype_first_float_boundary_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave83_diagjson_prototype_first_float_boundary_strict.c",
+      "expects": ["expect/11__wave83_prototype_first_float_boundary.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "prototype-first", "old-style", "default-argument-promotion", "float", "line-directive", "diagjson", "strict-regression", "wave83"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave83_prototype_first_double_control_diagjson_clean",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave83_diagjson_prototype_first_double_control.c",
+      "expects": ["expect/11__wave83_prototype_first_double_control.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "prototype-first", "old-style", "default-argument-promotion", "double", "line-directive", "diagjson", "clean-control", "wave83"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave83_no_prototype_variadic_boundary_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave83_diagjson_no_prototype_variadic_boundary_strict.c",
+      "expects": ["expect/11__wave83_no_prototype_variadic_boundary.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "redeclaration", "old-style", "prototype", "variadic", "line-directive", "diagjson", "strict-regression", "wave83"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

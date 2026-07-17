@@ -1,0 +1,9 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave38_macro_while.c:13244 (got ')')
+Error at (13244:5): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave38_macro_while.c:13244:5
+Error at (13245:17): Undeclared identifier
+   Hint: wave38_macro_while_missing
+   Spelling: virtual_wave38_macro_while.c:13245:17
+Error at (13246:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave38_macro_while.c:13246:16

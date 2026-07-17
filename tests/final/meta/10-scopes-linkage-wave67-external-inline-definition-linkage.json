@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__wave67_external_inline_definition_canonical_order",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave67_external_inline_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_wave67_external_inline_main.c",
+        "probes/runtime/10__probe_wave67_external_inline_provider.c",
+        "probes/runtime/10__probe_wave67_external_inline_observer.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "inline",
+        "external-linkage",
+        "external-definition",
+        "source-order",
+        "wave67"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave67_external_inline_definition_permuted_mixed_clang_provider",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave67_external_inline_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_wave67_external_inline_main.c",
+        "probes/runtime/10__probe_wave67_external_inline_observer.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/10__probe_wave67_external_inline_provider.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "inline",
+        "external-linkage",
+        "external-definition",
+        "source-order",
+        "permuted",
+        "mixed-clang-provider",
+        "wave67"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave67_static_inline_internal_linkage_control",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave67_static_inline_control_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_wave67_static_inline_control_main.c",
+        "probes/runtime/10__probe_wave67_static_inline_control_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "inline",
+        "static",
+        "internal-linkage",
+        "control",
+        "wave67"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

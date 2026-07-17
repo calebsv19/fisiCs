@@ -5,6 +5,7 @@
   "tests": [
     {
       "id": "12__line_directive_mixed_switch_case_missing_colon_then_undeclared_diag_text_semantic_followup",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__line_directive_mixed_switch_case_missing_colon_then_undeclared_diag_text_semantic_followup.c",
       "expects": [
@@ -16,6 +17,7 @@
     },
     {
       "id": "12__line_directive_include_mixed_switch_case_missing_colon_then_undeclared_diag_text_semantic_followup",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__line_directive_include_mixed_switch_case_missing_colon_then_undeclared_diag_text_semantic_followup.c",
       "expects": [
@@ -27,6 +29,7 @@
     },
     {
       "id": "12__line_directive_mixed_ternary_missing_colon_then_type_mismatch_diag_text_semantic_followup",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__line_directive_mixed_ternary_missing_colon_then_type_mismatch_diag_text_semantic_followup.c",
       "expects": [
@@ -38,6 +41,7 @@
     },
     {
       "id": "12__line_directive_include_mixed_ternary_missing_colon_then_type_mismatch_diag_text_semantic_followup",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__line_directive_include_mixed_ternary_missing_colon_then_type_mismatch_diag_text_semantic_followup.c",
       "expects": [

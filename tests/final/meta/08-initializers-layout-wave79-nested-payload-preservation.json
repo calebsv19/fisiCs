@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave79_compound_literal_payload_reseed",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave79_compound_literal_payload_reseed.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave79_compound_literal_payload_reseed.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "compound-literal", "union", "payload", "zero-fill", "wave79"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave79_designated_override_zero_fill_ladder",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave79_designated_override_zero_fill_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave79_designated_override_zero_fill_ladder.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "override", "zero-fill", "layout", "wave79"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave79_union_array_bitfield_payload",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave79_union_array_bitfield_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave79_union_array_bitfield_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union", "array", "bitfield", "payload", "wave79"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave79_nested_payload_ir_seed",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave79_nested_payload_ir_seed.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave79_nested_payload_ir_seed.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "compound-literal", "aggregate-copy", "payload", "codegen-ir-seed", "wave79"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

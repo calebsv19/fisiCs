@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__runtime__wave24_nested_conditional_fnptr_expr",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_runtime_wave24_nested_conditional_fnptr_expr.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave24_nested_conditional_fnptr_expr.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "conditional", "function-pointer", "member", "nested", "wave24", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__wave24_comma_short_circuit_trace",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_runtime_wave24_comma_short_circuit_trace.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave24_comma_short_circuit_trace.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "comma", "short-circuit", "side-effects", "wave24", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__wave24_compound_literal_ternary_pair",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_runtime_wave24_compound_literal_ternary_pair.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave24_compound_literal_ternary_pair.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "compound-literal", "conditional", "aggregate", "wave24", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__wave24_sizeof_cast_conditional_vla",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_runtime_wave24_sizeof_cast_conditional_vla.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave24_sizeof_cast_conditional_vla.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "sizeof", "cast", "conditional", "vla", "member", "wave24", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

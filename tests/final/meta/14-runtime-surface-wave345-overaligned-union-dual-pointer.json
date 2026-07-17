@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_wave345_overaligned_union_dual_pointer_carrier",
+      "bucket": "runtime-surface",
+      "input": "cases/14__runtime_wave345_overaligned_union_dual_pointer_carrier.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave345_overaligned_union_dual_pointer_carrier.stdout",
+      "differential": true,
+      "standard": "c11",
+      "tags": ["runtime", "alignment", "union", "pointer", "nested-aggregate", "relocation"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

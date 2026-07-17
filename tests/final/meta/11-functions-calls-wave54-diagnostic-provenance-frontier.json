@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__wave54_diagjson_line_fnptr_assign_arity",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave54_diagjson_line_fnptr_assign_arity.c",
+      "expects": ["expect/11__wave54_diagjson_line_fnptr_assign_arity.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "diagjson", "function-pointer", "assignment", "strict", "wave54"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave54_diagjson_line_fnptr_too_many_args",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave54_diagjson_line_fnptr_too_many_args.c",
+      "expects": ["expect/11__wave54_diagjson_line_fnptr_too_many_args.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "diagjson", "function-pointer", "call", "argument-count", "strict", "wave54"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave54_diagjson_include_variadic_fixed_arity",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave54_diagjson_include_variadic_fixed_arity.c",
+      "expects": ["expect/11__wave54_diagjson_include_variadic_fixed_arity.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["line-directive", "include", "diagjson", "variadic", "argument-count", "strict", "wave54"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave54_diagjson_multitu_return_contract",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave54_diagjson_multitu_return_contract_main.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_wave54_diagjson_multitu_return_contract_main.c",
+        "probes/diagnostics/11__probe_wave54_diagjson_multitu_return_contract_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave54-multitu-return-contract.out"],
+      "expects": ["expect/11__wave54_diagjson_multitu_return_contract.diagjson"],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "standard": "c99",
+      "tags": ["line-directive", "multitu", "diagjson", "return-type", "strict", "wave54", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

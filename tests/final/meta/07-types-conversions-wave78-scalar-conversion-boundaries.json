@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave78_bitfield_enum_usual_arithmetic",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave78_bitfield_enum_usual_arithmetic_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave78_bitfield_enum_usual_arithmetic.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "bitfield", "enum", "usual-arithmetic", "integer-promotion", "runtime", "strict", "wave78", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave78_qualified_pointer_conditional",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave78_qualified_pointer_conditional_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave78_qualified_pointer_conditional.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "pointer", "qualification", "conditional", "void-pointer", "runtime", "strict", "wave78", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave78_scalar_conditional_float_truncation",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave78_scalar_conditional_float_truncation_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave78_scalar_conditional_float_truncation.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "conditional", "float", "integer", "truncation", "enum", "runtime", "strict", "wave78", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave78_signed_unsigned_conditional_boundary",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave78_signed_unsigned_conditional_boundary_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave78_signed_unsigned_conditional_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "conditional", "signed-unsigned", "usual-arithmetic", "runtime", "strict", "wave78", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

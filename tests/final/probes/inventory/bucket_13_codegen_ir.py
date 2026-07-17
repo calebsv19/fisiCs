@@ -52,9 +52,229 @@ RUNTIME_PROBES = [
         note='struct-return selection and aggregate copy across loop-carried merges should match clang runtime behavior',
     ),
     RuntimeProbe(
+        probe_id='13__probe_aggregate_phi_union_branch_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_aggregate_phi_union_branch_payload_runtime.c',
+        note='branch-selected aggregate returns should preserve nested union arms and array fields through struct assignment',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_aggregate_phi_union_ternary_loop_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_aggregate_phi_union_ternary_loop_runtime.c',
+        note='ternary and loop-carried aggregate merges should preserve nested union payload copies and typed reads',
+    ),
+    RuntimeProbe(
         probe_id='13__probe_ptr_stride_call_lowering_mesh_runtime',
         source=PROBE_DIR / 'runtime/13__probe_ptr_stride_call_lowering_mesh_runtime.c',
         note='pointer-stride helper calls should preserve by-reference lowering and scaled row indexing',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave40_compound_literal_phi_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave40_compound_literal_phi_runtime.c',
+        note='wave40 aggregate phi stress: compound literals, ternary-selected structs, and loop-carried copies should preserve field payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave41_switch_loop_aggregate_copy_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave41_switch_loop_aggregate_copy_runtime.c',
+        note='wave41 aggregate/control-flow stress: switch-selected union payload copies through loop-carried struct assignment should preserve active-arm fields',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave41_ternary_nested_union_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave41_ternary_nested_union_payload_runtime.c',
+        note='wave41 aggregate/control-flow stress: ternary-selected nested union/struct payload copies should preserve selected payload after mutation',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave41_union_array_switch_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave41_union_array_switch_payload_runtime.c',
+        note='wave41 aggregate/control-flow stress: array-held union payloads copied through switch dispatch should preserve payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave42_compound_literal_branch_phi_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave42_compound_literal_branch_phi_runtime.c',
+        note='wave42 aggregate/control-flow stress: compound literals and branch-selected union payloads should preserve copied aggregate fields across loop joins',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave42_switch_loop_nested_union_array_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave42_switch_loop_nested_union_array_runtime.c',
+        note='wave42 aggregate/control-flow stress: switch-selected rows with nested union arrays should preserve payloads through loop-carried copies',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave42_switch_continue_compound_literal_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave42_switch_continue_compound_literal_runtime.c',
+        note='wave42 aggregate/control-flow stress: switch/continue edges and compound literal aggregate assignments should preserve nested union payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave43_branch_compound_literal_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave43_branch_compound_literal_payload_runtime.c',
+        note='wave43 aggregate/control-flow stress: branch-selected compound literals and fallback aggregate copies should preserve union payload fields',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave43_switch_loop_union_array_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave43_switch_loop_union_array_payload_runtime.c',
+        note='wave43 aggregate/control-flow stress: switch-selected nested union array rows should preserve payloads through loop-carried copies and continue edges',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave43_phi_copy_returned_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave43_phi_copy_returned_payload_runtime.c',
+        note='wave43 aggregate/control-flow stress: returned aggregate payloads copied through ternary phi-like joins should preserve active union arms',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave43_returned_aggregate_checksum_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave43_returned_aggregate_checksum_runtime.c',
+        note='wave43 aggregate/control-flow stress: switch-returned aggregate payload checksums should match clang after loop-carried updates',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave44_short_circuit_aggregate_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave44_short_circuit_aggregate_payload_runtime.c',
+        note='wave44 aggregate/control-flow stress: short-circuit selected union payload copies should preserve active-arm fields and side-effect order',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave44_loop_return_slot_copy_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave44_loop_return_slot_copy_runtime.c',
+        note='wave44 aggregate/control-flow stress: loop-carried aggregate copies and returned packet slots should preserve union payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave44_switch_short_circuit_union_array_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave44_switch_short_circuit_union_array_runtime.c',
+        note='wave44 aggregate/control-flow stress: switch and short-circuit edges should preserve nested union-array payloads through continue paths',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave45_switch_aggregate_return_boundary_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave45_switch_aggregate_return_boundary_runtime.c',
+        note='wave45 aggregate/control-flow IR runtime boundary stress: switch-returned union payloads should survive return slots and loop-carried copies',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave45_loop_compound_literal_union_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave45_loop_compound_literal_union_runtime.c',
+        note='wave45 aggregate/control-flow IR runtime boundary stress: compound literal aggregate assignments should preserve nested union rows through branch joins',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave45_switch_continue_nested_array_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave45_switch_continue_nested_array_runtime.c',
+        note='wave45 aggregate/control-flow IR runtime boundary stress: switch and continue edges should preserve nested union array payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave46_nested_return_slot_array_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave46_nested_return_slot_array_runtime.c',
+        note='wave46 codegen/IR runtime stress: nested return-slot aggregate values and array fields should survive loop-carried copies',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave46_pointer_array_compound_assign_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave46_pointer_array_compound_assign_runtime.c',
+        note='wave46 codegen/IR runtime stress: pointer-array lowering and compound assignment through cursor-derived indexes should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave46_phi_compound_assignment_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave46_phi_compound_assignment_payload_runtime.c',
+        note='wave46 codegen/IR runtime stress: phi-like aggregate copies with union payload compound assignment should preserve active fields',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave46_cross_block_struct_abi_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave46_cross_block_struct_abi_runtime.c',
+        note='wave46 codegen/IR runtime stress: cross-basic-block struct return ABI through a function pointer should preserve by-value payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave47_switch_loop_payload_copy_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave47_switch_loop_payload_copy_runtime.c',
+        note='wave47 codegen/IR runtime stress: switch-selected union payload copies through loop-carried joins should preserve aggregate fields',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave47_compound_literal_branch_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave47_compound_literal_branch_payload_runtime.c',
+        note='wave47 codegen/IR runtime stress: compound literal aggregate payloads crossing branch joins should preserve nested fields',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave47_nested_return_slot_phi_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave47_nested_return_slot_phi_runtime.c',
+        note='wave47 codegen/IR runtime stress: nested return-slot aggregate values should survive phi-like branch selection and copies',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave47_pointer_array_compound_phi_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave47_pointer_array_compound_phi_runtime.c',
+        note='wave47 codegen/IR runtime stress: pointer-array compound assignments through phi-like cursor updates should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave48_phi_union_compound_literal_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave48_phi_union_compound_literal_runtime.c',
+        note='wave48 codegen/IR runtime stress: union payloads selected through phi-like compound literal joins should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave48_switch_return_slot_union_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave48_switch_return_slot_union_runtime.c',
+        note='wave48 codegen/IR runtime stress: switch-returned union payloads should survive return-slot copies and mode-dependent reads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave48_pointer_phi_compound_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave48_pointer_phi_compound_runtime.c',
+        note='wave48 codegen/IR runtime stress: pointer-derived writes and compound literal row replacement should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave48_nested_phi_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave48_nested_phi_payload_runtime.c',
+        note='wave48 codegen/IR runtime stress: nested aggregate payloads should survive branch-selected phi-like copies',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave49_phi_switch_nested_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave49_phi_switch_nested_payload_runtime.c',
+        note='wave49 codegen/IR runtime stress: switch and phi-like joins should preserve nested union/aggregate payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave49_compound_literal_copy_layout_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave49_compound_literal_copy_layout_runtime.c',
+        note='wave49 codegen/IR runtime stress: compound literal aggregate copies should preserve layout-sensitive row payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave49_pointer_member_conversion_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave49_pointer_member_conversion_payload_runtime.c',
+        note='wave49 codegen/IR runtime stress: pointer/member conversions and aggregate copies should preserve selected record payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave49_return_slot_loop_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave49_return_slot_loop_payload_runtime.c',
+        note='wave49 codegen/IR runtime stress: return-slot payloads should survive loop-carried aggregate copies and union-mode reads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave50_loop_phi_continue_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave50_loop_phi_continue_payload_runtime.c',
+        note='wave50 codegen/IR runtime stress: loop-carried phi-like joins and continue edges should preserve nested aggregate payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave50_switch_fallthrough_continue_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave50_switch_fallthrough_continue_payload_runtime.c',
+        note='wave50 codegen/IR runtime stress: switch fallthrough and continue edges should preserve aggregate copies',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave50_compound_literal_return_slot_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave50_compound_literal_return_slot_runtime.c',
+        note='wave50 codegen/IR runtime stress: compound literal aggregate copies should survive return-slot selection and rewrite chains',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave50_pointer_member_lvalue_payload_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave50_pointer_member_lvalue_payload_runtime.c',
+        note='wave50 codegen/IR runtime stress: pointer/member lvalue conversions should preserve copied record payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave53_callback_aggregate_return_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave53_callback_aggregate_return_runtime.c',
+        note='wave53 codegen/IR runtime stress: callbacks carrying by-value aggregate parameters and returns should preserve payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave53_switch_braced_join_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave53_switch_braced_join_runtime.c',
+        note='wave53 codegen/IR runtime stress: fully-braced aggregate initializers through switch/loop joins should preserve copies',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave53_union_selected_conversion_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave53_union_selected_conversion_runtime.c',
+        note='wave53 codegen/IR runtime stress: selected union members should remain valid through tag-directed conversion copies',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave53_pointer_member_writeback_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave53_pointer_member_writeback_runtime.c',
+        note='wave53 codegen/IR runtime stress: pointer/member writes after aggregate copies should preserve returned payloads',
+    ),
+    RuntimeProbe(
+        probe_id='13__probe_wave56_array_element_nested_union_struct_copy_runtime',
+        source=PROBE_DIR / 'runtime/13__probe_wave56_array_element_nested_union_struct_copy_runtime.c',
+        note='wave56 codegen/IR regression: array-element assignment from a pointer-dereferenced large nested-union struct must copy the full materialized ABI object',
     ),
 ]
 
@@ -75,13 +295,13 @@ DIAG_PROBES = [
         probe_id='13__probe_diag_line_directive_switch_missing_rparen_parser_text_strict',
         source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_switch_missing_rparen_parser_presence.c',
         note='text diagnostics should preserve parser switch-header parse failure line under #line remap',
-        required_substrings=['Error: Failed to parse expression at line 132103'],
+        required_substrings=["Error: expected ')' after switch condition at virtual_probe_ir_parser_switch_missing_rparen_diagjson.c:132103"],
     ),
     DiagnosticProbe(
         probe_id='13__probe_diag_line_directive_include_switch_missing_rparen_parser_text_strict',
         source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_include_switch_missing_rparen_parser_presence.c',
         note='text diagnostics should preserve parser switch-header parse failure line under include #line remap',
-        required_substrings=['Error: Failed to parse expression at line 132153'],
+        required_substrings=["Error: expected ')' after switch condition at virtual_probe_ir_include_parser_switch_missing_rparen_diagjson.h:132153"],
     ),
     DiagnosticProbe(
         probe_id='13__probe_diag_line_directive_for_missing_first_semicolon_parser_text_strict',
@@ -159,13 +379,13 @@ DIAG_PROBES = [
         probe_id='13__probe_diag_line_directive_nested_switch_for_missing_body_parser_text_strict',
         source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_nested_switch_for_missing_body_parser_presence.c',
         note='text diagnostics should preserve parser nested switch->for missing-body line under #line remap',
-        required_substrings=['line 134503'],
+        required_substrings=['line 134504'],
     ),
     DiagnosticProbe(
         probe_id='13__probe_diag_line_directive_include_nested_switch_for_missing_body_parser_text_strict',
         source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_include_nested_switch_for_missing_body_parser_presence.c',
         note='text diagnostics should preserve parser nested switch->for missing-body line under include #line remap',
-        required_substrings=['line 134553'],
+        required_substrings=['line 134554'],
     ),
     DiagnosticProbe(
         probe_id='13__probe_fnptr_too_many_args_reject',
@@ -368,6 +588,39 @@ DIAG_PROBES = [
     ),
 ]
 
+DIAG_PROBES.extend([
+    DiagnosticProbe(
+        probe_id='13__probe_wave54_if_missing_condition_then_aggregate_return',
+        source=PROBE_DIR.parent / 'cases/13__ir_reject_wave54_if_missing_rparen_then_aggregate_return.c',
+        note='wave54 recovery/lowering boundary: malformed if header should recover before a valid aggregate-return tail',
+    ),
+    DiagnosticProbe(
+        probe_id='13__probe_wave54_for_missing_semicolon_then_union_switch',
+        source=PROBE_DIR.parent / 'cases/13__ir_reject_wave54_for_missing_semicolon_then_union_switch.c',
+        note='wave54 recovery/lowering boundary: malformed for header should recover before a valid union/switch tail',
+    ),
+    DiagnosticProbe(
+        probe_id='13__probe_wave54_switch_missing_rparen_then_loop_copy',
+        source=PROBE_DIR.parent / 'cases/13__ir_reject_wave54_switch_missing_rparen_then_loop_copy.c',
+        note='wave54 recovery/lowering boundary: malformed switch header should recover before a valid aggregate-copy loop tail',
+    ),
+    DiagnosticProbe(
+        probe_id='13__probe_wave55_initializer_missing_semicolon_then_aggregate_return',
+        source=PROBE_DIR.parent / 'cases/13__ir_reject_wave55_initializer_missing_semicolon_then_aggregate_return.c',
+        note='wave55 recovery/lowering boundary: malformed aggregate-initializer declaration should recover before a valid aggregate-return tail',
+    ),
+    DiagnosticProbe(
+        probe_id='13__probe_wave55_declarator_missing_rparen_then_vla_pointer',
+        source=PROBE_DIR.parent / 'cases/13__ir_reject_wave55_declarator_missing_rparen_then_vla_pointer.c',
+        note='wave55 recovery/lowering boundary: malformed declarator should recover before a valid VLA-pointer lowering tail',
+    ),
+    DiagnosticProbe(
+        probe_id='13__probe_wave55_label_missing_colon_then_union_copy',
+        source=PROBE_DIR.parent / 'cases/13__ir_reject_wave55_label_missing_colon_then_union_copy.c',
+        note='wave55 recovery/lowering boundary: malformed case label should recover before a valid union-copy lowering tail',
+    ),
+])
+
 DIAG_JSON_PROBES = [
     DiagnosticJsonProbe(
         probe_id='13__probe_diagjson_line_directive_if_missing_lparen_parser_presence_reject',
@@ -502,7 +755,7 @@ DIAG_JSON_PROBES = [
         source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_nested_switch_for_missing_body_parser_presence.c',
         note='strict frontier: nested #line switch->for missing-body should preserve parser diagnostics JSON presence',
         expected_codes=[1000],
-        expected_line=134503,
+        expected_line=134504,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -510,7 +763,7 @@ DIAG_JSON_PROBES = [
         source=PROBE_DIR / 'diagnostics/13__probe_diagjson_line_directive_include_nested_switch_for_missing_body_parser_presence.c',
         note='strict frontier: include nested #line switch->for missing-body should preserve parser diagnostics JSON presence',
         expected_codes=[1000],
-        expected_line=134553,
+        expected_line=134554,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(

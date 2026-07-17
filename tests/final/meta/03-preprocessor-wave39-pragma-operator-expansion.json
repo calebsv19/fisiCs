@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave39_pragma_direct_following_token_strict",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_wave39_pragma_direct_following_token_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["preprocessor", "pragma-operator", "direct", "following-token", "runtime", "wave39", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave39_pragma_macro_nested_following_token_strict",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_wave39_pragma_macro_nested_following_token_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["preprocessor", "pragma-operator", "macro-expansion", "destringization", "nested-macro", "following-token", "runtime", "wave39", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__diag_wave39_pragma_malformed_operand_reject",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_wave39_pragma_malformed_operand_reject.c",
+      "expects": ["expect/03__diag_wave39_pragma_malformed_operand_reject.diag"],
+      "standard": "c99",
+      "tags": ["preprocessor", "pragma-operator", "malformed-operand", "diagnostic", "source-location", "wave39", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

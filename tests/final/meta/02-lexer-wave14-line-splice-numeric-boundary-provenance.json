@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__wave14_line_splice_decimal_exponent_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave14_line_splice_decimal_exponent_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave14_line_splice_decimal_exponent_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "numeric-token",
+        "float",
+        "diagjson",
+        "strict",
+        "clang-line",
+        "wave14"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave14_line_splice_decimal_exponent_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave14_line_splice_decimal_exponent_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave14_line_splice_decimal_exponent_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "numeric-token",
+        "float",
+        "diagjson",
+        "current-threshold",
+        "wave14"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave14_line_splice_hex_digit_boundary_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave14_line_splice_hex_digit_boundary_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave14_line_splice_hex_digit_boundary_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "numeric-token",
+        "hex",
+        "token-boundary",
+        "diagjson",
+        "strict",
+        "clang-line",
+        "wave14"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave14_line_splice_hex_digit_boundary_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave14_line_splice_hex_digit_boundary_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave14_line_splice_hex_digit_boundary_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "numeric-token",
+        "hex",
+        "token-boundary",
+        "diagjson",
+        "current-threshold",
+        "wave14"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave14_line_directive_numeric_then_invalid_token_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave14_line_directive_numeric_then_invalid_token_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave14_line_directive_numeric_then_invalid_token_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "numeric-token",
+        "invalid-character",
+        "recovery",
+        "diagjson",
+        "strict",
+        "clang-line",
+        "wave14"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

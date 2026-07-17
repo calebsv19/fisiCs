@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave32_typedef_vla_fnptr_rebind",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave32_typedef_vla_fnptr_rebind.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave32_typedef_vla_fnptr_rebind.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "function-pointer", "declarator", "wave32", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave32_array_param_typedef_callback",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave32_array_param_typedef_callback.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave32_array_param_typedef_callback.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "array-parameter-adjustment", "typedef", "vla", "function-pointer", "wave32", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave32_factory_returns_vla_reader",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave32_factory_returns_vla_reader.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave32_factory_returns_vla_reader.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "function-pointer", "factory", "declarator", "wave32", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave32_scoped_shadow_vla_initializer",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave32_scoped_shadow_vla_initializer.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave32_scoped_shadow_vla_initializer.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "scoped-typedef", "vla", "initializer", "function-pointer", "wave32", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

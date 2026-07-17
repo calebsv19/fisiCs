@@ -1,0 +1,8 @@
+Diagnostics:
+Error: Expected type name at virtual_wave36_nested_include_recovery.h:12862 (got '*')
+Error: Invalid function parameter list at virtual_wave36_nested_include_recovery.h:12862 (got '*')
+Error: Invalid function parameter list at virtual_wave36_nested_include_recovery.h:12862 (got '*')
+Error: invalid declarator at virtual_wave36_nested_include_recovery.h:12862 (got '*')
+Error at (12881:20): Undeclared identifier
+   Hint: wave36_nested_include_missing
+   Spelling: virtual_wave36_nested_include_return.c:12881:20

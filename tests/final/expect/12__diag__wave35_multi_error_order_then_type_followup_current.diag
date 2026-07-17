@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (12705:17): Undeclared identifier
+   Hint: wave35_multi_error_first_missing
+   Spelling: virtual_wave35_multi_error_order_boundary.c:12705:17
+Error at (12707:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave35_multi_error_order_boundary.c:12707:16

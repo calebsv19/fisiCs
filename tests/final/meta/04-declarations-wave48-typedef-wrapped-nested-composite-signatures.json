@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave48_typedef_wrapped_nested_factory_progressive",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave48_typedef_wrapped_nested_factory_progressive_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-pointer", "nested-callback", "factory", "old-style", "prototype", "progressive-refinement", "runtime", "wave48"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave48_typedef_wrapped_nested_factory_reverse",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave48_typedef_wrapped_nested_factory_reverse_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-pointer", "nested-callback", "factory", "old-style", "prototype", "reverse-order", "runtime", "wave48"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave48_typedef_wrapped_nested_factory_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave48_typedef_wrapped_nested_factory_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "function-pointer", "nested-callback", "factory", "composite-type", "conflicting-types", "negative", "strict", "wave48"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

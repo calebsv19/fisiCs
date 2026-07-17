@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (12601:5): Left operand of '=' must be a modifiable lvalue
+   Spelling: virtual_lv_wave26_function_designator_assignment.c:12601:5
+Error at (12601:5): Incompatible assignment operands
+   Spelling: virtual_lv_wave26_function_designator_assignment.c:12601:5

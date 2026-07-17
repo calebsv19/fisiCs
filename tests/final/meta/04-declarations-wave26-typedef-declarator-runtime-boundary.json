@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave26_typedef_fnptr_initializer_sizeof",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave26_typedef_fnptr_initializer_sizeof_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave26_typedef_fnptr_initializer_sizeof.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "function-pointer", "initializer", "sizeof", "wave26", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave26_vla_param_typedef_adjust_sizeof",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave26_vla_param_typedef_adjust_sizeof_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave26_vla_param_typedef_adjust_sizeof.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "parameter-adjustment", "sizeof", "wave26", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave26_typedef_declarator_boundary",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave26_typedef_declarator_boundary_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave26_typedef_declarator_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "declarator", "function-pointer", "pointer-to-vla", "initializer", "wave26", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

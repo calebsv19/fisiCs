@@ -1,0 +1,10 @@
+Diagnostics:
+Error: Expected type name at virtual_wave37_macro_followup_provenance.c:13122 (got '*')
+Error: Invalid function parameter list at virtual_wave37_macro_followup_provenance.c:13122 (got '*')
+Error: Invalid function parameter list at virtual_wave37_macro_followup_provenance.c:13122 (got '*')
+Error: invalid declarator at virtual_wave37_macro_followup_provenance.c:13122 (got '*')
+Error at (13125:17): Undeclared identifier
+   Hint: wave37_macro_first_missing
+   Spelling: virtual_wave37_macro_followup_provenance.c:13125:17
+Error at (13126:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave37_macro_followup_provenance.c:13126:16

@@ -16,7 +16,7 @@
         "conversion",
         "negative"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -33,7 +33,7 @@
         "conversion",
         "negative"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },

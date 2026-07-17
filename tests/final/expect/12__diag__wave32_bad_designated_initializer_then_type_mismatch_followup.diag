@@ -1,0 +1,16 @@
+Diagnostics:
+Error: Expected field name after '.' in initializer at tests/final/probes/diagnostics/12__probe_wave32_bad_designated_initializer_then_type_mismatch_followup.c:7 (got '=')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_wave32_bad_designated_initializer_then_type_mismatch_followup.c:7 (got '=')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_wave32_bad_designated_initializer_then_type_mismatch_followup.c:11 (got '}')
+Error: invalid statement at line 11 (token=})
+Error: Failed to parse expression at line 7
+Error: invalid statement inside block at line 7
+Error: Failed to parse expression at line 11
+Error at (9:17): Incompatible initializer type for 'value'
+   Spelling: tests/final/probes/diagnostics/12__probe_wave32_bad_designated_initializer_then_type_mismatch_followup.c:9:17
+Error at (9:0): Initializer for static variable 'value' is not a constant expression
+Error at (10:12): Undeclared identifier
+   Hint: pair
+   Spelling: tests/final/probes/diagnostics/12__probe_wave32_bad_designated_initializer_then_type_mismatch_followup.c:10:12
+Error at (6:5): Control reaches end of non-void function 'main'
+   Spelling: tests/final/probes/diagnostics/12__probe_wave32_bad_designated_initializer_then_type_mismatch_followup.c:6:5

@@ -1,0 +1,11 @@
+#ifndef FISICS_PROBE_RUNTIME_WAVE37_NESTED_TAIL_REENTRY_STATE_INNER_H
+#define FISICS_PROBE_RUNTIME_WAVE37_NESTED_TAIL_REENTRY_STATE_INNER_H
+
+#define W37_NEST_SEED 13
+#define W37_NEST_CAT2(a, b) a##b
+#define W37_NEST_CAT(a, b) W37_NEST_CAT2(a, b)
+#define W37_NEST_STR2(x) #x
+#define W37_NEST_STR(x) W37_NEST_STR2(x)
+#define W37_NEST_DECL(slot, value) enum { W37_NEST_CAT(w37_nested_, slot) = (value) + W37_NEST_SEED }
+
+#endif

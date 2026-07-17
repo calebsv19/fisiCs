@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_abi_wave133_units_return_storage_matrix",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_abi_wave133_units_return_storage_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_abi_wave133_units_return_storage_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "abi",
+        "physics",
+        "units",
+        "nested-aggregate",
+        "aggregate-return",
+        "storage",
+        "wave133"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_abi_wave133_units_callback_envelope_chain",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_abi_wave133_units_callback_envelope_chain_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_abi_wave133_units_callback_envelope_chain_main.c",
+        "probes/runtime/15__probe_abi_wave133_units_callback_envelope_chain_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_abi_wave133_units_callback_envelope_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "abi",
+        "physics",
+        "units",
+        "nested-aggregate",
+        "callback",
+        "multitu",
+        "envelope",
+        "wave133"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

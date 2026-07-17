@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (7141:19): Operator '&' requires non-bitfield lvalue operand
+   Spelling: virtual_lv_wave19_selected_bitfield_address.c:7141:19

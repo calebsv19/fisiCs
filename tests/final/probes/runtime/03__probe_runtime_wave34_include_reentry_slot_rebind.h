@@ -1,0 +1,13 @@
+#ifndef FISICS_PROBE_RUNTIME_WAVE34_INCLUDE_REENTRY_HELPERS_H
+#define FISICS_PROBE_RUNTIME_WAVE34_INCLUDE_REENTRY_HELPERS_H
+
+#define W34_REENTRY_CAT2(a, b) a##b
+#define W34_REENTRY_CAT(a, b) W34_REENTRY_CAT2(a, b)
+#define W34_REENTRY_STR2(x) #x
+#define W34_REENTRY_STR(x) W34_REENTRY_STR2(x)
+#define W34_REENTRY_DECL(slot, value) enum { W34_REENTRY_CAT(w34_reentry_, slot) = value }
+
+#endif
+
+#line 2500 "virtual_wave34_reentry_header.h"
+W34_REENTRY_DECL(W34_REENTRY_SLOT, W34_REENTRY_VALUE);

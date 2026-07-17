@@ -1,0 +1,5 @@
+Diagnostics:
+Error: expected ')' after switch condition at tests/final/probes/diagnostics/12__probe_bad_switch_case_then_undeclared_followup.c:3 (got '{')
+Error at (7:12): Undeclared identifier
+   Hint: follow_on_after_bad_switch_case
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_switch_case_then_undeclared_followup.c:7:12

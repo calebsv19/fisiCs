@@ -138,15 +138,17 @@ Expression grammar, precedence, associativity, and ambiguous parses.
 
 ## Promotion Audit Closure
 - Current expressions metadata lives across `tests/final/meta/05-expressions*.json`.
-- Current active expressions bucket cases: 129
+- Current active expressions bucket cases: 203
 - Current active expressions bucket result: passing
-- Bucket `05` is closed in the probe-promotion audit at `promoted=58`,
-  `probe_only=8`, and `missing=0`.
+- Bucket `05` is closed in the 2026-07-14 promotion audit at `promoted=140`,
+  `probe_only=0`, and `missing=0`.
 - The final closure shard
   `tests/final/meta/05-expressions-wave13-probe-promotion-audit-closure.json`
   promotes the remaining expression line-remap diagnostics, diagnostics JSON,
   and runtime expression-semantics probe fixtures into stable `make final`
   coverage.
+- Later equivalent-owner mappings close the remaining strict/current-threshold
+  records without adding duplicate stable shapes.
 
 ## Probe Status
 - `tests/final/probes/run_probes.py` summary now reports:

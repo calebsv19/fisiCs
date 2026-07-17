@@ -55,7 +55,7 @@
         "union",
         "negative"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },
@@ -73,7 +73,7 @@
         "union",
         "negative"
       ],
-      "allow_nonzero_exit": true,
+      "expect_compile_exit": 1,
       "requires": [],
       "status": "ok"
     },

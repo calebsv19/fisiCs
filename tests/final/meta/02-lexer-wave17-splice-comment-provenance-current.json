@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__wave17_spliced_line_comment_escape_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave17_spliced_line_comment_escape_diagjson_current.c",
+      "expects": [
+        "expect/02__wave17_spliced_line_comment_escape_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "string-literal",
+        "invalid-escape",
+        "diagjson",
+        "current-threshold",
+        "wave17"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave17_spliced_line_ucn_comment_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave17_spliced_line_ucn_comment_diagjson_current.c",
+      "expects": [
+        "expect/02__wave17_spliced_line_ucn_comment_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "ucn",
+        "identifier",
+        "diagjson",
+        "current-threshold",
+        "wave17"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave17_adjacent_string_comment_invalid_token_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave17_adjacent_string_comment_invalid_token_diagjson_current.c",
+      "expects": [
+        "expect/02__wave17_adjacent_string_comment_invalid_token_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "string-literal",
+        "invalid-token",
+        "diagjson",
+        "current-threshold",
+        "wave17"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave17_spliced_line_clean_comment_string_diagjson_current_empty",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave17_spliced_line_clean_comment_string_diagjson_current_empty.c",
+      "expects": [
+        "expect/02__wave17_spliced_line_clean_comment_string_diagjson_current_empty.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "string-literal",
+        "numeric-token",
+        "diagjson",
+        "current-threshold",
+        "wave17"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

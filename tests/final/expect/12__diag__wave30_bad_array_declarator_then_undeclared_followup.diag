@@ -1,0 +1,6 @@
+Diagnostics:
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_array_declarator_then_undeclared_followup.c:3 (got '=')
+Error: Failed to parse expression at tests/final/probes/diagnostics/12__probe_bad_array_declarator_then_undeclared_followup.c:3 (got '=')
+Error at (4:14): Undeclared identifier
+   Hint: follow_on_after_bad_array_declarator
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_array_declarator_then_undeclared_followup.c:4:14

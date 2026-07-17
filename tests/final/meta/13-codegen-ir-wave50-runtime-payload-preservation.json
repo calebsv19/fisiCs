@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave50_loop_phi_continue_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave50_loop_phi_continue_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave50_loop_phi_continue_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "loop-carried", "phi-like", "continue", "nested-aggregate", "runtime", "wave50"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave50_switch_fallthrough_continue_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave50_switch_fallthrough_continue_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave50_switch_fallthrough_continue_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "switch", "fallthrough", "continue", "aggregate-copy", "runtime", "wave50"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave50_compound_literal_return_slot",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave50_compound_literal_return_slot_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave50_compound_literal_return_slot.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "compound-literal", "return-slot", "aggregate-copy", "runtime", "wave50"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave50_pointer_member_lvalue_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave50_pointer_member_lvalue_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave50_pointer_member_lvalue_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "pointer-member", "lvalue", "conversion", "aggregate-copy", "runtime", "wave50"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

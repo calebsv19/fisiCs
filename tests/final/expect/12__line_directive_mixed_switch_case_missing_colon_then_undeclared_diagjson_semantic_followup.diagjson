@@ -1,5 +1,5 @@
 {
-  "diag_count": 10,
+  "diag_count": 8,
   "diagnostics": [
     {
       "category_id": 2,
@@ -80,23 +80,6 @@
       "has_hint": false,
       "has_message": true,
       "kind": 0,
-      "length": 1,
-      "line": 9305,
-      "severity_id": 2,
-      "severity_name": "error",
-      "stage": "semantic"
-    },
-    {
-      "category_id": 3,
-      "category_name": "semantic",
-      "code": 2000,
-      "code_id": 2000,
-      "code_name": "semantic.generic",
-      "column": 13,
-      "has_file": true,
-      "has_hint": false,
-      "has_message": true,
-      "kind": 0,
       "length": 5,
       "line": 9306,
       "severity_id": 2,
@@ -153,26 +136,9 @@
       "severity_id": 1,
       "severity_name": "warning",
       "stage": "semantic"
-    },
-    {
-      "category_id": 3,
-      "category_name": "semantic",
-      "code": 2000,
-      "code_id": 2000,
-      "code_name": "semantic.generic",
-      "column": 5,
-      "has_file": true,
-      "has_hint": false,
-      "has_message": true,
-      "kind": 0,
-      "length": 4,
-      "line": 9301,
-      "severity_id": 2,
-      "severity_name": "error",
-      "stage": "semantic"
     }
   ],
-  "error_count": 9,
+  "error_count": 7,
   "note_count": 0,
   "profile": "fisics_diagnostics_v1",
   "schema_version": 1,

@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime_wave20_selected_member_array_compound",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_runtime_wave20_selected_member_array_compound.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave20_selected_member_array_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave20", "selected-member", "array", "compound-assign", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave20_qualified_pointer_member_postinc",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_runtime_wave20_qualified_pointer_member_postinc.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave20_qualified_pointer_member_postinc.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave20", "qualified-member", "postincrement", "compound-assign", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave20_conditional_selected_member_compound_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave20_conditional_selected_member_compound_reject.c",
+      "expects": [
+        "expect/06__diag__wave20_conditional_selected_member_compound_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave20", "conditional", "selected-member", "compound-assign", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave20_nested_selected_bitfield_address_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave20_nested_selected_bitfield_address_reject.c",
+      "expects": [
+        "expect/06__diag__wave20_nested_selected_bitfield_address_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave20", "bitfield", "address-of", "selected-member", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

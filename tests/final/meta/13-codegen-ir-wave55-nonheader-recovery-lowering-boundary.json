@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_wave55_initializer_missing_semicolon_then_aggregate_return",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_wave55_initializer_missing_semicolon_then_aggregate_return.c",
+      "expects": [
+        "expect/13__ir_reject_wave55_initializer_missing_semicolon_then_aggregate_return.diag",
+        "expect/13__ir_reject_wave55_initializer_missing_semicolon_then_aggregate_return.pdiag"
+      ],
+      "tags": ["ir", "negative", "parser-recovery", "aggregate-initializer", "aggregate-return", "lowering-boundary", "wave55"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_wave55_declarator_missing_rparen_then_vla_pointer",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_wave55_declarator_missing_rparen_then_vla_pointer.c",
+      "expects": [
+        "expect/13__ir_reject_wave55_declarator_missing_rparen_then_vla_pointer.diag",
+        "expect/13__ir_reject_wave55_declarator_missing_rparen_then_vla_pointer.pdiag"
+      ],
+      "tags": ["ir", "negative", "parser-recovery", "declarator", "vla", "pointer", "lowering-boundary", "wave55"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_wave55_label_missing_colon_then_union_copy",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_wave55_label_missing_colon_then_union_copy.c",
+      "expects": [
+        "expect/13__ir_reject_wave55_label_missing_colon_then_union_copy.diag",
+        "expect/13__ir_reject_wave55_label_missing_colon_then_union_copy.pdiag"
+      ],
+      "tags": ["ir", "negative", "parser-recovery", "case-label", "union", "aggregate-copy", "lowering-boundary", "wave55"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

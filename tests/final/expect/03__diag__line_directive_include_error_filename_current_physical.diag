@@ -1,0 +1,3 @@
+Diagnostics:
+virtual_pp_include_error_header_probe_current.h:615:1: error: bucket03 - probe - include - error - filename
+Error at (615:1): bucket03 - probe - include - error - filename

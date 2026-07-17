@@ -1,0 +1,5 @@
+Diagnostics:
+tests/final/probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_control.c:2:15: error: macro 'WAVE39_CONTROL' requires 2 argument(s), got 1
+Error: preprocessing failed
+tests/final/probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_control.c:2:15: error: macro 'WAVE39_CONTROL' requires 2 argument(s), got 1
+tests/final/probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_control.c:2:15: error: macro 'WAVE39_CONTROL' requires 2 argument(s), got 1

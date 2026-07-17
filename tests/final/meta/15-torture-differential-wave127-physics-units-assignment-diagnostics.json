@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__units_assignment_member_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_assignment_member_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_assignment_member_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_assignment_member_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["diag", "physics", "units", "overlay", "assignment", "member", "requires-convert", "wave127"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_assignment_array_element_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_assignment_array_element_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_assignment_array_element_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_assignment_array_element_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["diag", "physics", "units", "overlay", "assignment", "array-element", "requires-convert", "wave127"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_assignment_pointer_deref_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_assignment_pointer_deref_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_assignment_pointer_deref_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_assignment_pointer_deref_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["diag", "physics", "units", "overlay", "assignment", "pointer-deref", "requires-convert", "wave127"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_assignment_conditional_lvalue_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_assignment_conditional_lvalue_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_assignment_conditional_lvalue_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_assignment_conditional_lvalue_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["diag", "physics", "units", "overlay", "assignment", "conditional-lvalue", "requires-convert", "wave127"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

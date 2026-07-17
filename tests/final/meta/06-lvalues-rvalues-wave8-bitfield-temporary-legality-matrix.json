@@ -10,7 +10,6 @@
       "expects": [
         "expect/06__line_directive_bitfield_address_diagjson_current_sparse.diagjson"
       ],
-      "capture_diag_json": true,
       "tags": [
         "lvalues-rvalues",
         "diagjson",
@@ -30,7 +29,6 @@
       "expects": [
         "expect/06__line_directive_include_bitfield_address_diagjson_current_sparse.diagjson"
       ],
-      "capture_diag_json": true,
       "tags": [
         "lvalues-rvalues",
         "diagjson",
@@ -51,7 +49,6 @@
       "expects": [
         "expect/06__line_directive_temp_increment_diagjson_current_sparse.diagjson"
       ],
-      "capture_diag_json": true,
       "tags": [
         "lvalues-rvalues",
         "diagjson",
@@ -71,7 +68,6 @@
       "expects": [
         "expect/06__line_directive_include_temp_increment_diagjson_current_sparse.diagjson"
       ],
-      "capture_diag_json": true,
       "tags": [
         "lvalues-rvalues",
         "diagjson",

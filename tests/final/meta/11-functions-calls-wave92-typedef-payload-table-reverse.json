@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave92_typedef_payload_table_all_fisics",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave92_typedef_payload_table_reverse_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave92_typedef_payload_table_reverse_main.c",
+        "probes/runtime/11__probe_wave92_typedef_payload_table_reverse_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave92_typedef_payload_table_reverse.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "clang_args": ["-pedantic-errors", "-Wall", "-Wextra"],
+      "standard": "c99",
+      "tags": [
+        "functions-calls",
+        "function-type-typedef",
+        "function-pointer-table",
+        "pointer-to-array",
+        "typedef-array-member",
+        "large-aggregate-return",
+        "multitu",
+        "runtime",
+        "strict-regression",
+        "wave92"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave92_typedef_payload_table_reverse_clang_caller",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave92_typedef_payload_table_reverse_lib.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave92_typedef_payload_table_reverse_lib.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/11__probe_wave92_typedef_payload_table_reverse_main.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave92_typedef_payload_table_reverse.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "clang_args": ["-pedantic-errors", "-Wall", "-Wextra"],
+      "standard": "c99",
+      "tags": [
+        "functions-calls",
+        "function-type-typedef",
+        "function-pointer-table",
+        "pointer-to-array",
+        "typedef-array-member",
+        "large-aggregate-return",
+        "reverse-clang-caller",
+        "runtime",
+        "strict-regression",
+        "wave92"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

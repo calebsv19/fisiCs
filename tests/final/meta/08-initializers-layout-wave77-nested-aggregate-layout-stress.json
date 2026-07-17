@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave77_named_union_row_slot_ordering",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave77_named_union_row_slot_ordering.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave77_named_union_row_slot_ordering.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "union", "array", "layout", "override-ordering", "zero-fill", "wave77"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave77_compound_literal_zero_fill_slots",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave77_compound_literal_zero_fill_slots.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave77_compound_literal_zero_fill_slots.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "compound-literal", "union", "array", "layout", "zero-fill", "wave77"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave77_anonymous_union_layout_checksum",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave77_anonymous_union_layout_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave77_anonymous_union_layout_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "anonymous-union", "anonymous-struct", "layout", "offsetof", "zero-fill", "wave77"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave77_nested_union_array_designated_checksum",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave77_nested_union_array_designated_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave77_nested_union_array_designated_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "designator", "union", "nested-array", "layout", "zero-fill", "wave77"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

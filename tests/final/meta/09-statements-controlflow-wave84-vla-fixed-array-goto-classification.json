@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__probe_wave84_goto_bypasses_const_object_vla_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave84_goto_bypasses_const_object_vla_reject.c",
+      "expects": [
+        "expect/09__probe_wave84_goto_bypasses_const_object_vla_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagnostic",
+        "goto",
+        "vla",
+        "const-object-bound",
+        "wave84"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave84_goto_bypasses_enum_fixed_array_control",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_wave84_goto_bypasses_enum_fixed_array_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__probe_wave84_goto_bypasses_enum_fixed_array_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "goto",
+        "fixed-array",
+        "enum-bound",
+        "wave84"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

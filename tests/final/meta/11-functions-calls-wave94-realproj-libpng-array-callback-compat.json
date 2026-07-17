@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__realproj_libpng_typedef_array_callback_compat",
+      "bucket": "functions-calls",
+      "input": "cases/11__realproj_libpng_typedef_array_callback_compat.c",
+      "expects": [
+        "expect/11__realproj_libpng_typedef_array_callback_compat.diag"
+      ],
+      "tags": [
+        "realproj-regression",
+        "libpng",
+        "function-pointer",
+        "typedef-array-parameter",
+        "parameter-adjustment",
+        "callback-compatibility"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

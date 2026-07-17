@@ -1,0 +1,5 @@
+Diagnostics:
+virtual_macro_gnu_comma.c:531:34: error: GNU ', ##__VA_ARGS__' extension is not supported
+Error: preprocessing failed
+virtual_macro_gnu_comma.c:531:34: error: GNU ', ##__VA_ARGS__' extension is not supported
+virtual_macro_gnu_comma.c:531:34: error: GNU ', ##__VA_ARGS__' extension is not supported

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave84_preserved_typedef_initializer_same_name_shadow",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave84_preserved_typedef_initializer_same_name_shadow.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave84_preserved_typedef_initializer_identity.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "differential", "preserved-typedef", "definition-identity", "same-name-shadow", "designated-initializer", "wave84", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave84_preserved_typedef_initializer_unique_name_control",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave84_preserved_typedef_initializer_unique_name_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave84_preserved_typedef_initializer_identity.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "differential", "preserved-typedef", "definition-identity", "unique-name-control", "designated-initializer", "wave84", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

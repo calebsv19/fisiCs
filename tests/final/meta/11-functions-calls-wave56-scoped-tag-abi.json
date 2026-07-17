@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime__wave56_scoped_tag_abi_all_fisics",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave56_scoped_tag_abi_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave56_scoped_tag_abi_main.c",
+        "probes/runtime/11__probe_wave56_scoped_tag_abi_callee.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__wave56_scoped_tag_abi_all_fisics.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "scoped-tag-shadow", "typedef-shadow", "aggregate-return", "callback", "multitu", "runtime", "strict-regression", "wave56"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime__wave56_scoped_tag_abi_mixed_clang_callee",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave56_scoped_tag_abi_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave56_scoped_tag_abi_main.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/11__probe_wave56_scoped_tag_abi_callee.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__wave56_scoped_tag_abi_mixed_clang_callee.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "scoped-tag-shadow", "typedef-shadow", "aggregate-return", "callback", "mixed-clang", "runtime", "strict-regression", "wave56"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime__wave56_scoped_tag_abi_source_order",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave56_scoped_tag_abi_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave56_scoped_tag_abi_callee.c",
+        "probes/runtime/11__probe_wave56_scoped_tag_abi_main.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__wave56_scoped_tag_abi_source_order.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "scoped-tag-shadow", "typedef-shadow", "aggregate-return", "callback", "multitu", "source-order", "runtime", "strict-regression", "wave56"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

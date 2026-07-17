@@ -1,1 +1,106 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+%S = type { i8, i32, i16 }
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @main() {
+entry:
+  %ok = alloca i32, align 4
+  %s = alloca %S, align 4
+  store i32 1, ptr %ok, align 4
+  %ok1 = load i32, ptr %ok, align 4
+  %land.lhs = icmp ne i32 %ok1, 0
+  br i1 %land.lhs, label %land.rhs, label %land.end
+
+land.rhs:                                         ; preds = %entry
+  %fieldPtr = getelementptr inbounds nuw %S, ptr %s, i32 0, i32 0
+  %ptr.cmp.lhs = ptrtoint ptr %fieldPtr to i64
+  %ptr.cmp.rhs = ptrtoint ptr %s to i64
+  %ptrcmp = icmp eq i64 %ptr.cmp.lhs, %ptr.cmp.rhs
+  %ptrcmp.int = zext i1 %ptrcmp to i32
+  %land.rhs.bool = icmp ne i32 %ptrcmp.int, 0
+  br label %land.end
+
+land.end:                                         ; preds = %land.rhs, %entry
+  %land.result = phi i1 [ false, %entry ], [ %land.rhs.bool, %land.rhs ]
+  %land.int = zext i1 %land.result to i32
+  store i32 %land.int, ptr %ok, align 4
+  %ok2 = load i32, ptr %ok, align 4
+  %land.lhs3 = icmp ne i32 %ok2, 0
+  br i1 %land.lhs3, label %land.rhs4, label %land.end5
+
+land.rhs4:                                        ; preds = %land.end
+  %fieldPtr6 = getelementptr inbounds nuw %S, ptr %s, i32 0, i32 1
+  %ptr.arith = getelementptr i8, ptr %s, i64 4
+  %ptr.cmp.lhs7 = ptrtoint ptr %fieldPtr6 to i64
+  %ptr.cmp.rhs8 = ptrtoint ptr %ptr.arith to i64
+  %ptrcmp9 = icmp eq i64 %ptr.cmp.lhs7, %ptr.cmp.rhs8
+  %ptrcmp.int10 = zext i1 %ptrcmp9 to i32
+  %land.rhs.bool11 = icmp ne i32 %ptrcmp.int10, 0
+  br label %land.end5
+
+land.end5:                                        ; preds = %land.rhs4, %land.end
+  %land.result12 = phi i1 [ false, %land.end ], [ %land.rhs.bool11, %land.rhs4 ]
+  %land.int13 = zext i1 %land.result12 to i32
+  store i32 %land.int13, ptr %ok, align 4
+  %ok14 = load i32, ptr %ok, align 4
+  %land.lhs15 = icmp ne i32 %ok14, 0
+  br i1 %land.lhs15, label %land.rhs16, label %land.end17
+
+land.rhs16:                                       ; preds = %land.end5
+  %fieldPtr18 = getelementptr inbounds nuw %S, ptr %s, i32 0, i32 2
+  %ptr.arith19 = getelementptr i8, ptr %s, i64 8
+  %ptr.cmp.lhs20 = ptrtoint ptr %fieldPtr18 to i64
+  %ptr.cmp.rhs21 = ptrtoint ptr %ptr.arith19 to i64
+  %ptrcmp22 = icmp eq i64 %ptr.cmp.lhs20, %ptr.cmp.rhs21
+  %ptrcmp.int23 = zext i1 %ptrcmp22 to i32
+  %land.rhs.bool24 = icmp ne i32 %ptrcmp.int23, 0
+  br label %land.end17
+
+land.end17:                                       ; preds = %land.rhs16, %land.end5
+  %land.result25 = phi i1 [ false, %land.end5 ], [ %land.rhs.bool24, %land.rhs16 ]
+  %land.int26 = zext i1 %land.result25 to i32
+  store i32 %land.int26, ptr %ok, align 4
+  %ok27 = load i32, ptr %ok, align 4
+  %land.lhs28 = icmp ne i32 %ok27, 0
+  br i1 %land.lhs28, label %land.rhs29, label %land.end30
+
+land.rhs29:                                       ; preds = %land.end17
+  br label %land.end30
+
+land.end30:                                       ; preds = %land.rhs29, %land.end17
+  %land.result31 = phi i1 [ false, %land.end17 ], [ true, %land.rhs29 ]
+  %land.int32 = zext i1 %land.result31 to i32
+  store i32 %land.int32, ptr %ok, align 4
+  %ok33 = load i32, ptr %ok, align 4
+  %land.lhs34 = icmp ne i32 %ok33, 0
+  br i1 %land.lhs34, label %land.rhs35, label %land.end36
+
+land.rhs35:                                       ; preds = %land.end30
+  br label %land.end36
+
+land.end36:                                       ; preds = %land.rhs35, %land.end30
+  %land.result37 = phi i1 [ false, %land.end30 ], [ true, %land.rhs35 ]
+  %land.int38 = zext i1 %land.result37 to i32
+  store i32 %land.int38, ptr %ok, align 4
+  %ok39 = load i32, ptr %ok, align 4
+  %ternaryCond = icmp ne i32 %ok39, 0
+  br i1 %ternaryCond, label %ternaryTrue, label %ternaryFalse
+
+ternaryTrue:                                      ; preds = %land.end36
+  br label %ternaryMerge
+
+ternaryFalse:                                     ; preds = %land.end36
+  br label %ternaryMerge
+
+ternaryMerge:                                     ; preds = %ternaryFalse, %ternaryTrue
+  %ternaryResult = phi i32 [ 0, %ternaryTrue ], [ 1, %ternaryFalse ]
+  ret i32 %ternaryResult
+}

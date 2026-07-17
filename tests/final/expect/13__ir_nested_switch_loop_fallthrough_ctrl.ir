@@ -1,1 +1,90 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @main() {
+entry:
+  %i = alloca i32, align 4
+  %acc = alloca i32, align 4
+  call void @llvm.memset.p0.i64(ptr align 4 %acc, i8 0, i64 4, i1 false)
+  call void @llvm.memset.p0.i64(ptr align 4 %i, i8 0, i64 4, i1 false)
+  br label %forcond
+
+forcond:                                          ; preds = %forinc, %entry
+  %i1 = load i32, ptr %i, align 4
+  %cmptmp = icmp slt i32 %i1, 8
+  %cmp.int = zext i1 %cmptmp to i32
+  %forcond2 = icmp ne i32 %cmp.int, 0
+  br i1 %forcond2, label %forbody, label %forend
+
+forbody:                                          ; preds = %forcond
+  %i3 = load i32, ptr %i, align 4
+  %modtmp = srem i32 %i3, 4
+  switch i32 %modtmp, label %switch.default [
+    i32 0, label %switch.case
+    i32 1, label %switch.case4
+    i32 2, label %switch.case5
+  ]
+
+forinc:                                           ; preds = %ifcont, %switch.case4
+  %unary.load = load i32, ptr %i, align 4
+  %unary.inc = add i32 %unary.load, 1
+  store i32 %unary.inc, ptr %i, align 4
+  br label %forcond
+
+forend:                                           ; preds = %then, %forcond
+  %acc18 = load i32, ptr %acc, align 4
+  ret i32 %acc18
+
+switch.end:                                       ; preds = %switch.default, %switch.case5
+  %i12 = load i32, ptr %i, align 4
+  %cmptmp13 = icmp eq i32 %i12, 6
+  %cmp.int14 = zext i1 %cmptmp13 to i32
+  %ifcond = icmp ne i32 %cmp.int14, 0
+  br i1 %ifcond, label %then, label %ifcont
+
+switch.case:                                      ; preds = %forbody
+  %compound.load = load i32, ptr %acc, align 4
+  %compound.add = add i32 %compound.load, 1
+  store i32 %compound.add, ptr %acc, align 4
+  br label %switch.case4
+
+switch.case4:                                     ; preds = %switch.case, %forbody
+  %compound.load6 = load i32, ptr %acc, align 4
+  %compound.add7 = add i32 %compound.load6, 10
+  store i32 %compound.add7, ptr %acc, align 4
+  br label %forinc
+
+switch.case5:                                     ; preds = %forbody
+  %compound.load8 = load i32, ptr %acc, align 4
+  %compound.add9 = add i32 %compound.load8, 100
+  store i32 %compound.add9, ptr %acc, align 4
+  br label %switch.end
+
+switch.default:                                   ; preds = %forbody
+  %compound.load10 = load i32, ptr %acc, align 4
+  %compound.add11 = add i32 %compound.load10, 1000
+  store i32 %compound.add11, ptr %acc, align 4
+  br label %switch.end
+
+then:                                             ; preds = %switch.end
+  br label %forend
+
+ifcont:                                           ; preds = %switch.end
+  %i15 = load i32, ptr %i, align 4
+  %compound.load16 = load i32, ptr %acc, align 4
+  %compound.add17 = add i32 %compound.load16, %i15
+  store i32 %compound.add17, ptr %acc, align 4
+  br label %forinc
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

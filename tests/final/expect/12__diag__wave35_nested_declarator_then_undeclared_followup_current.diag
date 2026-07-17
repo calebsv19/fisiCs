@@ -1,0 +1,10 @@
+Diagnostics:
+Error: Expected type name at virtual_wave35_nested_declarator_boundary.c:12620 (got '*')
+Error: Invalid function parameter list at virtual_wave35_nested_declarator_boundary.c:12620 (got '*')
+Error: Invalid function parameter list at virtual_wave35_nested_declarator_boundary.c:12620 (got '*')
+Error: invalid declarator at virtual_wave35_nested_declarator_boundary.c:12620 (got '*')
+Error: Expected identifier in declarator at virtual_wave35_nested_declarator_boundary.c:12620 (got ')')
+Error: invalid declarator at virtual_wave35_nested_declarator_boundary.c:12620 (got ')')
+Error at (12623:16): Undeclared identifier
+   Hint: wave35_nested_declarator_missing
+   Spelling: virtual_wave35_nested_declarator_boundary.c:12623:16

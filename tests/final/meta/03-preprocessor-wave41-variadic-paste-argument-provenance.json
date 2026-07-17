@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave41_variadic_paste_clean_control",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_wave41_variadic_paste_clean_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave41_variadic_paste_clean_control.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "variadic", "token-paste", "two-level-expansion", "clean-control", "runtime", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__diag_wave41_variadic_paste_argument_spelling_strict",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_wave41_variadic_paste_argument_spelling_strict.c",
+      "expects": [
+        "expect/03__diag_wave41_variadic_paste_argument_spelling_strict.diag"
+      ],
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "variadic", "token-paste", "two-level-expansion", "line-directive", "diagnostic-provenance", "strict", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

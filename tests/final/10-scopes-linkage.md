@@ -53,19 +53,19 @@ Namespaces, redeclarations, and linkage behavior.
 
 ## Promotion Audit Closure
 
-As of 2026-06-02, bucket `10` is closed against the resolved-probe promotion
-audit. The stable final inventory contains `137` bucket tests, including the
+As of 2026-07-14, bucket `10` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `191` bucket tests, including the
 probe-backed closure shard
 `tests/final/meta/10-scopes-linkage-wave56-probe-promotion-audit-closure.json`.
 
 That shard promotes the remaining `12` probe ownership cases for this bucket:
 `11` text diagnostics for block/file-scope linkage conflicts and line-remapped
 spelling stability, plus `1` differential runtime clean path for a static
-function followed by an extern declaration. The refreshed audit reports bucket
-`10` at `promoted=50`, `probe_only=33`, and
+function followed by an extern declaration. Later equivalent-owner mappings
+complete the remaining control/frontier set. The refreshed audit reports bucket
+`10` at `promoted=133`, `probe_only=0`, and
 `missing_promotion_candidate=0`.
 
 ## Probe Backlog
 - No open promotion candidates remain in this bucket at the current baseline.
-- The remaining `33` resolved probes are explicitly classified as probe-only
-  control / frontier / reduced-threshold coverage by the promotion audit.
+- No bucket-10 probe-only ownership remains at the current baseline.

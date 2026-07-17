@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_units_wave128_nested_cell_checksum",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_wave128_nested_cell_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_wave128_nested_cell_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "aggregate-storage",
+        "wave128"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_wave128_aggregate_return_ring_checksum",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_wave128_aggregate_return_ring_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_wave128_aggregate_return_ring_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "aggregate-return",
+        "wave128"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_units_wave128_nested_cell_current_checksum",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_units_runtime_wave128_nested_cell_current_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_units_wave128_nested_cell_current_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "physics",
+        "units",
+        "aggregate-storage",
+        "current-threshold",
+        "wave128"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_abi_wave128_nested_payload_ring",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_abi_wave128_nested_payload_ring_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_abi_wave128_nested_payload_ring_main.c",
+        "probes/runtime/15__probe_abi_wave128_nested_payload_ring_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_abi_wave128_nested_payload_ring.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "abi",
+        "aggregate",
+        "nested-payload",
+        "wave128"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

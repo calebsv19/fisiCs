@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (7624:5): goto jumps into scope of initialized variable
+   Hint: inside_vla_case
+   Spelling: virtual_stmt_switch_goto_vla_case_wave76.c:7624:5
+Warning at (7626:0): Unreachable statement

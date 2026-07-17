@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected '=' after initializer designator at virtual_wave43_compound_unclosed_paren.c:14321 (got '(')
+Error at (14322:12): Undeclared identifier
+   Hint: wave43_paren_tail_missing
+   Spelling: virtual_wave43_compound_unclosed_paren.c:14322:12

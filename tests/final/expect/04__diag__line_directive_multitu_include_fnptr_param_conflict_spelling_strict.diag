@@ -1,2 +1,3 @@
 Diagnostics:
-Semantic analysis: no issues found.
+Error at (16102:5): Conflicting types for function
+Error: compilation failed for tests/final/probes/diagnostics/04__probe_diag_line_directive_multitu_include_fnptr_param_conflict_spelling_strict_lib.c

@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave77_nested_member_conversion_select",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_policy_strict_wave77_nested_member_conversion_select.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave77_nested_member_conversion_select.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "aggregate", "nested-member", "member-access", "integer-promotion", "runtime", "strict", "wave77", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave77_enum_array_promotion_lattice",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_policy_strict_wave77_enum_array_promotion_lattice.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave77_enum_array_promotion_lattice.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "enum", "array", "integer-promotion", "runtime", "strict", "wave77", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave77_converted_payload_callback_table",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_policy_strict_wave77_converted_payload_callback_table.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave77_converted_payload_callback_table.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "aggregate", "callback", "function-pointer", "dispatch", "runtime", "strict", "wave77", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave77_layout_adjacent_member_chain",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_runtime_policy_strict_wave77_layout_adjacent_member_chain.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave77_layout_adjacent_member_chain.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "layout", "member-access", "void-pointer", "array", "runtime", "strict", "wave77", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

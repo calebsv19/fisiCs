@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__wave13_line_splice_string_escape_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave13_line_splice_string_escape_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave13_line_splice_string_escape_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "string-literal",
+        "invalid-escape",
+        "diagjson",
+        "strict",
+        "clang-line",
+        "wave13"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave13_line_splice_ucn_identifier_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave13_line_splice_ucn_identifier_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave13_line_splice_ucn_identifier_diagjson_current_empty.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "ucn",
+        "identifier",
+        "diagjson",
+        "strict",
+        "clang-line",
+        "wave13"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave13_spliced_adjacent_string_invalid_token_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave13_spliced_adjacent_string_invalid_token_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave13_spliced_adjacent_string_invalid_token_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "string-literal",
+        "adjacent-string",
+        "invalid-character",
+        "diagjson",
+        "strict",
+        "clang-line",
+        "wave13"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

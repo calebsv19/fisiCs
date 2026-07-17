@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (2:5): goto jumps into scope of initialized variable
+   Hint: wave86_for_done
+   Spelling: tests/final/probes/diagnostics/09__probe_wave86_goto_bypasses_for_init_vla_reject.c:2:5
+Warning at (3:0): Unreachable statement

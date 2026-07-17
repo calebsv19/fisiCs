@@ -1,0 +1,5 @@
+Diagnostics:
+virtual_wave39_identity_collision.c:3900:13: error: macro 'WAVE39_ALPHA' requires 2 argument(s), got 1
+Error: preprocessing failed
+virtual_wave39_identity_collision.c:3900:13: error: macro 'WAVE39_ALPHA' requires 2 argument(s), got 1
+virtual_wave39_identity_collision.c:3900:13: error: macro 'WAVE39_ALPHA' requires 2 argument(s), got 1

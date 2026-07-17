@@ -5,7 +5,113 @@ from lib.models import DiagnosticJsonProbe, DiagnosticProbe, RuntimeProbe
 
 PROBE_DIR = Path(__file__).resolve().parent.parent
 
-RUNTIME_PROBES = []
+RUNTIME_PROBES = [
+    RuntimeProbe(
+        probe_id='06__probe_nextbatch_selected_nested_lvalue_compound_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_nextbatch_selected_nested_lvalue_compound_runtime.c',
+        note='current threshold: selected nested member/array lvalues support compound assignment through conditional pointer selection',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_nextbatch_selected_qualifier_lvalue_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_nextbatch_selected_qualifier_lvalue_runtime.c',
+        note='current threshold: const/volatile qualifiers survive selected pointer lvalue reads and writes',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_runtime_wave16_member_array_lvalue_compound',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave16_member_array_lvalue_compound.c',
+        note='wave16 current threshold: nested member/array lvalues survive pointer selection and compound assignment',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_runtime_wave16_qualified_selected_member_lvalue',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave16_qualified_selected_member_lvalue.c',
+        note='wave16 current threshold: const/volatile-qualified selected member lvalues preserve read/write behavior',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_runtime_wave17_selected_array_member_inc',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave17_selected_array_member_inc.c',
+        note='wave17 current threshold: selected pointer-to-array/member lvalues support increment and compound assignment',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_runtime_wave17_qualified_member_compound',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave17_qualified_member_compound.c',
+        note='wave17 current threshold: const/volatile-qualified selected member paths preserve compound-assignment behavior',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave18_runtime_nested_address_deref_compound',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave18_nested_address_deref_compound.c',
+        note='wave18 current threshold: nested selected lvalues preserve address/deref and compound-assignment behavior',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave18_runtime_volatile_const_selected_member',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave18_volatile_const_selected_member.c',
+        note='wave18 current threshold: volatile writes and const reads survive selected member lvalue paths',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave19_runtime_nested_array_pointer_compound',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave19_nested_array_pointer_compound.c',
+        note='wave19 current threshold: pointer-to-array selected member lvalues support compound assignment and increment',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave19_runtime_conditional_pointer_member_inc',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave19_conditional_pointer_member_inc.c',
+        note='wave19 current threshold: conditional pointer selection preserves member lvalues for postincrement and compound assignment',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_runtime_wave20_selected_member_array_compound',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave20_selected_member_array_compound.c',
+        note='wave20 current threshold: selected member/array lvalues support compound assignment after pointer selection',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_runtime_wave20_qualified_pointer_member_postinc',
+        source=PROBE_DIR / 'runtime/06__probe_runtime_wave20_qualified_pointer_member_postinc.c',
+        note='wave20 current threshold: volatile selected member lvalues support postincrement and compound assignment',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave21_selected_member_address_compound_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave21_selected_member_address_compound_runtime.c',
+        note='wave21 current threshold: selected member lvalues remain addressable through pointer selection and compound assignment',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave21_qualified_selected_lvalue_rvalue_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave21_qualified_selected_lvalue_rvalue_runtime.c',
+        note='wave21 current threshold: selected qualified member paths preserve volatile lvalue writes and const rvalue reads',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave22_conditional_member_address_chain_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave22_conditional_member_address_chain_runtime.c',
+        note='wave22 current threshold: conditional pointer-selected member lvalues remain addressable through compound assignment',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave22_nested_member_array_compound_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave22_nested_member_array_compound_runtime.c',
+        note='wave22 current threshold: nested member/array lvalues preserve compound assignment with volatile write and const read boundaries',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave23_addressed_member_compound_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave23_addressed_member_compound_runtime.c',
+        note='wave23 current threshold: addressed selected member lvalues preserve compound assignment through volatile state updates',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave23_qualified_member_address_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave23_qualified_member_address_runtime.c',
+        note='wave23 current threshold: selected member addresses preserve volatile writes and const reads across lvalue/rvalue boundaries',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave25_array_member_decay_compound_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave25_array_member_decay_compound_runtime.c',
+        note='wave25 current threshold: selected array members preserve addressability through pointer-to-array decay and compound assignment',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave25_nested_union_member_address_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave25_nested_union_member_address_runtime.c',
+        note='wave25 current threshold: nested union record members remain addressable through conditional selection and compound updates',
+    ),
+    RuntimeProbe(
+        probe_id='06__probe_wave25_conditional_pointer_member_address_runtime',
+        source=PROBE_DIR / 'runtime/06__probe_wave25_conditional_pointer_member_address_runtime.c',
+        note='wave25 current threshold: conditional pointer selection preserves direct selected-member addressability',
+    ),
+]
 
 DIAG_PROBES = [
     DiagnosticProbe(
@@ -215,6 +321,231 @@ DIAG_PROBES = [
         note='current threshold: include-header conditional-expression increment diagnostics under #line include spelling payload',
         required_substrings=['Spelling: virtual_lv_include_conditional_increment_diag_probe.h:2295:6'],
         inputs=[PROBE_DIR / 'diagnostics/06__probe_line_directive_include_conditional_increment_spelling_reject.c', PROBE_DIR / 'diagnostics/06__probe_line_directive_include_conditional_increment_spelling_reject.h'],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_nextbatch_conditional_compound_member_lvalue_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_nextbatch_conditional_compound_member_lvalue_reject.c',
+        note='strict frontier: conditional member/array expression is not a modifiable lvalue for compound assignment in C',
+        required_substrings=[
+            "Left operand of '+=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_nextbatch_conditional_compound_member_lvalue.c:3108:6',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_nextbatch_nested_bitfield_address_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_nextbatch_nested_bitfield_address_reject.c',
+        note='strict frontier: nested array/member bitfield remains non-addressable',
+        required_substrings=[
+            "Operator '&' requires non-bitfield lvalue operand",
+            'Spelling: virtual_lv_nextbatch_nested_bitfield_address.c:3135:21',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_diag_wave16_conditional_member_assignment_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_diag_wave16_conditional_member_assignment_reject.c',
+        note='wave16 strict frontier: assignment through a conditional struct/member expression must be rejected as non-modifiable',
+        required_substrings=[
+            "Left operand of '=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave16_conditional_member_assignment.c:4111:6',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_diag_wave16_conditional_member_assignment_current',
+        source=PROBE_DIR / 'diagnostics/06__probe_diag_wave16_conditional_member_assignment_current.c',
+        note='wave16 post-fix companion: conditional struct/member assignment is rejected as non-modifiable',
+        required_substrings=[
+            "Left operand of '=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave16_conditional_member_assignment.c:4111:6',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_diag_wave16_nested_conditional_bitfield_address_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_diag_wave16_nested_conditional_bitfield_address_reject.c',
+        note='wave16 strict frontier: nested conditional-index bitfield remains non-addressable',
+        required_substrings=[
+            "Operator '&' requires non-bitfield lvalue operand",
+            'Spelling: virtual_lv_wave16_nested_conditional_bitfield_address.c:4135:21',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_diag_wave17_conditional_member_compound_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_diag_wave17_conditional_member_compound_reject.c',
+        note='wave17 strict frontier: conditional member/array expression remains non-modifiable for compound assignment',
+        required_substrings=[
+            "Left operand of '+=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave17_conditional_member_compound.c:5101:6',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_diag_wave17_conditional_member_increment_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_diag_wave17_conditional_member_increment_reject.c',
+        note='wave17 strict frontier: conditional member/array expression remains non-modifiable for prefix increment',
+        required_substrings=[
+            "Operator '++' requires modifiable lvalue operand",
+            'Spelling: virtual_lv_wave17_conditional_member_increment.c:5121:5',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave18_conditional_deref_compound_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave18_conditional_deref_compound_reject.c',
+        note='wave18 strict frontier: conditional dereferenced lvalue expression remains non-modifiable for compound assignment',
+        required_substrings=[
+            "Left operand of '+=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave18_conditional_deref_compound.c:6101:6',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave18_const_selected_member_compound_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave18_const_selected_member_compound_reject.c',
+        note='wave18 fixed baseline: compound assignment through a selected const-qualified member path is rejected',
+        required_substrings=[
+            "Left operand of '+=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave18_const_selected_member_compound.c:6121:5',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave18_nested_bitfield_unary_address_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave18_nested_bitfield_unary_address_reject.c',
+        note='wave18 strict frontier: nested selected bitfield remains non-addressable through unary dereference/address composition',
+        required_substrings=[
+            "Operator '&' requires non-bitfield lvalue operand",
+            'Spelling: virtual_lv_wave18_nested_bitfield_unary_address.c:6141:21',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave19_conditional_array_member_postinc_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave19_conditional_array_member_postinc_reject.c',
+        note='wave19 strict frontier: conditional array/member expression remains non-modifiable for postfix increment',
+        required_substrings=[
+            "Operator '++' requires modifiable lvalue operand",
+            'Spelling: virtual_lv_wave19_conditional_array_member_postinc.c:7101:6',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave19_const_selected_member_preinc_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave19_const_selected_member_preinc_reject.c',
+        note='wave19 fixed baseline: prefix increment through a selected const-qualified member path is rejected',
+        required_substrings=[
+            "Operator '++' requires modifiable lvalue operand",
+            'Spelling: virtual_lv_wave19_const_selected_member_preinc.c:7121:5',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave19_selected_bitfield_address_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave19_selected_bitfield_address_reject.c',
+        note='wave19 strict frontier: selected nested bitfield remains non-addressable',
+        required_substrings=[
+            "Operator '&' requires non-bitfield lvalue operand",
+            'Spelling: virtual_lv_wave19_selected_bitfield_address.c:7141:19',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave20_conditional_selected_member_compound_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave20_conditional_selected_member_compound_reject.c',
+        note='wave20 strict frontier: conditional selected member/array expression remains non-modifiable for compound assignment',
+        required_substrings=[
+            "Left operand of '+=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave20_conditional_selected_member_compound.c:8101:6',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave20_nested_selected_bitfield_address_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave20_nested_selected_bitfield_address_reject.c',
+        note='wave20 strict frontier: nested selected bitfield remains non-addressable through member and array selection',
+        required_substrings=[
+            "Operator '&' requires non-bitfield lvalue operand",
+            'Spelling: virtual_lv_wave20_nested_selected_bitfield_address.c:8125:19',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave21_conditional_selected_member_address_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave21_conditional_selected_member_address_reject.c',
+        note='wave21 strict frontier: address-of over conditional selected member expression remains non-addressable in C',
+        required_substrings=[
+            "Operator '&' requires lvalue operand",
+            'Spelling: virtual_lv_wave21_conditional_selected_member_address.c:9101:12',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave21_qualified_selected_member_postinc_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave21_qualified_selected_member_postinc_reject.c',
+        note='wave21 strict frontier: const selected member remains non-modifiable for postincrement',
+        required_substrings=[
+            "Operator '++' requires modifiable lvalue operand",
+            'Spelling: virtual_lv_wave21_qualified_selected_member_postinc.c:9127:12',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave22_conditional_selected_member_assign_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave22_conditional_selected_member_assign_reject.c',
+        note='wave22 strict frontier: conditional selected struct/member expression remains non-modifiable for assignment',
+        required_substrings=[
+            "Left operand of '=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave22_conditional_selected_member_assign.c:10101:6',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave22_const_selected_member_compound_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave22_const_selected_member_compound_reject.c',
+        note='wave22 strict frontier: compound assignment through selected const-qualified member remains non-modifiable',
+        required_substrings=[
+            "Left operand of '+=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave22_const_selected_member_compound.c:10127:5',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave23_selected_bitfield_address_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave23_selected_bitfield_address_reject.c',
+        note='wave23 strict frontier: selected nested bitfield remains non-addressable through member selection',
+        required_substrings=[
+            "Operator '&' requires non-bitfield lvalue operand",
+            'Spelling: virtual_lv_wave23_selected_bitfield_address.c:11101:19',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave23_const_selected_member_postinc_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave23_const_selected_member_postinc_reject.c',
+        note='wave23 strict frontier: selected const-qualified member remains non-modifiable for postincrement',
+        required_substrings=[
+            "Operator '++' requires modifiable lvalue operand",
+            'Spelling: virtual_lv_wave23_const_selected_member_postinc.c:11127:12',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave24_nested_pointer_qualifier_loss_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave24_nested_pointer_qualifier_loss_reject.c',
+        note='wave24 strict frontier: nested pointer qualifier-loss diagnostics preserve #line provenance',
+        required_substrings=[
+            'Assignment discards qualifiers from pointer target',
+            'Spelling: virtual_lv_wave24_nested_pointer_qualifier_loss.c:12101:5',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave24_selected_union_bitfield_address_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave24_selected_union_bitfield_address_reject.c',
+        note='wave24 strict frontier: selected union bitfield remains non-addressable under #line provenance',
+        required_substrings=[
+            "Operator '&' requires non-bitfield lvalue operand",
+            'Spelling: virtual_lv_wave24_selected_union_bitfield_address.c:12127:19',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave24_const_union_member_compound_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave24_const_union_member_compound_reject.c',
+        note='wave24 strict frontier: compound assignment through a const union member remains non-modifiable',
+        required_substrings=[
+            "Left operand of '+=' must be a modifiable lvalue",
+            'Spelling: virtual_lv_wave24_const_union_member_compound.c:12153:5',
+        ],
+    ),
+    DiagnosticProbe(
+        probe_id='06__probe_wave25_comma_selected_member_postinc_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave25_comma_selected_member_postinc_reject.c',
+        note='wave25 strict frontier: comma-selected member expression is not a modifiable lvalue for postfix increment',
+        required_substrings=[
+            "Operator '++' requires modifiable lvalue operand",
+            'Spelling: virtual_lv_wave25_comma_selected_member_postinc.c:12301:6',
+        ],
     ),
 ]
 
@@ -480,5 +811,14 @@ DIAG_JSON_PROBES = [
         expected_column=6,
         expected_has_file=True,
         inputs=[PROBE_DIR / 'diagnostics/06__probe_diagjson_line_directive_include_conditional_increment_file_presence_reject.c', PROBE_DIR / 'diagnostics/06__probe_diagjson_line_directive_include_conditional_increment_file_presence_reject.h'],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='06__probe_wave24_pointer_compound_assign_line_diagjson_reject',
+        source=PROBE_DIR / 'diagnostics/06__probe_wave24_pointer_compound_assign_line_diagjson_reject.c',
+        note='wave24 strict frontier: pointer compound-assignment diagnostics JSON preserves #line location metadata',
+        expected_codes=[2000],
+        expected_line=12179,
+        expected_column=5,
+        expected_has_file=True,
     ),
 ]

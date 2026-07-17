@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__wave27_nested_factory_equality_same_name_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave27_diagjson_nested_factory_equality_same_name.c",
+      "expects": ["expect/05__wave27_nested_factory_equality_same_name.diagjson"],
+      "tags": ["expressions", "comparison", "function-pointer", "factory", "aggregate-identity", "lexical-scope", "same-name-shadow", "line-directive", "diagjson", "wave27", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave27_nested_factory_inequality_alpha_name_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave27_diagjson_nested_factory_inequality_alpha_name.c",
+      "expects": ["expect/05__wave27_nested_factory_inequality_alpha_name.diagjson"],
+      "tags": ["expressions", "comparison", "function-pointer", "factory", "aggregate-identity", "lexical-scope", "alpha-control", "line-directive", "diagjson", "wave27", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave27_nested_factory_comparison_shared_tag_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave27_diagjson_nested_factory_comparison_shared_tag.c",
+      "expects": ["expect/05__wave27_nested_factory_comparison_shared_tag.diagjson"],
+      "tags": ["expressions", "comparison", "function-pointer", "factory", "aggregate-identity", "shared-tag", "line-directive", "diagjson", "wave27", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

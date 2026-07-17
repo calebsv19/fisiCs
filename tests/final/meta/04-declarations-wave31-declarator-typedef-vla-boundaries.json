@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave31_scoped_typedef_initializer_shadow",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave31_scoped_typedef_initializer_shadow.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave31_scoped_typedef_initializer_shadow.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "initializer", "shadowing", "wave31", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave31_array_param_fnptr_return_adjust",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave31_array_param_fnptr_return_adjust.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave31_array_param_fnptr_return_adjust.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "array-parameter-adjustment", "function-pointer", "vla", "wave31", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave31_declarator_initializer_ordering",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave31_declarator_initializer_ordering.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave31_declarator_initializer_ordering.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "declarator", "initializer-ordering", "typedef", "vla", "function-pointer", "wave31", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave31_nested_fnptr_typedef_vla_view",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave31_nested_fnptr_typedef_vla_view.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave31_nested_fnptr_typedef_vla_view.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "nested-function-pointer", "typedef", "vla", "view", "wave31", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

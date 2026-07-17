@@ -1,5 +1,0 @@
-Diagnostics:
-Error at (8023:5): goto jumps into scope of initialized variable
-   Hint: after_init
-   Spelling: virtual_stmt_goto_cross_init_diag_probe.c:8023:5
-Warning at (8024:0): Unreachable statement

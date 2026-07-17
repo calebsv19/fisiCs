@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave39_knr_definition_char_to_int_strict",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave39_knr_definition_char_to_int_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "declarations",
+        "function-definition",
+        "identifier-list",
+        "old-style",
+        "default-promotions",
+        "runtime",
+        "wave39",
+        "probe-frontier"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave39_knr_definition_int_exact_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave39_knr_definition_int_exact_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "declarations",
+        "function-definition",
+        "identifier-list",
+        "old-style",
+        "exact-type",
+        "runtime",
+        "wave39",
+        "alpha-control",
+        "probe-frontier"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

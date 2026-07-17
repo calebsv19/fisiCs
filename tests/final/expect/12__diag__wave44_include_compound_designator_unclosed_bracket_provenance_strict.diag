@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected '=' after initializer designator at virtual_wave44_compound_designator_include.h:14442 (got 'values')
+Error at (14464:12): Undeclared identifier
+   Hint: wave44_include_tail_missing
+   Spelling: virtual_wave44_include_compound_tail.c:14464:12

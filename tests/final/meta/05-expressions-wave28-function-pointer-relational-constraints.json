@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__wave28_function_pointer_relational_less_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave28_diagjson_function_pointer_relational_less.c",
+      "expects": ["expect/05__wave28_function_pointer_relational_less.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "relational", "function-pointer", "constraint", "line-directive", "diagjson", "clang-pedantic-oracle", "wave28", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave28_function_pointer_relational_greater_equal_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave28_diagjson_function_pointer_relational_greater_equal.c",
+      "expects": ["expect/05__wave28_function_pointer_relational_greater_equal.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "relational", "function-pointer", "constraint", "line-directive", "diagjson", "clang-pedantic-oracle", "wave28", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave28_function_pointer_equality_clean_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave28_diagjson_function_pointer_equality_clean.c",
+      "expects": ["expect/05__wave28_function_pointer_equality_clean.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "equality", "function-pointer", "compatible-types", "line-directive", "diagjson", "clang-pedantic-oracle", "wave28", "clean-control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

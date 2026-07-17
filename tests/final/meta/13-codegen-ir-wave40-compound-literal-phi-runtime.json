@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave40_compound_literal_phi",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave40_compound_literal_phi_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave40_compound_literal_phi.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "compound-literal", "ternary", "phi", "runtime", "wave40"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

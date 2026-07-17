@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__runtime_wave23_ucn_short_long_initial_internal_equivalence_strict",
+      "bucket": "lexer",
+      "input": "probes/runtime/02__probe_wave23_ucn_short_long_initial_internal_equivalence_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/02__runtime_wave23_ucn_short_long_initial_internal_equivalence_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lexer", "ucn", "identifier", "canonical-equivalence", "initial-position", "internal-position", "runtime", "clang-differential", "strict", "wave23"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__runtime_wave23_ucn_utf8_source_spelling_equivalence_strict",
+      "bucket": "lexer",
+      "input": "probes/runtime/02__probe_wave23_ucn_utf8_source_spelling_equivalence_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/02__runtime_wave23_ucn_utf8_source_spelling_equivalence_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lexer", "ucn", "identifier", "utf8-source", "canonical-equivalence", "runtime", "clang-differential", "strict", "wave23"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__runtime_wave23_ucn_macro_name_canonical_transport_strict",
+      "bucket": "lexer",
+      "input": "probes/runtime/02__probe_wave23_ucn_macro_name_canonical_transport_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/02__runtime_wave23_ucn_macro_name_canonical_transport_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lexer", "preprocessor", "ucn", "macro-name", "canonical-equivalence", "runtime", "clang-differential", "strict", "wave23"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

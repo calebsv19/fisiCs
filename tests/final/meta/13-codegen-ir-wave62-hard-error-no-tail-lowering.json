@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__probe_wave62_hard_error_no_tail_lowering",
+      "bucket": "codegen-ir",
+      "input": "cases/13__probe_wave62_hard_error_no_tail_lowering.c",
+      "expects": [
+        "expect/13__probe_wave62_hard_error_no_tail_lowering.diag",
+        "expect/13__probe_wave62_hard_error_no_tail_lowering.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave62_tail_global = global",
+        "define i32 @wave62_tail_function"
+      ],
+      "standard": "c99",
+      "tags": [
+        "codegen-ir",
+        "negative",
+        "parser-recovery",
+        "semantic-hard-error",
+        "no-tail-lowering",
+        "compile-only",
+        "wave62"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__probe_wave62_clean_tail_lowering_companion",
+      "bucket": "codegen-ir",
+      "input": "cases/13__probe_wave62_clean_tail_lowering_companion.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "ir_contains": [
+        "@wave62_tail_global = global i32 62",
+        "define i32 @wave62_tail_function"
+      ],
+      "standard": "c99",
+      "tags": [
+        "codegen-ir",
+        "no-tail-lowering",
+        "non-vacuous-control",
+        "compile-only",
+        "wave62"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

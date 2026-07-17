@@ -1,0 +1,9 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave37_control_recovery.c:13162 (got ')')
+Error at (13162:9): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave37_control_recovery.c:13162:9
+Error at (13165:17): Undeclared identifier
+   Hint: wave37_control_followup_missing
+   Spelling: virtual_wave37_control_recovery.c:13165:17
+Error at (13166:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave37_control_recovery.c:13166:16

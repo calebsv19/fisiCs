@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__wave68_undeclared_compound_target_strict",
+      "bucket": "codegen-ir",
+      "input": "cases/13__wave68_undeclared_compound_target_no_tail_lowering.c",
+      "expects": [
+        "expect/13__wave68_undeclared_compound_target_strict.diag",
+        "expect/13__wave68_compound.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave68_target_tail_global = global",
+        "define i32 @wave68_target_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "negative", "compound-assignment", "undeclared-target", "semantic-cascade", "clang-strict", "no-tail-lowering", "compile-only", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__wave68_known_rhs_error_strict",
+      "bucket": "codegen-ir",
+      "input": "cases/13__wave68_known_rhs_error_no_tail_lowering.c",
+      "expects": [
+        "expect/13__wave68_known_rhs_error_strict.diag",
+        "expect/13__wave68_compound.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave68_rhs_tail_global = global",
+        "define i32 @wave68_rhs_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "negative", "compound-assignment", "known-final-type", "semantic-cascade", "clang-strict", "no-tail-lowering", "compile-only", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__wave68_compound_repaired_tail_lowering",
+      "bucket": "codegen-ir",
+      "input": "cases/13__wave68_compound_repaired_tail_lowering.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "ir_contains": [
+        "@wave68_repaired_tail_global = global i32 685",
+        "define i32 @wave68_repaired_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "compound-assignment", "non-vacuous-control", "tail-lowering", "compile-only", "wave68"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

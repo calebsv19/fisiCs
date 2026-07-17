@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__diag__wave24_nested_pointer_qualifier_loss_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave24_nested_pointer_qualifier_loss_reject.c",
+      "expects": ["expect/06__diag__wave24_nested_pointer_qualifier_loss_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave24", "line-directive", "qualifier-loss", "nested-pointer", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave24_selected_union_bitfield_address_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave24_selected_union_bitfield_address_reject.c",
+      "expects": ["expect/06__diag__wave24_selected_union_bitfield_address_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave24", "line-directive", "union", "bitfield", "addressability", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave24_const_union_member_compound_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave24_const_union_member_compound_reject.c",
+      "expects": ["expect/06__diag__wave24_const_union_member_compound_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave24", "line-directive", "union", "const-member", "compound-assign", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diagjson__wave24_pointer_compound_assign_line_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave24_pointer_compound_assign_line_diagjson_reject.c",
+      "expects": ["expect/06__diagjson__wave24_pointer_compound_assign_line_reject.diagjson"],
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diagjson", "wave24", "line-directive", "pointer", "compound-assign", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

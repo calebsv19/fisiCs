@@ -110,6 +110,8 @@
         "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_object_conflict_spelling_strict_lib.c"
       ],
       "expects": ["expect/04__diagjson__line_directive_multitu_typedef_object_conflict_rich_strict.diagjson"],
+      "link": true,
+      "expect_compile_exit": 1,
       "standard": "c99",
       "tags": ["declarations", "diagjson", "multitu", "typedef", "object", "line-directive", "drift", "wave15", "probe-promotion"],
       "requires": [],
@@ -124,6 +126,8 @@
         "probes/diagnostics/04__probe_diag_line_directive_multitu_typedef_return_conflict_spelling_strict_lib.c"
       ],
       "expects": ["expect/04__diagjson__line_directive_multitu_typedef_return_conflict_rich_strict.diagjson"],
+      "link": true,
+      "expect_compile_exit": 1,
       "standard": "c99",
       "tags": ["declarations", "diagjson", "multitu", "typedef", "return", "line-directive", "drift", "wave15", "probe-promotion"],
       "requires": [],
@@ -138,6 +142,8 @@
         "probes/diagnostics/04__probe_diag_line_directive_multitu_include_object_qualifier_conflict_spelling_strict_lib.c"
       ],
       "expects": ["expect/04__diagjson__line_directive_multitu_include_object_qualifier_conflict_rich_strict.diagjson"],
+      "link": true,
+      "expect_compile_exit": 1,
       "standard": "c99",
       "tags": ["declarations", "diagjson", "multitu", "include", "qualifier", "object", "line-directive", "drift", "wave15", "probe-promotion"],
       "requires": [],
@@ -152,6 +158,8 @@
         "probes/diagnostics/04__probe_diag_line_directive_multitu_include_return_ptr_conflict_spelling_strict_lib.c"
       ],
       "expects": ["expect/04__diagjson__line_directive_multitu_include_return_ptr_conflict_rich_strict.diagjson"],
+      "link": true,
+      "expect_compile_exit": 1,
       "standard": "c99",
       "tags": ["declarations", "diagjson", "multitu", "include", "return-pointer", "line-directive", "drift", "wave15", "probe-promotion"],
       "requires": [],

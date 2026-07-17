@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave83_initializer_identity_same_name_shadow",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave83_initializer_identity_same_name_shadow.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave83_initializer_definition_identity.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "differential", "local-scope", "definition-identity", "same-name-shadow", "nested-union-array", "wave83"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave83_initializer_identity_unique_name_control",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave83_initializer_identity_unique_name_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave83_initializer_definition_identity.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "differential", "local-scope", "definition-identity", "unique-name-control", "nested-union-array", "wave83"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

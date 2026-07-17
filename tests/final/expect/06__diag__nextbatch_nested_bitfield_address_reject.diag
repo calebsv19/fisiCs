@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (3135:21): Operator '&' requires non-bitfield lvalue operand
+   Spelling: virtual_lv_nextbatch_nested_bitfield_address.c:3135:21

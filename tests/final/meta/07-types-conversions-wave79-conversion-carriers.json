@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave79_bitfield_sign_extension_enum_width",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave79_bitfield_sign_extension_enum_width_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave79_bitfield_sign_extension_enum_width.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "bitfield", "sign-extension", "enum", "runtime", "strict", "wave79", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave79_nested_qualified_pointer_select",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave79_nested_qualified_pointer_select_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave79_nested_qualified_pointer_select.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "pointer", "qualification", "conditional", "nested", "runtime", "strict", "wave79", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave79_fnptr_array_decay_member",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave79_fnptr_array_decay_member_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave79_fnptr_array_decay_member.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "function-pointer", "array-decay", "aggregate-member", "runtime", "strict", "wave79", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave79_designated_member_conversion",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave79_designated_member_conversion_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave79_designated_member_conversion.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": ["semantic", "conversion", "designated-initializer", "aggregate-member", "enum", "integer-promotion", "runtime", "strict", "wave79", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

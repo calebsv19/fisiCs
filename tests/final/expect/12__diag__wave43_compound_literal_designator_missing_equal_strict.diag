@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected '=' after initializer designator at virtual_wave43_compound_missing_equal.c:14301 (got '1')
+Error at (14302:12): Undeclared identifier
+   Hint: wave43_tail_missing
+   Spelling: virtual_wave43_compound_missing_equal.c:14302:12

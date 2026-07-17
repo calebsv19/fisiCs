@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__probe_promotion__runtime__aggregate_phi_union_branch_payload_runtime",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_aggregate_phi_union_branch_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__probe_promotion__runtime__aggregate_phi_union_branch_payload_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["ir", "runtime", "probe-promotion", "wave39", "aggregate-return", "phi", "union", "array", "copy"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__probe_promotion__runtime__aggregate_phi_union_ternary_loop_runtime",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_aggregate_phi_union_ternary_loop_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__probe_promotion__runtime__aggregate_phi_union_ternary_loop_runtime.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["ir", "runtime", "probe-promotion", "wave39", "aggregate-return", "phi", "union", "array", "ternary", "loop", "copy"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

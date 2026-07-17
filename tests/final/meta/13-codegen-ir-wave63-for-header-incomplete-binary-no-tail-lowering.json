@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__probe_wave63_for_initializer_incomplete_binary_no_tail_lowering",
+      "bucket": "codegen-ir",
+      "input": "cases/13__probe_wave63_for_initializer_incomplete_binary_no_tail_lowering.c",
+      "expects": [
+        "expect/13__probe_wave63_for_initializer_incomplete_binary_no_tail_lowering.diag",
+        "expect/13__probe_wave63_for_initializer_incomplete_binary_no_tail_lowering.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave63_initializer_tail_global = global",
+        "define i32 @wave63_initializer_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "negative", "parser-recovery", "for-header", "initializer", "incomplete-binary", "semantic-hard-error", "no-tail-lowering", "compile-only", "wave63"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__probe_wave63_for_condition_incomplete_binary_no_tail_lowering",
+      "bucket": "codegen-ir",
+      "input": "cases/13__probe_wave63_for_condition_incomplete_binary_no_tail_lowering.c",
+      "expects": [
+        "expect/13__probe_wave63_for_condition_incomplete_binary_no_tail_lowering.diag",
+        "expect/13__probe_wave63_for_condition_incomplete_binary_no_tail_lowering.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave63_condition_tail_global = global",
+        "define i32 @wave63_condition_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "negative", "parser-recovery", "for-header", "condition", "incomplete-binary", "semantic-hard-error", "no-tail-lowering", "compile-only", "wave63"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__probe_wave63_for_increment_incomplete_binary_no_tail_lowering",
+      "bucket": "codegen-ir",
+      "input": "cases/13__probe_wave63_for_increment_incomplete_binary_no_tail_lowering.c",
+      "expects": [
+        "expect/13__probe_wave63_for_increment_incomplete_binary_no_tail_lowering.diag",
+        "expect/13__probe_wave63_for_increment_incomplete_binary_no_tail_lowering.pdiag"
+      ],
+      "expect_compile_exit": 1,
+      "ir_forbids": [
+        "@wave63_tail_global = global",
+        "define i32 @wave63_tail_function"
+      ],
+      "standard": "c99",
+      "tags": [
+        "codegen-ir",
+        "negative",
+        "parser-recovery",
+        "for-header",
+        "incomplete-binary",
+        "semantic-hard-error",
+        "no-tail-lowering",
+        "compile-only",
+        "wave63"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__probe_wave63_for_header_clean_tail_lowering_companion",
+      "bucket": "codegen-ir",
+      "input": "cases/13__probe_wave63_for_header_clean_tail_lowering_companion.c",
+      "expects": [],
+      "expect_compile_exit": 0,
+      "ir_contains": [
+        "@wave63_clean_tail_global = global i32 633",
+        "define i32 @wave63_clean_tail_function"
+      ],
+      "standard": "c99",
+      "tags": ["codegen-ir", "for-header", "no-tail-lowering", "non-vacuous-control", "compile-only", "wave63"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

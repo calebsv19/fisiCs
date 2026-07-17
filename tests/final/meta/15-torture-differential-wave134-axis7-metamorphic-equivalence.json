@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_axis7_wave1_aggregate_return_staged_copy_equivalence",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis7_wave1_aggregate_return_staged_copy_equivalence.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis7_wave1_aggregate_return_staged_copy_equivalence.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "15", "axis7", "metamorphic", "wave1", "aggregate-return-staged-copy"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis7_wave1_control_flow_normalization_equivalence",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis7_wave1_control_flow_normalization_equivalence.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis7_wave1_control_flow_normalization_equivalence.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "15", "axis7", "metamorphic", "wave1", "control-flow-normalization"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_axis7_wave1_cross_tu_partition_recomposition_equivalence",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_axis7_wave1_cross_tu_partition_recomposition_equivalence_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_axis7_wave1_cross_tu_partition_recomposition_equivalence_main.c",
+        "probes/runtime/15__probe_axis7_wave1_cross_tu_partition_recomposition_equivalence_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_axis7_wave1_cross_tu_partition_recomposition_equivalence.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "15", "axis7", "metamorphic", "wave1", "multitu", "partition-recomposition"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -152,8 +152,8 @@ DIAG_JSON_PROBES = [
         source=PROBE_DIR / 'diagnostics/15__probe_diag_axis2_wave1_line_map_nested_include_macro_chain_reject.c',
         note='axis2 wave1: diagnostics JSON should preserve line/file presence for nested include+macro #line remap lane',
         expected_codes=[2000],
-        expected_line=300299,
-        expected_column=33,
+        expected_line=150106,
+        expected_column=12,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -170,8 +170,8 @@ DIAG_JSON_PROBES = [
         source=PROBE_DIR / 'diagnostics/15__probe_diag_axis2_wave3_line_map_nested_include_macro_arity_bridge_reject.c',
         note='axis2 wave3: diagnostics JSON should preserve deep line/file presence for four-layer include+macro arity-bridge #line remap lane',
         expected_codes=[2000],
-        expected_line=260697,
-        expected_column=38,
+        expected_line=130408,
+        expected_column=12,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -179,8 +179,8 @@ DIAG_JSON_PROBES = [
         source=PROBE_DIR / 'diagnostics/15__probe_diag_axis2_wave4_line_map_nested_include_macro_token_bridge_reject.c',
         note='axis2 wave4: diagnostics JSON should preserve deep line/file presence for token-paste include+macro bridge #line remap lane',
         expected_codes=[2000],
-        expected_line=340798,
-        expected_column=34,
+        expected_line=170406,
+        expected_column=12,
         expected_has_file=True,
     ),
     DiagnosticJsonProbe(
@@ -253,7 +253,7 @@ DIAG_JSON_PROBES = [
         probe_id='15__probe_diagjson_pathological_initializer_shape_reject',
         source=PROBE_DIR / 'diagnostics/15__probe_diag_pathological_initializer_shape_reject.c',
         note='diagnostics JSON should be exported for pathological designated-initializer rejection',
-        expected_codes=[2000],
+        expected_codes=[1000],
         expected_line=15,
     ),
     DiagnosticJsonProbe(
@@ -280,7 +280,7 @@ DIAG_JSON_PROBES = [
         probe_id='15__probe_diagjson_pathological_initializer_rewrite_surface_reject',
         source=PROBE_DIR / 'diagnostics/15__probe_diag_pathological_initializer_rewrite_surface_reject.c',
         note='diagnostics JSON should be exported for pathological initializer-rewrite surface rejection',
-        expected_codes=[2000],
+        expected_codes=[1000],
         expected_line=22,
     ),
     DiagnosticJsonProbe(

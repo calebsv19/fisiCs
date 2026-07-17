@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime__wave58_decl_order_pointer_abi_all_fisics",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave58_decl_order_pointer_abi_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave58_decl_order_pointer_abi_main.c",
+        "probes/runtime/11__probe_wave58_decl_order_pointer_abi_callee.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__wave58_decl_order_pointer_abi_all_fisics.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "declaration-order", "pointer-abi", "scoped-tag-shadow", "alpha-control", "multitu", "runtime", "strict-regression", "wave58"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime__wave58_decl_order_pointer_abi_mixed_clang_callee",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave58_decl_order_pointer_abi_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave58_decl_order_pointer_abi_main.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/11__probe_wave58_decl_order_pointer_abi_callee.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime__wave58_decl_order_pointer_abi_mixed_clang_callee.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "declaration-order", "pointer-abi", "scoped-tag-shadow", "alpha-control", "mixed-clang", "runtime", "strict-regression", "wave58"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

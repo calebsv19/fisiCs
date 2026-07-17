@@ -1,1 +1,41 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @ub_add_assign(i32 %0) {
+entry:
+  %x = alloca i32, align 4
+  store i32 %0, ptr %x, align 4
+  %compound.load = load i32, ptr %x, align 4
+  %compound.add = add i32 %compound.load, 1
+  store i32 %compound.add, ptr %x, align 4
+  %x1 = load i32, ptr %x, align 4
+  %cmptmp = icmp slt i32 %x1, 0
+  %cmp.int = zext i1 %cmptmp to i32
+  %ifcond = icmp ne i32 %cmp.int, 0
+  br i1 %ifcond, label %then, label %ifcont
+
+then:                                             ; preds = %entry
+  %x2 = load i32, ptr %x, align 4
+  ret i32 %x2
+
+ifcont:                                           ; preds = %entry
+  %x3 = load i32, ptr %x, align 4
+  %addtmp = add i32 %x3, 1
+  ret i32 %addtmp
+}
+
+define i32 @main() {
+entry:
+  %seed = alloca i32, align 4
+  store i32 2147483647, ptr %seed, align 4
+  %seed1 = load volatile i32, ptr %seed, align 4
+  %calltmp = call i32 @ub_add_assign(i32 %seed1)
+  ret i32 %calltmp
+}

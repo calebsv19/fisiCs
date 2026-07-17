@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime_wave17_selected_array_member_inc",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_runtime_wave17_selected_array_member_inc.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave17_selected_array_member_inc.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave17", "selected-lvalue", "array", "member", "increment", "compound-assign", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave17_qualified_member_compound",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_runtime_wave17_qualified_member_compound.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave17_qualified_member_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave17", "qualifier", "volatile", "const", "member", "compound-assign", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave17_conditional_member_compound_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_diag_wave17_conditional_member_compound_reject.c",
+      "expects": [
+        "expect/06__diag__wave17_conditional_member_compound_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave17", "conditional", "member", "array", "compound-assign", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave17_conditional_member_increment_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_diag_wave17_conditional_member_increment_reject.c",
+      "expects": [
+        "expect/06__diag__wave17_conditional_member_increment_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave17", "conditional", "member", "array", "increment", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

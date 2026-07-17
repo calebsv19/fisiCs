@@ -517,6 +517,186 @@ RUNTIME_PROBES = [
         source=CASE_DIR / '09__runtime__switch_default_case_continue_skip_mesh_xvii.c',
         note='default-before-case continue mesh should skip trailing per-iteration work while preserving adjacent break arms',
     ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_goto_vla_exit_weave_xviii',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_goto_vla_exit_weave_xviii.c',
+        note='legal jump out of switch-owned VLA scopes should preserve cleanup and post-label loop flow',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_label_fallthrough_loop_continue_xix',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_label_fallthrough_loop_continue_xix.c',
+        note='goto into a later switch arm plus nested loop continue should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_nested_loop_continue_fallthrough_xx',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_nested_loop_continue_fallthrough_xx.c',
+        note='continue inside loop nested under a switch case should bind to the inner loop before case fallthrough',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_loop_goto_vla_fallthrough_xxi',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_loop_goto_vla_fallthrough_xxi.c',
+        note='switch fallthrough through VLA scopes plus legal goto exits should preserve loop tail execution',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_continue_break_ladder_xxii',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_continue_break_ladder_xxii.c',
+        note='fallthrough into nested loop continue/break ladders should preserve switch and loop binding behavior',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_fallthrough_loop_continue_wave76_xxiii',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_fallthrough_loop_continue_wave76_xxiii.c',
+        note='wave76: switch fallthrough into nested loop continue paths should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_goto_vla_exit_wave76_xxiv',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_goto_vla_exit_wave76_xxiv.c',
+        note='wave76: legal goto exits from switch-owned VLA scopes should preserve loop tail flow',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_runtime_switch_nested_break_continue_wave76_xxv',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_switch_nested_break_continue_wave76_xxv.c',
+        note='wave76: nested loop switch break/continue/fallthrough ladder should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave77_runtime_switch_fallthrough_nested_loops',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave77_switch_fallthrough_nested_loops.c',
+        note='wave77: switch fallthrough into nested loops should preserve continue targets and post-switch flow',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave77_runtime_switch_goto_out_vla_chain',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave77_switch_goto_out_vla_chain.c',
+        note='wave77: legal goto exits out of switch-owned VLA scopes should preserve loop tail execution',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave77_runtime_switch_default_case_order_mesh',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave77_switch_default_case_order_mesh.c',
+        note='wave77: default-before-case ordering should not preempt matching cases or misbind continue',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave77_runtime_switch_label_scoped_decl_loop',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave77_switch_label_scoped_decl_loop.c',
+        note='wave77: labels around scoped declarations inside switch arms should preserve fallthrough and goto-out flow',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave78_runtime_switch_goto_loop_latch',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave78_switch_goto_loop_latch.c',
+        note='wave78: switch gotos and loop-continue latches should preserve post-switch and loop-tail flow',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave78_runtime_switch_decl_scope_continue',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave78_switch_decl_scope_continue.c',
+        note='wave78: declarations scoped inside switch arms should preserve continue and break targets',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave78_runtime_nested_switch_label_mesh',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave78_nested_switch_label_mesh.c',
+        note='wave78: nested switch labels and gotos should preserve outer loop tail execution',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave78_runtime_switch_for_break_continue_weave',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave78_switch_for_break_continue_weave.c',
+        note='wave78: switch-selected for-loop break and continue paths should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave79_runtime_switch_loop_goto_continue_mesh',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave79_switch_loop_goto_continue_mesh.c',
+        note='wave79: switch-selected loop gotos and continue paths should preserve loop-tail flow',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave79_runtime_switch_default_label_fallthrough_weave_current',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave79_switch_default_label_fallthrough_weave_current.c',
+        note='wave79 current threshold: default-before-case ordering and fallthrough should not preempt matching switch arms',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave79_runtime_switch_default_label_fallthrough_weave',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave79_switch_default_label_fallthrough_weave.c',
+        note='wave79 fixed: labels embedded in later switch case bodies should be valid goto targets from default arms',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave79_runtime_switch_do_while_goto_break_latch',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave79_switch_do_while_goto_break_latch.c',
+        note='wave79: switch arms inside do-while loops should preserve goto, break, and latch execution',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave79_runtime_nested_loop_label_continue_matrix',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave79_nested_loop_label_continue_matrix.c',
+        note='wave79: nested loop labels around switch continue and break paths should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave80_switch_default_scope_fallthrough',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave80_switch_default_scope_fallthrough.c',
+        note='wave80 default fallthrough and label/goto tails should preserve initialized block scope boundaries',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave80_nested_switch_goto_loop_latch',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave80_nested_switch_goto_loop_latch.c',
+        note='wave80 nested switch goto should land on the intended loop latch without corrupting outer flow',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave80_switch_loop_control_interactions',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave80_switch_loop_control_interactions.c',
+        note='wave80 break and continue interactions across switch-hosted loops should match clang',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave80_label_default_continue_boundary',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave80_label_default_continue_boundary.c',
+        note='wave80 label/default/continue boundary should preserve shared tail and outer-loop continuation semantics',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave81_nested_switch_default_label_mesh',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave81_nested_switch_default_label_mesh.c',
+        note='wave81 nested switch/default/label mesh should preserve selected arms and goto tails',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave81_goto_loop_latch_vla_exit',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave81_goto_loop_latch_vla_exit.c',
+        note='wave81 goto to a loop latch from inside a VLA block should exit the VLA scope cleanly',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave81_switch_fallthrough_continue_break_boundary',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave81_switch_fallthrough_continue_break_boundary.c',
+        note='wave81 switch fallthrough should keep continue and break scoped to the intended loop/switch boundary',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave81_case_default_ordering_ladder',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave81_case_default_ordering_ladder.c',
+        note='wave81 case/default ordering and fallthrough should match clang dispatch and tail execution',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave82_switch_label_goto_tail_chain',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave82_switch_label_goto_tail_chain.c',
+        note='wave82 switch labels, default fallthrough, and goto tails should preserve post-switch execution',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave82_loop_switch_continue_label_matrix',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave82_loop_switch_continue_label_matrix.c',
+        note='wave82 loop-hosted switch continue and label targets should bind to the intended loop boundary',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave82_goto_vla_switch_exit_ladder',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave82_goto_vla_switch_exit_ladder.c',
+        note='wave82 goto exits from switch-owned VLA blocks should preserve loop-tail execution',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave82_nested_switch_label_scope_break_mesh',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave82_nested_switch_label_scope_break_mesh.c',
+        note='wave82 nested switch labels, break paths, and goto tails should match clang runtime behavior',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave83_nested_loop_label_declaration_exit',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave83_nested_loop_label_declaration_exit.c',
+        note='wave83 outward nested-loop label jumps should preserve enclosing declaration scope and tail execution',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave83_do_switch_declaration_fallthrough',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave83_do_switch_declaration_fallthrough.c',
+        note='wave83 do/while switch fallthrough through declaration blocks should preserve control boundaries',
+    ),
+    RuntimeProbe(
+        probe_id='09__probe_wave83_case_block_reentry_scope',
+        source=PROBE_DIR / 'runtime/09__probe_runtime_wave83_case_block_reentry_scope.c',
+        note='wave83 repeated dispatch through case-local declaration blocks should match clang runtime behavior',
+    ),
 ]
 
 DIAG_PROBES = [
@@ -709,40 +889,6 @@ DIAG_PROBES = [
         inputs=[
             PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_include_goto_undefined_label_spelling_strict.c',
             PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_include_goto_undefined_label_spelling_strict.h',
-        ],
-        fisics_env={"DISABLE_CODEGEN": "1"},
-    ),
-    DiagnosticProbe(
-        probe_id='09__probe_diag_line_directive_goto_cross_init_spelling_reject',
-        source=PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_goto_cross_init_spelling_strict.c',
-        note='strict frontier: #line goto-cross-init diagnostics should preserve remapped line under direct source form',
-        required_substrings=['Error at (8023:5): goto jumps into scope of initialized variable'],
-    ),
-    DiagnosticProbe(
-        probe_id='09__probe_diag_line_directive_goto_cross_init_current_sparse_pass',
-        source=PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_goto_cross_init_spelling_strict.c',
-        note='reduced threshold: #line goto-cross-init diagnostics should emit the primary semantic message',
-        required_substrings=['goto jumps into scope of initialized variable'],
-    ),
-    DiagnosticProbe(
-        probe_id='09__probe_diag_line_directive_include_goto_cross_init_spelling_reject',
-        source=PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_include_goto_cross_init_spelling_strict.c',
-        note='strict frontier: include-header #line goto-cross-init diagnostics should preserve remapped line',
-        required_substrings=['Error at (8033:5): goto jumps into scope of initialized variable'],
-        inputs=[
-            PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_include_goto_cross_init_spelling_strict.c',
-            PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_include_goto_cross_init_spelling_strict.h',
-        ],
-        fisics_env={"DISABLE_CODEGEN": "1"},
-    ),
-    DiagnosticProbe(
-        probe_id='09__probe_diag_line_directive_include_goto_cross_init_current_sparse_pass',
-        source=PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_include_goto_cross_init_spelling_strict.c',
-        note='reduced threshold: include-header #line goto-cross-init diagnostics should emit the primary semantic message',
-        required_substrings=['goto jumps into scope of initialized variable'],
-        inputs=[
-            PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_include_goto_cross_init_spelling_strict.c',
-            PROBE_DIR / 'diagnostics/09__probe_diag_line_directive_include_goto_cross_init_spelling_strict.h',
         ],
         fisics_env={"DISABLE_CODEGEN": "1"},
     ),
@@ -1095,6 +1241,36 @@ DIAG_PROBES = [
         inputs=[
             PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_switch_case_range_rich_presence.c',
             PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_switch_case_range_rich_presence.h',
+        ],
+        fisics_env={"DISABLE_CODEGEN": "1"},
+    ),
+    DiagnosticProbe(
+        probe_id='09__probe_diag_switch_continue_not_loop_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/09__probe_diag_switch_continue_not_loop_parity.c',
+        note='current threshold: continue in switch outside any loop should emit text diagnostic with remapped spelling',
+        required_substrings=[
+            "Continue statement not within a loop",
+            "virtual_stmt_switch_continue_not_loop_probe.c:7608:13",
+        ],
+        fisics_env={"DISABLE_CODEGEN": "1"},
+    ),
+    DiagnosticProbe(
+        probe_id='09__probe_diag_switch_goto_into_vla_case_wave76_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/09__probe_diag_switch_goto_into_vla_case_wave76.c',
+        note='wave76 current threshold: goto into a VLA-backed switch case should emit the VLA-scope rejection',
+        required_substrings=[
+            'goto jumps into scope of initialized variable',
+            'virtual_stmt_switch_goto_vla_case_wave76.c:7624:5',
+        ],
+        fisics_env={"DISABLE_CODEGEN": "1"},
+    ),
+    DiagnosticProbe(
+        probe_id='09__probe_wave77_goto_into_vla_case_scope_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/09__probe_wave77_goto_into_vla_case_scope.c',
+        note='wave77 current threshold: goto into a later VLA-backed switch case should emit the VLA-scope rejection',
+        required_substrings=[
+            'goto jumps into scope of initialized variable',
+            'virtual_stmt_wave77_goto_into_vla_case_scope.c:7704:5',
         ],
         fisics_env={"DISABLE_CODEGEN": "1"},
     ),
@@ -1608,46 +1784,6 @@ DIAG_JSON_PROBES = [
         fisics_env={"DISABLE_CODEGEN": "1"},
     ),
     DiagnosticJsonProbe(
-        probe_id='09__probe_diagjson_line_directive_goto_cross_init_file_presence_reject',
-        source=PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_goto_cross_init_rich_presence.c',
-        note='strict frontier: #line goto-cross-init diagnostics JSON should include file presence under direct source form',
-        expected_codes=[2000],
-        expected_line=8023,
-        expected_column=5,
-        expected_has_file=True,
-    ),
-    DiagnosticJsonProbe(
-        probe_id='09__probe_diagjson_line_directive_goto_cross_init_current_sparse_pass',
-        source=PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_goto_cross_init_rich_presence.c',
-        note='reduced threshold: #line goto-cross-init diagnostics JSON should emit semantic payload',
-        expected_codes=[2000],
-    ),
-    DiagnosticJsonProbe(
-        probe_id='09__probe_diagjson_line_directive_include_goto_cross_init_file_presence_reject',
-        source=PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_goto_cross_init_rich_presence.c',
-        note='strict frontier: include-header #line goto-cross-init diagnostics JSON should include file presence',
-        expected_codes=[2000],
-        expected_line=8033,
-        expected_column=5,
-        expected_has_file=True,
-        inputs=[
-            PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_goto_cross_init_rich_presence.c',
-            PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_goto_cross_init_rich_presence.h',
-        ],
-        fisics_env={"DISABLE_CODEGEN": "1"},
-    ),
-    DiagnosticJsonProbe(
-        probe_id='09__probe_diagjson_line_directive_include_goto_cross_init_current_sparse_pass',
-        source=PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_goto_cross_init_rich_presence.c',
-        note='reduced threshold: include-header #line goto-cross-init diagnostics JSON should emit semantic payload',
-        expected_codes=[2000],
-        inputs=[
-            PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_goto_cross_init_rich_presence.c',
-            PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_goto_cross_init_rich_presence.h',
-        ],
-        fisics_env={"DISABLE_CODEGEN": "1"},
-    ),
-    DiagnosticJsonProbe(
         probe_id='09__probe_diagjson_line_directive_label_before_decl_file_presence_reject',
         source=PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_label_before_decl_rich_presence.c',
         note='strict frontier: #line label-before-declaration diagnostics JSON should include file presence under direct source form',
@@ -1725,6 +1861,36 @@ DIAG_JSON_PROBES = [
             PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_label_redefinition_rich_presence.c',
             PROBE_DIR / 'diagnostics/09__probe_diagjson_line_directive_include_label_redefinition_rich_presence.h',
         ],
+        fisics_env={"DISABLE_CODEGEN": "1"},
+    ),
+    DiagnosticJsonProbe(
+        probe_id='09__probe_diagjson_switch_continue_not_loop_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/09__probe_diag_switch_continue_not_loop_parity.c',
+        note='current threshold: continue in switch outside any loop should emit diagnostics JSON with remapped file and line',
+        expected_codes=[2000],
+        expected_line=7608,
+        expected_column=13,
+        expected_has_file=True,
+        fisics_env={"DISABLE_CODEGEN": "1"},
+    ),
+    DiagnosticJsonProbe(
+        probe_id='09__probe_diagjson_switch_goto_into_vla_case_wave76_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/09__probe_diag_switch_goto_into_vla_case_wave76.c',
+        note='wave76 current threshold: goto into VLA-backed switch case should emit diagnostics JSON at the remapped goto line',
+        expected_codes=[2000, 2000],
+        expected_line=7624,
+        expected_column=5,
+        expected_has_file=True,
+        fisics_env={"DISABLE_CODEGEN": "1"},
+    ),
+    DiagnosticJsonProbe(
+        probe_id='09__probe_wave77_goto_into_vla_case_scope_diagjson_current_sparse_pass',
+        source=PROBE_DIR / 'diagnostics/09__probe_wave77_goto_into_vla_case_scope.c',
+        note='wave77 current threshold: goto into later VLA-backed switch case should emit diagnostics JSON at the remapped goto line',
+        expected_codes=[2000, 2000],
+        expected_line=7704,
+        expected_column=5,
+        expected_has_file=True,
         fisics_env={"DISABLE_CODEGEN": "1"},
     ),
 ]

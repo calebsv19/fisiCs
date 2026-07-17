@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected identifier at tests/final/probes/diagnostics/12__probe_wave32_bad_function_declarator_then_undeclared_followup.c:1 (got ')')
+Error at (6:12): Undeclared identifier
+   Hint: follow_on_after_wave32_bad_function_declarator
+   Spelling: tests/final/probes/diagnostics/12__probe_wave32_bad_function_declarator_then_undeclared_followup.c:6:12

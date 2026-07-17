@@ -1,0 +1,12 @@
+Diagnostics:
+Error: Expected identifier for struct/union field (unnamed only allowed for bitfields) at tests/final/probes/diagnostics/12__probe_bad_struct_member_decl_then_undeclared_followup.c:3 (got '=')
+Error: Expected '}' to close struct body at tests/final/probes/diagnostics/12__probe_bad_struct_member_decl_then_undeclared_followup.c:3 (got '=')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_struct_member_decl_then_undeclared_followup.c:3 (got '=')
+Error: invalid statement at line 3 (token==)
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_struct_member_decl_then_undeclared_followup.c:5 (got '}')
+Error: invalid statement at line 5 (token=})
+Error: Failed to parse expression at line 3
+Error: Failed to parse expression at line 5
+Error at (8:12): Undeclared identifier
+   Hint: follow_on_after_bad_struct_member_decl
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_struct_member_decl_then_undeclared_followup.c:8:12

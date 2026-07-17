@@ -1,3 +1,4 @@
 Diagnostics:
-Error at (5:5): Invalid shift width 32 for 32-bit operand
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_eq_width_const.c:5:5
+Warning at (5:5): Invalid shift width 32 for 32-bit operand
+   Spelling: tests/final/cases/13__ir_reject_parser_recovery_ternary_missing_colon_then_shl_assign_count_eq_width_const.c:5:5
+Semantic analysis: no issues found.

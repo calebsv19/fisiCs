@@ -1,3 +1,3 @@
 Diagnostics:
 Error at (6:14): Case label is not an integer constant expression
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/14__probe_diag_switch_nonconst_case_reject.c:6:14
+   Spelling: tests/final/probes/diagnostics/14__probe_diag_switch_nonconst_case_reject.c:6:14

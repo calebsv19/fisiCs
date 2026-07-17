@@ -32,7 +32,6 @@
       "expects": [
         "expect/05__line_directive_shift_width_diagjson_line_map.diagjson"
       ],
-      "capture_diag_json": true,
       "tags": ["expressions", "diagnostic", "diagjson", "line-directive", "wave7"],
       "requires": [],
       "status": "ok"
@@ -44,7 +43,6 @@
       "expects": [
         "expect/05__line_directive_alignof_expr_diagjson_line_map.diagjson"
       ],
-      "capture_diag_json": true,
       "tags": ["expressions", "diagnostic", "diagjson", "line-directive", "wave7"],
       "requires": [],
       "status": "ok"

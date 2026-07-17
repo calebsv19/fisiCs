@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (6202:9): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave62_hard_error_no_tail_lowering.c:6202:9
+Error at (6205:15): Undeclared identifier
+   Hint: wave62_missing_symbol
+   Spelling: virtual_wave62_hard_error_no_tail_lowering.c:6205:15

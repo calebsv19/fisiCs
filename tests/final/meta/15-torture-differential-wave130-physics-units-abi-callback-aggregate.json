@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_abi_wave130_units_callback_aggregate_preservation",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_abi_wave130_units_callback_aggregate_preservation_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_abi_wave130_units_callback_aggregate_preservation_main.c",
+        "probes/runtime/15__probe_abi_wave130_units_callback_aggregate_preservation_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_abi_wave130_units_callback_aggregate_preservation.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": [
+        "--overlay=physics-units"
+      ],
+      "tags": [
+        "runtime",
+        "15",
+        "probe-promotion",
+        "abi",
+        "physics",
+        "units",
+        "callback",
+        "aggregate-preservation",
+        "multitu",
+        "wave130"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

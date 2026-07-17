@@ -1,0 +1,71 @@
+{
+  "version": 2,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave89_static_pointer_conditional_address_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave89_static_pointer_conditional_address_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave89_static_pointer_address.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["initializer", "file-scope", "static", "address-constant", "conditional", "strict", "runtime", "differential", "wave89", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave89_static_pointer_direct_address_control",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave89_static_pointer_direct_address_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave89_static_pointer_address.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["initializer", "file-scope", "static", "address-constant", "direct", "current-threshold", "runtime", "differential", "wave89", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave89_static_general_arithmetic_constant_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave89_static_general_arithmetic_constant_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave89_static_general_arithmetic.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["initializer", "file-scope", "static", "arithmetic-constant-expression", "floating", "conditional", "discarded-call", "relational", "strict", "runtime", "differential", "wave89", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave89_static_simple_float_control",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave89_static_simple_float_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave89_static_general_arithmetic.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["initializer", "file-scope", "static", "floating", "simple", "current-threshold", "runtime", "differential", "wave89", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

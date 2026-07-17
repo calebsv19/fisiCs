@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__runtime_wave138_realproj_tile_dispatch_all_fisics",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_wave138_realproj_tile_dispatch_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_wave138_realproj_tile_dispatch_main.c",
+        "probes/runtime/15__probe_wave138_realproj_tile_dispatch_ops_a.c",
+        "probes/runtime/15__probe_wave138_realproj_tile_dispatch_ops_b.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_wave138_realproj_tile_dispatch.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "torture-differential",
+        "runtime",
+        "realproj",
+        "map-forge",
+        "multitu",
+        "aggregate-state",
+        "callback-table",
+        "checksum",
+        "wave138"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__runtime_wave138_realproj_tile_dispatch_mixed_clang_callbacks",
+      "bucket": "torture-differential",
+      "input": "probes/runtime/15__probe_wave138_realproj_tile_dispatch_main.c",
+      "inputs": [
+        "probes/runtime/15__probe_wave138_realproj_tile_dispatch_main.c",
+        "probes/runtime/15__probe_wave138_realproj_tile_dispatch_ops_b.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/15__probe_wave138_realproj_tile_dispatch_ops_a.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/15__runtime_wave138_realproj_tile_dispatch.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "torture-differential",
+        "runtime",
+        "realproj",
+        "map-forge",
+        "multitu",
+        "aggregate-state",
+        "callback-table",
+        "checksum",
+        "mixed-clang-callbacks",
+        "wave138"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

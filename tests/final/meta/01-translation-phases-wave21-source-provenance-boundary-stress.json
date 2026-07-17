@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave21_nested_include_source_stack",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave21_nested_include_source_stack.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave21_nested_include_source_stack.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "nested-include", "source-stack", "source-resumption", "source-provenance", "__FILE__", "__LINE__", "wave21", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave21_splice_comment_adjacent_source",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave21_splice_comment_adjacent_source.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave21_splice_comment_adjacent_source.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-splice", "comment", "adjacent-string", "token-paste", "stringize", "source-provenance", "current-threshold", "wave21", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave21_tokenpaste_stringize_line_provenance",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave21_tokenpaste_stringize_line_provenance.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave21_tokenpaste_stringize_line_provenance.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "token-paste", "stringize", "macro-filename", "source-provenance", "__FILE__", "__LINE__", "wave21", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave21_trigraph_stringize_boundary",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave21_trigraph_stringize_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave21_trigraph_stringize_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": ["--trigraphs"],
+      "reference_args": ["-trigraphs"],
+      "tags": ["translation-phases", "runtime", "trigraph", "line-splice", "comment", "adjacent-string", "token-paste", "stringize", "source-provenance", "wave21", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

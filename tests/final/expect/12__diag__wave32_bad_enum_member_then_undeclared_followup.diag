@@ -1,0 +1,8 @@
+Diagnostics:
+Error: Expected '}' to close enum body at tests/final/probes/diagnostics/12__probe_wave32_bad_enum_member_then_undeclared_followup.c:3 (got '=')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_wave32_bad_enum_member_then_undeclared_followup.c:3 (got '=')
+Error: invalid statement at line 3 (token==)
+Error: Failed to parse expression at line 3
+Error at (8:12): Undeclared identifier
+   Hint: follow_on_after_wave32_bad_enum_member
+   Spelling: tests/final/probes/diagnostics/12__probe_wave32_bad_enum_member_then_undeclared_followup.c:8:12

@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__diag__line_directive_multitu_too_many_args_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence_lib.c"
+      ],
+      "link": true,
+      "capture_frontend_diag": true,
+      "expects": ["expect/11__diag__line_directive_multitu_too_many_args_text_threshold.diag"],
+      "expect_compile_exit": 1,
+      "tags": ["line-directive", "multitu", "diagnostic", "text-parity", "promotion-closure", "wave93"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__diag__line_directive_multitu_include_too_many_args_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_too_many_args_file_presence_lib.c"
+      ],
+      "link": true,
+      "capture_frontend_diag": true,
+      "expects": ["expect/11__diag__line_directive_multitu_include_too_many_args_text_threshold.diag"],
+      "expect_compile_exit": 1,
+      "tags": ["line-directive", "multitu", "include", "diagnostic", "text-parity", "promotion-closure", "wave93"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__diag__line_directive_multitu_parserdiag_decl_missing_rparen_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence_lib.c"
+      ],
+      "link": true,
+      "capture_frontend_diag": true,
+      "expects": ["expect/11__diag__line_directive_multitu_parserdiag_decl_missing_rparen_text_threshold.diag"],
+      "expect_compile_exit": 1,
+      "tags": ["line-directive", "multitu", "parser-diagnostic", "text-parity", "promotion-closure", "wave93"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__diag__line_directive_multitu_include_parserdiag_decl_missing_rparen_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence_lib.c"
+      ],
+      "link": true,
+      "capture_frontend_diag": true,
+      "expects": ["expect/11__diag__line_directive_multitu_include_parserdiag_decl_missing_rparen_text_threshold.diag"],
+      "expect_compile_exit": 1,
+      "tags": ["line-directive", "multitu", "include", "parser-diagnostic", "text-parity", "promotion-closure", "wave93"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__diag__line_directive_single_parserdiag_decl_missing_rparen_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c",
+      "expects": ["expect/11__diag__line_directive_single_parserdiag_decl_missing_rparen_text_threshold.diag"],
+      "expect_compile_exit": 1,
+      "tags": ["line-directive", "single-tu", "parser-diagnostic", "text-parity", "promotion-closure", "wave93"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__diag__line_directive_single_include_parserdiag_decl_missing_rparen_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c",
+      "expects": ["expect/11__diag__line_directive_single_include_parserdiag_decl_missing_rparen_text_threshold.diag"],
+      "expect_compile_exit": 1,
+      "tags": ["line-directive", "single-tu", "include", "parser-diagnostic", "text-parity", "promotion-closure", "wave93"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__diag__line_directive_multitu_parserdiag_decl_missing_rparen_reverse_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence_lib.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c"
+      ],
+      "link": true,
+      "capture_frontend_diag": true,
+      "expects": ["expect/11__diag__line_directive_multitu_parserdiag_decl_missing_rparen_text_threshold.diag"],
+      "expect_compile_exit": 1,
+      "tags": ["line-directive", "multitu", "reverse-order", "parser-diagnostic", "text-parity", "promotion-closure", "wave93"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__diag__line_directive_multitu_include_parserdiag_decl_missing_rparen_reverse_text_threshold",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c",
+      "inputs": [
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence_lib.c",
+        "probes/diagnostics/11__probe_diagjson_line_directive_multitu_include_parserdiag_decl_missing_rparen_presence.c"
+      ],
+      "link": true,
+      "capture_frontend_diag": true,
+      "expects": ["expect/11__diag__line_directive_multitu_include_parserdiag_decl_missing_rparen_text_threshold.diag"],
+      "expect_compile_exit": 1,
+      "tags": ["line-directive", "multitu", "reverse-order", "include", "parser-diagnostic", "text-parity", "promotion-closure", "wave93"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

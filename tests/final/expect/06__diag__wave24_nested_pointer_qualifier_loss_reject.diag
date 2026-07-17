@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (12101:5): Assignment discards qualifiers from pointer target
+   Spelling: virtual_lv_wave24_nested_pointer_qualifier_loss.c:12101:5

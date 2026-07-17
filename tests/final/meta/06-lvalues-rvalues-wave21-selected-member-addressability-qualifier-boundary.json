@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime_wave21_selected_member_address_compound",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave21_selected_member_address_compound_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave21_selected_member_address_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave21", "selected-member", "addressability", "compound-assign", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave21_qualified_selected_lvalue_rvalue",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave21_qualified_selected_lvalue_rvalue_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave21_qualified_selected_lvalue_rvalue.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave21", "qualified-member", "lvalue-rvalue", "volatile", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave21_conditional_selected_member_address_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave21_conditional_selected_member_address_reject.c",
+      "expects": [
+        "expect/06__diag__wave21_conditional_selected_member_address_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave21", "conditional", "selected-member", "addressability", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave21_qualified_selected_member_postinc_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave21_qualified_selected_member_postinc_reject.c",
+      "expects": [
+        "expect/06__diag__wave21_qualified_selected_member_postinc_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave21", "qualified-member", "postincrement", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6551:12): Undeclared identifier
+   Hint: wave65_missing_operand
+   Spelling: virtual_wave65_macro_include_cascade.c:6551:12

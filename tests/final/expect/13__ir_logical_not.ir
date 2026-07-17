@@ -1,1 +1,28 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @main() {
+entry:
+  %y = alloca i32, align 4
+  %x = alloca i32, align 4
+  call void @llvm.memset.p0.i64(ptr align 4 %x, i8 0, i64 4, i1 false)
+  %x1 = load i32, ptr %x, align 4
+  %lnot.bool = icmp ne i32 %x1, 0
+  %lnot.tmp = xor i1 %lnot.bool, true
+  %lnot.int = zext i1 %lnot.tmp to i32
+  store i32 %lnot.int, ptr %y, align 4
+  %y2 = load i32, ptr %y, align 4
+  ret i32 %y2
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

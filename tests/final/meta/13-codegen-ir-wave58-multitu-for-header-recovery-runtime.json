@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave58_multitu_for_header_recovery_aggregate",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave58_for_header_recovery_aggregate_main.c",
+      "inputs": [
+        "probes/runtime/13__probe_wave58_for_header_recovery_aggregate_main.c",
+        "probes/runtime/13__probe_wave58_for_header_recovery_aggregate_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave58_for_header_recovery_aggregate.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "codegen-ir",
+        "parser-recovery",
+        "for-header",
+        "multitu",
+        "aggregate-return",
+        "aggregate-copy",
+        "runtime",
+        "differential",
+        "wave58"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__diag_wave58_multitu_for_header_recovery_exact_exit",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave58_for_header_recovery_aggregate_main.c",
+      "inputs": [
+        "probes/runtime/13__probe_wave58_for_header_recovery_aggregate_main.c",
+        "probes/runtime/13__probe_wave58_for_header_recovery_aggregate_lib.c"
+      ],
+      "expects": [
+        "expect/13__runtime_wave58_multitu_for_header_recovery_aggregate.diag",
+        "expect/13__runtime_wave58_multitu_for_header_recovery_aggregate.pdiag"
+      ],
+      "capture_frontend_diag": true,
+      "args": ["-DFISICS_WAVE58_RECOVERY"],
+      "link": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["codegen-ir", "parser-recovery", "for-header", "multitu", "exact-exit", "no-lowering", "wave58"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

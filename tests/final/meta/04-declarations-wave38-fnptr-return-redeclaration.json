@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave38_nested_oldstyle_fnptr_compatible",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave38_nested_oldstyle_fnptr_compatible.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "declarations",
+        "function-pointer",
+        "old-style",
+        "default-promotions",
+        "runtime",
+        "wave38",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave38_nested_oldstyle_double_fnptr_compatible",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave38_nested_oldstyle_double_fnptr_compatible.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": [
+        "declarations",
+        "function-pointer",
+        "old-style",
+        "default-promotions",
+        "runtime",
+        "wave38",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave38_fnptr_return_redeclaration_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave38_fnptr_return_redeclaration_conflict.c",
+      "expects": [
+        "expect/04__diag__wave38_fnptr_return_redeclaration_conflict.diag"
+      ],
+      "standard": "c99",
+      "tags": [
+        "declarations",
+        "function-pointer",
+        "return-type",
+        "redeclaration",
+        "negative",
+        "wave38",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

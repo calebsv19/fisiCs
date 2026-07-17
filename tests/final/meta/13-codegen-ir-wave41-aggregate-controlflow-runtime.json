@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave41_switch_loop_aggregate_copy",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave41_switch_loop_aggregate_copy_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave41_switch_loop_aggregate_copy.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "switch", "loop", "union", "copy", "runtime", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave41_ternary_nested_union_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave41_ternary_nested_union_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave41_ternary_nested_union_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "ternary", "nested-union", "struct", "copy", "runtime", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave41_union_array_switch_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave41_union_array_switch_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave41_union_array_switch_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "switch", "array", "union", "payload", "runtime", "wave41"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

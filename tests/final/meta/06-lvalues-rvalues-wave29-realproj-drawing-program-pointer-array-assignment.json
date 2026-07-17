@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime__realproj_drawing_program_const_pointee_pointer_array_assign",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_realproj_drawing_program_const_pointee_pointer_array_assign.c",
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave29", "real-project", "drawing-program", "array", "pointer", "const-pointee"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

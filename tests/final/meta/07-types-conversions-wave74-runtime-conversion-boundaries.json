@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave74_enum_callback_promotion",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave74_enum_callback_promotion_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave74_enum_callback_promotion.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "enum",
+        "integer-promotion",
+        "callback",
+        "runtime",
+        "strict",
+        "wave74",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave74_nested_aggregate_member_conversions",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave74_nested_aggregate_member_conversions_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave74_nested_aggregate_member_conversions.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "aggregate",
+        "member-access",
+        "cast",
+        "runtime",
+        "strict",
+        "wave74",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave74_pointer_array_cast_ladder",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave74_pointer_array_cast_ladder_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave74_pointer_array_cast_ladder.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "array-decay",
+        "void-pointer",
+        "cast",
+        "runtime",
+        "strict",
+        "wave74",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave74_fnptr_return_conditional_conversions",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave74_fnptr_return_conditional_conversions_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave74_fnptr_return_conditional_conversions.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "function-pointer",
+        "conditional",
+        "callback",
+        "runtime",
+        "strict",
+        "wave74",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

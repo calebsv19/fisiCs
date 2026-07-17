@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_wave336_atexit_static_payload",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave336_atexit_static_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave336_atexit_static_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "stdlib", "atexit", "static", "aggregate", "payload-preservation", "wave336"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave336_realloc_callback_owner_payload",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave336_realloc_callback_owner_payload.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave336_realloc_callback_owner_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "stdlib", "realloc", "callback", "ownership", "aggregate", "payload-preservation", "wave336"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave336_multitu_static_callback_payload",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave336_multitu_static_callback_payload_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_runtime_wave336_multitu_static_callback_payload_main.c",
+        "probes/runtime/14__probe_runtime_wave336_multitu_static_callback_payload_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave336_multitu_static_callback_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "multitu", "static", "callback", "persistent-state", "aggregate", "payload-preservation", "wave336"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -2,3 +2,6 @@ Diagnostics:
 Error: universal character names in identifiers are not supported yet at tests/final/cases/02__line_directive_include_ucn_identifier_unsupported_current_physical_line.h:2 (got '\u0062')
 Error: Expected identifier in declarator at virtual_lexer_include_ucn_identifier_case.h:2130 (got '=')
 Error: invalid declarator at virtual_lexer_include_ucn_identifier_case.h:2130 (got '=')
+virtual_lexer_include_ucn_identifier_case.h:2130:12: error: expected 'Expected identifier in declarator', got '=' (type 61)
+virtual_lexer_include_ucn_identifier_case.h:2130:12: error: expected 'invalid declarator', got '=' (type 61)
+Error at (2130:5): universal character names in identifiers are not supported yet (got '\u0062')

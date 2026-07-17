@@ -5,7 +5,7 @@ Tokens:
 3 TOKEN_ASTERISK * virtual_include_nested_stringize_phase01.h:2413:19
 4 TOKEN_IDENTIFIER phase01_nested_stringized virtual_include_nested_stringize_phase01.h:2413:20
 5 TOKEN_ASSIGN = virtual_include_nested_stringize_phase01.h:2413:46
-6 TOKEN_STRING gamma + delta virtual_include_nested_stringize_phase01.h:4819:30
+6 TOKEN_STRING gamma + delta virtual_include_nested_stringize_phase01.h:2414:5
 7 TOKEN_SEMICOLON ; virtual_include_nested_stringize_phase01.h:2414:37
 8 TOKEN_INT int virtual_include_nested_stringize_phase01.h:2416:1
 9 TOKEN_IDENTIFIER main virtual_include_nested_stringize_phase01.h:2416:5

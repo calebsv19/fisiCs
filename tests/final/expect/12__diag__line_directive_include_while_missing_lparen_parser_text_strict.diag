@@ -1,5 +1,5 @@
 Diagnostics:
-Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_diagjson_line_directive_include_while_missing_lparen_parser_presence.h
+Warning: unrecognized input extension for tests/final/probes/diagnostics/12__probe_diagjson_line_directive_include_while_missing_lparen_parser_presence.h
 Error: expected '(' after 'while' at line 8713
 Error: expected ';' after expression at line 8713
 Error: invalid statement inside block at line 8713

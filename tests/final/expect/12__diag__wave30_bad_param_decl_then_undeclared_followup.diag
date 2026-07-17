@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected identifier at tests/final/probes/diagnostics/12__probe_bad_param_decl_then_undeclared_followup.c:1 (got ')')
+Error at (6:25): Undeclared identifier
+   Hint: follow_on_after_bad_param_decl
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_param_decl_then_undeclared_followup.c:6:25

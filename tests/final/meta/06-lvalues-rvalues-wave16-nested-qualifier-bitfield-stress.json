@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime_wave16_member_array_lvalue_compound",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_runtime_wave16_member_array_lvalue_compound.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime_wave16_member_array_lvalue_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave16", "member", "array", "compound-assign", "nested-lvalue", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave16_qualified_selected_member_lvalue",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_runtime_wave16_qualified_selected_member_lvalue.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime_wave16_qualified_selected_member_lvalue.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave16", "qualifier", "volatile", "const", "member", "selected-lvalue", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave16_conditional_member_assignment_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_diag_wave16_conditional_member_assignment_reject.c",
+      "expects": [
+        "expect/06__diag__wave16_conditional_member_assignment_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave16", "conditional", "member", "assignment", "strict-frontier", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave16_conditional_member_assignment_current",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_diag_wave16_conditional_member_assignment_current.c",
+      "expects": [
+        "expect/06__diag__wave16_conditional_member_assignment_current.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave16", "conditional", "member", "assignment", "post-fix-guard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave16_nested_conditional_bitfield_address_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_diag_wave16_nested_conditional_bitfield_address_reject.c",
+      "expects": [
+        "expect/06__diag__wave16_nested_conditional_bitfield_address_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave16", "bitfield", "address-of", "conditional", "member", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

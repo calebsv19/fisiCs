@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave22_layered_macro_line_checksum",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave22_layered_macro_line_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave22_layered_macro_line_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "macro-rescan", "source-provenance", "checksum", "wave22", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave22_trigraph_splice_comment_checksum",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave22_trigraph_splice_comment_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave22_trigraph_splice_comment_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": ["--trigraphs"],
+      "reference_args": ["-trigraphs"],
+      "tags": ["translation-phases", "runtime", "line-directive", "trigraph", "line-splice", "comment", "adjacent-string", "source-provenance", "checksum", "wave22", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave22_macro_line_filename_checksum",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave22_macro_line_filename_checksum.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave22_macro_line_filename_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "macro-filename", "stringize", "macro-rescan", "source-provenance", "checksum", "wave22", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

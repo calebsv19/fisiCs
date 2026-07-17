@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave69_enum_scalar_conversion",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave69_enum_scalar_conversion_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave69_enum_scalar_conversion.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "enum",
+        "integer-promotion",
+        "usual-arithmetic-conversion",
+        "runtime",
+        "strict",
+        "wave69",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave69_nested_pointer_selection",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave69_nested_pointer_selection_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave69_nested_pointer_selection.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "conditional",
+        "void-pointer",
+        "ptrdiff",
+        "runtime",
+        "strict",
+        "wave69",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave69_fnptr_array_decay_matrix",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave69_fnptr_array_decay_matrix_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave69_fnptr_array_decay_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "array-decay",
+        "function-pointer",
+        "conditional",
+        "runtime",
+        "strict",
+        "wave69",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

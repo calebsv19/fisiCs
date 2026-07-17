@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave46_nested_return_slot_array",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave46_nested_return_slot_array_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave46_nested_return_slot_array.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "return-slot", "nested-array", "aggregate-copy", "runtime", "wave46"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave46_pointer_array_compound_assign",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave46_pointer_array_compound_assign_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave46_pointer_array_compound_assign.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "pointer-array", "compound-assignment", "lowering", "runtime", "wave46"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave46_phi_compound_assignment_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave46_phi_compound_assignment_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave46_phi_compound_assignment_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "phi-like", "union", "compound-assignment", "aggregate-copy", "runtime", "wave46"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave46_cross_block_struct_abi",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave46_cross_block_struct_abi_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave46_cross_block_struct_abi.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "abi", "function-pointer", "struct-return", "cross-basic-block", "runtime", "wave46"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

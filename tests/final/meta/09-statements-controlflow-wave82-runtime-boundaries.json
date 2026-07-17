@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__wave82_switch_label_goto_tail_chain",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave82_switch_label_goto_tail_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave82_switch_label_goto_tail_chain.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "label", "goto", "default", "fallthrough", "wave82"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave82_loop_switch_continue_label_matrix",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave82_loop_switch_continue_label_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave82_loop_switch_continue_label_matrix.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "loop", "switch", "continue", "label", "goto", "wave82"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave82_goto_vla_switch_exit_ladder",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave82_goto_vla_switch_exit_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave82_goto_vla_switch_exit_ladder.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "goto", "vla", "switch", "scope-exit", "loop", "wave82"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave82_nested_switch_label_scope_break_mesh",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave82_nested_switch_label_scope_break_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave82_nested_switch_label_scope_break_mesh.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "nested-switch", "label", "goto", "break", "scope", "wave82"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

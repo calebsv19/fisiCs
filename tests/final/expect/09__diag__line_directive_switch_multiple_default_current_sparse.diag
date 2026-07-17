@@ -2,3 +2,4 @@ Diagnostics:
 Error at (5605:25): Duplicate default label in switch
    Spelling: virtual_stmt_switch_multiple_default_probe.c:5605:25
 Warning at (5604:0): Previous default label is here
+   Spelling: virtual_stmt_switch_multiple_default_probe.c:5604:0

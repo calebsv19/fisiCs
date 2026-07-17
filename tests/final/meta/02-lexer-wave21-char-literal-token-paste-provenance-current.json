@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__wave21_char_hex_escape_invalid_token_tail_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave21_char_hex_escape_invalid_token_tail_diagjson_current.c",
+      "expects": ["expect/02__wave21_char_hex_escape_invalid_token_tail_diagjson_current.diagjson"],
+      "tags": ["lexer", "line-directive", "char-literal", "invalid-escape", "invalid-token", "recovery", "diagjson", "current-threshold", "wave21"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave21_unterminated_char_invalid_token_tail_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave21_unterminated_char_invalid_token_tail_diagjson_current.c",
+      "expects": ["expect/02__wave21_unterminated_char_invalid_token_tail_diagjson_current.diagjson"],
+      "tags": ["lexer", "line-directive", "char-literal", "unterminated-literal", "invalid-token", "recovery", "diagjson", "current-threshold", "wave21"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave21_spliced_line_directive_token_paste_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave21_spliced_line_directive_token_paste_diagjson_current.c",
+      "expects": ["expect/02__wave21_spliced_line_directive_token_paste_diagjson_current.diagjson"],
+      "tags": ["lexer", "line-splice", "line-directive", "token-paste", "invalid-token", "provenance", "diagjson", "current-threshold", "wave21"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -48,8 +48,8 @@ Scalar vs aggregate initialization and layout-sensitive rules.
 
 ## Promotion Audit Closure
 
-As of 2026-06-02, bucket `08` is closed against the resolved-probe promotion
-audit. The stable final inventory contains `152` bucket tests, including the
+As of 2026-07-14, bucket `08` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `230` bucket tests, including the
 probe-backed closure shard
 `tests/final/meta/08-initializers-layout-wave69-probe-promotion-audit-closure.json`.
 
@@ -57,10 +57,10 @@ That shard promotes the remaining `10` probe ownership cases for this bucket:
 `1` text diagnostic for direct unknown-field designator rejection and `9`
 differential runtime cases covering bitfield rewrites, designator overlap
 dominance, file-scope pointer/address initializers, and nested union string
-member resets. The refreshed audit reports bucket `08` at `promoted=124`,
-`probe_only=40`, and `missing_promotion_candidate=0`.
+member resets. Later manifests and explicit equivalent-owner mappings complete
+the remaining ownership set. The refreshed audit reports bucket `08` at
+`promoted=243`, `probe_only=0`, and `missing_promotion_candidate=0`.
 
 ## Probe Backlog
 - No open promotion candidates remain in this bucket at the current baseline.
-- The remaining `40` resolved probes are explicitly classified as probe-only
-  frontier / reduced-threshold coverage by the promotion audit.
+- No bucket-08 probe-only ownership remains at the current baseline.

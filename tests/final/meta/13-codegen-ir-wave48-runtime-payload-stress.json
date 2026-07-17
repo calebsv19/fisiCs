@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave48_phi_union_compound_literal",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave48_phi_union_compound_literal_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave48_phi_union_compound_literal.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "phi-like", "union", "compound-literal", "runtime", "wave48"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave48_switch_return_slot_union",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave48_switch_return_slot_union_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave48_switch_return_slot_union.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "switch", "return-slot", "union", "runtime", "wave48"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave48_pointer_phi_compound",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave48_pointer_phi_compound_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave48_pointer_phi_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "pointer-array", "compound-literal", "phi-like", "runtime", "wave48"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave48_nested_phi_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave48_nested_phi_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave48_nested_phi_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "nested-aggregate", "phi-like", "control-flow", "runtime", "wave48"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

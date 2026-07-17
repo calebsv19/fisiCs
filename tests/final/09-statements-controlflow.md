@@ -29,7 +29,8 @@ Statement grammar, scoping, and control flow legality.
 6) `09__switch_duplicate_case`
    - Duplicate case label diagnostics.
 7) `09__goto_cross_init`
-   - goto crossing initialization boundaries.
+   - goto may cross an ordinary initialized object; only variably modified
+     declarations restrict scope entry.
 8) `09__label_redefinition`
    - duplicate label warning.
 9) `09__while_loop_basic`
@@ -153,11 +154,9 @@ Statement grammar, scoping, and control flow legality.
    - Parser diagnostic tuples for empty `while` condition form.
 57) `09__parserdiag__for_missing_rparen_reject`
    - Parser diagnostic tuples for malformed `for` header missing closing `)`.
-58) `09__parserdiag__switch_missing_lbrace_reject`
-   - Parser diagnostic tuples for `switch` missing opening body brace.
-59) `09__parserdiag__switch_case_missing_expr_reject`
+58) `09__parserdiag__switch_case_missing_expr_reject`
    - Parser diagnostic tuples for `case` label missing controlling expression.
-60) `09__parserdiag__label_without_statement_eof_reject`
+59) `09__parserdiag__label_without_statement_eof_reject`
    - Parser diagnostic tuples for label with missing required statement at EOF.
 
 ## Parserdiag Lane Additions (Current 09 Pass)
@@ -176,25 +175,23 @@ Statement grammar, scoping, and control flow legality.
 
 ## Promotion Audit Closure
 
-As of 2026-06-02, bucket `09` is closed against the resolved-probe promotion
-audit. The stable final inventory contains `287` bucket tests, including the
+As of 2026-07-14, bucket `09` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `347` bucket tests, including the
 probe-backed closure shard
 `tests/final/meta/09-statements-controlflow-wave71-probe-promotion-audit-closure.json`.
 
 That shard promotes the remaining `5` probe ownership cases for this bucket:
 `4` text diagnostics for malformed `if` / `else` / `for` / `switch` statement
 shapes and `1` differential runtime `do-while` codegen regression. The
-refreshed audit reports bucket `09` at `promoted=219`, `probe_only=20`, and
+refreshed audit reports bucket `09` at `promoted=301`, `probe_only=0`, and
 `missing_promotion_candidate=0`.
 
 ## Probe Backlog
 - No open promotion candidates remain in this bucket at the current baseline.
 - Probe-to-active promotions completed in wave 71 for the full 09 ownership set.
-- The remaining `20` resolved probes are explicitly classified as probe-only
-  control / frontier coverage by the promotion audit.
-- Current 09 probe sweep (`PROBE_FILTER=09__probe_`) is green:
+- Current full bucket-09 probe sweep is green:
   - blocked: `0`
-  - resolved: `17`
+  - resolved: `301`
   - skipped: `0`
 - New 09 statement-shape probes added and resolved:
   - `09__probe_if_missing_then_stmt_reject`
@@ -205,7 +202,7 @@ refreshed audit reports bucket `09` at `promoted=219`, `probe_only=20`, and
 
 ## Next Expansion Targets (Post-Cleanup Plan)
 1) Add control-flow edge diagnostics not yet covered
-   - promote `goto` missing-label nested-scope probe into active suite with deterministic diagnostic anchor.
+   - retain the promoted `goto` missing-label nested-scope diagnostic anchor.
    - duplicate `default` + folded duplicate `case` in mixed constant-expression forms.
    - label/statement boundary edge cases in nested blocks and after empty statements.
 

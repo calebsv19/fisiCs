@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__wave83_lexical_tag_pointer_conditional_same_name_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave83_lexical_tag_pointer_conditional_same_name.c",
+      "expects": ["expect/07__wave83_lexical_tag_pointer_conditional_diagjson_strict.diagjson"],
+      "tags": ["semantic", "conversion", "pointer", "conditional", "aggregate-identity", "lexical-scope", "same-name-shadow", "line-directive", "diagjson", "wave83", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave83_lexical_tag_pointer_conditional_alpha_name_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave83_lexical_tag_pointer_conditional_alpha_name.c",
+      "expects": ["expect/07__wave83_lexical_tag_pointer_conditional_diagjson_strict.diagjson"],
+      "tags": ["semantic", "conversion", "pointer", "conditional", "aggregate-identity", "lexical-scope", "alpha-control", "line-directive", "diagjson", "wave83", "strict"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

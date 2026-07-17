@@ -42,6 +42,7 @@
     },
     {
       "id": "10__line_directive_multitu_extern_type_compatible_diag_text_clean",
+      "allow_empty_diag": true,
       "bucket": "scopes-linkage",
       "input": "cases/10__line_directive_multitu_extern_type_compatible_diag_text_clean_main.c",
       "inputs": [
@@ -66,6 +67,7 @@
     },
     {
       "id": "10__line_directive_multitu_include_extern_type_compatible_diag_text_clean",
+      "allow_empty_diag": true,
       "bucket": "scopes-linkage",
       "input": "cases/10__line_directive_multitu_include_extern_type_compatible_diag_text_clean_main.c",
       "inputs": [

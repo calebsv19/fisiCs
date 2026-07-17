@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "torture-differential",
+  "tests": [
+    {
+      "id": "15__diag__units_aggregate_positional_initializer_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_aggregate_positional_initializer_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_aggregate_positional_initializer_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_aggregate_positional_initializer_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["diag", "physics", "units", "overlay", "aggregate", "initializer", "requires-convert", "wave125"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_aggregate_designated_initializer_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_aggregate_designated_initializer_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_aggregate_designated_initializer_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_aggregate_designated_initializer_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["diag", "physics", "units", "overlay", "aggregate", "designated", "initializer", "requires-convert", "wave125"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_aggregate_compound_literal_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_aggregate_compound_literal_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_aggregate_compound_literal_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_aggregate_compound_literal_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["diag", "physics", "units", "overlay", "aggregate", "compound-literal", "requires-convert", "wave125"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "15__diag__units_aggregate_nested_field_requires_convert",
+      "bucket": "torture-differential",
+      "input": "probes/diagnostics/15__probe_diag_units_aggregate_nested_field_requires_convert.c",
+      "inputs": [
+        "probes/diagnostics/15__probe_diag_units_aggregate_nested_field_requires_convert.c"
+      ],
+      "expects": [
+        "expect/15__diag__units_aggregate_nested_field_requires_convert.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["diag", "physics", "units", "overlay", "aggregate", "nested-field", "initializer", "requires-convert", "wave125"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

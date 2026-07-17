@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__wave60_block_extern_static_local_shadow",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave60_block_extern_static_local_shadow.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave60_block_extern_static_local_shadow.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "block-scope",
+        "extern",
+        "static-local",
+        "shadowing",
+        "wave60",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave60_block_extern_static_local_shadow_current",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave60_block_extern_static_local_shadow_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave60_block_extern_static_local_shadow_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "block-scope",
+        "extern",
+        "static-local",
+        "current-threshold",
+        "shadowing",
+        "wave60"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave60_tentative_extern_array_completion",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave60_tentative_extern_array_completion_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave60_tentative_extern_array_completion_main.c",
+        "probes/runtime/10__probe_runtime_wave60_tentative_extern_array_completion_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave60_tentative_extern_array_completion.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "extern-array",
+        "tentative-completion",
+        "block-scope",
+        "shadowing",
+        "wave60",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave60_tentative_extern_array_completion_current",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave60_tentative_extern_array_completion_current_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave60_tentative_extern_array_completion_current_main.c",
+        "probes/runtime/10__probe_runtime_wave60_tentative_extern_array_completion_current_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave60_tentative_extern_array_completion_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "extern-array",
+        "tentative-completion",
+        "block-scope",
+        "current-threshold",
+        "shadowing",
+        "wave60"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave60_multitu_static_local_persistence",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave60_multitu_static_local_persistence_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave60_multitu_static_local_persistence_main.c",
+        "probes/runtime/10__probe_runtime_wave60_multitu_static_local_persistence_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave60_multitu_static_local_persistence.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "static-local",
+        "persistence",
+        "external-object",
+        "shadowing",
+        "wave60",
+        "probe-promotion"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave60_multitu_static_local_persistence_current",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave60_multitu_static_local_persistence_current_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave60_multitu_static_local_persistence_current_main.c",
+        "probes/runtime/10__probe_runtime_wave60_multitu_static_local_persistence_current_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave60_multitu_static_local_persistence_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "static-local",
+        "persistence",
+        "external-object",
+        "current-threshold",
+        "shadowing",
+        "wave60"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

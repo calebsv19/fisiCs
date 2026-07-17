@@ -1,3 +1,2 @@
 Diagnostics:
-Error at (8901:5): Control reaches end of non-void function 'main'
-   Spelling: virtual_diagrec_switch_missing_rparen_case.c:8901:5
+Semantic analysis: no issues found.

@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave42_compound_literal_branch_phi",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave42_compound_literal_branch_phi_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave42_compound_literal_branch_phi.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "compound-literal", "branch", "phi", "union", "runtime", "wave42"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave42_switch_loop_nested_union_array",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave42_switch_loop_nested_union_array_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave42_switch_loop_nested_union_array.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "switch", "loop", "nested-union", "array", "runtime", "wave42"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave42_switch_continue_compound_literal",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave42_switch_continue_compound_literal_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave42_switch_continue_compound_literal.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "switch", "continue", "compound-literal", "union", "runtime", "wave42"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

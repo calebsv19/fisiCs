@@ -7,7 +7,7 @@ PROGRAM
     TYPE: int (*)(int, char)
     IDENTIFIER fp
   VAR_DECL
-    TYPE: int (*)() [3]
+    TYPE: int (*)(void) [3]
     IDENTIFIER ap
   VAR_DECL
     TYPE: int (**)(int, char*)

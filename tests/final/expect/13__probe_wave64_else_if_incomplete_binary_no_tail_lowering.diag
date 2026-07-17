@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6403:16): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave64_else_if_incomplete_binary.c:6403:16

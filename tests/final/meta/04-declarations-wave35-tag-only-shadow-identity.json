@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave35_tag_only_shadow_same_name_identity",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave35_tag_only_shadow_same_name_identity.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave35_tag_only_shadow_identity.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "tag-only-shadow", "object-type-identity", "same-name", "wave35", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave35_tag_only_shadow_unique_name_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave35_tag_only_shadow_unique_name_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave35_tag_only_shadow_identity.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "tag-only-shadow", "object-type-identity", "unique-name-control", "wave35", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

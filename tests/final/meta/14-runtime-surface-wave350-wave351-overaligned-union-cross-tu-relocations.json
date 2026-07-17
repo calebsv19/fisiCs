@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_wave350_overaligned_union_external_relocations_all_fisics",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_main.c",
+        "probes/runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave350_overaligned_union_external_relocations.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c11",
+      "tags": ["runtime", "alignment", "union", "multitu", "external-symbol", "relocation", "all-fisics"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave350_overaligned_union_external_relocations_mixed_clang_callee",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_main.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave350_overaligned_union_external_relocations.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c11",
+      "tags": ["runtime", "alignment", "union", "multitu", "external-symbol", "relocation", "mixed-clang-callee"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave351_overaligned_union_external_relocations_all_fisics",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_main.c",
+        "probes/runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave351_overaligned_union_external_relocations.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c11",
+      "tags": ["runtime", "alignment", "union", "multitu", "external-symbol", "relocation", "reverse-owner", "all-fisics"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave351_overaligned_union_external_relocations_reverse_clang_caller",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_lib.c",
+      "inputs": [
+        "probes/runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_lib.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_main.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave351_overaligned_union_external_relocations.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c11",
+      "tags": ["runtime", "alignment", "union", "multitu", "external-symbol", "relocation", "reverse-clang-caller"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

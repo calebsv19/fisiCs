@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6652:12): Undeclared identifier
+   Hint: wave66_missing_value
+   Spelling: virtual_wave66_macro_include_conditional.c:6652:12

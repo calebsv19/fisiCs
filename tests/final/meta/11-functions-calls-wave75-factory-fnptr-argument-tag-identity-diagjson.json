@@ -1,0 +1,8 @@
+{
+  "version": 1, "suite": "final", "bucket": "functions-calls",
+  "tests": [
+    {"id":"11__wave75_factory_fnptr_argument_tag_same_name_diagjson_strict","bucket":"functions-calls","input":"probes/diagnostics/11__probe_wave75_diagjson_factory_fnptr_argument_tag_same_name.c","expects":["expect/11__wave75_factory_fnptr_argument_diagjson_strict.diagjson"],"capture_frontend_diag":true,"standard":"c99","tags":["functions-calls","argument-conversion","typedef-wrapped","function-pointer-factory","nested-callback","aggregate-identity","same-name","line-directive","diagjson","strict-regression","wave75"],"requires":[],"status":"ok"},
+    {"id":"11__wave75_factory_fnptr_argument_tag_alpha_name_diagjson_strict","bucket":"functions-calls","input":"probes/diagnostics/11__probe_wave75_diagjson_factory_fnptr_argument_tag_alpha_name.c","expects":["expect/11__wave75_factory_fnptr_argument_diagjson_strict.diagjson"],"capture_frontend_diag":true,"standard":"c99","tags":["functions-calls","argument-conversion","typedef-wrapped","function-pointer-factory","nested-callback","aggregate-identity","alpha-control","line-directive","diagjson","strict-regression","wave75"],"requires":[],"status":"ok"},
+    {"id":"11__wave75_factory_fnptr_argument_compatible_diagjson_clean","bucket":"functions-calls","input":"probes/diagnostics/11__probe_wave75_diagjson_factory_fnptr_argument_compatible_control.c","expects":["expect/11__wave75_factory_fnptr_argument_diagjson_clean.diagjson"],"capture_frontend_diag":true,"standard":"c99","tags":["functions-calls","argument-conversion","typedef-wrapped","function-pointer-factory","nested-callback","aggregate-identity","clean-control","line-directive","diagjson","wave75"],"requires":[],"status":"ok"}
+  ]
+}

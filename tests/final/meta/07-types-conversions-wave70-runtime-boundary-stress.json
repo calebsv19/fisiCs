@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave70_nested_void_null_conditional",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave70_nested_void_null_conditional_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave70_nested_void_null_conditional.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "conditional",
+        "null-pointer",
+        "void-pointer",
+        "runtime",
+        "strict",
+        "wave70",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave70_array_fn_decay_nested_call",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave70_array_fn_decay_nested_call_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave70_array_fn_decay_nested_call.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "array-decay",
+        "function-pointer",
+        "conditional",
+        "runtime",
+        "strict",
+        "wave70",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave70_one_past_relational_conditional",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave70_one_past_relational_conditional_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave70_one_past_relational_conditional.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "one-past",
+        "relational",
+        "conditional",
+        "runtime",
+        "strict",
+        "wave70",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

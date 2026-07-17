@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__probe_wave87_switch_dispatch_into_nested_vla_scope_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave87_switch_dispatch_into_nested_vla_scope_reject.c",
+      "expects": ["expect/09__probe_wave87_switch_dispatch_into_nested_vla_scope_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diagnostic", "switch", "case", "nested-block", "vla", "strict-c99", "wave87"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave87_switch_nested_fixed_array_case_dispatch_control",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_wave87_switch_nested_fixed_array_case_dispatch_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__probe_wave87_switch_nested_fixed_array_case_dispatch_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["runtime", "switch", "case", "nested-block", "fixed-array", "strict-c99", "wave87"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave87_switch_dispatch_into_nested_vm_typedef_alias_scope_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave87_switch_dispatch_into_nested_vm_typedef_alias_scope_reject.c",
+      "expects": ["expect/09__probe_wave87_switch_dispatch_into_nested_vm_typedef_alias_scope_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diagnostic", "switch", "case", "nested-block", "variably-modified", "typedef-alias", "strict-c99", "wave87"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave87_switch_nested_enum_fixed_typedef_alias_dispatch_control",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_wave87_switch_nested_enum_fixed_typedef_alias_dispatch_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__probe_wave87_switch_nested_enum_fixed_typedef_alias_dispatch_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["runtime", "switch", "case", "nested-block", "fixed-array", "enum-bound", "typedef-alias", "strict-c99", "wave87"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave87_switch_nested_local_enum_case_value_control",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_wave87_switch_nested_local_enum_case_value_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__probe_wave87_switch_nested_local_enum_case_value_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["runtime", "switch", "case", "nested-block", "local-enum", "ice", "strict-c99", "wave87"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

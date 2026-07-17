@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave56_array_element_nested_union_struct_copy",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave56_array_element_nested_union_struct_copy_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave56_array_element_nested_union_struct_copy.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "array-element", "aggregate-copy", "nested-union", "runtime", "wave56"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

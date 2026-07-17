@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave71_nested_aggregate_member_conversions",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave71_nested_aggregate_member_conversions_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave71_nested_aggregate_member_conversions.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "aggregate",
+        "member-access",
+        "enum",
+        "integer-promotion",
+        "runtime",
+        "strict",
+        "wave71",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave71_enum_integer_promotion_matrix",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave71_enum_integer_promotion_matrix_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave71_enum_integer_promotion_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "enum",
+        "integer-promotion",
+        "usual-arithmetic-conversions",
+        "runtime",
+        "strict",
+        "wave71",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave71_pointer_array_boundary",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave71_pointer_array_boundary_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave71_pointer_array_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "array-decay",
+        "pointer-to-array",
+        "void-pointer",
+        "runtime",
+        "strict",
+        "wave71",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

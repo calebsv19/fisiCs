@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__runtime__wave21_sizeof_address_cast_comma_unevaluated",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave21_sizeof_address_cast_comma_unevaluated_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave21_sizeof_address_cast_comma_unevaluated.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "sizeof", "addressing", "cast", "comma", "unevaluated", "wave21", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__wave21_conditional_cast_address_lattice",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave21_conditional_cast_address_lattice_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave21_conditional_cast_address_lattice.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "conditional", "addressing", "cast", "comma", "selected-path", "wave21", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__wave21_comma_conditional_cast_sizeof",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave21_comma_conditional_cast_sizeof_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave21_comma_conditional_cast_sizeof.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "comma", "conditional", "cast", "sizeof", "side-effects", "wave21", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__wave21_addressed_conditional_lvalue_current",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave21_addressed_conditional_lvalue_current_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave21_addressed_conditional_lvalue_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "conditional", "addressing", "cast", "sizeof", "current-threshold", "wave21", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

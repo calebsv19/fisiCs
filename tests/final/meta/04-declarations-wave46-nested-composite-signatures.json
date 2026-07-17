@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__diag__wave46_nested_callback_prototype_composite_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave46_nested_callback_prototype_composite_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "function-type", "function-pointer", "nested-callback", "old-style", "prototype", "composite-type", "conflicting-types", "negative", "strict", "wave46", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave46_nested_callback_array_bound_composite_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave46_nested_callback_array_bound_composite_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "function-type", "function-pointer", "nested-callback", "pointer-to-array", "incomplete-array", "array-bound", "composite-type", "conflicting-types", "negative", "strict", "wave46", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave46_nested_callback_equivalent_order_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave46_nested_callback_equivalent_order_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "function-type", "function-pointer", "nested-callback", "old-style", "prototype", "composite-type", "declaration-order", "runtime", "control", "wave46", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

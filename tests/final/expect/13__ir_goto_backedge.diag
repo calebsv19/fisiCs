@@ -1,3 +1,2 @@
 Diagnostics:
-Error at (1:5): Control reaches end of non-void function 'main'
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/13__ir_goto_backedge.c:1:5
+Semantic analysis: no issues found.

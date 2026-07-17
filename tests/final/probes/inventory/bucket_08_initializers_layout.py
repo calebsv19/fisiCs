@@ -366,6 +366,256 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/08__probe_runtime_union_bitfield_continuation_grid_wave71.c',
         note='union payload plus bitfield subobject continuations should preserve mixed sparse writes and zero-fill in reused aggregate cells',
     ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_anonymous_union_struct_layout_checksum_wave72',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_anonymous_union_struct_layout_checksum_wave72.c',
+        note='strict frontier: anonymous struct/union aggregate initializers should preserve recursive zero-fill, offsetof aliases, and runtime checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_named_union_struct_layout_checksum_wave72',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_named_union_struct_layout_checksum_wave72.c',
+        note='reduced threshold: named struct/union aggregate initializers should preserve zero-fill, layout offsets, and runtime checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_array_union_zero_fill_checksum_wave72',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_array_union_zero_fill_checksum_wave72.c',
+        note='arrays of unions with sparse designated aggregate initialization should preserve zero-fill, offsetof layout, and runtime checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_nested_union_array_payload_wave73',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_nested_union_array_payload_wave73.c',
+        note='nested arrays of named-union payloads should preserve sparse designators, recursive zero-fill, offsetof layout, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_anonymous_union_layout_current_wave73',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_anonymous_union_layout_current_wave73.c',
+        note='reduced threshold: anonymous struct/union aggregate initialization should preserve active-member byte layout, zero-fill, and checksum parity with clang before later member reseed',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_union_row_reseed_byte_offsets_wave73',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_union_row_reseed_byte_offsets_wave73.c',
+        note='union string and byte-array row reseeds should preserve trailing zero-fill, later byte overrides, offsetof layout, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave74_designated_union_matrix_checksum',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave74_designated_union_matrix_checksum.c',
+        note='nested designated union matrices should preserve sparse writes, recursive zero-fill, offsetof layout, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave74_partial_zero_fill_union_rows',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave74_partial_zero_fill_union_rows.c',
+        note='partial aggregate initializers across named union rows should preserve omitted-byte zero-fill and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave74_nested_designator_reseed_payload',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave74_nested_designator_reseed_payload.c',
+        note='nested union payload reseeds through later member designators should preserve final byte layout and zero-fill parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave74_union_array_member_override',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave74_union_array_member_override.c',
+        note='fixed baseline: nested two-dimensional union array member overrides preserve active storage bytes, trailing zero-fill, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave74_union_array_member_override_current',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave74_union_array_member_override_current.c',
+        note='reduced threshold: flat union array member overrides preserve active storage bytes, trailing zero-fill, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave75_compound_literal_union_grid',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave75_compound_literal_union_grid.c',
+        note='current threshold: nested union grids should preserve later member overrides, omitted-byte zero-fill, offsetof layout, and checksum parity with clang after reducing blocked compound-literal designator form',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave75_union_row_override_zero_fill',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave75_union_row_override_zero_fill.c',
+        note='nested union row overrides should preserve last-write active storage, recursive zero-fill, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave75_nested_array_designator_reseed',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave75_nested_array_designator_reseed.c',
+        note='nested two-dimensional array designator reseeds should preserve union active-member layout and final checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave75_compound_literal_current_zero_fill',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave75_compound_literal_current_zero_fill.c',
+        note='current threshold: compound literal union assignment should preserve active-member zero-fill and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave75_compound_literal_nested_designator_fixed',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave75_compound_literal_nested_designator_fixed.c',
+        note='fixed baseline: compound literal chained field/index designators should preserve nested union array storage and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave76_compound_literal_nested_rows',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave76_compound_literal_nested_rows.c',
+        note='wave76: nested compound literals inside aggregate rows should preserve union payload layout, omitted-byte zero-fill, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave76_union_row_designator_overrides',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave76_union_row_designator_overrides.c',
+        note='strict blocker: union row designator overrides should preserve last-write active-member storage and zero-filled untouched rows after whole-row and later subobject initializers',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave76_union_row_designator_overrides_current',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave76_union_row_designator_overrides_current.c',
+        note='wave76 current threshold: direct union row member designators preserve active-member storage and zero-filled untouched rows',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave76_zero_fill_layout_ladder',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave76_zero_fill_layout_ladder.c',
+        note='wave76: nested aggregate zero-fill ladders should preserve layout offsets and omitted subobject bytes across union rows',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave76_nested_array_member_preservation',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave76_nested_array_member_preservation.c',
+        note='wave76: nested array/member initializer preservation should keep member slot bytes and union storage layout stable',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave77_named_union_row_slot_ordering',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave77_named_union_row_slot_ordering.c',
+        note='wave77: named union row/slot initializer ordering should preserve last-write storage, omitted-row zero-fill, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave77_compound_literal_zero_fill_slots',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave77_compound_literal_zero_fill_slots.c',
+        note='wave77: compound literal union slots should preserve omitted-byte zero-fill and nested payload checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave77_anonymous_union_layout_checksum',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave77_anonymous_union_layout_checksum.c',
+        note='wave77: anonymous struct/union layout checksums should preserve sparse designated initializer bytes and zero-fill parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave77_nested_union_array_designated_checksum',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave77_nested_union_array_designated_checksum.c',
+        note='wave77: nested designated union arrays should preserve row/slot sparse writes, recursive zero-fill, and layout checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave78_nested_aggregate_override_payload',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave78_nested_aggregate_override_payload.c',
+        note='wave78: nested aggregate override boundaries should preserve last-write payloads, omitted zero-fill, and layout checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave78_union_array_string_bitfield_payload',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave78_union_array_string_bitfield_payload.c',
+        note='wave78: union arrays mixing string and bitfield payload designators should preserve active member values and zero-fill parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave78_designated_override_boundary_checksum',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave78_designated_override_boundary_checksum.c',
+        note='wave78: designated initializer override boundaries across union member views should preserve final byte payload checksums',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave78_string_bitfield_nested_zero_fill',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave78_string_bitfield_nested_zero_fill.c',
+        note='wave78: nested string and bitfield initializers should preserve recursive zero-fill and later subobject byte overrides',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave79_compound_literal_payload_reseed',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave79_compound_literal_payload_reseed.c',
+        note='wave79: compound literal payload reseeds should preserve nested union bytes, recursive zero-fill, and checksum parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave79_designated_override_zero_fill_ladder',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave79_designated_override_zero_fill_ladder.c',
+        note='wave79: designated whole-subobject overrides should preserve last-write payloads, omitted zero-fill, and nested layout checksums',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave79_union_array_bitfield_payload',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave79_union_array_bitfield_payload.c',
+        note='wave79: union arrays mixing string and bitfield payloads should preserve active-member values and zero-fill parity with clang',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave79_nested_payload_ir_seed',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave79_nested_payload_ir_seed.c',
+        note='wave79: nested payload shapes with compound literals and aggregate copies should preserve layout for later bucket 13 IR checks',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave80_nested_union_array_ir_payload_current',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave80_nested_union_array_ir_payload_current.c',
+        note='wave80 current-threshold companion: nested union array payload copies should preserve byte payloads for later bucket 13 IR behavior',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave80_block_scope_compound_literal_return_payload',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave80_block_scope_compound_literal_return_payload.c',
+        note='wave80: block-scope compound literal return-slot copies should preserve later union payload reseeds and zero-fill',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave80_designated_whole_subobject_union_array',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave80_designated_whole_subobject_union_array.c',
+        note='wave80: designated whole-subobject replacement over nested union arrays should preserve final active payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave80_bitfield_payload_checksum_ir_seed_current',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave80_bitfield_payload_checksum_ir_seed_current.c',
+        note='wave80 current-threshold companion: logical bitfield payload checksums should preserve nested aggregate values for later bucket 13 IR payload behavior',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave81_file_scope_compound_literal_pointer',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave81_file_scope_compound_literal_pointer.c',
+        note='wave81: file-scope address-of compound literals should preserve nested designated union payloads',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave81_file_scope_compound_literal_pointer_current',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave81_file_scope_compound_literal_pointer_current.c',
+        note='wave81 current-threshold companion: direct static aggregates preserve the same nested designated union payloads',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave81_union_byte_zero_fill_matrix',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave81_union_byte_zero_fill_matrix.c',
+        note='wave81: nested union raw-byte overlays should retain designated stores and implicit zero-fill',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave81_bitfield_array_member_readback',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave81_bitfield_array_member_readback.c',
+        note='wave81: bitfield array aggregate initializers should retain member values and zero-filled fields',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave81_nested_designated_brace_elision',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave81_nested_designated_brace_elision.c',
+        note='wave81: nested designators and brace elision should agree on aggregate element and zero-fill placement',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave82_static_nested_union_array_overwrite',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave82_static_nested_union_array_overwrite.c',
+        note='wave82: static nested union arrays should retain last-write-wins whole-cell and nested-member designator ordering',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave82_file_scope_array_subobject_addresses',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave82_file_scope_array_subobject_addresses.c',
+        note='wave82: file-scope address constants through nested array subobjects should preserve pointer identity and stores',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave82_file_scope_array_subobject_addresses_current',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave82_file_scope_array_subobject_addresses_current.c',
+        note='wave82 current-threshold companion: direct scalar-array elements preserve file-scope address constants and stores',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave82_nested_layout_offset_alignment',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave82_nested_layout_offset_alignment.c',
+        note='wave82: nested union aggregate initialization should agree with offsetof, size, and alignment readback',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave83_initializer_identity_same_name_shadow',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave83_initializer_identity_same_name_shadow.c',
+        note='wave83: local nested designated union-array initialization should use the exact inner same-name aggregate definition',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave83_initializer_identity_unique_name_control',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave83_initializer_identity_unique_name_control.c',
+        note='wave83 alpha control: the same local nested initializer should retain its layout when the inner aggregate has a unique name',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave84_preserved_typedef_initializer_same_name_shadow',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave84_preserved_typedef_initializer_same_name_shadow.c',
+        note='wave84 strict: a typedef frozen before same-name tag shadowing should preserve its outer aggregate definition for a later designated declaration initializer',
+    ),
+    RuntimeProbe(
+        probe_id='08__probe_runtime_wave84_preserved_typedef_initializer_unique_name_control',
+        source=PROBE_DIR / 'runtime/08__probe_runtime_wave84_preserved_typedef_initializer_unique_name_control.c',
+        note='wave84 alpha control: the same preserved-typedef declaration initializer should match when the inner tag has a unique name',
+    ),
 ]
 
 DIAG_PROBES = [
@@ -1076,5 +1326,28 @@ DIAG_JSON_PROBES = [
         note='reduced threshold: include-header string-too-long initializer diagnostics JSON should emit semantic payload',
         expected_codes=[2000],
         inputs=[PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.c', PROBE_DIR / 'diagnostics/08__probe_diag_line_directive_include_string_too_long_spelling_reject.h'],
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_wave85_diagjson_factory_fnptr_array_initializer_tag_same_name_strict',
+        source=PROBE_DIR / 'diagnostics/08__probe_wave85_diagjson_factory_fnptr_array_initializer_tag_same_name.c',
+        note='wave85 strict: an array element initializer must reject a typedef-wrapped factory whose returned callback captures a distinct same-spelled aggregate tag',
+        expected_codes=[2000],
+        expected_line=18816,
+        fisics_env={'DISABLE_CODEGEN': '1'},
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_wave85_diagjson_factory_fnptr_array_initializer_tag_alpha_name_strict',
+        source=PROBE_DIR / 'diagnostics/08__probe_wave85_diagjson_factory_fnptr_array_initializer_tag_alpha_name.c',
+        note='wave85 alpha control: renaming the nested callback parameter tag must preserve the incompatible factory array-element initializer diagnostic',
+        expected_codes=[2000],
+        expected_line=18816,
+        fisics_env={'DISABLE_CODEGEN': '1'},
+    ),
+    DiagnosticJsonProbe(
+        probe_id='08__probe_wave85_diagjson_factory_fnptr_array_initializer_compatible_control_clean',
+        source=PROBE_DIR / 'diagnostics/08__probe_wave85_diagjson_factory_fnptr_array_initializer_compatible_control.c',
+        note='wave85 clean control: typedef-wrapped factories remain compatible as array elements when returned callbacks share one aggregate parameter identity',
+        require_any_diagnostic=False,
+        fisics_env={'DISABLE_CODEGEN': '1'},
     ),
 ]

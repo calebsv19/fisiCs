@@ -1,1 +1,28 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@g = global i32 0, align 4
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @main() {
+entry:
+  %x = alloca i32, align 4
+  %l = alloca i32, align 4
+  store i32 1, ptr %l, align 4
+  %l1 = load volatile i32, ptr %l, align 4
+  store i32 %l1, ptr %x, align 4
+  %x2 = load i32, ptr %x, align 4
+  store volatile i32 %x2, ptr @g, align 4
+  store volatile i32 2, ptr %l, align 4
+  %g = load volatile i32, ptr @g, align 4
+  %x3 = load i32, ptr %x, align 4
+  %addtmp = add i32 %g, %x3
+  %l4 = load volatile i32, ptr %l, align 4
+  %addtmp5 = add i32 %addtmp, %l4
+  ret i32 %addtmp5
+}

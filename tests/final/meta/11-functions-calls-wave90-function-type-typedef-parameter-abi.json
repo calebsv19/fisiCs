@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave90_function_type_typedef_factory_explicit_all_fisics",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave90_function_type_typedef_factory_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave90_function_type_typedef_factory_main.c",
+        "probes/runtime/11__probe_wave90_function_type_typedef_factory_explicit_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave90_function_type_typedef_factory.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "clang_args": ["-pedantic-errors", "-Wall", "-Wextra"],
+      "standard": "c99",
+      "tags": [
+        "functions-calls",
+        "function-type-typedef",
+        "parameter-adjustment",
+        "nested-factory",
+        "explicit-function-pointer",
+        "multitu",
+        "runtime",
+        "strict-regression",
+        "wave90"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave90_function_type_typedef_factory_mixed_clang_callee",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave90_function_type_typedef_factory_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave90_function_type_typedef_factory_main.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/11__probe_wave90_function_type_typedef_factory_explicit_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave90_function_type_typedef_factory.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "clang_args": ["-pedantic-errors", "-Wall", "-Wextra"],
+      "standard": "c99",
+      "tags": [
+        "functions-calls",
+        "function-type-typedef",
+        "parameter-adjustment",
+        "nested-factory",
+        "explicit-function-pointer",
+        "mixed-clang-callee",
+        "runtime",
+        "current-threshold",
+        "wave90"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave90_function_type_typedef_direct_aggregate_control",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave90_function_type_typedef_direct_aggregate_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave90_function_type_typedef_direct_aggregate_main.c",
+        "probes/runtime/11__probe_wave90_function_type_typedef_direct_aggregate_explicit_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave90_function_type_typedef_direct_aggregate.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "clang_args": ["-pedantic-errors", "-Wall", "-Wextra"],
+      "standard": "c99",
+      "tags": [
+        "functions-calls",
+        "function-type-typedef",
+        "parameter-adjustment",
+        "explicit-function-pointer",
+        "aggregate-argument",
+        "large-sret",
+        "multitu",
+        "runtime",
+        "current-threshold",
+        "wave90"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

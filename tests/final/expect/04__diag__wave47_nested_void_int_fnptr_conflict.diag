@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (38031:5): Conflicting types for function
+   Hint: probe_dispatch_void_int
+   Spelling: virtual_decl_wave38_void_int_conflict.c:38031:5

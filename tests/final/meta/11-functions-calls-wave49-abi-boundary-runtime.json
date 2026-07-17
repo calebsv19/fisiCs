@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave49_variadic_fnptr_sret_matrix",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave49_variadic_fnptr_sret_matrix_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave49_variadic_fnptr_sret_matrix_runtime_main.c",
+        "probes/runtime/11__probe_wave49_variadic_fnptr_sret_matrix_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave49_variadic_fnptr_sret_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "fnptr-return", "large-sret", "aggregate-return", "runtime", "strict-regression", "wave49"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave49_returned_callback_aggregate_bridge",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave49_returned_callback_aggregate_bridge_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave49_returned_callback_aggregate_bridge_runtime_main.c",
+        "probes/runtime/11__probe_wave49_returned_callback_aggregate_bridge_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave49_returned_callback_aggregate_bridge.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "callback", "fnptr-return", "aggregate-argument", "aggregate-return", "runtime", "strict-regression", "wave49"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave49_sret_aggregate_arg_callback_chain",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave49_sret_aggregate_arg_callback_chain_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave49_sret_aggregate_arg_callback_chain_runtime_main.c",
+        "probes/runtime/11__probe_wave49_sret_aggregate_arg_callback_chain_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave49_sret_aggregate_arg_callback_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "callback", "large-sret", "aggregate-argument", "aggregate-return", "runtime", "strict-regression", "wave49"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

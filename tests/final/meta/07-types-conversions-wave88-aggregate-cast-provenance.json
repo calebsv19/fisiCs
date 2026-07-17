@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__wave88_line_directive_typedef_union_to_nested_struct_cast_current_operand",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave88_line_directive_typedef_union_to_nested_struct_cast_strict.c",
+      "expects": [
+        "expect/07__wave88_line_directive_typedef_union_to_nested_struct_cast_current_operand.diag",
+        "expect/07__wave88_line_directive_typedef_union_to_nested_struct_cast_current_operand.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "aggregate", "cast", "typedef", "union-to-struct", "nested-struct", "line-directive", "diagnostic-provenance", "current-operand-threshold", "wave88"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave88_line_directive_include_typedef_union_to_nested_struct_cast_current_operand",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave88_line_directive_include_typedef_union_to_nested_struct_cast_strict.c",
+      "expects": [
+        "expect/07__wave88_line_directive_include_typedef_union_to_nested_struct_cast_current_operand.diag",
+        "expect/07__wave88_line_directive_include_typedef_union_to_nested_struct_cast_current_operand.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "aggregate", "cast", "typedef", "union-to-struct", "nested-struct", "include", "line-directive", "diagnostic-provenance", "current-operand-threshold", "wave88"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

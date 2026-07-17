@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_nextbatch_abi_fnptr_small_struct_return",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_nextbatch_abi_fnptr_small_struct_return_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_nextbatch_abi_fnptr_small_struct_return_main.c",
+        "probes/runtime/11__probe_nextbatch_abi_fnptr_small_struct_return_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_nextbatch_abi_fnptr_small_struct_return.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["aggregate-return", "fnptr", "multitu", "runtime", "wave43"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_nextbatch_abi_large_sret_callback_table",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_nextbatch_abi_large_sret_callback_table_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_nextbatch_abi_large_sret_callback_table_main.c",
+        "probes/runtime/11__probe_nextbatch_abi_large_sret_callback_table_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_nextbatch_abi_large_sret_callback_table.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["aggregate-return", "fnptr", "multitu", "runtime", "sret", "wave43"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

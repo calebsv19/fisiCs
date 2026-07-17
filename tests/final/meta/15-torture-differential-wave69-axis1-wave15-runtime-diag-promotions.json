@@ -75,6 +75,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave15_multitu_function_object_alias_three_plan_replay_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [

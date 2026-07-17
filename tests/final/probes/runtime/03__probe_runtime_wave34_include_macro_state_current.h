@@ -1,0 +1,13 @@
+#ifndef FISICS_PROBE_RUNTIME_WAVE34_INCLUDE_MACRO_STATE_CURRENT_H
+#define FISICS_PROBE_RUNTIME_WAVE34_INCLUDE_MACRO_STATE_CURRENT_H
+
+#define W34_CURRENT_CAT2(a, b) a##b
+#define W34_CURRENT_CAT(a, b) W34_CURRENT_CAT2(a, b)
+#define W34_CURRENT_STR2(x) #x
+#define W34_CURRENT_STR(x) W34_CURRENT_STR2(x)
+#define W34_CURRENT_DECL(slot, value) enum { W34_CURRENT_CAT(w34_current_, slot) = value }
+
+#line 2500 "virtual_wave34_include_current_header.h"
+W34_CURRENT_DECL(W34_CURRENT_SLOT, W34_CURRENT_VALUE);
+
+#endif

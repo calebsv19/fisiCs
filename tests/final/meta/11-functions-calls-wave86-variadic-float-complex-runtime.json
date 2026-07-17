@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave86_variadic_float_complex_default_promotion",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave86_variadic_float_complex_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave86_variadic_float_complex.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "va-arg", "float-complex", "default-argument-promotion", "real-float", "double", "runtime", "strict-regression", "wave86"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

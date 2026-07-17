@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave91_typedef_member_array_indirect_all_fisics",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave91_typedef_member_array_indirect_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave91_typedef_member_array_indirect_main.c",
+        "probes/runtime/11__probe_wave91_typedef_member_array_indirect_explicit_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave91_typedef_member_array_indirect.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "clang_args": ["-pedantic-errors", "-Wall", "-Wextra"],
+      "standard": "c99",
+      "tags": [
+        "functions-calls",
+        "array-parameter-adjustment",
+        "function-type-typedef",
+        "function-pointer-typedef",
+        "typedef-array-member",
+        "struct-member-indirect-call",
+        "large-aggregate-return",
+        "multitu",
+        "runtime",
+        "strict-regression",
+        "wave91"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave91_typedef_member_array_indirect_mixed_clang_callee",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave91_typedef_member_array_indirect_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave91_typedef_member_array_indirect_main.c"
+      ],
+      "mixed_clang_inputs": [
+        "probes/runtime/11__probe_wave91_typedef_member_array_indirect_explicit_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave91_typedef_member_array_indirect.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "clang_args": ["-pedantic-errors", "-Wall", "-Wextra"],
+      "standard": "c99",
+      "tags": [
+        "functions-calls",
+        "array-parameter-adjustment",
+        "function-type-typedef",
+        "function-pointer-typedef",
+        "typedef-array-member",
+        "struct-member-indirect-call",
+        "large-aggregate-return",
+        "mixed-clang-callee",
+        "runtime",
+        "strict-regression",
+        "wave91"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

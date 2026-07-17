@@ -52,6 +52,7 @@
     },
     {
       "id": "03__variadic_macro",
+      "expect_compile_exit": 1,
       "bucket": "preprocessor",
       "input": "cases/03__variadic_macro.c",
       "expects": [
@@ -302,6 +303,7 @@
     },
     {
       "id": "03__macro_paste_expand",
+      "expect_compile_exit": 1,
       "bucket": "preprocessor",
       "input": "cases/03__macro_paste_expand.c",
       "expects": [

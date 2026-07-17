@@ -1,0 +1,61 @@
+{
+  "diag_count": 3,
+  "diagnostics": [
+    {
+      "category_id": 1,
+      "category_name": "analysis",
+      "code": 1,
+      "code_id": 1,
+      "code_name": "generic",
+      "column": 28,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 4,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "unknown"
+    },
+    {
+      "category_id": 1,
+      "category_name": "analysis",
+      "code": 1,
+      "code_id": 1,
+      "code_name": "generic",
+      "column": 1,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 1,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "unknown"
+    },
+    {
+      "category_id": 4,
+      "category_name": "preprocessor",
+      "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
+      "column": 0,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 1,
+      "line": 0,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "preprocess"
+    }
+  ],
+  "error_count": 3,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

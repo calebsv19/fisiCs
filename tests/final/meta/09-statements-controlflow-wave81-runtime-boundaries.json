@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__wave81_nested_switch_default_label_mesh",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave81_nested_switch_default_label_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave81_nested_switch_default_label_mesh.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested-switch", "default", "label", "goto", "wave81"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave81_goto_loop_latch_vla_exit",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave81_goto_loop_latch_vla_exit.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave81_goto_loop_latch_vla_exit.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "goto", "loop", "vla", "scope-exit", "wave81"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave81_switch_fallthrough_continue_break_boundary",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave81_switch_fallthrough_continue_break_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave81_switch_fallthrough_continue_break_boundary.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "fallthrough", "continue", "break", "loop", "wave81"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave81_case_default_ordering_ladder",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave81_case_default_ordering_ladder.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave81_case_default_ordering_ladder.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "case-order", "default", "fallthrough", "goto", "wave81"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

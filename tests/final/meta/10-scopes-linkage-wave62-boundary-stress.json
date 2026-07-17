@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__wave62_multitu_tentative_block_extern_shadow",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave62_multitu_tentative_block_extern_shadow_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave62_multitu_tentative_block_extern_shadow_main.c",
+        "probes/runtime/10__probe_runtime_wave62_multitu_tentative_block_extern_shadow_lib.c",
+        "probes/runtime/10__probe_runtime_wave62_multitu_tentative_block_extern_shadow_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave62_multitu_tentative_block_extern_shadow.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "reference_args": ["-fcommon"],
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "tentative-definition",
+        "block-scope",
+        "extern",
+        "shadowing",
+        "wave62"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave62_internal_external_partition_block_extern",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave62_internal_external_partition_block_extern_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave62_internal_external_partition_block_extern_main.c",
+        "probes/runtime/10__probe_runtime_wave62_internal_external_partition_block_extern_lib.c",
+        "probes/runtime/10__probe_runtime_wave62_internal_external_partition_block_extern_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave62_internal_external_partition_block_extern.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "internal-linkage",
+        "external-linkage",
+        "block-scope",
+        "extern",
+        "shadowing",
+        "wave62"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

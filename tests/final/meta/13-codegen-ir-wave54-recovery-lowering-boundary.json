@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__ir_reject_wave54_if_missing_condition_then_aggregate_return",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_wave54_if_missing_rparen_then_aggregate_return.c",
+      "expects": [
+        "expect/13__ir_reject_wave54_if_missing_condition_then_aggregate_return.diag",
+        "expect/13__ir_reject_wave54_if_missing_condition_then_aggregate_return.pdiag"
+      ],
+      "tags": ["ir", "negative", "parser-recovery", "aggregate-return", "lowering-boundary", "wave54"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_wave54_for_missing_semicolon_then_union_switch",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_wave54_for_missing_semicolon_then_union_switch.c",
+      "expects": [
+        "expect/13__ir_reject_wave54_for_missing_semicolon_then_union_switch.diag",
+        "expect/13__ir_reject_wave54_for_missing_semicolon_then_union_switch.pdiag"
+      ],
+      "tags": ["ir", "negative", "parser-recovery", "union", "switch", "lowering-boundary", "wave54"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__ir_reject_wave54_switch_missing_rparen_then_loop_copy",
+      "bucket": "codegen-ir",
+      "input": "cases/13__ir_reject_wave54_switch_missing_rparen_then_loop_copy.c",
+      "expects": [
+        "expect/13__ir_reject_wave54_switch_missing_rparen_then_loop_copy.diag",
+        "expect/13__ir_reject_wave54_switch_missing_rparen_then_loop_copy.pdiag"
+      ],
+      "tags": ["ir", "negative", "parser-recovery", "aggregate-copy", "loop", "lowering-boundary", "wave54"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

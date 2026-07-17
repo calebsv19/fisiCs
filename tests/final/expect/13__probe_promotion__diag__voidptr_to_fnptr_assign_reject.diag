@@ -1,3 +1,3 @@
 Diagnostics:
 Error at (8:5): Incompatible assignment operands
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_voidptr_to_fnptr_assign_reject.c:8:5
+   Spelling: tests/final/probes/diagnostics/13__probe_voidptr_to_fnptr_assign_reject.c:8:5

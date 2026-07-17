@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime_wave25_array_member_decay_compound",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave25_array_member_decay_compound_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave25_array_member_decay_compound.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave25", "array-member", "decay", "addressability", "compound-assign", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave25_nested_union_member_address",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave25_nested_union_member_address_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave25_nested_union_member_address.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave25", "nested-union", "selected-member", "addressability", "compound-assign", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime_wave25_conditional_pointer_member_address",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave25_conditional_pointer_member_address_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave25_conditional_pointer_member_address.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave25", "conditional-pointer", "selected-member", "addressability", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__diag__wave25_comma_selected_member_postinc_reject",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/diagnostics/06__probe_wave25_comma_selected_member_postinc_reject.c",
+      "expects": ["expect/06__diag__wave25_comma_selected_member_postinc_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "diag", "wave25", "line-directive", "comma", "selected-member", "postincrement", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

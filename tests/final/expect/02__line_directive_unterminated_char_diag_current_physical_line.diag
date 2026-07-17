@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Unterminated character literal at virtual_lexer_unterminated_char_case.c:991:14 (got ''')

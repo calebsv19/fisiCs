@@ -141,8 +141,8 @@ Recovery points and diagnostic quality for IDE usability.
 
 ## Promotion Audit Closure
 
-As of 2026-06-02, bucket `12` is closed against the resolved-probe promotion
-audit. The stable final inventory contains `165` bucket tests, including the
+As of 2026-07-14, bucket `12` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `267` bucket tests, including the
 probe-backed closure shard
 `tests/final/meta/12-diagnostics-recovery-wave25-probe-promotion-audit-closure.json`.
 
@@ -151,7 +151,7 @@ diagnostics for parser recovery, line-remapped statement-shape failures, and
 constraint diagnostics, plus `7` diagnostics JSON exports for parser recovery
 cases. Because several bucket `12` probe-only threshold records share those
 exact probe sources, the refreshed audit now classifies them as represented
-stable coverage too. Bucket `12` reports `promoted=123`, `probe_only=0`, and
+stable coverage too. Bucket `12` reports `promoted=247`, `probe_only=0`, and
 `missing_promotion_candidate=0`.
 
 ## Open Gaps (Tracked)

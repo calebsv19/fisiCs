@@ -1,7 +1,7 @@
 Diagnostics:
 Error at (1:23): Invalid use of static storage class in parameter declaration
    Hint: value
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_param_static_nonarray_reject.c:1:23
+   Spelling: tests/final/probes/diagnostics/04__probe_param_static_nonarray_reject.c:1:23
 Error at (6:12): Undeclared identifier
    Hint: choose
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_param_static_nonarray_reject.c:6:12
+   Spelling: tests/final/probes/diagnostics/04__probe_param_static_nonarray_reject.c:6:12

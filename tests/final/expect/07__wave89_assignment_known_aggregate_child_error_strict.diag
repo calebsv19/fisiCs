@@ -1,0 +1,6 @@
+Diagnostics:
+Error at (13:22): Undeclared identifier
+   Hint: wave89_missing_aggregate
+   Spelling: tests/final/probes/diagnostics/07__probe_wave89_assignment_known_aggregate_child_error_strict.c:13:22
+Error at (13:5): Incompatible assignment operands
+   Spelling: tests/final/probes/diagnostics/07__probe_wave89_assignment_known_aggregate_child_error_strict.c:13:5

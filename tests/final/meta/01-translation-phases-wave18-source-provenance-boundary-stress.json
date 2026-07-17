@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave18_spliced_line_directive_adjacent",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave18_spliced_line_directive_adjacent.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave18_spliced_line_directive_adjacent.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "line-splice", "comment", "adjacent-string", "__FILE__", "__LINE__", "source-provenance", "wave18", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave18_include_reentry_source_stack",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave18_include_reentry_source_stack.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave18_include_reentry_source_stack.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "include-reentry", "nested-include", "source-resumption", "source-provenance", "wave18", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave18_macro_file_line_paste",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave18_macro_file_line_paste.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave18_macro_file_line_paste.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "macro-filename", "token-paste", "stringize", "__FILE__", "__LINE__", "source-provenance", "wave18", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave18_comment_adjacent_source_map",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave18_comment_adjacent_source_map.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave18_comment_adjacent_source_map.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "comment", "adjacent-string", "__FILE__", "__LINE__", "source-provenance", "wave18", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

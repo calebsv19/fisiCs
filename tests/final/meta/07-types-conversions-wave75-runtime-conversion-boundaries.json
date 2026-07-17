@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_wave75_aggregate_callback_member_cast_grid",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave75_aggregate_callback_member_cast_grid_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave75_aggregate_callback_member_cast_grid.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "aggregate",
+        "member-access",
+        "callback",
+        "runtime",
+        "strict",
+        "wave75",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave75_pointer_member_void_stride",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave75_pointer_member_void_stride_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave75_pointer_member_void_stride.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "array-decay",
+        "void-pointer",
+        "runtime",
+        "strict",
+        "wave75",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave75_fnptr_conversion_dispatch_grid",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave75_fnptr_conversion_dispatch_grid_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave75_fnptr_conversion_dispatch_grid.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "function-pointer",
+        "conditional",
+        "runtime",
+        "strict",
+        "wave75",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_wave75_arithmetic_pointer_conversion_mesh",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_wave75_arithmetic_pointer_conversion_mesh_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_wave75_arithmetic_pointer_conversion_mesh.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "arithmetic",
+        "pointer",
+        "runtime",
+        "strict",
+        "wave75",
+        "probe-worker"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

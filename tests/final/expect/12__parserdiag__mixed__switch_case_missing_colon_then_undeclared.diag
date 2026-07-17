@@ -1,16 +1,12 @@
 Diagnostics:
 Error at (5:17): Undeclared identifier
    Hint: missing
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:5:17
-Error at (5:13): Incompatible assignment operands
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:5:13
+   Spelling: tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:5:17
 Error at (6:13): Break statement not within loop or switch
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:6:13
+   Spelling: tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:6:13
 Error at (9:13): Break statement not within loop or switch
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:9:13
+   Spelling: tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:9:13
 Error at (11:12): Undeclared identifier
    Hint: x
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:11:12
+   Spelling: tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:11:12
 Warning at (9:0): Unreachable statement
-Error at (1:5): Control reaches end of non-void function 'main'
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/12__parserdiag__mixed__switch_case_missing_colon_then_undeclared.c:1:5

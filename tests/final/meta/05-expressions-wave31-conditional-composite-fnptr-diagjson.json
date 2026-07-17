@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__wave31_no_prototype_float_complex_conditional_left_arity_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave31_diagjson_no_prototype_float_complex_conditional_left_arity.c",
+      "expects": ["expect/05__wave31_no_prototype_float_complex_conditional_left_arity.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "conditional", "function-pointer", "composite-type", "no-prototype", "float-complex", "prototype-preservation", "call-arity", "operand-order", "diagjson", "clang-pedantic-oracle", "wave31", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave31_no_prototype_float_complex_conditional_right_arity_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave31_diagjson_no_prototype_float_complex_conditional_right_arity.c",
+      "expects": ["expect/05__wave31_no_prototype_float_complex_conditional_right_arity.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "conditional", "function-pointer", "composite-type", "no-prototype", "float-complex", "prototype-preservation", "call-arity", "reverse-operand-order", "diagjson", "clang-pedantic-oracle", "wave31", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave31_no_prototype_real_float_conditional_strict_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave31_diagjson_no_prototype_real_float_conditional_strict.c",
+      "expects": ["expect/05__wave31_no_prototype_real_float_conditional_strict.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "conditional", "function-pointer", "no-prototype", "real-float", "default-argument-promotions", "incompatible-types", "void-consumer", "diagjson", "clang-pedantic-oracle", "wave31", "strict-control"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__wave31_no_prototype_double_complex_conditional_clean_diagjson",
+      "bucket": "expressions",
+      "input": "probes/diagnostics/05__probe_wave31_diagjson_no_prototype_double_complex_conditional_clean.c",
+      "expects": ["expect/05__wave31_no_prototype_double_complex_conditional_clean.diagjson"],
+      "standard": "c99",
+      "tags": ["expressions", "conditional", "function-pointer", "composite-type", "no-prototype", "double-complex", "prototype-preservation", "consumed-call", "diagjson", "clang-pedantic-oracle", "wave31", "clean-control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

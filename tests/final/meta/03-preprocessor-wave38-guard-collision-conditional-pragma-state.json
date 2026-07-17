@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave38_guard_collision_state",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave38_guard_collision_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave38_guard_collision_state.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include-guard", "guard-collision", "macro-state", "runtime", "wave38"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave38_guard_reopen_state",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave38_guard_reopen_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave38_guard_reopen_state.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include-guard", "guard-reopen", "macro-state", "runtime", "wave38"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave38_pragma_once_nested_state",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave38_pragma_once_nested_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave38_pragma_once_nested_state.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "pragma-once", "nested-conditional", "include-state", "runtime", "wave38"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

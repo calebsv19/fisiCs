@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__diag__wave30_bad_param_decl_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_bad_param_decl_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diag__wave30_bad_param_decl_then_undeclared_followup.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diag", "parser-recovery", "declaration", "semantic-followup", "wave30"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave30_bad_param_decl_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_bad_param_decl_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave30_bad_param_decl_then_undeclared_followup.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["diagjson", "parser-recovery", "declaration", "semantic-followup", "wave30"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave30_bad_array_declarator_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_bad_array_declarator_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diag__wave30_bad_array_declarator_then_undeclared_followup.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diag", "parser-recovery", "declaration", "semantic-followup", "wave30"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave30_bad_array_declarator_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_bad_array_declarator_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave30_bad_array_declarator_then_undeclared_followup.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["diagjson", "parser-recovery", "declaration", "semantic-followup", "wave30"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diag__wave30_bad_binary_expr_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_bad_binary_expr_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diag__wave30_bad_binary_expr_then_undeclared_followup.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diag", "parser-recovery", "expression", "semantic-followup", "wave30"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave30_bad_binary_expr_then_undeclared_followup",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_bad_binary_expr_then_undeclared_followup.c",
+      "expects": [
+        "expect/12__diagjson__wave30_bad_binary_expr_then_undeclared_followup.diagjson"
+      ],
+      "standard": "c99",
+      "tags": ["diagjson", "parser-recovery", "expression", "semantic-followup", "wave30"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

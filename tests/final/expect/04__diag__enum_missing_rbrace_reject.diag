@@ -1,2 +1,2 @@
 Diagnostics:
-Error: Expected ',' or '}' after enum member at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_enum_missing_rbrace_reject.c:3 (got ';')
+Error: Expected ',' or '}' after enum member at tests/final/probes/diagnostics/04__probe_enum_missing_rbrace_reject.c:3 (got ';')

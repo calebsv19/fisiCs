@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave33_expr_hole_followup.c:12331 (got ')')
+Error at (12331:18): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave33_expr_hole_followup.c:12331:18
+Error at (12332:16): Undeclared identifier
+   Hint: wave33_expr_followup_missing
+   Spelling: virtual_wave33_expr_hole_followup.c:12332:16

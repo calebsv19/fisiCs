@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime_policy_strict_nextbatch_conditional_pointer_null_void",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_nextbatch_conditional_pointer_null_void_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_nextbatch_conditional_pointer_null_void.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "conditional",
+        "runtime",
+        "strict",
+        "wave24",
+        "nextbatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_nextbatch_array_fn_decay_ternary_call",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_nextbatch_array_fn_decay_ternary_call_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_nextbatch_array_fn_decay_ternary_call.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "array-decay",
+        "function-pointer",
+        "conditional",
+        "runtime",
+        "strict",
+        "wave24",
+        "nextbatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__runtime_policy_strict_nextbatch_one_past_conditional_compare",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_policy_strict_nextbatch_one_past_conditional_compare_runtime.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/07__runtime_policy_strict_nextbatch_one_past_conditional_compare.stdout",
+      "differential": true,
+      "differential_compiler": "gcc",
+      "standard": "c99",
+      "tags": [
+        "semantic",
+        "conversion",
+        "pointer",
+        "ptrdiff",
+        "conditional",
+        "runtime",
+        "strict",
+        "wave24",
+        "nextbatch"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

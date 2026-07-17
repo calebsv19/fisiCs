@@ -171,6 +171,9 @@
       "expects": [
         "expect/15__diagjson__axis1_wave3_multitu_duplicate_tentative_matrix_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 0,
+      "allow_empty_diag_json": true,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -196,6 +199,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave3_multitu_duplicate_tentative_matrix_current_empty.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 0,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -222,6 +227,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave4_multitu_function_data_symbol_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -248,6 +255,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave5_multitu_duplicate_initialized_global_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -274,6 +283,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave5_multitu_duplicate_tentative_split_current.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 0,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -301,6 +312,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave6_multitu_function_object_alias_partition_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [

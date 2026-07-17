@@ -1,0 +1,4 @@
+Diagnostics:
+Error: Invalid function parameter list at virtual_probe_fn_multitu_parserdiag_decl_missing_rparen_main.c:13501 (got ';')
+Error: invalid declarator at virtual_probe_fn_multitu_parserdiag_decl_missing_rparen_main.c:13501 (got ';')
+Error: compilation failed for tests/final/probes/diagnostics/11__probe_diagjson_line_directive_multitu_parserdiag_decl_missing_rparen_presence.c

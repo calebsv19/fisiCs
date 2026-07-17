@@ -27,6 +27,7 @@
     },
     {
       "id": "12__line_directive_for_missing_rparen_diag_text_parser_parity",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__line_directive_for_missing_rparen_diag_text_parser_parity.c",
       "expects": [
@@ -38,6 +39,7 @@
     },
     {
       "id": "12__line_directive_include_for_missing_rparen_diag_text_parser_parity",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__line_directive_include_for_missing_rparen_diag_text_parser_parity.c",
       "expects": [

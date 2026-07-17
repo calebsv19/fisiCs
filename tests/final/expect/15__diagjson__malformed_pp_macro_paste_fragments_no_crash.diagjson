@@ -17,14 +17,14 @@
       "macro_trace": [
         {
           "column": 12,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c",
+          "file": "tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c",
           "line": 4,
           "macro": "PICK",
           "role": "call_site"
         },
         {
           "column": 1,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c",
+          "file": "tests/final/cases/15__torture__malformed_pp_macro_paste_fragments_no_crash.c",
           "line": 1,
           "macro": "PICK",
           "role": "definition"

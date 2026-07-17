@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (3108:6): Left operand of '+=' must be a modifiable lvalue
+   Spelling: virtual_lv_nextbatch_conditional_compound_member_lvalue.c:3108:6

@@ -1,0 +1,5 @@
+Diagnostics:
+Error: Expected ')' after sizeof(type) at virtual_wave42_sizeof_type_missing_rparen.c:14243 (got ';')
+Error at (14244:12): Undeclared identifier
+   Hint: wave42_tail_missing
+   Spelling: virtual_wave42_sizeof_type_missing_rparen.c:14244:12

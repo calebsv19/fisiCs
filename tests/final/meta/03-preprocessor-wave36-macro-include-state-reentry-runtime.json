@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave36_nested_guard_reentry_state",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave36_nested_guard_reentry_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave36_nested_guard_reentry_state.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include-guard", "nested-include", "macro-state", "inactive-diagnostic", "runtime", "wave36"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave36_include_return_redefine_state",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave36_include_return_redefine_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave36_include_return_redefine_state.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include", "macro-undef", "macro-redefine", "macro-state", "runtime", "wave36"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave36_token_paste_stringize_line_map",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave36_token_paste_stringize_line_map.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave36_token_paste_stringize_line_map.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "token-paste", "stringize", "line-map", "runtime", "wave36"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave36_inactive_conditional_macro_noise",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave36_inactive_conditional_macro_noise.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave36_inactive_conditional_macro_noise.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "inactive-conditional", "macro-state", "include", "runtime", "wave36"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

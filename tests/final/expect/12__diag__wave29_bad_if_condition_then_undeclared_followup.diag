@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_if_condition_then_undeclared_followup.c:3 (got ')')
+Error at (3:9): Operator '>' requires comparable operands
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_if_condition_then_undeclared_followup.c:3:9
+Error at (6:20): Undeclared identifier
+   Hint: follow_on_after_bad_if_condition
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_if_condition_then_undeclared_followup.c:6:20

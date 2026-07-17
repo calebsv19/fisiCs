@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Invalid escape in string literal at virtual_lexer_string_escape_probe_current.c:941:21 (got '\q')

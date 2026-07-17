@@ -88,8 +88,8 @@ Function types, parameter adjustments, and call checking.
 
 ## Promotion Audit Closure
 
-As of 2026-06-02, bucket `11` is closed against the resolved-probe promotion
-audit. The stable final inventory contains `153` bucket tests, including the
+As of 2026-07-14, bucket `11` is closed against the resolved-probe promotion
+audit. The stable final inventory contains `296` bucket tests, including the
 probe-backed closure shard
 `tests/final/meta/11-functions-calls-wave41-probe-promotion-audit-closure.json`.
 
@@ -100,10 +100,14 @@ function-type adjustment, small-struct by-value multi-TU ABI, and clang-built
 external callee ABI bridges. The final harness supports
 `mixed_clang_inputs` for those external bridge cases so the stable final suite
 preserves the same probe semantics instead of collapsing them into same-compiler
-multi-TU coverage. The refreshed audit reports bucket `11` at `promoted=59`,
-`probe_only=42`, and `missing_promotion_candidate=0`.
+multi-TU coverage. Later manifests and equivalent-owner mappings complete the
+remaining ownership set. The refreshed audit reports bucket `11` at
+`promoted=241`, `probe_only=0`, and `missing_promotion_candidate=0`.
 
 ## Probe Backlog
 - No open promotion candidates remain in this bucket at the current baseline.
-- The remaining `42` resolved probes are explicitly classified as probe-only
-  control / frontier / reduced-threshold coverage by the promotion audit.
+- No bucket-11 probe-only ownership remains at the current baseline.
+- Two promoted multi-TU missing-`)` parser-diagnostic controls currently pin
+  the compiler's exit-`0` behavior explicitly; converting emitted parser errors
+  to a consistent nonzero driver exit is the next logic boundary, not a reason
+  to weaken their text oracles.

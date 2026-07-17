@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__wave41_multitu_clean_then_bad_provenance",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave41_multitu_failure_main.c",
+      "inputs": [
+        "probes/diagnostics/12__probe_wave41_multitu_failure_main.c",
+        "probes/diagnostics/12__probe_wave41_multitu_parser_semantic_bad.c"
+      ],
+      "expects": [
+        "expect/12__diag__wave41_multitu_parser_semantic_failure.diag",
+        "expect/12__pdiag__wave41_multitu_parser_semantic_failure.pdiag",
+        "expect/12__diagjson__wave41_multitu_parser_semantic_failure.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "link": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "multitu", "parser-recovery", "semantic-hard-error", "line-directive", "provenance", "fail-closed", "clean-then-bad", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__wave41_multitu_bad_then_clean_provenance",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave41_multitu_parser_semantic_bad.c",
+      "inputs": [
+        "probes/diagnostics/12__probe_wave41_multitu_parser_semantic_bad.c",
+        "probes/diagnostics/12__probe_wave41_multitu_failure_main.c"
+      ],
+      "expects": [
+        "expect/12__diag__wave41_multitu_parser_semantic_failure.diag",
+        "expect/12__pdiag__wave41_multitu_parser_semantic_failure.pdiag",
+        "expect/12__diagjson__wave41_multitu_parser_semantic_failure.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "link": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "multitu", "parser-recovery", "semantic-hard-error", "line-directive", "provenance", "fail-closed", "bad-then-clean", "wave41"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__runtime__wave41_multitu_repaired_control",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/runtime/12__probe_wave41_multitu_repaired_main.c",
+      "inputs": [
+        "probes/runtime/12__probe_wave41_multitu_repaired_main.c",
+        "probes/runtime/12__probe_wave41_multitu_repaired_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/12__runtime__wave41_multitu_repaired_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "multitu", "repaired", "non-vacuous-control", "runtime", "differential", "wave41"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "category_id": 3,
+      "category_name": "semantic",
+      "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
+      "column": 12,
+      "file": "virtual_wave87_multitu_no_prototype_real_float_lib.c",
+      "has_file": true,
+      "has_hint": true,
+      "has_message": true,
+      "hint": "Previous definition at virtual_wave87_multitu_no_prototype_real_float_main.c:19701:5",
+      "kind": 0,
+      "length": 1,
+      "line": 19751,
+      "message": "Conflicting types for function 'wave87_real_float' across translation units",
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
+    }
+  ],
+  "error_count": 1,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

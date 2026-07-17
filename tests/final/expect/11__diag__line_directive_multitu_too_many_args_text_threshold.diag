@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (13304:12): Too many arguments in call to 'probe_mt_add1' (expected 1, got 2)
+Error: compilation failed for tests/final/probes/diagnostics/11__probe_diagjson_line_directive_multitu_too_many_args_file_presence.c

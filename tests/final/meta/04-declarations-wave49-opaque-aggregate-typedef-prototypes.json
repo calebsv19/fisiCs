@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave49_opaque_aggregate_typedef_prototype",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave49_opaque_aggregate_typedef_prototype_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "opaque-aggregate", "prototype-scope", "tag-identity", "real-project", "map-forge", "runtime", "wave49"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

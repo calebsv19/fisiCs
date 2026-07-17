@@ -1,4 +1,4 @@
 Diagnostics:
-Warning: unrecognized input extension for /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/11__probe_diag_line_directive_include_nonvoid_missing_return_text_strict.h
+Warning: unrecognized input extension for tests/final/probes/diagnostics/11__probe_diag_line_directive_include_nonvoid_missing_return_text_strict.h
 Error at (7601:5): Control reaches end of non-void function 'f_inc_text'
    Spelling: virtual_fn_include_nonvoid_missing_return_probe_diag_text.h:7601:5

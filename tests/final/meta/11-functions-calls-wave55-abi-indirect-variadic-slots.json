@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave55_typedef_callback_compact_aggregate",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave55_typedef_callback_compact_aggregate_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave55_typedef_callback_compact_aggregate_runtime_main.c",
+        "probes/runtime/11__probe_wave55_typedef_callback_compact_aggregate_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave55_typedef_callback_compact_aggregate.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "typedef", "callback", "compact-aggregate", "aggregate-return", "runtime", "strict-regression", "wave55"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave55_variadic_fixed_aggregate_mixed_slots",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave55_variadic_fixed_aggregate_mixed_slots_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave55_variadic_fixed_aggregate_mixed_slots_runtime_main.c",
+        "probes/runtime/11__probe_wave55_variadic_fixed_aggregate_mixed_slots_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave55_variadic_fixed_aggregate_mixed_slots.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "fixed-aggregate", "mixed-slots", "aggregate-argument", "runtime", "strict-regression", "wave55"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave55_nested_indirect_factory_contract",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave55_nested_indirect_factory_contract_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave55_nested_indirect_factory_contract_runtime_main.c",
+        "probes/runtime/11__probe_wave55_nested_indirect_factory_contract_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave55_nested_indirect_factory_contract.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr-return", "nested-indirect", "aggregate-return", "multitu", "runtime", "strict-regression", "wave55"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

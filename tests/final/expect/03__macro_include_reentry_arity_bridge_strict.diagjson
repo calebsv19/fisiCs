@@ -1,0 +1,43 @@
+{
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "category_id": 4,
+      "category_name": "preprocessor",
+      "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
+      "column": 42,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 14,
+      "line": 430,
+      "macro_trace": [
+        {
+          "column": 42,
+          "file": "virtual_macro_reentry_header.h",
+          "line": 430,
+          "macro": "REENTRY_TRIAD",
+          "role": "call_site"
+        },
+        {
+          "column": 1,
+          "file": "tests/final/probes/diagnostics/03__probe_macro_include_reentry_arity_bridge.h",
+          "line": 2,
+          "macro": "REENTRY_TRIAD",
+          "role": "definition"
+        }
+      ],
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "preprocess"
+    }
+  ],
+  "error_count": 1,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__wave66_function_designator_conditional_same_name_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave66_diagjson_function_designator_conditional_same_name.c",
+      "expects": ["expect/11__wave66_function_designator_conditional_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "function-designator", "conditional-expression", "parameter-type", "aggregate-identity", "same-name", "line-directive", "diagjson", "strict-regression", "wave66"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave66_function_designator_conditional_alpha_name_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave66_diagjson_function_designator_conditional_alpha_name.c",
+      "expects": ["expect/11__wave66_function_designator_conditional_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "function-designator", "conditional-expression", "parameter-type", "aggregate-identity", "alpha-control", "line-directive", "diagjson", "strict-regression", "wave66"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave66_function_designator_conditional_compatible_diagjson_clean",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave66_diagjson_function_designator_conditional_compatible_control.c",
+      "expects": ["expect/11__wave66_function_designator_conditional_diagjson_clean.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "function-designator", "conditional-expression", "parameter-type", "aggregate-identity", "clean-control", "line-directive", "diagjson", "wave66"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

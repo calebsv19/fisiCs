@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_units_surface_aggregate_return_designated",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_units_runtime_surface_aggregate_return_designated.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_units_surface_aggregate_return_designated.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["runtime", "14", "physics", "units", "overlay", "aggregate", "struct-return", "designated-init", "wave328"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_units_surface_aggregate_array_slots",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_units_runtime_surface_aggregate_array_slots.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_units_surface_aggregate_array_slots.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["runtime", "14", "physics", "units", "overlay", "aggregate", "array-slot", "assignment", "wave328"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_units_surface_aggregate_compound_literal",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_units_runtime_surface_aggregate_compound_literal.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_units_surface_aggregate_compound_literal.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "args": ["--overlay=physics-units"],
+      "tags": ["runtime", "14", "physics", "units", "overlay", "aggregate", "compound-literal", "array-init", "wave328"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,3 +1,3 @@
 Diagnostics:
 Error at (2:14): Incompatible initializer type for 'p'
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/07__conv__pointer_init_nonzero_int_reject.c:2:14
+   Spelling: tests/final/cases/07__conv__pointer_init_nonzero_int_reject.c:2:14

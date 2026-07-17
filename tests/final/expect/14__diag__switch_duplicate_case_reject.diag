@@ -1,5 +1,5 @@
 Diagnostics:
 Error at (8:14): Duplicate case label with value 1
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/14__diag__switch_duplicate_case_reject.c:8:14
+   Spelling: tests/final/cases/14__diag__switch_duplicate_case_reject.c:8:14
 Warning at (5:14): Previous case label with same value here
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/14__diag__switch_duplicate_case_reject.c:5:14
+   Spelling: tests/final/cases/14__diag__switch_duplicate_case_reject.c:5:14

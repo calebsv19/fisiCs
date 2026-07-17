@@ -1,23 +1,6 @@
 {
-  "diag_count": 3,
+  "diag_count": 2,
   "diagnostics": [
-    {
-      "category_id": 2,
-      "category_name": "parser",
-      "code": 1000,
-      "code_id": 1000,
-      "code_name": "parser.generic",
-      "column": 1,
-      "has_file": true,
-      "has_hint": false,
-      "has_message": true,
-      "kind": 0,
-      "length": 1,
-      "line": 133303,
-      "severity_id": 2,
-      "severity_name": "error",
-      "stage": "parse"
-    },
     {
       "category_id": 2,
       "category_name": "parser",
@@ -53,7 +36,7 @@
       "stage": "semantic"
     }
   ],
-  "error_count": 3,
+  "error_count": 2,
   "note_count": 0,
   "profile": "fisics_diagnostics_v1",
   "schema_version": 1,

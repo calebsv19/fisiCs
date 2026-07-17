@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__wave84_call_arg_no_proto_expected_float_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave84_diagjson_call_arg_no_proto_expected_float_strict.c",
+      "expects": ["expect/11__wave84_call_arg_no_proto_expected_float.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "call-argument", "function-pointer", "no-prototype", "prototyped", "default-argument-promotion", "float", "destination-no-prototype", "line-directive", "diagjson", "strict-regression", "wave84"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave84_call_arg_float_expected_no_proto_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave84_diagjson_call_arg_float_expected_no_proto_strict.c",
+      "expects": ["expect/11__wave84_call_arg_float_expected_no_proto.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "call-argument", "function-pointer", "no-prototype", "prototyped", "default-argument-promotion", "float", "destination-prototyped", "line-directive", "diagjson", "strict-regression", "wave84"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave84_call_arg_no_proto_expected_double_diagjson_clean",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave84_diagjson_call_arg_no_proto_expected_double_control.c",
+      "expects": ["expect/11__wave84_call_arg_double_controls.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "call-argument", "function-pointer", "no-prototype", "prototyped", "default-argument-promotion", "double", "destination-no-prototype", "line-directive", "diagjson", "clean-control", "wave84"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave84_call_arg_double_expected_no_proto_diagjson_clean",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave84_diagjson_call_arg_double_expected_no_proto_control.c",
+      "expects": ["expect/11__wave84_call_arg_double_controls.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "call-argument", "function-pointer", "no-prototype", "prototyped", "default-argument-promotion", "double", "destination-prototyped", "line-directive", "diagjson", "clean-control", "wave84"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

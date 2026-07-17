@@ -39,16 +39,16 @@ Semantic rules for assignability and addressability.
 ## Promotion Audit Closure
 - Current lvalues/rvalues metadata lives across
   `tests/final/meta/06-lvalues-rvalues*.json`.
-- Current active lvalues/rvalues bucket cases: 55
+- Current active lvalues/rvalues bucket cases: 119
 - Current active lvalues/rvalues bucket result: passing
-- Bucket `06` is closed in the probe-promotion audit at `promoted=12`,
-  `probe_only=44`, and `missing=0`.
+- Bucket `06` is closed in the 2026-07-14 promotion audit at `promoted=120`,
+  `probe_only=0`, and `missing=0`.
 - The final closure shard
   `tests/final/meta/06-lvalues-rvalues-wave12-probe-promotion-audit-closure.json`
   promotes the remaining assignment and nonmodifiable-lvalue line-remap
   `diag` / `diagjson` probe fixtures into stable `make final` coverage.
-- The remaining bucket-06 resolved probes are explicitly classified as
-  probe-only frontier/current-threshold/reduced-threshold lanes by the audit.
+- Equivalent stable owners cover the former frontier/current-threshold/
+  reduced-threshold records; no bucket-06 probe-only ownership remains.
 
 ## Expected Outputs
 - Diagnostics expectations (`.diag`) for invalid cases.

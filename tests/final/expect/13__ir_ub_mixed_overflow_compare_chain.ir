@@ -1,1 +1,48 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @ub_chain(i32 %0) {
+entry:
+  %b = alloca i32, align 4
+  %a = alloca i32, align 4
+  %x = alloca i32, align 4
+  store i32 %0, ptr %x, align 4
+  %x1 = load i32, ptr %x, align 4
+  %x2 = load i32, ptr %x, align 4
+  %addtmp = add i32 %x1, %x2
+  store i32 %addtmp, ptr %a, align 4
+  %a3 = load i32, ptr %a, align 4
+  %x4 = load i32, ptr %x, align 4
+  %subtmp = sub i32 %a3, %x4
+  store i32 %subtmp, ptr %b, align 4
+  %a5 = load i32, ptr %a, align 4
+  %b6 = load i32, ptr %b, align 4
+  %cmptmp = icmp slt i32 %a5, %b6
+  %cmp.int = zext i1 %cmptmp to i32
+  %ifcond = icmp ne i32 %cmp.int, 0
+  br i1 %ifcond, label %then, label %ifcont
+
+then:                                             ; preds = %entry
+  %a7 = load i32, ptr %a, align 4
+  ret i32 %a7
+
+ifcont:                                           ; preds = %entry
+  %b8 = load i32, ptr %b, align 4
+  ret i32 %b8
+}
+
+define i32 @main() {
+entry:
+  %seed = alloca i32, align 4
+  store i32 1073741824, ptr %seed, align 4
+  %seed1 = load volatile i32, ptr %seed, align 4
+  %calltmp = call i32 @ub_chain(i32 %seed1)
+  ret i32 %calltmp
+}

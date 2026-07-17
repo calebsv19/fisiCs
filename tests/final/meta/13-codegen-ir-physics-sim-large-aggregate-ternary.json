@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime__large_aggregate_ternary_initializer_memcpy",
+      "bucket": "codegen-ir",
+      "input": "cases/13__runtime__large_aggregate_ternary_initializer_memcpy.c",
+      "inputs": [
+        "cases/13__runtime__large_aggregate_ternary_initializer_memcpy.c",
+        "cases/13__runtime__large_aggregate_ternary_initializer_memcpy_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime__large_aggregate_ternary_initializer_memcpy.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "codegen-ir",
+        "aggregate",
+        "ternary",
+        "initializer",
+        "large-struct",
+        "physics-sim-stage-g"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

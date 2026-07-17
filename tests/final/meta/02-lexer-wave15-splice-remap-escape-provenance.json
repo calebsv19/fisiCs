@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__wave15_line_splice_char_escape_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave15_line_splice_char_escape_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave15_line_splice_char_escape_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "char-literal",
+        "invalid-escape",
+        "diagjson",
+        "strict",
+        "wave15"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave15_spliced_line_directive_string_escape_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave15_spliced_line_directive_string_escape_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave15_spliced_line_directive_string_escape_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "string-literal",
+        "invalid-escape",
+        "diagjson",
+        "strict",
+        "wave15"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave15_spliced_line_directive_ucn_identifier_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave15_spliced_line_directive_ucn_identifier_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave15_spliced_line_directive_ucn_identifier_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "ucn",
+        "identifier",
+        "diagjson",
+        "strict",
+        "wave15"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave15_include_spliced_invalid_token_diagjson_strict",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave15_include_spliced_invalid_token_diagjson_strict.c",
+      "expects": [
+        "expect/02__wave15_include_spliced_invalid_token_diagjson_strict.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "include",
+        "invalid-character",
+        "diagjson",
+        "strict",
+        "wave15"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

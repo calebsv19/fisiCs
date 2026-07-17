@@ -329,36 +329,6 @@ PROGRAM
   TYPEDEF
         TYPE: unsigned long int
         Alias:     IDENTIFIER uintmax_t
-  TYPEDEF
-        TYPE: int8_t
-        Alias:     IDENTIFIER shim_int8_t
-  TYPEDEF
-        TYPE: int16_t
-        Alias:     IDENTIFIER shim_int16_t
-  TYPEDEF
-        TYPE: int32_t
-        Alias:     IDENTIFIER shim_int32_t
-  TYPEDEF
-        TYPE: int64_t
-        Alias:     IDENTIFIER shim_int64_t
-  TYPEDEF
-        TYPE: uint8_t
-        Alias:     IDENTIFIER shim_uint8_t
-  TYPEDEF
-        TYPE: uint16_t
-        Alias:     IDENTIFIER shim_uint16_t
-  TYPEDEF
-        TYPE: uint32_t
-        Alias:     IDENTIFIER shim_uint32_t
-  TYPEDEF
-        TYPE: uint64_t
-        Alias:     IDENTIFIER shim_uint64_t
-  TYPEDEF
-        TYPE: intptr_t
-        Alias:     IDENTIFIER shim_intptr_t
-  TYPEDEF
-        TYPE: uintptr_t
-        Alias:     IDENTIFIER shim_uintptr_t
   FUNCTION DEFINITION
     RETURN TYPE: int
     IDENTIFIER main

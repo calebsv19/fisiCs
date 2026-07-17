@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (9101:12): Operator '&' requires lvalue operand
+   Spelling: virtual_lv_wave21_conditional_selected_member_address.c:9101:12

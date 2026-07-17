@@ -1,0 +1,5 @@
+Diagnostics:
+Error at (14532:12): Undeclared identifier
+Error: compilation failed for tests/final/probes/diagnostics/12__probe_wave45_dual_bad_beta.c
+Error at (14512:12): Undeclared identifier
+Error: compilation failed for tests/final/probes/diagnostics/12__probe_wave45_dual_bad_alpha.c

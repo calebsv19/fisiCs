@@ -1,7 +1,28 @@
 {
-  "diag_count": 0,
-  "diagnostics": [],
-  "error_count": 0,
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "category_id": 3,
+      "category_name": "semantic",
+      "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
+      "column": 27,
+      "file": "virtual_decl_multitu_typedef_object_conflict_probe_diag_text_lib.c",
+      "has_file": true,
+      "has_hint": true,
+      "has_message": true,
+      "hint": "Previous definition at virtual_decl_multitu_typedef_object_conflict_probe_diag_text_main.c:17002:27",
+      "kind": 0,
+      "length": 1,
+      "line": 17003,
+      "message": "Conflicting types for variable 'wave15_mt_decl_object_conflict' across translation units",
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
+    }
+  ],
+  "error_count": 1,
   "note_count": 0,
   "profile": "fisics_diagnostics_v1",
   "schema_version": 1,

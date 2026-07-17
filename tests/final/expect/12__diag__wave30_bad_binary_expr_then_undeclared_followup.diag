@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_binary_expr_then_undeclared_followup.c:3 (got ';')
+Error at (3:13): Operator '+' requires arithmetic operands
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_binary_expr_then_undeclared_followup.c:3:13
+Error at (4:14): Undeclared identifier
+   Hint: follow_on_after_bad_binary_expr
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_binary_expr_then_undeclared_followup.c:4:14

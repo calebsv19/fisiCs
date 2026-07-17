@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__runtime__wave78_switch_goto_loop_latch",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave78_switch_goto_loop_latch.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave78_switch_goto_loop_latch.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "goto", "loop", "continue", "wave78"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave78_switch_decl_scope_continue",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave78_switch_decl_scope_continue.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave78_switch_decl_scope_continue.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "declaration-scope", "continue", "break", "wave78"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave78_nested_switch_label_mesh",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave78_nested_switch_label_mesh.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave78_nested_switch_label_mesh.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "nested-switch", "label", "goto", "wave78"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__runtime__wave78_switch_for_break_continue_weave",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_runtime_wave78_switch_for_break_continue_weave.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__runtime__wave78_switch_for_break_continue_weave.stdout",
+      "differential": true,
+      "standard": "c99",
+      "tags": ["runtime", "switch", "for-loop", "break", "continue", "wave78"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

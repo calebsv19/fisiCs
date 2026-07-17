@@ -1,0 +1,2 @@
+#include "03__probe_wave32_include_guard_macro_arity_diag.h"
+#include "03__probe_wave32_include_guard_macro_arity_diag.h"

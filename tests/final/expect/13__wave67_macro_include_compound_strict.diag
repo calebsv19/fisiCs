@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6752:12): Undeclared identifier
+   Hint: wave67_missing_value
+   Spelling: virtual_wave67_macro_include_compound.c:6752:12

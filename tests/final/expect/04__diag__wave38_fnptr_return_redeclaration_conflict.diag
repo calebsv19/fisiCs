@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (38005:21): Conflicting types for function
+   Hint: probe_factory
+   Spelling: virtual_decl_wave38_fnptr_return_conflict.c:38005:21

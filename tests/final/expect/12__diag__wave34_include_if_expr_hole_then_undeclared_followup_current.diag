@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave34_include_if_expr_boundary.h:12541 (got ')')
+Error at (12541:9): Operator '>' requires comparable operands
+   Spelling: virtual_wave34_include_if_expr_boundary.h:12541:9
+Error at (12544:12): Undeclared identifier
+   Hint: wave34_include_if_boundary_missing
+   Spelling: virtual_wave34_include_if_expr_boundary.h:12544:12

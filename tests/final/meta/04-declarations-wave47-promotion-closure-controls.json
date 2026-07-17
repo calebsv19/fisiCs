@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave47_nested_void_oldstyle_fnptr_compatible",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave38_nested_void_oldstyle_fnptr_compatible.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "function-pointer", "old-style", "void-prototype", "runtime", "promotion-closure"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave47_nested_oldstyle_float_fnptr_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave38_nested_oldstyle_float_fnptr_conflict.c",
+      "expects": ["expect/04__diag__wave47_nested_oldstyle_float_fnptr_conflict.diag"],
+      "standard": "c99",
+      "tags": ["declarations", "function-pointer", "old-style", "default-promotions", "negative", "promotion-closure"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave47_nested_void_int_fnptr_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave38_nested_void_int_fnptr_conflict.c",
+      "expects": ["expect/04__diag__wave47_nested_void_int_fnptr_conflict.diag"],
+      "standard": "c99",
+      "tags": ["declarations", "function-pointer", "prototype", "negative", "promotion-closure"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

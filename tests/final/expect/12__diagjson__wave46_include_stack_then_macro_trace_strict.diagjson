@@ -1,0 +1,90 @@
+{
+  "diag_count": 2,
+  "diagnostics": [
+    {
+      "category_id": 4,
+      "category_name": "preprocessor",
+      "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
+      "column": 10,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "include_stack": [
+        {
+          "column": 0,
+          "file": "tests/final/cases/03__include_cycle_three_hop_reject.c",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        },
+        {
+          "column": 0,
+          "file": "tests/final/cases/03__include_cycle_three_hop_reject_a.h",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        },
+        {
+          "column": 0,
+          "file": "tests/final/cases/03__include_cycle_three_hop_reject_b.h",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        },
+        {
+          "column": 0,
+          "file": "tests/final/cases/03__include_cycle_three_hop_reject_c.h",
+          "line": 0,
+          "origin": "unknown",
+          "resolved": true
+        }
+      ],
+      "kind": 0,
+      "length": 40,
+      "line": 1,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "preprocess"
+    },
+    {
+      "category_id": 4,
+      "category_name": "preprocessor",
+      "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
+      "column": 13,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 12,
+      "line": 3900,
+      "macro_trace": [
+        {
+          "column": 13,
+          "file": "virtual_wave39_identity_collision.c",
+          "line": 3900,
+          "macro": "WAVE39_ALPHA",
+          "role": "call_site"
+        },
+        {
+          "column": 1,
+          "file": "tests/final/probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_collision_strict.c",
+          "line": 2,
+          "macro": "WAVE39_ALPHA",
+          "role": "definition"
+        }
+      ],
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "preprocess"
+    }
+  ],
+  "error_count": 2,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

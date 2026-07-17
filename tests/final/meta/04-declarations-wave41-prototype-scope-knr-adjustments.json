@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave41_nested_prototype_scope_unwind",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave41_nested_prototype_scope_unwind.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "prototype-scope", "nested-function-pointer", "scope-unwind", "typedef", "runtime", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave41_own_fnptr_declarator_typedef_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave41_own_fnptr_declarator_typedef_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "prototype-scope", "point-of-declaration", "function-pointer", "typedef", "runtime", "alpha-control", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave41_own_fnptr_name_hides_typedef_later",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave41_own_fnptr_name_hides_typedef_later.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "prototype-scope", "point-of-declaration", "function-pointer", "typedef-shadow", "negative", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave41_later_array_bound_parameter_shadow",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave41_later_array_bound_parameter_shadow.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "prototype-scope", "typedef-shadow", "array-parameter", "sizeof", "expression-ambiguity", "runtime", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave41_knr_multi_parameter_promotions",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave41_knr_multi_parameter_promotions.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "function-definition", "identifier-list", "old-style", "multi-parameter", "default-promotions", "runtime", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave41_knr_multi_exact_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave41_knr_multi_exact_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "function-definition", "identifier-list", "old-style", "multi-parameter", "exact-type", "runtime", "alpha-control", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave41_knr_function_parameter_adjustment",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave41_knr_function_parameter_adjustment.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "function-definition", "identifier-list", "old-style", "function-parameter-adjustment", "function-pointer", "runtime", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave41_function_pointer_typed_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave41_function_pointer_typed_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "function-definition", "prototype", "function-pointer", "typed-definition", "runtime", "alpha-control", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave41_knr_float_to_int_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave41_knr_float_to_int_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "function-definition", "identifier-list", "old-style", "default-promotions", "float", "int", "negative", "wave41", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

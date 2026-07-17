@@ -1,5 +1,5 @@
 {
-  "diag_count": 4,
+  "diag_count": 2,
   "diagnostics": [
     {
       "category_id": 2,
@@ -7,47 +7,13 @@
       "code": 1000,
       "code_id": 1000,
       "code_name": "parser.generic",
-      "column": 9,
-      "has_file": true,
-      "has_hint": false,
-      "has_message": true,
-      "kind": 0,
-      "length": 3,
-      "line": 134553,
-      "severity_id": 2,
-      "severity_name": "error",
-      "stage": "parse"
-    },
-    {
-      "category_id": 2,
-      "category_name": "parser",
-      "code": 1000,
-      "code_id": 1000,
-      "code_name": "parser.generic",
-      "column": 9,
-      "has_file": true,
-      "has_hint": false,
-      "has_message": true,
-      "kind": 0,
-      "length": 3,
-      "line": 134553,
-      "severity_id": 2,
-      "severity_name": "error",
-      "stage": "parse"
-    },
-    {
-      "category_id": 2,
-      "category_name": "parser",
-      "code": 1000,
-      "code_id": 1000,
-      "code_name": "parser.generic",
-      "column": 16,
+      "column": 1,
       "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 0,
       "length": 1,
-      "line": 134553,
+      "line": 134554,
       "severity_id": 2,
       "severity_name": "error",
       "stage": "parse"
@@ -70,7 +36,7 @@
       "stage": "semantic"
     }
   ],
-  "error_count": 4,
+  "error_count": 2,
   "note_count": 0,
   "profile": "fisics_diagnostics_v1",
   "schema_version": 1,

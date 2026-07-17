@@ -14,14 +14,14 @@
       "include_stack": [
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_include_guard_mismatch_reject.c",
+          "file": "tests/final/cases/15__torture__corpus_external_include_guard_mismatch_reject.c",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__corpus_external_include_guard_mismatch_reject.h",
+          "file": "tests/final/cases/15__torture__corpus_external_include_guard_mismatch_reject.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true

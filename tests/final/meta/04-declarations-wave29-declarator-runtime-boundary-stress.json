@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave29_nested_fnptr_vla_dispatch",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave29_nested_fnptr_vla_dispatch.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave29_nested_fnptr_vla_dispatch.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "function-pointer", "initializer", "wave29", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave29_initializer_declarator_vla_views",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave29_initializer_declarator_vla_views.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave29_initializer_declarator_vla_views.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "initializer", "declarator", "wave29", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave29_typedef_fnptr_initializer_chain",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave29_typedef_fnptr_initializer_chain.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave29_typedef_fnptr_initializer_chain.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "function-pointer", "initializer", "declarator", "wave29", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave29_typedef_fnptr_vla_current_no_diag",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave29_typedef_fnptr_vla_current_no_diag.c",
+      "expects": ["expect/04__diag__wave29_typedef_fnptr_vla_current_no_diag.diag"],
+      "capture_frontend_diag": true,
+      "env": {
+        "DISABLE_CODEGEN": "1"
+      },
+      "standard": "c99",
+      "tags": ["declarations", "diag", "typedef", "vla", "function-pointer", "current-threshold", "wave29", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

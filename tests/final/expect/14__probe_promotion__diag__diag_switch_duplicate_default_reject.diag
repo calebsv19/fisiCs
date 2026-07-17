@@ -1,4 +1,5 @@
 Diagnostics:
 Error at (9:13): Duplicate default label in switch
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/14__probe_diag_switch_duplicate_default_reject.c:9:13
+   Spelling: tests/final/probes/diagnostics/14__probe_diag_switch_duplicate_default_reject.c:9:13
 Warning at (6:0): Previous default label is here
+   Spelling: tests/final/probes/diagnostics/14__probe_diag_switch_duplicate_default_reject.c:6:0

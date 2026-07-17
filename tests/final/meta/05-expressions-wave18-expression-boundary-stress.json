@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "expressions",
+  "tests": [
+    {
+      "id": "05__runtime__wave18_sizeof_comma_call_unevaluated",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave18_sizeof_comma_call_unevaluated_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave18_sizeof_comma_call_unevaluated.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "sizeof", "comma", "call", "unevaluated", "side-effects", "wave18", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__wave18_conditional_member_fnptr_path",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave18_conditional_member_fnptr_path_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave18_conditional_member_fnptr_path.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "conditional", "member", "function-pointer", "call", "side-effects", "wave18", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "05__runtime__wave18_conditional_inactive_call_side_effect",
+      "bucket": "expressions",
+      "input": "probes/runtime/05__probe_wave18_conditional_inactive_call_side_effect_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/05__runtime__wave18_conditional_inactive_call_side_effect.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["expressions", "runtime", "conditional", "call", "inactive-arm", "side-effects", "wave18", "probe-shard"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

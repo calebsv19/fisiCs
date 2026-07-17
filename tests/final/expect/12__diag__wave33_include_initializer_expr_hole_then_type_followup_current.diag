@@ -1,0 +1,6 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave33_initializer_expr_hole_followup.h:12455 (got '}')
+Error at (12455:35): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave33_initializer_expr_hole_followup.h:12455:35
+Error at (12457:17): Incompatible initializer type for 'value'
+   Spelling: virtual_wave33_initializer_expr_hole_followup.h:12457:17

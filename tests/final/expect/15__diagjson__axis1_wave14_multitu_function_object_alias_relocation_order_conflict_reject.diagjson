@@ -1,7 +1,27 @@
 {
-  "diag_count": 0,
-  "diagnostics": [],
-  "error_count": 0,
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "category_id": 7,
+      "category_name": "build",
+      "code": 7101,
+      "code_id": 7101,
+      "code_name": "link.stage_failed",
+      "column": 0,
+      "has_file": false,
+      "has_hint": true,
+      "has_message": true,
+      "hint": "Inspect linker stderr output and [link] argv for symbol/type conflicts.",
+      "kind": 0,
+      "length": 0,
+      "line": 0,
+      "message": "Link stage failed (linker=clang, exit=1, inputs=3)",
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "link"
+    }
+  ],
+  "error_count": 1,
   "note_count": 0,
   "profile": "fisics_diagnostics_v1",
   "schema_version": 1,

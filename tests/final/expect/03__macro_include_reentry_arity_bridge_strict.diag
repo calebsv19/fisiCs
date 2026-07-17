@@ -1,0 +1,5 @@
+Diagnostics:
+virtual_macro_reentry_header.h:430:42: error: macro 'REENTRY_TRIAD' requires 3 argument(s), got 2
+Error: preprocessing failed
+virtual_macro_reentry_header.h:430:42: error: macro 'REENTRY_TRIAD' requires 3 argument(s), got 2
+virtual_macro_reentry_header.h:430:42: error: macro 'REENTRY_TRIAD' requires 3 argument(s), got 2

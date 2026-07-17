@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave28_typedef_vla_fnptr_initializer",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave28_typedef_vla_fnptr_initializer_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave28_typedef_vla_fnptr_initializer.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "vla", "function-pointer", "initializer", "strict", "wave28", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave28_fnptr_selector_initializer",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave28_fnptr_selector_initializer_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave28_fnptr_selector_initializer.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "function-pointer", "typedef", "declarator", "initializer", "strict", "wave28", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave28_fixed_typedef_initializer_current",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave28_fixed_typedef_initializer_current_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave28_fixed_typedef_initializer_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "typedef", "fixed-array", "initializer", "current-threshold", "wave28", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -730,6 +730,78 @@ DIAG_PROBES = [
         ],
         fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
     ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_units_aggregate_positional_initializer_requires_convert',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_units_aggregate_positional_initializer_requires_convert.c',
+        note='same-dimension unit changes stored through positional aggregate initializer syntax should require an explicit conversion boundary',
+        required_substrings=[
+            "implicit concrete unit conversion in initializer requires explicit conversion from 'foot' to 'meter'",
+        ],
+        fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
+    ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_units_aggregate_designated_initializer_requires_convert',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_units_aggregate_designated_initializer_requires_convert.c',
+        note='same-dimension unit changes stored through designated aggregate initializer syntax should require an explicit conversion boundary',
+        required_substrings=[
+            "implicit concrete unit conversion in initializer requires explicit conversion from 'foot' to 'meter'",
+        ],
+        fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
+    ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_units_aggregate_compound_literal_requires_convert',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_units_aggregate_compound_literal_requires_convert.c',
+        note='same-dimension unit changes stored through compound-literal aggregate syntax should require an explicit conversion boundary',
+        required_substrings=[
+            "implicit concrete unit conversion in initializer requires explicit conversion from 'foot' to 'meter'",
+        ],
+        fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
+    ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_units_aggregate_nested_field_requires_convert',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_units_aggregate_nested_field_requires_convert.c',
+        note='same-dimension unit changes stored through nested aggregate field initializer syntax should require an explicit conversion boundary',
+        required_substrings=[
+            "implicit concrete unit conversion in initializer requires explicit conversion from 'foot' to 'meter'",
+        ],
+        fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
+    ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_units_assignment_member_requires_convert',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_units_assignment_member_requires_convert.c',
+        note='same-dimension unit changes stored through struct member assignment should require an explicit conversion boundary',
+        required_substrings=[
+            "implicit concrete unit conversion in assignment requires explicit conversion from 'foot' to 'meter'",
+        ],
+        fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
+    ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_units_assignment_array_element_requires_convert',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_units_assignment_array_element_requires_convert.c',
+        note='same-dimension unit changes stored through array element assignment should require an explicit conversion boundary',
+        required_substrings=[
+            "implicit concrete unit conversion in assignment requires explicit conversion from 'foot' to 'meter'",
+        ],
+        fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
+    ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_units_assignment_pointer_deref_requires_convert',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_units_assignment_pointer_deref_requires_convert.c',
+        note='same-dimension unit changes stored through pointer-dereference assignment should require an explicit conversion boundary',
+        required_substrings=[
+            "implicit concrete unit conversion in assignment requires explicit conversion from 'foot' to 'meter'",
+        ],
+        fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
+    ),
+    DiagnosticProbe(
+        probe_id='15__probe_diag_units_assignment_conditional_lvalue_requires_convert',
+        source=PROBE_DIR / 'diagnostics/15__probe_diag_units_assignment_conditional_lvalue_requires_convert.c',
+        note='same-dimension unit changes stored through a conditional-selected pointer lvalue should require an explicit conversion boundary',
+        required_substrings=[
+            "implicit concrete unit conversion in assignment requires explicit conversion from 'foot' to 'meter'",
+        ],
+        fisics_args=['--overlay=physics-units', '--dump-sema', '-c'],
+    ),
 ]
 
 DIAG_JSON_PROBES = [

@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave40_object_replacement_tail_call_strict",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave40_object_replacement_tail_call_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave40_object_replacement_tail_call_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "object-like", "replacement-tail", "function-like-rescan", "strict", "runtime", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave40_function_replacement_tail_call_strict",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave40_function_replacement_tail_call_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave40_function_replacement_tail_call_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "function-like", "replacement-tail", "function-like-rescan", "strict", "runtime", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave40_replacement_tail_provenance_strict",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave40_replacement_tail_provenance_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave40_replacement_tail_provenance_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "replacement-tail", "function-like-rescan", "line-directive", "source-provenance", "strict", "runtime", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave40_mutual_function_disable_rescan_strict",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave40_mutual_function_disable_rescan_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave40_mutual_function_disable_rescan_strict.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "function-like", "mutual-recursion", "disable-set", "replacement-tail", "strict", "runtime", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

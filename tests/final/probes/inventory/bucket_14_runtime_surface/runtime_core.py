@@ -551,6 +551,241 @@ RUNTIME_PROBES = [
         source=PROBE_DIR / 'runtime/14__probe_header_setjmp_helper_longjmp_runtime.c',
         note='setjmp.h helper-mediated longjmp control transfer should match clang runtime behavior',
     ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave332_nested_payload_return_boundary',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave332_nested_payload_return_boundary.c',
+        note='wave332 nested aggregate payload return-slot rewrites should preserve union byte lanes across boundary copies',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave332_callback_payload_preserve_boundary',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave332_callback_payload_preserve_boundary.c',
+        note='wave332 callback/table-dispatch aggregate payload rewrites should preserve union byte lanes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave332_compound_literal_payload_boundary',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave332_compound_literal_payload_boundary.c',
+        note='wave332 compound-literal aggregate payload assignments should preserve nested union bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave333_nested_aggregate_copy_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave333_nested_aggregate_copy_payload.c',
+        note='wave333 nested aggregate copy chains should preserve union array payload bytes and checksum parity',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave333_callback_selected_payload_chain',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave333_callback_selected_payload_chain.c',
+        note='wave333 callback-selected aggregate payload chains should preserve selected union byte lanes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave333_union_array_overlay_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave333_union_array_overlay_checksum.c',
+        note='wave333 union/array overlay rewrites should preserve byte lanes and runtime checksum parity',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave333_runtime_checksum_parity',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave333_runtime_checksum_parity.c',
+        note='wave333 callback-mapped nested aggregate rewrites should match clang runtime checksum parity',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave334_nested_copy_return_slot_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave334_nested_copy_return_slot_payload.c',
+        note='wave334 nested aggregate copy and return-slot rewrites should preserve union array payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave334_union_array_memcpy_uintptr_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave334_union_array_memcpy_uintptr_payload.c',
+        note='wave334 memcpy/uintptr aggregate handoffs should preserve union overlay payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave334_callback_selected_header_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave334_callback_selected_header_payload.c',
+        note='wave334 callback-selected header-backed aggregate rewrites should preserve nested payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave334_array_overlay_return_slot_checksum',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave334_array_overlay_return_slot_checksum.c',
+        note='wave334 array overlay return-slot checksums should preserve nested aggregate payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave335_nested_union_return_slot_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave335_nested_union_return_slot_payload.c',
+        note='wave335 nested union return-slot rewrites should preserve payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave335_stdlib_qsort_nested_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave335_stdlib_qsort_nested_payload.c',
+        note='wave335 qsort callback aggregate rewrites should preserve nested union payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave335_header_memcpy_bsearch_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave335_header_memcpy_bsearch_payload.c',
+        note='wave335 bsearch/memcpy aggregate handoffs should preserve selected payload bytes',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave335_physics_units_aggregate_matrix',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave335_physics_units_aggregate_matrix.c',
+        note='wave335 physics-units aggregate matrix rewrites should preserve runtime values',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave336_atexit_static_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave336_atexit_static_payload.c',
+        note='wave336 atexit handlers should preserve static aggregate payload state in LIFO order',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave336_realloc_callback_owner_payload',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave336_realloc_callback_owner_payload.c',
+        note='wave336 realloc ownership transfer and callback mutation should preserve aggregate payload state',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave337_rand_aggregate_state_progression',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave337_rand_aggregate_state_progression.c',
+        note='wave337 srand/rand state progression should preserve aggregate payload values across reseeding',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave337_rand_aggregate_callback_reseed',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave337_rand_aggregate_callback_reseed.c',
+        note='wave337 callback-built aggregate frames should preserve rand state across reseeding',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave338_overaligned_tail_array_stride',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave338_overaligned_tail_array_stride.c',
+        note='wave338 over-aligned aggregate tail padding should preserve 32-byte array stride and payload values',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave338_overaligned_multifield_tail_stride',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave338_overaligned_multifield_tail_stride.c',
+        note='wave338 multi-field over-aligned aggregates should preserve semantic size, tail offset, and array stride',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave338_nested_overaligned_tail_stride',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave338_nested_overaligned_tail_stride.c',
+        note='wave338 nested over-aligned aggregate tail padding should propagate through containing layout and initialization',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave339_alignas_internal_gap_automatic',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave339_alignas_internal_gap_automatic.c',
+        note='wave339 automatic alignas aggregates should preserve internal member gaps across positional and designated initialization',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave339_alignas_internal_gap_static_array',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave339_alignas_internal_gap_static_array.c',
+        note='wave339 static alignas aggregate arrays should preserve physical padding, constant payloads, and semantic stride',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave339_alignas_internal_gap_nested',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave339_alignas_internal_gap_nested.c',
+        note='wave339 nested alignas aggregates should propagate internal layout and array stride through containing records',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave340_overaligned_vla_base_stride',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave340_overaligned_vla_base_stride.c',
+        note='wave340 over-aligned VLA storage should preserve semantic base alignment and element stride',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave341_overaligned_union_storage',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave341_overaligned_union_storage.c',
+        note='wave341 over-aligned union storage should preserve semantic alignment, containing offsets, array stride, and payload initialization',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave342_overaligned_union_float_storage',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave342_overaligned_union_float_storage.c',
+        note='wave342 over-aligned union constant storage should preserve floating-point payload bits and array stride',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave343_overaligned_union_pointer_storage',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave343_overaligned_union_pointer_storage.c',
+        note='wave343 over-aligned union constant storage should preserve pointer relocations and array stride',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave344_overaligned_union_nested_pointer_storage',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave344_overaligned_union_nested_pointer_storage.c',
+        note='wave344 over-aligned union constant storage should preserve a nested pointer relocation when another member determines the physical carrier',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave345_overaligned_union_dual_pointer_carrier',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave345_overaligned_union_dual_pointer_carrier.c',
+        note='wave345 over-aligned union constant storage should preserve relocations from two distinct pointer-bearing member layouts',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave346_overaligned_union_shifted_pointer_relocation',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave346_overaligned_union_shifted_pointer_relocation.c',
+        note='wave346 over-aligned union constant storage should preserve a shifted pointer through an integer carrier field relocation',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave347_overaligned_union_multi_relocation_carrier',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave347_overaligned_union_multi_relocation_carrier.c',
+        note='wave347 over-aligned union constant storage should preserve simultaneous data and function pointer relocations across mixed carrier fields',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave348_overaligned_union_relocation_addends',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave348_overaligned_union_relocation_addends.c',
+        note='wave348 over-aligned union constant storage should preserve array-element and struct-field relocation addends through integer carrier fields',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave349_overaligned_union_pointer_arrays',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave349_overaligned_union_pointer_arrays.c',
+        note='wave349 over-aligned union constant storage should preserve nested arrays of data and function pointers through recursive carrier reconstruction',
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave350_overaligned_union_external_relocations_all_fisics',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_main.c',
+        note='wave350 all-fisiCs multi-TU union storage should preserve external array-addend and function relocations',
+        inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_main.c',
+            PROBE_DIR / 'runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave350_overaligned_union_external_relocations_mixed_clang_callee',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_main.c',
+        note='wave350 fisiCs union storage should resolve external relocations supplied by a Clang callee object',
+        inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_main.c',
+        ],
+        mixed_clang_inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave350_overaligned_union_external_relocations_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave351_overaligned_union_external_relocations_all_fisics',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_main.c',
+        note='wave351 all-fisiCs multi-TU union object should preserve external relocations owned by the caller translation unit',
+        inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_main.c',
+            PROBE_DIR / 'runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_lib.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave351_overaligned_union_external_relocations_reverse_clang_caller',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_lib.c',
+        note='wave351 fisiCs relocation-bearing union object should link and execute under a reverse Clang caller',
+        inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_lib.c',
+        ],
+        mixed_clang_inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave351_overaligned_union_external_relocations_main.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave352_overaligned_union_weak_strong_relocation',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave352_overaligned_union_weak_strong_relocation_main.c',
+        note='wave352 union relocations should bind to strong data and function definitions over weak fallbacks',
+        inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave352_overaligned_union_weak_strong_relocation_main.c',
+            PROBE_DIR / 'runtime/14__probe_runtime_wave352_overaligned_union_weak_strong_relocation_weak.c',
+            PROBE_DIR / 'runtime/14__probe_runtime_wave352_overaligned_union_weak_strong_relocation_strong.c',
+        ],
+    ),
+    RuntimeProbe(
+        probe_id='14__probe_runtime_wave353_overaligned_union_static_extern_shadow',
+        source=PROBE_DIR / 'runtime/14__probe_runtime_wave353_overaligned_union_static_extern_shadow_main.c',
+        note='wave353 union relocations should preserve distinct TU-local static and external same-name symbol identities',
+        inputs=[
+            PROBE_DIR / 'runtime/14__probe_runtime_wave353_overaligned_union_static_extern_shadow_main.c',
+            PROBE_DIR / 'runtime/14__probe_runtime_wave353_overaligned_union_static_extern_shadow_lib.c',
+        ],
+    ),
 ]
 
 DIAG_PROBES = []

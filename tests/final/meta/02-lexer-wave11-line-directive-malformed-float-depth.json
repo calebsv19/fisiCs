@@ -30,7 +30,6 @@
       "expects": [
         "expect/02__line_directive_malformed_float_diagjson_current_physical_line.diagjson"
       ],
-      "capture_frontend_diag_json": true,
       "tags": [
         "lexer",
         "line-directive",
@@ -70,7 +69,6 @@
       "expects": [
         "expect/02__line_directive_float_hex_no_exponent_diagjson_current_physical_line.diagjson"
       ],
-      "capture_frontend_diag_json": true,
       "tags": [
         "lexer",
         "line-directive",

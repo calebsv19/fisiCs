@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__wave70_equal_compound_identity",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave70_equal_compound_identity_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_wave70_equal_compound_identity_main.c",
+        "probes/runtime/10__probe_wave70_equal_compound_identity_owner.c",
+        "probes/runtime/10__probe_wave70_equal_compound_identity_peer.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave70_equal_compound_identity.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "compound-literal",
+        "file-scope",
+        "internal-linkage",
+        "external-linkage",
+        "equal-value",
+        "pointer-identity",
+        "mutation-isolation",
+        "wave70",
+        "probe-frontier"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave70_equal_compound_identity_reverse_order",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave70_equal_compound_identity_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_wave70_equal_compound_identity_peer.c",
+        "probes/runtime/10__probe_wave70_equal_compound_identity_owner.c",
+        "probes/runtime/10__probe_wave70_equal_compound_identity_main.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave70_equal_compound_identity.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "compound-literal",
+        "file-scope",
+        "internal-linkage",
+        "external-linkage",
+        "equal-value",
+        "pointer-identity",
+        "mutation-isolation",
+        "reverse-order",
+        "wave70",
+        "probe-frontier"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__diagjson__wave40_semantic_hard_direct",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave40_semantic_hard_direct.c",
+      "expects": ["expect/12__diagjson__wave40_semantic_hard_direct.diagjson"],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagjson", "semantic", "hard-error", "compile-exit", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave40_semantic_hard_line",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave40_semantic_hard_line.c",
+      "expects": ["expect/12__diagjson__wave40_semantic_hard_line.diagjson"],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagjson", "semantic", "hard-error", "compile-exit", "line-directive", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave40_semantic_hard_include",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave40_semantic_hard_include.c",
+      "expects": ["expect/12__diagjson__wave40_semantic_hard_include.diagjson"],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagjson", "semantic", "hard-error", "compile-exit", "include", "line-directive", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__diagjson__wave40_semantic_warning_shift_control",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave40_semantic_warning_shift_control.c",
+      "expects": ["expect/12__diagjson__wave40_semantic_warning_shift_control.diagjson"],
+      "expect_compile_exit": 0,
+      "standard": "c99",
+      "tags": ["diagjson", "semantic", "warning", "compile-exit", "shift", "control", "wave40", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

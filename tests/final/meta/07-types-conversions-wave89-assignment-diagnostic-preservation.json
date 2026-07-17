@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__wave89_assignment_known_scalar_child_error_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_wave89_assignment_known_scalar_child_error_strict.c",
+      "expects": ["expect/07__wave89_assignment_known_scalar_child_error_strict.diag"],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["types-conversions", "assignment", "pointer", "comma-expression", "child-error", "known-type", "diagnostic-preservation", "clang-strict", "wave89"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave89_assignment_known_aggregate_child_error_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_wave89_assignment_known_aggregate_child_error_strict.c",
+      "expects": ["expect/07__wave89_assignment_known_aggregate_child_error_strict.diag"],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["types-conversions", "assignment", "aggregate", "comma-expression", "child-error", "known-type", "diagnostic-preservation", "clang-strict", "wave89"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave89_assignment_unknown_child_error_control",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_wave89_assignment_unknown_child_error_control.c",
+      "expects": ["expect/07__wave89_assignment_unknown_child_error_control.diag"],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["types-conversions", "assignment", "pointer", "child-error", "unknown-type", "diagnostic-suppression", "clang-control", "wave89"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

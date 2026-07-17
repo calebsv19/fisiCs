@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__wave85_factory_fnptr_array_initializer_same_name_diagjson_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_wave85_diagjson_factory_fnptr_array_initializer_tag_same_name.c",
+      "expects": ["expect/08__wave85_factory_fnptr_array_initializer_incompatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "factory", "aggregate-identity", "lexical-scope", "same-name-shadow", "line-directive", "diagjson", "wave85", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave85_factory_fnptr_array_initializer_alpha_name_diagjson_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_wave85_diagjson_factory_fnptr_array_initializer_tag_alpha_name.c",
+      "expects": ["expect/08__wave85_factory_fnptr_array_initializer_incompatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "factory", "aggregate-identity", "lexical-scope", "alpha-control", "line-directive", "diagjson", "wave85", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave85_factory_fnptr_array_initializer_compatible_control_diagjson",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_wave85_diagjson_factory_fnptr_array_initializer_compatible_control.c",
+      "expects": ["expect/08__wave85_factory_fnptr_array_initializer_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "factory", "aggregate-identity", "shared-tag", "line-directive", "diagjson", "wave85", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__wave62_nested_fnptr_initializer_same_name_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave62_diagjson_nested_fnptr_initializer_same_name.c",
+      "expects": ["expect/11__wave62_nested_fnptr_initializer_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "function-pointer", "typedef", "initializer", "parameter-type", "aggregate-identity", "lexical-scope", "same-name-shadow", "line-directive", "diagjson", "strict-regression", "wave62"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__wave62_nested_fnptr_initializer_alpha_name_diagjson_strict",
+      "bucket": "functions-calls",
+      "input": "probes/diagnostics/11__probe_wave62_diagjson_nested_fnptr_initializer_alpha_name.c",
+      "expects": ["expect/11__wave62_nested_fnptr_initializer_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["functions-calls", "function-pointer", "typedef", "initializer", "parameter-type", "aggregate-identity", "lexical-scope", "alpha-control", "line-directive", "diagjson", "strict-regression", "wave62"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_wave354_file_scope_compound_identity_all_fisics",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave354_file_scope_compound_identity_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_runtime_wave354_file_scope_compound_identity_main.c",
+        "probes/runtime/14__probe_runtime_wave354_file_scope_compound_identity_owner.c",
+        "probes/runtime/14__probe_runtime_wave354_file_scope_compound_identity_observer.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave354_file_scope_compound_identity.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "multitu",
+        "compound-literal",
+        "file-scope",
+        "pointer-identity",
+        "alias-mutation",
+        "wave354"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave354_file_scope_compound_identity_reverse_order",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave354_file_scope_compound_identity_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_runtime_wave354_file_scope_compound_identity_observer.c",
+        "probes/runtime/14__probe_runtime_wave354_file_scope_compound_identity_owner.c",
+        "probes/runtime/14__probe_runtime_wave354_file_scope_compound_identity_main.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave354_file_scope_compound_identity.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "multitu",
+        "compound-literal",
+        "file-scope",
+        "pointer-identity",
+        "alias-mutation",
+        "reverse-order",
+        "wave354"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave354_file_scope_const_compound_identity_readonly",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave354_file_scope_const_compound_identity_main.c",
+      "inputs": [
+        "probes/runtime/14__probe_runtime_wave354_file_scope_const_compound_identity_main.c",
+        "probes/runtime/14__probe_runtime_wave354_file_scope_const_compound_identity_owner.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave354_file_scope_const_compound_identity.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "multitu",
+        "compound-literal",
+        "file-scope",
+        "const",
+        "pointer-identity",
+        "readonly",
+        "wave354"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

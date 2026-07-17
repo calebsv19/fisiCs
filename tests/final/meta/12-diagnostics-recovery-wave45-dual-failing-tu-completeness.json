@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__wave45_dual_bad_alpha_then_beta_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave45_dual_bad_alpha.c",
+      "inputs": [
+        "probes/diagnostics/12__probe_wave45_dual_bad_alpha.c",
+        "probes/diagnostics/12__probe_wave45_dual_bad_beta.c"
+      ],
+      "expects": [
+        "expect/12__diag__wave45_dual_bad_alpha_then_beta_strict.diag",
+        "expect/12__diagjson__wave45_dual_bad_alpha_then_beta_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "link": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "multitu", "dual-failure", "semantic", "line-directive", "provenance", "diagnostic-completeness", "order-invariance", "strict-clang-parity", "probe-frontier", "wave45"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__wave45_dual_bad_beta_then_alpha_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave45_dual_bad_beta.c",
+      "inputs": [
+        "probes/diagnostics/12__probe_wave45_dual_bad_beta.c",
+        "probes/diagnostics/12__probe_wave45_dual_bad_alpha.c"
+      ],
+      "expects": [
+        "expect/12__diag__wave45_dual_bad_beta_then_alpha_strict.diag",
+        "expect/12__diagjson__wave45_dual_bad_beta_then_alpha_strict.diagjson"
+      ],
+      "capture_frontend_diag": true,
+      "link": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "multitu", "dual-failure", "semantic", "line-directive", "provenance", "diagnostic-completeness", "reverse-order", "order-invariance", "strict-clang-parity", "probe-frontier", "wave45"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

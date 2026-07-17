@@ -1,0 +1,9 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave38_include_if_return.c:13302 (got ')')
+Error at (13302:5): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave38_include_if_return.c:13302:5
+Error at (13303:17): Undeclared identifier
+   Hint: wave38_include_if_missing
+   Spelling: virtual_wave38_include_if_return.c:13303:17
+Error at (13304:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave38_include_if_return.c:13304:16

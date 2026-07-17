@@ -345,12 +345,12 @@
       "expected_stderr": "expect/14__runtime_struct_layout_alignment.stderr",
       "differential": true,
       "standard": "c99",
-      "abi_sensitive": true,
       "tags": [
         "runtime",
         "memory",
         "struct-layout",
-        "alignment"
+        "alignment",
+        "abi-sensitive"
       ],
       "requires": [],
       "status": "ok"

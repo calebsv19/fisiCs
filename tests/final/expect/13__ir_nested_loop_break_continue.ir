@@ -1,1 +1,97 @@
 IR:
+; ModuleID = 'compiler_module'
+source_filename = "compiler_module"
+target datalayout = "e-p:64:64:64-i8:8-i16:16-i32:32-i64:64-f32:32-f64:64-f64:64-a:0:128-n8:16:32:64"
+
+@__LDBL_MIN__ = internal global double 0.000000e+00, align 8
+@NULL = internal global ptr null, align 8
+@__FLT_MIN__ = internal global float 0.000000e+00, align 4
+@__DBL_MIN__ = internal global double 0.000000e+00, align 8
+
+define i32 @main() {
+entry:
+  %j = alloca i32, align 4
+  %i = alloca i32, align 4
+  %acc = alloca i32, align 4
+  call void @llvm.memset.p0.i64(ptr align 4 %acc, i8 0, i64 4, i1 false)
+  call void @llvm.memset.p0.i64(ptr align 4 %i, i8 0, i64 4, i1 false)
+  br label %forcond
+
+forcond:                                          ; preds = %forinc, %entry
+  %i1 = load i32, ptr %i, align 4
+  %cmptmp = icmp slt i32 %i1, 4
+  %cmp.int = zext i1 %cmptmp to i32
+  %forcond2 = icmp ne i32 %cmp.int, 0
+  br i1 %forcond2, label %forbody, label %forend
+
+forbody:                                          ; preds = %forcond
+  call void @llvm.memset.p0.i64(ptr align 4 %j, i8 0, i64 4, i1 false)
+  br label %forcond3
+
+forinc:                                           ; preds = %forend6
+  %unary.load26 = load i32, ptr %i, align 4
+  %unary.inc27 = add i32 %unary.load26, 1
+  store i32 %unary.inc27, ptr %i, align 4
+  br label %forcond
+
+forend:                                           ; preds = %forcond
+  %acc28 = load i32, ptr %acc, align 4
+  ret i32 %acc28
+
+forcond3:                                         ; preds = %forinc5, %forbody
+  %j7 = load i32, ptr %j, align 4
+  %cmptmp8 = icmp slt i32 %j7, 4
+  %cmp.int9 = zext i1 %cmptmp8 to i32
+  %forcond10 = icmp ne i32 %cmp.int9, 0
+  br i1 %forcond10, label %forbody4, label %forend6
+
+forbody4:                                         ; preds = %forcond3
+  %i11 = load i32, ptr %i, align 4
+  %j12 = load i32, ptr %j, align 4
+  %addtmp = add i32 %i11, %j12
+  %andtmp = and i32 %addtmp, 1
+  %cmptmp13 = icmp ne i32 %andtmp, 0
+  %cmp.int14 = zext i1 %cmptmp13 to i32
+  %ifcond = icmp ne i32 %cmp.int14, 0
+  br i1 %ifcond, label %then, label %ifcont
+
+forinc5:                                          ; preds = %ifcont20, %then
+  %unary.load = load i32, ptr %j, align 4
+  %unary.inc = add i32 %unary.load, 1
+  store i32 %unary.inc, ptr %j, align 4
+  br label %forcond3
+
+forend6:                                          ; preds = %then19, %forcond3
+  %compound.load24 = load i32, ptr %acc, align 4
+  %compound.add25 = add i32 %compound.load24, 100
+  store i32 %compound.add25, ptr %acc, align 4
+  br label %forinc
+
+then:                                             ; preds = %forbody4
+  br label %forinc5
+
+ifcont:                                           ; preds = %forbody4
+  %i15 = load i32, ptr %i, align 4
+  %cmptmp16 = icmp eq i32 %i15, 3
+  %cmp.int17 = zext i1 %cmptmp16 to i32
+  %ifcond18 = icmp ne i32 %cmp.int17, 0
+  br i1 %ifcond18, label %then19, label %ifcont20
+
+then19:                                           ; preds = %ifcont
+  br label %forend6
+
+ifcont20:                                         ; preds = %ifcont
+  %i21 = load i32, ptr %i, align 4
+  %multmp = mul i32 %i21, 10
+  %j22 = load i32, ptr %j, align 4
+  %addtmp23 = add i32 %multmp, %j22
+  %compound.load = load i32, ptr %acc, align 4
+  %compound.add = add i32 %compound.load, %addtmp23
+  store i32 %compound.add, ptr %acc, align 4
+  br label %forinc5
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly %0, i8 %1, i64 %2, i1 immarg %3) #0
+
+attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: write) }

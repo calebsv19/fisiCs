@@ -1,0 +1,43 @@
+{
+  "diag_count": 1,
+  "diagnostics": [
+    {
+      "category_id": 4,
+      "category_name": "preprocessor",
+      "code": 3000,
+      "code_id": 3000,
+      "code_name": "preprocessor.generic",
+      "column": 34,
+      "has_file": true,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 0,
+      "length": 14,
+      "line": 531,
+      "macro_trace": [
+        {
+          "column": 34,
+          "file": "virtual_macro_gnu_comma.c",
+          "line": 531,
+          "macro": "GNU_COMMA_WRAP",
+          "role": "call_site"
+        },
+        {
+          "column": 1,
+          "file": "tests/final/probes/diagnostics/03__probe_macro_gnu_comma_line_remap_current.c",
+          "line": 2,
+          "macro": "GNU_COMMA_WRAP",
+          "role": "definition"
+        }
+      ],
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "preprocess"
+    }
+  ],
+  "error_count": 1,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 0
+}

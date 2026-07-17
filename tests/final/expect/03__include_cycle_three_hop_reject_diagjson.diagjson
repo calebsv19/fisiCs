@@ -14,28 +14,28 @@
       "include_stack": [
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_three_hop_reject.c",
+          "file": "tests/final/cases/03__include_cycle_three_hop_reject.c",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_three_hop_reject_a.h",
+          "file": "tests/final/cases/03__include_cycle_three_hop_reject_a.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_three_hop_reject_b.h",
+          "file": "tests/final/cases/03__include_cycle_three_hop_reject_b.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/03__include_cycle_three_hop_reject_c.h",
+          "file": "tests/final/cases/03__include_cycle_three_hop_reject_c.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true

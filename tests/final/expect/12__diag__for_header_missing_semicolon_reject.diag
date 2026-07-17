@@ -2,23 +2,15 @@ Diagnostics:
 Error: expected ';' after for-loop initializer at line 3
 Error at (3:20): Undeclared identifier
    Hint: i
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:20
-Error at (3:20): Operator '<' requires comparable operands
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:20
+   Spelling: tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:20
 Error at (3:27): Undeclared identifier
    Hint: i
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:27
+   Spelling: tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:27
 Error at (3:27): Left operand of '=' must be a modifiable lvalue
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:27
+   Spelling: tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:27
 Error at (3:31): Undeclared identifier
    Hint: i
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:31
-Error at (3:31): Operator '+' requires arithmetic operands
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:31
+   Spelling: tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:3:31
 Error at (4:21): Undeclared identifier
    Hint: i
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:4:21
-Error at (4:15): Operator '+' requires arithmetic operands
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:4:15
-Error at (4:9): Incompatible assignment operands
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:4:9
+   Spelling: tests/final/probes/diagnostics/12__probe_for_header_missing_semicolon_reject.c:4:21

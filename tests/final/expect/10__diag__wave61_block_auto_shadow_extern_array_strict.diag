@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (18107:20): Conflicting types for variable
+   Hint: bucket10_wave61_shadow_value
+   Spelling: virtual_scope_wave61_block_auto_shadow_extern_array_strict.c:18107:20

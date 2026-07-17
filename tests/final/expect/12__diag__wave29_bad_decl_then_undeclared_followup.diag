@@ -1,0 +1,9 @@
+Diagnostics:
+Error: Expected identifier in declarator at tests/final/probes/diagnostics/12__probe_bad_decl_then_undeclared_followup.c:3 (got '=')
+Error: invalid declarator at tests/final/probes/diagnostics/12__probe_bad_decl_then_undeclared_followup.c:3 (got '=')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/12__probe_bad_decl_then_undeclared_followup.c:3 (got '=')
+Error: Failed to parse expression at line 3
+Error: invalid statement inside block at line 3
+Error at (4:14): Undeclared identifier
+   Hint: follow_on_after_bad_decl
+   Spelling: tests/final/probes/diagnostics/12__probe_bad_decl_then_undeclared_followup.c:4:14

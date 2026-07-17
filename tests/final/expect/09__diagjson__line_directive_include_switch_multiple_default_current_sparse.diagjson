@@ -25,7 +25,7 @@
       "code_id": 2000,
       "code_name": "semantic.generic",
       "column": 0,
-      "has_file": false,
+      "has_file": true,
       "has_hint": false,
       "has_message": true,
       "kind": 1,

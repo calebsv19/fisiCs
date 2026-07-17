@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__wave61_multitu_extern_array_nested_shadow",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave61_multitu_extern_array_nested_shadow_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave61_multitu_extern_array_nested_shadow_main.c",
+        "probes/runtime/10__probe_runtime_wave61_multitu_extern_array_nested_shadow_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave61_multitu_extern_array_nested_shadow.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "extern-array",
+        "block-scope",
+        "static-local",
+        "shadowing",
+        "wave61"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave61_static_local_helper_persistence",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave61_static_local_helper_persistence_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave61_static_local_helper_persistence_main.c",
+        "probes/runtime/10__probe_runtime_wave61_static_local_helper_persistence_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave61_static_local_helper_persistence.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "static-local",
+        "persistence",
+        "external-object",
+        "shadowing",
+        "wave61"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave61_block_extern_array_completion_shadow",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave61_block_extern_array_completion_shadow.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave61_block_extern_array_completion_shadow.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "extern-array",
+        "block-scope",
+        "shadowing",
+        "wave61"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__diag__wave61_block_auto_shadow_extern_array_strict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_wave61_block_auto_shadow_extern_array_strict.c",
+      "expects": [
+        "expect/10__diag__wave61_block_auto_shadow_extern_array_strict.diag"
+      ],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "diag",
+        "block-scope",
+        "extern",
+        "automatic-shadow",
+        "extern-array",
+        "strict",
+        "wave61"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

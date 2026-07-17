@@ -1311,49 +1311,6 @@ PROGRAM
       VAR_DECL
         TYPE: va_list
         IDENTIFIER __unnamed_param4
-  FUNCTION DEFINITION
-    RETURN TYPE: static inline int
-    IDENTIFIER shim_fputs_line
-    PARAMETERS
-      VAR_DECL
-        TYPE: FILE*
-        IDENTIFIER stream
-      VAR_DECL
-        TYPE: const char*
-        IDENTIFIER text
-    BLOCK
-      VAR_DECL
-        TYPE: int
-        IDENTIFIER rc
-      IF_STATEMENT
-        BINARY EXPRESSION '||'
-          UNARY EXPRESSION '!' (prefix)
-            IDENTIFIER stream
-          UNARY EXPRESSION '!' (prefix)
-            IDENTIFIER text
-        RETURN
-          UNARY EXPRESSION '-' (prefix)
-            NUMBER_LITERAL 1
-      ASSIGNMENT (=)
-        IDENTIFIER rc
-        FUNCTION CALL
-          IDENTIFIER fputs
-          ARGUMENTS
-            IDENTIFIER text
-            IDENTIFIER stream
-      IF_STATEMENT
-        BINARY EXPRESSION '=='
-          IDENTIFIER rc
-          UNARY EXPRESSION '-' (prefix)
-            NUMBER_LITERAL 1
-        RETURN
-          IDENTIFIER rc
-      RETURN
-        FUNCTION CALL
-          IDENTIFIER fputc
-          ARGUMENTS
-            CHAR_LITERAL 10
-            IDENTIFIER stream
   TYPEDEF
         TYPE: int (*)(int, int)
         Alias:     IDENTIFIER Op

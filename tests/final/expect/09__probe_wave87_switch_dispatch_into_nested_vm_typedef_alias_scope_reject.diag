@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (6:13): switch dispatch jumps into scope of variably modified declaration
+   Hint: case 1 bypasses Wave87Alias
+   Spelling: tests/final/probes/diagnostics/09__probe_wave87_switch_dispatch_into_nested_vm_typedef_alias_scope_reject.c:6:13

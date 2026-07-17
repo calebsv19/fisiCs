@@ -14,14 +14,14 @@
       "include_stack": [
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_guard_tail_mismatch_no_crash.c",
+          "file": "tests/final/cases/15__torture__malformed_header_guard_tail_mismatch_no_crash.c",
           "line": 0,
           "origin": "unknown",
           "resolved": true
         },
         {
           "column": 0,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/15__torture__malformed_header_guard_tail_mismatch_no_crash.h",
+          "file": "tests/final/cases/15__torture__malformed_header_guard_tail_mismatch_no_crash.h",
           "line": 0,
           "origin": "unknown",
           "resolved": true

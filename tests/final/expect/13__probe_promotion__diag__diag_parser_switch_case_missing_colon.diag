@@ -1,7 +1,7 @@
 Diagnostics:
-Error: ':' after case value at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diag_parser_switch_case_missing_colon.c:5 (got 'x')
-Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diag_parser_switch_case_missing_colon.c:8 (got '}')
+Error: ':' after case value at tests/final/probes/diagnostics/13__probe_diag_parser_switch_case_missing_colon.c:5 (got 'x')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/13__probe_diag_parser_switch_case_missing_colon.c:8 (got '}')
 Error: invalid statement at line 8 (token=})
 Error: Failed to parse expression at line 8
 Error at (6:9): Break statement not within loop or switch
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/13__probe_diag_parser_switch_case_missing_colon.c:6:9
+   Spelling: tests/final/probes/diagnostics/13__probe_diag_parser_switch_case_missing_colon.c:6:9

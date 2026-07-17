@@ -193,4 +193,56 @@ RUNTIME_PROBES = [
         ],
         fisics_args=['--overlay=physics-units'],
     ),
+    RuntimeProbe(
+        probe_id='15__probe_units_runtime_aggregate_storage_struct_slots',
+        source=PROBE_DIR / 'runtime/15__probe_units_runtime_aggregate_storage_struct_slots.c',
+        note='physics-units legal aggregate storage should match clang runtime behavior while explicitly converted speed, time, force, and charge values are stored through struct slots and summarized from stored state',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_units_runtime_aggregate_storage_nested_grid',
+        source=PROBE_DIR / 'runtime/15__probe_units_runtime_aggregate_storage_nested_grid.c',
+        note='physics-units legal nested aggregate storage should match clang runtime behavior while explicitly converted length, energy, and pressure values are stored through struct-array grid state',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_units_runtime_aggregate_storage_return_matrix',
+        source=PROBE_DIR / 'runtime/15__probe_units_runtime_aggregate_storage_return_matrix.c',
+        note='physics-units legal aggregate return and matrix storage should match clang runtime behavior while helper-returned struct lanes carry explicitly converted speed, time, distance, and reserve-energy state',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_units_runtime_wave128_nested_cell_checksum',
+        source=PROBE_DIR / 'runtime/15__probe_units_runtime_wave128_nested_cell_checksum.c',
+        note='physics-units legal nested aggregate storage should preserve explicitly converted distance, energy, and charge values through returned cell structs and 2D block storage',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_units_runtime_wave128_aggregate_return_ring_checksum',
+        source=PROBE_DIR / 'runtime/15__probe_units_runtime_wave128_aggregate_return_ring_checksum.c',
+        note='physics-units legal aggregate return ring should preserve helper-returned nested samples after struct assignment and slot replacement',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_units_runtime_wave128_nested_cell_current_checksum',
+        source=PROBE_DIR / 'runtime/15__probe_units_runtime_wave128_nested_cell_current_checksum.c',
+        note='physics-units current-threshold nested aggregate storage should preserve converted distance, energy, and charge values when stored directly into 2D block cells',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_units_runtime_wave129_struct_return_slot_ring',
+        source=PROBE_DIR / 'runtime/15__probe_units_runtime_wave129_struct_return_slot_ring.c',
+        note='physics-units aggregate storage and return slot ring should preserve explicitly converted distance, reserve energy, and charge values through struct returns and slot replacement',
+        fisics_args=['--overlay=physics-units'],
+    ),
+    RuntimeProbe(
+        probe_id='15__probe_units_runtime_wave129_nested_payload_callback',
+        source=PROBE_DIR / 'runtime/15__probe_units_runtime_wave129_nested_payload_callback_main.c',
+        note='physics-units multi-TU callback payload should preserve converted aggregate fields through returned structs, callback dispatch, and cross-file scoring',
+        inputs=[
+            PROBE_DIR / 'runtime/15__probe_units_runtime_wave129_nested_payload_callback_main.c',
+            PROBE_DIR / 'runtime/15__probe_units_runtime_wave129_nested_payload_callback_lib.c',
+        ],
+        fisics_args=['--overlay=physics-units'],
+    ),
 ]

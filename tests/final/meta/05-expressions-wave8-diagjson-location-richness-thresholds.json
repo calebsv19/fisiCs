@@ -10,7 +10,6 @@
       "expects": [
         "expect/05__line_directive_shift_width_diagjson_current_sparse.diagjson"
       ],
-      "capture_diag_json": true,
       "tags": ["expressions", "diagjson", "line-directive", "wave8", "current-threshold"],
       "requires": [],
       "status": "ok"
@@ -22,7 +21,6 @@
       "expects": [
         "expect/05__line_directive_macro_add_diagjson_rich_location.diagjson"
       ],
-      "capture_diag_json": true,
       "tags": ["expressions", "diagjson", "line-directive", "wave8", "macro"],
       "requires": [],
       "status": "ok"

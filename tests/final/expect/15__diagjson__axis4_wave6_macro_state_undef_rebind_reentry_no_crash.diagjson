@@ -13,18 +13,18 @@
       "has_message": true,
       "kind": 0,
       "length": 21,
-      "line": 9,
+      "line": 521105,
       "macro_trace": [
         {
           "column": 12,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash_a.h",
-          "line": 9,
+          "file": "axis4_wave6_state_layer_a.h",
+          "line": 521105,
           "macro": "AX4_W6_STATE_DISPATCH",
           "role": "call_site"
         },
         {
           "column": 1,
-          "file": "/Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash_c.h",
+          "file": "tests/final/probes/diagnostics/15__probe_diag_axis4_wave6_macro_state_undef_rebind_reentry_no_crash_c.h",
           "line": 6,
           "macro": "AX4_W6_STATE_DISPATCH",
           "role": "definition"

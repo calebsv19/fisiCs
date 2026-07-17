@@ -1,0 +1,20 @@
+#ifndef FISICS_PROBE_RUNTIME_WAVE37_INCLUDE_REBIND_TAIL_STATE_H
+#define FISICS_PROBE_RUNTIME_WAVE37_INCLUDE_REBIND_TAIL_STATE_H
+
+#define W37_REBIND_CAT2(a, b) a##b
+#define W37_REBIND_CAT(a, b) W37_REBIND_CAT2(a, b)
+#define W37_REBIND_STR2(x) #x
+#define W37_REBIND_STR(x) W37_REBIND_STR2(x)
+#define W37_REBIND_DECL(slot, value) enum { W37_REBIND_CAT(w37_rebind_, slot) = (value) + W37_REBIND_OFFSET }
+
+#endif
+
+#ifndef W37_REBIND_OFFSET
+#define W37_REBIND_OFFSET 2
+#endif
+
+#line 5050 "virtual_wave37_rebind_tail_header.h"
+W37_REBIND_DECL(W37_REBIND_SLOT, W37_REBIND_VALUE);
+
+#undef W37_REBIND_OFFSET
+#define W37_REBIND_OFFSET 4

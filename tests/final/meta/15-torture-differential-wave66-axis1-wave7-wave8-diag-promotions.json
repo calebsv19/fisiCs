@@ -72,6 +72,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave7_multitu_function_object_alias_perm_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -100,6 +102,8 @@
       "expects": [
         "expect/15__diagjson__axis1_wave8_multitu_dual_function_object_alias_perm_conflict_reject.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [

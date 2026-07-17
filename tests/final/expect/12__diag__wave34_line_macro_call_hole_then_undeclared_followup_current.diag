@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave34_macro_call_boundary.c:12503 (got ')')
+Error at (12503:17): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave34_macro_call_boundary.c:12503:17
+Error at (12504:16): Undeclared identifier
+   Hint: wave34_macro_call_boundary_missing
+   Spelling: virtual_wave34_macro_call_boundary.c:12504:16

@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__diag__wave68_parameter_outer_auto_redeclaration",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_wave68_parameter_outer_auto_redeclaration.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["scopes-linkage", "parameter", "function-body", "outermost-block", "same-scope", "redeclaration", "negative", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__diag__wave68_parameter_outer_extern_object_conflict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_wave68_parameter_outer_extern_object_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["scopes-linkage", "parameter", "function-body", "outermost-block", "extern", "object", "same-scope", "negative", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__diag__wave68_parameter_outer_extern_function_conflict",
+      "bucket": "scopes-linkage",
+      "input": "probes/diagnostics/10__probe_wave68_parameter_outer_extern_function_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["scopes-linkage", "parameter", "function-body", "outermost-block", "extern", "function", "ordinary-namespace", "negative", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave68_parameter_nested_extern_object_rebind",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave68_parameter_nested_extern_object_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_wave68_parameter_nested_extern_object_main.c",
+        "probes/runtime/10__probe_wave68_parameter_nested_extern_object_provider.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave68_parameter_nested_extern_object.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["scopes-linkage", "parameter", "nested-block", "extern", "object", "multitu", "runtime", "differential", "wave68"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave68_parameter_nested_extern_function_rebind",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_wave68_parameter_nested_extern_function_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_wave68_parameter_nested_extern_function_main.c",
+        "probes/runtime/10__probe_wave68_parameter_nested_extern_function_provider.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave68_parameter_nested_extern_function.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["scopes-linkage", "parameter", "nested-block", "extern", "function", "multitu", "runtime", "differential", "wave68"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

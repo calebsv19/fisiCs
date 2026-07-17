@@ -1,0 +1,5 @@
+Diagnostics:
+virtual_wave31_diagjson_text_parity.c:1331:41: error: macro 'W31_PAIR' requires 2 argument(s), got 1
+Error: preprocessing failed
+virtual_wave31_diagjson_text_parity.c:1331:41: error: macro 'W31_PAIR' requires 2 argument(s), got 1
+virtual_wave31_diagjson_text_parity.c:1331:41: error: macro 'W31_PAIR' requires 2 argument(s), got 1

@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave33_fixed_array_prototype_adjustment",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave33_fixed_array_prototype_adjustment.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave33_fixed_array_prototype_adjustment.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "prototype", "array-parameter-adjustment", "function-pointer", "wave33", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave33_scoped_typedef_shadow_current",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave33_scoped_typedef_shadow_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave33_scoped_typedef_shadow_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "scoped-typedef", "shadowing", "current-threshold", "wave33", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave33_scoped_typedef_tag_shadow",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave33_scoped_typedef_tag_shadow.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave33_scoped_typedef_tag_shadow.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "scoped-typedef", "tag-shadowing", "aggregate-layout", "wave33"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave33_direct_factory_declarator",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_runtime_wave33_direct_factory_declarator.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/04__runtime__wave33_direct_factory_declarator.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["declarations", "runtime", "function-pointer", "factory", "declarator", "wave33", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

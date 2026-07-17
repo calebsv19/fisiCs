@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave44_grouped_row_bound_compat",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave44_grouped_row_bound_compat_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "grouped-declarator", "pointer-to-array", "array-bound", "enum", "sizeof", "redeclaration-compatibility", "runtime", "current-threshold", "wave44", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave44_grouped_inner_bound_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave44_grouped_inner_bound_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "grouped-declarator", "pointer-to-array", "array-bound", "enum", "sizeof", "conflicting-types", "negative", "wave44", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave44_grouped_nested_direct_control",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave44_grouped_nested_direct_control_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "grouped-declarator", "pointer-to-array", "nested-array", "array-bound", "enum", "sizeof", "redeclaration-compatibility", "runtime", "control", "wave44", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__runtime__wave44_grouped_vla_fixed_bound_compat",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave44_grouped_vla_fixed_bound_compat.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "grouped-declarator", "pointer-to-array", "array-bound", "vla", "fixed-bound", "redeclaration-compatibility", "runtime", "control", "wave44", "probe-frontier"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

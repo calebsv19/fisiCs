@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "statements-controlflow",
+  "tests": [
+    {
+      "id": "09__probe_wave86_goto_bypasses_vm_typedef_same_block_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave86_goto_bypasses_vm_typedef_same_block_reject.c",
+      "expects": [
+        "expect/09__probe_wave86_goto_bypasses_vm_typedef_same_block_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagnostic",
+        "goto",
+        "variably-modified",
+        "typedef",
+        "same-block",
+        "strict-c99",
+        "wave86"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave86_goto_bypasses_vm_typedef_alias_object_descendant_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave86_goto_bypasses_vm_typedef_alias_object_descendant_reject.c",
+      "expects": [
+        "expect/09__probe_wave86_goto_bypasses_vm_typedef_alias_object_descendant_reject.diag"
+      ],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": [
+        "diagnostic",
+        "goto",
+        "variably-modified",
+        "typedef-alias-chain",
+        "named-vla-object",
+        "descendant-scope",
+        "strict-c99",
+        "wave86"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave86_goto_bypasses_enum_fixed_typedef_alias_control",
+      "bucket": "statements-controlflow",
+      "input": "probes/runtime/09__probe_wave86_goto_bypasses_enum_fixed_typedef_alias_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/09__probe_wave86_goto_bypasses_enum_fixed_typedef_alias_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": [
+        "-pedantic-errors"
+      ],
+      "standard": "c99",
+      "tags": [
+        "runtime",
+        "goto",
+        "fixed-array",
+        "enum-bound",
+        "typedef-alias-chain",
+        "strict-c99",
+        "wave86"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave86_goto_bypasses_vm_typedef_indirect_label_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave86_goto_bypasses_vm_typedef_indirect_label_reject.c",
+      "expects": ["expect/09__probe_wave86_goto_bypasses_vm_typedef_indirect_label_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diagnostic", "goto", "variably-modified", "typedef", "indirect-label", "strict-c99", "wave86"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "09__probe_wave86_goto_bypasses_for_init_vla_reject",
+      "bucket": "statements-controlflow",
+      "input": "probes/diagnostics/09__probe_wave86_goto_bypasses_for_init_vla_reject.c",
+      "expects": ["expect/09__probe_wave86_goto_bypasses_for_init_vla_reject.diag"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["diagnostic", "goto", "vla", "for-initializer", "descendant-scope", "strict-c99", "wave86"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

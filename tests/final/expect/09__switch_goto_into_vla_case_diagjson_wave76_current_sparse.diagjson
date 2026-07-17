@@ -1,0 +1,44 @@
+{
+  "diag_count": 2,
+  "diagnostics": [
+    {
+      "category_id": 3,
+      "category_name": "semantic",
+      "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
+      "column": 5,
+      "has_file": true,
+      "has_hint": true,
+      "has_message": true,
+      "kind": 0,
+      "length": 4,
+      "line": 7624,
+      "severity_id": 2,
+      "severity_name": "error",
+      "stage": "semantic"
+    },
+    {
+      "category_id": 3,
+      "category_name": "semantic",
+      "code": 2000,
+      "code_id": 2000,
+      "code_name": "semantic.generic",
+      "column": 0,
+      "has_file": false,
+      "has_hint": false,
+      "has_message": true,
+      "kind": 1,
+      "length": 1,
+      "line": 7626,
+      "severity_id": 1,
+      "severity_name": "warning",
+      "stage": "semantic"
+    }
+  ],
+  "error_count": 1,
+  "note_count": 0,
+  "profile": "fisics_diagnostics_v1",
+  "schema_version": 1,
+  "warning_count": 1
+}

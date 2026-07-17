@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lexer",
+  "tests": [
+    {
+      "id": "02__wave18_spliced_comment_ucn_invalid_token_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave18_spliced_comment_ucn_invalid_token_diagjson_current.c",
+      "expects": [
+        "expect/02__wave18_spliced_comment_ucn_invalid_token_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "ucn",
+        "invalid-token",
+        "diagjson",
+        "current-threshold",
+        "wave18"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave18_spliced_block_comment_string_escape_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave18_spliced_block_comment_string_escape_diagjson_current.c",
+      "expects": [
+        "expect/02__wave18_spliced_block_comment_string_escape_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "string-literal",
+        "invalid-escape",
+        "diagjson",
+        "current-threshold",
+        "wave18"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave18_line_splice_comment_numeric_invalid_diagjson_current",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave18_line_splice_comment_numeric_invalid_diagjson_current.c",
+      "expects": [
+        "expect/02__wave18_line_splice_comment_numeric_invalid_diagjson_current.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "numeric-token",
+        "invalid-token",
+        "diagjson",
+        "current-threshold",
+        "wave18"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "02__wave18_spliced_comment_clean_diagjson_current_empty",
+      "bucket": "lexer",
+      "input": "probes/diagnostics/02__probe_wave18_spliced_comment_clean_diagjson_current_empty.c",
+      "expects": [
+        "expect/02__wave18_spliced_comment_clean_diagjson_current_empty.diagjson"
+      ],
+      "tags": [
+        "lexer",
+        "line-splice",
+        "line-directive",
+        "comment",
+        "string-literal",
+        "numeric-token",
+        "diagjson",
+        "current-threshold",
+        "wave18"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

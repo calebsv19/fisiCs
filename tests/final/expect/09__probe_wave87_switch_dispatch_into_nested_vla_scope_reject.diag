@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (5:13): switch dispatch jumps into scope of variably modified declaration
+   Hint: case 1 bypasses row
+   Spelling: tests/final/probes/diagnostics/09__probe_wave87_switch_dispatch_into_nested_vla_scope_reject.c:5:13

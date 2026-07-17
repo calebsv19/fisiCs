@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "functions-calls",
+  "tests": [
+    {
+      "id": "11__runtime_wave50_fnptr_return_slot_depth_callback",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave50_fnptr_return_slot_depth_callback_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave50_fnptr_return_slot_depth_callback_runtime_main.c",
+        "probes/runtime/11__probe_wave50_fnptr_return_slot_depth_callback_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave50_fnptr_return_slot_depth_callback.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "fnptr-return", "by-value-aggregate", "slot-depth", "callback", "runtime", "strict-regression", "wave50"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave50_byval_sret_callback_payload_ring",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave50_byval_sret_callback_payload_ring_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave50_byval_sret_callback_payload_ring_runtime_main.c",
+        "probes/runtime/11__probe_wave50_byval_sret_callback_payload_ring_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave50_byval_sret_callback_payload_ring.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "large-sret", "by-value-aggregate", "callback", "payload-preservation", "runtime", "strict-regression", "wave50"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave50_variadic_aggregate_callback_ladder",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave50_variadic_aggregate_callback_ladder_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave50_variadic_aggregate_callback_ladder_runtime_main.c",
+        "probes/runtime/11__probe_wave50_variadic_aggregate_callback_ladder_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave50_variadic_aggregate_callback_ladder.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "variadic", "by-value-aggregate", "callback", "runtime", "strict-regression", "wave50"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "11__runtime_wave50_nested_callback_payload_preservation",
+      "bucket": "functions-calls",
+      "input": "probes/runtime/11__probe_wave50_nested_callback_payload_preservation_runtime_main.c",
+      "inputs": [
+        "probes/runtime/11__probe_wave50_nested_callback_payload_preservation_runtime_main.c",
+        "probes/runtime/11__probe_wave50_nested_callback_payload_preservation_runtime_lib.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/11__runtime_wave50_nested_callback_payload_preservation.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["functions-calls", "callback", "nested-union", "aggregate-return", "payload-preservation", "runtime", "strict-regression", "wave50"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

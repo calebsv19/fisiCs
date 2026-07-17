@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave31_include_line_stringize_paste",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave31_include_line_stringize_paste.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave31_include_line_stringize_paste.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "include", "token-paste", "stringize", "line-directive", "runtime", "wave31"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__wave31_include_line_tokenpaste_diag_current",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_wave31_include_line_tokenpaste_diag.c",
+      "expects": [
+        "expect/03__wave31_include_line_tokenpaste_diag_current.diag",
+        "expect/03__wave31_include_line_tokenpaste_diag_current.diagjson"
+      ],
+      "tags": ["preprocessor", "macro-provenance", "include", "token-paste", "line-directive", "diagjson", "current-threshold", "wave31", "probe-current"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__wave31_diagjson_text_parity_stringize_strict",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_wave31_diagjson_text_parity_stringize.c",
+      "expects": [
+        "expect/03__wave31_diagjson_text_parity_stringize_strict.diag",
+        "expect/03__wave31_diagjson_text_parity_stringize_strict.diagjson"
+      ],
+      "tags": ["preprocessor", "macro-provenance", "stringize", "line-directive", "arity-diagnostic", "diagjson", "wave31", "probe-current"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

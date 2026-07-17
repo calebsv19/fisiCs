@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "runtime-surface",
+  "tests": [
+    {
+      "id": "14__runtime_wave332_nested_payload_return_boundary",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave332_nested_payload_return_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave332_nested_payload_return_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "nested-array", "struct-return", "return-slot", "byte-preservation", "wave332"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave332_callback_payload_preserve_boundary",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave332_callback_payload_preserve_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave332_callback_payload_preserve_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "callback", "table-dispatch", "byte-preservation", "wave332"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "14__runtime_wave332_compound_literal_payload_boundary",
+      "bucket": "runtime-surface",
+      "input": "probes/runtime/14__probe_runtime_wave332_compound_literal_payload_boundary.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/14__runtime_wave332_compound_literal_payload_boundary.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["runtime", "aggregate", "union", "compound-literal", "assignment", "byte-preservation", "wave332"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

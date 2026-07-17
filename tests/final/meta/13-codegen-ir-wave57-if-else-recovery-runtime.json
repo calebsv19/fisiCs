@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave57_if_else_recovery_aggregate_copy_return",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave57_if_else_recovery_aggregate_copy_return_runtime.c",
+      "expects": [],
+      "args": ["-DWAVE57_MALFORMED=0"],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave57_if_else_recovery_aggregate_copy_return.stdout",
+      "expected_stderr": "expect/13__runtime_wave57_if_else_recovery_aggregate_copy_return.stderr",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-DWAVE57_MALFORMED=0"],
+      "standard": "c99",
+      "tags": [
+        "codegen-ir",
+        "parser-recovery",
+        "if-else",
+        "aggregate-copy",
+        "aggregate-return",
+        "runtime",
+        "differential",
+        "wave57"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__diag_wave57_if_else_recovery_exact_exit",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave57_if_else_recovery_aggregate_copy_return_runtime.c",
+      "expects": [
+        "expect/13__runtime_wave57_if_else_recovery_aggregate_copy_return.pdiag"
+      ],
+      "args": ["-DWAVE57_MALFORMED=1"],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["codegen-ir", "parser-recovery", "if-else", "exact-exit", "no-lowering", "wave57"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

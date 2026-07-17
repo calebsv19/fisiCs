@@ -498,7 +498,7 @@ Lowering semantics once IR/codegen is enabled.
     `-=` struct lhs, `-=` struct rhs) in shallow and nested lanes.
   - malformed ternary recovery now also locks remaining small `&=` parity edges
     (`float lhs`, `struct rhs`) in shallow and nested lanes.
-- Current active `13` case count: `237`.
+- Current active `13` case count: `474`.
 
 ## 13 Status
 - Stability: `stable` (current baseline).
@@ -525,6 +525,14 @@ Lowering semantics once IR/codegen is enabled.
   - `make final-promotion-audit` green.
   - `make final-bucket BUCKET=codegen-ir` green.
 - No compiler/runtime behavior changed in this pass.
+
+## Current Promotion Closure (2026-07-14)
+- Bucket `13`: `promoted=184`, `probe_only=0`, `missing=0`.
+- Global inventory: `promoted=3468`, `probe_only=15`, `missing=0`; the only
+  retained probe-only records are one bucket-14 reduced stress companion and
+  fourteen bucket-15 corpus/seeded/pathological stress cases.
+- Full stable inventory: `4863` tests; the clean monitored checkpoint reports
+  `4863` pass, `0` fail, and `36` expected skips.
 
 ## Open 13 Gaps (Deferred/Optional)
 - Optional doc hygiene:

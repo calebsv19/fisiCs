@@ -1,4 +1,4 @@
 Diagnostics:
-Error: Unexpected token at start of expression at /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/probes/diagnostics/04__probe_complex_missing_base_reject.c:1 (got '_Complex')
+Error: Unexpected token at start of expression at tests/final/probes/diagnostics/04__probe_complex_missing_base_reject.c:1 (got '_Complex')
 Error: invalid statement at line 1 (token=_Complex)
 Error: Failed to parse expression at line 1

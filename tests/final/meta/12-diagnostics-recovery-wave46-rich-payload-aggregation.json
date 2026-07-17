@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "diagnostics-recovery",
+  "tests": [
+    {
+      "id": "12__wave46_macro_trace_then_include_stack_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_collision_strict.c",
+      "inputs": [
+        "probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_collision_strict.c",
+        "cases/03__include_cycle_three_hop_reject.c"
+      ],
+      "expects": ["expect/12__diagjson__wave46_macro_trace_then_include_stack_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "link": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "multitu", "macro-trace", "include-stack", "deep-copy", "ordered-payload", "wave46"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "12__wave46_include_stack_then_macro_trace_strict",
+      "bucket": "diagnostics-recovery",
+      "input": "cases/03__include_cycle_three_hop_reject.c",
+      "inputs": [
+        "cases/03__include_cycle_three_hop_reject.c",
+        "probes/diagnostics/12__probe_wave39_diagjson_macro_trace_identity_collision_strict.c"
+      ],
+      "expects": ["expect/12__diagjson__wave46_include_stack_then_macro_trace_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "link": true,
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["diagnostics-recovery", "multitu", "macro-trace", "include-stack", "deep-copy", "ordered-payload", "reverse-order", "wave46"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

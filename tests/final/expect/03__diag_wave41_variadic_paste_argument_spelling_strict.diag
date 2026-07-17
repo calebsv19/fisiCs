@@ -1,0 +1,4 @@
+Diagnostics:
+Error at (4106:11): Undeclared identifier
+   Hint: missing_name
+   Spelling: virtual_wave41_variadic_paste.c:4106:11

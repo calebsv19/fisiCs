@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Hex literal requires at least one hex digit at tests/final/probes/diagnostics/03__probe_wave31_include_line_tokenpaste_diag.h:4:28 (got '0x')
+Error: Hex literal requires at least one hex digit at <macro paste>:1:1 (got '0x')
+<unknown>:0:0: error: macro expansion failed (possible recursion) for '<macro>'
+Error: preprocessing failed
+tests/final/probes/diagnostics/03__probe_wave31_include_line_tokenpaste_diag.c:0:0: error: macro expansion failed (possible recursion) for '<macro>'
+tests/final/probes/diagnostics/03__probe_wave31_include_line_tokenpaste_diag.c:0:0: error: macro expansion failed (possible recursion) for '<macro>'

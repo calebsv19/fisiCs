@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__wave85_no_prototype_float_initializer_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave85_no_prototype_float_initializer_strict.c",
+      "expects": ["expect/07__wave85_no_prototype_float_initializer.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "initializer", "old-style", "prototype", "default-argument-promotion", "float", "line-directive", "diagjson", "wave85", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave85_no_prototype_float_initializer_reverse_diagjson_strict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave85_no_prototype_float_initializer_reverse_strict.c",
+      "expects": ["expect/07__wave85_no_prototype_float_initializer_reverse.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "initializer", "old-style", "prototype", "default-argument-promotion", "float", "reverse-direction", "line-directive", "diagjson", "wave85", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__wave85_no_prototype_double_initializer_control_diagjson",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_diagjson_wave85_no_prototype_double_initializer_control.c",
+      "expects": ["expect/07__wave85_no_prototype_double_initializer_control.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "function-pointer", "initializer", "old-style", "prototype", "default-argument-promotion", "double", "line-directive", "diagjson", "wave85", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

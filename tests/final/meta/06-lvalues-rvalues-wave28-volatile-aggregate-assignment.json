@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "lvalues-rvalues",
+  "tests": [
+    {
+      "id": "06__runtime__wave28_volatile_aggregate_assignment_once_width_strict",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave28_volatile_aggregate_assignment_once_width_strict.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave28_volatile_aggregate_assignment_once_width_strict.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave28", "volatile", "aggregate-assignment", "single-evaluation", "copy-width", "strict-frontier"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "06__runtime__wave28_nonvolatile_aggregate_assignment_once_width_control",
+      "bucket": "lvalues-rvalues",
+      "input": "probes/runtime/06__probe_wave28_nonvolatile_aggregate_assignment_once_width_control.c",
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/06__runtime__wave28_nonvolatile_aggregate_assignment_once_width_control.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "standard": "c99",
+      "tags": ["lvalues-rvalues", "runtime", "wave28", "nonvolatile-control", "aggregate-assignment", "single-evaluation", "copy-width"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

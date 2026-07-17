@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__line_directive_wave67_include_block_extern_function_object_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_wave67_include_block_extern_function_object_diagjson_strict.c",
+      "expects": ["expect/10__line_directive_wave67_include_block_extern_function_object_diagjson_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "include", "block-extern", "function-object-conflict", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_wave67_block_extern_array_extent_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_wave67_block_extern_array_extent_diagjson_strict.c",
+      "expects": ["expect/10__line_directive_wave67_block_extern_array_extent_diagjson_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "block-extern", "array-bounds", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_wave67_include_block_extern_function_object_diagjson_current_empty",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_wave67_include_block_extern_function_object_diagjson_strict.c",
+      "expects": ["expect/10__line_directive_wave67_include_block_extern_function_object_diagjson_current_empty.diagjson"],
+      "tags": ["line-directive", "diagjson", "include", "block-extern", "function-object-conflict", "current-threshold"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_wave67_variadic_redecl_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_wave67_variadic_redecl_diagjson_strict.c",
+      "expects": ["expect/10__line_directive_wave67_variadic_redecl_diagjson_strict.diagjson"],
+      "tags": ["line-directive", "diagjson", "function", "variadic", "linkage", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__line_directive_wave67_multitu_include_extern_array_scalar_diagjson_strict",
+      "bucket": "scopes-linkage",
+      "input": "cases/10__line_directive_wave67_multitu_include_extern_array_scalar_diagjson_current_main.c",
+      "inputs": [
+        "cases/10__line_directive_wave67_multitu_include_extern_array_scalar_diagjson_current_main.c",
+        "cases/10__line_directive_wave67_multitu_include_extern_array_scalar_diagjson_current_lib.c"
+      ],
+      "args": ["-o", "tests/final/.wave67-multitu-array-scalar.out"],
+      "expects": ["expect/10__line_directive_wave67_multitu_include_extern_array_scalar_diagjson_strict.diagjson"],
+      "capture_frontend_diag": true,
+      "allow_nonzero_exit": true,
+      "tags": ["line-directive", "diagjson", "include", "multitu", "extern-array", "linkage", "strict", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "translation-phases",
+  "tests": [
+    {
+      "id": "01__runtime__wave16_nested_include_resumption",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave16_nested_include_resumption.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave16_nested_include_resumption.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "include", "nested-include", "source-resumption", "source-provenance", "wave16", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave16_splice_stringize_tokenpaste_current",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave16_splice_stringize_tokenpaste_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave16_splice_stringize_tokenpaste_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "token-paste", "stringize", "adjacent-string", "source-provenance", "current-threshold", "wave16", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "01__runtime__wave16_macro_line_filename",
+      "bucket": "translation-phases",
+      "input": "probes/runtime/01__probe_runtime_wave16_macro_line_filename.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/01__runtime__wave16_macro_line_filename.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["translation-phases", "runtime", "line-directive", "macro-filename", "adjacent-string", "__FILE__", "__LINE__", "source-provenance", "wave16", "probe-promotion"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

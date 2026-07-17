@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "scopes-linkage",
+  "tests": [
+    {
+      "id": "10__runtime__wave65_tentative_struct_block_extern_linkorder",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_main.c",
+        "probes/runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_liba.c",
+        "probes/runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_libb.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave65_tentative_struct_block_extern_linkorder.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "reference_args": ["-fcommon"],
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "tentative-definition",
+        "struct",
+        "block-scope",
+        "extern",
+        "shadowing",
+        "link-order",
+        "wave65"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave65_tentative_struct_block_extern_linkorder_permuted",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_main.c",
+        "probes/runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_libb.c",
+        "probes/runtime/10__probe_runtime_wave65_tentative_struct_block_extern_linkorder_liba.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave65_tentative_struct_block_extern_linkorder.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "reference_args": ["-fcommon"],
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "tentative-definition",
+        "struct",
+        "block-scope",
+        "extern",
+        "shadowing",
+        "link-order",
+        "permuted",
+        "wave65"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave65_nested_block_extern_function_linkage",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave65_nested_block_extern_function_linkage_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave65_nested_block_extern_function_linkage_main.c",
+        "probes/runtime/10__probe_runtime_wave65_nested_block_extern_function_linkage_lib.c",
+        "probes/runtime/10__probe_runtime_wave65_nested_block_extern_function_linkage_aux.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave65_nested_block_extern_function_linkage.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "function-declaration",
+        "block-scope",
+        "extern",
+        "shadowing",
+        "wave65"
+      ],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "10__runtime__wave65_internal_external_array_alias_linkorder",
+      "bucket": "scopes-linkage",
+      "input": "probes/runtime/10__probe_runtime_wave65_internal_external_array_alias_linkorder_main.c",
+      "inputs": [
+        "probes/runtime/10__probe_runtime_wave65_internal_external_array_alias_linkorder_main.c",
+        "probes/runtime/10__probe_runtime_wave65_internal_external_array_alias_linkorder_liba.c",
+        "probes/runtime/10__probe_runtime_wave65_internal_external_array_alias_linkorder_libb.c"
+      ],
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/10__runtime__wave65_internal_external_array_alias_linkorder.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": [
+        "scopes-linkage",
+        "runtime",
+        "multitu",
+        "internal-linkage",
+        "external-linkage",
+        "static",
+        "array",
+        "shadowing",
+        "link-order",
+        "wave65"
+      ],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

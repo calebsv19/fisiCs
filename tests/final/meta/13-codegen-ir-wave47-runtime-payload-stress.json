@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave47_switch_loop_payload_copy",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave47_switch_loop_payload_copy_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave47_switch_loop_payload_copy.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "switch", "loop", "aggregate-copy", "union", "runtime", "wave47"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave47_compound_literal_branch_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave47_compound_literal_branch_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave47_compound_literal_branch_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "compound-literal", "branch", "aggregate-copy", "runtime", "wave47"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave47_nested_return_slot_phi",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave47_nested_return_slot_phi_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave47_nested_return_slot_phi.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "return-slot", "nested-aggregate", "phi-like", "runtime", "wave47"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave47_pointer_array_compound_phi",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave47_pointer_array_compound_phi_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave47_pointer_array_compound_phi.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "pointer-array", "compound-assignment", "phi-like", "runtime", "wave47"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

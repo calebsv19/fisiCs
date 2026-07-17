@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave90_casted_static_subobject_address_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave90_casted_static_subobject_address_strict.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave90_casted_static_subobject_address.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["initializer", "file-scope", "static", "address-constant", "member", "subscript", "cast-chain", "conditional", "char-byte-offset", "strict", "runtime", "differential", "wave90", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave90_direct_static_object_address_control",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_wave90_direct_static_object_address_control.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__wave90_casted_static_subobject_address.stdout",
+      "differential": true,
+      "differential_compiler": "clang",
+      "reference_args": ["-pedantic-errors"],
+      "standard": "c99",
+      "tags": ["initializer", "file-scope", "static", "address-constant", "direct-object", "current-threshold", "runtime", "differential", "wave90", "probe-worker"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+Diagnostics:
+Error: Expected ',' or '}' in struct initializer at virtual_wave39_aggregate_initializer_recovery.c:13446 (got '2')
+Error: Unexpected token at start of expression at virtual_wave39_aggregate_initializer_recovery.c:13450 (got '}')
+Error: invalid statement at line 13450 (token=})
+Error: expected ';' after expression at line 13446
+Error: invalid statement inside block at line 13446
+Error: Failed to parse expression at line 13450
+Error at (13447:17): Undeclared identifier
+   Hint: wave39_initializer_missing
+   Spelling: virtual_wave39_aggregate_initializer_recovery.c:13447:17
+Error at (13447:0): Initializer for static variable 'later' is not a constant expression
+Error at (13448:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave39_aggregate_initializer_recovery.c:13448:16
+Error at (13448:0): Initializer for static variable 'ptr' is not a constant expression
+Error at (13449:12): Undeclared identifier
+   Hint: pair
+   Spelling: virtual_wave39_aggregate_initializer_recovery.c:13449:12
+Error at (13445:5): Control reaches end of non-void function 'main'
+   Spelling: virtual_wave39_aggregate_initializer_recovery.c:13445:5

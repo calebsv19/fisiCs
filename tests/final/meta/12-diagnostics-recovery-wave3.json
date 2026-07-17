@@ -5,6 +5,7 @@
   "tests": [
     {
       "id": "12__diag_line_anchor__undeclared_calls",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_line_anchor__undeclared_calls.c",
       "expects": [
@@ -21,6 +22,7 @@
     },
     {
       "id": "12__diag_order__nonvoid_return_then_unreachable",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_order__nonvoid_return_then_unreachable.c",
       "expects": [
@@ -53,6 +55,7 @@
     },
     {
       "id": "12__diag_line_anchor__ptr_then_cast",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_line_anchor__ptr_then_cast.c",
       "expects": [
@@ -70,6 +73,7 @@
     },
     {
       "id": "12__diag_line_anchor__macro_two_callsites",
+      "expect_compile_exit": 1,
       "bucket": "diagnostics-recovery",
       "input": "cases/12__diag_line_anchor__macro_two_callsites.c",
       "expects": [

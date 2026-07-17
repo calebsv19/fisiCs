@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave30_macro_line_stringize_paste",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave30_macro_line_stringize_paste.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave30_macro_line_stringize_paste.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "token-paste", "stringize", "line-directive", "runtime", "wave30"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

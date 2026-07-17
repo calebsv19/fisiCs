@@ -1,0 +1,10 @@
+Diagnostics:
+Error: Expected type name at virtual_wave37_include_param_hole.h:13060 (got '*')
+Error: Invalid function parameter list at virtual_wave37_include_param_hole.h:13060 (got '*')
+Error: Invalid function parameter list at virtual_wave37_include_param_hole.h:13060 (got '*')
+Error: invalid declarator at virtual_wave37_include_param_hole.h:13060 (got '*')
+Error at (13081:17): Undeclared identifier
+   Hint: wave37_include_param_missing
+   Spelling: virtual_wave37_include_return.c:13081:17
+Error at (13082:16): Incompatible initializer type for 'ptr'
+   Spelling: virtual_wave37_include_return.c:13082:16

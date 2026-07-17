@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "bucket": "codegen-ir",
+  "tests": [
+    {
+      "id": "13__runtime_wave43_branch_compound_literal_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave43_branch_compound_literal_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave43_branch_compound_literal_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "compound-literal", "branch", "phi", "union", "runtime", "wave43"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave43_switch_loop_union_array_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave43_switch_loop_union_array_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave43_switch_loop_union_array_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "switch", "loop", "nested-union", "array", "runtime", "wave43"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave43_phi_copy_returned_payload",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave43_phi_copy_returned_payload_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave43_phi_copy_returned_payload.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "return", "copy", "phi", "union", "runtime", "wave43"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "13__runtime_wave43_returned_aggregate_checksum",
+      "bucket": "codegen-ir",
+      "input": "probes/runtime/13__probe_wave43_returned_aggregate_checksum_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/13__runtime_wave43_returned_aggregate_checksum.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["codegen-ir", "aggregate", "return", "checksum", "switch", "union", "runtime", "wave43"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

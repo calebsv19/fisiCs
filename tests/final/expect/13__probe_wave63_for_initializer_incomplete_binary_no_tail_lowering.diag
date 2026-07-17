@@ -1,0 +1,3 @@
+Diagnostics:
+Error at (6311:10): Operator '+' requires arithmetic operands
+   Spelling: virtual_wave63_for_initializer_incomplete_binary.c:6311:10

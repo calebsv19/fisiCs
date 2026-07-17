@@ -1,0 +1,3 @@
+Diagnostics:
+virtual_pp_error_filename_case.c:777:1: error: bucket03 filename threshold error
+Error at (777:1): bucket03 filename threshold error

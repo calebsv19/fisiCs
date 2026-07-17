@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave33_token_paste_stringize_provenance",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave33_token_paste_stringize_provenance.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave33_token_paste_stringize_provenance.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "token-paste", "stringize", "line-directive", "runtime", "wave33"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave33_nested_macro_callsite_remap",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave33_nested_macro_callsite_remap.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave33_nested_macro_callsite_remap.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "nested-macro", "line-directive", "runtime", "wave33"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave33_include_reentry_macro_state",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave33_include_reentry_macro_state.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave33_include_reentry_macro_state.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include-guard", "macro", "token-paste", "stringize", "line-directive", "runtime", "wave33"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave33_nested_include_line_remap",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave33_nested_include_line_remap.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave33_nested_include_line_remap.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "include", "nested-include", "token-paste", "stringize", "line-directive", "runtime", "wave33"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

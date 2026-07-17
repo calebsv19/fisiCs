@@ -112,6 +112,8 @@
       "expects": [
         "expect/11__line_directive_multitu_nonvoid_missing_return_diagjson_strict.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -137,6 +139,8 @@
       "expects": [
         "expect/11__line_directive_multitu_include_nonvoid_missing_return_diagjson_strict.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -163,6 +167,8 @@
       "expects": [
         "expect/11__line_directive_multitu_void_return_value_diagjson_strict.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [
@@ -188,6 +194,8 @@
       "expects": [
         "expect/11__line_directive_multitu_include_void_return_value_diagjson_strict.diagjson"
       ],
+      "link": true,
+      "expect_compile_exit": 1,
       "capture_frontend_diag": true,
       "standard": "c99",
       "tags": [

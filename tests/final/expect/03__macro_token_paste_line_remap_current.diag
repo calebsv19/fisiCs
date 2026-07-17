@@ -1,0 +1,2 @@
+Diagnostics:
+Error: Hex literal requires at least one hex digit at virtual_macro_token_paste.c:641:50 (got '0x')

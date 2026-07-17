@@ -1,5 +1,5 @@
 Diagnostics:
 Error at (4:5): Left operand of '=' must be a modifiable lvalue
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__array_assignment_reject.c:4:5
+   Spelling: tests/final/cases/06__array_assignment_reject.c:4:5
 Error at (4:5): Incompatible assignment operands
-   Spelling: /Users/calebsv/Desktop/CodeWork/fisiCs/tests/final/cases/06__array_assignment_reject.c:4:5
+   Spelling: tests/final/cases/06__array_assignment_reject.c:4:5

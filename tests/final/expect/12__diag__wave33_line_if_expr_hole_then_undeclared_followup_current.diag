@@ -1,0 +1,7 @@
+Diagnostics:
+Error: Unexpected token at start of expression at virtual_wave33_if_expr_hole_followup.c:12372 (got ')')
+Error at (12372:9): Operator '>' requires comparable operands
+   Spelling: virtual_wave33_if_expr_hole_followup.c:12372:9
+Error at (12375:12): Undeclared identifier
+   Hint: wave33_if_followup_missing
+   Spelling: virtual_wave33_if_expr_hole_followup.c:12375:12

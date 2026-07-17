@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "declarations",
+  "tests": [
+    {
+      "id": "04__runtime__wave50_anonymous_enum_typedef_prototype",
+      "bucket": "declarations",
+      "input": "probes/runtime/04__probe_wave50_anonymous_enum_typedef_prototype_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "anonymous-enum", "prototype-definition", "type-identity", "real-project", "line-drawing", "runtime", "wave50"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "04__diag__wave50_distinct_anonymous_enum_typedef_conflict",
+      "bucket": "declarations",
+      "input": "probes/diagnostics/04__probe_wave50_distinct_anonymous_enum_typedef_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["declarations", "typedef", "anonymous-enum", "prototype", "type-identity", "conflicting-types", "negative", "wave50"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

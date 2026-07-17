@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "types-conversions",
+  "tests": [
+    {
+      "id": "07__runtime__wave90_enum_typedef_member_pointer",
+      "bucket": "types-conversions",
+      "input": "probes/runtime/07__probe_wave90_enum_typedef_member_pointer_runtime.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "differential": true,
+      "standard": "c99",
+      "tags": ["types-conversions", "pointer", "typedef", "anonymous-enum", "member-address", "function-argument", "real-project", "line-drawing", "runtime", "wave90"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "07__diag__wave90_distinct_enum_typedef_member_pointer_conflict",
+      "bucket": "types-conversions",
+      "input": "probes/diagnostics/07__probe_wave90_distinct_enum_typedef_member_pointer_conflict.c",
+      "expects": [],
+      "expect_compile_exit": 1,
+      "standard": "c99",
+      "tags": ["types-conversions", "pointer", "typedef", "anonymous-enum", "member-address", "function-argument", "incompatible-types", "negative", "wave90"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

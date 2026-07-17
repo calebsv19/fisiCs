@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "preprocessor",
+  "tests": [
+    {
+      "id": "03__runtime_wave32_include_guard_reentry_line",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave32_include_guard_reentry_line.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave32_include_guard_reentry_line.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "include-guard", "token-paste", "stringize", "line-directive", "runtime", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__runtime_wave32_inactive_conditional_macro_noise",
+      "bucket": "preprocessor",
+      "input": "probes/runtime/03__probe_runtime_wave32_inactive_conditional_macro_noise.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/03__runtime_wave32_inactive_conditional_macro_noise.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["preprocessor", "macro", "inactive-conditional", "token-paste", "stringize", "line-directive", "runtime", "wave32"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "03__wave32_include_guard_macro_arity_strict",
+      "bucket": "preprocessor",
+      "input": "probes/diagnostics/03__probe_wave32_include_guard_macro_arity_diag.c",
+      "expects": [
+        "expect/03__wave32_include_guard_macro_arity_strict.diag",
+        "expect/03__wave32_include_guard_macro_arity_strict.diagjson"
+      ],
+      "tags": ["preprocessor", "macro-provenance", "include-guard", "inactive-conditional", "stringize", "line-directive", "arity-diagnostic", "diagjson", "wave32", "probe-current"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

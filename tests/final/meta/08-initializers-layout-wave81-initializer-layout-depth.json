@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__runtime_wave81_file_scope_compound_literal_pointer",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave81_file_scope_compound_literal_pointer.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave81_file_scope_compound_literal_pointer.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "file-scope", "compound-literal", "pointer", "designator", "union-overlay", "wave81"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave81_file_scope_compound_literal_pointer_current",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave81_file_scope_compound_literal_pointer_current.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave81_file_scope_compound_literal_pointer_current.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "file-scope", "static-object", "pointer-companion", "designator", "current-threshold", "wave81"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave81_union_byte_zero_fill_matrix",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave81_union_byte_zero_fill_matrix.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave81_union_byte_zero_fill_matrix.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "union-overlay", "raw-byte", "zero-fill", "designator", "wave81"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave81_bitfield_array_member_readback",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave81_bitfield_array_member_readback.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave81_bitfield_array_member_readback.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "bitfield", "array", "zero-fill", "member-readback", "wave81"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__runtime_wave81_nested_designated_brace_elision",
+      "bucket": "initializers-layout",
+      "input": "probes/runtime/08__probe_runtime_wave81_nested_designated_brace_elision.c",
+      "expects": [],
+      "run": true,
+      "expect_exit": 0,
+      "expected_stdout": "expect/08__runtime_wave81_nested_designated_brace_elision.stdout",
+      "differential": true,
+      "differential_compiler": "cc",
+      "standard": "c99",
+      "tags": ["initializer", "runtime", "probe-promotion", "nested-designator", "brace-elision", "zero-fill", "wave81"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

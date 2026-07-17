@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "suite": "final",
+  "bucket": "initializers-layout",
+  "tests": [
+    {
+      "id": "08__wave86_no_prototype_float_array_initializer_diagjson_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave86_no_prototype_float_array_initializer_strict.c",
+      "expects": ["expect/08__wave86_no_prototype_float_array_initializer.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "old-style", "prototype", "default-argument-promotion", "float", "line-directive", "diagjson", "wave86", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave86_no_prototype_float_array_initializer_reverse_diagjson_strict",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave86_no_prototype_float_array_initializer_reverse_strict.c",
+      "expects": ["expect/08__wave86_no_prototype_float_array_initializer_reverse.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "old-style", "prototype", "default-argument-promotion", "float", "reverse-direction", "line-directive", "diagjson", "wave86", "strict"],
+      "requires": [],
+      "status": "ok"
+    },
+    {
+      "id": "08__wave86_no_prototype_double_array_initializer_compatible_diagjson",
+      "bucket": "initializers-layout",
+      "input": "probes/diagnostics/08__probe_diagjson_wave86_no_prototype_double_array_initializer_compatible.c",
+      "expects": ["expect/08__wave86_no_prototype_double_array_initializer_compatible.diagjson"],
+      "capture_frontend_diag": true,
+      "standard": "c99",
+      "tags": ["initializers-layout", "array", "function-pointer", "old-style", "prototype", "default-argument-promotion", "double", "bidirectional", "line-directive", "diagjson", "wave86", "control"],
+      "requires": [],
+      "status": "ok"
+    }
+  ]
+}

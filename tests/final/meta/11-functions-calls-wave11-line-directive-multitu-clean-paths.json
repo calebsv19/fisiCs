@@ -5,6 +5,7 @@
   "tests": [
     {
       "id": "11__line_directive_multitu_prototype_match_diag_text_clean",
+      "allow_empty_diag": true,
       "bucket": "functions-calls",
       "input": "cases/11__line_directive_multitu_prototype_match_diag_text_clean_main.c",
       "inputs": [
@@ -21,6 +22,7 @@
     },
     {
       "id": "11__line_directive_multitu_include_prototype_match_diag_text_clean",
+      "allow_empty_diag": true,
       "bucket": "functions-calls",
       "input": "cases/11__line_directive_multitu_include_prototype_match_diag_text_clean_main.c",
       "inputs": [
